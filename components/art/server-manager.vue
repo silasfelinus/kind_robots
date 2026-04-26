@@ -1,138 +1,194 @@
 <!-- /components/server/server-manager.vue -->
 <template>
-  <section class="server-manager">
-    <header class="sm-header">
-      <div class="sm-header-brand">
-        <Icon name="kind-icon:server" class="sm-logo" />
+  <section
+    class="relative flex min-h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200 text-base-content"
+  >
+    <!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+    <header
+      class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-5 py-4"
+    >
+      <div class="flex min-w-0 items-center gap-3">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10"
+        >
+          <Icon name="kind-icon:server" class="h-5 w-5 text-primary" />
+        </div>
         <div>
-          <h1 class="sm-title">Server Manager</h1>
-          <p class="sm-subtitle">
+          <h1 class="text-xl font-black tracking-tight">Server Manager</h1>
+          <p class="text-xs opacity-60">
             Choose your default engines for text and image processing.
           </p>
         </div>
       </div>
 
-      <div class="sm-header-actions">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Search filter -->
+        <label
+          class="input input-bordered input-sm flex items-center gap-2 rounded-xl pr-2"
+        >
+          <Icon name="kind-icon:search" class="h-3.5 w-3.5 opacity-50" />
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Filter servers…"
+            class="w-32 bg-transparent text-xs outline-none placeholder:opacity-50"
+          />
+          <button
+            v-if="searchQuery"
+            type="button"
+            class="opacity-40 hover:opacity-80"
+            @click="searchQuery = ''"
+          >
+            <Icon name="kind-icon:x" class="h-3 w-3" />
+          </button>
+        </label>
+
         <button
           type="button"
-          class="sm-btn sm-btn-secondary"
+          class="btn btn-ghost btn-sm rounded-xl gap-1.5"
           :disabled="serverStore.loading"
           @click="refreshServers"
         >
-          <Icon name="kind-icon:refresh" class="sm-btn-icon" />
+          <Icon
+            v-if="!serverStore.loading"
+            name="kind-icon:refresh"
+            class="h-3.5 w-3.5"
+          />
+          <span v-else class="loading loading-spinner loading-xs" />
           Refresh
         </button>
+
         <button
           type="button"
-          class="sm-btn sm-btn-primary"
+          class="btn btn-primary btn-sm rounded-xl gap-1.5"
           @click="startNewServer(activeCreateType)"
         >
-          <Icon name="kind-icon:plus" class="sm-btn-icon" />
+          <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
           Add Server
         </button>
       </div>
     </header>
 
-    <main class="sm-body">
-      <!-- ── TEXT COLUMN ── -->
-      <section class="sm-column sm-column-text">
-        <div class="sm-column-header">
-          <div class="sm-column-heading">
-            <Icon name="kind-icon:chat" class="sm-column-icon" />
+    <!-- ══ BODY ════════════════════════════════════════════════════════════ -->
+    <main
+      class="body-grid min-h-0 flex-1 gap-4 overflow-hidden p-4"
+      :class="{ 'has-editor': showEditor }"
+    >
+      <!-- ── TEXT COLUMN ─────────────────────────────────────────────────── -->
+      <section
+        class="col-section flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 ring-1 ring-info/10"
+      >
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
+        >
+          <div class="flex min-w-0 items-center gap-2.5">
+            <Icon name="kind-icon:chat" class="h-5 w-5 shrink-0 text-info" />
             <div>
-              <h2 class="sm-column-title">Text Servers</h2>
-              <p class="sm-column-subtitle">
-                Chat, bots, prompts, language models
+              <h2 class="text-sm font-black">Text Servers</h2>
+              <p class="text-[10px] opacity-50">
+                Chat · Bots · Language models
               </p>
             </div>
           </div>
-          <div class="sm-active-pill">
-            <span class="sm-active-label">Active</span>
-            <span class="sm-active-value">{{
-              serverStore.activeTextServer?.title || 'Kind Robots Default'
-            }}</span>
+          <div
+            class="flex flex-col items-end gap-0.5 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
+          >
+            <span
+              class="text-[9px] font-black uppercase tracking-widest opacity-40"
+              >Active</span
+            >
+            <span class="max-w-48 truncate text-[11px] font-bold">
+              {{ serverStore.activeTextServer?.title || 'Kind Robots Default' }}
+            </span>
           </div>
         </div>
 
-        <div class="sm-column-scroll">
-          <!-- Kind Default -->
-          <button
-            type="button"
-            class="sm-default-card"
-            :class="{ active: !serverStore.activeTextServerId }"
-            @click="selectKindDefault('text')"
+        <div
+          class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 scrollbar-thin"
+        >
+          <kind-default-button
+            :active="!serverStore.activeTextServerId"
+            label="Kind Robots Default"
+            description="Use whichever text server Kind Robots currently recommends."
+            @select="selectKindDefault('text')"
+          />
+
+          <template v-if="filteredPublicTextServers.length">
+            <server-section-header
+              label="Official & Public"
+              icon="kind-icon:verified"
+              :count="filteredPublicTextServers.length"
+            />
+            <server-card
+              v-for="server in filteredPublicTextServers"
+              :key="`pub-t-${server.id}`"
+              :server="server"
+              :active="serverStore.activeTextServer?.id === server.id"
+              :health-result="serverStore.healthResults[server.id]"
+              @select="selectTextServer(server.id)"
+              @edit="editServer(server.id)"
+              @test="testServer(server.id)"
+            />
+          </template>
+          <p
+            v-else-if="searchQuery && publicTextServers.length"
+            class="rounded-xl border border-dashed border-base-300 p-3 text-center text-xs opacity-50"
           >
-            <div class="sm-default-icon-wrap">
-              <Icon name="kind-icon:robot" class="sm-default-icon" />
-            </div>
-            <div class="sm-default-copy">
-              <div class="sm-default-title-row">
-                <h3 class="sm-default-title">Kind Robots Default</h3>
-                <span
-                  v-if="!serverStore.activeTextServerId"
-                  class="sm-badge sm-badge-primary"
-                  >Selected</span
-                >
-              </div>
-              <p class="sm-default-description">
-                Use whichever text server Kind Robots currently recommends.
-              </p>
-            </div>
-          </button>
+            No official text servers match "{{ searchQuery }}"
+          </p>
 
-          <!-- Official + Public catalog -->
-          <div v-if="publicTextServers.length" class="sm-section">
-            <div class="sm-section-label">
-              <Icon name="kind-icon:verified" class="sm-section-icon" />
-              Official &amp; Public
-            </div>
-            <div class="sm-card-list">
-              <server-catalog-card
-                v-for="server in publicTextServers"
-                :key="`pub-text-${server.id}`"
-                :server="server"
-                :active="serverStore.activeTextServer?.id === server.id"
-                :health-result="serverStore.healthResults[server.id]"
-                @select="selectTextServer(server.id)"
-                @edit="editServer(server.id)"
-                @test="testServer(server.id)"
-              />
-            </div>
-          </div>
+          <server-section-header
+            label="My Servers"
+            icon="kind-icon:user"
+            :count="myTextServers.length"
+          >
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs ml-auto gap-1 rounded-lg text-primary"
+              @click="startNewServer('TEXT')"
+            >
+              <Icon name="kind-icon:plus" class="h-3 w-3" /> New
+            </button>
+          </server-section-header>
 
-          <!-- My text servers -->
-          <div class="sm-section">
-            <div class="sm-section-label">
-              <Icon name="kind-icon:user" class="sm-section-icon" />
-              My Servers
+          <template v-if="filteredMyTextServers.length">
+            <server-card
+              v-for="server in filteredMyTextServers"
+              :key="`my-t-${server.id}`"
+              :server="server"
+              :active="serverStore.activeTextServer?.id === server.id"
+              :health-result="serverStore.healthResults[server.id]"
+              owned
+              @select="selectTextServer(server.id)"
+              @edit="editServer(server.id)"
+              @test="testServer(server.id)"
+            />
+          </template>
+          <div
+            v-else
+            class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-base-300 p-4 text-center"
+          >
+            <p class="text-xs opacity-50">
+              {{
+                searchQuery
+                  ? `No personal servers match "${searchQuery}"`
+                  : 'No personal text servers yet.'
+              }}
+            </p>
+            <div
+              v-if="!searchQuery"
+              class="flex flex-wrap justify-center gap-1.5"
+            >
               <button
                 type="button"
-                class="sm-add-inline"
+                class="btn btn-outline btn-xs rounded-lg"
                 @click="startNewServer('TEXT')"
               >
-                <Icon name="kind-icon:plus" class="sm-add-icon" />
-                New
+                Custom
               </button>
-            </div>
-
-            <div v-if="myTextServers.length" class="sm-card-list">
-              <server-catalog-card
-                v-for="server in myTextServers"
-                :key="`my-text-${server.id}`"
-                :server="server"
-                :active="serverStore.activeTextServer?.id === server.id"
-                :health-result="serverStore.healthResults[server.id]"
-                owned
-                @select="selectTextServer(server.id)"
-                @edit="editServer(server.id)"
-                @test="testServer(server.id)"
-              />
-            </div>
-            <div v-else class="sm-empty-mine">
-              <p>No personal text servers yet.</p>
               <button
                 type="button"
-                class="sm-btn sm-btn-secondary sm-btn-sm"
+                class="btn btn-outline btn-xs rounded-lg"
                 @click="startNewServer('OPENAI_COMPATIBLE')"
               >
                 OpenAI Compatible
@@ -142,141 +198,166 @@
         </div>
       </section>
 
-      <!-- ── IMAGE COLUMN ── -->
-      <section class="sm-column sm-column-image">
-        <div class="sm-column-header">
-          <div class="sm-column-heading">
-            <Icon name="kind-icon:art" class="sm-column-icon" />
+      <!-- ── IMAGE COLUMN ────────────────────────────────────────────────── -->
+      <section
+        class="col-section flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 ring-1 ring-accent/10"
+      >
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
+        >
+          <div class="flex min-w-0 items-center gap-2.5">
+            <Icon name="kind-icon:art" class="h-5 w-5 shrink-0 text-accent" />
             <div>
-              <h2 class="sm-column-title">Image Servers</h2>
-              <p class="sm-column-subtitle">
-                Art, ComfyUI, Stable Diffusion, image pipelines
+              <h2 class="text-sm font-black">Image Servers</h2>
+              <p class="text-[10px] opacity-50">
+                Art · ComfyUI · Stable Diffusion
               </p>
             </div>
           </div>
-          <div class="sm-active-pill">
-            <span class="sm-active-label">Active</span>
-            <span class="sm-active-value">{{
-              serverStore.activeArtServer?.title || 'Kind Robots Default'
-            }}</span>
+          <div
+            class="flex flex-col items-end gap-0.5 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
+          >
+            <span
+              class="text-[9px] font-black uppercase tracking-widest opacity-40"
+              >Active</span
+            >
+            <span class="max-w-48 truncate text-[11px] font-bold">
+              {{ serverStore.activeArtServer?.title || 'Kind Robots Default' }}
+            </span>
           </div>
         </div>
 
-        <div class="sm-column-scroll">
-          <!-- Kind Default -->
-          <button
-            type="button"
-            class="sm-default-card"
-            :class="{ active: !serverStore.activeArtServerId }"
-            @click="selectKindDefault('image')"
+        <div
+          class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 scrollbar-thin"
+        >
+          <kind-default-button
+            :active="!serverStore.activeArtServerId"
+            label="Kind Robots Default"
+            description="Use whichever image server Kind Robots currently recommends."
+            @select="selectKindDefault('image')"
+          />
+
+          <template v-if="filteredPublicImageServers.length">
+            <server-section-header
+              label="Official & Public"
+              icon="kind-icon:verified"
+              :count="filteredPublicImageServers.length"
+            />
+            <server-card
+              v-for="server in filteredPublicImageServers"
+              :key="`pub-i-${server.id}`"
+              :server="server"
+              :active="serverStore.activeArtServer?.id === server.id"
+              :health-result="serverStore.healthResults[server.id]"
+              @select="selectImageServer(server.id)"
+              @edit="editServer(server.id)"
+              @test="testServer(server.id)"
+            />
+          </template>
+          <p
+            v-else-if="searchQuery && publicImageServers.length"
+            class="rounded-xl border border-dashed border-base-300 p-3 text-center text-xs opacity-50"
           >
-            <div class="sm-default-icon-wrap">
-              <Icon name="kind-icon:robot" class="sm-default-icon" />
-            </div>
-            <div class="sm-default-copy">
-              <div class="sm-default-title-row">
-                <h3 class="sm-default-title">Kind Robots Default</h3>
-                <span
-                  v-if="!serverStore.activeArtServerId"
-                  class="sm-badge sm-badge-primary"
-                  >Selected</span
-                >
-              </div>
-              <p class="sm-default-description">
-                Use whichever image server Kind Robots currently recommends.
-              </p>
-            </div>
-          </button>
+            No official image servers match "{{ searchQuery }}"
+          </p>
 
-          <!-- Official + Public catalog -->
-          <div v-if="publicImageServers.length" class="sm-section">
-            <div class="sm-section-label">
-              <Icon name="kind-icon:verified" class="sm-section-icon" />
-              Official &amp; Public
-            </div>
-            <div class="sm-card-list">
-              <server-catalog-card
-                v-for="server in publicImageServers"
-                :key="`pub-img-${server.id}`"
-                :server="server"
-                :active="serverStore.activeArtServer?.id === server.id"
-                :health-result="serverStore.healthResults[server.id]"
-                @select="selectImageServer(server.id)"
-                @edit="editServer(server.id)"
-                @test="testServer(server.id)"
-              />
-            </div>
-          </div>
+          <server-section-header
+            label="My Servers"
+            icon="kind-icon:user"
+            :count="myImageServers.length"
+          >
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs ml-auto gap-1 rounded-lg text-primary"
+              @click="startNewServer('ART')"
+            >
+              <Icon name="kind-icon:plus" class="h-3 w-3" /> New
+            </button>
+          </server-section-header>
 
-          <!-- My image servers -->
-          <div class="sm-section">
-            <div class="sm-section-label">
-              <Icon name="kind-icon:user" class="sm-section-icon" />
-              My Servers
+          <template v-if="filteredMyImageServers.length">
+            <server-card
+              v-for="server in filteredMyImageServers"
+              :key="`my-i-${server.id}`"
+              :server="server"
+              :active="serverStore.activeArtServer?.id === server.id"
+              :health-result="serverStore.healthResults[server.id]"
+              owned
+              @select="selectImageServer(server.id)"
+              @edit="editServer(server.id)"
+              @test="testServer(server.id)"
+            />
+          </template>
+          <div
+            v-else
+            class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-base-300 p-4 text-center"
+          >
+            <p class="text-xs opacity-50">
+              {{
+                searchQuery
+                  ? `No personal servers match "${searchQuery}"`
+                  : 'No personal image servers yet.'
+              }}
+            </p>
+            <div
+              v-if="!searchQuery"
+              class="flex flex-wrap justify-center gap-1.5"
+            >
               <button
                 type="button"
-                class="sm-add-inline"
+                class="btn btn-outline btn-xs rounded-lg"
+                @click="startNewServer('COMFY')"
+              >
+                ComfyUI
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs rounded-lg"
+                @click="startNewServer('A1111')"
+              >
+                A1111
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs rounded-lg"
                 @click="startNewServer('ART')"
               >
-                <Icon name="kind-icon:plus" class="sm-add-icon" />
-                New
+                Custom
               </button>
-            </div>
-
-            <div v-if="myImageServers.length" class="sm-card-list">
-              <server-catalog-card
-                v-for="server in myImageServers"
-                :key="`my-img-${server.id}`"
-                :server="server"
-                :active="serverStore.activeArtServer?.id === server.id"
-                :health-result="serverStore.healthResults[server.id]"
-                owned
-                @select="selectImageServer(server.id)"
-                @edit="editServer(server.id)"
-                @test="testServer(server.id)"
-              />
-            </div>
-            <div v-else class="sm-empty-mine">
-              <p>No personal image servers yet.</p>
-              <div class="sm-empty-mine-actions">
-                <button
-                  type="button"
-                  class="sm-btn sm-btn-secondary sm-btn-sm"
-                  @click="startNewServer('COMFY')"
-                >
-                  ComfyUI
-                </button>
-                <button
-                  type="button"
-                  class="sm-btn sm-btn-secondary sm-btn-sm"
-                  @click="startNewServer('A1111')"
-                >
-                  A1111
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ── EDITOR PANEL ── -->
-      <transition name="sm-slide">
-        <aside v-if="showEditor" class="sm-editor">
-          <!-- Clone notice banner -->
-          <div v-if="isCloning" class="sm-clone-notice">
-            <Icon name="kind-icon:copy" class="sm-clone-icon" />
+      <!-- ── EDITOR PANEL ────────────────────────────────────────────────── -->
+      <transition name="editor-slide">
+        <aside
+          v-if="showEditor"
+          class="col-editor flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <!-- Clone notice -->
+          <div
+            v-if="isCloning"
+            class="flex shrink-0 items-start gap-3 border-b border-warning/30 bg-warning/10 px-4 py-3"
+          >
+            <Icon
+              name="kind-icon:copy"
+              class="mt-0.5 h-4 w-4 shrink-0 text-warning"
+            />
             <div>
-              <strong>Creating your copy</strong>
-              <p>
-                Changes here create a private version you control. The original
-                is unchanged.
+              <p class="text-xs font-black">Creating a personal copy</p>
+              <p class="mt-0.5 text-[11px] opacity-70">
+                The original is unchanged. Only you can see this version.
               </p>
             </div>
           </div>
 
-          <div class="sm-editor-header">
+          <!-- Editor header -->
+          <div
+            class="flex shrink-0 items-start justify-between gap-4 border-b border-base-300 px-4 py-3"
+          >
             <div>
-              <h2 class="sm-editor-title">
+              <h2 class="text-sm font-black">
                 {{
                   isCloning
                     ? 'Customize Server'
@@ -285,71 +366,109 @@
                       : 'Configure Server'
                 }}
               </h2>
-              <p class="sm-editor-subtitle">{{ editorSubtitle }}</p>
+              <p class="mt-0.5 text-[11px] opacity-55">{{ editorSubtitle }}</p>
             </div>
-            <button type="button" class="sm-icon-btn" @click="closeEditor">
-              <Icon name="kind-icon:x" class="sm-icon" />
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm btn-circle shrink-0"
+              title="Close (Esc)"
+              @click="closeEditor"
+            >
+              <Icon name="kind-icon:x" class="h-4 w-4" />
             </button>
           </div>
 
-          <form class="sm-form" @submit.prevent="saveServer">
-            <!-- Quick-edit: URL + Key at the top for fast configuration -->
-            <div class="sm-quick-edit">
-              <h3 class="sm-quick-label">Quick Setup</h3>
+          <form
+            class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 scrollbar-thin"
+            @submit.prevent="saveServer"
+          >
+            <!-- Quick Setup -->
+            <fieldset
+              class="flex flex-col gap-3 rounded-xl border border-base-300 bg-base-200 p-4"
+            >
+              <legend
+                class="px-1 text-[10px] font-black uppercase tracking-widest opacity-45"
+              >
+                Quick Setup
+              </legend>
 
-              <label class="sm-field">
-                <span>Base URL</span>
-                <input
-                  v-model="serverStore.serverForm.baseUrl"
-                  class="sm-input sm-input-mono"
-                  placeholder="http://localhost:7860"
-                />
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-bold opacity-70">Base URL</span>
+                <div class="flex gap-1.5">
+                  <input
+                    v-model="serverStore.serverForm.baseUrl"
+                    class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
+                    placeholder="http://localhost:7860"
+                  />
+                  <button
+                    v-if="serverStore.serverForm.baseUrl"
+                    type="button"
+                    class="btn btn-ghost btn-sm btn-square rounded-xl"
+                    title="Copy URL"
+                    @click="copyToClipboard(serverStore.serverForm.baseUrl)"
+                  >
+                    <Icon
+                      :name="copiedUrl ? 'kind-icon:check' : 'kind-icon:copy'"
+                      class="h-3.5 w-3.5"
+                      :class="copiedUrl ? 'text-success' : ''"
+                    />
+                  </button>
+                </div>
               </label>
 
-              <label class="sm-field">
-                <span>Endpoint Path</span>
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-bold opacity-70"
+                  >Endpoint Path</span
+                >
                 <input
                   v-model="serverStore.serverForm.endpointPath"
-                  class="sm-input sm-input-mono"
+                  class="input input-bordered input-sm rounded-xl font-mono text-xs"
                   placeholder="/v1/chat/completions"
                 />
               </label>
 
-              <!-- Inline API key row -->
-              <div class="sm-key-row">
-                <label class="sm-field sm-field-grow">
-                  <span>API Key</span>
+              <!-- API Key -->
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold opacity-70">API Key</span>
+                  <span
+                    class="badge badge-xs"
+                    :class="
+                      serverHasStoredKey ? 'badge-success' : 'badge-neutral'
+                    "
+                  >
+                    {{ serverHasStoredKey ? '🔑 Stored' : 'Not set' }}
+                  </span>
+                </div>
+                <div class="flex gap-1.5">
                   <input
                     v-model="apiKey"
-                    class="sm-input sm-input-mono"
-                    type="password"
+                    class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
+                    :type="showApiKey ? 'text' : 'password'"
                     autocomplete="off"
-                    placeholder="sk-… (leave blank to keep existing)"
+                    placeholder="Leave blank to keep existing"
                   />
-                </label>
-                <label class="sm-field sm-field-shrink">
-                  <span>Key Label</span>
-                  <input
-                    v-model="apiKeyName"
-                    class="sm-input"
-                    placeholder="OpenAI, Groq…"
-                  />
-                </label>
-              </div>
-
-              <div class="sm-key-status-row">
-                <span
-                  class="sm-badge"
-                  :class="
-                    serverHasStoredKey ? 'sm-badge-success' : 'sm-badge-neutral'
-                  "
-                >
-                  {{ serverHasStoredKey ? '🔑 Key stored' : 'No key stored' }}
-                </span>
-                <div class="sm-key-actions">
                   <button
                     type="button"
-                    class="sm-btn sm-btn-secondary sm-btn-sm"
+                    class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl"
+                    :title="showApiKey ? 'Hide' : 'Show'"
+                    @click="showApiKey = !showApiKey"
+                  >
+                    <Icon
+                      :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'"
+                      class="h-3.5 w-3.5"
+                    />
+                  </button>
+                </div>
+                <input
+                  v-model="apiKeyName"
+                  class="input input-bordered input-sm rounded-xl text-xs"
+                  placeholder="Label: OpenAI, Groq, Stability…"
+                />
+                <div class="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-xs rounded-lg"
                     :disabled="!apiKey.trim() || serverStore.isSaving"
                     @click="saveApiKeyOnly"
                   >
@@ -357,7 +476,7 @@
                   </button>
                   <button
                     type="button"
-                    class="sm-btn sm-btn-ghost sm-btn-sm"
+                    class="btn btn-ghost btn-xs rounded-lg opacity-60"
                     :disabled="
                       !serverStore.serverForm.id ||
                       isCloning ||
@@ -369,131 +488,132 @@
                   </button>
                 </div>
               </div>
-            </div>
+            </fieldset>
 
-            <!-- Server details (collapsible feel via separator) -->
-            <details class="sm-details">
-              <summary class="sm-details-summary">More Settings</summary>
-              <div class="sm-form-grid">
-                <label class="sm-field">
-                  <span>Title</span>
-                  <input
-                    v-model="serverStore.serverForm.title"
-                    class="sm-input"
-                  />
-                </label>
+            <!-- More Settings (collapsible) -->
+            <details
+              class="group overflow-hidden rounded-xl border border-base-300"
+            >
+              <summary
+                class="flex cursor-pointer select-none list-none items-center gap-2 bg-base-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider opacity-60 transition-opacity hover:opacity-90"
+              >
+                <Icon name="kind-icon:settings" class="h-3.5 w-3.5" />
+                More Settings
+                <Icon
+                  name="kind-icon:chevron-down"
+                  class="ml-auto h-3.5 w-3.5 transition-transform group-open:rotate-180"
+                />
+              </summary>
 
-                <label class="sm-field">
-                  <span>Label</span>
-                  <input
-                    v-model="serverStore.serverForm.label"
-                    class="sm-input"
-                  />
-                </label>
+              <div class="flex flex-col gap-3 p-4">
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex flex-col gap-1">
+                    <span class="text-[11px] font-bold opacity-70">Title</span>
+                    <input
+                      v-model="serverStore.serverForm.title"
+                      class="input input-bordered input-sm rounded-xl text-xs"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="text-[11px] font-bold opacity-70">Label</span>
+                    <input
+                      v-model="serverStore.serverForm.label"
+                      class="input input-bordered input-sm rounded-xl text-xs"
+                    />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="text-[11px] font-bold opacity-70"
+                      >Server Type</span
+                    >
+                    <select
+                      v-model="serverStore.serverForm.serverType"
+                      class="select select-bordered select-sm rounded-xl text-xs"
+                    >
+                      <option value="ART">ART</option>
+                      <option value="TEXT">TEXT</option>
+                      <option value="COMFY">COMFY</option>
+                      <option value="A1111">A1111</option>
+                      <option value="OPENAI_COMPATIBLE">
+                        OPENAI_COMPATIBLE
+                      </option>
+                      <option value="OTHER">OTHER</option>
+                    </select>
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="text-[11px] font-bold opacity-70"
+                      >Category</span
+                    >
+                    <input
+                      v-model="serverStore.serverForm.category"
+                      class="input input-bordered input-sm rounded-xl text-xs"
+                    />
+                  </label>
+                  <label class="col-span-2 flex flex-col gap-1">
+                    <span class="text-[11px] font-bold opacity-70"
+                      >Health Path</span
+                    >
+                    <input
+                      v-model="serverStore.serverForm.healthPath"
+                      class="input input-bordered input-sm rounded-xl font-mono text-xs"
+                      placeholder="/health"
+                    />
+                  </label>
+                  <label class="col-span-2 flex flex-col gap-1">
+                    <span class="text-[11px] font-bold opacity-70"
+                      >Description</span
+                    >
+                    <textarea
+                      v-model="serverStore.serverForm.description"
+                      class="textarea textarea-bordered rounded-xl text-xs"
+                      rows="2"
+                    />
+                  </label>
+                </div>
 
-                <label class="sm-field">
-                  <span>Server Type</span>
-                  <select
-                    v-model="serverStore.serverForm.serverType"
-                    class="sm-input"
+                <!-- Capability toggles -->
+                <div class="grid grid-cols-2 gap-1.5">
+                  <label
+                    v-for="toggle in capabilityToggles"
+                    :key="toggle.key"
+                    class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold transition-colors hover:border-primary/40"
                   >
-                    <option value="ART">ART</option>
-                    <option value="TEXT">TEXT</option>
-                    <option value="COMFY">COMFY</option>
-                    <option value="A1111">A1111</option>
-                    <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
-                    <option value="OTHER">OTHER</option>
-                  </select>
-                </label>
-
-                <label class="sm-field">
-                  <span>Category</span>
-                  <input
-                    v-model="serverStore.serverForm.category"
-                    class="sm-input"
-                  />
-                </label>
-
-                <label class="sm-field">
-                  <span>Health Path</span>
-                  <input
-                    v-model="serverStore.serverForm.healthPath"
-                    class="sm-input sm-input-mono"
-                    placeholder="/health"
-                  />
-                </label>
-
-                <label class="sm-field sm-field-wide">
-                  <span>Description</span>
-                  <textarea
-                    v-model="serverStore.serverForm.description"
-                    class="sm-textarea"
-                    rows="2"
-                  />
-                </label>
-              </div>
-
-              <div class="sm-toggle-grid">
-                <label class="sm-toggle">
-                  <input
-                    v-model="serverStore.serverForm.supportsChat"
-                    type="checkbox"
-                  />
-                  <span>Chat</span>
-                </label>
-                <label class="sm-toggle">
-                  <input
-                    v-model="serverStore.serverForm.supportsTxt2Img"
-                    type="checkbox"
-                  />
-                  <span>Txt2Img</span>
-                </label>
-                <label class="sm-toggle">
-                  <input
-                    v-model="serverStore.serverForm.supportsImg2Img"
-                    type="checkbox"
-                  />
-                  <span>Img2Img</span>
-                </label>
-                <label class="sm-toggle">
-                  <input
-                    v-model="serverStore.serverForm.supportsComfyWorkflow"
-                    type="checkbox"
-                  />
-                  <span>Comfy Workflow</span>
-                </label>
-                <label class="sm-toggle">
-                  <input
-                    v-model="serverStore.serverForm.requiresApiKey"
-                    type="checkbox"
-                  />
-                  <span>Requires API Key</span>
-                </label>
-                <label class="sm-toggle">
-                  <input
-                    v-model="serverStore.serverForm.isActive"
-                    type="checkbox"
-                  />
-                  <span>Active</span>
-                </label>
+                    <input
+                      v-model="(serverStore.serverForm as any)[toggle.key]"
+                      type="checkbox"
+                      class="checkbox checkbox-primary checkbox-xs"
+                    />
+                    {{ toggle.label }}
+                  </label>
+                </div>
               </div>
             </details>
 
-            <div class="sm-editor-actions">
+            <!-- Save / Cancel -->
+            <div class="flex flex-wrap gap-2">
               <button
                 type="button"
-                class="sm-btn sm-btn-secondary"
+                class="btn btn-ghost btn-sm flex-1 rounded-xl"
                 @click="closeEditor"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                class="sm-btn sm-btn-primary"
+                class="btn btn-primary btn-sm flex-1 gap-1.5 rounded-xl"
                 :disabled="serverStore.isSaving"
               >
-                <Icon name="kind-icon:save" class="sm-btn-icon" />
-                {{ isCloning ? 'Save My Copy' : 'Save Server' }}
+                <span
+                  v-if="serverStore.isSaving"
+                  class="loading loading-spinner loading-xs"
+                />
+                <Icon v-else name="kind-icon:save" class="h-3.5 w-3.5" />
+                {{
+                  isCloning
+                    ? 'Save My Copy'
+                    : serverStore.serverForm.id
+                      ? 'Save Changes'
+                      : 'Create Server'
+                }}
               </button>
             </div>
           </form>
@@ -502,13 +622,15 @@
     </main>
 
     <!-- Loading overlay -->
-    <transition name="sm-fade">
+    <transition name="fade">
       <div
         v-if="serverStore.loading || serverStore.isSaving"
-        class="sm-loading"
+        class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-base-100/80 backdrop-blur-sm"
       >
-        <span class="loading loading-spinner loading-lg" />
-        <span>Negotiating with the server goblins…</span>
+        <span class="loading loading-spinner loading-lg text-primary" />
+        <span class="text-sm font-bold opacity-70"
+          >Negotiating with the server goblins…</span
+        >
       </div>
     </transition>
   </section>
@@ -520,6 +642,7 @@ import {
   defineComponent,
   h,
   onMounted,
+  onUnmounted,
   ref,
   resolveComponent,
   watch,
@@ -537,13 +660,15 @@ const showEditor = ref(false)
 const activeCreateType = ref<ServerType>('TEXT')
 const apiKey = ref('')
 const apiKeyName = ref('')
+const showApiKey = ref(false)
 const sourcePublicServerId = ref<number | null>(null)
+const searchQuery = ref('')
+const copiedUrl = ref(false)
 
-// ── Computed helpers ────────────────────────────────────────────────────────
+// ── Computed ─────────────────────────────────────────────────────────────────
 
 const myUserId = computed(() => userStore.user?.id)
 
-/** All image servers deduplicated */
 const allImageServers = computed(() => {
   const ids = new Set<number>()
   return [...serverStore.artServers, ...serverStore.comfyServers].filter(
@@ -555,38 +680,54 @@ const allImageServers = computed(() => {
   )
 })
 
-/** Public / official text servers (not owned by current user) */
 const publicTextServers = computed(() =>
   serverStore.textServers.filter(
     (s) => (s.isOfficial || s.isPublic) && s.userId !== myUserId.value,
   ),
 )
-
-/** User-owned text servers */
 const myTextServers = computed(() =>
   serverStore.textServers.filter((s) => s.userId === myUserId.value),
 )
-
-/** Public / official image servers (not owned by current user) */
 const publicImageServers = computed(() =>
   allImageServers.value.filter(
     (s) => (s.isOfficial || s.isPublic) && s.userId !== myUserId.value,
   ),
 )
-
-/** User-owned image servers */
 const myImageServers = computed(() =>
   allImageServers.value.filter((s) => s.userId === myUserId.value),
+)
+
+function matchesSearch(s: Server, q: string): boolean {
+  if (!q) return true
+  const lower = q.toLowerCase()
+  return !!(
+    s.title?.toLowerCase().includes(lower) ||
+    s.label?.toLowerCase().includes(lower) ||
+    s.baseUrl?.toLowerCase().includes(lower) ||
+    s.description?.toLowerCase().includes(lower)
+  )
+}
+
+const filteredPublicTextServers = computed(() =>
+  publicTextServers.value.filter((s) => matchesSearch(s, searchQuery.value)),
+)
+const filteredMyTextServers = computed(() =>
+  myTextServers.value.filter((s) => matchesSearch(s, searchQuery.value)),
+)
+const filteredPublicImageServers = computed(() =>
+  publicImageServers.value.filter((s) => matchesSearch(s, searchQuery.value)),
+)
+const filteredMyImageServers = computed(() =>
+  myImageServers.value.filter((s) => matchesSearch(s, searchQuery.value)),
 )
 
 const serverHasStoredKey = computed(() =>
   Boolean(serverStore.serverForm.apiKey),
 )
 
-/** True when the editor is operating on a public/official/unowned server (clone mode) */
 const isCloning = computed(() => {
   const formId = serverStore.serverForm.id
-  if (!formId) return false
+  if (!formId) return !!sourcePublicServerId.value
   const server = serverStore.getServerById(formId)
   if (!server) return !!sourcePublicServerId.value
   return (
@@ -595,12 +736,22 @@ const isCloning = computed(() => {
 })
 
 const editorSubtitle = computed(() => {
-  if (isCloning.value) return 'Your edits will be saved as a private copy.'
+  if (isCloning.value)
+    return 'Your edits create a private copy — original unchanged.'
   if (serverStore.serverForm.id) return 'Adjust this server configuration.'
-  return `New ${serverStore.serverForm.serverType || activeCreateType.value} server setup.`
+  return `New ${serverStore.serverForm.serverType || activeCreateType.value} server.`
 })
 
-// ── Actions ─────────────────────────────────────────────────────────────────
+const capabilityToggles = [
+  { key: 'supportsChat', label: 'Chat' },
+  { key: 'supportsTxt2Img', label: 'Txt → Img' },
+  { key: 'supportsImg2Img', label: 'Img → Img' },
+  { key: 'supportsComfyWorkflow', label: 'Comfy Workflow' },
+  { key: 'requiresApiKey', label: 'Requires API Key' },
+  { key: 'isActive', label: 'Active' },
+] as const
+
+// ── Actions ───────────────────────────────────────────────────────────────────
 
 async function refreshServers() {
   await serverStore.fetchAllServers(true)
@@ -610,11 +761,9 @@ function selectKindDefault(mode: ServerMode) {
   if (mode === 'text') serverStore.setActiveTextServer(null)
   else serverStore.setActiveArtServer(null)
 }
-
 function selectTextServer(id: number) {
   serverStore.setActiveTextServer(id)
 }
-
 function selectImageServer(id: number) {
   serverStore.setActiveArtServer(id)
 }
@@ -624,6 +773,7 @@ function startNewServer(serverType: ServerType) {
   sourcePublicServerId.value = null
   apiKey.value = ''
   apiKeyName.value = ''
+  showApiKey.value = false
   serverStore.createNewServer(serverType)
   showEditor.value = true
 }
@@ -657,15 +807,14 @@ function editServer(id: number) {
 
   apiKey.value = ''
   apiKeyName.value = serverStore.serverForm.apiKeyName || ''
+  showApiKey.value = false
   showEditor.value = true
 }
 
 async function ensurePrivateEditableServer(): Promise<number | null> {
   if (!userStore.isLoggedIn) return null
-
-  if (serverStore.serverForm.id && !isCloning.value) {
+  if (serverStore.serverForm.id && !isCloning.value)
     return serverStore.serverForm.id
-  }
 
   const payload = {
     ...serverStore.serverForm,
@@ -679,11 +828,9 @@ async function ensurePrivateEditableServer(): Promise<number | null> {
     apiKeyName:
       apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   }
-
   serverStore.serverForm = payload
   const result = await serverStore.saveServer()
   if (!result.success || !result.data) return null
-
   serverStore.selectServer(result.data.id)
   return result.data.id
 }
@@ -692,13 +839,11 @@ async function saveApiKeyOnly() {
   if (!apiKey.value.trim()) return
   const serverId = await ensurePrivateEditableServer()
   if (!serverId) return
-
   await serverStore.updateServerApiKey(serverId, {
     apiKey: apiKey.value,
     apiKeyName:
       apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   })
-
   apiKey.value = ''
   sourcePublicServerId.value = null
 }
@@ -713,17 +858,21 @@ async function clearApiKey() {
   apiKey.value = ''
 }
 
-watch(
-  () => serverStore.serverForm.apiKeyName,
-  (value) => {
-    if (!apiKeyName.value && value) apiKeyName.value = value
-  },
-)
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    copiedUrl.value = true
+    setTimeout(() => {
+      copiedUrl.value = false
+    }, 1500)
+  } catch {}
+}
 
 function closeEditor() {
   sourcePublicServerId.value = null
   apiKey.value = ''
   apiKeyName.value = ''
+  showApiKey.value = false
   serverStore.deselectServer()
   showEditor.value = false
 }
@@ -734,7 +883,6 @@ async function saveServer() {
     apiKey: undefined,
     apiKeyName: apiKeyName.value || serverStore.serverForm.apiKeyName || null,
   }
-
   serverStore.serverForm = payload
   const result = await serverStore.saveServer()
   if (!result.success || !result.data) return
@@ -746,7 +894,6 @@ async function saveServer() {
         apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
     })
   }
-
   apiKey.value = ''
   sourcePublicServerId.value = null
   showEditor.value = false
@@ -756,18 +903,132 @@ async function testServer(id: number) {
   await serverStore.testServerHealth(id)
 }
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && showEditor.value) closeEditor()
+}
+
+watch(
+  () => serverStore.serverForm.apiKeyName,
+  (value) => {
+    if (!apiKeyName.value && value) apiKeyName.value = value
+  },
+)
+
 onMounted(async () => {
   await serverStore.initialize()
+  window.addEventListener('keydown', onKeydown)
+})
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+const KindDefaultButton = defineComponent({
+  name: 'KindDefaultButton',
+  emits: ['select'],
+  props: {
+    active: { type: Boolean, required: true },
+    label: { type: String, required: true },
+    description: { type: String, required: true },
+  },
+  setup(props, { emit }) {
+    return () =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class: [
+            'flex w-full flex-shrink-0 items-center gap-3 rounded-xl border p-3 text-left',
+            'transition-all duration-150 hover:-translate-y-px',
+            props.active
+              ? 'border-primary bg-primary/10'
+              : 'border-base-300 bg-base-200 hover:border-primary/40',
+          ],
+          onClick: () => emit('select'),
+        },
+        [
+          h(
+            'div',
+            {
+              class:
+                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-base-100',
+            },
+            [
+              h(resolveComponent('Icon'), {
+                name: 'kind-icon:robot',
+                class: 'h-5 w-5 text-primary',
+              }),
+            ],
+          ),
+          h('div', { class: 'min-w-0 flex-1' }, [
+            h('div', { class: 'flex flex-wrap items-center gap-1.5' }, [
+              h('span', { class: 'text-sm font-black' }, props.label),
+              props.active
+                ? h(
+                    'span',
+                    { class: 'badge badge-primary badge-xs' },
+                    'Selected',
+                  )
+                : null,
+            ]),
+            h('p', { class: 'mt-0.5 text-xs opacity-60' }, props.description),
+          ]),
+        ],
+      )
+  },
 })
 
-// ── Sub-components ───────────────────────────────────────────────────────────
+const ServerSectionHeader = defineComponent({
+  name: 'ServerSectionHeader',
+  props: {
+    label: { type: String, required: true },
+    icon: { type: String, required: true },
+    count: { type: Number, required: true },
+  },
+  setup(props, { slots }) {
+    return () =>
+      h(
+        'div',
+        { class: 'flex items-center gap-1.5 border-t border-base-300 pt-2' },
+        [
+          h(resolveComponent('Icon'), {
+            name: props.icon,
+            class: 'h-3 w-3 opacity-40',
+          }),
+          h(
+            'span',
+            {
+              class:
+                'text-[10px] font-black uppercase tracking-widest opacity-40',
+            },
+            props.label,
+          ),
+          props.count > 0
+            ? h(
+                'span',
+                { class: 'badge badge-xs badge-neutral ml-0.5' },
+                String(props.count),
+              )
+            : null,
+          slots.default?.(),
+        ],
+      )
+  },
+})
 
-/**
- * ServerCatalogCard — used for both public catalog entries and owned servers.
- * Replaces the old ServerCard; adds `owned` prop to control action visibility.
- */
-const ServerCatalogCard = defineComponent({
-  name: 'ServerCatalogCard',
+function makeStatusDot(status: string | null) {
+  const clsMap: Record<string, string> = {
+    ONLINE: 'bg-success',
+    OFFLINE: 'bg-error',
+    DEGRADED: 'bg-warning',
+  }
+  const pulse = status === 'ONLINE' ? ' status-pulse' : ''
+  return h('span', {
+    class: `inline-block h-2 w-2 flex-shrink-0 rounded-full ${clsMap[status ?? ''] ?? 'bg-base-300'}${pulse}`,
+  })
+}
+
+const ServerCard = defineComponent({
+  name: 'ServerCard',
   emits: ['select', 'edit', 'test'],
   props: {
     server: { type: Object as () => Server, required: true },
@@ -776,103 +1037,154 @@ const ServerCatalogCard = defineComponent({
     owned: { type: Boolean, default: false },
   },
   setup(props, { emit }) {
-    const statusBadgeClass = computed(() => {
-      const s = props.server.lastStatus
-      if (s === 'ONLINE') return 'sm-badge-success'
-      if (s === 'OFFLINE') return 'sm-badge-danger'
-      if (s === 'DEGRADED') return 'sm-badge-warning'
-      return 'sm-badge-neutral'
-    })
-
     const mainIcon = computed(() => {
       if (props.server.supportsChat) return 'kind-icon:chat'
       if (props.server.supportsComfyWorkflow) return 'kind-icon:workflow'
       return 'kind-icon:art'
     })
 
+    const statusBadge = computed(() => {
+      const map: Record<string, string> = {
+        ONLINE: 'badge-success',
+        OFFLINE: 'badge-error',
+        DEGRADED: 'badge-warning',
+      }
+      return map[props.server.lastStatus ?? ''] ?? 'badge-neutral'
+    })
+
+    const capBadges = computed(
+      () =>
+        (
+          [
+            props.server.supportsChat && {
+              label: 'chat',
+              cls: 'badge-secondary',
+            },
+            props.server.supportsTxt2Img && {
+              label: 'txt2img',
+              cls: 'badge-accent',
+            },
+            props.server.supportsImg2Img && {
+              label: 'img2img',
+              cls: 'badge-accent',
+            },
+            props.server.supportsComfyWorkflow && {
+              label: 'comfy',
+              cls: 'badge-warning',
+            },
+            props.server.requiresApiKey && {
+              label: 'api key',
+              cls: 'badge-neutral',
+            },
+          ] as const
+        ).filter(Boolean) as Array<{ label: string; cls: string }>,
+    )
+
     return () =>
       h(
         'article',
-        { class: ['sm-server-card', props.active ? 'active' : ''] },
+        {
+          class: [
+            'flex flex-col gap-2 rounded-xl border p-3 transition-all duration-150 hover:-translate-y-px',
+            props.active
+              ? 'border-primary bg-primary/8'
+              : 'border-base-300 bg-base-200 hover:border-primary/30',
+          ],
+        },
         [
-          // Top: icon + title/description + active badge
-          h('div', { class: 'sm-server-main' }, [
-            h('div', { class: 'sm-server-icon-wrap' }, [
-              h(resolveComponent('Icon'), {
-                name: mainIcon.value,
-                class: 'sm-server-icon',
-              }),
-            ]),
-            h('div', { class: 'sm-server-copy' }, [
-              h('div', { class: 'sm-server-title-row' }, [
+          // Title + icon
+          h('div', { class: 'flex items-start gap-2.5' }, [
+            h(
+              'div',
+              {
+                class:
+                  'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-base-100',
+              },
+              [
+                h(resolveComponent('Icon'), {
+                  name: mainIcon.value,
+                  class: 'h-4 w-4 text-primary',
+                }),
+              ],
+            ),
+            h('div', { class: 'min-w-0 flex-1' }, [
+              h('div', { class: 'flex flex-wrap items-center gap-1' }, [
+                makeStatusDot(props.server.lastStatus),
                 h(
-                  'h3',
-                  { class: 'sm-server-title' },
+                  'span',
+                  { class: 'truncate text-sm font-black' },
                   props.server.label || props.server.title,
                 ),
                 props.active
-                  ? h('span', { class: 'sm-badge sm-badge-primary' }, 'Active')
+                  ? h(
+                      'span',
+                      { class: 'badge badge-primary badge-xs' },
+                      'Active',
+                    )
                   : null,
                 props.server.isOfficial
-                  ? h('span', { class: 'sm-badge sm-badge-info' }, 'Official')
+                  ? h(
+                      'span',
+                      { class: 'badge badge-info badge-xs' },
+                      'Official',
+                    )
                   : null,
               ]),
               h(
                 'p',
-                { class: 'sm-server-description' },
+                { class: 'mt-0.5 truncate text-[11px] opacity-55' },
                 props.server.description || props.server.baseUrl,
               ),
             ]),
           ]),
 
-          // URL + endpoint meta
-          h('div', { class: 'sm-server-meta' }, [
-            h('span', { class: 'sm-meta-type' }, props.server.serverType),
-            h('span', { class: 'sm-meta-url' }, props.server.baseUrl),
-            props.server.endpointPath
-              ? h('span', { class: 'sm-meta-path' }, props.server.endpointPath)
-              : null,
-          ]),
+          // URL meta strip
+          h(
+            'div',
+            {
+              class:
+                'flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg bg-base-100 px-2.5 py-1.5 font-mono text-[10px] opacity-65',
+            },
+            [
+              h(
+                'span',
+                { class: 'font-sans font-bold text-primary not-italic' },
+                props.server.serverType,
+              ),
+              h('span', { class: 'truncate' }, props.server.baseUrl),
+              props.server.endpointPath
+                ? h('span', { class: 'opacity-60' }, props.server.endpointPath)
+                : null,
+            ],
+          ),
 
-          // Capability badges + status
-          h('div', { class: 'sm-server-badges' }, [
-            props.server.supportsChat
-              ? h('span', { class: 'sm-badge sm-badge-secondary' }, 'chat')
-              : null,
-            props.server.supportsTxt2Img
-              ? h('span', { class: 'sm-badge sm-badge-accent' }, 'txt2img')
-              : null,
-            props.server.supportsImg2Img
-              ? h('span', { class: 'sm-badge sm-badge-accent' }, 'img2img')
-              : null,
-            props.server.supportsComfyWorkflow
-              ? h('span', { class: 'sm-badge sm-badge-warning' }, 'comfy')
-              : null,
-            props.server.requiresApiKey
-              ? h('span', { class: 'sm-badge sm-badge-neutral' }, 'api key')
-              : null,
+          // Cap badges + status
+          h('div', { class: 'flex flex-wrap gap-1' }, [
+            ...capBadges.value.map((b) =>
+              h('span', { class: `badge badge-xs ${b.cls}` }, b.label),
+            ),
             h(
               'span',
-              { class: ['sm-badge', statusBadgeClass.value] },
+              { class: `badge badge-xs ${statusBadge.value}` },
               props.server.lastStatus || 'UNKNOWN',
             ),
           ]),
 
-          // Health result line
+          // Health line
           props.healthResult
-            ? h('p', { class: 'sm-health-result' }, [
+            ? h('p', { class: 'text-[10px] opacity-60' }, [
                 props.healthResult.ok ? '✓ Healthy' : '✗ Failed',
                 ` · ${props.healthResult.latencyMs}ms`,
               ])
             : null,
 
           // Actions
-          h('div', { class: 'sm-server-actions' }, [
+          h('div', { class: 'flex flex-wrap gap-1.5 pt-0.5' }, [
             h(
               'button',
               {
                 type: 'button',
-                class: 'sm-btn sm-btn-primary sm-btn-sm',
+                class: 'btn btn-primary btn-xs flex-1 rounded-lg',
                 disabled: props.active || !props.server.isActive,
                 onClick: () => emit('select'),
               },
@@ -882,17 +1194,16 @@ const ServerCatalogCard = defineComponent({
               'button',
               {
                 type: 'button',
-                class: 'sm-btn sm-btn-secondary sm-btn-sm',
+                class: 'btn btn-ghost btn-xs rounded-lg',
                 onClick: () => emit('test'),
               },
               'Test',
             ),
-            // Owned servers: Edit directly. Public servers: Edit = customize/clone.
             h(
               'button',
               {
                 type: 'button',
-                class: 'sm-btn sm-btn-ghost sm-btn-sm',
+                class: 'btn btn-ghost btn-xs rounded-lg',
                 onClick: () => emit('edit'),
               },
               props.owned ? 'Edit' : 'Customize',
@@ -905,890 +1216,83 @@ const ServerCatalogCard = defineComponent({
 </script>
 
 <style scoped>
-/* ── Layout ─────────────────────────────────────────────────────────── */
-
-.server-manager {
-  display: flex;
-  position: relative;
-  min-height: 100%;
-  width: 100%;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  color: oklch(var(--bc));
-}
-
-.sm-header {
-  display: flex;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid oklch(var(--b3));
-  background: oklch(var(--b1));
-  padding: 1rem;
-}
-
-.sm-header-brand {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.sm-logo {
-  height: 2.5rem;
-  width: 2.5rem;
-  flex-shrink: 0;
-  color: oklch(var(--p));
-}
-
-.sm-title {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.sm-subtitle {
-  margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-.sm-header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-/* Body layout: columns + optional editor */
-.sm-body {
+/* Grid layout — needs :has() and dynamic columns, not possible in Tailwind alone */
+.body-grid {
   display: grid;
-  min-height: 0;
-  flex: 1;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  overflow: hidden;
-  padding: 1rem;
 }
-
-/* When editor is open, shrink columns and show editor */
-.sm-body:has(.sm-editor) {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 400px);
-}
-
-/* ── Columns ────────────────────────────────────────────────────────── */
-
-.sm-column {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  gap: 0;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b1));
-}
-
-.sm-column-text {
-  box-shadow: inset 0 0 0 1px
-    color-mix(in oklch, oklch(var(--info)) 20%, transparent);
-}
-
-.sm-column-image {
-  box-shadow: inset 0 0 0 1px
-    color-mix(in oklch, oklch(var(--accent)) 20%, transparent);
-}
-
-.sm-column-header {
-  display: flex;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  border-bottom: 1px solid oklch(var(--b3));
-  padding: 0.75rem;
-}
-
-.sm-column-heading {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.sm-column-icon {
-  height: 1.75rem;
-  width: 1.75rem;
-  flex-shrink: 0;
-  color: oklch(var(--p));
-}
-
-.sm-column-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.sm-column-subtitle {
-  margin: 0.1rem 0 0;
-  font-size: 0.72rem;
-  opacity: 0.6;
-}
-
-.sm-active-pill {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  border-radius: 0.85rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.35rem 0.6rem;
-}
-
-.sm-active-label {
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  opacity: 0.5;
-  text-transform: uppercase;
-}
-
-.sm-active-value {
-  max-width: 14rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-/* Scrollable column body */
-.sm-column-scroll {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.75rem;
-  overflow-y: auto;
-  padding: 0.75rem;
-}
-
-/* ── Sections (Official / My Servers) ───────────────────────────────── */
-
-.sm-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sm-section-label {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.65rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  opacity: 0.55;
-  text-transform: uppercase;
-  padding: 0.25rem 0;
-  border-top: 1px solid oklch(var(--b3));
-}
-
-.sm-section-icon {
-  height: 0.8rem;
-  width: 0.8rem;
-}
-
-.sm-add-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  margin-left: auto;
-  border-radius: 999px;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.15rem 0.45rem;
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0;
-  color: oklch(var(--p));
-  cursor: pointer;
-  text-transform: none;
-  transition: background 0.15s ease;
-}
-
-.sm-add-inline:hover {
-  background: color-mix(in oklch, oklch(var(--p)) 15%, oklch(var(--b2)));
-}
-
-.sm-add-icon {
-  height: 0.65rem;
-  width: 0.65rem;
-}
-
-.sm-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.sm-empty-mine {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  border-radius: 0.85rem;
-  border: 1px dashed oklch(var(--b3));
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.8rem;
-  opacity: 0.7;
-}
-
-.sm-empty-mine p {
-  margin: 0;
-}
-
-.sm-empty-mine-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-/* ── Default (Kind Robots) card ─────────────────────────────────────── */
-
-.sm-default-card {
-  display: flex;
-  width: 100%;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 0.75rem;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.75rem;
-  text-align: left;
-  color: inherit;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    transform 0.15s ease,
-    background 0.15s ease;
-}
-
-.sm-default-card:hover,
-.sm-default-card.active {
-  border-color: oklch(var(--p));
-  background: color-mix(in oklch, oklch(var(--p)) 10%, oklch(var(--b2)));
-}
-
-.sm-default-card:hover {
-  transform: translateY(-1px);
-}
-
-.sm-default-icon-wrap {
-  display: flex;
-  height: 2.5rem;
-  width: 2.5rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  background: oklch(var(--b1));
-}
-
-.sm-default-icon {
-  height: 1.5rem;
-  width: 1.5rem;
-  color: oklch(var(--p));
-}
-
-.sm-default-copy {
-  min-width: 0;
-  flex: 1;
-}
-
-.sm-default-title-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.sm-default-title {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.sm-default-description {
-  margin: 0.1rem 0 0;
-  font-size: 0.75rem;
-  opacity: 0.65;
-}
-
-/* ── Server cards ───────────────────────────────────────────────────── */
-
-.sm-server-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.75rem;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    transform 0.15s ease;
-}
-
-.sm-server-card:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in oklch, oklch(var(--p)) 50%, oklch(var(--b3)));
-}
-
-.sm-server-card.active {
-  border-color: oklch(var(--p));
-  background: color-mix(in oklch, oklch(var(--p)) 9%, oklch(var(--b2)));
-}
-
-.sm-server-main {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-}
-
-.sm-server-icon-wrap {
-  display: flex;
-  height: 2.25rem;
-  width: 2.25rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  background: oklch(var(--b1));
-}
-
-.sm-server-icon {
-  height: 1.25rem;
-  width: 1.25rem;
-  color: oklch(var(--p));
-}
-
-.sm-server-copy {
-  min-width: 0;
-  flex: 1;
-}
-
-.sm-server-title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.sm-server-title {
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.9rem;
-  font-weight: 800;
+.body-grid.has-editor {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(300px, 380px);
 }
 
-.sm-server-description {
-  margin: 0.1rem 0 0;
-  font-size: 0.73rem;
-  line-height: 1.4;
-  opacity: 0.65;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Thin scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(var(--b3)) transparent;
 }
-
-.sm-server-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem 0.75rem;
-  border-radius: 0.65rem;
-  background: oklch(var(--b1));
-  padding: 0.4rem 0.55rem;
-  font-family: ui-monospace, 'Cascadia Code', monospace;
-  font-size: 0.67rem;
-  opacity: 0.7;
-}
-
-.sm-meta-type {
-  font-weight: 700;
-  color: oklch(var(--p));
-}
-
-.sm-meta-url,
-.sm-meta-path {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sm-server-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-
-.sm-health-result {
-  margin: 0;
-  font-size: 0.7rem;
-  opacity: 0.65;
-}
-
-.sm-server-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-/* ── Editor panel ───────────────────────────────────────────────────── */
-
-.sm-editor {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b1));
-}
-
-/* Clone notice */
-.sm-clone-notice {
-  display: flex;
-  flex-shrink: 0;
-  align-items: flex-start;
-  gap: 0.65rem;
-  background: color-mix(in oklch, oklch(var(--wa)) 18%, oklch(var(--b1)));
-  border-bottom: 1px solid
-    color-mix(in oklch, oklch(var(--wa)) 40%, transparent);
-  padding: 0.75rem 1rem;
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
-.sm-clone-icon {
-  height: 1.25rem;
-  width: 1.25rem;
-  flex-shrink: 0;
-  color: oklch(var(--wa));
-  margin-top: 0.1rem;
-}
-
-.sm-clone-notice strong {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.sm-clone-notice p {
-  margin: 0.1rem 0 0;
-  opacity: 0.75;
-}
-
-.sm-editor-header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid oklch(var(--b3));
-  padding: 1rem;
-}
-
-.sm-editor-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.sm-editor-subtitle {
-  margin: 0.15rem 0 0;
-  font-size: 0.75rem;
-  opacity: 0.6;
-}
-
-.sm-form {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
-  padding: 1rem;
-}
-
-/* Quick-edit block */
-.sm-quick-edit {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  border-radius: 0.85rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.85rem;
-}
-
-.sm-quick-label {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  opacity: 0.5;
-  text-transform: uppercase;
-}
-
-.sm-key-row {
-  display: flex;
-  gap: 0.65rem;
-}
-
-.sm-field-grow {
-  flex: 1 1 0;
-  min-width: 0;
-}
-.sm-field-shrink {
-  flex: 0 0 9rem;
-}
-
-.sm-key-status-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.sm-key-actions {
-  display: flex;
-  gap: 0.4rem;
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
 }
-
-/* Collapsible more settings */
-.sm-details {
-  border-radius: 0.85rem;
-  border: 1px solid oklch(var(--b3));
-  overflow: hidden;
-}
-
-.sm-details-summary {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 0.65rem 0.85rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  background: oklch(var(--b2));
-  user-select: none;
-  list-style: none;
-}
-
-.sm-details-summary::-webkit-details-marker {
-  display: none;
-}
-
-.sm-details[open] .sm-details-summary {
-  border-bottom: 1px solid oklch(var(--b3));
-}
-
-.sm-form-grid {
-  display: grid;
-  gap: 0.65rem;
-  padding: 0.85rem;
-}
-
-.sm-toggle-grid {
-  display: grid;
-  gap: 0.4rem;
-  padding: 0 0.85rem 0.85rem;
-}
-
-.sm-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.28rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.sm-field-wide {
-  grid-column: 1 / -1;
-}
-
-.sm-input,
-.sm-textarea {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  color: oklch(var(--bc));
-  font: inherit;
-  font-size: 0.82rem;
-  outline: none;
-}
-
-.sm-input {
-  min-height: 2.4rem;
-  padding: 0 0.7rem;
-}
-
-.sm-input-mono {
-  font-family: ui-monospace, 'Cascadia Code', monospace;
-  font-size: 0.78rem;
-}
-
-.sm-textarea {
-  resize: vertical;
-  padding: 0.6rem 0.7rem;
-}
-
-.sm-input:focus,
-.sm-textarea:focus {
-  border-color: oklch(var(--p));
-}
-
-.sm-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  border-radius: 0.75rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.5rem 0.65rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.sm-editor-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding-top: 0.25rem;
-}
-
-/* ── Buttons ────────────────────────────────────────────────────────── */
-
-.sm-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  border-radius: 0.85rem;
-  border: 1px solid transparent;
-  padding: 0.5rem 0.85rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    opacity 0.15s ease,
-    transform 0.12s ease,
-    background 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.sm-btn-sm {
-  padding: 0.35rem 0.6rem;
-  font-size: 0.72rem;
-}
-
-.sm-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.sm-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.sm-btn-primary {
-  background: oklch(var(--p));
-  color: oklch(var(--pc));
-}
-
-.sm-btn-secondary {
-  border-color: oklch(var(--b3));
-  background: oklch(var(--b2));
-  color: oklch(var(--bc));
-}
-
-.sm-btn-ghost {
+.scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
-  color: oklch(var(--bc));
-  opacity: 0.7;
 }
-
-.sm-btn-ghost:hover {
-  background: oklch(var(--b1));
-  opacity: 1;
-}
-
-.sm-btn-icon {
-  height: 0.9rem;
-  width: 0.9rem;
-}
-
-.sm-icon-btn {
-  display: inline-flex;
-  height: 2rem;
-  width: 2rem;
-  align-items: center;
-  justify-content: center;
+.scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  color: inherit;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.sm-icon {
-  height: 0.95rem;
-  width: 0.95rem;
-}
-
-/* ── Badges ─────────────────────────────────────────────────────────── */
-
-.sm-badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 0.12rem 0.4rem;
-  font-size: 0.62rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.sm-badge-primary {
-  background: oklch(var(--p));
-  color: oklch(var(--pc));
-}
-.sm-badge-secondary {
-  background: oklch(var(--s));
-  color: oklch(var(--sc));
-}
-.sm-badge-accent {
-  background: oklch(var(--a));
-  color: oklch(var(--ac));
-}
-.sm-badge-info {
-  background: oklch(var(--info));
-  color: oklch(var(--b1));
-}
-.sm-badge-warning {
-  background: oklch(var(--wa));
-  color: oklch(var(--b1));
-}
-.sm-badge-success {
-  background: oklch(var(--su));
-  color: oklch(var(--b1));
-}
-.sm-badge-danger {
-  background: oklch(var(--er));
-  color: oklch(var(--b1));
-}
-.sm-badge-neutral {
   background: oklch(var(--b3));
-  color: oklch(var(--bc));
 }
 
-/* ── Loading overlay ────────────────────────────────────────────────── */
-
-.sm-loading {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  background: color-mix(in oklch, oklch(var(--b1)) 85%, transparent);
-  font-size: 0.85rem;
-  font-weight: 800;
+/* Gentle status pulse for ONLINE servers */
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.5);
+  }
+}
+.status-pulse {
+  animation: status-pulse 2.5s ease-in-out infinite;
 }
 
-/* ── Transitions ────────────────────────────────────────────────────── */
-
-.sm-fade-enter-active,
-.sm-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.sm-fade-enter-from,
-.sm-fade-leave-to {
-  opacity: 0;
-}
-
-.sm-slide-enter-active,
-.sm-slide-leave-active {
+/* Editor slide-in */
+.editor-slide-enter-active,
+.editor-slide-leave-active {
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
 }
-.sm-slide-enter-from,
-.sm-slide-leave-to {
+.editor-slide-enter-from,
+.editor-slide-leave-to {
   opacity: 0;
-  transform: translateX(12px);
+  transform: translateX(10px);
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────── */
-
-@media (min-width: 768px) {
-  .sm-form-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .sm-toggle-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* Backdrop fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-/* Collapse to single column on narrow screens */
+/* Stack columns on narrow viewports */
 @media (max-width: 900px) {
-  .sm-body,
-  .sm-body:has(.sm-editor) {
+  .body-grid,
+  .body-grid.has-editor {
     grid-template-columns: 1fr;
     overflow-y: auto;
   }
-
-  .sm-column {
-    max-height: 60vh;
+  .col-section {
+    max-height: 55vh;
   }
 }
-
 @media (max-width: 640px) {
-  .sm-header {
-    align-items: stretch;
-  }
-  .sm-header-brand,
-  .sm-header-actions {
-    width: 100%;
-  }
-  .sm-header-actions .sm-btn {
-    flex: 1;
-  }
-  .sm-body {
-    padding: 0.75rem;
-    gap: 0.75rem;
-  }
-  .sm-key-row {
-    flex-direction: column;
-  }
-  .sm-field-shrink {
-    flex: 1;
+  .col-editor {
+    max-height: 70vh;
   }
 }
 </style>

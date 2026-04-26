@@ -71,7 +71,7 @@
       </div>
     </div>
 
-    <!-- ── Error banner (visible without debug, shown when fetch clearly failed) -->
+    <!-- ── Error banner ──────────────────────────────────────────────────── -->
     <div
       v-if="fetchFailed"
       class="flex shrink-0 items-start gap-3 border-b border-error/30 bg-error/8 px-4 py-3"
@@ -91,7 +91,7 @@
       </div>
       <button
         type="button"
-        class="btn btn-error btn-xs rounded-lg shrink-0"
+        class="btn btn-error btn-xs shrink-0 rounded-lg"
         @click="serverStore.fetchAllServers(true)"
       >
         Retry
@@ -101,11 +101,10 @@
     <!-- ── Debug panel ───────────────────────────────────────────────────── -->
     <div
       v-if="showDebug"
-      class="shrink-0 border-b border-warning/30 bg-warning/5 px-4 py-3 text-[11px] space-y-2"
+      class="shrink-0 space-y-2 border-b border-warning/30 bg-warning/5 px-4 py-3 text-[11px]"
     >
       <p class="font-black text-warning">Store Debug — {{ mode }} gallery</p>
 
-      <!-- State badges -->
       <div class="flex flex-wrap gap-1.5">
         <span
           :class="[
@@ -148,7 +147,6 @@
         >
       </div>
 
-      <!-- Active IDs -->
       <div class="flex flex-wrap gap-x-4 gap-y-0.5 opacity-70">
         <span
           >activeTextServerId:
@@ -164,26 +162,22 @@
         >
       </div>
 
-      <!-- Error store -->
       <div
         v-if="errorStore.message"
         class="rounded-lg border border-error/30 bg-error/10 px-3 py-2"
       >
         <p
-          class="font-black text-error text-[10px] uppercase tracking-widest mb-1"
+          class="mb-1 text-[10px] font-black uppercase tracking-widest text-error"
         >
           Error Store
         </p>
-        <p class="text-error opacity-80">
-          {{ errorStore.message }}
-        </p>
-        <p v-if="errorStore.type" class="opacity-50 mt-0.5">
+        <p class="text-error opacity-80">{{ errorStore.message }}</p>
+        <p v-if="errorStore.type" class="mt-0.5 opacity-50">
           type: {{ errorStore.type }}
         </p>
       </div>
       <p v-else class="text-[10px] opacity-40">No errors in errorStore.</p>
 
-      <!-- Server list -->
       <div v-if="serverStore.servers.length" class="space-y-1">
         <p class="font-bold opacity-60">All servers in store:</p>
         <div
@@ -199,9 +193,9 @@
           <span class="font-bold text-primary">#{{ s.id }}</span>
           <span>{{ s.title || s.label || '(untitled)' }}</span>
           <span class="opacity-60">{{ s.serverType }}</span>
-          <span :class="s.isActive ? 'text-success' : 'text-error'">{{
-            s.isActive ? 'active' : 'inactive'
-          }}</span>
+          <span :class="s.isActive ? 'text-success' : 'text-error'">
+            {{ s.isActive ? 'active' : 'inactive' }}
+          </span>
           <span v-if="s.isOfficial" class="text-info">official</span>
           <span v-if="s.isPublic" class="text-secondary">public</span>
           <span class="opacity-40">uid:{{ s.userId ?? '—' }}</span>
@@ -209,7 +203,7 @@
       </div>
       <div
         v-else
-        class="rounded-lg bg-error/10 px-3 py-2 text-error text-[11px]"
+        class="rounded-lg bg-error/10 px-3 py-2 text-[11px] text-error"
       >
         ⚠ serverStore.servers is empty — fetch may have failed or not run yet.
       </div>
@@ -386,13 +380,6 @@ const showDebug = ref(false)
 
 // ── Error surfacing ───────────────────────────────────────────────────────────
 
-/**
- * Show the error banner when:
- *   - the store has finished attempting to load (not loading, initialize ran)
- *   - servers is still empty
- *   - OR errorStore has a current error
- * Don't show it while loading is in progress.
- */
 const fetchFailed = computed(
   () =>
     !serverStore.loading &&
@@ -402,7 +389,7 @@ const fetchFailed = computed(
 
 const latestError = computed(() => errorStore.message ?? null)
 
-// ── Server sets — all from store computed properties ──────────────────────────
+// ── Server sets ───────────────────────────────────────────────────────────────
 
 const modeServers = computed<Server[]>(() => {
   if (props.mode === 'text') return serverStore.textServers
@@ -416,7 +403,6 @@ const modeServers = computed<Server[]>(() => {
   )
 })
 
-// ← this goes here, right after modeServers
 const publicServers = computed(() =>
   modeServers.value.filter(
     (s) => s.isOfficial || s.isPublic || s.category === 'official',
@@ -424,7 +410,10 @@ const publicServers = computed(() =>
 )
 
 const myServers = computed(() =>
-  modeServers.value.filter((s) => s.userId === myUserId.value && !s.isOfficial),
+  modeServers.value.filter(
+    (s) =>
+      s.userId === myUserId.value && !s.isOfficial && s.category !== 'official',
+  ),
 )
 
 // ── Search ────────────────────────────────────────────────────────────────────
@@ -444,7 +433,7 @@ function matches(s: Server) {
 const filteredPublic = computed(() => publicServers.value.filter(matches))
 const filteredMine = computed(() => myServers.value.filter(matches))
 
-// ── Active server ─────────────────────────────────────────────────────────────
+// ── Active ────────────────────────────────────────────────────────────────────
 
 const activeServerId = computed(() =>
   props.mode === 'text'
@@ -510,7 +499,7 @@ const quickAddPresets = computed<Array<{ type: ServerType; label: string }>>(
         ],
 )
 
-// ── Inline sub-components ─────────────────────────────────────────────────────
+// ── Inline section header ─────────────────────────────────────────────────────
 
 const GallerySectionHeader = defineComponent({
   name: 'GallerySectionHeader',
@@ -549,196 +538,6 @@ const GallerySectionHeader = defineComponent({
       )
   },
 })
-
-function statusDot(status: string | null | undefined) {
-  const colors: Record<string, string> = {
-    ONLINE: 'bg-success',
-    OFFLINE: 'bg-error',
-    DEGRADED: 'bg-warning',
-  }
-  const pulse = status === 'ONLINE' ? ' status-pulse' : ''
-  return h('span', {
-    class: `inline-block h-2 w-2 shrink-0 rounded-full ${colors[status ?? ''] ?? 'bg-base-300'}${pulse}`,
-  })
-}
-
-const ServerCard = defineComponent({
-  name: 'ServerCard',
-  emits: ['select', 'edit', 'test'],
-  props: {
-    server: { type: Object as () => Server, required: true },
-    active: { type: Boolean, required: true },
-    healthResult: {
-      type: Object as () => { ok: boolean; latencyMs: number } | null,
-      default: null,
-    },
-    owned: { type: Boolean, default: false },
-  },
-  setup(props, { emit }) {
-    const icon = computed(() => {
-      if (props.server.supportsChat) return 'kind-icon:chat'
-      if (props.server.supportsComfyWorkflow) return 'kind-icon:workflow'
-      return 'kind-icon:art'
-    })
-
-    const statusBadgeCls = computed(() => {
-      const map: Record<string, string> = {
-        ONLINE: 'badge-success',
-        OFFLINE: 'badge-error',
-        DEGRADED: 'badge-warning',
-      }
-      return map[props.server.lastStatus ?? ''] ?? 'badge-neutral'
-    })
-
-    const capBadges = computed(
-      () =>
-        (
-          [
-            props.server.supportsChat && {
-              label: 'chat',
-              cls: 'badge-secondary',
-            },
-            props.server.supportsTxt2Img && {
-              label: 'txt2img',
-              cls: 'badge-accent',
-            },
-            props.server.supportsImg2Img && {
-              label: 'img2img',
-              cls: 'badge-accent',
-            },
-            props.server.supportsComfyWorkflow && {
-              label: 'comfy',
-              cls: 'badge-warning',
-            },
-            props.server.requiresApiKey && {
-              label: 'api key',
-              cls: 'badge-neutral',
-            },
-          ] as const
-        ).filter(Boolean) as { label: string; cls: string }[],
-    )
-
-    return () =>
-      h(
-        'article',
-        {
-          class: [
-            'flex flex-col gap-2 rounded-xl border p-3 transition-all duration-150 hover:-translate-y-px',
-            props.active
-              ? 'border-primary bg-primary/8'
-              : 'border-base-300 bg-base-200 hover:border-primary/30',
-          ],
-        },
-        [
-          h('div', { class: 'flex items-start gap-2.5' }, [
-            h(
-              'div',
-              {
-                class:
-                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-base-100',
-              },
-              [
-                h(resolveComponent('Icon'), {
-                  name: icon.value,
-                  class: 'h-4 w-4 text-primary',
-                }),
-              ],
-            ),
-            h('div', { class: 'min-w-0 flex-1' }, [
-              h('div', { class: 'flex flex-wrap items-center gap-1' }, [
-                statusDot(props.server.lastStatus),
-                h(
-                  'span',
-                  { class: 'truncate text-sm font-black' },
-                  props.server.label || props.server.title,
-                ),
-                props.active &&
-                  h(
-                    'span',
-                    { class: 'badge badge-primary badge-xs' },
-                    'Active',
-                  ),
-                props.server.isOfficial &&
-                  h('span', { class: 'badge badge-info badge-xs' }, 'Official'),
-              ]),
-              h(
-                'p',
-                { class: 'mt-0.5 truncate text-[11px] opacity-55' },
-                props.server.description || props.server.baseUrl,
-              ),
-            ]),
-          ]),
-
-          h(
-            'div',
-            {
-              class:
-                'flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg bg-base-100 px-2.5 py-1.5 font-mono text-[10px] opacity-65',
-            },
-            [
-              h(
-                'span',
-                { class: 'font-sans font-bold text-primary not-italic' },
-                props.server.serverType,
-              ),
-              h('span', { class: 'truncate' }, props.server.baseUrl),
-              props.server.endpointPath &&
-                h('span', { class: 'opacity-60' }, props.server.endpointPath),
-            ],
-          ),
-
-          h('div', { class: 'flex flex-wrap gap-1' }, [
-            ...capBadges.value.map((b) =>
-              h('span', { class: `badge badge-xs ${b.cls}` }, b.label),
-            ),
-            h(
-              'span',
-              { class: `badge badge-xs ${statusBadgeCls.value}` },
-              props.server.lastStatus || 'UNKNOWN',
-            ),
-          ]),
-
-          props.healthResult &&
-            h(
-              'p',
-              { class: 'text-[10px] opacity-60' },
-              `${props.healthResult.ok ? '✓ Healthy' : '✗ Failed'} · ${props.healthResult.latencyMs}ms`,
-            ),
-
-          h('div', { class: 'flex flex-wrap gap-1.5 pt-0.5' }, [
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'btn btn-primary btn-xs flex-1 rounded-lg',
-                disabled: props.active || !props.server.isActive,
-                onClick: () => emit('select'),
-              },
-              props.active ? 'Selected' : 'Use',
-            ),
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'btn btn-ghost btn-xs rounded-lg',
-                onClick: () => emit('test'),
-              },
-              'Test',
-            ),
-            h(
-              'button',
-              {
-                type: 'button',
-                class: 'btn btn-ghost btn-xs rounded-lg',
-                onClick: () => emit('edit'),
-              },
-              props.owned ? 'Edit' : 'Customize',
-            ),
-          ]),
-        ],
-      )
-  },
-})
 </script>
 
 <style scoped>
@@ -760,19 +559,5 @@ const ServerCard = defineComponent({
 .scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background: oklch(var(--b3));
-}
-
-@keyframes status-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
-    transform: scale(1.5);
-  }
-}
-.status-pulse {
-  animation: status-pulse 2.5s ease-in-out infinite;
 }
 </style>

@@ -1,319 +1,450 @@
-<!-- /components/art/add-server.vue -->
+<!-- /components/server/add-server.vue -->
+<!--
+  Self-contained editor panel.
+  Position + width are set by the parent (absolute below the Add Server button).
+
+  Emits
+    close   cancelled or Esc pressed
+    saved   server saved successfully
+-->
 <template>
   <div
-    class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 max-w-6xl space-y-6"
+    class="flex max-h-[min(640px,80vh)] flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
   >
-    <h1 class="text-4xl text-center font-bold">Create a Server</h1>
+    <!-- Clone notice -->
+    <div
+      v-if="isCloning"
+      class="flex shrink-0 items-start gap-3 border-b border-warning/30 bg-warning/10 px-4 py-3"
+    >
+      <Icon
+        name="kind-icon:copy"
+        class="mt-0.5 h-4 w-4 shrink-0 text-warning"
+      />
+      <div>
+        <p class="text-xs font-black">Creating a personal copy</p>
+        <p class="mt-0.5 text-[11px] opacity-70">
+          The original is unchanged. Only you can see this version.
+        </p>
+      </div>
+    </div>
 
-    <div class="flex justify-center">
+    <!-- Panel header -->
+    <div
+      class="flex shrink-0 items-start justify-between gap-4 border-b border-base-300 px-4 py-3"
+    >
+      <div>
+        <h2 class="text-sm font-black">
+          {{
+            isCloning
+              ? 'Customize Server'
+              : serverStore.serverForm.id
+                ? 'Edit Server'
+                : 'Configure Server'
+          }}
+        </h2>
+        <p class="mt-0.5 text-[11px] opacity-55">{{ subtitle }}</p>
+      </div>
       <button
-        class="btn btn-outline rounded-2xl"
-        :disabled="serverStore.isSaving"
-        @click="resetForm"
+        type="button"
+        class="btn btn-ghost btn-sm btn-circle shrink-0"
+        @click="emit('close')"
       >
-        <icon name="kind-icon:refresh" class="text-xl" />
-        Reset Form
+        <Icon name="kind-icon:x" class="h-4 w-4" />
       </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <label class="form-control">
-        <span class="label-text">Title</span>
-        <input
-          v-model="serverStore.serverForm.title"
-          class="input input-bordered rounded-2xl"
-          type="text"
-        />
-      </label>
-
-      <label class="form-control">
-        <span class="label-text">Label</span>
-        <input
-          v-model="serverStore.serverForm.label"
-          class="input input-bordered rounded-2xl"
-          type="text"
-        />
-      </label>
-
-      <label class="form-control lg:col-span-2">
-        <span class="label-text">Description</span>
-        <textarea
-          v-model="serverStore.serverForm.description"
-          class="textarea textarea-bordered rounded-2xl"
-          rows="3"
-        />
-      </label>
-
-      <label class="form-control">
-        <span class="label-text">Server Type</span>
-        <select
-          v-model="localServerType"
-          class="select select-bordered rounded-2xl"
+    <!-- Form body -->
+    <form
+      class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-base-300"
+      @submit.prevent="handleSave"
+    >
+      <!-- Quick Setup fieldset -->
+      <fieldset
+        class="flex flex-col gap-3 rounded-xl border border-base-300 bg-base-200 p-4"
+      >
+        <legend
+          class="px-1 text-[10px] font-black uppercase tracking-widest opacity-45"
         >
-          <option value="ART">ART</option>
-          <option value="TEXT">TEXT</option>
-          <option value="COMFY">COMFY</option>
-          <option value="A1111">A1111</option>
-          <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
-          <option value="OTHER">OTHER</option>
-        </select>
-      </label>
+          Quick Setup
+        </legend>
 
-      <label class="form-control">
-        <span class="label-text">Category</span>
-        <input
-          v-model="serverStore.serverForm.category"
-          class="input input-bordered rounded-2xl"
-          type="text"
-        />
-      </label>
+        <!-- Base URL -->
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70">Base URL</span>
+          <div class="flex gap-1.5">
+            <input
+              v-model="serverStore.serverForm.baseUrl"
+              class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
+              placeholder="http://localhost:7860"
+            />
+            <button
+              v-if="serverStore.serverForm.baseUrl"
+              type="button"
+              class="btn btn-ghost btn-sm btn-square rounded-xl"
+              title="Copy URL"
+              @click="copyUrl"
+            >
+              <Icon
+                :name="copiedUrl ? 'kind-icon:check' : 'kind-icon:copy'"
+                :class="['h-3.5 w-3.5', copiedUrl && 'text-success']"
+              />
+            </button>
+          </div>
+        </label>
 
-      <label class="form-control">
-        <span class="label-text">Base URL</span>
-        <input
-          v-model="serverStore.serverForm.baseUrl"
-          class="input input-bordered rounded-2xl"
-          type="text"
-          placeholder="https://example.com"
-        />
-      </label>
+        <!-- Endpoint path -->
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70">Endpoint Path</span>
+          <input
+            v-model="serverStore.serverForm.endpointPath"
+            class="input input-bordered input-sm rounded-xl font-mono text-xs"
+            placeholder="/v1/chat/completions"
+          />
+        </label>
 
-      <label class="form-control">
-        <span class="label-text">Endpoint Path</span>
-        <input
-          v-model="serverStore.serverForm.endpointPath"
-          class="input input-bordered rounded-2xl"
-          type="text"
-          placeholder="/sdapi/v1/txt2img"
-        />
-      </label>
+        <!-- API Key section -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold opacity-70">API Key</span>
+            <span
+              :class="[
+                'badge badge-xs',
+                serverHasStoredKey ? 'badge-success' : 'badge-neutral',
+              ]"
+            >
+              {{ serverHasStoredKey ? '🔑 Stored' : 'Not set' }}
+            </span>
+          </div>
+          <div class="flex gap-1.5">
+            <input
+              v-model="apiKey"
+              :type="showApiKey ? 'text' : 'password'"
+              autocomplete="off"
+              placeholder="Leave blank to keep existing"
+              class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
+            />
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl"
+              :title="showApiKey ? 'Hide' : 'Show'"
+              @click="showApiKey = !showApiKey"
+            >
+              <Icon
+                :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'"
+                class="h-3.5 w-3.5"
+              />
+            </button>
+          </div>
+          <input
+            v-model="apiKeyName"
+            class="input input-bordered input-sm rounded-xl text-xs"
+            placeholder="Label: OpenAI, Groq, Stability…"
+          />
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              class="btn btn-outline btn-xs rounded-lg"
+              :disabled="!apiKey.trim() || serverStore.isSaving"
+              @click="saveKeyOnly"
+            >
+              Save Key Only
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs rounded-lg opacity-60"
+              :disabled="
+                !serverStore.serverForm.id || isCloning || serverStore.isSaving
+              "
+              @click="clearKey"
+            >
+              Clear Key
+            </button>
+          </div>
+        </div>
+      </fieldset>
 
-      <label class="form-control">
-        <span class="label-text">Health Path</span>
-        <input
-          v-model="serverStore.serverForm.healthPath"
-          class="input input-bordered rounded-2xl"
-          type="text"
-          placeholder="/health"
-        />
-      </label>
+      <!-- More Settings (collapsible) -->
+      <details class="group overflow-hidden rounded-xl border border-base-300">
+        <summary
+          class="flex cursor-pointer select-none list-none items-center gap-2 bg-base-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider opacity-60 hover:opacity-90"
+        >
+          <Icon name="kind-icon:settings" class="h-3.5 w-3.5" />
+          More Settings
+          <Icon
+            name="kind-icon:chevron-down"
+            class="ml-auto h-3.5 w-3.5 transition-transform group-open:rotate-180"
+          />
+        </summary>
 
-      <label class="form-control">
-        <span class="label-text">Designer</span>
-        <input
-          v-model="serverStore.serverForm.designer"
-          class="input input-bordered rounded-2xl"
-          type="text"
-        />
-      </label>
+        <div class="flex flex-col gap-3 p-4">
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold opacity-70">Title</span>
+              <input
+                v-model="serverStore.serverForm.title"
+                class="input input-bordered input-sm rounded-xl text-xs"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold opacity-70">Label</span>
+              <input
+                v-model="serverStore.serverForm.label"
+                class="input input-bordered input-sm rounded-xl text-xs"
+              />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold opacity-70">Server Type</span>
+              <select
+                v-model="serverStore.serverForm.serverType"
+                class="select select-bordered select-sm rounded-xl text-xs"
+              >
+                <option value="TEXT">TEXT</option>
+                <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
+                <option value="ART">ART</option>
+                <option value="COMFY">COMFY</option>
+                <option value="A1111">A1111</option>
+                <option value="OTHER">OTHER</option>
+              </select>
+            </label>
+            <label class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold opacity-70">Category</span>
+              <input
+                v-model="serverStore.serverForm.category"
+                class="input input-bordered input-sm rounded-xl text-xs"
+              />
+            </label>
+            <label class="col-span-2 flex flex-col gap-1">
+              <span class="text-[11px] font-bold opacity-70">Health Path</span>
+              <input
+                v-model="serverStore.serverForm.healthPath"
+                class="input input-bordered input-sm rounded-xl font-mono text-xs"
+                placeholder="/health"
+              />
+            </label>
+            <label class="col-span-2 flex flex-col gap-1">
+              <span class="text-[11px] font-bold opacity-70">Description</span>
+              <textarea
+                v-model="serverStore.serverForm.description"
+                class="textarea textarea-bordered rounded-xl text-xs"
+                rows="2"
+              />
+            </label>
+          </div>
 
-      <label class="form-control">
-        <span class="label-text">Version</span>
-        <input
-          v-model="serverStore.serverForm.version"
-          class="input input-bordered rounded-2xl"
-          type="text"
-        />
-      </label>
+          <!-- Capability toggles -->
+          <div class="grid grid-cols-2 gap-1.5">
+            <label
+              v-for="toggle in capabilityToggles"
+              :key="toggle.key"
+              class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold hover:border-primary/40"
+            >
+              <input
+                v-model="(serverStore.serverForm as any)[toggle.key]"
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-xs"
+              />
+              {{ toggle.label }}
+            </label>
+          </div>
+        </div>
+      </details>
 
-      <label class="form-control">
-        <span class="label-text">Sort Order</span>
-        <input
-          v-model.number="serverStore.serverForm.sortOrder"
-          class="input input-bordered rounded-2xl"
-          type="number"
-        />
-      </label>
-
-      <label class="form-control lg:col-span-2">
-        <span class="label-text">Notes</span>
-        <textarea
-          v-model="serverStore.serverForm.notes"
-          class="textarea textarea-bordered rounded-2xl"
-          rows="3"
-        />
-      </label>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.isActive"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Active</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.isPublic"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Public</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.requiresApiKey"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Requires API Key</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsTxt2Img"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Supports Txt2Img</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsImg2Img"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Supports Img2Img</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsChat"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Supports Chat</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsComfyWorkflow"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Supports Comfy</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsCheckpointOverride"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Checkpoint Override</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsSampler"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Supports Sampler</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsNegativePrompt"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Negative Prompt</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsSeed"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Seed</span>
-      </label>
-
-      <label
-        class="label cursor-pointer justify-start gap-3 rounded-2xl border p-3"
-      >
-        <input
-          v-model="serverStore.serverForm.supportsSteps"
-          type="checkbox"
-          class="checkbox"
-        />
-        <span class="label-text">Steps</span>
-      </label>
-    </div>
-
-    <div class="flex flex-wrap gap-3">
-      <button
-        class="btn btn-primary rounded-2xl"
-        :disabled="serverStore.isSaving"
-        @click="handleSubmit"
-      >
-        Create Server
-      </button>
-    </div>
-
-    <div v-if="successMessage" class="text-success">{{ successMessage }}</div>
+      <!-- Save / Cancel -->
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm flex-1 rounded-xl"
+          @click="emit('close')"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary btn-sm flex-1 gap-1.5 rounded-xl"
+          :disabled="serverStore.isSaving"
+        >
+          <span
+            v-if="serverStore.isSaving"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:save" class="h-3.5 w-3.5" />
+          {{
+            isCloning
+              ? 'Save My Copy'
+              : serverStore.serverForm.id
+                ? 'Save Changes'
+                : 'Create Server'
+          }}
+        </button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
-import type { ServerType } from '~/prisma/generated/prisma/client'
+import { useUserStore } from '@/stores/userStore'
+
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'saved'): void
+}>()
 
 const serverStore = useServerStore()
+const userStore = useUserStore()
+const myUserId = computed(() => userStore.user?.id)
 
-const successMessage = ref('')
-const localServerType = ref<ServerType>('ART')
+// ── Local form state (API key is never stored in serverForm) ──────────────────
 
-onMounted(async () => {
-  await serverStore.initialize()
-  resetForm()
+const apiKey = ref('')
+const apiKeyName = ref('')
+const showApiKey = ref(false)
+const copiedUrl = ref(false)
+
+// ── Derived ───────────────────────────────────────────────────────────────────
+
+const serverHasStoredKey = computed(() =>
+  Boolean(serverStore.serverForm.apiKey),
+)
+
+const isCloning = computed(() => {
+  const id = serverStore.serverForm.id
+  if (!id) return false
+  const server = serverStore.getServerById(id)
+  if (!server) return false
+  return (
+    server.userId !== myUserId.value || !!server.isPublic || !!server.isOfficial
+  )
 })
 
-watch(localServerType, (value: ServerType) => {
-  serverStore.createNewServer(value)
+const subtitle = computed(() => {
+  if (isCloning.value)
+    return 'Your edits create a private copy — original unchanged.'
+  if (serverStore.serverForm.id) return 'Adjust this server configuration.'
+  return `New ${serverStore.serverForm.serverType ?? 'TEXT'} server.`
 })
 
-function resetForm(): void {
-  serverStore.deselectServer()
-  serverStore.createNewServer(localServerType.value)
-  successMessage.value = ''
+const capabilityToggles = [
+  { key: 'supportsChat', label: 'Chat' },
+  { key: 'supportsTxt2Img', label: 'Txt → Img' },
+  { key: 'supportsImg2Img', label: 'Img → Img' },
+  { key: 'supportsComfyWorkflow', label: 'Comfy Workflow' },
+  { key: 'requiresApiKey', label: 'Requires API Key' },
+  { key: 'isActive', label: 'Active' },
+] as const
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function copyUrl() {
+  try {
+    await navigator.clipboard.writeText(serverStore.serverForm.baseUrl ?? '')
+    copiedUrl.value = true
+    setTimeout(() => {
+      copiedUrl.value = false
+    }, 1500)
+  } catch {}
 }
 
-async function handleSubmit(): Promise<void> {
-  const result = await serverStore.addServer(serverStore.serverForm)
+/** Ensures we have a persisted private server before attaching an API key. */
+async function ensurePrivateServer(): Promise<number | null> {
+  if (!userStore.isLoggedIn) return null
+  if (serverStore.serverForm.id && !isCloning.value)
+    return serverStore.serverForm.id
 
-  if (result.success) {
-    successMessage.value = 'Server created successfully!'
-    resetForm()
+  serverStore.serverForm = {
+    ...serverStore.serverForm,
+    id: undefined,
+    userId: myUserId.value,
+    isPublic: false,
+    isOfficial: false,
+    isDefault: false,
+    isEditable: true,
+    apiKey: undefined,
+    apiKeyName:
+      apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   }
+  const result = await serverStore.saveServer()
+  if (!result.success || !result.data) return null
+  serverStore.selectServer(result.data.id)
+  return result.data.id
 }
+
+async function saveKeyOnly() {
+  if (!apiKey.value.trim()) return
+  const id = await ensurePrivateServer()
+  if (!id) return
+  await serverStore.updateServerApiKey(id, {
+    apiKey: apiKey.value,
+    apiKeyName:
+      apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
+  })
+  apiKey.value = ''
+}
+
+async function clearKey() {
+  if (!serverStore.serverForm.id || isCloning.value) return
+  await serverStore.updateServerApiKey(serverStore.serverForm.id, {
+    clearKey: true,
+    apiKeyName:
+      apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
+  })
+  apiKey.value = ''
+}
+
+async function handleSave() {
+  serverStore.serverForm = {
+    ...serverStore.serverForm,
+    apiKey: undefined,
+    apiKeyName: apiKeyName.value || serverStore.serverForm.apiKeyName || null,
+  }
+  const result = await serverStore.saveServer()
+  if (!result.success || !result.data) return
+
+  if (apiKey.value.trim()) {
+    await serverStore.updateServerApiKey(result.data.id, {
+      apiKey: apiKey.value,
+      apiKeyName:
+        apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
+    })
+  }
+  emit('saved')
+}
+
+// Sync apiKeyName label from store when it changes externally
+watch(
+  () => serverStore.serverForm.apiKeyName,
+  (val) => {
+    if (!apiKeyName.value && val) apiKeyName.value = val
+  },
+)
+
+// Keyboard close
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') emit('close')
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
+
+<style scoped>
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+.scrollbar-track-transparent {
+  scrollbar-color: transparent transparent;
+}
+.scrollbar-thumb-base-300 {
+  scrollbar-color: oklch(var(--b3)) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: oklch(var(--b3));
+}
+</style>

@@ -44,12 +44,12 @@ describe('Butterfly API', () => {
       userB_apiKey = res.body.user.apiKey
     })
 
-    // Create a test butterfly species as admin
+    // ✅ Use x-api-key to match the auth pattern the server actually expects
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
-        Authorization: `Bearer ${globalApiKey}`,
+        'x-api-key': globalApiKey,
         'Content-Type': 'application/json',
       },
       body: {
@@ -68,7 +68,6 @@ describe('Butterfly API', () => {
       butterflyId = res.body.data.id
     })
   })
-
   // ─── butterfly species (roster) ────────────────────────────────────────────
 
   it('GET /butterflies — returns public list, no auth required', () => {
@@ -244,20 +243,23 @@ describe('Butterfly API', () => {
   // ─── teardown ──────────────────────────────────────────────────────────────
 
   after(() => {
-    // Delete the test butterfly species
-    cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/${butterflyId}`,
-      headers: { Authorization: `Bearer ${globalApiKey}` },
-    })
+    // ✅ Guard against butterflyId being undefined if before() failed
+    if (butterflyId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${butterflyId}`,
+        headers: { 'x-api-key': globalApiKey },
+      })
+    }
 
-    // Delete test users
-    const deleteUser = (id: number, apiKey: string) =>
+    const deleteUser = (id: number, apiKey: string) => {
+      if (!id || !apiKey) return
       cy.request({
         method: 'DELETE',
         url: `${userUrl}/${id}`,
         headers: { Authorization: `Bearer ${apiKey}` },
       })
+    }
 
     deleteUser(userA_id, userA_apiKey)
     deleteUser(userB_id, userB_apiKey)

@@ -3,11 +3,10 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Prompt, Prisma } from '~/prisma/generated/prisma/client'
+import type { Prompt } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Use validateApiKey for token authentication
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
       throw createError({
@@ -17,11 +16,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const authenticatedUserId = user.id
+    const promptData = await readBody<
+      Partial<Prompt> & { CreationSource?: string }
+    >(event)
 
-    // Read and validate the prompt data from the request body
-    const promptData = await readBody<Partial<Prompt>>(event)
-
-    // Ensure "prompt" is provided and is a string
     if (!promptData.prompt || typeof promptData.prompt !== 'string') {
       throw createError({
         statusCode: 400,
@@ -29,7 +27,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if userId in the promptData matches the authenticated user (if provided)
     if (promptData.userId && promptData.userId !== authenticatedUserId) {
       throw createError({
         statusCode: 403,
@@ -37,19 +34,26 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Create the prompt with the authenticated user ID
+    // Resolve creationSource from either casing the client might send
+    const resolvedSource = (promptData.creationSource ??
+      promptData.CreationSource ??
+      'UNKNOWN') as string
+
     const data = await prisma.prompt.create({
       data: {
-        userId: authenticatedUserId,
         prompt: promptData.prompt,
-        galleryId: promptData.galleryId || null,
-        pitchId: promptData.pitchId || null,
-        botId: promptData.botId || null,
-        CreationSource: promptData.creationSource || 'UNKNOWN',
-      } as Prisma.PromptCreateInput,
+        creationSource: resolvedSource as any,
+        User: { connect: { id: authenticatedUserId } },
+        ...(promptData.galleryId && {
+          Gallery: { connect: { id: promptData.galleryId } },
+        }),
+        ...(promptData.pitchId && {
+          Pitch: { connect: { id: promptData.pitchId } },
+        }),
+        ...(promptData.botId && { Bot: { connect: { id: promptData.botId } } }),
+      },
     })
 
-    // Return success response with appropriate status code
     event.node.res.statusCode = 201
     return {
       success: true,
@@ -57,7 +61,6 @@ export default defineEventHandler(async (event) => {
       message: 'Prompt created successfully.',
     }
   } catch (error: unknown) {
-    // Capture specific error message and status code from errorHandler
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
     return {

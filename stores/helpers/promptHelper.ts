@@ -2,6 +2,8 @@
 
 import type { Prompt } from '~/prisma/generated/prisma/client'
 
+export type CreationSource = 'HUMAN' | 'AI' | 'UNKNOWN' | 'HYBRID' | 'UPLOAD'
+
 /**
  * Validate prompt input string – must be non-empty and contain valid characters.
  */
@@ -27,6 +29,7 @@ export function buildPromptPayload(p: Partial<Prompt>): Partial<Prompt> {
     botId: p.botId ?? null,
     galleryId: p.galleryId ?? null,
     artImageId: p.artImageId ?? null,
+    creationSource: p.creationSource ?? CreationSource.UNKNOWN,
   }
 }
 

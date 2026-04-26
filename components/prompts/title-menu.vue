@@ -35,7 +35,7 @@ import {
   usePitchStore,
   type Pitch,
   PitchType,
-  CreationSource,
+  type CreationSource,
 } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
 

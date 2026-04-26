@@ -682,7 +682,8 @@ const randomResult = ref('')
 function randomize() {
   const examples = currentExamples.value
   if (!examples.length) return
-  const pick = examples[Math.floor(Math.random() * examples.length)]
+  const pick = examples[Math.floor(Math.random() * examples.length)] ?? ''
+  if (!pick) return
   randomResult.value = pick
   captureText.value = pick
 }

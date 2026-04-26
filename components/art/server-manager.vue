@@ -22,7 +22,6 @@
           <Icon name="kind-icon:refresh" class="sm-btn-icon" />
           Refresh
         </button>
-
         <button
           type="button"
           class="sm-btn sm-btn-primary"
@@ -35,311 +34,481 @@
     </header>
 
     <main class="sm-body">
-      <section class="sm-grid">
-        <div class="sm-column sm-column-text">
-          <server-column-header
-            title="Text Servers"
-            subtitle="Chat, bots, prompts, language models"
-            icon="kind-icon:chat"
-            :active-title="
+      <!-- ── TEXT COLUMN ── -->
+      <section class="sm-column sm-column-text">
+        <div class="sm-column-header">
+          <div class="sm-column-heading">
+            <Icon name="kind-icon:chat" class="sm-column-icon" />
+            <div>
+              <h2 class="sm-column-title">Text Servers</h2>
+              <p class="sm-column-subtitle">
+                Chat, bots, prompts, language models
+              </p>
+            </div>
+          </div>
+          <div class="sm-active-pill">
+            <span class="sm-active-label">Active</span>
+            <span class="sm-active-value">{{
               serverStore.activeTextServer?.title || 'Kind Robots Default'
-            "
-          />
-
-          <kind-default-card
-            label="Kind Robots Default Text"
-            description="Use whichever text server Kind Robots currently recommends."
-            :active="!serverStore.activeTextServerId"
-            @select="selectKindDefault('text')"
-          />
-
-          <configured-empty
-            v-if="!ownedTextServers.length"
-            mode="text"
-            @configure="startNewServer('TEXT')"
-            @configure-openai="startNewServer('OPENAI_COMPATIBLE')"
-          />
-
-          <div class="sm-card-list">
-            <server-card
-              v-for="server in serverStore.textServers"
-              :key="`text-${server.id}`"
-              :server="server"
-              :active="serverStore.activeTextServer?.id === server.id"
-              :health-result="serverStore.healthResults[server.id]"
-              @select="selectTextServer(server.id)"
-              @edit="editServer(server.id)"
-              @test="testServer(server.id)"
-            />
+            }}</span>
           </div>
         </div>
 
-        <div class="sm-column sm-column-image">
-          <server-column-header
-            title="Image Servers"
-            subtitle="Art, ComfyUI, Stable Diffusion, image pipelines"
-            icon="kind-icon:art"
-            :active-title="
-              serverStore.activeArtServer?.title || 'Kind Robots Default'
-            "
-          />
+        <div class="sm-column-scroll">
+          <!-- Kind Default -->
+          <button
+            type="button"
+            class="sm-default-card"
+            :class="{ active: !serverStore.activeTextServerId }"
+            @click="selectKindDefault('text')"
+          >
+            <div class="sm-default-icon-wrap">
+              <Icon name="kind-icon:robot" class="sm-default-icon" />
+            </div>
+            <div class="sm-default-copy">
+              <div class="sm-default-title-row">
+                <h3 class="sm-default-title">Kind Robots Default</h3>
+                <span
+                  v-if="!serverStore.activeTextServerId"
+                  class="sm-badge sm-badge-primary"
+                  >Selected</span
+                >
+              </div>
+              <p class="sm-default-description">
+                Use whichever text server Kind Robots currently recommends.
+              </p>
+            </div>
+          </button>
 
-          <kind-default-card
-            label="Kind Robots Default Image"
-            description="Use whichever image server Kind Robots currently recommends."
-            :active="!serverStore.activeArtServerId"
-            @select="selectKindDefault('image')"
-          />
+          <!-- Official + Public catalog -->
+          <div v-if="publicTextServers.length" class="sm-section">
+            <div class="sm-section-label">
+              <Icon name="kind-icon:verified" class="sm-section-icon" />
+              Official &amp; Public
+            </div>
+            <div class="sm-card-list">
+              <server-catalog-card
+                v-for="server in publicTextServers"
+                :key="`pub-text-${server.id}`"
+                :server="server"
+                :active="serverStore.activeTextServer?.id === server.id"
+                :health-result="serverStore.healthResults[server.id]"
+                @select="selectTextServer(server.id)"
+                @edit="editServer(server.id)"
+                @test="testServer(server.id)"
+              />
+            </div>
+          </div>
 
-          <configured-empty
-            v-if="!ownedImageServers.length"
-            mode="image"
-            @configure="startNewServer('ART')"
-            @configure-comfy="startNewServer('COMFY')"
-            @configure-a1111="startNewServer('A1111')"
-          />
+          <!-- My text servers -->
+          <div class="sm-section">
+            <div class="sm-section-label">
+              <Icon name="kind-icon:user" class="sm-section-icon" />
+              My Servers
+              <button
+                type="button"
+                class="sm-add-inline"
+                @click="startNewServer('TEXT')"
+              >
+                <Icon name="kind-icon:plus" class="sm-add-icon" />
+                New
+              </button>
+            </div>
 
-          <div class="sm-card-list">
-            <server-card
-              v-for="server in imageServers"
-              :key="`image-${server.id}`"
-              :server="server"
-              :active="serverStore.activeArtServer?.id === server.id"
-              :health-result="serverStore.healthResults[server.id]"
-              @select="selectImageServer(server.id)"
-              @edit="editServer(server.id)"
-              @test="testServer(server.id)"
-            />
+            <div v-if="myTextServers.length" class="sm-card-list">
+              <server-catalog-card
+                v-for="server in myTextServers"
+                :key="`my-text-${server.id}`"
+                :server="server"
+                :active="serverStore.activeTextServer?.id === server.id"
+                :health-result="serverStore.healthResults[server.id]"
+                owned
+                @select="selectTextServer(server.id)"
+                @edit="editServer(server.id)"
+                @test="testServer(server.id)"
+              />
+            </div>
+            <div v-else class="sm-empty-mine">
+              <p>No personal text servers yet.</p>
+              <button
+                type="button"
+                class="sm-btn sm-btn-secondary sm-btn-sm"
+                @click="startNewServer('OPENAI_COMPATIBLE')"
+              >
+                OpenAI Compatible
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <aside v-if="showEditor" class="sm-editor">
-        <div class="sm-editor-header">
-          <div>
-            <h2 class="sm-editor-title">
-              {{
-                serverStore.serverForm.id ? 'Edit Server' : 'Configure Server'
-              }}
-            </h2>
-            <p class="sm-editor-subtitle">
-              {{ editorSubtitle }}
-            </p>
+      <!-- ── IMAGE COLUMN ── -->
+      <section class="sm-column sm-column-image">
+        <div class="sm-column-header">
+          <div class="sm-column-heading">
+            <Icon name="kind-icon:art" class="sm-column-icon" />
+            <div>
+              <h2 class="sm-column-title">Image Servers</h2>
+              <p class="sm-column-subtitle">
+                Art, ComfyUI, Stable Diffusion, image pipelines
+              </p>
+            </div>
           </div>
-
-          <button type="button" class="sm-icon-btn" @click="closeEditor">
-            <Icon name="kind-icon:x" class="sm-icon" />
-          </button>
+          <div class="sm-active-pill">
+            <span class="sm-active-label">Active</span>
+            <span class="sm-active-value">{{
+              serverStore.activeArtServer?.title || 'Kind Robots Default'
+            }}</span>
+          </div>
         </div>
 
-        <form class="sm-form" @submit.prevent="saveServer">
-          <div class="sm-form-grid">
-            <label class="sm-field">
-              <span>Title</span>
-              <input v-model="serverStore.serverForm.title" class="sm-input" />
-            </label>
+        <div class="sm-column-scroll">
+          <!-- Kind Default -->
+          <button
+            type="button"
+            class="sm-default-card"
+            :class="{ active: !serverStore.activeArtServerId }"
+            @click="selectKindDefault('image')"
+          >
+            <div class="sm-default-icon-wrap">
+              <Icon name="kind-icon:robot" class="sm-default-icon" />
+            </div>
+            <div class="sm-default-copy">
+              <div class="sm-default-title-row">
+                <h3 class="sm-default-title">Kind Robots Default</h3>
+                <span
+                  v-if="!serverStore.activeArtServerId"
+                  class="sm-badge sm-badge-primary"
+                  >Selected</span
+                >
+              </div>
+              <p class="sm-default-description">
+                Use whichever image server Kind Robots currently recommends.
+              </p>
+            </div>
+          </button>
 
-            <label class="sm-field">
-              <span>Label</span>
-              <input v-model="serverStore.serverForm.label" class="sm-input" />
-            </label>
-
-            <label class="sm-field">
-              <span>Server Type</span>
-              <select
-                v-model="serverStore.serverForm.serverType"
-                class="sm-input"
-              >
-                <option value="ART">ART</option>
-                <option value="TEXT">TEXT</option>
-                <option value="COMFY">COMFY</option>
-                <option value="A1111">A1111</option>
-                <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
-                <option value="OTHER">OTHER</option>
-              </select>
-            </label>
-
-            <label class="sm-field">
-              <span>Category</span>
-              <input
-                v-model="serverStore.serverForm.category"
-                class="sm-input"
+          <!-- Official + Public catalog -->
+          <div v-if="publicImageServers.length" class="sm-section">
+            <div class="sm-section-label">
+              <Icon name="kind-icon:verified" class="sm-section-icon" />
+              Official &amp; Public
+            </div>
+            <div class="sm-card-list">
+              <server-catalog-card
+                v-for="server in publicImageServers"
+                :key="`pub-img-${server.id}`"
+                :server="server"
+                :active="serverStore.activeArtServer?.id === server.id"
+                :health-result="serverStore.healthResults[server.id]"
+                @select="selectImageServer(server.id)"
+                @edit="editServer(server.id)"
+                @test="testServer(server.id)"
               />
-            </label>
-
-            <label class="sm-field sm-field-wide">
-              <span>Base URL</span>
-              <input
-                v-model="serverStore.serverForm.baseUrl"
-                class="sm-input"
-              />
-            </label>
-
-            <label class="sm-field">
-              <span>Endpoint Path</span>
-              <input
-                v-model="serverStore.serverForm.endpointPath"
-                class="sm-input"
-              />
-            </label>
-
-            <label class="sm-field">
-              <span>Health Path</span>
-              <input
-                v-model="serverStore.serverForm.healthPath"
-                class="sm-input"
-              />
-            </label>
-
-            <label class="sm-field sm-field-wide">
-              <span>Description</span>
-              <textarea
-                v-model="serverStore.serverForm.description"
-                class="sm-textarea"
-                rows="3"
-              />
-            </label>
+            </div>
           </div>
 
-          <div class="sm-secret-panel sm-field-wide">
-            <div class="sm-secret-header">
-              <div>
-                <h3 class="sm-secret-title">API Key</h3>
-                <p class="sm-secret-subtitle">
-                  {{ apiKeyHelpText }}
-                </p>
-              </div>
-
-              <span
-                class="sm-badge"
-                :class="
-                  serverHasStoredKey ? 'sm-badge-success' : 'sm-badge-neutral'
-                "
+          <!-- My image servers -->
+          <div class="sm-section">
+            <div class="sm-section-label">
+              <Icon name="kind-icon:user" class="sm-section-icon" />
+              My Servers
+              <button
+                type="button"
+                class="sm-add-inline"
+                @click="startNewServer('ART')"
               >
-                {{ serverHasStoredKey ? 'Key configured' : 'No key stored' }}
-              </span>
+                <Icon name="kind-icon:plus" class="sm-add-icon" />
+                New
+              </button>
             </div>
 
-            <label class="sm-field">
-              <span>Key Label</span>
-              <input
-                v-model="apiKeyName"
-                class="sm-input"
-                placeholder="OpenAI, Stability, Groq..."
+            <div v-if="myImageServers.length" class="sm-card-list">
+              <server-catalog-card
+                v-for="server in myImageServers"
+                :key="`my-img-${server.id}`"
+                :server="server"
+                :active="serverStore.activeArtServer?.id === server.id"
+                :health-result="serverStore.healthResults[server.id]"
+                owned
+                @select="selectImageServer(server.id)"
+                @edit="editServer(server.id)"
+                @test="testServer(server.id)"
               />
-            </label>
+            </div>
+            <div v-else class="sm-empty-mine">
+              <p>No personal image servers yet.</p>
+              <div class="sm-empty-mine-actions">
+                <button
+                  type="button"
+                  class="sm-btn sm-btn-secondary sm-btn-sm"
+                  @click="startNewServer('COMFY')"
+                >
+                  ComfyUI
+                </button>
+                <button
+                  type="button"
+                  class="sm-btn sm-btn-secondary sm-btn-sm"
+                  @click="startNewServer('A1111')"
+                >
+                  A1111
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <label class="sm-field">
-              <span>API Key</span>
-              <input
-                v-model="apiKey"
-                class="sm-input"
-                type="password"
-                autocomplete="off"
-                placeholder="Leave blank unless adding or replacing the key"
-              />
-            </label>
+      <!-- ── EDITOR PANEL ── -->
+      <transition name="sm-slide">
+        <aside v-if="showEditor" class="sm-editor">
+          <!-- Clone notice banner -->
+          <div v-if="isCloning" class="sm-clone-notice">
+            <Icon name="kind-icon:copy" class="sm-clone-icon" />
+            <div>
+              <strong>Creating your copy</strong>
+              <p>
+                Changes here create a private version you control. The original
+                is unchanged.
+              </p>
+            </div>
+          </div>
 
-            <div class="sm-secret-actions">
+          <div class="sm-editor-header">
+            <div>
+              <h2 class="sm-editor-title">
+                {{
+                  isCloning
+                    ? 'Customize Server'
+                    : serverStore.serverForm.id
+                      ? 'Edit Server'
+                      : 'Configure Server'
+                }}
+              </h2>
+              <p class="sm-editor-subtitle">{{ editorSubtitle }}</p>
+            </div>
+            <button type="button" class="sm-icon-btn" @click="closeEditor">
+              <Icon name="kind-icon:x" class="sm-icon" />
+            </button>
+          </div>
+
+          <form class="sm-form" @submit.prevent="saveServer">
+            <!-- Quick-edit: URL + Key at the top for fast configuration -->
+            <div class="sm-quick-edit">
+              <h3 class="sm-quick-label">Quick Setup</h3>
+
+              <label class="sm-field">
+                <span>Base URL</span>
+                <input
+                  v-model="serverStore.serverForm.baseUrl"
+                  class="sm-input sm-input-mono"
+                  placeholder="http://localhost:7860"
+                />
+              </label>
+
+              <label class="sm-field">
+                <span>Endpoint Path</span>
+                <input
+                  v-model="serverStore.serverForm.endpointPath"
+                  class="sm-input sm-input-mono"
+                  placeholder="/v1/chat/completions"
+                />
+              </label>
+
+              <!-- Inline API key row -->
+              <div class="sm-key-row">
+                <label class="sm-field sm-field-grow">
+                  <span>API Key</span>
+                  <input
+                    v-model="apiKey"
+                    class="sm-input sm-input-mono"
+                    type="password"
+                    autocomplete="off"
+                    placeholder="sk-… (leave blank to keep existing)"
+                  />
+                </label>
+                <label class="sm-field sm-field-shrink">
+                  <span>Key Label</span>
+                  <input
+                    v-model="apiKeyName"
+                    class="sm-input"
+                    placeholder="OpenAI, Groq…"
+                  />
+                </label>
+              </div>
+
+              <div class="sm-key-status-row">
+                <span
+                  class="sm-badge"
+                  :class="
+                    serverHasStoredKey ? 'sm-badge-success' : 'sm-badge-neutral'
+                  "
+                >
+                  {{ serverHasStoredKey ? '🔑 Key stored' : 'No key stored' }}
+                </span>
+                <div class="sm-key-actions">
+                  <button
+                    type="button"
+                    class="sm-btn sm-btn-secondary sm-btn-sm"
+                    :disabled="!apiKey.trim() || serverStore.isSaving"
+                    @click="saveApiKeyOnly"
+                  >
+                    Save Key Only
+                  </button>
+                  <button
+                    type="button"
+                    class="sm-btn sm-btn-ghost sm-btn-sm"
+                    :disabled="
+                      !serverStore.serverForm.id ||
+                      isCloning ||
+                      serverStore.isSaving
+                    "
+                    @click="clearApiKey"
+                  >
+                    Clear Key
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Server details (collapsible feel via separator) -->
+            <details class="sm-details">
+              <summary class="sm-details-summary">More Settings</summary>
+              <div class="sm-form-grid">
+                <label class="sm-field">
+                  <span>Title</span>
+                  <input
+                    v-model="serverStore.serverForm.title"
+                    class="sm-input"
+                  />
+                </label>
+
+                <label class="sm-field">
+                  <span>Label</span>
+                  <input
+                    v-model="serverStore.serverForm.label"
+                    class="sm-input"
+                  />
+                </label>
+
+                <label class="sm-field">
+                  <span>Server Type</span>
+                  <select
+                    v-model="serverStore.serverForm.serverType"
+                    class="sm-input"
+                  >
+                    <option value="ART">ART</option>
+                    <option value="TEXT">TEXT</option>
+                    <option value="COMFY">COMFY</option>
+                    <option value="A1111">A1111</option>
+                    <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
+                    <option value="OTHER">OTHER</option>
+                  </select>
+                </label>
+
+                <label class="sm-field">
+                  <span>Category</span>
+                  <input
+                    v-model="serverStore.serverForm.category"
+                    class="sm-input"
+                  />
+                </label>
+
+                <label class="sm-field">
+                  <span>Health Path</span>
+                  <input
+                    v-model="serverStore.serverForm.healthPath"
+                    class="sm-input sm-input-mono"
+                    placeholder="/health"
+                  />
+                </label>
+
+                <label class="sm-field sm-field-wide">
+                  <span>Description</span>
+                  <textarea
+                    v-model="serverStore.serverForm.description"
+                    class="sm-textarea"
+                    rows="2"
+                  />
+                </label>
+              </div>
+
+              <div class="sm-toggle-grid">
+                <label class="sm-toggle">
+                  <input
+                    v-model="serverStore.serverForm.supportsChat"
+                    type="checkbox"
+                  />
+                  <span>Chat</span>
+                </label>
+                <label class="sm-toggle">
+                  <input
+                    v-model="serverStore.serverForm.supportsTxt2Img"
+                    type="checkbox"
+                  />
+                  <span>Txt2Img</span>
+                </label>
+                <label class="sm-toggle">
+                  <input
+                    v-model="serverStore.serverForm.supportsImg2Img"
+                    type="checkbox"
+                  />
+                  <span>Img2Img</span>
+                </label>
+                <label class="sm-toggle">
+                  <input
+                    v-model="serverStore.serverForm.supportsComfyWorkflow"
+                    type="checkbox"
+                  />
+                  <span>Comfy Workflow</span>
+                </label>
+                <label class="sm-toggle">
+                  <input
+                    v-model="serverStore.serverForm.requiresApiKey"
+                    type="checkbox"
+                  />
+                  <span>Requires API Key</span>
+                </label>
+                <label class="sm-toggle">
+                  <input
+                    v-model="serverStore.serverForm.isActive"
+                    type="checkbox"
+                  />
+                  <span>Active</span>
+                </label>
+              </div>
+            </details>
+
+            <div class="sm-editor-actions">
               <button
                 type="button"
                 class="sm-btn sm-btn-secondary"
-                :disabled="!apiKey.trim() || serverStore.isSaving"
-                @click="saveApiKeyOnly"
+                @click="closeEditor"
               >
-                Save Key
+                Cancel
               </button>
-
               <button
-                type="button"
-                class="sm-btn sm-btn-ghost"
-                :disabled="!serverStore.serverForm.id || serverStore.isSaving"
-                @click="clearApiKey"
+                type="submit"
+                class="sm-btn sm-btn-primary"
+                :disabled="serverStore.isSaving"
               >
-                Clear Key
+                <Icon name="kind-icon:save" class="sm-btn-icon" />
+                {{ isCloning ? 'Save My Copy' : 'Save Server' }}
               </button>
             </div>
-          </div>
-
-          <div class="sm-toggle-grid">
-            <label class="sm-toggle">
-              <input
-                v-model="serverStore.serverForm.supportsChat"
-                type="checkbox"
-              />
-              <span>Chat</span>
-            </label>
-
-            <label class="sm-toggle">
-              <input
-                v-model="serverStore.serverForm.supportsTxt2Img"
-                type="checkbox"
-              />
-              <span>Txt2Img</span>
-            </label>
-
-            <label class="sm-toggle">
-              <input
-                v-model="serverStore.serverForm.supportsImg2Img"
-                type="checkbox"
-              />
-              <span>Img2Img</span>
-            </label>
-
-            <label class="sm-toggle">
-              <input
-                v-model="serverStore.serverForm.supportsComfyWorkflow"
-                type="checkbox"
-              />
-              <span>Comfy Workflow</span>
-            </label>
-
-            <label class="sm-toggle">
-              <input
-                v-model="serverStore.serverForm.requiresApiKey"
-                type="checkbox"
-              />
-              <span>Requires API Key</span>
-            </label>
-
-            <label class="sm-toggle">
-              <input
-                v-model="serverStore.serverForm.isActive"
-                type="checkbox"
-              />
-              <span>Active</span>
-            </label>
-          </div>
-
-          <div class="sm-editor-actions">
-            <button
-              type="button"
-              class="sm-btn sm-btn-secondary"
-              @click="closeEditor"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              class="sm-btn sm-btn-primary"
-              :disabled="serverStore.isSaving"
-            >
-              <Icon name="kind-icon:save" class="sm-btn-icon" />
-              Save Server
-            </button>
-          </div>
-        </form>
-      </aside>
+          </form>
+        </aside>
+      </transition>
     </main>
 
+    <!-- Loading overlay -->
     <transition name="sm-fade">
       <div
         v-if="serverStore.loading || serverStore.isSaving"
         class="sm-loading"
       >
         <span class="loading loading-spinner loading-lg" />
-        <span>Negotiating with the server goblins...</span>
+        <span>Negotiating with the server goblins…</span>
       </div>
     </transition>
   </section>
@@ -366,75 +535,80 @@ type ServerMode = 'text' | 'image'
 
 const showEditor = ref(false)
 const activeCreateType = ref<ServerType>('TEXT')
-
 const apiKey = ref('')
 const apiKeyName = ref('')
 const sourcePublicServerId = ref<number | null>(null)
 
-const serverHasStoredKey = computed(() => {
-  return Boolean(serverStore.serverForm.apiKey)
-})
+// ── Computed helpers ────────────────────────────────────────────────────────
 
-const editingPublicOrSharedServer = computed(() => {
-  const formId = serverStore.serverForm.id
-  if (!formId) return false
+const myUserId = computed(() => userStore.user?.id)
 
-  const server = serverStore.getServerById(formId)
-  if (!server) return false
-
-  const isOwner = server.userId === userStore.user?.id
-  return !isOwner || Boolean(server.isPublic) || Boolean(server.isOfficial)
-})
-
-const apiKeyHelpText = computed(() => {
-  if (editingPublicOrSharedServer.value) {
-    return 'Saving a key for this shared server will create your own private copy.'
-  }
-
-  return 'Keys are saved to your private server entry and are never shown again.'
-})
-
-const imageServers = computed(() => {
+/** All image servers deduplicated */
+const allImageServers = computed(() => {
   const ids = new Set<number>()
-
   return [...serverStore.artServers, ...serverStore.comfyServers].filter(
-    (server) => {
-      if (ids.has(server.id)) return false
-      ids.add(server.id)
+    (s) => {
+      if (ids.has(s.id)) return false
+      ids.add(s.id)
       return true
     },
   )
 })
 
-const ownedTextServers = computed(() =>
+/** Public / official text servers (not owned by current user) */
+const publicTextServers = computed(() =>
   serverStore.textServers.filter(
-    (server) => server.userId === userStore.user?.id,
+    (s) => (s.isOfficial || s.isPublic) && s.userId !== myUserId.value,
   ),
 )
 
-const ownedImageServers = computed(() =>
-  imageServers.value.filter((server) => server.userId === userStore.user?.id),
+/** User-owned text servers */
+const myTextServers = computed(() =>
+  serverStore.textServers.filter((s) => s.userId === myUserId.value),
 )
 
-const editorSubtitle = computed(() => {
-  if (serverStore.serverForm.id) {
-    return 'Adjust this server configuration.'
-  }
+/** Public / official image servers (not owned by current user) */
+const publicImageServers = computed(() =>
+  allImageServers.value.filter(
+    (s) => (s.isOfficial || s.isPublic) && s.userId !== myUserId.value,
+  ),
+)
 
+/** User-owned image servers */
+const myImageServers = computed(() =>
+  allImageServers.value.filter((s) => s.userId === myUserId.value),
+)
+
+const serverHasStoredKey = computed(() =>
+  Boolean(serverStore.serverForm.apiKey),
+)
+
+/** True when the editor is operating on a public/official/unowned server (clone mode) */
+const isCloning = computed(() => {
+  const formId = serverStore.serverForm.id
+  if (!formId) return false
+  const server = serverStore.getServerById(formId)
+  if (!server) return !!sourcePublicServerId.value
+  return (
+    server.userId !== myUserId.value || !!server.isPublic || !!server.isOfficial
+  )
+})
+
+const editorSubtitle = computed(() => {
+  if (isCloning.value) return 'Your edits will be saved as a private copy.'
+  if (serverStore.serverForm.id) return 'Adjust this server configuration.'
   return `New ${serverStore.serverForm.serverType || activeCreateType.value} server setup.`
 })
+
+// ── Actions ─────────────────────────────────────────────────────────────────
 
 async function refreshServers() {
   await serverStore.fetchAllServers(true)
 }
 
 function selectKindDefault(mode: ServerMode) {
-  if (mode === 'text') {
-    serverStore.setActiveTextServer(null)
-    return
-  }
-
-  serverStore.setActiveArtServer(null)
+  if (mode === 'text') serverStore.setActiveTextServer(null)
+  else serverStore.setActiveArtServer(null)
 }
 
 function selectTextServer(id: number) {
@@ -456,21 +630,19 @@ function startNewServer(serverType: ServerType) {
 
 function editServer(id: number) {
   const server = serverStore.getServerById(id)
-
   if (!server) return
 
-  const isOwner = server.userId === userStore.user?.id
-  const shouldClone =
-    !isOwner || Boolean(server.isPublic) || Boolean(server.isOfficial)
+  const isOwner = server.userId === myUserId.value
+  const shouldClone = !isOwner || !!server.isPublic || !!server.isOfficial
 
   if (shouldClone) {
     sourcePublicServerId.value = id
     serverStore.serverForm = {
       ...server,
       id: undefined,
-      userId: userStore.user?.id ?? 10,
-      title: `${server.title} Custom`,
-      label: server.label ? `${server.label} Custom` : 'Custom Server',
+      userId: myUserId.value ?? 10,
+      title: `${server.title} (My Copy)`,
+      label: server.label ? `${server.label} (My Copy)` : 'My Server',
       isPublic: false,
       isOfficial: false,
       isDefault: false,
@@ -489,18 +661,16 @@ function editServer(id: number) {
 }
 
 async function ensurePrivateEditableServer(): Promise<number | null> {
-  if (!userStore.isLoggedIn) {
-    return null
-  }
+  if (!userStore.isLoggedIn) return null
 
-  if (serverStore.serverForm.id && !editingPublicOrSharedServer.value) {
+  if (serverStore.serverForm.id && !isCloning.value) {
     return serverStore.serverForm.id
   }
 
   const payload = {
     ...serverStore.serverForm,
     id: undefined,
-    userId: userStore.user?.id ?? 10,
+    userId: myUserId.value ?? 10,
     isPublic: false,
     isOfficial: false,
     isDefault: false,
@@ -511,12 +681,8 @@ async function ensurePrivateEditableServer(): Promise<number | null> {
   }
 
   serverStore.serverForm = payload
-
   const result = await serverStore.saveServer()
-
-  if (!result.success || !result.data) {
-    return null
-  }
+  if (!result.success || !result.data) return null
 
   serverStore.selectServer(result.data.id)
   return result.data.id
@@ -524,7 +690,6 @@ async function ensurePrivateEditableServer(): Promise<number | null> {
 
 async function saveApiKeyOnly() {
   if (!apiKey.value.trim()) return
-
   const serverId = await ensurePrivateEditableServer()
   if (!serverId) return
 
@@ -539,23 +704,19 @@ async function saveApiKeyOnly() {
 }
 
 async function clearApiKey() {
-  if (!serverStore.serverForm.id || editingPublicOrSharedServer.value) return
-
+  if (!serverStore.serverForm.id || isCloning.value) return
   await serverStore.updateServerApiKey(serverStore.serverForm.id, {
     clearKey: true,
     apiKeyName:
       apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   })
-
   apiKey.value = ''
 }
 
 watch(
   () => serverStore.serverForm.apiKeyName,
   (value) => {
-    if (!apiKeyName.value && value) {
-      apiKeyName.value = value
-    }
+    if (!apiKeyName.value && value) apiKeyName.value = value
   },
 )
 
@@ -566,6 +727,7 @@ function closeEditor() {
   serverStore.deselectServer()
   showEditor.value = false
 }
+
 async function saveServer() {
   const payload = {
     ...serverStore.serverForm,
@@ -574,9 +736,7 @@ async function saveServer() {
   }
 
   serverStore.serverForm = payload
-
   const result = await serverStore.saveServer()
-
   if (!result.success || !result.data) return
 
   if (apiKey.value.trim()) {
@@ -600,159 +760,34 @@ onMounted(async () => {
   await serverStore.initialize()
 })
 
-const ServerColumnHeader = defineComponent({
-  props: {
-    title: { type: String, required: true },
-    subtitle: { type: String, required: true },
-    icon: { type: String, required: true },
-    activeTitle: { type: String, required: true },
-  },
-  setup(props) {
-    return () =>
-      h('header', { class: 'sm-column-header' }, [
-        h('div', { class: 'sm-column-heading' }, [
-          h(resolveComponent('Icon'), {
-            name: props.icon,
-            class: 'sm-column-icon',
-          }),
-          h('div', [
-            h('h2', { class: 'sm-column-title' }, props.title),
-            h('p', { class: 'sm-column-subtitle' }, props.subtitle),
-          ]),
-        ]),
-        h('div', { class: 'sm-active-pill' }, [
-          h('span', { class: 'sm-active-label' }, 'Active'),
-          h('span', { class: 'sm-active-value' }, props.activeTitle),
-        ]),
-      ])
-  },
-})
+// ── Sub-components ───────────────────────────────────────────────────────────
 
-const KindDefaultCard = defineComponent({
-  emits: ['select'],
-  props: {
-    label: { type: String, required: true },
-    description: { type: String, required: true },
-    active: { type: Boolean, required: true },
-  },
-  setup(props, { emit }) {
-    return () =>
-      h(
-        'button',
-        {
-          type: 'button',
-          class: ['sm-default-card', props.active ? 'active' : ''],
-          onClick: () => emit('select'),
-        },
-        [
-          h('div', { class: 'sm-default-icon-wrap' }, [
-            h(resolveComponent('Icon'), {
-              name: 'kind-icon:robot',
-              class: 'sm-default-icon',
-            }),
-          ]),
-          h('div', { class: 'sm-default-copy' }, [
-            h('div', { class: 'sm-default-title-row' }, [
-              h('h3', { class: 'sm-default-title' }, props.label),
-              props.active
-                ? h('span', { class: 'sm-badge sm-badge-primary' }, 'Selected')
-                : null,
-            ]),
-            h('p', { class: 'sm-default-description' }, props.description),
-          ]),
-        ],
-      )
-  },
-})
-
-const ConfiguredEmpty = defineComponent({
-  emits: ['configure', 'configureOpenai', 'configureComfy', 'configureA1111'],
-  props: {
-    mode: { type: String, required: true },
-  },
-  setup(props, { emit }) {
-    const isText = computed(() => props.mode === 'text')
-
-    return () =>
-      h('aside', { class: 'sm-empty-config' }, [
-        h('div', { class: 'sm-empty-icon-wrap' }, [
-          h(resolveComponent('Icon'), {
-            name: isText.value ? 'kind-icon:chat' : 'kind-icon:art',
-            class: 'sm-empty-icon',
-          }),
-        ]),
-        h(
-          'h3',
-          { class: 'sm-empty-title' },
-          isText.value
-            ? 'No personal text server configured'
-            : 'No personal image server configured',
-        ),
-        h(
-          'p',
-          { class: 'sm-empty-description' },
-          isText.value
-            ? 'Use Kind Robots Default, or configure your own text endpoint.'
-            : 'Use Kind Robots Default, or configure your own image pipeline.',
-        ),
-        h('div', { class: 'sm-empty-actions' }, [
-          h(
-            'button',
-            {
-              type: 'button',
-              class: 'sm-btn sm-btn-primary',
-              onClick: () => emit('configure'),
-            },
-            isText.value ? 'Configure Text Server' : 'Configure Art Server',
-          ),
-          isText.value
-            ? h(
-                'button',
-                {
-                  type: 'button',
-                  class: 'sm-btn sm-btn-secondary',
-                  onClick: () => emit('configureOpenai'),
-                },
-                'OpenAI Compatible',
-              )
-            : h(
-                'button',
-                {
-                  type: 'button',
-                  class: 'sm-btn sm-btn-secondary',
-                  onClick: () => emit('configureComfy'),
-                },
-                'ComfyUI',
-              ),
-          !isText.value
-            ? h(
-                'button',
-                {
-                  type: 'button',
-                  class: 'sm-btn sm-btn-secondary',
-                  onClick: () => emit('configureA1111'),
-                },
-                'A1111',
-              )
-            : null,
-        ]),
-      ])
-  },
-})
-
-const ServerCard = defineComponent({
+/**
+ * ServerCatalogCard — used for both public catalog entries and owned servers.
+ * Replaces the old ServerCard; adds `owned` prop to control action visibility.
+ */
+const ServerCatalogCard = defineComponent({
+  name: 'ServerCatalogCard',
   emits: ['select', 'edit', 'test'],
   props: {
     server: { type: Object as () => Server, required: true },
     active: { type: Boolean, required: true },
     healthResult: { type: Object, required: false, default: null },
+    owned: { type: Boolean, default: false },
   },
   setup(props, { emit }) {
-    const badgeClass = computed(() => {
-      if (props.server.lastStatus === 'ONLINE') return 'sm-badge-success'
-      if (props.server.lastStatus === 'OFFLINE') return 'sm-badge-danger'
-      if (props.server.lastStatus === 'DEGRADED') return 'sm-badge-warning'
+    const statusBadgeClass = computed(() => {
+      const s = props.server.lastStatus
+      if (s === 'ONLINE') return 'sm-badge-success'
+      if (s === 'OFFLINE') return 'sm-badge-danger'
+      if (s === 'DEGRADED') return 'sm-badge-warning'
       return 'sm-badge-neutral'
+    })
+
+    const mainIcon = computed(() => {
+      if (props.server.supportsChat) return 'kind-icon:chat'
+      if (props.server.supportsComfyWorkflow) return 'kind-icon:workflow'
+      return 'kind-icon:art'
     })
 
     return () =>
@@ -760,14 +795,11 @@ const ServerCard = defineComponent({
         'article',
         { class: ['sm-server-card', props.active ? 'active' : ''] },
         [
+          // Top: icon + title/description + active badge
           h('div', { class: 'sm-server-main' }, [
             h('div', { class: 'sm-server-icon-wrap' }, [
               h(resolveComponent('Icon'), {
-                name: props.server.supportsChat
-                  ? 'kind-icon:chat'
-                  : props.server.supportsComfyWorkflow
-                    ? 'kind-icon:workflow'
-                    : 'kind-icon:art',
+                name: mainIcon.value,
                 class: 'sm-server-icon',
               }),
             ]),
@@ -793,12 +825,16 @@ const ServerCard = defineComponent({
             ]),
           ]),
 
+          // URL + endpoint meta
           h('div', { class: 'sm-server-meta' }, [
-            h('span', props.server.serverType),
-            h('span', props.server.baseUrl),
-            h('span', props.server.endpointPath || 'No endpoint'),
+            h('span', { class: 'sm-meta-type' }, props.server.serverType),
+            h('span', { class: 'sm-meta-url' }, props.server.baseUrl),
+            props.server.endpointPath
+              ? h('span', { class: 'sm-meta-path' }, props.server.endpointPath)
+              : null,
           ]),
 
+          // Capability badges + status
           h('div', { class: 'sm-server-badges' }, [
             props.server.supportsChat
               ? h('span', { class: 'sm-badge sm-badge-secondary' }, 'chat')
@@ -817,49 +853,50 @@ const ServerCard = defineComponent({
               : null,
             h(
               'span',
-              { class: ['sm-badge', badgeClass.value] },
+              { class: ['sm-badge', statusBadgeClass.value] },
               props.server.lastStatus || 'UNKNOWN',
             ),
           ]),
 
+          // Health result line
           props.healthResult
             ? h('p', { class: 'sm-health-result' }, [
-                props.healthResult.ok ? 'Healthy' : 'Health check failed',
+                props.healthResult.ok ? '✓ Healthy' : '✗ Failed',
                 ` · ${props.healthResult.latencyMs}ms`,
               ])
             : null,
 
+          // Actions
           h('div', { class: 'sm-server-actions' }, [
             h(
               'button',
               {
                 type: 'button',
-                class: 'sm-btn sm-btn-primary',
+                class: 'sm-btn sm-btn-primary sm-btn-sm',
                 disabled: props.active || !props.server.isActive,
                 onClick: () => emit('select'),
               },
-              props.active ? 'Selected' : 'Use Server',
+              props.active ? 'Selected' : 'Use',
             ),
             h(
               'button',
               {
                 type: 'button',
-                class: 'sm-btn sm-btn-secondary',
+                class: 'sm-btn sm-btn-secondary sm-btn-sm',
                 onClick: () => emit('test'),
               },
               'Test',
             ),
-            props.server.isEditable
-              ? h(
-                  'button',
-                  {
-                    type: 'button',
-                    class: 'sm-btn sm-btn-ghost',
-                    onClick: () => emit('edit'),
-                  },
-                  'Edit',
-                )
-              : null,
+            // Owned servers: Edit directly. Public servers: Edit = customize/clone.
+            h(
+              'button',
+              {
+                type: 'button',
+                class: 'sm-btn sm-btn-ghost sm-btn-sm',
+                onClick: () => emit('edit'),
+              },
+              props.owned ? 'Edit' : 'Customize',
+            ),
           ]),
         ],
       )
@@ -868,6 +905,8 @@ const ServerCard = defineComponent({
 </script>
 
 <style scoped>
+/* ── Layout ─────────────────────────────────────────────────────────── */
+
 .server-manager {
   display: flex;
   position: relative;
@@ -926,32 +965,33 @@ const ServerCard = defineComponent({
   gap: 0.5rem;
 }
 
+/* Body layout: columns + optional editor */
 .sm-body {
   display: grid;
   min-height: 0;
   flex: 1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   overflow: hidden;
   padding: 1rem;
 }
 
-.sm-grid {
-  display: grid;
-  min-height: 0;
-  gap: 1rem;
-  overflow: hidden;
+/* When editor is open, shrink columns and show editor */
+.sm-body:has(.sm-editor) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 400px);
 }
+
+/* ── Columns ────────────────────────────────────────────────────────── */
 
 .sm-column {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0;
   overflow: hidden;
   border-radius: 1rem;
   border: 1px solid oklch(var(--b3));
   background: oklch(var(--b1));
-  padding: 0.75rem;
 }
 
 .sm-column-text {
@@ -968,10 +1008,11 @@ const ServerCard = defineComponent({
   display: flex;
   flex-shrink: 0;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   border-bottom: 1px solid oklch(var(--b3));
-  padding: 0.25rem 0.25rem 0.75rem;
+  padding: 0.75rem;
 }
 
 .sm-column-heading {
@@ -982,69 +1023,146 @@ const ServerCard = defineComponent({
 }
 
 .sm-column-icon {
-  height: 2rem;
-  width: 2rem;
+  height: 1.75rem;
+  width: 1.75rem;
   flex-shrink: 0;
   color: oklch(var(--p));
 }
 
 .sm-column-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 800;
 }
 
 .sm-column-subtitle {
   margin: 0.1rem 0 0;
-  font-size: 0.75rem;
-  opacity: 0.65;
+  font-size: 0.72rem;
+  opacity: 0.6;
 }
 
 .sm-active-pill {
   display: flex;
-  max-width: 100%;
   flex-direction: column;
   gap: 0.1rem;
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   border: 1px solid oklch(var(--b3));
   background: oklch(var(--b2));
-  padding: 0.45rem 0.7rem;
+  padding: 0.35rem 0.6rem;
 }
 
 .sm-active-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  opacity: 0.55;
+  opacity: 0.5;
   text-transform: uppercase;
 }
 
 .sm-active-value {
-  max-width: 16rem;
+  max-width: 14rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
-.sm-card-list {
+/* Scrollable column body */
+.sm-column-scroll {
   display: flex;
   min-height: 0;
   flex: 1;
   flex-direction: column;
   gap: 0.75rem;
   overflow-y: auto;
-  padding-right: 0.25rem;
+  padding: 0.75rem;
 }
 
-.sm-default-card,
-.sm-server-card,
-.sm-empty-config {
-  border-radius: 1rem;
+/* ── Sections (Official / My Servers) ───────────────────────────────── */
+
+.sm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sm-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  opacity: 0.55;
+  text-transform: uppercase;
+  padding: 0.25rem 0;
+  border-top: 1px solid oklch(var(--b3));
+}
+
+.sm-section-icon {
+  height: 0.8rem;
+  width: 0.8rem;
+}
+
+.sm-add-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: auto;
+  border-radius: 999px;
   border: 1px solid oklch(var(--b3));
   background: oklch(var(--b2));
+  padding: 0.15rem 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: oklch(var(--p));
+  cursor: pointer;
+  text-transform: none;
+  transition: background 0.15s ease;
 }
+
+.sm-add-inline:hover {
+  background: color-mix(in oklch, oklch(var(--p)) 15%, oklch(var(--b2)));
+}
+
+.sm-add-icon {
+  height: 0.65rem;
+  width: 0.65rem;
+}
+
+.sm-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sm-empty-mine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 0.85rem;
+  border: 1px dashed oklch(var(--b3));
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.sm-empty-mine p {
+  margin: 0;
+}
+
+.sm-empty-mine-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* ── Default (Kind Robots) card ─────────────────────────────────────── */
 
 .sm-default-card {
   display: flex;
@@ -1052,7 +1170,10 @@ const ServerCard = defineComponent({
   flex-shrink: 0;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid oklch(var(--b3));
+  background: oklch(var(--b2));
+  padding: 0.75rem;
   text-align: left;
   color: inherit;
   cursor: pointer;
@@ -1072,120 +1193,57 @@ const ServerCard = defineComponent({
   transform: translateY(-1px);
 }
 
-.sm-default-icon-wrap,
-.sm-server-icon-wrap,
-.sm-empty-icon-wrap {
+.sm-default-icon-wrap {
   display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   background: oklch(var(--b1));
 }
 
-.sm-default-icon-wrap {
-  height: 3rem;
-  width: 3rem;
-}
-
-.sm-server-icon-wrap {
-  height: 2.65rem;
-  width: 2.65rem;
-}
-
-.sm-empty-icon-wrap {
-  height: 3.5rem;
-  width: 3.5rem;
-  margin: 0 auto;
-}
-
-.sm-default-icon,
-.sm-empty-icon {
-  height: 1.75rem;
-  width: 1.75rem;
+.sm-default-icon {
+  height: 1.5rem;
+  width: 1.5rem;
   color: oklch(var(--p));
 }
 
-.sm-server-icon {
-  height: 1.4rem;
-  width: 1.4rem;
-  color: oklch(var(--p));
-}
-
-.sm-default-copy,
-.sm-server-copy {
+.sm-default-copy {
   min-width: 0;
   flex: 1;
 }
 
-.sm-default-title-row,
-.sm-server-title-row {
+.sm-default-title-row {
   display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.sm-default-title,
-.sm-server-title {
+.sm-default-title {
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.9rem;
   font-weight: 800;
 }
 
-.sm-default-title {
-  font-size: 0.95rem;
-}
-
-.sm-server-title {
-  font-size: 1rem;
-}
-
-.sm-default-description,
-.sm-server-description {
-  margin: 0.15rem 0 0;
-  font-size: 0.78rem;
-  line-height: 1.4;
+.sm-default-description {
+  margin: 0.1rem 0 0;
+  font-size: 0.75rem;
   opacity: 0.65;
 }
 
-.sm-empty-config {
-  display: flex;
-  flex-shrink: 0;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-  text-align: center;
-}
-
-.sm-empty-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.sm-empty-description {
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  opacity: 0.7;
-}
-
-.sm-empty-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-}
+/* ── Server cards ───────────────────────────────────────────────────── */
 
 .sm-server-card {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 0.85rem;
+  gap: 0.55rem;
+  border-radius: 1rem;
+  border: 1px solid oklch(var(--b3));
+  background: oklch(var(--b2));
+  padding: 0.75rem;
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
@@ -1205,20 +1263,76 @@ const ServerCard = defineComponent({
 .sm-server-main {
   display: flex;
   align-items: flex-start;
-  gap: 0.65rem;
+  gap: 0.6rem;
+}
+
+.sm-server-icon-wrap {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: oklch(var(--b1));
+}
+
+.sm-server-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: oklch(var(--p));
+}
+
+.sm-server-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.sm-server-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sm-server-title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.sm-server-description {
+  margin: 0.1rem 0 0;
+  font-size: 0.73rem;
+  line-height: 1.4;
+  opacity: 0.65;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sm-server-meta {
-  display: grid;
-  gap: 0.35rem;
-  border-radius: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.75rem;
+  border-radius: 0.65rem;
   background: oklch(var(--b1));
-  padding: 0.55rem;
-  font-size: 0.7rem;
-  opacity: 0.75;
+  padding: 0.4rem 0.55rem;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.67rem;
+  opacity: 0.7;
 }
 
-.sm-server-meta span {
+.sm-meta-type {
+  font-weight: 700;
+  color: oklch(var(--p));
+}
+
+.sm-meta-url,
+.sm-meta-path {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1227,78 +1341,254 @@ const ServerCard = defineComponent({
 .sm-server-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.sm-badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 0.15rem 0.45rem;
-  font-size: 0.65rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.sm-badge-primary {
-  background: oklch(var(--p));
-  color: oklch(var(--pc));
-}
-
-.sm-badge-secondary {
-  background: oklch(var(--s));
-  color: oklch(var(--sc));
-}
-
-.sm-badge-accent {
-  background: oklch(var(--a));
-  color: oklch(var(--ac));
-}
-
-.sm-badge-info {
-  background: oklch(var(--info));
-  color: oklch(var(--b1));
-}
-
-.sm-badge-warning {
-  background: oklch(var(--wa));
-  color: oklch(var(--b1));
-}
-
-.sm-badge-success {
-  background: oklch(var(--su));
-  color: oklch(var(--b1));
-}
-
-.sm-badge-danger {
-  background: oklch(var(--er));
-  color: oklch(var(--b1));
-}
-
-.sm-badge-neutral {
-  background: oklch(var(--b3));
-  color: oklch(var(--bc));
+  gap: 0.3rem;
 }
 
 .sm-health-result {
   margin: 0;
-  font-size: 0.72rem;
-  opacity: 0.7;
+  font-size: 0.7rem;
+  opacity: 0.65;
 }
 
-.sm-server-actions,
+.sm-server-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ── Editor panel ───────────────────────────────────────────────────── */
+
+.sm-editor {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid oklch(var(--b3));
+  background: oklch(var(--b1));
+}
+
+/* Clone notice */
+.sm-clone-notice {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  gap: 0.65rem;
+  background: color-mix(in oklch, oklch(var(--wa)) 18%, oklch(var(--b1)));
+  border-bottom: 1px solid
+    color-mix(in oklch, oklch(var(--wa)) 40%, transparent);
+  padding: 0.75rem 1rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.sm-clone-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  flex-shrink: 0;
+  color: oklch(var(--wa));
+  margin-top: 0.1rem;
+}
+
+.sm-clone-notice strong {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.sm-clone-notice p {
+  margin: 0.1rem 0 0;
+  opacity: 0.75;
+}
+
+.sm-editor-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid oklch(var(--b3));
+  padding: 1rem;
+}
+
+.sm-editor-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.sm-editor-subtitle {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.sm-form {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Quick-edit block */
+.sm-quick-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-radius: 0.85rem;
+  border: 1px solid oklch(var(--b3));
+  background: oklch(var(--b2));
+  padding: 0.85rem;
+}
+
+.sm-quick-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.sm-key-row {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.sm-field-grow {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.sm-field-shrink {
+  flex: 0 0 9rem;
+}
+
+.sm-key-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sm-key-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Collapsible more settings */
+.sm-details {
+  border-radius: 0.85rem;
+  border: 1px solid oklch(var(--b3));
+  overflow: hidden;
+}
+
+.sm-details-summary {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: oklch(var(--b2));
+  user-select: none;
+  list-style: none;
+}
+
+.sm-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sm-details[open] .sm-details-summary {
+  border-bottom: 1px solid oklch(var(--b3));
+}
+
+.sm-form-grid {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem;
+}
+
+.sm-toggle-grid {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0 0.85rem 0.85rem;
+}
+
+.sm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.sm-field-wide {
+  grid-column: 1 / -1;
+}
+
+.sm-input,
+.sm-textarea {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid oklch(var(--b3));
+  background: oklch(var(--b2));
+  color: oklch(var(--bc));
+  font: inherit;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.sm-input {
+  min-height: 2.4rem;
+  padding: 0 0.7rem;
+}
+
+.sm-input-mono {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.78rem;
+}
+
+.sm-textarea {
+  resize: vertical;
+  padding: 0.6rem 0.7rem;
+}
+
+.sm-input:focus,
+.sm-textarea:focus {
+  border-color: oklch(var(--p));
+}
+
+.sm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 0.75rem;
+  border: 1px solid oklch(var(--b3));
+  background: oklch(var(--b2));
+  padding: 0.5rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .sm-editor-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  padding-top: 0.25rem;
 }
+
+/* ── Buttons ────────────────────────────────────────────────────────── */
 
 .sm-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  border-radius: 0.9rem;
+  border-radius: 0.85rem;
   border: 1px solid transparent;
   padding: 0.5rem 0.85rem;
   font-size: 0.78rem;
@@ -1312,10 +1602,14 @@ const ServerCard = defineComponent({
     border-color 0.15s ease;
 }
 
+.sm-btn-sm {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.72rem;
+}
+
 .sm-btn:hover:not(:disabled) {
   transform: translateY(-1px);
 }
-
 .sm-btn:disabled {
   cursor: not-allowed;
   opacity: 0.45;
@@ -1344,14 +1638,14 @@ const ServerCard = defineComponent({
 }
 
 .sm-btn-icon {
-  height: 1rem;
-  width: 1rem;
+  height: 0.9rem;
+  width: 0.9rem;
 }
 
 .sm-icon-btn {
   display: inline-flex;
-  height: 2.25rem;
-  width: 2.25rem;
+  height: 2rem;
+  width: 2rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
@@ -1359,115 +1653,60 @@ const ServerCard = defineComponent({
   background: oklch(var(--b2));
   color: inherit;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .sm-icon {
-  height: 1rem;
-  width: 1rem;
+  height: 0.95rem;
+  width: 0.95rem;
 }
 
-.sm-editor {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b1));
-}
+/* ── Badges ─────────────────────────────────────────────────────────── */
 
-.sm-editor-header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid oklch(var(--b3));
-  padding: 1rem;
-}
-
-.sm-editor-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-.sm-editor-subtitle {
-  margin: 0.2rem 0 0;
-  font-size: 0.8rem;
-  opacity: 0.65;
-}
-
-.sm-form {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  gap: 1rem;
-  overflow-y: auto;
-  padding: 1rem;
-}
-
-.sm-form-grid {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.sm-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-.sm-field-wide {
-  grid-column: 1 / -1;
-}
-
-.sm-input,
-.sm-textarea {
-  width: 100%;
-  border-radius: 0.85rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  color: oklch(var(--bc));
-  font: inherit;
-  font-size: 0.85rem;
-  outline: none;
-}
-
-.sm-input {
-  min-height: 2.5rem;
-  padding: 0 0.75rem;
-}
-
-.sm-textarea {
-  resize: vertical;
-  padding: 0.65rem 0.75rem;
-}
-
-.sm-input:focus,
-.sm-textarea:focus {
-  border-color: oklch(var(--p));
-}
-
-.sm-toggle-grid {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.sm-toggle {
-  display: flex;
+.sm-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  border-radius: 0.85rem;
-  border: 1px solid oklch(var(--b3));
-  background: oklch(var(--b2));
-  padding: 0.55rem 0.65rem;
-  font-size: 0.8rem;
-  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.12rem 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
 }
+
+.sm-badge-primary {
+  background: oklch(var(--p));
+  color: oklch(var(--pc));
+}
+.sm-badge-secondary {
+  background: oklch(var(--s));
+  color: oklch(var(--sc));
+}
+.sm-badge-accent {
+  background: oklch(var(--a));
+  color: oklch(var(--ac));
+}
+.sm-badge-info {
+  background: oklch(var(--info));
+  color: oklch(var(--b1));
+}
+.sm-badge-warning {
+  background: oklch(var(--wa));
+  color: oklch(var(--b1));
+}
+.sm-badge-success {
+  background: oklch(var(--su));
+  color: oklch(var(--b1));
+}
+.sm-badge-danger {
+  background: oklch(var(--er));
+  color: oklch(var(--b1));
+}
+.sm-badge-neutral {
+  background: oklch(var(--b3));
+  color: oklch(var(--bc));
+}
+
+/* ── Loading overlay ────────────────────────────────────────────────── */
 
 .sm-loading {
   position: absolute;
@@ -1483,37 +1722,50 @@ const ServerCard = defineComponent({
   font-weight: 800;
 }
 
+/* ── Transitions ────────────────────────────────────────────────────── */
+
 .sm-fade-enter-active,
 .sm-fade-leave-active {
   transition: opacity 0.2s ease;
 }
-
 .sm-fade-enter-from,
 .sm-fade-leave-to {
   opacity: 0;
 }
 
+.sm-slide-enter-active,
+.sm-slide-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.sm-slide-enter-from,
+.sm-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+
 @media (min-width: 768px) {
   .sm-form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
   .sm-toggle-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1024px) {
-  .sm-body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .sm-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
+/* Collapse to single column on narrow screens */
+@media (max-width: 900px) {
+  .sm-body,
   .sm-body:has(.sm-editor) {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .sm-column {
+    max-height: 60vh;
   }
 }
 
@@ -1521,54 +1773,22 @@ const ServerCard = defineComponent({
   .sm-header {
     align-items: stretch;
   }
-
   .sm-header-brand,
   .sm-header-actions {
     width: 100%;
   }
-
   .sm-header-actions .sm-btn {
     flex: 1;
   }
-
   .sm-body {
     padding: 0.75rem;
+    gap: 0.75rem;
   }
-}
-
-.sm-secret-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  border-radius: 1rem;
-  border: 1px solid oklch(var(--b3));
-  background: color-mix(in oklch, oklch(var(--b2)) 80%, oklch(var(--p)) 6%);
-  padding: 0.85rem;
-}
-
-.sm-secret-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.sm-secret-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 900;
-}
-
-.sm-secret-subtitle {
-  margin: 0.15rem 0 0;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  opacity: 0.7;
-}
-
-.sm-secret-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  .sm-key-row {
+    flex-direction: column;
+  }
+  .sm-field-shrink {
+    flex: 1;
+  }
 }
 </style>

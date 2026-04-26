@@ -59,50 +59,35 @@
           Refresh
         </button>
 
-        <!-- Add Server — panel drops directly below this wrapper -->
-        <div class="relative">
-          <button
-            type="button"
-            class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-            @click="toggleAdd"
-          >
-            <Icon
-              :name="showAdd ? 'kind-icon:x' : 'kind-icon:plus'"
-              class="h-3.5 w-3.5"
-            />
-            {{ showAdd ? 'Close' : 'Add Server' }}
-          </button>
-
-          <Transition
-            enter-active-class="transition duration-150 ease-out"
-            enter-from-class="opacity-0 -translate-y-2 scale-95"
-            enter-to-class="opacity-100 translate-y-0 scale-100"
-            leave-active-class="transition duration-100 ease-in"
-            leave-from-class="opacity-100 translate-y-0 scale-100"
-            leave-to-class="opacity-0 -translate-y-2 scale-95"
-          >
-            <add-server
-              v-if="showAdd"
-              class="absolute right-0 top-[calc(100%+6px)] z-50 w-[min(400px,95vw)] shadow-2xl"
-              @close="showAdd = false"
-              @saved="showAdd = false"
-            />
-          </Transition>
-        </div>
+        <!-- Add Server — panel teleports to <body> anchored to this button -->
+        <button
+          ref="addBtnRef"
+          type="button"
+          class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+          @click="togglePanel"
+        >
+          <Icon
+            :name="showPanel ? 'kind-icon:x' : 'kind-icon:plus'"
+            class="h-3.5 w-3.5"
+          />
+          {{ showPanel ? 'Close' : 'Add Server' }}
+        </button>
       </div>
     </header>
 
-    <!-- ══ BODY — two galleries side by side ══════════════════════════════ -->
-    <main class="min-h-0 flex-1 overflow-hidden p-4 gallery-grid">
+    <!-- ══ BODY ════════════════════════════════════════════════════════════ -->
+    <main class="gallery-grid min-h-0 flex-1 gap-4 overflow-hidden p-4">
       <server-gallery
         mode="text"
         :search-query="searchQuery"
-        @open-add="openAddForType"
+        @open-add="openAdd"
+        @open-edit="openEdit"
       />
       <server-gallery
         mode="image"
         :search-query="searchQuery"
-        @open-add="openAddForType"
+        @open-add="openAdd"
+        @open-edit="openEdit"
       />
     </main>
 
@@ -124,34 +109,100 @@
       </div>
     </Transition>
   </section>
+
+  <!-- ══ ADD-SERVER PANEL — teleported to <body> so nothing clips it ══════ -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition duration-150 ease-out"
+      enter-from-class="opacity-0 -translate-y-2 scale-95"
+      enter-to-class="opacity-100 translate-y-0 scale-100"
+      leave-active-class="transition duration-100 ease-in"
+      leave-from-class="opacity-100 translate-y-0 scale-100"
+      leave-to-class="opacity-0 -translate-y-2 scale-95"
+    >
+      <div
+        v-if="showPanel"
+        class="fixed z-9999 w-[min(400px,calc(100vw-2rem))] shadow-2xl"
+        :style="panelStyle"
+      >
+        <add-server @close="showPanel = false" @saved="showPanel = false" />
+      </div>
+    </Transition>
+
+    <!-- Click-outside backdrop (invisible) -->
+    <div
+      v-if="showPanel"
+      class="fixed inset-0 z-9998"
+      @click="showPanel = false"
+    />
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import type { ServerType } from '~/prisma/generated/prisma/client'
 
 const serverStore = useServerStore()
 const searchQuery = ref('')
-const showAdd = ref(false)
+const showPanel = ref(false)
+const addBtnRef = ref<HTMLElement | null>(null)
 
-function toggleAdd() {
-  showAdd.value = !showAdd.value
+// Position of the floating panel — recalculated each time it opens
+const panelTop = ref(0)
+const panelRight = ref(0)
+
+const panelStyle = computed(() => ({
+  top: `${panelTop.value}px`,
+  right: `${panelRight.value}px`,
+}))
+
+function recalcPosition() {
+  const btn = addBtnRef.value
+  if (!btn) return
+  const rect = btn.getBoundingClientRect()
+  panelTop.value = rect.bottom + 6
+  // Anchor to right edge of button, ensuring it doesn't overflow left viewport edge
+  const rightFromViewport = window.innerWidth - rect.right
+  panelRight.value = Math.max(8, rightFromViewport)
 }
 
-function openAddForType(serverType: ServerType) {
+async function togglePanel() {
+  if (!showPanel.value) {
+    serverStore.createNewServer('TEXT')
+    await nextTick()
+    recalcPosition()
+  }
+  showPanel.value = !showPanel.value
+}
+
+function openAdd(serverType: ServerType) {
   serverStore.createNewServer(serverType)
-  showAdd.value = true
+  nextTick(recalcPosition)
+  showPanel.value = true
 }
 
-onMounted(() => serverStore.initialize())
+function openEdit() {
+  nextTick(recalcPosition)
+  showPanel.value = true
+}
+
+// Reposition on resize so panel doesn't drift if window changes
+function onResize() {
+  if (showPanel.value) recalcPosition()
+}
+
+onMounted(() => {
+  serverStore.initialize()
+  window.addEventListener('resize', onResize)
+})
+onUnmounted(() => window.removeEventListener('resize', onResize))
 </script>
 
 <style scoped>
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
 }
 @media (max-width: 700px) {
   .gallery-grid {

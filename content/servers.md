@@ -3,7 +3,7 @@ title: 'Servers'
 subtitle: 'Manage generation backends and model endpoints'
 description: 'Add, edit, test, and select art, text, and workflow servers.'
 gallery: 'servervault'
-image: 'server/servergallery.webp'
+image: 'server.png'
 tags: ['server', 'settings', 'llm', 'art', 'comfy']
 layout: 'default'
 icon: kind-icon:server
@@ -15,6 +15,4 @@ sort: highlight
 navComponent: 'server-nav'
 ---
 
-:server-gallery
-
-:add-server
+:server-manager

@@ -665,37 +665,49 @@ const sourcePublicServerId = ref<number | null>(null)
 const searchQuery = ref('')
 const copiedUrl = ref(false)
 
+const isOfficialServer = (server: Server) =>
+  server.isOfficial || server.category === 'official'
+
+const isTextServer = (server: Server) =>
+  server.supportsChat ||
+  server.serverType === 'TEXT' ||
+  server.serverType === 'OPENAI_COMPATIBLE'
+
+const isImageServer = (server: Server) =>
+  server.supportsTxt2Img ||
+  server.supportsImg2Img ||
+  server.supportsComfyWorkflow ||
+  ['ART', 'COMFY', 'A1111'].includes(server.serverType)
+
+const allServers = computed(() => serverStore.servers ?? [])
+
+const allTextServers = computed(() => allServers.value.filter(isTextServer))
+
+const allImageServers = computed(() => allServers.value.filter(isImageServer))
+
+const publicTextServers = computed(() =>
+  allTextServers.value.filter((s) => isOfficialServer(s) || s.isPublic),
+)
+
+const myTextServers = computed(() =>
+  allTextServers.value.filter(
+    (s) => s.userId === myUserId.value && !isOfficialServer(s),
+  ),
+)
+
+const publicImageServers = computed(() =>
+  allImageServers.value.filter((s) => isOfficialServer(s) || s.isPublic),
+)
+
+const myImageServers = computed(() =>
+  allImageServers.value.filter(
+    (s) => s.userId === myUserId.value && !isOfficialServer(s),
+  ),
+)
+
 // ── Computed ─────────────────────────────────────────────────────────────────
 
 const myUserId = computed(() => userStore.user?.id)
-
-const allImageServers = computed(() => {
-  const ids = new Set<number>()
-  return [...serverStore.artServers, ...serverStore.comfyServers].filter(
-    (s) => {
-      if (ids.has(s.id)) return false
-      ids.add(s.id)
-      return true
-    },
-  )
-})
-
-const publicTextServers = computed(() =>
-  serverStore.textServers.filter(
-    (s) => (s.isOfficial || s.isPublic) && s.userId !== myUserId.value,
-  ),
-)
-const myTextServers = computed(() =>
-  serverStore.textServers.filter((s) => s.userId === myUserId.value),
-)
-const publicImageServers = computed(() =>
-  allImageServers.value.filter(
-    (s) => (s.isOfficial || s.isPublic) && s.userId !== myUserId.value,
-  ),
-)
-const myImageServers = computed(() =>
-  allImageServers.value.filter((s) => s.userId === myUserId.value),
-)
 
 function matchesSearch(s: Server, q: string): boolean {
   if (!q) return true
@@ -720,6 +732,8 @@ const filteredPublicImageServers = computed(() =>
 const filteredMyImageServers = computed(() =>
   myImageServers.value.filter((s) => matchesSearch(s, searchQuery.value)),
 )
+
+const activeServerTab = ref('server-manager')
 
 const serverHasStoredKey = computed(() =>
   Boolean(serverStore.serverForm.apiKey),

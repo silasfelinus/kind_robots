@@ -10,15 +10,17 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid, user } = await validateApiKey(event)
-    if (!isValid || !user) {
+    const { isValid, user, kind } = await validateApiKey(event)
+
+    if (!isValid) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    if (user.Role !== 'ADMIN') {
+    // Server keys (infra/CI) are implicitly admin; user tokens must carry ADMIN role
+    if (kind !== 'server' && user?.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
         message: 'Only admins can create butterfly species.',
@@ -95,7 +97,7 @@ export default defineEventHandler(async (event) => {
       rarityNumber,
       designer: designer || '',
       isPublic: isPublic ?? true,
-      User: { connect: { id: user.id } },
+      ...(user ? { User: { connect: { id: user.id } } } : {}),
       ...(artImageId ? { ArtImage: { connect: { id: artImageId } } } : {}),
     }
 

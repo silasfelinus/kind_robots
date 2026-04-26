@@ -39,10 +39,8 @@ export default defineEventHandler(async (event) => {
     const q = getQuery(event)
 
     console.log('[server.get] Fetching servers...')
-    console.log('[DATABASE_URL]', process.env.DATABASE_URL)
 
     const rawDb = await prisma.$queryRawUnsafe('SELECT DATABASE() AS db')
-    console.log('[ACTUAL_DB]', rawDb)
 
     const { isValid, user } = await validateApiKey(event)
     const includeUserData = isValid && user && typeof user.id === 'number'

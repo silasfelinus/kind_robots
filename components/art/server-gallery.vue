@@ -416,8 +416,11 @@ const modeServers = computed<Server[]>(() => {
   )
 })
 
+// ← this goes here, right after modeServers
 const publicServers = computed(() =>
-  modeServers.value.filter((s) => s.isOfficial || s.isPublic),
+  modeServers.value.filter(
+    (s) => s.isOfficial || s.isPublic || s.category === 'official',
+  ),
 )
 
 const myServers = computed(() =>

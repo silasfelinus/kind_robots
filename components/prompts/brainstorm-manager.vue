@@ -112,6 +112,47 @@
             </label>
           </div>
 
+          <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <label class="form-control">
+              <div class="label py-1">
+                <span class="label-text font-semibold">Flavor text</span>
+              </div>
+              <textarea
+                v-model="pitchForm.flavorText"
+                class="textarea textarea-bordered min-h-32 rounded-2xl"
+                placeholder="A little card sparkle..."
+                @input="markEdited"
+              />
+            </label>
+
+            <div class="form-control">
+              <div class="label py-1">
+                <span class="label-text font-semibold">Image prompt</span>
+              </div>
+              <div class="grid min-h-0 gap-2">
+                <textarea
+                  v-model="pitchForm.imagePrompt"
+                  class="textarea textarea-bordered min-h-32 rounded-2xl"
+                  placeholder="Optional art prompt..."
+                  @input="markEdited"
+                />
+                <button
+                  type="button"
+                  class="btn btn-accent rounded-2xl"
+                  :disabled="isGeneratingArt || !pitchForm.imagePrompt?.trim()"
+                  @click="generateArtImage"
+                >
+                  <span
+                    v-if="isGeneratingArt"
+                    class="loading loading-spinner loading-sm"
+                  />
+                  <icon v-else name="kind-icon:palette" class="h-4 w-4" />
+                  Get Art Image
+                </button>
+              </div>
+            </div>
+          </div>
+
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -168,60 +209,28 @@
             </transition-group>
           </section>
 
-          <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <label class="form-control">
-              <div class="label py-1">
-                <span class="label-text font-semibold">Image prompt</span>
-              </div>
-              <textarea
-                v-model="pitchForm.imagePrompt"
-                class="textarea textarea-bordered min-h-32 rounded-2xl"
-                placeholder="Optional art prompt..."
-                @input="markEdited"
-              />
-            </label>
-
-            <label class="form-control">
-              <div class="label py-1">
-                <span class="label-text font-semibold">Flavor text</span>
-              </div>
-              <textarea
-                v-model="pitchForm.flavorText"
-                class="textarea textarea-bordered min-h-32 rounded-2xl"
-                placeholder="A little card sparkle..."
-                @input="markEdited"
-              />
-            </label>
-          </div>
-
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h2 class="font-bold">Latest action</h2>
-              <span
-                :class="
-                  lastActionSuccess
-                    ? 'badge badge-success badge-sm'
-                    : 'badge badge-warning badge-sm'
-                "
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="font-bold">Generate lines</h2>
+                <p class="text-xs opacity-60">
+                  Uses the title, pitch, instructions, and sample lines above.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-info rounded-2xl"
+                :disabled="pitchStore.loading || !canGenerate"
+                @click="generateBrainstorm"
               >
-                {{ lastActionLabel }}
-              </span>
-            </div>
-
-            <div
-              v-if="statusMessage"
-              class="mb-3 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
-            >
-              {{ statusMessage }}
-            </div>
-
-            <div
-              v-if="rawActionResponse"
-              class="max-h-48 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3"
-            >
-              <pre class="whitespace-pre-wrap text-xs">{{
-                rawActionResponse
-              }}</pre>
+                <span
+                  v-if="pitchStore.loading"
+                  class="loading loading-spinner loading-sm"
+                />
+                <icon v-else name="kind-icon:brain" class="h-4 w-4" />
+                {{ pitchStore.loading ? 'Generating...' : 'Generate Lines' }}
+              </button>
             </div>
 
             <div v-if="apiLines.length" class="mt-3 space-y-2">
@@ -268,6 +277,16 @@
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div
+              v-else-if="statusMessage && !pitchStore.loading"
+              class="mt-3 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+              :class="
+                lastActionSuccess ? 'border-success/40' : 'border-warning/60'
+              "
+            >
+              {{ statusMessage }}
             </div>
           </section>
         </div>
@@ -388,58 +407,6 @@
 
           <button
             type="button"
-            class="btn btn-info w-full rounded-2xl"
-            :disabled="pitchStore.loading || !canGenerate"
-            @click="generateBrainstorm"
-          >
-            <span
-              v-if="pitchStore.loading"
-              class="loading loading-spinner loading-sm"
-            />
-            <icon v-else name="kind-icon:brain" class="h-4 w-4" />
-            {{ pitchStore.loading ? 'Generating...' : 'Generate Lines' }}
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-secondary w-full rounded-2xl"
-            :disabled="promptStore.isStreaming || !canGenerate"
-            @click="writeArtPitch"
-          >
-            <span
-              v-if="promptStore.isStreaming"
-              class="loading loading-spinner loading-sm"
-            />
-            <icon v-else name="kind-icon:image" class="h-4 w-4" />
-            Write Art Prompt
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-accent w-full rounded-2xl"
-            :disabled="isGeneratingArt || !pitchForm.imagePrompt?.trim()"
-            @click="generateArtImage"
-          >
-            <span
-              v-if="isGeneratingArt"
-              class="loading loading-spinner loading-sm"
-            />
-            <icon v-else name="kind-icon:palette" class="h-4 w-4" />
-            Get Art Image
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-outline w-full rounded-2xl"
-            :disabled="!pitchForm.imagePrompt?.trim()"
-            @click="saveImagePrompt"
-          >
-            <icon name="kind-icon:text" class="h-4 w-4" />
-            Save Image Prompt
-          </button>
-
-          <button
-            type="button"
             class="btn btn-primary w-full rounded-2xl"
             :disabled="isSaving || !canSave"
             @click="savePitch"
@@ -447,16 +414,6 @@
             <span v-if="isSaving" class="loading loading-spinner loading-sm" />
             <icon v-else name="kind-icon:save" class="h-4 w-4" />
             {{ selectedPitch ? 'Update Pitch' : 'Create Pitch' }}
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-outline w-full rounded-2xl"
-            :disabled="!selectedPitch"
-            @click="requestPromptsForPitch"
-          >
-            <icon name="kind-icon:prompt" class="h-4 w-4" />
-            Request Prompts
           </button>
 
           <button
@@ -469,6 +426,16 @@
             <icon name="kind-icon:trash" class="h-4 w-4" />
             Delete Pitch
           </button>
+
+          <div
+            v-if="statusMessage"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm"
+            :class="
+              lastActionSuccess ? 'border-success/40' : 'border-warning/60'
+            "
+          >
+            {{ statusMessage }}
+          </div>
         </div>
       </aside>
     </div>
@@ -663,7 +630,7 @@
     </div>
 
     <div
-      v-else
+      v-else-if="activeSection === 'prompts'"
       class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[340px_1fr]"
     >
       <aside
@@ -808,6 +775,13 @@
         </div>
       </main>
     </div>
+
+    <div
+      v-else
+      class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+    >
+      <server-manager class="h-full w-full" />
+    </div>
   </section>
 </template>
 
@@ -819,7 +793,7 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
 
-type BrainstormSection = 'add' | 'gallery' | 'prompts'
+type BrainstormSection = 'add' | 'gallery' | 'prompts' | 'server'
 type CreationSourceType = 'HUMAN' | 'AI' | 'HYBRID' | 'UPLOAD' | 'UNKNOWN'
 
 type ActionResult<T = unknown> = {
@@ -843,6 +817,7 @@ const sections: { key: BrainstormSection; label: string; icon: string }[] = [
   { key: 'add', label: 'Builder', icon: 'kind-icon:plus' },
   { key: 'gallery', label: 'Gallery', icon: 'kind-icon:gallery' },
   { key: 'prompts', label: 'Prompts', icon: 'kind-icon:prompt' },
+  { key: 'server', label: 'Server', icon: 'kind-icon:server' },
 ]
 
 const defaultBrainstormSeed = {
@@ -870,8 +845,6 @@ const examples = ref<string[]>(defaultExamples())
 const isSaving = ref(false)
 const isGeneratingArt = ref(false)
 const statusMessage = ref('')
-const rawActionResponse = ref('')
-const lastActionLabel = ref('Ready')
 const lastActionSuccess = ref(true)
 const hasHumanEdits = ref(false)
 const generatedThisSession = ref(false)
@@ -985,7 +958,6 @@ function startFreshPitch() {
   promptStore.setPromptsFromString(buildPromptFragmentString())
   activeCreationSource.value = 'HUMAN'
   statusMessage.value = ''
-  rawActionResponse.value = ''
   hasHumanEdits.value = false
   generatedThisSession.value = false
   activeSection.value = 'add'
@@ -1021,7 +993,7 @@ function acceptLine(line: string) {
 
 function acceptAllLines() {
   apiLines.value.forEach(acceptLine)
-  setAction('Accepted generated lines.', true, apiLines.value.join('\n'))
+  setAction('Accepted generated lines.', true)
 }
 
 async function generateBrainstorm() {
@@ -1043,7 +1015,6 @@ async function generateBrainstorm() {
       setAction(
         `Generated ${parseLines(responseText).length || 1} line(s).`,
         true,
-        responseText,
       )
       return
     }
@@ -1052,7 +1023,6 @@ async function generateBrainstorm() {
       result?.message ||
         'No brainstorm lines returned. Check /api/botcafe/brainstorm.',
       false,
-      JSON.stringify(result ?? {}, null, 2),
     )
   } catch (error) {
     setAction(
@@ -1060,39 +1030,6 @@ async function generateBrainstorm() {
       false,
     )
   }
-}
-
-async function writeArtPitch() {
-  if (!canGenerate.value) return
-
-  const inputPrompt = [
-    'Write one polished AI art prompt for this brainstorm.',
-    'Return only the art prompt.',
-    `Title: ${pitchForm.title}`,
-    `Premise: ${pitchForm.pitch}`,
-    `Instructions: ${pitchForm.description}`,
-    `Examples: ${joinExamples(examples.value)}`,
-    'Style: funny, surreal, visually specific, cinematic, no extra explanation.',
-  ].join('\n\n')
-
-  promptStore.currentPrompt = inputPrompt
-  promptStore.addPromptToArray(inputPrompt)
-  setAction('Writing art prompt...', true)
-
-  const response = await promptStore.streamPromptCompletion(inputPrompt)
-  const cleaned = promptStore.processPromptPlaceholders(response || '')
-
-  if (cleaned) {
-    pitchForm.imagePrompt = cleaned
-    promptStore.currentPrompt = cleaned
-    generatedThisSession.value = true
-    activeCreationSource.value = hasHumanEdits.value ? 'HYBRID' : 'AI'
-    markEdited()
-    setAction('Art prompt written.', true, cleaned)
-    return
-  }
-
-  setAction('No art prompt returned from /api/prompts/stream.', false)
 }
 
 async function savePitch() {
@@ -1116,17 +1053,9 @@ async function savePitch() {
 
     hasHumanEdits.value = false
     generatedThisSession.value = false
-    setAction(
-      selectedPitch.value ? 'Pitch updated.' : 'Pitch created.',
-      true,
-      JSON.stringify(result, null, 2),
-    )
+    setAction(selectedPitch.value ? 'Pitch updated.' : 'Pitch created.', true)
   } else {
-    setAction(
-      result.message || 'Save failed.',
-      false,
-      JSON.stringify(result, null, 2),
-    )
+    setAction(result.message || 'Save failed.', false)
   }
 
   isSaving.value = false
@@ -1153,46 +1082,15 @@ async function saveLinesAsPitch() {
     await pitchStore.fetchPitches(true)
     pitchStore.setSelectedPitch(result.data.id)
     pitchStore.setSelectedTitle(result.data.id)
-    setAction(
-      'Generated lines saved as a brainstorm pitch.',
-      true,
-      JSON.stringify(result.data, null, 2),
-    )
+    setAction('Generated lines saved as a brainstorm pitch.', true)
   } else {
     setAction(
       result.message || 'Could not save generated lines as pitch.',
       false,
-      JSON.stringify(result, null, 2),
     )
   }
 
   isSaving.value = false
-}
-
-async function requestPromptsForPitch() {
-  const savedPitch = selectedPitch.value
-  if (!savedPitch) {
-    setAction('Save or select a pitch before requesting linked prompts.', false)
-    return
-  }
-
-  await writeArtPitch()
-
-  const prompt = pitchForm.imagePrompt?.trim()
-  if (prompt) await createLinkedPrompt(prompt, savedPitch.id, 'AI')
-}
-
-async function saveImagePrompt() {
-  const prompt = pitchForm.imagePrompt?.trim()
-  if (!prompt) return
-
-  const savedPitch = selectedPitch.value
-  if (!savedPitch) {
-    setAction('Save the pitch first, then attach image prompts.', false)
-    return
-  }
-
-  await createLinkedPrompt(prompt, savedPitch.id, activeCreationSource.value)
 }
 
 async function generateArtImage() {
@@ -1219,7 +1117,6 @@ async function generateArtImage() {
         ? 'Art image requested.'
         : response.message || 'Art image request failed.',
       response.success,
-      JSON.stringify(response.data ?? response, null, 2),
     )
   } catch (error) {
     setAction(
@@ -1257,11 +1154,7 @@ async function createLinkedPrompt(
   })
 
   if (!response.success || !response.data) {
-    setAction(
-      response.message || 'Prompt save failed.',
-      false,
-      JSON.stringify(response, null, 2),
-    )
+    setAction(response.message || 'Prompt save failed.', false)
     return
   }
 
@@ -1269,7 +1162,7 @@ async function createLinkedPrompt(
   promptStore.selectedPrompt = response.data
   promptStore.currentPrompt = prompt
   promptStore.syncToLocalStorage()
-  setAction('Prompt saved.', true, JSON.stringify(response.data, null, 2))
+  setAction('Prompt saved.', true)
 }
 
 async function deleteSelectedPitch() {
@@ -1277,7 +1170,7 @@ async function deleteSelectedPitch() {
 
   isSaving.value = true
   const result = await pitchStore.deletePitch(selectedPitch.value.id)
-  setAction(result.message, result.success, JSON.stringify(result, null, 2))
+  setAction(result.message, result.success)
   if (result.success) startFreshPitch()
   isSaving.value = false
 }
@@ -1309,11 +1202,7 @@ async function streamCurrentPrompt() {
   if (promptStore.streamedText.trim()) {
     promptStore.currentPrompt = promptStore.streamedText.trim()
     promptStore.syncToLocalStorage()
-    setAction(
-      'Prompt completion received.',
-      true,
-      promptStore.streamedText.trim(),
-    )
+    setAction('Prompt completion received.', true)
     return
   }
 
@@ -1426,10 +1315,8 @@ function sourceBadgeClass(source: CreationSourceType): string {
   )
 }
 
-function setAction(message: string, success = true, response = '') {
+function setAction(message: string, success = true) {
   statusMessage.value = message
-  rawActionResponse.value = response
-  lastActionLabel.value = success ? 'Success' : 'Needs attention'
   lastActionSuccess.value = success
 }
 </script>

@@ -166,7 +166,7 @@
 
       <!-- Error store -->
       <div
-        v-if="errorStore.currentError"
+        v-if="errorStore.message"
         class="rounded-lg border border-error/30 bg-error/10 px-3 py-2"
       >
         <p
@@ -175,10 +175,10 @@
           Error Store
         </p>
         <p class="text-error opacity-80">
-          {{ errorStore.currentError.message }}
+          {{ errorStore.message }}
         </p>
-        <p v-if="errorStore.currentError.type" class="opacity-50 mt-0.5">
-          type: {{ errorStore.currentError.type }}
+        <p v-if="errorStore.type" class="opacity-50 mt-0.5">
+          type: {{ errorStore.type }}
         </p>
       </div>
       <p v-else class="text-[10px] opacity-40">No errors in errorStore.</p>
@@ -230,7 +230,7 @@
           Re-initialize
         </button>
         <button
-          v-if="errorStore.currentError"
+          v-if="errorStore.message"
           type="button"
           class="btn btn-xs btn-ghost rounded-lg opacity-60"
           @click="errorStore.clearError()"
@@ -397,10 +397,10 @@ const fetchFailed = computed(
   () =>
     !serverStore.loading &&
     serverStore.isInitialized &&
-    (serverStore.servers.length === 0 || !!errorStore.currentError),
+    (serverStore.servers.length === 0 || !!errorStore.message),
 )
 
-const latestError = computed(() => errorStore.currentError?.message ?? null)
+const latestError = computed(() => errorStore.message ?? null)
 
 // ── Server sets — all from store computed properties ──────────────────────────
 

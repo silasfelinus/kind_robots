@@ -266,6 +266,13 @@ export type EnumPitchTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPitchTypeFilter<$PrismaModel> | $Enums.PitchType
 }
 
+export type EnumCreationSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CreationSource[]
+  notIn?: $Enums.CreationSource[]
+  not?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel> | $Enums.CreationSource
+}
+
 export type EnumPitchTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.PitchType | Prisma.EnumPitchTypeFieldRefInput<$PrismaModel>
   in?: $Enums.PitchType[]
@@ -274,6 +281,16 @@ export type EnumPitchTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPitchTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPitchTypeFilter<$PrismaModel>
+}
+
+export type EnumCreationSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CreationSource[]
+  notIn?: $Enums.CreationSource[]
+  not?: Prisma.NestedEnumCreationSourceWithAggregatesFilter<$PrismaModel> | $Enums.CreationSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
 }
 
 export type EnumReactionTypeFilter<$PrismaModel = never> = {
@@ -636,6 +653,13 @@ export type NestedEnumPitchTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPitchTypeFilter<$PrismaModel> | $Enums.PitchType
 }
 
+export type NestedEnumCreationSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CreationSource[]
+  notIn?: $Enums.CreationSource[]
+  not?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel> | $Enums.CreationSource
+}
+
 export type NestedEnumPitchTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.PitchType | Prisma.EnumPitchTypeFieldRefInput<$PrismaModel>
   in?: $Enums.PitchType[]
@@ -644,6 +668,16 @@ export type NestedEnumPitchTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPitchTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPitchTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumCreationSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CreationSource | Prisma.EnumCreationSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CreationSource[]
+  notIn?: $Enums.CreationSource[]
+  not?: Prisma.NestedEnumCreationSourceWithAggregatesFilter<$PrismaModel> | $Enums.CreationSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCreationSourceFilter<$PrismaModel>
 }
 
 export type NestedEnumReactionTypeFilter<$PrismaModel = never> = {

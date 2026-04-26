@@ -16,4 +16,4 @@ dottitip: Brainstorm is my first robot, even before AMI! He's a little, well, le
 navComponent: 'prompt-nav'
 ---
 
-:brainstorm-view
+:brainstorm-manager

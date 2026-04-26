@@ -2807,6 +2807,7 @@ export const PitchScalarFieldEnum = {
   flavorText: 'flavorText',
   highlightImage: 'highlightImage',
   PitchType: 'PitchType',
+  creationSource: 'creationSource',
   isMature: 'isMature',
   isPublic: 'isPublic',
   userId: 'userId',
@@ -2827,6 +2828,7 @@ export const PromptScalarFieldEnum = {
   prompt: 'prompt',
   userId: 'userId',
   galleryId: 'galleryId',
+  creationSource: 'creationSource',
   pitchId: 'pitchId',
   botId: 'botId',
   artImageId: 'artImageId'
@@ -3531,6 +3533,13 @@ export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'PitchType'
  */
 export type EnumPitchTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PitchType'>
+    
+
+
+/**
+ * Reference to a field of type 'CreationSource'
+ */
+export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreationSource'>
     
 
 

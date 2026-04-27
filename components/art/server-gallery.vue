@@ -42,18 +42,18 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- Debug toggle -->
+        <!-- Test All visible servers -->
         <button
+          v-if="visibleServers.length > 0"
           type="button"
-          :class="[
-            'btn btn-xs rounded-lg gap-1',
-            showDebug ? 'btn-warning' : 'btn-ghost opacity-40 hover:opacity-80',
-          ]"
-          title="Toggle store debug info"
-          @click="showDebug = !showDebug"
+          class="btn btn-ghost btn-xs gap-1 rounded-lg opacity-60 hover:opacity-100"
+          :disabled="testingAll"
+          :title="`Test all ${visibleServers.length} visible servers`"
+          @click="testAll"
         >
-          <Icon name="kind-icon:bug" class="h-3 w-3" />
-          <span class="hidden sm:inline">Debug</span>
+          <span v-if="testingAll" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:activity" class="h-3 w-3" />
+          <span class="hidden sm:inline">Test All</span>
         </button>
 
         <!-- Active chip -->
@@ -64,7 +64,10 @@
             class="text-[9px] font-black uppercase tracking-widest opacity-40"
             >Active</span
           >
-          <span class="max-w-48 truncate text-[11px] font-bold">
+          <span
+            class="max-w-48 truncate text-[11px] font-bold"
+            :title="activeServer?.title ?? 'Kind Robots Default'"
+          >
             {{ activeServer?.title ?? 'Kind Robots Default' }}
           </span>
         </div>
@@ -83,10 +86,7 @@
       <div class="min-w-0 flex-1">
         <p class="text-xs font-black text-error">Server fetch failed</p>
         <p class="mt-0.5 text-[11px] opacity-70">
-          {{
-            latestError ??
-            'Could not load servers from the API. Check the console for details.'
-          }}
+          {{ latestError ?? 'Could not load servers from the API.' }}
         </p>
       </div>
       <button
@@ -96,142 +96,6 @@
       >
         Retry
       </button>
-    </div>
-
-    <!-- ── Debug panel ───────────────────────────────────────────────────── -->
-    <div
-      v-if="showDebug"
-      class="shrink-0 space-y-2 border-b border-warning/30 bg-warning/5 px-4 py-3 text-[11px]"
-    >
-      <p class="font-black text-warning">Store Debug — {{ mode }} gallery</p>
-
-      <div class="flex flex-wrap gap-1.5">
-        <span
-          :class="[
-            'badge badge-xs',
-            serverStore.isInitialized ? 'badge-success' : 'badge-error',
-          ]"
-        >
-          {{ serverStore.isInitialized ? 'initialized' : 'not initialized' }}
-        </span>
-        <span
-          :class="[
-            'badge badge-xs',
-            serverStore.hasLoaded ? 'badge-success' : 'badge-warning',
-          ]"
-        >
-          {{ serverStore.hasLoaded ? 'hasLoaded' : 'not loaded' }}
-        </span>
-        <span
-          :class="[
-            'badge badge-xs',
-            serverStore.loading ? 'badge-warning' : 'badge-neutral',
-          ]"
-        >
-          {{ serverStore.loading ? 'loading…' : 'idle' }}
-        </span>
-        <span class="badge badge-xs badge-neutral"
-          >{{ serverStore.servers.length }} total</span
-        >
-        <span class="badge badge-xs badge-info"
-          >{{ serverStore.textServers.length }} text</span
-        >
-        <span class="badge badge-xs badge-accent"
-          >{{ serverStore.artServers.length }} art</span
-        >
-        <span class="badge badge-xs badge-secondary"
-          >{{ serverStore.comfyServers.length }} comfy</span
-        >
-        <span class="badge badge-xs badge-neutral"
-          >{{ modeServers.length }} in this column</span
-        >
-      </div>
-
-      <div class="flex flex-wrap gap-x-4 gap-y-0.5 opacity-70">
-        <span
-          >activeTextServerId:
-          <code class="text-info">{{
-            serverStore.activeTextServerId ?? 'null'
-          }}</code></span
-        >
-        <span
-          >activeArtServerId:
-          <code class="text-accent">{{
-            serverStore.activeArtServerId ?? 'null'
-          }}</code></span
-        >
-      </div>
-
-      <div
-        v-if="errorStore.message"
-        class="rounded-lg border border-error/30 bg-error/10 px-3 py-2"
-      >
-        <p
-          class="mb-1 text-[10px] font-black uppercase tracking-widest text-error"
-        >
-          Error Store
-        </p>
-        <p class="text-error opacity-80">{{ errorStore.message }}</p>
-        <p v-if="errorStore.type" class="mt-0.5 opacity-50">
-          type: {{ errorStore.type }}
-        </p>
-      </div>
-      <p v-else class="text-[10px] opacity-40">No errors in errorStore.</p>
-
-      <div v-if="serverStore.servers.length" class="space-y-1">
-        <p class="font-bold opacity-60">All servers in store:</p>
-        <div
-          v-for="s in serverStore.servers"
-          :key="s.id"
-          :class="[
-            'flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg px-2 py-1 font-mono text-[10px]',
-            modeServers.some((m) => m.id === s.id)
-              ? 'bg-warning/10'
-              : 'bg-base-200 opacity-40',
-          ]"
-        >
-          <span class="font-bold text-primary">#{{ s.id }}</span>
-          <span>{{ s.title || s.label || '(untitled)' }}</span>
-          <span class="opacity-60">{{ s.serverType }}</span>
-          <span :class="s.isActive ? 'text-success' : 'text-error'">
-            {{ s.isActive ? 'active' : 'inactive' }}
-          </span>
-          <span v-if="s.isOfficial" class="text-info">official</span>
-          <span v-if="s.isPublic" class="text-secondary">public</span>
-          <span class="opacity-40">uid:{{ s.userId ?? '—' }}</span>
-        </div>
-      </div>
-      <div
-        v-else
-        class="rounded-lg bg-error/10 px-3 py-2 text-[11px] text-error"
-      >
-        ⚠ serverStore.servers is empty — fetch may have failed or not run yet.
-      </div>
-
-      <div class="flex gap-1.5">
-        <button
-          type="button"
-          class="btn btn-xs btn-outline rounded-lg"
-          @click="serverStore.fetchAllServers(true)"
-        >
-          Force refetch
-        </button>
-        <button
-          type="button"
-          class="btn btn-xs btn-ghost rounded-lg opacity-60"
-          @click="serverStore.initialize()"
-        >
-          Re-initialize
-        </button>
-        <button
-          v-if="errorStore.message"
-          type="button"
-          class="btn btn-xs btn-ghost rounded-lg opacity-60"
-          @click="errorStore.clearError()"
-        >
-          Clear error
-        </button>
-      </div>
     </div>
 
     <!-- ── Scrollable list ───────────────────────────────────────────────── -->
@@ -268,6 +132,28 @@
         </div>
       </button>
 
+      <!-- ── Loading skeleton (only while fetching with empty list) ──── -->
+      <template v-if="isLoadingFresh">
+        <div
+          v-for="i in 3"
+          :key="`skel-${i}`"
+          class="flex animate-pulse flex-col gap-2 rounded-xl border border-base-300 bg-base-200 p-3"
+        >
+          <div class="flex items-start gap-2.5">
+            <div class="h-8 w-8 shrink-0 rounded-lg bg-base-100" />
+            <div class="flex-1 space-y-1.5">
+              <div class="h-3 w-3/5 rounded bg-base-100" />
+              <div class="h-2 w-2/5 rounded bg-base-100" />
+            </div>
+          </div>
+          <div class="h-6 rounded-lg bg-base-100" />
+          <div class="flex gap-1">
+            <div class="h-3 w-12 rounded bg-base-100" />
+            <div class="h-3 w-10 rounded bg-base-100" />
+          </div>
+        </div>
+      </template>
+
       <!-- ── Official & Public ─────────────────────────────────────────── -->
       <template v-if="filteredPublic.length">
         <gallery-section-header
@@ -280,10 +166,12 @@
           :key="`pub-${server.id}`"
           :server="server"
           :active="activeServerId === server.id"
+          :expanded="expandedCardId === server.id"
           :health-result="serverStore.healthResults[server.id] ?? null"
           @select="selectServer(server.id)"
           @edit="beginEdit(server)"
           @test="serverStore.testServerHealth(server.id)"
+          @update:expanded="handleExpanded(server.id, $event)"
         />
       </template>
       <p
@@ -315,17 +203,19 @@
           :key="`my-${server.id}`"
           :server="server"
           :active="activeServerId === server.id"
+          :expanded="expandedCardId === server.id"
           :health-result="serverStore.healthResults[server.id] ?? null"
           owned
           @select="selectServer(server.id)"
           @edit="beginEdit(server)"
           @test="serverStore.testServerHealth(server.id)"
+          @update:expanded="handleExpanded(server.id, $event)"
         />
       </template>
 
-      <!-- Empty state -->
+      <!-- Empty state — only when not loading -->
       <div
-        v-else
+        v-else-if="!isLoadingFresh"
         class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-base-300 p-4 text-center"
       >
         <p class="text-xs opacity-50">
@@ -376,15 +266,25 @@ const serverStore = useServerStore()
 const userStore = useUserStore()
 const errorStore = useErrorStore()
 const myUserId = computed(() => userStore.user?.id)
-const showDebug = ref(false)
 
-// ── Error surfacing ───────────────────────────────────────────────────────────
+// ── Single-drawer state — only one card's quick-edit open at a time ───────────
+
+const expandedCardId = ref<number | null>(null)
+
+function setExpanded(id: number, value: boolean) {
+  expandedCardId.value = value ? id : null
+}
+
+// ── Loading / error states ────────────────────────────────────────────────────
+
+/** True only when initially fetching with no data yet (skeleton condition). */
+const isLoadingFresh = computed(
+  () => serverStore.loading && serverStore.servers.length === 0,
+)
 
 const fetchFailed = computed(
   () =>
-    !serverStore.loading &&
-    serverStore.isInitialized &&
-    (serverStore.servers.length === 0 || !!errorStore.message),
+    !serverStore.loading && serverStore.isInitialized && !!errorStore.message,
 )
 
 const latestError = computed(() => errorStore.message ?? null)
@@ -433,6 +333,12 @@ function matches(s: Server) {
 const filteredPublic = computed(() => publicServers.value.filter(matches))
 const filteredMine = computed(() => myServers.value.filter(matches))
 
+/** All currently visible servers — used by Test All. */
+const visibleServers = computed(() => [
+  ...filteredPublic.value,
+  ...filteredMine.value,
+])
+
 // ── Active ────────────────────────────────────────────────────────────────────
 
 const activeServerId = computed(() =>
@@ -477,6 +383,24 @@ function beginEdit(server: Server) {
     serverStore.selectServer(server.id)
   }
   emit('open-edit')
+}
+function handleExpanded(id: number, value: boolean) {
+  setExpanded(id, value)
+}
+// ── Test All ──────────────────────────────────────────────────────────────────
+
+const testingAll = ref(false)
+
+async function testAll() {
+  if (testingAll.value) return
+  testingAll.value = true
+  try {
+    await Promise.allSettled(
+      visibleServers.value.map((s) => serverStore.testServerHealth(s.id)),
+    )
+  } finally {
+    testingAll.value = false
+  }
 }
 
 // ── Quick-add presets ─────────────────────────────────────────────────────────

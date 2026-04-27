@@ -32,6 +32,8 @@ const footerComponentNames = [
 type FooterComponentName = (typeof footerComponentNames)[number]
 type PromptOffsetOwner = FooterComponentName | ''
 
+type SidebarDirection = 'forward' | 'backward'
+
 type FooterStage = 'hidden' | 'compact' | 'open' | 'priority' | 'disabled'
 
 export const useDisplayStore = defineStore('displayStore', () => {
@@ -341,18 +343,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
       zIndex: '30',
     }
   })
-
   const footerToggleStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
-    const footerTop = 100 - effectiveFooterHeight.value - padding
-    const lift = state.footerState === 'hidden' ? 0.9 : 0.35
-
     return {
       position: 'fixed',
       left: '50%',
-      top: `calc(var(--vh) * ${footerTop} - ${lift}rem)`,
+      bottom: '1.25rem',
       transform: 'translateX(-50%)',
-      zIndex: '30',
+      zIndex: '80',
     }
   })
 
@@ -362,6 +359,66 @@ export const useDisplayStore = defineStore('displayStore', () => {
     left: '50%',
     transform: 'translateX(-50%)',
     zIndex: '30',
+  }))
+
+  const leftCornerToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    left: '0.25rem',
+    bottom: '0.25rem',
+    zIndex: '70',
+  }))
+
+  const rightCornerToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    right: '0.25rem',
+    bottom: '0.25rem',
+    zIndex: '70',
+  }))
+
+  const leftFooterToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    left: '3.75rem',
+    bottom: '3.75rem',
+    zIndex: '70',
+  }))
+
+  const rightFooterToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    right: '3.75rem',
+    bottom: '3.75rem',
+    zIndex: '70',
+  }))
+
+  const leftSidebarBackToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    top: leftToggleStyle.value.top,
+    left: `calc(${sectionPaddingSize.value}vw + 0.5rem)`,
+    transform: 'translateY(-50%)',
+    zIndex: '60',
+  }))
+
+  const leftSidebarForwardToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    top: leftToggleStyle.value.top,
+    left: `calc(${sectionPaddingSize.value + sidebarLeftWidth.value}vw - 0.5rem)`,
+    transform: 'translate(-100%, -50%)',
+    zIndex: '60',
+  }))
+
+  const rightSidebarBackToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    top: rightToggleStyle.value.top,
+    right: `calc(${sectionPaddingSize.value + sidebarRightWidth.value}vw - 0.5rem)`,
+    transform: 'translate(100%, -50%)',
+    zIndex: '60',
+  }))
+
+  const rightSidebarForwardToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    top: rightToggleStyle.value.top,
+    right: `calc(${sectionPaddingSize.value}vw + 0.5rem)`,
+    transform: 'translateY(-50%)',
+    zIndex: '60',
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
@@ -600,22 +657,38 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  function toggleSidebar(side: SidebarStateKey) {
-    const logical: LogicalSide = side === 'sidebarLeftState' ? 'left' : 'right'
+  function getNextSidebarStage(
+    current: SidebarStage,
+    direction: SidebarDirection,
+  ) {
     const order: SidebarStage[] = ['hidden', 'compact', 'open', 'priority']
+    const index = order.indexOf(current)
+
+    if (direction === 'backward') {
+      return order[(index - 1 + order.length) % order.length] ?? 'hidden'
+    }
+
+    return order[(index + 1) % order.length] ?? 'hidden'
+  }
+
+  function toggleSidebar(
+    side: SidebarStateKey,
+    direction: SidebarDirection = 'forward',
+  ) {
+    const logical: LogicalSide = side === 'sidebarLeftState' ? 'left' : 'right'
     const current = getSidebarStage(logical)
-    const next = order[(order.indexOf(current) + 1) % order.length] ?? 'hidden'
+    const next = getNextSidebarStage(current, direction)
 
     setSidebarStage(logical, next)
     saveState()
   }
 
-  function toggleLeftSidebar() {
-    toggleSidebar('sidebarLeftState')
+  function toggleLeftSidebar(direction: SidebarDirection = 'forward') {
+    toggleSidebar('sidebarLeftState', direction)
   }
 
-  function toggleRightSidebar() {
-    toggleSidebar('sidebarRightState')
+  function toggleRightSidebar(direction: SidebarDirection = 'forward') {
+    toggleSidebar('sidebarRightState', direction)
   }
 
   function toggleFooter() {
@@ -979,6 +1052,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     showCornerPanel,
     ...toRefs(state),
     footerComponentNames,
+    leftCornerToggleStyle,
+    rightCornerToggleStyle,
+    leftFooterToggleStyle,
+    rightFooterToggleStyle,
+    leftSidebarBackToggleStyle,
+    leftSidebarForwardToggleStyle,
+    rightSidebarBackToggleStyle,
+    rightSidebarForwardToggleStyle,
   }
 })
 

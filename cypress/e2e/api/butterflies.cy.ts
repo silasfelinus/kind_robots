@@ -6,7 +6,7 @@ describe('Butterfly API', () => {
   const recordsUrl = 'https://kind-robots.vercel.app/api/butterfly-records'
 
   const userToken = Cypress.env('USER_TOKEN')
-  const adminToken = Cypress.env('API_KEY')
+  const adminToken = Cypress.env('ADMIN_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
 
   const time = Date.now()
@@ -14,6 +14,11 @@ describe('Butterfly API', () => {
 
   let butterflyId: number | undefined
   let recordId: number | undefined
+
+  before(() => {
+    expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
+  })
 
   it('GET /butterflies — returns public list, no auth required', () => {
     cy.request(baseUrl).then((response) => {
@@ -76,6 +81,32 @@ describe('Butterfly API', () => {
     })
   })
 
+  it('POST /butterflies — rejects non-admin user', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        name: `Unauthorized Species ${time}`,
+        message: 'should not exist',
+        wingTopColor: 'hsl(0,50%,50%)',
+        wingBottomColor: 'hsl(180,50%,50%)',
+        speed: 0.5,
+        wingSpeed: 0.08,
+        scale: 1,
+        rarityNumber: 9998,
+        isPublic: true,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.be.false
+    })
+  })
+
   it('POST /butterflies — creates a butterfly with admin auth', () => {
     cy.request({
       method: 'POST',
@@ -122,32 +153,6 @@ describe('Butterfly API', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(404)
-      expect(response.body.success).to.be.false
-    })
-  })
-
-  it('POST /butterflies — rejects non-admin user', () => {
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        name: `Unauthorized Species ${time}`,
-        message: 'should not exist',
-        wingTopColor: 'hsl(0,50%,50%)',
-        wingBottomColor: 'hsl(180,50%,50%)',
-        speed: 0.5,
-        wingSpeed: 0.08,
-        scale: 1,
-        rarityNumber: 9998,
-        isPublic: true,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      expect(response.status).to.eq(403)
       expect(response.body.success).to.be.false
     })
   })
@@ -275,14 +280,14 @@ describe('Butterfly API', () => {
     })
   })
 
-  it('GET /butterfly-records — rejects missing auth', () => {
+  it('GET /butterfly-records — allows public read', () => {
     cy.request({
       method: 'GET',
       url: recordsUrl,
-      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401)
-      expect(response.body.success).to.be.false
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array')
     })
   })
 

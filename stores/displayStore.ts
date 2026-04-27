@@ -253,12 +253,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return mainContentHeight.value
   })
 
-  const mainContentLeft = computed(() => {
-    return sectionPaddingSize.value + sidebarLeftWidth.value
+    const mainContentLeft = computed(() => {
+    const padding = sectionPaddingSize.value
+    return sidebarLeftVisible.value ? padding + sidebarLeftWidth.value : padding
   })
 
   const mainContentRightInset = computed(() => {
-    return sectionPaddingSize.value + sidebarRightWidth.value
+    const padding = sectionPaddingSize.value
+    return sidebarRightVisible.value ? padding + sidebarRightWidth.value : padding
   })
 
   const mainContentWidth = computed(() => {
@@ -343,11 +345,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
       zIndex: '30',
     }
   })
-  const footerToggleStyle = computed<CSSProperties>(() => {
+    const footerToggleStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
+    const lift = footerVisible.value
+      ? effectiveFooterHeight.value + padding * 1.5
+      : padding
+
     return {
       position: 'fixed',
       left: '50%',
-      bottom: '1.25rem',
+      bottom: `calc(var(--vh) * ${lift})`,
       transform: 'translateX(-50%)',
       zIndex: '80',
     }

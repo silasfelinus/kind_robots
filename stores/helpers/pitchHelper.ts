@@ -139,6 +139,6 @@ export function buildPitchPayload(p: Partial<Pitch>): Partial<Pitch> {
     imagePrompt: p.imagePrompt?.trim(),
     artImageId: p.artImageId ?? null,
     designer: p.designer?.trim(),
-    creationSource: p.creationSource || CreationSource.UNKNOWN,
+    creationSource: 'UNKNOWN',
   }
 }

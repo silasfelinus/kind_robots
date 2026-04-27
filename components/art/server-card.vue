@@ -24,7 +24,9 @@
         ? 'border-success bg-success/10'
         : active
           ? 'border-primary bg-primary/8'
-          : 'border-base-300 bg-base-200 hover:-translate-y-px hover:border-primary/30',
+          : isOwned
+            ? 'border-secondary bg-secondary/10 hover:border-secondary'
+            : 'border-base-300 bg-base-200 opacity-60 hover:opacity-80 hover:border-primary/20',
     ]"
   >
     <!-- ── Title row ────────────────────────────────────────────────────── -->
@@ -300,6 +302,7 @@ const showKey = ref(false)
 const saving = ref(false)
 const saveError = ref<string | null>(null)
 const saveFlash = ref(false)
+const isOwned = computed(() => props.server.userId === myUserId.value)
 
 const form = reactive({
   baseUrl: props.server.baseUrl ?? '',

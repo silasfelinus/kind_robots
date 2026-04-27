@@ -207,6 +207,7 @@ export type UserCountAggregateOutputType = {
   lastReward: number
   textModels: number
   vibes: number
+  hiddenServerIds: number
   _all: number
 }
 
@@ -392,6 +393,7 @@ export type UserCountAggregateInputType = {
   lastReward?: true
   textModels?: true
   vibes?: true
+  hiddenServerIds?: true
   _all?: true
 }
 
@@ -532,6 +534,7 @@ export type UserGroupByOutputType = {
   lastReward: string | null
   textModels: string | null
   vibes: string | null
+  hiddenServerIds: runtime.JsonValue | null
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -608,6 +611,7 @@ export type UserWhereInput = {
   lastReward?: Prisma.StringNullableFilter<"User"> | string | null
   textModels?: Prisma.StringNullableFilter<"User"> | string | null
   vibes?: Prisma.StringNullableFilter<"User"> | string | null
+  hiddenServerIds?: Prisma.JsonNullableFilter<"User">
   Art?: Prisma.ArtListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
@@ -683,6 +687,7 @@ export type UserOrderByWithRelationInput = {
   lastReward?: Prisma.SortOrderInput | Prisma.SortOrder
   textModels?: Prisma.SortOrderInput | Prisma.SortOrder
   vibes?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenServerIds?: Prisma.SortOrderInput | Prisma.SortOrder
   Art?: Prisma.ArtOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
@@ -762,6 +767,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   lastReward?: Prisma.StringNullableFilter<"User"> | string | null
   textModels?: Prisma.StringNullableFilter<"User"> | string | null
   vibes?: Prisma.StringNullableFilter<"User"> | string | null
+  hiddenServerIds?: Prisma.JsonNullableFilter<"User">
   Art?: Prisma.ArtListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
@@ -837,6 +843,7 @@ export type UserOrderByWithAggregationInput = {
   lastReward?: Prisma.SortOrderInput | Prisma.SortOrder
   textModels?: Prisma.SortOrderInput | Prisma.SortOrder
   vibes?: Prisma.SortOrderInput | Prisma.SortOrder
+  hiddenServerIds?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -898,6 +905,7 @@ export type UserScalarWhereWithAggregatesInput = {
   lastReward?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   textModels?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   vibes?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  hiddenServerIds?: Prisma.JsonNullableWithAggregatesFilter<"User">
 }
 
 export type UserCreateInput = {
@@ -950,6 +958,7 @@ export type UserCreateInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -1025,6 +1034,7 @@ export type UserUncheckedCreateInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -1099,6 +1109,7 @@ export type UserUpdateInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -1174,6 +1185,7 @@ export type UserUncheckedUpdateInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -1249,6 +1261,7 @@ export type UserCreateManyInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type UserUpdateManyMutationInput = {
@@ -1301,6 +1314,7 @@ export type UserUpdateManyMutationInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -1354,6 +1368,7 @@ export type UserUncheckedUpdateManyInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -1423,6 +1438,7 @@ export type UserCountOrderByAggregateInput = {
   lastReward?: Prisma.SortOrder
   textModels?: Prisma.SortOrder
   vibes?: Prisma.SortOrder
+  hiddenServerIds?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -1949,6 +1965,7 @@ export type UserCreateWithoutArtInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -2023,6 +2040,7 @@ export type UserUncheckedCreateWithoutArtInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -2112,6 +2130,7 @@ export type UserUpdateWithoutArtInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -2186,6 +2205,7 @@ export type UserUncheckedUpdateWithoutArtInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -2259,6 +2279,7 @@ export type UserCreateWithoutArtImagesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -2333,6 +2354,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -2422,6 +2444,7 @@ export type UserUpdateWithoutArtImagesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -2496,6 +2519,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -2569,6 +2593,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -2643,6 +2668,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -2732,6 +2758,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -2806,6 +2833,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -2879,6 +2907,7 @@ export type UserCreateWithoutBotsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -2953,6 +2982,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -3042,6 +3072,7 @@ export type UserUpdateWithoutBotsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -3116,6 +3147,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -3189,6 +3221,7 @@ export type UserCreateWithoutButterfliesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -3263,6 +3296,7 @@ export type UserUncheckedCreateWithoutButterfliesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -3352,6 +3386,7 @@ export type UserUpdateWithoutButterfliesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -3426,6 +3461,7 @@ export type UserUncheckedUpdateWithoutButterfliesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -3499,6 +3535,7 @@ export type UserCreateWithoutButterflyRecordsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -3573,6 +3610,7 @@ export type UserUncheckedCreateWithoutButterflyRecordsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -3662,6 +3700,7 @@ export type UserUpdateWithoutButterflyRecordsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -3736,6 +3775,7 @@ export type UserUncheckedUpdateWithoutButterflyRecordsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -3809,6 +3849,7 @@ export type UserCreateWithoutCharactersInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -3883,6 +3924,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -3972,6 +4014,7 @@ export type UserUpdateWithoutCharactersInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -4046,6 +4089,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -4119,6 +4163,7 @@ export type UserCreateWithoutChatsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -4193,6 +4238,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -4282,6 +4328,7 @@ export type UserUpdateWithoutChatsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -4356,6 +4403,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -4429,6 +4477,7 @@ export type UserCreateWithoutDominionsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -4503,6 +4552,7 @@ export type UserUncheckedCreateWithoutDominionsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -4592,6 +4642,7 @@ export type UserUpdateWithoutDominionsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -4666,6 +4717,7 @@ export type UserUncheckedUpdateWithoutDominionsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -4739,6 +4791,7 @@ export type UserCreateWithoutGalleriesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -4813,6 +4866,7 @@ export type UserUncheckedCreateWithoutGalleriesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -4902,6 +4956,7 @@ export type UserUpdateWithoutGalleriesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -4976,6 +5031,7 @@ export type UserUncheckedUpdateWithoutGalleriesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -5049,6 +5105,7 @@ export type UserCreateWithoutLogsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -5123,6 +5180,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -5212,6 +5270,7 @@ export type UserUpdateWithoutLogsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -5286,6 +5345,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -5359,6 +5419,7 @@ export type UserCreateWithoutMilestonesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -5433,6 +5494,7 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -5522,6 +5584,7 @@ export type UserUpdateWithoutMilestonesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -5596,6 +5659,7 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -5669,6 +5733,7 @@ export type UserCreateWithoutPitchesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -5743,6 +5808,7 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -5832,6 +5898,7 @@ export type UserUpdateWithoutPitchesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -5906,6 +5973,7 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -5979,6 +6047,7 @@ export type UserCreateWithoutPromptsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -6053,6 +6122,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -6142,6 +6212,7 @@ export type UserUpdateWithoutPromptsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -6216,6 +6287,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -6289,6 +6361,7 @@ export type UserCreateWithoutReactionsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -6363,6 +6436,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -6452,6 +6526,7 @@ export type UserUpdateWithoutReactionsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -6526,6 +6601,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -6599,6 +6675,7 @@ export type UserCreateWithoutResourcesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -6673,6 +6750,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -6762,6 +6840,7 @@ export type UserUpdateWithoutResourcesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -6836,6 +6915,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -6909,6 +6989,7 @@ export type UserCreateWithoutRewardsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -6983,6 +7064,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -7072,6 +7154,7 @@ export type UserUpdateWithoutRewardsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -7146,6 +7229,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -7219,6 +7303,7 @@ export type UserCreateWithoutScenariosInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -7293,6 +7378,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -7382,6 +7468,7 @@ export type UserUpdateWithoutScenariosInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -7456,6 +7543,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -7529,6 +7617,7 @@ export type UserCreateWithoutServersInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -7603,6 +7692,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -7692,6 +7782,7 @@ export type UserUpdateWithoutServersInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -7766,6 +7857,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -7839,6 +7931,7 @@ export type UserCreateWithoutSmartIconsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -7913,6 +8006,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -8002,6 +8096,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -8076,6 +8171,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -8149,6 +8245,7 @@ export type UserCreateWithoutTagsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -8223,6 +8320,7 @@ export type UserUncheckedCreateWithoutTagsInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -8312,6 +8410,7 @@ export type UserUpdateWithoutTagsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -8386,6 +8485,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -8459,6 +8559,7 @@ export type UserCreateWithoutThemesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
@@ -8533,6 +8634,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   lastReward?: string | null
   textModels?: string | null
   vibes?: string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
@@ -8622,6 +8724,7 @@ export type UserUpdateWithoutThemesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
@@ -8696,6 +8799,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   Art?: Prisma.ArtUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
@@ -8990,6 +9094,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   lastReward?: boolean
   textModels?: boolean
   vibes?: boolean
+  hiddenServerIds?: boolean
   Art?: boolean | Prisma.User$ArtArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
@@ -9068,9 +9173,10 @@ export type UserSelectScalar = {
   lastReward?: boolean
   textModels?: boolean
   vibes?: boolean
+  hiddenServerIds?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.User$ArtArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -9174,6 +9280,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     lastReward: string | null
     textModels: string | null
     vibes: string | null
+    hiddenServerIds: runtime.JsonValue | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -9615,6 +9722,7 @@ export interface UserFieldRefs {
   readonly lastReward: Prisma.FieldRef<"User", 'String'>
   readonly textModels: Prisma.FieldRef<"User", 'String'>
   readonly vibes: Prisma.FieldRef<"User", 'String'>
+  readonly hiddenServerIds: Prisma.FieldRef<"User", 'Json'>
 }
     
 

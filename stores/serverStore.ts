@@ -100,6 +100,7 @@ export const useServerStore = defineStore('serverStore', () => {
   const isInitialized = ref(false)
   const loading = ref(false)
   const testingHealth = ref(false)
+  const showHiddenServers = ref(false)
 
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<Server[]> | null>(null)
@@ -111,6 +112,127 @@ export const useServerStore = defineStore('serverStore', () => {
   const ownedServers = computed<Server[]>(() =>
     servers.value.filter(
       (server: Server): boolean => server.userId === userStore.user?.id,
+    ),
+  )
+
+  function isServerHidden(id: number): boolean {
+    return hiddenServerIdSet.value.has(id)
+  }
+
+  const hiddenServerIds = computed<number[]>(() => {
+    const ids = userStore.user?.hiddenServerIds
+
+    if (!Array.isArray(ids)) return []
+
+    return ids.filter((id): id is number => typeof id === 'number')
+  })
+
+  const hiddenServerIdSet = computed<Set<number>>(
+    () => new Set(hiddenServerIds.value),
+  )
+
+  const hiddenServers = computed<Server[]>(() =>
+    activeServers.value.filter((server: Server): boolean =>
+      hiddenServerIdSet.value.has(server.id),
+    ),
+  )
+
+  const visibleActiveServers = computed<Server[]>(() =>
+    activeServers.value.filter((server: Server): boolean => {
+      if (showHiddenServers.value) return true
+      return !hiddenServerIdSet.value.has(server.id)
+    }),
+  )
+
+  async function hideServer(id: number): Promise<{
+    success: boolean
+    message?: string
+  }> {
+    if (!userStore.isLoggedIn) {
+      return {
+        success: false,
+        message: 'Please log in to hide servers.',
+      }
+    }
+
+    const nextHiddenServerIds = [...new Set([...hiddenServerIds.value, id])]
+
+    const result = await userStore.updateUser({
+      hiddenServerIds: nextHiddenServerIds,
+    })
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message || 'Failed to hide server.',
+      }
+    }
+
+    if (activeArtServerId.value === id) {
+      activeArtServerId.value = null
+    }
+
+    if (activeTextServerId.value === id) {
+      activeTextServerId.value = null
+    }
+
+    syncToLocalStorage()
+
+    return {
+      success: true,
+      message: 'Server hidden.',
+    }
+  }
+
+  async function unhideServer(id: number): Promise<{
+    success: boolean
+    message?: string
+  }> {
+    if (!userStore.isLoggedIn) {
+      return {
+        success: false,
+        message: 'Please log in to restore servers.',
+      }
+    }
+
+    const nextHiddenServerIds = hiddenServerIds.value.filter(
+      (serverId: number): boolean => serverId !== id,
+    )
+
+    const result = await userStore.updateUser({
+      hiddenServerIds: nextHiddenServerIds,
+    })
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message || 'Failed to restore server.',
+      }
+    }
+
+    syncToLocalStorage()
+
+    return {
+      success: true,
+      message: 'Server restored.',
+    }
+  }
+
+  const hiddenServerIds = computed<number[]>(() =>
+    Array.isArray(userStore.user?.HiddenServers)
+      ? userStore.user.HiddenServers.filter(
+          (id): id is number => typeof id === 'number',
+        )
+      : [],
+  )
+
+  const hiddenServerIdSet = computed<Set<number>>(
+    () => new Set(hiddenServerIds.value),
+  )
+
+  const visibleActiveServers = computed<Server[]>(() =>
+    activeServers.value.filter(
+      (server) => !hiddenServerIdSet.value.has(server.id),
     ),
   )
 
@@ -129,7 +251,7 @@ export const useServerStore = defineStore('serverStore', () => {
   )
 
   const artServers = computed<Server[]>(() =>
-    activeServers.value.filter((server: Server): boolean => {
+    visibleActiveServers.value.filter((server: Server): boolean => {
       return (
         server.serverType === 'ART' ||
         server.serverType === 'A1111' ||
@@ -140,7 +262,7 @@ export const useServerStore = defineStore('serverStore', () => {
   )
 
   const textServers = computed<Server[]>(() =>
-    activeServers.value.filter((server: Server): boolean => {
+    visibleActiveServers.value.filter((server: Server): boolean => {
       return (
         server.serverType === 'TEXT' ||
         server.serverType === 'OPENAI_COMPATIBLE' ||
@@ -150,7 +272,7 @@ export const useServerStore = defineStore('serverStore', () => {
   )
 
   const comfyServers = computed<Server[]>(() =>
-    activeServers.value.filter((server: Server): boolean => {
+    visibleActiveServers.value.filter((server: Server): boolean => {
       return (
         server.serverType === 'COMFY' || Boolean(server.supportsComfyWorkflow)
       )
@@ -158,11 +280,10 @@ export const useServerStore = defineStore('serverStore', () => {
   )
 
   const dropdownServers = computed<Server[]>(() =>
-    [...activeServers.value].sort((a: Server, b: Server): number =>
+    [...visibleActiveServers.value].sort((a: Server, b: Server): number =>
       sortServers(a, b),
     ),
   )
-
   const activeArtServer = computed<Server | null>(() => {
     if (activeArtServerId.value !== null) {
       const match = servers.value.find(

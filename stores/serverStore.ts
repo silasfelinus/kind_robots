@@ -143,7 +143,6 @@ export const useServerStore = defineStore('serverStore', () => {
       return !hiddenServerIdSet.value.has(server.id)
     }),
   )
-
   async function hideServer(id: number): Promise<{
     success: boolean
     message?: string
@@ -157,30 +156,32 @@ export const useServerStore = defineStore('serverStore', () => {
 
     const nextHiddenServerIds = [...new Set([...hiddenServerIds.value, id])]
 
-    const result = await userStore.updateUser({
-      hiddenServerIds: nextHiddenServerIds,
-    })
+    try {
+      await userStore.updateUser({
+        hiddenServerIds: nextHiddenServerIds,
+      })
 
-    if (!result.success) {
+      if (activeArtServerId.value === id) {
+        activeArtServerId.value = null
+      }
+
+      if (activeTextServerId.value === id) {
+        activeTextServerId.value = null
+      }
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        message: 'Server hidden.',
+      }
+    } catch (error) {
+      handleError(error, 'hiding server')
       return {
         success: false,
-        message: result.message || 'Failed to hide server.',
+        message:
+          error instanceof Error ? error.message : 'Failed to hide server.',
       }
-    }
-
-    if (activeArtServerId.value === id) {
-      activeArtServerId.value = null
-    }
-
-    if (activeTextServerId.value === id) {
-      activeTextServerId.value = null
-    }
-
-    syncToLocalStorage()
-
-    return {
-      success: true,
-      message: 'Server hidden.',
     }
   }
 
@@ -199,42 +200,26 @@ export const useServerStore = defineStore('serverStore', () => {
       (serverId: number): boolean => serverId !== id,
     )
 
-    const result = await userStore.updateUser({
-      hiddenServerIds: nextHiddenServerIds,
-    })
+    try {
+      await userStore.updateUser({
+        hiddenServerIds: nextHiddenServerIds,
+      })
 
-    if (!result.success) {
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        message: 'Server restored.',
+      }
+    } catch (error) {
+      handleError(error, 'restoring server')
       return {
         success: false,
-        message: result.message || 'Failed to restore server.',
+        message:
+          error instanceof Error ? error.message : 'Failed to restore server.',
       }
     }
-
-    syncToLocalStorage()
-
-    return {
-      success: true,
-      message: 'Server restored.',
-    }
   }
-
-  const hiddenServerIds = computed<number[]>(() =>
-    Array.isArray(userStore.user?.HiddenServers)
-      ? userStore.user.HiddenServers.filter(
-          (id): id is number => typeof id === 'number',
-        )
-      : [],
-  )
-
-  const hiddenServerIdSet = computed<Set<number>>(
-    () => new Set(hiddenServerIds.value),
-  )
-
-  const visibleActiveServers = computed<Server[]>(() =>
-    activeServers.value.filter(
-      (server) => !hiddenServerIdSet.value.has(server.id),
-    ),
-  )
 
   const publicServers = computed<Server[]>(() =>
     servers.value.filter((server: Server): boolean => Boolean(server.isPublic)),

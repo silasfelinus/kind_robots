@@ -17,6 +17,7 @@
       <div class="pointer-events-auto flex items-start">
         <button
           ref="headerToggleRef"
+          type="button"
           class="icon-btn icon-btn--pill icon-btn--base opacity-80 hover:opacity-100"
           title="Open header"
           @click="displayStore.toggleHeader('open')"
@@ -47,7 +48,7 @@
                 :src="leftSidebarBackground"
                 alt="Sidebar background"
                 :sizes="sidebarImageSizes"
-                class="absolute inset-0 h-full w-full object-cover border border-black"
+                class="absolute inset-0 h-full w-full border border-black object-cover"
                 loading="lazy"
               />
               <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
@@ -141,24 +142,68 @@
     </ClientOnly>
 
     <button
-      ref="leftToggleRef"
-      class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--secondary"
-      :style="displayStore.leftToggleStyle"
+      type="button"
+      class="btn btn-circle btn-secondary btn-sm pointer-events-auto shadow-lg backdrop-blur-md transition hover:scale-110 active:scale-95"
+      :style="displayStore.leftCornerToggleStyle"
       :title="leftSidebarTitle"
-      @click="displayStore.toggleLeftSidebar"
+      @click="displayStore.toggleLeftSidebar('forward')"
     >
-      <Icon :name="leftSidebarIcon" class="icon-btn__icon" />
+      <Icon :name="leftCornerIcon" class="h-5 w-5" />
     </button>
 
     <button
-      ref="rightToggleRef"
-      class="pointer-events-auto sidebar-toggle icon-btn icon-btn--edge icon-btn--accent"
-      :style="displayStore.rightToggleStyle"
+      type="button"
+      class="btn btn-circle btn-accent btn-sm pointer-events-auto shadow-lg backdrop-blur-md transition hover:scale-110 active:scale-95"
+      :style="displayStore.rightCornerToggleStyle"
       :title="rightSidebarTitle"
-      @click="displayStore.toggleRightSidebar"
+      @click="displayStore.toggleRightSidebar('forward')"
     >
-      <Icon :name="rightSidebarIcon" class="icon-btn__icon" />
+      <Icon :name="rightCornerIcon" class="h-5 w-5" />
     </button>
+
+    <template v-if="displayStore.sidebarLeftVisible">
+      <button
+        type="button"
+        class="btn btn-circle btn-secondary btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
+        :style="displayStore.leftSidebarBackToggleStyle"
+        title="Reduce left sidebar"
+        @click="displayStore.toggleLeftSidebar('backward')"
+      >
+        <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-circle btn-secondary btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
+        :style="displayStore.leftSidebarForwardToggleStyle"
+        title="Advance left sidebar"
+        @click="displayStore.toggleLeftSidebar('forward')"
+      >
+        <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+      </button>
+    </template>
+
+    <template v-if="displayStore.sidebarRightVisible">
+      <button
+        type="button"
+        class="btn btn-circle btn-accent btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
+        :style="displayStore.rightSidebarBackToggleStyle"
+        title="Reduce right sidebar"
+        @click="displayStore.toggleRightSidebar('backward')"
+      >
+        <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-circle btn-accent btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
+        :style="displayStore.rightSidebarForwardToggleStyle"
+        title="Advance right sidebar"
+        @click="displayStore.toggleRightSidebar('forward')"
+      >
+        <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
+      </button>
+    </template>
 
     <main
       class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
@@ -235,8 +280,6 @@ const rightCanScrollUp = ref(false)
 const rightCanScrollDown = ref(false)
 
 const headerToggleRef = ref<HTMLElement | null>(null)
-const leftToggleRef = ref<HTMLElement | null>(null)
-const rightToggleRef = ref<HTMLElement | null>(null)
 const footerToggleRef = ref<HTMLElement | null>(null)
 
 const localPageKey = computed(() => route.path)
@@ -290,10 +333,8 @@ watch(
 )
 
 const footerIcon = computed(() => {
-  if (displayStore.footerState === 'hidden') return 'kind-icon:chevron-up'
-  if (displayStore.footerState === 'compact') return 'kind-icon:chevron-up'
-  if (displayStore.footerState === 'open') return 'kind-icon:chevron-up'
-  return 'kind-icon:chevron-down'
+  if (displayStore.footerState === 'priority') return 'kind-icon:chevron-down'
+  return 'kind-icon:chevron-up'
 })
 
 const footerTitle = computed(() => {
@@ -307,12 +348,15 @@ const footerToggleButtonClass = computed(() => {
   if (displayStore.footerState === 'hidden') {
     return 'h-14 w-14 sm:h-16 sm:w-16'
   }
+
   if (displayStore.footerState === 'compact') {
     return 'h-12 w-12 sm:h-14 sm:w-14'
   }
+
   if (displayStore.footerState === 'open') {
     return 'h-10 w-10 sm:h-12 sm:w-12'
   }
+
   return 'h-9 w-9 sm:h-10 sm:w-10'
 })
 
@@ -320,26 +364,31 @@ const footerToggleIconClass = computed(() => {
   if (displayStore.footerState === 'hidden') {
     return 'h-6 w-6 sm:h-7 sm:w-7'
   }
+
   if (displayStore.footerState === 'compact') {
     return 'h-5 w-5 sm:h-6 sm:w-6'
   }
+
   if (displayStore.footerState === 'open') {
     return 'h-4 w-4 sm:h-5 sm:w-5'
   }
+
   return 'h-4 w-4'
 })
 
-const leftSidebarIcon = computed(() => {
-  const state = displayStore.leftSidebarModeLabel
-  if (state === 'hidden') return 'kind-icon:sidebar-left'
-  if (state === 'priority') return 'kind-icon:chevron-left'
+const leftCornerIcon = computed(() => {
+  if (displayStore.leftSidebarModeLabel === 'hidden') {
+    return 'kind-icon:sidebar-left'
+  }
+
   return 'kind-icon:chevron-right'
 })
 
-const rightSidebarIcon = computed(() => {
-  const state = displayStore.rightSidebarModeLabel
-  if (state === 'hidden') return 'kind-icon:sidebar-right'
-  if (state === 'priority') return 'kind-icon:chevron-right'
+const rightCornerIcon = computed(() => {
+  if (displayStore.rightSidebarModeLabel === 'hidden') {
+    return 'kind-icon:sidebar-right'
+  }
+
   return 'kind-icon:chevron-left'
 })
 
@@ -349,7 +398,7 @@ const leftSidebarTitle = computed(() => {
     return 'Expand left sidebar'
   if (displayStore.leftSidebarModeLabel === 'open')
     return 'Prioritize left sidebar'
-  return 'Reduce left sidebar'
+  return 'Cycle left sidebar'
 })
 
 const rightSidebarTitle = computed(() => {
@@ -359,7 +408,7 @@ const rightSidebarTitle = computed(() => {
     return 'Expand right sidebar'
   if (displayStore.rightSidebarModeLabel === 'open')
     return 'Prioritize right sidebar'
-  return 'Reduce right sidebar'
+  return 'Cycle right sidebar'
 })
 
 const mainInnerStyle = computed(() => {
@@ -382,12 +431,14 @@ function setScrollFlags(
     leftCanScrollDown.value = canDown
     return
   }
+
   rightCanScrollUp.value = canUp
   rightCanScrollDown.value = canDown
 }
 
 function updateScrollState(side: SidebarKey): void {
   const el = getScrollElement(side)
+
   if (!el) {
     setScrollFlags(side, false, false)
     return

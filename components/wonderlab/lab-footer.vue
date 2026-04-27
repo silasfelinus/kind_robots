@@ -81,7 +81,7 @@
           class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
         >
           <div
-            v-if="activeTab === 'wonderlab'"
+            v-if="activeTab === 'wonder-lab'"
             class="flex h-full min-h-0 flex-col gap-2"
           >
             <div class="flex shrink-0 items-center justify-between gap-2">
@@ -110,9 +110,9 @@
                   name="kind-icon:folder"
                   class="mb-2 h-6 w-6 text-accent"
                 />
-                <span class="block truncate text-sm font-black">{{
-                  folder
-                }}</span>
+                <span class="block truncate text-sm font-black">
+                  {{ folder }}
+                </span>
               </button>
             </div>
           </div>
@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/footer/wonder-footer.vue
+// /components/wonderlab/lab-footer.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore, type WonderDashboardTab } from '@/stores/navStore'
@@ -211,15 +211,15 @@ const footerLinks: WonderFooterLink[] = [
   {
     label: 'Memory',
     shortLabel: 'Memory',
-    key: 'memory',
+    key: 'memory-test',
     icon: 'kind-icon:brain',
     description: 'The matching game gets the spotlight first.',
     toolText: 'Leaderboard, new game setup, and shiny score-chasing nonsense.',
   },
   {
-    label: 'Button Game',
+    label: 'Rebel Button',
     shortLabel: 'Button',
-    key: 'button',
+    key: 'rebel-button',
     icon: 'kind-icon:button',
     description: 'Do not press it. So obviously, press it.',
     toolText: 'Leaderboard and click record tools.',
@@ -227,7 +227,7 @@ const footerLinks: WonderFooterLink[] = [
   {
     label: 'WonderLab',
     shortLabel: 'Lab',
-    key: 'wonderlab',
+    key: 'wonder-lab',
     icon: 'kind-icon:sparkles',
     description: 'Browse components by folder.',
     toolText: 'Folder navigation appears here in open and priority mode.',
@@ -235,7 +235,7 @@ const footerLinks: WonderFooterLink[] = [
   {
     label: 'Screen FX',
     shortLabel: 'FX',
-    key: 'screenfx',
+    key: 'screen-fx',
     icon: 'kind-icon:bubbles',
     description: 'Bubbles, rain, butterflies, and respectable nonsense.',
     toolText: 'Toggle visual effects without leaving the lab.',
@@ -268,7 +268,7 @@ function selectWonderTab(tab: WonderDashboardTab) {
 
 function selectFolder(folder: string | null) {
   navStore.setWonderLabFolder(folder)
-  navStore.setWonderDashboardTab('wonderlab')
+  navStore.setWonderDashboardTab('wonder-lab')
 }
 
 function activeButtonClass(tab: WonderDashboardTab) {

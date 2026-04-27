@@ -49,93 +49,20 @@
     <main
       class="mt-3 min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
     >
-      <section
-        v-if="activeSection === 'memory'"
-        class="grid h-full min-h-0 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[20rem_minmax(0,1fr)]"
-      >
-        <aside class="grid min-h-0 gap-3 overflow-y-auto">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <h2 class="text-xl font-black">Memory Game</h2>
-            <p class="mt-1 text-sm text-base-content/60">
-              Biggest wow goes first. The lab has priorities.
-            </p>
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <h3 class="text-lg font-black">New Game</h3>
-            <div class="mt-3">
-              <memory-game-select />
-            </div>
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <h3 class="text-lg font-black">Leaderboard</h3>
-            <div class="mt-3">
-              <memory-leaderboard />
-            </div>
-          </div>
-        </aside>
-
-        <div class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200">
-          <memory-game />
-        </div>
-      </section>
-
-      <section
-        v-else-if="activeSection === 'button'"
-        class="grid h-full min-h-0 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[20rem_minmax(0,1fr)]"
-      >
-        <aside class="grid min-h-0 gap-3 overflow-y-auto">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <h2 class="text-xl font-black">Button Game</h2>
-            <p class="mt-1 text-sm text-base-content/60">
-              A moral test disguised as a dopamine vending machine.
-            </p>
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <h3 class="text-lg font-black">Leaderboard</h3>
-            <div class="mt-3">
-              <button-game-leaderboard />
-            </div>
-          </div>
-        </aside>
-
-        <div class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200">
-          <button-game />
-        </div>
-      </section>
-
-      <section
-        v-else-if="activeSection === 'wonderlab'"
-        class="h-full min-h-0 overflow-hidden"
-      >
-        <wonderlab />
-      </section>
-
-      <section
-        v-else-if="activeSection === 'screenfx'"
-        class="h-full min-h-0 overflow-y-auto p-3"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h2 class="text-xl font-black">Screen FX</h2>
-          <p class="mt-1 text-sm text-base-content/60">
-            Totally necessary visual chaos. For science.
-          </p>
-        </div>
-
-        <div class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-          <screen-fx />
-        </div>
-      </section>
+      <component :is="activeComponent" class="h-full w-full" />
     </main>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/content/wonderlab/wonder-manager.vue
+// /components/content/wonderlab/lab-manager.vue
 import { computed } from 'vue'
 import { useNavStore, type WonderDashboardTab } from '@/stores/navStore'
+
+import MemoryTest from '@/components/wonderlab/memory-test.vue'
+import WonderLab from '@/components/wonderlab/wonder-lab.vue'
+import ScreenFx from '@/components/screenfx/screen-fx.vue'
+import RebelButton from '@/components/weird/rebel-button.vue'
 
 type WonderManagerSection = {
   key: WonderDashboardTab
@@ -153,33 +80,46 @@ const activeSection = computed({
 
 const sections: WonderManagerSection[] = [
   {
-    key: 'memory',
+    key: 'memory-test',
     label: 'Memory',
     icon: 'kind-icon:brain',
     description: 'Match cards and chase records',
   },
   {
-    key: 'button',
-    label: 'Button Game',
+    key: 'rebel-button',
+    label: 'Rebel Button',
     icon: 'kind-icon:button',
     description: 'Pressing it was inevitable',
   },
   {
-    key: 'wonderlab',
+    key: 'wonder-lab',
     label: 'WonderLab',
     icon: 'kind-icon:sparkles',
     description: 'Component folder browser',
   },
   {
-    key: 'screenfx',
+    key: 'screen-fx',
     label: 'Screen FX',
     icon: 'kind-icon:bubbles',
     description: 'Visual effects controls',
   },
 ]
 
+const componentMap: Record<WonderDashboardTab, Component> = {
+  'memory-test': MemoryTest,
+  'wonder-lab': WonderLab,
+  'screen-fx': ScreenFx,
+  'rebel-button': RebelButton,
+}
+
+const activeComponent = computed(
+  () => componentMap[activeSection.value] ?? MemoryTest,
+)
+
 const activeLabel = computed(
-  () => sections.find((section) => section.key === activeSection.value)?.label ?? 'Memory',
+  () =>
+    sections.find((section) => section.key === activeSection.value)?.label ??
+    'Memory',
 )
 
 function sectionButtonClass(tab: WonderDashboardTab) {

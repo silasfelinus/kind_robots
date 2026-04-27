@@ -16,7 +16,13 @@ export type UserDashboardTab =
   | 'chats'
   | 'galleries'
 
-export type WonderDashboardTab = 'memory' | 'button' | 'wonderlab' | 'screenfx'
+export type WonderDashboardTab =
+  | 'memory-test'
+  | 'wonder-lab'
+  | 'screen-fx'
+  | 'rebel-button'
+
+const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
 
 export const useNavStore = defineStore('navStore', () => {
   const items = ref<SmartIcon[]>([])
@@ -63,7 +69,7 @@ export const useNavStore = defineStore('navStore', () => {
     })
   })
 
-  const wonderDashboardTab = ref<WonderDashboardTab>('memory')
+  const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
   const wonderLabFolder = ref<string | null>(null)
 
   function setWonderDashboardTab(tab: WonderDashboardTab) {
@@ -112,10 +118,10 @@ export const useNavStore = defineStore('navStore', () => {
       const rawWonderLabFolder = localStorage.getItem('wonderLabFolder')
 
       if (
-        rawWonderDashboardTab === 'memory' ||
-        rawWonderDashboardTab === 'button' ||
-        rawWonderDashboardTab === 'wonderlab' ||
-        rawWonderDashboardTab === 'screenfx'
+        rawWonderDashboardTab === 'memory-test' ||
+        rawWonderDashboardTab === 'wonder-lab' ||
+        rawWonderDashboardTab === 'screen-fx' ||
+        rawWonderDashboardTab === 'rebel-button'
       ) {
         wonderDashboardTab.value = rawWonderDashboardTab
       }

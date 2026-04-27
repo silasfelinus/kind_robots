@@ -2,29 +2,29 @@
 <!--
   Server card with collapsible quick-edit drawer.
 
-  Click 🔑 to reveal Base URL, Endpoint Path, and API Key fields inline.
-  For owned private servers → PATCHes directly.
-  For public/official servers → auto-clones to a private copy on save, then writes
-  the key to the new server.
-
   Props
-    server        Server          — record to display
-    active        boolean         — is this the current default?
-    healthResult  optional        — last health check, if any
-    owned         boolean         — true for "My Servers" rendering
+    server         Server          the record to display
+    active         boolean         is this the current default for its mode?
+    expanded       boolean         is the quick-edit drawer open? (parent-controlled)
+    healthResult   optional        latest health result, if any
+    owned          boolean         true for "My Servers" rendering
 
   Emits
-    select        user clicked Use → set as active for this mode
-    edit          user clicked the wide editor (opens add-server panel)
-    test          user clicked Test → run health check
+    select               user clicked Use → set as active
+    edit                 user clicked Edit/Customize → open the wide editor panel
+    test                 user clicked Test → run health check
+    update:expanded      drawer toggle requested (parent decides which card stays open)
+    saved                a save just succeeded — gallery may want to react
 -->
 <template>
   <article
     :class="[
-      'flex flex-col gap-2 rounded-xl border p-3 transition-all duration-150',
-      active
-        ? 'border-primary bg-primary/8'
-        : 'border-base-300 bg-base-200 hover:-translate-y-px hover:border-primary/30',
+      'flex flex-col gap-2 rounded-xl border p-3 transition-all duration-200',
+      saveFlash
+        ? 'border-success bg-success/10'
+        : active
+          ? 'border-primary bg-primary/8'
+          : 'border-base-300 bg-base-200 hover:-translate-y-px hover:border-primary/30',
     ]"
   >
     <!-- ── Title row ────────────────────────────────────────────────────── -->
@@ -42,9 +42,12 @@
               statusDotClass,
             ]"
           />
-          <span class="truncate text-sm font-black">{{
-            server.label || server.title
-          }}</span>
+          <span
+            class="truncate text-sm font-black"
+            :title="server.label || server.title"
+          >
+            {{ server.label || server.title }}
+          </span>
           <span v-if="active" class="badge badge-primary badge-xs">Active</span>
           <span v-if="server.isOfficial" class="badge badge-info badge-xs"
             >Official</span
@@ -52,20 +55,29 @@
           <span
             v-if="hasStoredKey"
             class="badge badge-success badge-xs gap-0.5"
+            title="API key stored"
           >
             <Icon name="kind-icon:key" class="h-2.5 w-2.5" />
             Key
           </span>
+          <span v-if="saveFlash" class="badge badge-success badge-xs gap-0.5">
+            <Icon name="kind-icon:check" class="h-2.5 w-2.5" />
+            Saved
+          </span>
         </div>
-        <p class="mt-0.5 truncate text-[11px] opacity-55">
+        <p
+          class="mt-0.5 truncate text-[11px] opacity-55"
+          :title="server.description || server.baseUrl"
+        >
           {{ server.description || server.baseUrl }}
         </p>
       </div>
     </div>
 
-    <!-- ── URL strip ────────────────────────────────────────────────────── -->
+    <!-- ── URL strip (full URL on hover) ────────────────────────────────── -->
     <div
       class="flex flex-wrap gap-x-3 gap-y-0.5 rounded-lg bg-base-100 px-2.5 py-1.5 font-mono text-[10px] opacity-65"
+      :title="`${server.baseUrl}${server.endpointPath ?? ''}`"
     >
       <span class="font-sans font-bold text-primary not-italic">{{
         server.serverType
@@ -89,10 +101,13 @@
       }}</span>
     </div>
 
-    <!-- ── Health line ──────────────────────────────────────────────────── -->
-    <p v-if="healthResult" class="text-[10px] opacity-60">
-      {{ healthResult.ok ? '✓ Healthy' : '✗ Failed' }} ·
-      {{ healthResult.latencyMs }}ms
+    <!-- ── Health line with relative time ───────────────────────────────── -->
+    <p v-if="healthResult || lastTested" class="text-[10px] opacity-60">
+      <template v-if="healthResult">
+        {{ healthResult.ok ? '✓ Healthy' : '✗ Failed' }} ·
+        {{ healthResult.latencyMs }}ms{{ lastTested ? ` · ${lastTested}` : '' }}
+      </template>
+      <template v-else> Last tested {{ lastTested }} </template>
     </p>
 
     <!-- ── Action buttons ───────────────────────────────────────────────── -->
@@ -115,11 +130,11 @@
       <button
         type="button"
         :class="[
-          'btn btn-xs rounded-lg gap-1',
+          'btn btn-xs rounded-lg',
           expanded ? 'btn-warning' : 'btn-ghost',
         ]"
         :title="expanded ? 'Close quick-edit' : 'Quick-edit URL & API key'"
-        @click="toggleExpand"
+        @click="toggleDrawer"
       >
         <Icon
           :name="expanded ? 'kind-icon:x' : 'kind-icon:key'"
@@ -214,7 +229,7 @@
           </div>
         </label>
 
-        <!-- Key label -->
+        <!-- Key Label -->
         <label class="flex flex-col gap-1">
           <span class="text-[10px] font-bold opacity-70">Key Label</span>
           <input
@@ -245,7 +260,6 @@
           </button>
         </div>
 
-        <!-- Inline error -->
         <p v-if="saveError" class="text-[10px] text-error">{{ saveError }}</p>
       </div>
     </Transition>
@@ -253,7 +267,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Server } from '~/prisma/generated/prisma/client'
@@ -263,6 +277,7 @@ import type { Server } from '~/prisma/generated/prisma/client'
 const props = defineProps<{
   server: Server
   active: boolean
+  expanded?: boolean
   healthResult?: { ok: boolean; latencyMs: number } | null
   owned?: boolean
 }>()
@@ -271,18 +286,20 @@ const emit = defineEmits<{
   (e: 'select'): void
   (e: 'edit'): void
   (e: 'test'): void
+  (e: 'update:expanded', value: boolean): void
+  (e: 'saved'): void
 }>()
 
 const serverStore = useServerStore()
 const userStore = useUserStore()
 const myUserId = computed(() => userStore.user?.id)
 
-// ── Local state ───────────────────────────────────────────────────────────────
+// ── Local form state ──────────────────────────────────────────────────────────
 
-const expanded = ref(false)
 const showKey = ref(false)
 const saving = ref(false)
 const saveError = ref<string | null>(null)
+const saveFlash = ref(false)
 
 const form = reactive({
   baseUrl: props.server.baseUrl ?? '',
@@ -291,10 +308,18 @@ const form = reactive({
   apiKeyName: props.server.apiKeyName ?? '',
 })
 
-// Reset form whenever the server prop swaps under us
+// Reset form whenever the underlying server swaps (e.g. after a clone)
 watch(
   () => props.server.id,
   () => resetForm(),
+)
+
+// Reset form whenever the drawer closes
+watch(
+  () => props.expanded,
+  (open) => {
+    if (!open) resetForm()
+  },
 )
 
 function resetForm() {
@@ -306,22 +331,16 @@ function resetForm() {
   saveError.value = null
 }
 
-function toggleExpand() {
-  if (expanded.value) {
-    cancel()
-  } else {
-    expanded.value = true
-  }
+function toggleDrawer() {
+  emit('update:expanded', !props.expanded)
 }
 
 function cancel() {
-  resetForm()
-  expanded.value = false
+  emit('update:expanded', false)
 }
 
 // ── Derived ───────────────────────────────────────────────────────────────────
 
-/** Will this save create a private clone instead of mutating in place? */
 const willClone = computed(() => {
   if (!props.server.id) return true
   if (props.server.isPublic || props.server.isOfficial) return true
@@ -390,6 +409,31 @@ const capBadges = computed(
     ).filter(Boolean) as { label: string; cls: string }[],
 )
 
+// ── "Last tested" relative time, ticks once a minute ──────────────────────────
+
+const now = ref(Date.now())
+let tick: ReturnType<typeof setInterval> | null = null
+onMounted(() => {
+  tick = setInterval(() => {
+    now.value = Date.now()
+  }, 60_000)
+})
+onUnmounted(() => {
+  if (tick) clearInterval(tick)
+})
+
+const lastTested = computed(() => {
+  const date = props.server.lastCheckedAt
+  if (!date) return ''
+  const time =
+    typeof date === 'string' ? new Date(date).getTime() : date.getTime()
+  const seconds = Math.floor((now.value - time) / 1000)
+  if (seconds < 60) return 'just now'
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+  return `${Math.floor(seconds / 86400)}d ago`
+})
+
 // ── Save logic ────────────────────────────────────────────────────────────────
 
 async function save() {
@@ -398,14 +442,16 @@ async function save() {
   saveError.value = null
 
   try {
-    if (willClone.value) {
-      await saveAsClone()
-    } else {
-      await saveInPlace()
+    const savedId = willClone.value ? await saveAsClone() : await saveInPlace()
+    flashSuccess()
+    emit('update:expanded', false)
+    emit('saved')
+
+    // Auto-test the server we just configured — gives instant feedback
+    if (savedId) {
+      // Don't await — let it run in background, the card will update reactively
+      void serverStore.testServerHealth(savedId)
     }
-    expanded.value = false
-    form.apiKey = ''
-    showKey.value = false
   } catch (err) {
     saveError.value = err instanceof Error ? err.message : 'Save failed.'
   } finally {
@@ -413,8 +459,14 @@ async function save() {
   }
 }
 
-/** Direct PATCH on a server we already own. */
-async function saveInPlace() {
+function flashSuccess() {
+  saveFlash.value = true
+  setTimeout(() => {
+    saveFlash.value = false
+  }, 2000)
+}
+
+async function saveInPlace(): Promise<number> {
   const id = props.server.id
   if (!id) throw new Error('Server has no id.')
 
@@ -440,10 +492,11 @@ async function saveInPlace() {
     if (!keyResult.success)
       throw new Error(keyResult.message ?? 'Key update failed.')
   }
+
+  return id
 }
 
-/** POST a new private copy, then attach the key. */
-async function saveAsClone() {
+async function saveAsClone(): Promise<number> {
   if (!userStore.isLoggedIn || !myUserId.value) {
     throw new Error('You must be logged in to save a personal copy.')
   }
@@ -479,6 +532,8 @@ async function saveAsClone() {
       throw new Error(keyResult.message ?? 'Created copy, but key save failed.')
     }
   }
+
+  return cloneResult.data.id
 }
 </script>
 

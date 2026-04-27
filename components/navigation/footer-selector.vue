@@ -112,7 +112,7 @@ const footerRouteMap: Record<FooterName, string> = {
   giftshop: '/giftshop',
 }
 
-const footerIsHidden = computed(() => displayStore.footerState === 'hidden')
+
 
 const selectorShellClass = computed(() => [
   'flex items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2 shadow-xl backdrop-blur transition-all',

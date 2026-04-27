@@ -356,7 +356,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       left: '50%',
       bottom: `calc(var(--vh) * ${lift})`,
       transform: 'translateX(-50%)',
-      zIndex: '80',
+      zIndex: '30',
     }
   })
 
@@ -372,28 +372,28 @@ export const useDisplayStore = defineStore('displayStore', () => {
     position: 'fixed',
     left: '0.25rem',
     bottom: '0.25rem',
-    zIndex: '70',
+    zIndex: '30',
   }))
 
   const rightCornerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     right: '0.25rem',
     bottom: '0.25rem',
-    zIndex: '70',
+    zIndex: '30',
   }))
 
   const leftFooterToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     left: '3.75rem',
     bottom: '3.75rem',
-    zIndex: '70',
+    zIndex: '30',
   }))
 
   const rightFooterToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     right: '3.75rem',
     bottom: '3.75rem',
-    zIndex: '70',
+    zIndex: '30',
   }))
 
   const leftSidebarBackToggleStyle = computed<CSSProperties>(() => ({
@@ -401,7 +401,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     top: leftToggleStyle.value.top,
     left: `calc(${sectionPaddingSize.value}vw + 0.5rem)`,
     transform: 'translateY(-50%)',
-    zIndex: '60',
+    zIndex: '30',
   }))
 
   const leftSidebarForwardToggleStyle = computed<CSSProperties>(() => ({
@@ -409,7 +409,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     top: leftToggleStyle.value.top,
     left: `calc(${sectionPaddingSize.value + sidebarLeftWidth.value}vw - 0.5rem)`,
     transform: 'translate(-100%, -50%)',
-    zIndex: '60',
+    zIndex: '30',
   }))
 
   const rightSidebarBackToggleStyle = computed<CSSProperties>(() => ({
@@ -417,7 +417,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     top: rightToggleStyle.value.top,
     right: `calc(${sectionPaddingSize.value + sidebarRightWidth.value}vw - 0.5rem)`,
     transform: 'translate(100%, -50%)',
-    zIndex: '60',
+    zIndex: '30',
   }))
 
   const rightSidebarForwardToggleStyle = computed<CSSProperties>(() => ({
@@ -425,7 +425,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     top: rightToggleStyle.value.top,
     right: `calc(${sectionPaddingSize.value}vw + 0.5rem)`,
     transform: 'translateY(-50%)',
-    zIndex: '60',
+    zIndex: '30',
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
@@ -441,7 +441,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       right: `calc(${padding}vw + 0.75rem)`,
       left: 'auto',
       width: 'max-content',
-      zIndex: '80',
+      zIndex: '30',
     }
   })
 

@@ -1,30 +1,43 @@
 <!-- /components/navigation/footer-selector.vue -->
 <template>
-  <div :class="selectorShellClass" :style="selectorShellStyle">
+  <div v-if="footerIsHidden">
     <button
       type="button"
-      :class="selectorButtonClass"
+      class="fixed bottom-4 left-4 z-[75] flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-100/90 text-base-content shadow-xl backdrop-blur transition hover:bg-base-200"
+      aria-label="Previous footer component"
+      @click="showPrevious"
+    >
+      <icon name="kind-icon:chevron-left" class="h-6 w-6" />
+    </button>
+
+    <button
+      type="button"
+      class="fixed bottom-4 right-4 z-[75] flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-100/90 text-base-content shadow-xl backdrop-blur transition hover:bg-base-200"
+      aria-label="Next footer component"
+      @click="showNext"
+    >
+      <icon name="kind-icon:chevron-right" class="h-6 w-6" />
+    </button>
+  </div>
+
+  <div
+    v-else
+    class="flex h-full w-full items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2"
+  >
+    <button
+      type="button"
+      class="flex h-full w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
       aria-label="Previous footer component"
       @click="showPrevious"
     >
       <icon name="kind-icon:chevron-left" class="h-5 w-5" />
     </button>
 
-    <div
-      v-if="footerIsHidden"
-      class="flex min-w-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-200/80 px-3 text-sm font-bold capitalize text-base-content"
-    >
-      {{ activeFooter }}
-    </div>
-
-    <div
-      v-else
-      class="min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60"
-    >
+    <div class="min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60">
       <component :is="activeComponent" class="h-full w-full" />
     </div>
 
-    <div :class="rightControlsClass">
+    <div class="flex w-12 shrink-0 flex-col items-center justify-center gap-1">
       <button
         type="button"
         class="flex h-8 w-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
@@ -39,7 +52,7 @@
 
       <button
         type="button"
-        :class="nextButtonClass"
+        class="flex flex-1 w-full items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
         aria-label="Next footer component"
         @click="showNext"
       >
@@ -68,6 +81,8 @@ const displayStore = useDisplayStore()
 const router = useRouter()
 
 const isLocked = ref(false)
+
+const footerIsHidden = computed(() => displayStore.footerState === 'hidden')
 
 type FooterName = (typeof displayStore.footerComponentNames)[number]
 

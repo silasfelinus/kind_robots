@@ -1,10 +1,9 @@
+<!-- /components/navigation/footer-selector.vue -->
 <template>
-  <div
-    class="flex h-full w-full items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2"
-  >
+  <div :class="selectorShellClass" :style="selectorShellStyle">
     <button
       type="button"
-      class="flex h-full w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
+      :class="selectorButtonClass"
       aria-label="Previous footer component"
       @click="showPrevious"
     >
@@ -12,12 +11,20 @@
     </button>
 
     <div
+      v-if="footerIsHidden"
+      class="flex min-w-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-200/80 px-3 text-sm font-bold capitalize text-base-content"
+    >
+      {{ activeFooter }}
+    </div>
+
+    <div
+      v-else
       class="min-w-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200/60"
     >
       <component :is="activeComponent" class="h-full w-full" />
     </div>
 
-    <div class="flex w-12 shrink-0 flex-col items-center justify-center gap-1">
+    <div :class="rightControlsClass">
       <button
         type="button"
         class="flex h-8 w-full items-center justify-center rounded-xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
@@ -32,7 +39,7 @@
 
       <button
         type="button"
-        class="flex flex-1 w-full items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300"
+        :class="nextButtonClass"
         aria-label="Next footer component"
         @click="showNext"
       >
@@ -44,7 +51,7 @@
 
 <script setup lang="ts">
 // /components/navigation/footer-selector.vue
-import { computed, ref, watchEffect, type Component } from 'vue'
+import { computed, ref, watchEffect, type Component, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
 import ButterflyFooter from '@/components/butterfly/butterfly-footer.vue'
 import BotFooter from '@/components/bots/bot-footer.vue'
@@ -90,10 +97,44 @@ const footerRouteMap: Record<FooterName, string> = {
   giftshop: '/giftshop',
 }
 
+const footerIsHidden = computed(() => displayStore.footerState === 'hidden')
+
+const selectorShellClass = computed(() => [
+  'flex items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2 shadow-xl backdrop-blur transition-all',
+  footerIsHidden.value
+    ? 'h-16 w-[min(92vw,28rem)]'
+    : 'h-full w-full',
+])
+
+const selectorShellStyle = computed<CSSProperties>(() => {
+  if (!footerIsHidden.value) return {}
+
+  return {
+    position: 'fixed',
+    left: '50%',
+    bottom: `calc(var(--vh) * ${displayStore.sectionPaddingSize})`,
+    transform: 'translateX(-50%)',
+    zIndex: '75',
+  }
+})
+
+const selectorButtonClass = computed(() => [
+  'flex shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300',
+  footerIsHidden.value ? 'h-full w-12' : 'h-full w-12',
+])
+
+const rightControlsClass = computed(() => [
+  'flex w-12 shrink-0 flex-col items-center justify-center gap-1',
+  footerIsHidden.value ? 'h-full' : '',
+])
+
+const nextButtonClass = computed(() => [
+  'flex w-full items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content transition hover:bg-base-300',
+  footerIsHidden.value ? 'h-8' : 'h-full flex-1',
+])
+
 function isFooterName(value: unknown): value is FooterName {
-  return (
-    typeof value === 'string' && footerOptions.includes(value as FooterName)
-  )
+  return typeof value === 'string' && footerOptions.includes(value as FooterName)
 }
 
 function normalizeFooterName(value: unknown): FooterName {
@@ -131,8 +172,7 @@ function setFooterComponent(name: FooterName): void {
 function getWrappedFooter(step: -1 | 1): FooterName {
   const currentIndex = footerOptions.indexOf(activeFooter.value)
   const safeIndex = currentIndex >= 0 ? currentIndex : 0
-  const nextIndex =
-    (safeIndex + step + footerOptions.length) % footerOptions.length
+  const nextIndex = (safeIndex + step + footerOptions.length) % footerOptions.length
 
   return footerOptions[nextIndex] ?? 'kind'
 }

@@ -43,6 +43,17 @@
           </button>
         </label>
 
+        <label
+          class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+        >
+          <span class="text-xs font-bold opacity-70">Hidden</span>
+          <input
+            v-model="serverStore.showHiddenServers"
+            type="checkbox"
+            class="toggle toggle-xs toggle-primary"
+          />
+        </label>
+
         <!-- Refresh -->
         <button
           type="button"

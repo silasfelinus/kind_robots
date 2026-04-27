@@ -717,7 +717,8 @@ export const UserScalarFieldEnum = {
   artModels: 'artModels',
   lastReward: 'lastReward',
   textModels: 'textModels',
-  vibes: 'vibes'
+  vibes: 'vibes',
+  hiddenServerIds: 'hiddenServerIds'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -769,6 +770,14 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -1089,6 +1098,23 @@ export const ThemeOrderByRelevanceFieldEnum = {
 } as const
 
 export type ThemeOrderByRelevanceFieldEnum = (typeof ThemeOrderByRelevanceFieldEnum)[keyof typeof ThemeOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const UserOrderByRelevanceFieldEnum = {

@@ -848,6 +848,7 @@ model User {
   Themes                Theme[]
   Butterflies           Butterfly[]
   ButterflyRecords      ButterflyRecord[]
+  hiddenServerIds Json? @map("HiddenServers")
 }
 
 model ReactionToTag {

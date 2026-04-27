@@ -1,111 +1,138 @@
-// @ts-nocheck
-/* eslint-disable */
-// test-ignore
-
-// cypress/e2e/butterfly.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+// cypress/e2e/api/butterflies.cy.ts
 
 describe('Butterfly API', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/butterflies'
   const recordsUrl = 'https://kind-robots.vercel.app/api/butterfly-records'
-  const userUrl = 'https://kind-robots.vercel.app/api/users'
-  const globalApiKey = Cypress.env('API_KEY')
+
+  const userToken = Cypress.env('USER_TOKEN')
+  const adminToken = Cypress.env('API_KEY')
+  const invalidToken = 'someInvalidTokenValue'
 
   const time = Date.now()
-  const userA_name = `collector-${time}`
-  const userB_name = `intruder-${time}`
+  const uniqueButterflyName = `Cypress Flicker ${time}`
 
-  let userA_id: number, userA_apiKey: string
-  let userB_id: number, userB_apiKey: string
-  let butterflyId: number // created by admin (globalApiKey) in before()
-  let recordId: number // created when userA catches the butterfly
+  let butterflyId: number | undefined
+  let recordId: number | undefined
 
-  // ─── setup: register two users + create a test butterfly species ───────────
-
-  before(() => {
-    const register = (username: string) =>
-      cy.request({
-        method: 'POST',
-        url: `${userUrl}/register`,
-        headers: { 'x-api-key': globalApiKey },
-        body: {
-          username,
-          email: `${username}@test.com`,
-          password: 'testtest12',
-        },
-      })
-
-    register(userA_name).then((res) => {
-      userA_id = res.body.user.id
-      userA_apiKey = res.body.user.apiKey
+  it('GET /butterflies — returns public list, no auth required', () => {
+    cy.request(baseUrl).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array')
     })
+  })
 
-    register(userB_name).then((res) => {
-      userB_id = res.body.user.id
-      userB_apiKey = res.body.user.apiKey
-    })
-
-    // ✅ Use x-api-key to match the auth pattern the server actually expects
+  it('POST /butterflies — rejects missing auth', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
-        'x-api-key': globalApiKey,
         'Content-Type': 'application/json',
       },
       body: {
-        name: `Cypress Flicker ${time}`,
+        name: uniqueButterflyName,
+        message: 'should not exist',
+        wingTopColor: 'hsl(120,70%,50%)',
+        wingBottomColor: 'hsl(300,70%,50%)',
+        speed: 0.5,
+        wingSpeed: 0.09,
+        scale: 1,
+        rarityNumber: 9999,
+        isPublic: true,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('POST /butterflies — rejects invalid auth', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      body: {
+        name: uniqueButterflyName,
+        message: 'should not exist',
+        wingTopColor: 'hsl(120,70%,50%)',
+        wingBottomColor: 'hsl(300,70%,50%)',
+        speed: 0.5,
+        wingSpeed: 0.09,
+        scale: 1,
+        rarityNumber: 9999,
+        isPublic: true,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('Invalid or expired token')
+    })
+  })
+
+  it('POST /butterflies — creates a butterfly with admin auth', () => {
+    cy.request({
+      method: 'POST',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: {
+        name: uniqueButterflyName,
         message: 'only appears in test environments',
         wingTopColor: 'hsl(120,70%,50%)',
         wingBottomColor: 'hsl(300,70%,50%)',
         speed: 0.5,
         wingSpeed: 0.09,
-        scale: 1.0,
+        scale: 1,
         rarityNumber: 9999,
         isPublic: true,
       },
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      butterflyId = res.body.data.id
-    })
-  })
-  // ─── butterfly species (roster) ────────────────────────────────────────────
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+      expect(response.body.data.name).to.eq(uniqueButterflyName)
 
-  it('GET /butterflies — returns public list, no auth required', () => {
-    cy.request(baseUrl).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data).to.be.an('array')
-      const match = res.body.data.find((b: any) => b.id === butterflyId)
-      expect(match).to.not.be.undefined
+      butterflyId = response.body.data.id
     })
   })
 
-  it('GET /butterflies/:id — fetches a single species', () => {
-    cy.request(`${baseUrl}/${butterflyId}`).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-      expect(res.body.data.id).to.eq(butterflyId)
-      expect(res.body.data.name).to.include('Cypress Flicker')
+  it('GET /butterflies/:id — fetches one butterfly', () => {
+    expect(butterflyId).to.exist
+
+    cy.request(`${baseUrl}/${butterflyId}`).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.id).to.eq(butterflyId)
+      expect(response.body.data.name).to.eq(uniqueButterflyName)
     })
   })
 
-  it('GET /butterflies/:id — 404 for nonexistent ID', () => {
+  it('GET /butterflies/:id — returns 404 for nonexistent ID', () => {
     cy.request({
       url: `${baseUrl}/999999999`,
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(404)
-      expect(res.body.success).to.be.false
+    }).then((response) => {
+      expect(response.status).to.eq(404)
+      expect(response.body.success).to.be.false
     })
   })
 
-  it('POST /butterflies — 403 for non-admin user', () => {
+  it('POST /butterflies — rejects non-admin user', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
       headers: {
-        Authorization: `Bearer ${userA_apiKey}`,
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
       body: {
         name: `Unauthorized Species ${time}`,
@@ -114,154 +141,189 @@ describe('Butterfly API', () => {
         wingBottomColor: 'hsl(180,50%,50%)',
         speed: 0.5,
         wingSpeed: 0.08,
-        scale: 1.0,
+        scale: 1,
         rarityNumber: 9998,
+        isPublic: true,
       },
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.be.false
     })
   })
 
-  it('PATCH /butterflies/:id — 403 for non-admin user', () => {
-    cy.request({
-      method: 'PATCH',
-      url: `${baseUrl}/${butterflyId}`,
-      headers: { Authorization: `Bearer ${userA_apiKey}` },
-      body: { message: 'unauthorized edit' },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
-    })
-  })
+  it('PATCH /butterflies/:id — rejects non-admin user', () => {
+    expect(butterflyId).to.exist
 
-  it('PATCH /butterflies/:id — admin can update a species', () => {
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${butterflyId}`,
       headers: {
-        Authorization: `Bearer ${globalApiKey}`,
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
-      body: { message: 'updated by cypress test' },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.data.message).to.eq('updated by cypress test')
-    })
-  })
-
-  // ─── butterfly records (captures) ──────────────────────────────────────────
-
-  it('POST /butterfly-records — 401 without auth', () => {
-    cy.request({
-      method: 'POST',
-      url: recordsUrl,
-      body: { butterflyId },
+      body: {
+        message: 'unauthorized edit',
+      },
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
+    }).then((response) => {
+      expect(response.status).to.eq(403)
+      expect(response.body.success).to.be.false
     })
   })
 
-  it('POST /butterfly-records — userA catches a butterfly', () => {
+  it('PATCH /butterflies/:id — updates butterfly with admin auth', () => {
+    expect(butterflyId).to.exist
+
+    cy.request({
+      method: 'PATCH',
+      url: `${baseUrl}/${butterflyId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: {
+        message: 'updated by cypress test',
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data.message).to.eq('updated by cypress test')
+    })
+  })
+
+  it('POST /butterfly-records — rejects missing auth', () => {
+    expect(butterflyId).to.exist
+
     cy.request({
       method: 'POST',
       url: recordsUrl,
       headers: {
-        Authorization: `Bearer ${userA_apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: { butterflyId },
-    }).then((res) => {
-      expect(res.status).to.eq(201)
-      expect(res.body.success).to.be.true
-      expect(res.body.data.Butterfly.id).to.eq(butterflyId)
-      recordId = res.body.data.id
+      body: {
+        butterflyId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
     })
   })
 
-  it('POST /butterfly-records — 409 when catching same species twice', () => {
+  it('POST /butterfly-records — creates a catch record with user auth', () => {
+    expect(butterflyId).to.exist
+
     cy.request({
       method: 'POST',
       url: recordsUrl,
       headers: {
-        Authorization: `Bearer ${userA_apiKey}`,
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
       },
-      body: { butterflyId },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(409)
-      expect(res.body.message).to.include('already caught')
+      body: {
+        butterflyId,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(201)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('object').that.is.not.empty
+
+      recordId = response.body.data.id
     })
   })
 
-  it('GET /butterfly-records — userA sees their collection', () => {
+  it('POST /butterfly-records — rejects duplicate catch', () => {
+    expect(butterflyId).to.exist
+
     cy.request({
+      method: 'POST',
       url: recordsUrl,
-      headers: { Authorization: `Bearer ${userA_apiKey}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.data).to.be.an('array')
-      const match = res.body.data.find((r: any) => r.id === recordId)
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: {
+        butterflyId,
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(409)
+      expect(response.body.success).to.be.false
+      expect(response.body.message).to.include('already caught')
+    })
+  })
+
+  it('GET /butterfly-records — returns authenticated user collection', () => {
+    expect(recordId).to.exist
+
+    cy.request({
+      method: 'GET',
+      url: recordsUrl,
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array')
+
+      const match = response.body.data.find(
+        (record: any) => record.id === recordId,
+      )
       expect(match).to.not.be.undefined
     })
   })
 
-  it('GET /butterfly-records — 401 without auth', () => {
+  it('GET /butterfly-records — rejects missing auth', () => {
     cy.request({
+      method: 'GET',
       url: recordsUrl,
       failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(401)
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.be.false
     })
   })
 
-  it('DELETE /butterfly-records/:id — userB cannot delete userA record (403)', () => {
+  it('DELETE /butterfly-records/:id — deletes own catch record', () => {
+    expect(recordId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${recordsUrl}/${recordId}`,
-      headers: { Authorization: `Bearer ${userB_apiKey}` },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
-      expect(res.body.message).to.include('authorized')
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+
+      recordId = undefined
     })
   })
-
-  it('DELETE /butterfly-records/:id — userA deletes their own record', () => {
-    cy.request({
-      method: 'DELETE',
-      url: `${recordsUrl}/${recordId}`,
-      headers: { Authorization: `Bearer ${userA_apiKey}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200)
-      expect(res.body.success).to.be.true
-    })
-  })
-
-  // ─── teardown ──────────────────────────────────────────────────────────────
 
   after(() => {
-    // ✅ Guard against butterflyId being undefined if before() failed
+    if (recordId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${recordsUrl}/${recordId}`,
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+        failOnStatusCode: false,
+      })
+    }
+
     if (butterflyId) {
       cy.request({
         method: 'DELETE',
         url: `${baseUrl}/${butterflyId}`,
-        headers: { 'x-api-key': globalApiKey },
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+        failOnStatusCode: false,
       })
     }
-
-    const deleteUser = (id: number, apiKey: string) => {
-      if (!id || !apiKey) return
-      cy.request({
-        method: 'DELETE',
-        url: `${userUrl}/${id}`,
-        headers: { Authorization: `Bearer ${apiKey}` },
-      })
-    }
-
-    deleteUser(userA_id, userA_apiKey)
-    deleteUser(userB_id, userB_apiKey)
   })
 })

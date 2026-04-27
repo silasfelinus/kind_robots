@@ -29,7 +29,7 @@ export function buildPromptPayload(p: Partial<Prompt>): Partial<Prompt> {
     botId: p.botId ?? null,
     galleryId: p.galleryId ?? null,
     artImageId: p.artImageId ?? null,
-    creationSource: p.creationSource ?? CreationSource.UNKNOWN,
+    creationSource: 'UNKNOWN',
   }
 }
 

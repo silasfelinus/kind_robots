@@ -1151,7 +1151,8 @@ export const useServerStore = defineStore('serverStore', () => {
     getServersByType,
     getCompatibleServers,
     updateServerApiKey,
+    showHiddenServers,
   }
 })
 
-export type { Server, ServerStatus, ServerType }
+export type { Server, ServerStatus, ServerType, CreationSource }

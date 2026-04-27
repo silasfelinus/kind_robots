@@ -68,7 +68,7 @@ watch([customTitle, selectedTitle], ([newCustom, newSelected]) => {
       isPublic: true,
       userId: userStore.userId,
       artImageId: null,
-      creationSource: CreationSource.AI,
+      creationSource: 'AI',
 
       icon: '',
 

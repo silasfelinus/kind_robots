@@ -173,36 +173,80 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-  const footerHeights = {
-    hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-    compact: { small: 16, medium: 12, large: 10, extraLarge: 8 },
-    open: { small: 22, medium: 18, large: 24, extraLarge: 18 },
-    priority: { small: 50, medium: 50, large: 50, extraLarge: 50 },
-    disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
-  } as const
+const footerLayout = {
+  hidden: {
+    small: { height: 7, control: 7 },
+    medium: { height: 6, control: 6 },
+    large: { height: 5, control: 5 },
+    extraLarge: { height: 5, control: 5 },
+  },
+  compact: {
+    small: { height: 16, control: 7 },
+    medium: { height: 12, control: 6 },
+    large: { height: 10, control: 5 },
+    extraLarge: { height: 8, control: 5 },
+  },
+  open: {
+    small: { height: 22, control: 8 },
+    medium: { height: 18, control: 7 },
+    large: { height: 24, control: 6 },
+    extraLarge: { height: 18, control: 6 },
+  },
+  priority: {
+    small: { height: 50, control: 9 },
+    medium: { height: 50, control: 8 },
+    large: { height: 50, control: 7 },
+    extraLarge: { height: 50, control: 7 },
+  },
+  disabled: {
+    small: { height: 0, control: 0 },
+    medium: { height: 0, control: 0 },
+    large: { height: 0, control: 0 },
+    extraLarge: { height: 0, control: 0 },
+  },
+} as const
 
-  const sectionPaddingSize = computed(() => {
-    const sizes: Record<ViewportSize, number> = {
-      small: 1,
-      medium: 1,
-      large: 2,
-      extraLarge: 2,
-    }
+const sectionPaddingSize = computed(() => {
+  const sizes: Record<ViewportSize, number> = {
+    small: 1,
+    medium: 1,
+    large: 2,
+    extraLarge: 2,
+  }
 
-    return sizes[state.viewportSize]
-  })
+  return sizes[state.viewportSize]
+})
 
-  const footerVisible = computed(() => state.footerState !== 'hidden')
+const footerStage = computed<FooterStage>(() => {
 
-  const footerHeight = computed(() => {
-    const stateKey = normalizeFooterState(state.footerState)
-    return footerHeights[stateKey][state.viewportSize]
-  })
+  return normalizeFooterState(state.footerState)
 
-  const effectiveFooterHeight = computed(() => {
-    if (!footerVisible.value) return 0
-    return footerHeight.value + promptOffset.value
-  })
+})
+
+const footerSpaceReserved = computed(() => {
+  return footerStage.value !== 'disabled'
+})
+
+const footerContentVisible = computed(() => {
+  return footerStage.value !== 'hidden' && footerStage.value !== 'disabled'
+})
+
+const footerHeight = computed(() => {
+
+  return footerLayout[footerStage.value][state.viewportSize].height
+
+})
+
+const footerControlSize = computed(() => {
+
+  return footerLayout[footerStage.value][state.viewportSize].control
+
+})
+
+const effectiveFooterHeight = computed(() => {
+  if (!footerSpaceReserved.value) return 0
+  return footerHeight.value + promptOffset.value
+})
 
   const contentTopOffset = computed(() => {
     const padding = sectionPaddingSize.value
@@ -214,45 +258,42 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const contentBottomOffset = computed(() => {
     const padding = sectionPaddingSize.value
-    const footer = footerVisible.value ? effectiveFooterHeight.value : 0
-    const paddingTotal = footerVisible.value ? padding : 0
+    const footer = footerSpaceReserved.value ? effectiveFooterHeight.value : 0
+    const paddingTotal = footerSpaceReserved.value ? padding : 0
     return footer + paddingTotal
   })
 
   const sidebarContentHeight = computed(() => {
-    const padding = sectionPaddingSize.value
-    const headerExists = state.headerState !== 'hidden'
-    const header = headerExists ? headerHeight.value : 0
-    const headerPadding = headerExists ? padding * 2 : padding
-    const footerPad = footerVisible.value ? padding : 0
+  const padding = sectionPaddingSize.value
+  const headerExists = state.headerState !== 'hidden'
+  const header = headerExists ? headerHeight.value : 0
+  const headerPadding = headerExists ? padding * 2 : padding
 
-    return (
-      100 - (header + headerPadding + contentBottomOffset.value + footerPad)
-    )
-  })
+  return 100 - (header + headerPadding + contentBottomOffset.value)
+})
 
   const mainContentHeight = computed(() => {
-    const padding = sectionPaddingSize.value
-    const headerExists = state.headerState !== 'hidden'
-    const header = headerExists ? headerHeight.value : 0
-    const footerPadding = footerVisible.value ? padding : 0
-    const totalPadding = padding * 2 + footerPadding
-    return 100 - (header + totalPadding + effectiveFooterHeight.value)
-  })
+  const padding = sectionPaddingSize.value
+  const headerExists = state.headerState !== 'hidden'
+  const header = headerExists ? headerHeight.value : 0
+  const footerPadding = footerSpaceReserved.value ? padding : 0
+  const totalPadding = padding * 2 + footerPadding
 
-  const mainPanelHeight = computed(() => {
-    if (hasPrioritySidebar.value) {
-      return (
-        100 -
-        sectionPaddingSize.value * 2 -
-        effectiveFooterHeight.value -
-        (footerVisible.value ? sectionPaddingSize.value : 0)
-      )
-    }
+  return 100 - (header + totalPadding + effectiveFooterHeight.value)
+})
 
-    return mainContentHeight.value
-  })
+const mainPanelHeight = computed(() => {
+  if (hasPrioritySidebar.value) {
+    return (
+      100 -
+      sectionPaddingSize.value * 2 -
+      effectiveFooterHeight.value -
+      (footerSpaceReserved.value ? sectionPaddingSize.value : 0)
+    )
+  }
 
+  return mainContentHeight.value
+})
     const mainContentLeft = computed(() => {
     const padding = sectionPaddingSize.value
     return sidebarLeftVisible.value ? padding + sidebarLeftWidth.value : padding
@@ -345,21 +386,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       zIndex: '30',
     }
   })
-    const footerToggleStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
-    const lift = footerVisible.value
-      ? effectiveFooterHeight.value + padding * 1.5
-      : padding
-
-    return {
-      position: 'fixed',
-      left: '50%',
-      bottom: `calc(var(--vh) * ${lift})`,
-      transform: 'translateX(-50%)',
-      zIndex: '30',
-    }
-  })
-
+    
   const headerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
@@ -368,33 +395,57 @@ export const useDisplayStore = defineStore('displayStore', () => {
     zIndex: '30',
   }))
 
-  const leftCornerToggleStyle = computed<CSSProperties>(() => ({
-    position: 'fixed',
-    left: '0.25rem',
-    bottom: '0.25rem',
-    zIndex: '30',
-  }))
+  const footerControlBottom = computed(() => {
+  return sectionPaddingSize.value
+})
 
-  const rightCornerToggleStyle = computed<CSSProperties>(() => ({
-    position: 'fixed',
-    right: '0.25rem',
-    bottom: '0.25rem',
-    zIndex: '30',
-  }))
+const footerChannelBottom = computed(() => {
+  if (footerStage.value === 'hidden') return footerControlBottom.value
+  return effectiveFooterHeight.value + sectionPaddingSize.value
+})
 
-  const leftFooterToggleStyle = computed<CSSProperties>(() => ({
-    position: 'fixed',
-    left: '3.75rem',
-    bottom: '3.75rem',
-    zIndex: '30',
-  }))
+const centerFooterToggleBottom = computed(() => {
+  if (footerStage.value === 'hidden') return footerControlBottom.value
+  return effectiveFooterHeight.value + sectionPaddingSize.value
+})
 
-  const rightFooterToggleStyle = computed<CSSProperties>(() => ({
-    position: 'fixed',
-    right: '3.75rem',
-    bottom: '3.75rem',
-    zIndex: '30',
-  }))
+const footerControlBaseStyle = computed<CSSProperties>(() => ({
+  position: 'fixed',
+  width: `${footerControlSize.value}vw`,
+  height: `calc(var(--vh) * ${footerControlSize.value})`,
+  zIndex: '30',
+}))
+
+const leftCornerToggleStyle = computed<CSSProperties>(() => ({
+  ...footerControlBaseStyle.value,
+  left: `${sectionPaddingSize.value}vw`,
+  bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+}))
+
+const leftFooterToggleStyle = computed<CSSProperties>(() => ({
+  ...footerControlBaseStyle.value,
+  left: `${25 - footerControlSize.value / 2}vw`,
+  bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
+}))
+
+const footerToggleStyle = computed<CSSProperties>(() => ({
+  ...footerControlBaseStyle.value,
+  left: '50vw',
+  bottom: `calc(var(--vh) * ${centerFooterToggleBottom.value})`,
+  transform: 'translateX(-50%)',
+}))
+
+const rightFooterToggleStyle = computed<CSSProperties>(() => ({
+  ...footerControlBaseStyle.value,
+  right: `${25 - footerControlSize.value / 2}vw`,
+  bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
+}))
+
+const rightCornerToggleStyle = computed<CSSProperties>(() => ({
+  ...footerControlBaseStyle.value,
+  right: `${sectionPaddingSize.value}vw`,
+  bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+}))
 
   const leftSidebarBackToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
@@ -547,16 +598,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const footerStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
-
-    return {
-      top: `calc(var(--vh) * ${100 - effectiveFooterHeight.value - padding})`,
-      left: `${footerLeftInset.value}vw`,
-      width: `${footerWidth.value}vw`,
-      height: `calc(var(--vh) * ${effectiveFooterHeight.value})`,
-    }
-  })
+  const footerStyle = computed<CSSProperties>(() => ({
+  top: `calc(var(--vh) * ${100 - effectiveFooterHeight.value - sectionPaddingSize.value})`,
+  left: `${footerLeftInset.value}vw`,
+  width: `${footerWidth.value}vw`,
+  height: `calc(var(--vh) * ${effectiveFooterHeight.value})`,
+  opacity: footerContentVisible.value ? '1' : '0',
+  pointerEvents: footerContentVisible.value ? 'auto' : 'none',
+}))
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),
@@ -1056,8 +1105,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     removeViewportWatcher,
     setSmartState,
     headerCornerToggleStyle,
-    showCornerPanel,
-    ...toRefs(state),
+    showCornerPanel
     footerComponentNames,
     leftCornerToggleStyle,
     rightCornerToggleStyle,
@@ -1067,6 +1115,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     leftSidebarForwardToggleStyle,
     rightSidebarBackToggleStyle,
     rightSidebarForwardToggleStyle,
+    footerStage,
+    footerControlSize,
+    footerSpaceReserved,
+    footerContentVisible,
   }
 })
 

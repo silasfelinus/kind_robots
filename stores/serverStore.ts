@@ -143,6 +143,35 @@ export const useServerStore = defineStore('serverStore', () => {
       return !hiddenServerIdSet.value.has(server.id)
     }),
   )
+
+  async function autheliaFetch(
+    server: Server,
+    path: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
+    if (!server.baseUrl) {
+      throw new Error(`Server "${server.title}" has no baseUrl configured.`)
+    }
+
+    const url = `${server.baseUrl}${path}`
+
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'include', // sends the .acrocatranch.com Authelia session cookie
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    })
+
+    if (response.status === 401 || response.status === 403) {
+      // Authelia rejected — redirect to OIDC login
+      window.location.href = '/auth/authelia'
+    }
+
+    return response
+  }
+
   async function hideServer(id: number): Promise<{
     success: boolean
     message?: string
@@ -1152,6 +1181,7 @@ export const useServerStore = defineStore('serverStore', () => {
     getCompatibleServers,
     updateServerApiKey,
     showHiddenServers,
+    autheliaFetch,
   }
 })
 

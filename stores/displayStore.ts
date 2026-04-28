@@ -204,10 +204,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const sectionPaddingSize = computed(() => {
     const sizes: Record<ViewportSize, number> = {
-      small: 1,
-      medium: 1,
-      large: 2,
-      extraLarge: 2,
+      small: 0.5,
+      medium: 0.5,
+      large: 1,
+      extraLarge: 1,
     }
 
     return sizes[state.viewportSize]

@@ -26,31 +26,38 @@ export default defineNuxtConfig({
   ],
 
   oidc: {
-    defaultProvider: 'kindauth', // changed
+    defaultProvider: 'authelia',
     providers: {
-      kindauth: {
-        // changed — not a recognized preset name
-        clientId: 'kind-robots',
-        clientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
-        authorizationUrl:
-          'https://auth.acrocatranch.com/api/oidc/authorization',
-        tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
-        userInfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
-        jwksUri: 'https://auth.acrocatranch.com/jwks.json',
+      authelia: {
+        provider: 'oidc',
+        clientId:
+          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_CLIENT_ID || 'kind-robots',
+        clientSecret:
+          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_CLIENT_SECRET || '',
         redirectUri:
-          process.env.NUXT_OIDC_PROVIDERS_KINDAUTH_REDIRECT_URI ||
-          'https://kindrobots.org/auth/kindauth/callback',
+          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_REDIRECT_URI ||
+          'https://kindrobots.org/auth/authelia/callback',
+        authorizationUrl:
+          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_AUTHORIZATION_URL ||
+          'https://auth.acrocatranch.com/api/oidc/authorization',
+        tokenUrl:
+          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_TOKEN_URL ||
+          'https://auth.acrocatranch.com/api/oidc/token',
+        userInfoUrl:
+          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_USER_INFO_URL ||
+          'https://auth.acrocatranch.com/api/oidc/userinfo',
         scope: ['openid', 'profile', 'email'],
-        userNameClaim: 'preferred_username',
         responseType: 'code',
         grantType: 'authorization_code',
+        authenticationScheme: 'header',
+        tokenRequestType: 'form',
         pkce: true,
         state: true,
-        nonce: false,
+        nonce: true,
+        userNameClaim: 'preferred_username',
       },
     },
     session: {
-      secret: process.env.NUXT_OIDC_SESSION_SECRET || '',
       expirationCheck: true,
       automaticRefresh: true,
     },
@@ -90,11 +97,6 @@ export default defineNuxtConfig({
   css: ['~/assets/css/tailwind.css'],
 
   runtimeConfig: {
-    autheliaClientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
-    oidcRedirectUri:
-      process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_REDIRECT_URI ||
-      'https://kindrobots.org/auth/authelia/callback',
-
     openaiApiKey: process.env.OPENAI_API_KEY || '',
     githubId: process.env.GITHUB_ID || '',
     githubSecret: process.env.GITHUB_SECRET || '',

@@ -3,11 +3,11 @@
   <header
     ref="headerRoot"
     :key="headerKey"
-    class="isolate flex h-full w-full min-w-0 items-stretch gap-0 overflow-hidden z-30"
+    class="isolate flex h-full w-full min-w-0 items-stretch gap-1 overflow-visible z-30"
   >
     <button
       type="button"
-      class="relative z-0 flex h-full shrink-0 overflow-hidden pointer-events-auto"
+      class="group relative z-0 flex h-full shrink-0 overflow-hidden pointer-events-auto rounded-2xl transition-all duration-150 ease-in-out hover:brightness-110 hover:scale-[1.02] active:scale-[0.97] active:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-1"
       :style="avatarColumnStyle"
       :title="avatarToggleTitle"
       @click="handleAvatarClick"
@@ -27,11 +27,16 @@
           {{ viewportSize }}
         </span>
       </div>
+
+      <!-- Subtle hover overlay -->
+      <div
+        class="pointer-events-none absolute inset-0 rounded-2xl bg-white/0 transition-colors duration-150 group-hover:bg-white/8"
+      />
     </button>
 
     <div
       v-if="hasHeaderContent"
-      class="flex h-full min-w-0 flex-1 items-stretch gap-1 px-1 py-0 md:px-2 lg:px-3 xl:px-4"
+      class="flex h-full min-w-0 flex-1 items-stretch gap-1 px-1 py-1 md:px-2 lg:px-3 xl:px-4"
     >
       <smart-icons
         class="h-full w-full min-w-0"

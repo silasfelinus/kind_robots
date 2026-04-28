@@ -34,14 +34,15 @@ export default defineNuxtConfig({
     providers: {
       authelia: {
         clientId: 'kind-robots',
-        clientSecret: process.env.AUTHELIA_CLIENT_SECRET!,
+        clientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
+        baseUrl: 'https://auth.acrocatranch.com',
         authorizationUrl:
           'https://auth.acrocatranch.com/api/oidc/authorization',
         tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
-        userinfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
+        userInfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
         redirectUri:
-          process.env.NUXT_OIDC_REDIRECT_URI ??
-          'http://localhost:3000/auth/callback',
+          process.env.NUXT_OIDC_REDIRECT_URI ||
+          'https://kindrobots.org/auth/authelia/callback',
         scope: ['openid', 'profile', 'email'],
         userNameClaim: 'preferred_username',
       },
@@ -51,7 +52,8 @@ export default defineNuxtConfig({
       automaticRefresh: true,
     },
     middleware: {
-      globalMiddlewareEnabled: false, // ← only protect pages that explicitly opt in
+      globalMiddlewareEnabled: false,
+      customLoginPage: false,
     },
   },
 

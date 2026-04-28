@@ -378,7 +378,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
       hidden: {
         small: 3,
         medium: 2.5,
-        large: 2,
+        large: 1.7,
         extraLarge: 2,
       },
       compact: {

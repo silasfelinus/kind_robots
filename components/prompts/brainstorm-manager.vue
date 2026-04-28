@@ -896,7 +896,7 @@ const pitchPrompts = computed(() => {
   return promptStore.prompts.filter((prompt) => prompt.pitchId === pitchId)
 })
 
-const apiLines = computed(() => parseLines(pitchStore.apiResponse || ''))
+const apiLines = computed(() => parseLines(pitchStore.apiResponse))
 
 const canSave = computed(() =>
   Boolean(pitchForm.pitch?.trim() && pitchForm.title?.trim()),
@@ -1234,6 +1234,70 @@ function buildPitchPayload(): Partial<Pitch> {
   }
 }
 
+type ApiLineObject = {
+  text?: unknown
+  content?: unknown
+  message?: unknown
+  data?: unknown
+  title?: unknown
+  pitch?: unknown
+  description?: unknown
+}
+
+function isApiLineObject(value: unknown): value is ApiLineObject {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value))
+}
+
+function stringifyLineSource(value: unknown): string {
+  if (value === null || value === undefined) return ''
+
+  if (typeof value === 'string') return value
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => stringifyLineSource(item))
+      .filter(Boolean)
+      .join('\n')
+  }
+
+  if (isApiLineObject(value)) {
+    const directPitchParts = [value.title, value.pitch, value.description]
+      .map((part) => stringifyLineSource(part).trim())
+      .filter(Boolean)
+
+    if (directPitchParts.length) {
+      return directPitchParts.join(': ')
+    }
+
+    return stringifyLineSource(
+      value.text ?? value.content ?? value.message ?? value.data,
+    )
+  }
+
+  return String(value)
+}
+
+function parseLines(value?: unknown): string[] {
+  return stringifyLineSource(value)
+    .split('\n')
+    .flatMap((line) => line.split(/(?<=\.)\s+(?=[A-Z])/))
+    .map((line) => line.replace(/^[-*\d.)\s]+/, '').trim())
+    .filter(Boolean)
+}
+
+function splitExamples(value?: unknown): string[] {
+  const parsed = stringifyLineSource(value)
+    .split('|')
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+  return parsed.length ? parsed : defaultExamples()
+}
+
 function buildPitchContext(): Pitch {
   return {
     ...(selectedPitch.value ?? {}),
@@ -1259,23 +1323,6 @@ function buildPromptFragmentString() {
     `Instructions: ${pitchForm.description || defaultBrainstormSeed.description}`,
     `Examples: ${joinExamples(examples.value)}`,
   ].join(' | ')
-}
-
-function parseLines(value?: string | null): string[] {
-  return (value || '')
-    .split('\n')
-    .flatMap((line) => line.split(/(?<=\.)\s+(?=[A-Z])/))
-    .map((line) => line.replace(/^[-*\d.)\s]+/, '').trim())
-    .filter(Boolean)
-}
-
-function splitExamples(value?: string | null): string[] {
-  const parsed = (value || '')
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean)
-
-  return parsed.length ? parsed : defaultExamples()
 }
 
 function joinExamples(arr: string[]): string {

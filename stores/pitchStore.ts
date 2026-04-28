@@ -43,7 +43,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const numberOfRequests = ref(1)
   const temperature = ref(0.9)
   const exampleString = ref(' ')
-  const apiResponse = ref(' ')
+  const apiResponse = ref('')
   const maxTokens = ref(500)
 
   const pitchTypes = Object.values(PitchType)
@@ -328,9 +328,53 @@ export const usePitchStore = defineStore('pitchStore', () => {
     }
   }
 
+  function normalizeBrainstormResponse(value: unknown): string {
+    if (!value) return ''
+
+    if (typeof value === 'string') return value
+
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => {
+          if (typeof item === 'string') return item
+
+          if (item && typeof item === 'object') {
+            const pitch = item as Partial<Pitch>
+            return [pitch.title, pitch.pitch, pitch.description]
+              .filter(Boolean)
+              .join(': ')
+          }
+
+          return String(item)
+        })
+        .filter(Boolean)
+        .join('\n')
+    }
+
+    if (typeof value === 'object') {
+      const record = value as Record<string, unknown>
+      return normalizeBrainstormResponse(
+        record.text ?? record.content ?? record.message ?? record.data,
+      )
+    }
+
+    return String(value)
+  }
+
   async function fetchBrainstormPitches() {
-    if (!selectedTitle.value) return
-    if (loading.value) return
+    if (!selectedTitle.value) {
+      return {
+        success: false,
+        message: 'No selected title',
+      }
+    }
+
+    if (loading.value) {
+      return {
+        success: false,
+        message: 'Brainstorm already loading',
+      }
+    }
 
     loading.value = true
 
@@ -342,21 +386,37 @@ export const usePitchStore = defineStore('pitchStore', () => {
         exampleString.value,
       )
 
-      const res = await performFetch<string>('/api/botcafe/brainstorm', {
+      const res = await performFetch<unknown>('/api/botcafe/brainstorm', {
         method: 'POST',
         body: JSON.stringify({
           n: numberOfRequests.value,
           content,
           max_tokens: maxTokens.value,
+          maxTokens: maxTokens.value,
           temperature: temperature.value,
         }),
       })
 
-      if (res.success) {
-        apiResponse.value = res.data || ''
+      if (!res.success) {
+        return {
+          success: false,
+          message: res.message || 'Brainstorm request failed',
+        }
+      }
+
+      apiResponse.value = normalizeBrainstormResponse(res.data)
+
+      return {
+        success: true,
+        data: apiResponse.value,
+        message: 'Brainstorm generated',
       }
     } catch (err) {
       handleError(err, 'brainstorm')
+      return {
+        success: false,
+        message: 'Error generating brainstorm',
+      }
     } finally {
       loading.value = false
     }

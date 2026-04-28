@@ -706,6 +706,8 @@ model Server {
   Bots                       Bot[]
   Chats                      Chat[]
   user                       User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  useOidc                    Boolean       @default(false)
+  oidcProvider               String?       // e.g. "authelia"
 
   @@index([serverType])
   @@index([isPublic])

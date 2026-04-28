@@ -31,7 +31,7 @@ export default defineNuxtConfig({
       kindauth: {
         clientId: 'kind-robots',
         clientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
-        baseUrl: 'https://auth.acrocatranch.com', // ← add this
+        // NO baseUrl — omitting it skips the preset URL generation block entirely
         authorizationUrl:
           'https://auth.acrocatranch.com/api/oidc/authorization',
         tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',

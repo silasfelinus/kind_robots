@@ -410,10 +410,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     )
   })
 
-  const footerControlCenterLeft = computed(() => {
-    return footerLeftInset.value + footerWidth.value / 2
-  })
-
   const footerSideControlBaseStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     width: `${footerControlSize.value}vw`,
@@ -430,19 +426,23 @@ export const useDisplayStore = defineStore('displayStore', () => {
     zIndex: '30',
   }))
 
+  const footerControlScreenInset = computed(() => {
+    return sectionPaddingSize.value
+  })
+
   const leftFooterControlColumnStyle = computed<CSSProperties>(() => ({
     ...footerSideControlBaseStyle.value,
-    left: `${footerLeftInset.value}vw`,
+    left: `${footerControlScreenInset.value}vw`,
   }))
 
   const rightFooterControlColumnStyle = computed<CSSProperties>(() => ({
     ...footerSideControlBaseStyle.value,
-    right: `${footerRightInset.value}vw`,
+    right: `${footerControlScreenInset.value}vw`,
   }))
 
   const footerToggleStyle = computed<CSSProperties>(() => ({
     ...footerToggleBaseStyle.value,
-    left: `${footerControlCenterLeft.value}vw`,
+    left: '50vw',
     transform: 'translateX(-50%)',
   }))
 
@@ -1137,6 +1137,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     leftFooterControlColumnStyle,
     rightFooterControlColumnStyle,
     footerControlsSitOnBottom,
+    footerControlScreenInset,
   }
 })
 

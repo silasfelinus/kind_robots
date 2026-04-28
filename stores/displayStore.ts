@@ -129,13 +129,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const mainPanelTopOffset = computed(() => {
-    if (hasPrioritySidebar.value) {
-      const headerExists = state.headerState !== 'hidden'
-      const header = headerExists ? headerHeight.value : 0
-      const padding = sectionPaddingSize.value
-      return header + padding * 2
-    }
-    return contentTopOffset.value
+    const padding = sectionPaddingSize.value
+    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    return header + padding
   })
 
   const sidebarLeftWidth = computed(() => {
@@ -266,37 +262,23 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return 100 - (header + headerPadding + contentBottomOffset.value)
   })
 
-  const mainContentHeight = computed(() => {
-    const padding = sectionPaddingSize.value
-    const headerExists = state.headerState !== 'hidden'
-    const header = headerExists ? headerHeight.value : 0
-    const footerPadding = footerSpaceReserved.value ? padding : 0
-    const totalPadding = padding * 2 + footerPadding
-
-    return 100 - (header + totalPadding + effectiveFooterHeight.value)
-  })
-
   const mainPanelHeight = computed(() => {
-    if (hasPrioritySidebar.value) {
-      return (
-        100 -
-        sectionPaddingSize.value * 2 -
-        effectiveFooterHeight.value -
-        (footerSpaceReserved.value ? sectionPaddingSize.value : 0)
-      )
-    }
+    const bottom = footerSpaceReserved.value
+      ? effectiveFooterHeight.value + sectionPaddingSize.value
+      : sectionPaddingSize.value
 
-    return mainContentHeight.value
+    return 100 - mainPanelTopOffset.value - bottom
   })
+
   const mainContentLeft = computed(() => {
     const padding = sectionPaddingSize.value
-    return sidebarLeftVisible.value ? padding + sidebarLeftWidth.value : padding
+    return sidebarLeftVisible.value ? sidebarLeftWidth.value + padding : padding
   })
 
   const mainContentRightInset = computed(() => {
     const padding = sectionPaddingSize.value
     return sidebarRightVisible.value
-      ? padding + sidebarRightWidth.value
+      ? sidebarRightWidth.value + padding
       : padding
   })
 
@@ -390,76 +372,74 @@ export const useDisplayStore = defineStore('displayStore', () => {
     transform: 'translateX(-50%)',
     zIndex: '30',
   }))
+  const footerToggleHeight = computed(() => {
+    const sizes: Record<ViewportSize, number> = {
+      small: 3,
+      medium: 2.5,
+      large: 2,
+      extraLarge: 2,
+    }
 
-  const footerControlsSitOnBottom = computed(() => {
-    return footerStage.value === 'hidden' || footerStage.value === 'compact'
+    return sizes[state.viewportSize]
   })
 
-  const footerSideControlBottom = computed(() => {
+  const footerToggleWidth = computed(() => {
+    return footerControlSize.value * 1.8
+  })
+
+  const footerControlBottom = computed(() => {
     return sectionPaddingSize.value
   })
 
   const footerToggleBottom = computed(() => {
-    if (footerControlsSitOnBottom.value) {
+    if (footerStage.value === 'hidden') {
       return sectionPaddingSize.value
     }
 
-    return (
-      sectionPaddingSize.value +
-      Math.max(0, effectiveFooterHeight.value - footerControlSize.value)
+    return Math.max(
+      sectionPaddingSize.value,
+      effectiveFooterHeight.value -
+        footerToggleHeight.value -
+        sectionPaddingSize.value * 0.35,
     )
   })
 
-  const footerSideControlBaseStyle = computed<CSSProperties>(() => ({
+  const footerControlBaseStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     width: `${footerControlSize.value}vw`,
     height: `calc(var(--vh) * ${footerControlSize.value})`,
-    bottom: `calc(var(--vh) * ${footerSideControlBottom.value})`,
+    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
     zIndex: '30',
-  }))
-
-  const footerToggleBaseStyle = computed<CSSProperties>(() => ({
-    position: 'fixed',
-    width: `${footerControlSize.value}vw`,
-    height: `calc(var(--vh) * ${footerControlSize.value})`,
-    bottom: `calc(var(--vh) * ${footerToggleBottom.value})`,
-    zIndex: '30',
-  }))
-
-  const footerControlScreenInset = computed(() => {
-    return sectionPaddingSize.value
-  })
-
-  const leftFooterControlColumnStyle = computed<CSSProperties>(() => ({
-    ...footerSideControlBaseStyle.value,
-    left: `${footerControlScreenInset.value}vw`,
-  }))
-
-  const rightFooterControlColumnStyle = computed<CSSProperties>(() => ({
-    ...footerSideControlBaseStyle.value,
-    right: `${footerControlScreenInset.value}vw`,
-  }))
-
-  const footerToggleStyle = computed<CSSProperties>(() => ({
-    ...footerToggleBaseStyle.value,
-    left: '50vw',
-    transform: 'translateX(-50%)',
   }))
 
   const leftCornerToggleStyle = computed<CSSProperties>(() => ({
-    ...leftFooterControlColumnStyle.value,
-  }))
-
-  const rightCornerToggleStyle = computed<CSSProperties>(() => ({
-    ...rightFooterControlColumnStyle.value,
+    ...footerControlBaseStyle.value,
+    left: `${sectionPaddingSize.value}vw`,
   }))
 
   const leftFooterToggleStyle = computed<CSSProperties>(() => ({
-    ...leftFooterControlColumnStyle.value,
+    ...footerControlBaseStyle.value,
+    left: `${25 - footerControlSize.value / 2}vw`,
+  }))
+
+  const footerToggleStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    width: `${footerToggleWidth.value}vw`,
+    height: `calc(var(--vh) * ${footerToggleHeight.value})`,
+    left: '50vw',
+    bottom: `calc(var(--vh) * ${footerToggleBottom.value})`,
+    transform: 'translateX(-50%)',
+    zIndex: '30',
   }))
 
   const rightFooterToggleStyle = computed<CSSProperties>(() => ({
-    ...rightFooterControlColumnStyle.value,
+    ...footerControlBaseStyle.value,
+    right: `${25 - footerControlSize.value / 2}vw`,
+  }))
+
+  const rightCornerToggleStyle = computed<CSSProperties>(() => ({
+    ...footerControlBaseStyle.value,
+    right: `${sectionPaddingSize.value}vw`,
   }))
 
   const leftSidebarBackToggleStyle = computed<CSSProperties>(() => ({
@@ -1053,7 +1033,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     effectiveFooterHeight,
     sectionPaddingSize,
     sidebarContentHeight,
-    mainContentHeight,
     mainContentWidth,
     mainContentLeft,
     mainContentRightInset,
@@ -1134,10 +1113,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     footerControlSize,
     footerSpaceReserved,
     footerContentVisible,
-    leftFooterControlColumnStyle,
-    rightFooterControlColumnStyle,
-    footerControlsSitOnBottom,
-    footerControlScreenInset,
+    footerToggleHeight,
+    footerToggleWidth,
+    footerControlBottom,
+    footerToggleBottom,
   }
 })
 

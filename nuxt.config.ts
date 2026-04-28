@@ -1,6 +1,16 @@
 // /nuxt.config.ts
 import tailwindcss from '@tailwindcss/vite'
 
+const requireEnv = (key: string) => {
+  const value = process.env[key]
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`)
+  }
+
+  return value
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-08-13',
 
@@ -26,34 +36,36 @@ export default defineNuxtConfig({
   ],
 
   oidc: {
-    defaultProvider: 'kindauth',
+    defaultProvider: 'oidc',
+
     providers: {
-      kindauth: {
-        clientId: 'kind-robots',
-        clientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
-        // NO baseUrl — omitting it skips the preset URL generation block entirely
+      oidc: {
+        clientId: requireEnv('AUTHELIA_CLIENT_ID'),
+        clientSecret: requireEnv('AUTHELIA_CLIENT_SECRET'),
+        redirectUri: requireEnv('NUXT_OIDC_REDIRECT_URI'),
+
         authorizationUrl:
           'https://auth.acrocatranch.com/api/oidc/authorization',
         tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
         userInfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
-        jwksUri: 'https://auth.acrocatranch.com/jwks.json',
-        redirectUri:
-          process.env.NUXT_OIDC_PROVIDERS_KINDAUTH_REDIRECT_URI ||
-          'https://kindrobots.org/auth/kindauth/callback',
+
         scope: ['openid', 'profile', 'email'],
-        userNameClaim: 'preferred_username',
         responseType: 'code',
         grantType: 'authorization_code',
+        authenticationScheme: 'header',
+        tokenRequestType: 'form',
         pkce: true,
         state: true,
-        nonce: false,
+        nonce: true,
+        userNameClaim: 'preferred_username',
       },
     },
+
     session: {
-      secret: process.env.NUXT_OIDC_SESSION_SECRET || '',
       expirationCheck: true,
       automaticRefresh: true,
     },
+
     middleware: {
       globalMiddlewareEnabled: false,
       customLoginPage: false,

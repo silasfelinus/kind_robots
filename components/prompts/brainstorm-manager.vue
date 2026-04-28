@@ -340,7 +340,7 @@
                 v-model.number="pitchStore.numberOfRequests"
                 type="number"
                 min="1"
-                max="10"
+                max="100"
                 class="input input-sm input-bordered rounded-2xl"
               />
             </label>
@@ -1281,12 +1281,32 @@ function stringifyLineSource(value: unknown): string {
   return String(value)
 }
 
+function isJunkIntroLine(line: string): boolean {
+  const normalized = line.trim().toLowerCase()
+
+  return (
+    normalized.startsWith('sure') ||
+    normalized.startsWith('here are') ||
+    normalized.startsWith('here is') ||
+    normalized.includes('fun product launch ideas') ||
+    normalized === 'ideas' ||
+    normalized === 'pitches'
+  )
+}
+
 function parseLines(value?: unknown): string[] {
   return stringifyLineSource(value)
     .split('\n')
     .flatMap((line) => line.split(/(?<=\.)\s+(?=[A-Z])/))
-    .map((line) => line.replace(/^[-*\d.)\s]+/, '').trim())
+    .map((line) =>
+      line
+        .replace(/^[-*\d.)\s]+/, '')
+        .replace(/^\*\*(product|topic|pitch):\*\*/i, '')
+        .replace(/^(product|topic|pitch):/i, '')
+        .trim(),
+    )
     .filter(Boolean)
+    .filter((line) => !isJunkIntroLine(line))
 }
 
 function splitExamples(value?: unknown): string[] {

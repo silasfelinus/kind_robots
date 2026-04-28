@@ -1,76 +1,102 @@
+// /server/api/botcafe/brainstorm/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Pitch } from '~/prisma/generated/prisma/client'
 
-interface Example {
+type BrainstormExample = {
+  title?: string
+  pitch?: string
+}
+
+type BrainstormIdea = {
   title: string
   pitch: string
 }
 
-const savedPitches: Pitch[] = [] // Store submitted pitches for demonstration purposes
+type BrainstormResponse = {
+  ideas: BrainstormIdea[]
+}
 
-const creativePrompts: Example[] = [
+const fallbackExamples: BrainstormExample[] = [
   { title: 'Haunted Fitness Tracker', pitch: 'Counts steps... to your grave.' },
   {
     title: 'Reverse Life Insurance',
-    pitch:
-      'Pays out when you unexpectedly come back to life. Policy benefits include a complimentary zombie survival kit.',
+    pitch: 'Pays out when you unexpectedly come back to life.',
   },
   {
     title: 'Misfortune Cookies',
-    pitch:
-      "Crack one open to ruin your day with prophecies like 'Your socks will always be slightly damp.'",
-  },
-  {
-    title: 'The Procrastinator’s Alarm Clock',
-    pitch: 'Always runs a few minutes late, just like you.',
-  },
-  {
-    title: 'Invisible Ink Tattoos',
-    pitch: 'Visible only under the scrutiny of disappointed parents.',
-  },
-  {
-    title: 'Eau de Despair Perfume',
-    pitch: 'The scent of looming deadlines mixed with broken dreams.',
-  },
-  {
-    title: 'Self-Help Books by Villains',
-    pitch: "Learn confidence from Darth Vader: 'Choke Your Way to the Top!'",
-  },
-  { title: 'Diet Water', pitch: 'Now with 30% less water!' },
-  { title: 'Gluten-Full Bread', pitch: 'Twice the gluten, double the regret.' },
-  {
-    title: 'Anti-Social Media App',
-    pitch: 'Connects you with people you’ll definitely dislike.',
-  },
-  {
-    title: 'Midlife Crisis Action Figures',
-    pitch: 'Comes with a convertible and questionable life choices.',
-  },
-  {
-    title: 'Doomsday Clock',
-    pitch:
-      'It’s always almost midnight. Brighten up your desk with the constant reminder of impending doom.',
-  },
-  {
-    title: 'Solar-Powered Flashlight',
-    pitch: "Only works when you don't need it.",
-  },
-  { title: 'Portable Potholes', pitch: 'Bring traffic chaos wherever you go.' },
-  {
-    title: 'Unsolicited Advice Generator',
-    pitch: 'Perfect for family gatherings. Dispenses advice nobody asked for.',
+    pitch: 'Crack one open to ruin your day with prophecies nobody requested.',
   },
 ]
 
+function clampNumber(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+) {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return fallback
+  return Math.min(Math.max(Math.round(parsed), min), max)
+}
+
+function normalizeExamples(value: unknown): BrainstormExample[] {
+  if (!Array.isArray(value)) return fallbackExamples
+
+  return value
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null
+
+      const example = item as BrainstormExample
+      const title = example.title?.trim()
+      const pitch = example.pitch?.trim()
+
+      if (!title && !pitch) return null
+
+      return {
+        title: title || 'Untitled example',
+        pitch: pitch || '',
+      }
+    })
+    .filter(Boolean) as BrainstormExample[]
+}
+
+function normalizeIdeas(value: unknown): BrainstormIdea[] {
+  if (!value || typeof value !== 'object') return []
+
+  const record = value as { ideas?: unknown }
+
+  if (!Array.isArray(record.ideas)) return []
+
+  return record.ideas
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null
+
+      const idea = item as BrainstormIdea
+      const title = idea.title?.trim()
+      const pitch = idea.pitch?.trim()
+
+      if (!title && !pitch) return null
+
+      return {
+        title: title || 'Untitled Idea',
+        pitch: pitch || '',
+      }
+    })
+    .filter(Boolean) as BrainstormIdea[]
+}
+
 export default defineEventHandler(async (event) => {
   try {
-    // Validate API Key
     const { isValid } = await validateApiKey(event)
+
     if (!isValid) {
       event.node.res.statusCode = 401
-      return { success: false, message: 'Invalid or expired token.' }
+      return {
+        success: false,
+        message: 'Invalid or expired token.',
+        data: [],
+      }
     }
 
     const body = await readBody(event)
@@ -79,89 +105,133 @@ export default defineEventHandler(async (event) => {
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        message:
-          'Server API key is missing. Please provide a valid OpenAI API key.',
+        message: 'Server API key is missing.',
       })
     }
 
-    const { n = 5, title = 'Creative Ideas', examples = [] } = body
+    const title = String(body.title || body.content || 'Creative Ideas').trim()
+    const instructions = String(
+      body.instructions || body.description || '',
+    ).trim()
+    const n = clampNumber(body.n, 10, 1, 10)
+    const temperature = Number.isFinite(Number(body.temperature))
+      ? Number(body.temperature)
+      : 0.8
+    const maxOutputTokens = clampNumber(
+      body.maxOutputTokens ?? body.max_tokens ?? body.maxTokens,
+      1200,
+      300,
+      4000,
+    )
+    const examples = normalizeExamples(body.examples)
 
-    // Format examples into content for OpenAI message
-    const formattedExamples = examples.length
-      ? examples
-          .map(
-            (ex: Example) =>
-              `Topic: ${ex.title || 'Sample Topic'}, Pitch: ${ex.pitch || 'Sample pitch description for this topic.'}`,
-          )
-          .join('\n')
-      : creativePrompts
-          .map(({ title, pitch }) => `Topic: ${title}, Pitch: ${pitch}`)
-          .join('\n')
-
-    // Create message content including title and examples
-    const content = `Generate ideas based on this topic: ${title}. Here are some examples:\n${formattedExamples}`
-
-    // Construct OpenAI request data
-    const pitchRequest = {
-      model: body.model || 'gpt-4o-mini',
-      messages: [{ role: 'user', content }],
-      temperature: body.temperature || 0.7,
-      max_tokens: body.maxTokens || 150,
-      n,
-      stream: body.stream || false,
-    }
-
-    const post = body.post || 'https://api.openai.com/v1/chat/completions'
-
-    // Call OpenAI API
-    const response = await fetch(post, {
+    const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(pitchRequest),
+      body: JSON.stringify({
+        model: body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-5.5',
+        input: [
+          {
+            role: 'system',
+            content:
+              'You generate concise brainstorm ideas for Kind Robots. Return only structured data. Do not include introductions, explanations, markdown, numbering, or wrap-up text.',
+          },
+          {
+            role: 'user',
+            content: JSON.stringify({
+              task: `Generate exactly ${n} brainstorm ideas.`,
+              topic: title,
+              instructions:
+                instructions ||
+                'Create punchy, specific, useful product launch ideas.',
+              examples,
+              output_rules: [
+                'Each idea must have a short title.',
+                'Each pitch must be one sentence.',
+                'No intro text.',
+                'No markdown.',
+                'No numbering.',
+              ],
+            }),
+          },
+        ],
+        temperature,
+        max_output_tokens: maxOutputTokens,
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'brainstorm_ideas',
+            strict: true,
+            schema: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                ideas: {
+                  type: 'array',
+                  minItems: n,
+                  maxItems: n,
+                  items: {
+                    type: 'object',
+                    additionalProperties: false,
+                    properties: {
+                      title: {
+                        type: 'string',
+                        minLength: 1,
+                      },
+                      pitch: {
+                        type: 'string',
+                        minLength: 1,
+                      },
+                    },
+                    required: ['title', 'pitch'],
+                  },
+                },
+              },
+              required: ['ideas'],
+            },
+          },
+        },
+      }),
     })
 
     if (!response.ok) {
-      const errorData = await response.json()
+      const details = await response.text()
       throw createError({
         statusCode: response.status,
-        message: `Error from OpenAI: ${response.statusText}. Details: ${JSON.stringify(errorData)}`,
+        message: `OpenAI request failed: ${details}`,
       })
     }
 
     const responseData = await response.json()
-    const data: Partial<Pitch>[] = responseData.choices.map(
-      (choice: { message: { content: string } }) => {
-        const content = choice.message.content.trim()
-        const parts = content.split(', Pitch: ')
+    const outputText =
+      responseData.output_text ||
+      responseData.output
+        ?.flatMap(
+          (item: { content?: Array<{ text?: string }> }) =>
+            item.content?.map((content) => content.text || '') || [],
+        )
+        .join('') ||
+      ''
 
-        const rawTitle = parts[0]
-        const rawPitch = parts[1]
+    const parsed = JSON.parse(outputText) as BrainstormResponse
+    const ideas = normalizeIdeas(parsed)
 
-        if (!rawTitle) {
-          return { title: 'Untitled Idea', pitch: rawPitch || '' }
-        }
-
-        return {
-          title: rawTitle.replace('Topic: ', ''),
-          pitch: rawPitch || '',
-        }
-      },
-    )
-
-    // Save generated pitches for demonstration
-    savedPitches.push(...(data as Pitch[]))
-
-    return { success: true, message: 'Pitches generated successfully.', data }
+    return {
+      success: true,
+      message: `Generated ${ideas.length} brainstorm idea(s).`,
+      data: ideas,
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
+
     return {
       success: false,
-      message: message || 'Failed to generate pitches.',
-      pitches: null,
+      message: message || 'Failed to generate brainstorm ideas.',
+      data: [],
     }
   }
 })

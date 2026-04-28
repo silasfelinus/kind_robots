@@ -27,6 +27,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     '@nuxt/image',
+    'nuxt-oidc-auth',
   ],
 
   components: [

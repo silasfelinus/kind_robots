@@ -69,6 +69,7 @@
     "mariadb": "^3.5.2",
     "mysql2": "^3.16.0",
     "nuxt": "^4.4.2",
+    "nuxt-oidc-auth": "^1.0.0-beta.11",
     "open-simplex-noise": "^2.5.0",
     "pinia": "^3.0.4",
     "stripe": "^22.0.1"

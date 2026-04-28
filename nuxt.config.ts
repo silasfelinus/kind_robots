@@ -1,6 +1,16 @@
 // /nuxt.config.ts
 import tailwindcss from '@tailwindcss/vite'
 
+const requireEnv = (key: string) => {
+  const value = process.env[key]
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`)
+  }
+
+  return value
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-08-13',
 
@@ -29,23 +39,13 @@ export default defineNuxtConfig({
     defaultProvider: 'authelia',
     providers: {
       authelia: {
-        provider: 'oidc',
-        clientId:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_CLIENT_ID || 'kind-robots',
-        clientSecret:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_CLIENT_SECRET || '',
-        redirectUri:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_REDIRECT_URI ||
-          'https://kindrobots.org/auth/authelia/callback',
+        clientId: requireEnv('AUTHELIA_CLIENT_ID'),
+        clientSecret: requireEnv('AUTHELIA_CLIENT_SECRET'),
+        redirectUri: requireEnv('NUXT_OIDC_REDIRECT_URI'),
         authorizationUrl:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_AUTHORIZATION_URL ||
           'https://auth.acrocatranch.com/api/oidc/authorization',
-        tokenUrl:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_TOKEN_URL ||
-          'https://auth.acrocatranch.com/api/oidc/token',
-        userInfoUrl:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_USER_INFO_URL ||
-          'https://auth.acrocatranch.com/api/oidc/userinfo',
+        tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
+        userInfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
         scope: ['openid', 'profile', 'email'],
         responseType: 'code',
         grantType: 'authorization_code',

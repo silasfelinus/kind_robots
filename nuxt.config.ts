@@ -1,7 +1,6 @@
 import { exec } from 'child_process'
 import tailwindcss from '@tailwindcss/vite'
 
-// Define a type for exec's callback
 type ExecCallback = (
   error: Error | null,
   stdout: string,
@@ -12,12 +11,12 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     build: {
-      target: 'esnext', // Target modern JavaScript features
-      minify: 'esbuild', // Use esbuild for minification (faster than Terser)
-      chunkSizeWarningLimit: 500, // Customize chunk size warning (in KB)
+      target: 'esnext',
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 500,
     },
     optimizeDeps: {
-      include: ['vue', 'vue-router'], // Pre-bundle necessary dependencies for faster builds
+      include: ['vue', 'vue-router'],
     },
   },
 
@@ -30,6 +29,32 @@ export default defineNuxtConfig({
     'nuxt-oidc-auth',
   ],
 
+  oidc: {
+    defaultProvider: 'authelia',
+    providers: {
+      authelia: {
+        clientId: 'kind-robots',
+        clientSecret: process.env.AUTHELIA_CLIENT_SECRET!,
+        authorizationUrl:
+          'https://auth.acrocatranch.com/api/oidc/authorization',
+        tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
+        userinfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
+        redirectUri:
+          process.env.NUXT_OIDC_REDIRECT_URI ??
+          'http://localhost:3000/auth/callback',
+        scope: ['openid', 'profile', 'email'],
+        userNameClaim: 'preferred_username',
+      },
+    },
+    session: {
+      expirationCheck: true,
+      automaticRefresh: true,
+    },
+    middleware: {
+      globalMiddlewareEnabled: false, // ← only protect pages that explicitly opt in
+    },
+  },
+
   components: [
     {
       path: '~/components',
@@ -37,11 +62,10 @@ export default defineNuxtConfig({
       global: true,
       extensions: ['.vue'],
       watch: true,
-      ignore: ['abandonware/**/*.vue'], // this handles the whole folder
+      ignore: ['abandonware/**/*.vue'],
     },
   ],
 
-  // Compatibility and feature settings
   compatibilityDate: '2024-08-13',
 
   icon: {
@@ -61,10 +85,13 @@ export default defineNuxtConfig({
     },
   },
 
-  // Global CSS
   css: ['~/assets/css/tailwind.css'],
 
   runtimeConfig: {
+    autheliaClientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
+    oidcRedirectUri:
+      process.env.NUXT_OIDC_REDIRECT_URI ||
+      'http://localhost:3000/auth/callback',
     private: {
       OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
       GITHUB_ID: process.env.GITHUB_ID || '',
@@ -78,10 +105,9 @@ export default defineNuxtConfig({
   },
 
   devtools: {
-    enabled: false, // Disable devtools in production
+    enabled: false,
   },
 
-  // Adding the build hook to run the script
   hooks: {
     'build:before': async () => {
       if (process.env.NODE_ENV === 'development') {

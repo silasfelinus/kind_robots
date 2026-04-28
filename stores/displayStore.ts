@@ -173,80 +173,74 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return sizes[state.viewportSize]
   })
 
-const footerLayout = {
-  hidden: {
-    small: { height: 7, control: 7 },
-    medium: { height: 6, control: 6 },
-    large: { height: 5, control: 5 },
-    extraLarge: { height: 5, control: 5 },
-  },
-  compact: {
-    small: { height: 16, control: 7 },
-    medium: { height: 12, control: 6 },
-    large: { height: 10, control: 5 },
-    extraLarge: { height: 8, control: 5 },
-  },
-  open: {
-    small: { height: 22, control: 8 },
-    medium: { height: 18, control: 7 },
-    large: { height: 24, control: 6 },
-    extraLarge: { height: 18, control: 6 },
-  },
-  priority: {
-    small: { height: 50, control: 9 },
-    medium: { height: 50, control: 8 },
-    large: { height: 50, control: 7 },
-    extraLarge: { height: 50, control: 7 },
-  },
-  disabled: {
-    small: { height: 0, control: 0 },
-    medium: { height: 0, control: 0 },
-    large: { height: 0, control: 0 },
-    extraLarge: { height: 0, control: 0 },
-  },
-} as const
+  const footerLayout = {
+    hidden: {
+      small: { height: 7, control: 7 },
+      medium: { height: 6, control: 6 },
+      large: { height: 5, control: 5 },
+      extraLarge: { height: 5, control: 5 },
+    },
+    compact: {
+      small: { height: 16, control: 7 },
+      medium: { height: 12, control: 6 },
+      large: { height: 10, control: 5 },
+      extraLarge: { height: 8, control: 5 },
+    },
+    open: {
+      small: { height: 22, control: 8 },
+      medium: { height: 18, control: 7 },
+      large: { height: 24, control: 6 },
+      extraLarge: { height: 18, control: 6 },
+    },
+    priority: {
+      small: { height: 50, control: 9 },
+      medium: { height: 50, control: 8 },
+      large: { height: 50, control: 7 },
+      extraLarge: { height: 50, control: 7 },
+    },
+    disabled: {
+      small: { height: 0, control: 0 },
+      medium: { height: 0, control: 0 },
+      large: { height: 0, control: 0 },
+      extraLarge: { height: 0, control: 0 },
+    },
+  } as const
 
-const sectionPaddingSize = computed(() => {
-  const sizes: Record<ViewportSize, number> = {
-    small: 1,
-    medium: 1,
-    large: 2,
-    extraLarge: 2,
-  }
+  const sectionPaddingSize = computed(() => {
+    const sizes: Record<ViewportSize, number> = {
+      small: 1,
+      medium: 1,
+      large: 2,
+      extraLarge: 2,
+    }
 
-  return sizes[state.viewportSize]
-})
+    return sizes[state.viewportSize]
+  })
 
-const footerStage = computed<FooterStage>(() => {
+  const footerStage = computed<FooterStage>(() => {
+    return normalizeFooterState(state.footerState)
+  })
 
-  return normalizeFooterState(state.footerState)
+  const footerSpaceReserved = computed(() => {
+    return footerStage.value !== 'disabled'
+  })
 
-})
+  const footerContentVisible = computed(() => {
+    return footerStage.value !== 'hidden' && footerStage.value !== 'disabled'
+  })
 
-const footerSpaceReserved = computed(() => {
-  return footerStage.value !== 'disabled'
-})
+  const footerHeight = computed(() => {
+    return footerLayout[footerStage.value][state.viewportSize].height
+  })
 
-const footerContentVisible = computed(() => {
-  return footerStage.value !== 'hidden' && footerStage.value !== 'disabled'
-})
+  const footerControlSize = computed(() => {
+    return footerLayout[footerStage.value][state.viewportSize].control
+  })
 
-const footerHeight = computed(() => {
-
-  return footerLayout[footerStage.value][state.viewportSize].height
-
-})
-
-const footerControlSize = computed(() => {
-
-  return footerLayout[footerStage.value][state.viewportSize].control
-
-})
-
-const effectiveFooterHeight = computed(() => {
-  if (!footerSpaceReserved.value) return 0
-  return footerHeight.value + promptOffset.value
-})
+  const effectiveFooterHeight = computed(() => {
+    if (!footerSpaceReserved.value) return 0
+    return footerHeight.value + promptOffset.value
+  })
 
   const contentTopOffset = computed(() => {
     const padding = sectionPaddingSize.value
@@ -264,44 +258,46 @@ const effectiveFooterHeight = computed(() => {
   })
 
   const sidebarContentHeight = computed(() => {
-  const padding = sectionPaddingSize.value
-  const headerExists = state.headerState !== 'hidden'
-  const header = headerExists ? headerHeight.value : 0
-  const headerPadding = headerExists ? padding * 2 : padding
+    const padding = sectionPaddingSize.value
+    const headerExists = state.headerState !== 'hidden'
+    const header = headerExists ? headerHeight.value : 0
+    const headerPadding = headerExists ? padding * 2 : padding
 
-  return 100 - (header + headerPadding + contentBottomOffset.value)
-})
+    return 100 - (header + headerPadding + contentBottomOffset.value)
+  })
 
   const mainContentHeight = computed(() => {
-  const padding = sectionPaddingSize.value
-  const headerExists = state.headerState !== 'hidden'
-  const header = headerExists ? headerHeight.value : 0
-  const footerPadding = footerSpaceReserved.value ? padding : 0
-  const totalPadding = padding * 2 + footerPadding
+    const padding = sectionPaddingSize.value
+    const headerExists = state.headerState !== 'hidden'
+    const header = headerExists ? headerHeight.value : 0
+    const footerPadding = footerSpaceReserved.value ? padding : 0
+    const totalPadding = padding * 2 + footerPadding
 
-  return 100 - (header + totalPadding + effectiveFooterHeight.value)
-})
+    return 100 - (header + totalPadding + effectiveFooterHeight.value)
+  })
 
-const mainPanelHeight = computed(() => {
-  if (hasPrioritySidebar.value) {
-    return (
-      100 -
-      sectionPaddingSize.value * 2 -
-      effectiveFooterHeight.value -
-      (footerSpaceReserved.value ? sectionPaddingSize.value : 0)
-    )
-  }
+  const mainPanelHeight = computed(() => {
+    if (hasPrioritySidebar.value) {
+      return (
+        100 -
+        sectionPaddingSize.value * 2 -
+        effectiveFooterHeight.value -
+        (footerSpaceReserved.value ? sectionPaddingSize.value : 0)
+      )
+    }
 
-  return mainContentHeight.value
-})
-    const mainContentLeft = computed(() => {
+    return mainContentHeight.value
+  })
+  const mainContentLeft = computed(() => {
     const padding = sectionPaddingSize.value
     return sidebarLeftVisible.value ? padding + sidebarLeftWidth.value : padding
   })
 
   const mainContentRightInset = computed(() => {
     const padding = sectionPaddingSize.value
-    return sidebarRightVisible.value ? padding + sidebarRightWidth.value : padding
+    return sidebarRightVisible.value
+      ? padding + sidebarRightWidth.value
+      : padding
   })
 
   const mainContentWidth = computed(() => {
@@ -386,7 +382,7 @@ const mainPanelHeight = computed(() => {
       zIndex: '30',
     }
   })
-    
+
   const headerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     top: `calc(var(--vh) * ${Math.max(0.5, sectionPaddingSize.value + 0.75)})`,
@@ -396,56 +392,56 @@ const mainPanelHeight = computed(() => {
   }))
 
   const footerControlBottom = computed(() => {
-  return sectionPaddingSize.value
-})
+    return sectionPaddingSize.value
+  })
 
-const footerChannelBottom = computed(() => {
-  if (footerStage.value === 'hidden') return footerControlBottom.value
-  return effectiveFooterHeight.value + sectionPaddingSize.value
-})
+  const footerChannelBottom = computed(() => {
+    if (footerStage.value === 'hidden') return footerControlBottom.value
+    return effectiveFooterHeight.value + sectionPaddingSize.value
+  })
 
-const centerFooterToggleBottom = computed(() => {
-  if (footerStage.value === 'hidden') return footerControlBottom.value
-  return effectiveFooterHeight.value + sectionPaddingSize.value
-})
+  const centerFooterToggleBottom = computed(() => {
+    if (footerStage.value === 'hidden') return footerControlBottom.value
+    return effectiveFooterHeight.value + sectionPaddingSize.value
+  })
 
-const footerControlBaseStyle = computed<CSSProperties>(() => ({
-  position: 'fixed',
-  width: `${footerControlSize.value}vw`,
-  height: `calc(var(--vh) * ${footerControlSize.value})`,
-  zIndex: '30',
-}))
+  const footerControlBaseStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    width: `${footerControlSize.value}vw`,
+    height: `calc(var(--vh) * ${footerControlSize.value})`,
+    zIndex: '30',
+  }))
 
-const leftCornerToggleStyle = computed<CSSProperties>(() => ({
-  ...footerControlBaseStyle.value,
-  left: `${sectionPaddingSize.value}vw`,
-  bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
-}))
+  const leftCornerToggleStyle = computed<CSSProperties>(() => ({
+    ...footerControlBaseStyle.value,
+    left: `${sectionPaddingSize.value}vw`,
+    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+  }))
 
-const leftFooterToggleStyle = computed<CSSProperties>(() => ({
-  ...footerControlBaseStyle.value,
-  left: `${25 - footerControlSize.value / 2}vw`,
-  bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
-}))
+  const leftFooterToggleStyle = computed<CSSProperties>(() => ({
+    ...footerControlBaseStyle.value,
+    left: `${25 - footerControlSize.value / 2}vw`,
+    bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
+  }))
 
-const footerToggleStyle = computed<CSSProperties>(() => ({
-  ...footerControlBaseStyle.value,
-  left: '50vw',
-  bottom: `calc(var(--vh) * ${centerFooterToggleBottom.value})`,
-  transform: 'translateX(-50%)',
-}))
+  const footerToggleStyle = computed<CSSProperties>(() => ({
+    ...footerControlBaseStyle.value,
+    left: '50vw',
+    bottom: `calc(var(--vh) * ${centerFooterToggleBottom.value})`,
+    transform: 'translateX(-50%)',
+  }))
 
-const rightFooterToggleStyle = computed<CSSProperties>(() => ({
-  ...footerControlBaseStyle.value,
-  right: `${25 - footerControlSize.value / 2}vw`,
-  bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
-}))
+  const rightFooterToggleStyle = computed<CSSProperties>(() => ({
+    ...footerControlBaseStyle.value,
+    right: `${25 - footerControlSize.value / 2}vw`,
+    bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
+  }))
 
-const rightCornerToggleStyle = computed<CSSProperties>(() => ({
-  ...footerControlBaseStyle.value,
-  right: `${sectionPaddingSize.value}vw`,
-  bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
-}))
+  const rightCornerToggleStyle = computed<CSSProperties>(() => ({
+    ...footerControlBaseStyle.value,
+    right: `${sectionPaddingSize.value}vw`,
+    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+  }))
 
   const leftSidebarBackToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
@@ -599,13 +595,13 @@ const rightCornerToggleStyle = computed<CSSProperties>(() => ({
   })
 
   const footerStyle = computed<CSSProperties>(() => ({
-  top: `calc(var(--vh) * ${100 - effectiveFooterHeight.value - sectionPaddingSize.value})`,
-  left: `${footerLeftInset.value}vw`,
-  width: `${footerWidth.value}vw`,
-  height: `calc(var(--vh) * ${effectiveFooterHeight.value})`,
-  opacity: footerContentVisible.value ? '1' : '0',
-  pointerEvents: footerContentVisible.value ? 'auto' : 'none',
-}))
+    top: `calc(var(--vh) * ${100 - effectiveFooterHeight.value - sectionPaddingSize.value})`,
+    left: `${footerLeftInset.value}vw`,
+    width: `${footerWidth.value}vw`,
+    height: `calc(var(--vh) * ${effectiveFooterHeight.value})`,
+    opacity: footerContentVisible.value ? '1' : '0',
+    pointerEvents: footerContentVisible.value ? 'auto' : 'none',
+  }))
 
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),
@@ -1105,7 +1101,7 @@ const rightCornerToggleStyle = computed<CSSProperties>(() => ({
     removeViewportWatcher,
     setSmartState,
     headerCornerToggleStyle,
-    showCornerPanel
+    showCornerPanel,
     footerComponentNames,
     leftCornerToggleStyle,
     rightCornerToggleStyle,

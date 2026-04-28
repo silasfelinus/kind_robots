@@ -372,15 +372,42 @@ export const useDisplayStore = defineStore('displayStore', () => {
     transform: 'translateX(-50%)',
     zIndex: '30',
   }))
+
   const footerToggleHeight = computed(() => {
-    const sizes: Record<ViewportSize, number> = {
-      small: 3,
-      medium: 2.5,
-      large: 2,
-      extraLarge: 2,
+    const sizes: Record<FooterStage, Record<ViewportSize, number>> = {
+      hidden: {
+        small: 3,
+        medium: 2.5,
+        large: 2,
+        extraLarge: 2,
+      },
+      compact: {
+        small: 2.5,
+        medium: 2.25,
+        large: 1.8,
+        extraLarge: 1.8,
+      },
+      open: {
+        small: 2.25,
+        medium: 2,
+        large: 1.6,
+        extraLarge: 1.6,
+      },
+      priority: {
+        small: 2,
+        medium: 1.8,
+        large: 1.5,
+        extraLarge: 1.5,
+      },
+      disabled: {
+        small: 0,
+        medium: 0,
+        large: 0,
+        extraLarge: 0,
+      },
     }
 
-    return sizes[state.viewportSize]
+    return sizes[footerStage.value][state.viewportSize]
   })
 
   const footerToggleWidth = computed(() => {

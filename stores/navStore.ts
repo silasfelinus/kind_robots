@@ -22,6 +22,17 @@ export type WonderDashboardTab =
   | 'screen-fx'
   | 'rebel-button'
 
+export type FooterDashboardTab =
+  | 'fx'
+  | 'kind'
+  | 'art'
+  | 'story'
+  | 'theme'
+  | 'user'
+  | 'lab'
+  | 'brainstorm'
+  | 'giftshop'
+
 const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
 
 export const useNavStore = defineStore('navStore', () => {
@@ -43,6 +54,7 @@ export const useNavStore = defineStore('navStore', () => {
   )
 
   const userDashboardTab = ref<UserDashboardTab>('dashboard')
+  const footerDashboardTab = ref<FooterDashboardTab>('fx')
 
   function setUserDashboardTab(tab: UserDashboardTab) {
     userDashboardTab.value = tab
@@ -69,6 +81,11 @@ export const useNavStore = defineStore('navStore', () => {
     })
   })
 
+  function setFooterDashboardTab(tab: FooterDashboardTab) {
+    footerDashboardTab.value = tab
+    syncToLocalStorage()
+  }
+
   const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
   const wonderLabFolder = ref<string | null>(null)
 
@@ -90,9 +107,9 @@ export const useNavStore = defineStore('navStore', () => {
       localStorage.setItem('userDashboardTab', userDashboardTab.value)
       localStorage.setItem('wonderDashboardTab', wonderDashboardTab.value)
       localStorage.setItem('wonderLabFolder', wonderLabFolder.value ?? '')
+      localStorage.setItem('footerDashboardTab', footerDashboardTab.value)
     } catch {}
   }
-
   function hydrateFromLocalStorage() {
     if (typeof window === 'undefined') return
 
@@ -100,20 +117,21 @@ export const useNavStore = defineStore('navStore', () => {
       const rawIcons = localStorage.getItem('navIcons')
       const rawFavorites = localStorage.getItem('navFavorites')
 
-      const rawUserDashboardTab = localStorage.getItem('userDashboardTab')
+      const rawFooterDashboardTab = localStorage.getItem('footerDashboardTab')
 
       if (
-        rawUserDashboardTab === 'dashboard' ||
-        rawUserDashboardTab === 'subscription' ||
-        rawUserDashboardTab === 'milestones' ||
-        rawUserDashboardTab === 'servers' ||
-        rawUserDashboardTab === 'themes' ||
-        rawUserDashboardTab === 'chats' ||
-        rawUserDashboardTab === 'galleries'
+        rawFooterDashboardTab === 'fx' ||
+        rawFooterDashboardTab === 'kind' ||
+        rawFooterDashboardTab === 'art' ||
+        rawFooterDashboardTab === 'story' ||
+        rawFooterDashboardTab === 'theme' ||
+        rawFooterDashboardTab === 'user' ||
+        rawFooterDashboardTab === 'lab' ||
+        rawFooterDashboardTab === 'brainstorm' ||
+        rawFooterDashboardTab === 'giftshop'
       ) {
-        userDashboardTab.value = rawUserDashboardTab
+        footerDashboardTab.value = rawFooterDashboardTab
       }
-
       const rawWonderDashboardTab = localStorage.getItem('wonderDashboardTab')
       const rawWonderLabFolder = localStorage.getItem('wonderLabFolder')
 
@@ -153,6 +171,7 @@ export const useNavStore = defineStore('navStore', () => {
   watch(userDashboardTab, () => syncToLocalStorage())
   watch(wonderDashboardTab, () => syncToLocalStorage())
   watch(wonderLabFolder, () => syncToLocalStorage())
+  watch(footerDashboardTab, () => syncToLocalStorage())
 
   async function fetchAllIcons(force = false): Promise<SmartIcon[]> {
     if (!force && items.value.length) {
@@ -344,5 +363,7 @@ export const useNavStore = defineStore('navStore', () => {
     wonderLabFolder,
     setWonderDashboardTab,
     setWonderLabFolder,
+    footerDashboardTab,
+    setFooterDashboardTab,
   }
 })

@@ -40,7 +40,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<Pitch[]> | null>(null)
 
-  const numberOfRequests = ref(1)
+  const numberOfRequests = ref(10)
   const temperature = ref(0.9)
   const exampleString = ref(' ')
   const apiResponse = ref('')
@@ -379,6 +379,11 @@ export const usePitchStore = defineStore('pitchStore', () => {
     loading.value = true
 
     try {
+      const examples = extractExamples(exampleString.value).map((example) => ({
+        title: selectedTitle.value?.title || 'Example',
+        pitch: example,
+      }))
+
       const content = buildBrainstormPrompt(
         selectedTitle.value.title || '',
         selectedTitle.value.description || '',
@@ -389,10 +394,15 @@ export const usePitchStore = defineStore('pitchStore', () => {
       const res = await performFetch<unknown>('/api/botcafe/brainstorm', {
         method: 'POST',
         body: JSON.stringify({
+          title: selectedTitle.value.title || '',
+          description: selectedTitle.value.description || '',
+          instructions: selectedTitle.value.description || '',
+          examples,
           n: numberOfRequests.value,
           content,
           max_tokens: maxTokens.value,
           maxTokens: maxTokens.value,
+          maxOutputTokens: maxTokens.value,
           temperature: temperature.value,
         }),
       })

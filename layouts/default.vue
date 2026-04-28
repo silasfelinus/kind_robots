@@ -1,6 +1,7 @@
 <!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
+    <!-- HEADER -->
     <header
       class="fixed overflow-hidden border-b-2 border-primary-focus text-primary-content transition-[height,width,left,top] duration-200"
       :style="displayStore.headerStyle"
@@ -10,21 +11,19 @@
       </slot>
     </header>
 
+    <!-- HEADER OPEN BUTTON -->
     <div
       v-if="displayStore.headerState === 'hidden'"
       class="pointer-events-none fixed left-3 top-3 z-30"
     >
-      <div class="pointer-events-auto flex items-start">
-        <button
-          ref="headerToggleRef"
-          type="button"
-          class="icon-btn icon-btn--pill icon-btn--base opacity-80 hover:opacity-100"
-          title="Open header"
-          @click="displayStore.toggleHeader('open')"
-        >
-          <Icon name="kind-icon:chevron-down" class="icon-btn__icon" />
-        </button>
-      </div>
+      <button
+        ref="headerToggleRef"
+        type="button"
+        class="pointer-events-auto rounded-full bg-base-100/90 px-3 py-2 shadow hover:scale-105 active:scale-95"
+        @click="displayStore.toggleHeader('open')"
+      >
+        <Icon name="kind-icon:chevron-down" class="h-5 w-5" />
+      </button>
     </div>
 
     <corner-panel
@@ -33,130 +32,43 @@
       :style="displayStore.cornerPanelStyle"
     />
 
-    <ClientOnly>
-      <aside
-        class="fixed overflow-visible text-secondary-content transition-[top,height,width,left] duration-200"
-        :style="displayStore.leftSidebarStyle"
-      >
-        <div class="sidebar-region sidebar-region--secondary">
-          <div class="sidebar-shell">
-            <div
-              v-if="leftSidebarBackground"
-              class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[inherit]"
-            >
-              <NuxtImg
-                :src="leftSidebarBackground"
-                alt="Sidebar background"
-                :sizes="sidebarImageSizes"
-                class="absolute inset-0 h-full w-full border border-black object-cover"
-                loading="lazy"
-              />
-              <div class="absolute inset-0 bg-base-200/80 mix-blend-multiply" />
-              <div class="absolute inset-0 bg-base-100/60" />
-            </div>
+    <!-- LEFT SIDEBAR -->
+    <aside
+      class="fixed overflow-visible transition-all duration-200"
+      :style="displayStore.leftSidebarStyle"
+    >
+      <div class="h-full overflow-y-auto">
+        <slot name="left">
+          <splash-tutorial />
+        </slot>
+      </div>
+    </aside>
 
-            <div
-              ref="leftScrollRef"
-              class="smart-scroll-container sidebar-scroll"
-              @scroll="updateScrollState('left')"
-            >
-              <div
-                :key="`left-${localPageKey}`"
-                class="sidebar-scroll__content"
-              >
-                <slot name="left">
-                  <splash-tutorial />
-                </slot>
-              </div>
-            </div>
+    <!-- RIGHT SIDEBAR -->
+    <aside
+      class="fixed overflow-visible transition-all duration-200"
+      :style="displayStore.rightSidebarStyle"
+    >
+      <div class="h-full overflow-y-auto">
+        <slot name="right">
+          <gallery-gallery />
+        </slot>
+      </div>
+    </aside>
 
-            <button
-              v-if="leftCanScrollUp"
-              type="button"
-              class="scroll-button scroll-button--top"
-              title="Scroll up"
-              @click.stop="scrollSidebar('left', 'up')"
-            >
-              <Icon name="kind-icon:chevron-up" class="h-6 w-6" />
-            </button>
-
-            <button
-              v-if="leftCanScrollDown"
-              type="button"
-              class="scroll-button scroll-button--bottom"
-              title="Scroll down"
-              @click.stop="scrollSidebar('left', 'down')"
-            >
-              <Icon name="kind-icon:chevron-down" class="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      <template #fallback />
-    </ClientOnly>
-
-    <ClientOnly>
-      <aside
-        class="fixed overflow-visible text-accent-content transition-[top,height,width,right] duration-200"
-        :style="displayStore.rightSidebarStyle"
-      >
-        <div class="sidebar-region sidebar-region--accent">
-          <div class="sidebar-shell">
-            <div
-              ref="rightScrollRef"
-              class="smart-scroll-container sidebar-scroll"
-              @scroll="updateScrollState('right')"
-            >
-              <div class="sidebar-scroll__content">
-                <slot name="right">
-                  <gallery-gallery />
-                </slot>
-              </div>
-            </div>
-
-            <button
-              v-if="rightCanScrollUp"
-              type="button"
-              class="scroll-button scroll-button--top"
-              title="Scroll up"
-              @click.stop="scrollSidebar('right', 'up')"
-            >
-              <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
-            </button>
-
-            <button
-              v-if="rightCanScrollDown"
-              type="button"
-              class="scroll-button scroll-button--bottom"
-              title="Scroll down"
-              @click.stop="scrollSidebar('right', 'down')"
-            >
-              <Icon name="kind-icon:chevron-down" class="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      <template #fallback />
-    </ClientOnly>
-
+    <!-- SIDEBAR INLINE TOGGLES -->
     <template v-if="displayStore.sidebarLeftVisible">
       <button
-        type="button"
-        class="btn btn-circle btn-secondary btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
         :style="displayStore.leftSidebarBackToggleStyle"
-        title="Reduce left sidebar"
+        class="btn btn-circle btn-xs"
         @click="displayStore.toggleLeftSidebar('backward')"
       >
         <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
       </button>
 
       <button
-        type="button"
-        class="btn btn-circle btn-secondary btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
         :style="displayStore.leftSidebarForwardToggleStyle"
-        title="Advance left sidebar"
+        class="btn btn-circle btn-xs"
         @click="displayStore.toggleLeftSidebar('forward')"
       >
         <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
@@ -165,48 +77,35 @@
 
     <template v-if="displayStore.sidebarRightVisible">
       <button
-        type="button"
-        class="btn btn-circle btn-accent btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
         :style="displayStore.rightSidebarBackToggleStyle"
-        title="Reduce right sidebar"
+        class="btn btn-circle btn-xs"
         @click="displayStore.toggleRightSidebar('backward')"
       >
         <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
       </button>
 
       <button
-        type="button"
-        class="btn btn-circle btn-accent btn-xs pointer-events-auto shadow-md backdrop-blur-md transition hover:scale-110 active:scale-95"
         :style="displayStore.rightSidebarForwardToggleStyle"
-        title="Advance right sidebar"
+        class="btn btn-circle btn-xs"
         @click="displayStore.toggleRightSidebar('forward')"
       >
         <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
       </button>
     </template>
 
+    <!-- MAIN CONTENT (PURE STORE CONTROL) -->
     <main
-      class="fixed overflow-hidden rounded-none border border-base-300/60 bg-base-200 text-base-content transition-[top,left,width,height] duration-200"
-      :style="adjustedMainStyle"
+      class="fixed overflow-hidden border border-base-300/60 bg-base-200 transition-all duration-200"
+      :style="displayStore.mainContentStyle"
     >
-      <div
-        :key="`main-${localPageKey}`"
-        class="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-4"
-        :style="mainInnerStyle"
-      >
-        <div class="flex min-h-full w-full flex-col justify-start">
-          <slot />
-        </div>
+      <div class="absolute inset-0 overflow-y-auto px-4 pb-4">
+        <slot />
       </div>
     </main>
 
+    <!-- FOOTER -->
     <footer
-      class="fixed overflow-hidden bg-base-200 text-base-content transition-[height,width,left,bottom] duration-200"
-      :class="
-        displayStore.footerState !== 'hidden'
-          ? 'border-t-2 border-base-content/20'
-          : ''
-      "
+      class="fixed overflow-hidden bg-base-200 transition-all duration-200"
       :style="displayStore.footerStyle"
     >
       <div class="absolute inset-0 overflow-hidden" :style="footerInnerStyle">
@@ -216,106 +115,83 @@
       </div>
     </footer>
 
+    <!-- LEFT CORNER -->
     <div
       class="pointer-events-none fixed"
-      :style="displayStore.leftFooterControlColumnStyle"
+      :style="displayStore.leftCornerToggleStyle"
     >
-      <div
-        class="pointer-events-auto flex h-full w-full flex-col overflow-hidden rounded-2xl border border-secondary/40 bg-base-100/95 shadow-xl backdrop-blur-md"
+      <button
+        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        @click="displayStore.toggleLeftSidebar('forward')"
       >
-        <button
-          type="button"
-          class="flex min-h-0 flex-1 items-center justify-center border-b border-base-300 text-secondary transition hover:bg-secondary hover:text-secondary-content active:scale-95"
-          :title="leftSidebarTitle"
-          @click="displayStore.toggleLeftSidebar('forward')"
-        >
-          <Icon :name="leftCornerIcon" class="h-5 w-5" />
-        </button>
-
-        <button
-          type="button"
-          class="flex min-h-0 flex-1 items-center justify-center text-base-content transition hover:bg-base-300 hover:text-primary active:scale-95"
-          title="Previous footer channel"
-          @click="showPreviousFooter"
-        >
-          <Icon name="kind-icon:chevron-left" class="h-5 w-5" />
-        </button>
-      </div>
+        <Icon name="kind-icon:sidebar-left" class="h-5 w-5" />
+      </button>
     </div>
 
+    <!-- LEFT CHANNEL -->
+    <div
+      class="pointer-events-none fixed"
+      :style="displayStore.leftFooterToggleStyle"
+    >
+      <button
+        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        @click="showPreviousFooter"
+      >
+        <Icon name="kind-icon:chevron-left" class="h-5 w-5" />
+      </button>
+    </div>
+
+    <!-- CENTER FOOTER TOGGLE -->
     <div
       class="pointer-events-none fixed"
       :style="displayStore.footerToggleStyle"
     >
-      <div class="pointer-events-auto flex h-full w-full justify-center">
-        <button
-          ref="footerToggleRef"
-          type="button"
-          class="flex h-full w-full items-center justify-center rounded-full border-2 border-base-content/30 bg-base-100/95 text-base-content shadow-lg shadow-base-content/20 backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-primary/60 hover:bg-base-100 hover:text-primary hover:shadow-[0_0_1.5rem_rgba(255,255,255,0.25)] active:scale-95"
-          :title="footerTitle"
-          @click="displayStore.toggleFooter"
-        >
-          <Icon :name="footerIcon" :class="footerToggleIconClass" />
-        </button>
-      </div>
+      <button
+        class="pointer-events-auto h-full w-full rounded-full bg-base-100 shadow hover:scale-105"
+        @click="displayStore.toggleFooter"
+      >
+        <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
+      </button>
     </div>
 
+    <!-- RIGHT CHANNEL -->
     <div
       class="pointer-events-none fixed"
-      :style="displayStore.rightFooterControlColumnStyle"
+      :style="displayStore.rightFooterToggleStyle"
     >
-      <div
-        class="pointer-events-auto flex h-full w-full flex-col overflow-hidden rounded-2xl border border-accent/40 bg-base-100/95 shadow-xl backdrop-blur-md"
+      <button
+        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        @click="showNextFooter"
       >
-        <button
-          type="button"
-          class="flex min-h-0 flex-1 items-center justify-center border-b border-base-300 text-accent transition hover:bg-accent hover:text-accent-content active:scale-95"
-          :title="rightSidebarTitle"
-          @click="displayStore.toggleRightSidebar('forward')"
-        >
-          <Icon :name="rightCornerIcon" class="h-5 w-5" />
-        </button>
+        <Icon name="kind-icon:chevron-right" class="h-5 w-5" />
+      </button>
+    </div>
 
-        <button
-          type="button"
-          class="flex min-h-0 flex-1 items-center justify-center text-base-content transition hover:bg-base-300 hover:text-primary active:scale-95"
-          title="Next footer channel"
-          @click="showNextFooter"
-        >
-          <Icon name="kind-icon:chevron-right" class="h-5 w-5" />
-        </button>
-      </div>
+    <!-- RIGHT CORNER -->
+    <div
+      class="pointer-events-none fixed"
+      :style="displayStore.rightCornerToggleStyle"
+    >
+      <button
+        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        @click="displayStore.toggleRightSidebar('forward')"
+      >
+        <Icon name="kind-icon:sidebar-right" class="h-5 w-5" />
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// /layouts/default.vue
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NuxtImg } from '#components'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore } from '@/stores/pageStore'
-import { useNavStore, type FooterDashboardTab } from '@/stores/navStore'
-
-type SidebarKey = 'left' | 'right'
-type ScrollDirection = 'up' | 'down'
+import { useNavStore } from '@/stores/navStore'
 
 const route = useRoute()
 const router = useRouter()
 const displayStore = useDisplayStore()
-const pageStore = usePageStore()
 const navStore = useNavStore()
-
-const leftScrollRef = ref<HTMLElement | null>(null)
-const rightScrollRef = ref<HTMLElement | null>(null)
-
-const leftCanScrollUp = ref(false)
-const leftCanScrollDown = ref(false)
-const rightCanScrollUp = ref(false)
-const rightCanScrollDown = ref(false)
-
-const headerToggleRef = ref<HTMLElement | null>(null)
 
 type FooterName = (typeof displayStore.footerComponentNames)[number]
 
@@ -332,249 +208,36 @@ const footerRouteMap: Record<FooterName, string> = {
   brainstorm: '/brainstorm',
   giftshop: '/giftshop',
 }
-const footerToggleRef = ref<HTMLElement | null>(null)
-
-const localPageKey = computed(() => route.path)
-
-const sidebarImageSizes = computed(
-  () => '(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 420px',
-)
-
-const adjustedMainStyle = computed(() => {
-  const mainStyle = displayStore.mainContentStyle as Record<string, string>
-  const headerStyle = displayStore.headerStyle as Record<string, string>
-
-  const headerTop = headerStyle.top ?? '0px'
-  const headerHeight = headerStyle.height ?? '0px'
-  const mainTop = mainStyle.top ?? '0px'
-
-  return {
-    ...mainStyle,
-    top: `max(${mainTop}, calc(${headerTop} + ${headerHeight} + 0.75rem))`,
-  }
-})
 
 const footerInnerStyle = computed(() => {
-  if (!displayStore.footerContentVisible) {
-    return {
-      padding: '0',
-    }
-  }
-
-  const controlPadding = `calc(var(--vh) * ${displayStore.footerControlSize} + 0.5rem)`
-  const sidePadding = `calc(${displayStore.footerControlSize}vw + 0.75rem)`
-
-  if (displayStore.footerState === 'compact') {
-    return {
-      paddingTop: '0.5rem',
-      paddingLeft: sidePadding,
-      paddingRight: sidePadding,
-      paddingBottom: controlPadding,
-    }
-  }
+  if (!displayStore.footerContentVisible) return { padding: '0' }
 
   return {
-    paddingTop: controlPadding,
-    paddingLeft: sidePadding,
-    paddingRight: sidePadding,
-    paddingBottom: controlPadding,
+    padding: '0.5rem',
   }
 })
-const leftSidebarBackground = computed(() => {
-  const img = pageStore.page?.image || '/images/botcafe.webp'
-  return img.startsWith('/') ? img : `/images/${img}`
-})
-
-onMounted(async () => {
-  displayStore.initialize()
-  await navStore.initialize()
-
-  if (isFooterName(navStore.footerDashboardTab)) {
-    displayStore.setFooterComponent(navStore.footerDashboardTab)
-  }
-
-  await nextTick()
-  updateAllScrollStates()
-})
-
-onBeforeUnmount(() => {
-  displayStore.removeViewportWatcher()
-})
-
-watch(
-  () => [
-    displayStore.leftSidebarModeLabel,
-    displayStore.rightSidebarModeLabel,
-    displayStore.mainContentStyle,
-    pageStore.page?.image,
-    route.path,
-  ],
-  async () => {
-    await nextTick()
-    updateAllScrollStates()
-  },
-  { deep: true },
-)
-
-const footerIcon = computed(() => {
-  if (displayStore.footerState === 'priority') return 'kind-icon:chevron-down'
-  return 'kind-icon:chevron-up'
-})
-
-const footerTitle = computed(() => {
-  if (displayStore.footerState === 'hidden') return 'Open footer'
-  if (displayStore.footerState === 'compact') return 'Expand footer'
-  if (displayStore.footerState === 'open') return 'Prioritize footer'
-  return 'Reduce footer'
-})
-
-const footerToggleIconClass = computed(() => {
-  if (displayStore.footerState === 'hidden') {
-    return 'h-6 w-6 sm:h-7 sm:w-7'
-  }
-
-  if (displayStore.footerState === 'compact') {
-    return 'h-5 w-5 sm:h-6 sm:w-6'
-  }
-
-  if (displayStore.footerState === 'open') {
-    return 'h-5 w-5'
-  }
-
-  return 'h-4 w-4'
-})
-const leftCornerIcon = computed(() => {
-  if (displayStore.leftSidebarModeLabel === 'hidden') {
-    return 'kind-icon:sidebar-left'
-  }
-
-  return 'kind-icon:chevron-right'
-})
-
-const rightCornerIcon = computed(() => {
-  if (displayStore.rightSidebarModeLabel === 'hidden') {
-    return 'kind-icon:sidebar-right'
-  }
-
-  return 'kind-icon:chevron-left'
-})
-
-const leftSidebarTitle = computed(() => {
-  if (displayStore.leftSidebarModeLabel === 'hidden') return 'Open left sidebar'
-  if (displayStore.leftSidebarModeLabel === 'compact')
-    return 'Expand left sidebar'
-  if (displayStore.leftSidebarModeLabel === 'open')
-    return 'Prioritize left sidebar'
-  return 'Cycle left sidebar'
-})
-
-const rightSidebarTitle = computed(() => {
-  if (displayStore.rightSidebarModeLabel === 'hidden')
-    return 'Open right sidebar'
-  if (displayStore.rightSidebarModeLabel === 'compact')
-    return 'Expand right sidebar'
-  if (displayStore.rightSidebarModeLabel === 'open')
-    return 'Prioritize right sidebar'
-  return 'Cycle right sidebar'
-})
-
-const mainInnerStyle = computed(() => {
-  return {
-    paddingTop: displayStore.showCorner ? '5.5rem' : '1rem',
-  }
-})
-
-function isFooterName(value: unknown): value is FooterName {
-  return (
-    typeof value === 'string' && footerOptions.includes(value as FooterName)
-  )
-}
-
-function getActiveFooter(): FooterName {
-  if (isFooterName(navStore.footerDashboardTab)) {
-    return navStore.footerDashboardTab
-  }
-
-  if (isFooterName(displayStore.footerComponent)) {
-    return displayStore.footerComponent
-  }
-
-  return 'kind'
-}
-
-function setActiveFooter(name: FooterName): void {
-  displayStore.setFooterComponent(name)
-  navStore.setFooterDashboardTab(name as FooterDashboardTab)
-
-  const nextRoute = footerRouteMap[name]
-  if (nextRoute && route.path !== nextRoute) {
-    router.push(nextRoute)
-  }
-}
 
 function getWrappedFooter(step: -1 | 1): FooterName {
-  const current = getActiveFooter()
-  const currentIndex = footerOptions.indexOf(current)
-  const safeIndex = currentIndex >= 0 ? currentIndex : 0
-  const nextIndex =
-    (safeIndex + step + footerOptions.length) % footerOptions.length
-
-  return footerOptions[nextIndex] ?? 'kind'
+  const current = displayStore.footerComponent
+  const index = footerOptions.indexOf(current)
+  const next = (index + step + footerOptions.length) % footerOptions.length
+  return footerOptions[next] ?? 'kind'
 }
 
-function showPreviousFooter(): void {
-  setActiveFooter(getWrappedFooter(-1))
-}
-
-function showNextFooter(): void {
-  setActiveFooter(getWrappedFooter(1))
-}
-
-function getScrollElement(side: SidebarKey): HTMLElement | null {
-  return side === 'left' ? leftScrollRef.value : rightScrollRef.value
-}
-
-function setScrollFlags(
-  side: SidebarKey,
-  canUp: boolean,
-  canDown: boolean,
-): void {
-  if (side === 'left') {
-    leftCanScrollUp.value = canUp
-    leftCanScrollDown.value = canDown
-    return
+function setFooter(name: FooterName) {
+  displayStore.setFooterComponent(name)
+  navStore.setFooterDashboardTab(name)
+  const routePath = footerRouteMap[name]
+  if (routePath && route.path !== routePath) {
+    router.push(routePath)
   }
-
-  rightCanScrollUp.value = canUp
-  rightCanScrollDown.value = canDown
 }
 
-function updateScrollState(side: SidebarKey): void {
-  const el = getScrollElement(side)
-
-  if (!el) {
-    setScrollFlags(side, false, false)
-    return
-  }
-
-  const canUp = el.scrollTop > 2
-  const canDown = el.scrollTop + el.clientHeight < el.scrollHeight - 2
-
-  setScrollFlags(side, canUp, canDown)
+function showPreviousFooter() {
+  setFooter(getWrappedFooter(-1))
 }
 
-function updateAllScrollStates(): void {
-  updateScrollState('left')
-  updateScrollState('right')
-}
-
-function scrollSidebar(side: SidebarKey, direction: ScrollDirection): void {
-  const el = getScrollElement(side)
-  if (!el) return
-
-  const delta = el.clientHeight * 0.6 * (direction === 'up' ? -1 : 1)
-  el.scrollBy({ top: delta, behavior: 'smooth' })
-
-  window.setTimeout(() => updateScrollState(side), 200)
+function showNextFooter() {
+  setFooter(getWrappedFooter(1))
 }
 </script>

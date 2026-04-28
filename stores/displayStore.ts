@@ -391,8 +391,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
     zIndex: '30',
   }))
 
-  const footerControlBottom = computed(() => {
-    if (footerStage.value === 'hidden') {
+  const footerControlsSitOnBottom = computed(() => {
+    return footerStage.value === 'hidden' || footerStage.value === 'compact'
+  })
+
+  const footerSideControlBottom = computed(() => {
+    return sectionPaddingSize.value
+  })
+
+  const footerToggleBottom = computed(() => {
+    if (footerControlsSitOnBottom.value) {
       return sectionPaddingSize.value
     }
 
@@ -406,26 +414,34 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return footerLeftInset.value + footerWidth.value / 2
   })
 
-  const footerControlBaseStyle = computed<CSSProperties>(() => ({
+  const footerSideControlBaseStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     width: `${footerControlSize.value}vw`,
     height: `calc(var(--vh) * ${footerControlSize.value})`,
-    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+    bottom: `calc(var(--vh) * ${footerSideControlBottom.value})`,
+    zIndex: '30',
+  }))
+
+  const footerToggleBaseStyle = computed<CSSProperties>(() => ({
+    position: 'fixed',
+    width: `${footerControlSize.value}vw`,
+    height: `calc(var(--vh) * ${footerControlSize.value})`,
+    bottom: `calc(var(--vh) * ${footerToggleBottom.value})`,
     zIndex: '30',
   }))
 
   const leftFooterControlColumnStyle = computed<CSSProperties>(() => ({
-    ...footerControlBaseStyle.value,
+    ...footerSideControlBaseStyle.value,
     left: `${footerLeftInset.value}vw`,
   }))
 
   const rightFooterControlColumnStyle = computed<CSSProperties>(() => ({
-    ...footerControlBaseStyle.value,
+    ...footerSideControlBaseStyle.value,
     right: `${footerRightInset.value}vw`,
   }))
 
   const footerToggleStyle = computed<CSSProperties>(() => ({
-    ...footerControlBaseStyle.value,
+    ...footerToggleBaseStyle.value,
     left: `${footerControlCenterLeft.value}vw`,
     transform: 'translateX(-50%)',
   }))
@@ -1120,6 +1136,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     footerContentVisible,
     leftFooterControlColumnStyle,
     rightFooterControlColumnStyle,
+    footerControlsSitOnBottom,
   }
 })
 

@@ -361,14 +361,25 @@ const footerInnerStyle = computed(() => {
     }
   }
 
+  const controlPadding = `calc(var(--vh) * ${displayStore.footerControlSize} + 0.5rem)`
+  const sidePadding = `calc(${displayStore.footerControlSize}vw + 0.75rem)`
+
+  if (displayStore.footerState === 'compact') {
+    return {
+      paddingTop: '0.5rem',
+      paddingLeft: sidePadding,
+      paddingRight: sidePadding,
+      paddingBottom: controlPadding,
+    }
+  }
+
   return {
-    paddingTop: `calc(var(--vh) * ${displayStore.footerControlSize} + 0.5rem)`,
-    paddingLeft: `calc(${displayStore.footerControlSize}vw + 0.75rem)`,
-    paddingRight: `calc(${displayStore.footerControlSize}vw + 0.75rem)`,
-    paddingBottom: '0.5rem',
+    paddingTop: controlPadding,
+    paddingLeft: sidePadding,
+    paddingRight: sidePadding,
+    paddingBottom: controlPadding,
   }
 })
-
 const leftSidebarBackground = computed(() => {
   const img = pageStore.page?.image || '/images/botcafe.webp'
   return img.startsWith('/') ? img : `/images/${img}`

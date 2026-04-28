@@ -50,7 +50,7 @@
       class="mt-3 min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
     >
       <section
-        v-if="activeSection === 'memory'"
+        v-if="activeSection === 'memory-test'"
         class="grid h-full min-h-0 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[20rem_minmax(0,1fr)]"
       >
         <aside class="grid min-h-0 gap-3 overflow-y-auto">
@@ -84,7 +84,7 @@
       </section>
 
       <section
-        v-else-if="activeSection === 'button'"
+        v-else-if="activeSection === 'rebel-button'"
         class="grid h-full min-h-0 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[20rem_minmax(0,1fr)]"
       >
         <aside class="grid min-h-0 gap-3 overflow-y-auto">
@@ -111,14 +111,14 @@
       </section>
 
       <section
-        v-else-if="activeSection === 'wonderlab'"
+        v-else-if="activeSection === 'wonder-lab'"
         class="h-full min-h-0 overflow-hidden"
       >
         <wonderlab />
       </section>
 
       <section
-        v-else-if="activeSection === 'screenfx'"
+        v-else-if="activeSection === 'screen-fx'"
         class="h-full min-h-0 overflow-y-auto p-3"
       >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
@@ -157,25 +157,25 @@ const activeSection = computed({
 
 const sections: WonderManagerSection[] = [
   {
-    key: 'memory',
+    key: 'memory-test',
     label: 'Memory',
     icon: 'kind-icon:brain',
     description: 'Match cards and chase records',
   },
   {
-    key: 'button',
+    key: 'rebel-button',
     label: 'Button Game',
     icon: 'kind-icon:button',
     description: 'Pressing it was inevitable',
   },
   {
-    key: 'wonderlab',
+    key: 'wonder-lab',
     label: 'WonderLab',
     icon: 'kind-icon:sparkles',
     description: 'Component folder browser',
   },
   {
-    key: 'screenfx',
+    key: 'screen-fx',
     label: 'Screen FX',
     icon: 'kind-icon:bubbles',
     description: 'Visual effects controls',

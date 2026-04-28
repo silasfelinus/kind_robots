@@ -1185,4 +1185,4 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 })
 
-export type { Server, ServerStatus, ServerType, CreationSource }
+export type { Server, ServerStatus, ServerType }

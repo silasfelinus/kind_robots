@@ -309,7 +309,11 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
-const { loggedIn, login } = useOidcAuth()
+const { loggedIn, login: oidcLogin } = useOidcAuth()
+function login() {
+  oidcLogin('authelia' as Parameters<typeof oidcLogin>[0])
+}
+
 const isAutheliaReady = computed(() => loggedIn.value)
 
 const serverStore = useServerStore()

@@ -392,55 +392,58 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }))
 
   const footerControlBottom = computed(() => {
-    return sectionPaddingSize.value
+    if (footerStage.value === 'hidden') {
+      return sectionPaddingSize.value
+    }
+
+    return (
+      sectionPaddingSize.value +
+      Math.max(0, effectiveFooterHeight.value - footerControlSize.value)
+    )
   })
 
-  const footerChannelBottom = computed(() => {
-    if (footerStage.value === 'hidden') return footerControlBottom.value
-    return effectiveFooterHeight.value + sectionPaddingSize.value
-  })
-
-  const centerFooterToggleBottom = computed(() => {
-    if (footerStage.value === 'hidden') return footerControlBottom.value
-    return effectiveFooterHeight.value + sectionPaddingSize.value
+  const footerControlCenterLeft = computed(() => {
+    return footerLeftInset.value + footerWidth.value / 2
   })
 
   const footerControlBaseStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     width: `${footerControlSize.value}vw`,
     height: `calc(var(--vh) * ${footerControlSize.value})`,
+    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
     zIndex: '30',
   }))
 
-  const leftCornerToggleStyle = computed<CSSProperties>(() => ({
+  const leftFooterControlColumnStyle = computed<CSSProperties>(() => ({
     ...footerControlBaseStyle.value,
-    left: `${sectionPaddingSize.value}vw`,
-    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+    left: `${footerLeftInset.value}vw`,
   }))
 
-  const leftFooterToggleStyle = computed<CSSProperties>(() => ({
+  const rightFooterControlColumnStyle = computed<CSSProperties>(() => ({
     ...footerControlBaseStyle.value,
-    left: `${25 - footerControlSize.value / 2}vw`,
-    bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
+    right: `${footerRightInset.value}vw`,
   }))
 
   const footerToggleStyle = computed<CSSProperties>(() => ({
     ...footerControlBaseStyle.value,
-    left: '50vw',
-    bottom: `calc(var(--vh) * ${centerFooterToggleBottom.value})`,
+    left: `${footerControlCenterLeft.value}vw`,
     transform: 'translateX(-50%)',
   }))
 
-  const rightFooterToggleStyle = computed<CSSProperties>(() => ({
-    ...footerControlBaseStyle.value,
-    right: `${25 - footerControlSize.value / 2}vw`,
-    bottom: `calc(var(--vh) * ${footerChannelBottom.value})`,
+  const leftCornerToggleStyle = computed<CSSProperties>(() => ({
+    ...leftFooterControlColumnStyle.value,
   }))
 
   const rightCornerToggleStyle = computed<CSSProperties>(() => ({
-    ...footerControlBaseStyle.value,
-    right: `${sectionPaddingSize.value}vw`,
-    bottom: `calc(var(--vh) * ${footerControlBottom.value})`,
+    ...rightFooterControlColumnStyle.value,
+  }))
+
+  const leftFooterToggleStyle = computed<CSSProperties>(() => ({
+    ...leftFooterControlColumnStyle.value,
+  }))
+
+  const rightFooterToggleStyle = computed<CSSProperties>(() => ({
+    ...rightFooterControlColumnStyle.value,
   }))
 
   const leftSidebarBackToggleStyle = computed<CSSProperties>(() => ({
@@ -1115,6 +1118,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     footerControlSize,
     footerSpaceReserved,
     footerContentVisible,
+    leftFooterControlColumnStyle,
+    rightFooterControlColumnStyle,
   }
 })
 

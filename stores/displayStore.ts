@@ -388,13 +388,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerControlBottom = computed(() => {
-    return sectionPaddingSize.value + 5
+    return sectionPaddingSize.value
   })
 
   const smallToggleHeight = computed(() => footerControlSize.value * 0.4)
 
   const sidebarToggleBottom = computed(
-    () => footerControlBottom.value + smallToggleHeight.value + 0.3,
+    () => footerControlBottom.value + smallToggleHeight.value,
   )
 
   const stackTopVh = computed(

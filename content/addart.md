@@ -16,4 +16,4 @@ sort: highlight
 navComponent: 'art-nav'
 showFooter: true
 ---
-:add-art
+:art-manager

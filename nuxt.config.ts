@@ -26,24 +26,31 @@ export default defineNuxtConfig({
   ],
 
   oidc: {
-    defaultProvider: 'authelia',
+    defaultProvider: 'kindauth', // changed
     providers: {
-      authelia: {
+      kindauth: {
+        // changed — not a recognized preset name
         clientId: 'kind-robots',
         clientSecret: process.env.AUTHELIA_CLIENT_SECRET || '',
-        baseUrl: 'https://auth.acrocatranch.com',
         authorizationUrl:
           'https://auth.acrocatranch.com/api/oidc/authorization',
         tokenUrl: 'https://auth.acrocatranch.com/api/oidc/token',
         userInfoUrl: 'https://auth.acrocatranch.com/api/oidc/userinfo',
+        jwksUri: 'https://auth.acrocatranch.com/jwks.json',
         redirectUri:
-          process.env.NUXT_OIDC_PROVIDERS_AUTHELIA_REDIRECT_URI ||
-          'https://kindrobots.org/auth/authelia/callback',
+          process.env.NUXT_OIDC_PROVIDERS_KINDAUTH_REDIRECT_URI ||
+          'https://kindrobots.org/auth/kindauth/callback',
         scope: ['openid', 'profile', 'email'],
         userNameClaim: 'preferred_username',
+        responseType: 'code',
+        grantType: 'authorization_code',
+        pkce: true,
+        state: true,
+        nonce: false,
       },
     },
     session: {
+      secret: process.env.NUXT_OIDC_SESSION_SECRET || '',
       expirationCheck: true,
       automaticRefresh: true,
     },

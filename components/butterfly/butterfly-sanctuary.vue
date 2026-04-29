@@ -480,7 +480,7 @@ const { butterflies, selectedButterflyId, showNames, showSwarm } =
 
 const mobilePanel = ref<'roster' | 'guide'>('roster')
 
-const centerHeight = computed(() => displayStore.mainContentHeight)
+const centerHeight = computed(() => displayStore.mainPanelHeight)
 const centerWidth = computed(() => displayStore.mainContentWidth)
 
 const isSinglePane = computed(() => {

@@ -139,7 +139,7 @@ const headerHeight = computed(() => displayStore.headerHeight)
 const footerHeight = computed(() => displayStore.footerHeight)
 const sidebarLeftWidth = computed(() => displayStore.sidebarLeftWidth)
 const sidebarRightWidth = computed(() => displayStore.sidebarRightWidth)
-const mainContentHeight = computed(() => displayStore.mainContentHeight)
+const mainContentHeight = computed(() => displayStore.mainPanelHeight)
 const mainContentWidth = computed(() => displayStore.mainContentWidth)
 const sectionPadding = computed(() => displayStore.sectionPaddingSize)
 

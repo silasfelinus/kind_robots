@@ -35,7 +35,7 @@ const butterflyStore = useButterflyStore()
 const displayStore = useDisplayStore()
 
 // Canvas size based on display store
-const canvasHeight = computed(() => displayStore.mainContentHeight)
+const canvasHeight = computed(() => displayStore.mainPanelHeight)
 const canvasWidth = computed(() => displayStore.mainContentWidth)
 
 // Pre-calculated properties for layout

@@ -24,7 +24,7 @@
     </div>
 
     <!-- Components Section -->
-    <div class="flex-grow w-full overflow-y-auto h-full">
+    <div class="grow w-full overflow-y-auto h-full">
       <lazy-user-dashboard v-if="choice === 'user-dashboard'" />
       <lazy-navigation-trimmed v-if="choice === 'navigation-trimmed'" />
       <lazy-user-chat v-if="choice === 'user-chat'" />
@@ -54,7 +54,7 @@ const choice = ref<string | null>(null)
 
 // Dynamically compute the main content area size
 const mainContentStyle = computed(() => ({
-  height: displayStore.mainContentHeight,
+  height: displayStore.mainPanelHeight,
   width: displayStore.mainContentWidth,
 }))
 

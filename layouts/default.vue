@@ -1,10 +1,7 @@
 <!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
-    <header
-      class="fixed overflow-hidden border-b-2 border-primary-focus text-primary-content transition-[height,width,left,top] duration-200"
-      :style="displayStore.headerStyle"
-    >
+    <header class="fixed overflow-hidden" :style="displayStore.headerStyle">
       <slot name="header">
         <full-header />
       </slot>
@@ -92,7 +89,7 @@
     </template>
 
     <main
-      class="fixed overflow-hidden border border-base-300/60 bg-base-200 transition-all duration-200"
+      class="fixed overflow-hidden bg-base-200 transition-all duration-200"
       :style="displayStore.mainContentStyle"
     >
       <div class="absolute inset-0 overflow-y-auto px-4 pb-4">

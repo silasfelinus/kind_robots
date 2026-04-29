@@ -217,32 +217,63 @@ export const useServerStore = defineStore('serverStore', () => {
     }),
   )
 
-  async function autheliaFetch(
+  function joinServerUrl(baseUrl: string, path: string): string {
+    const cleanBase = baseUrl.replace(/\/+$/, '')
+    const cleanPath = path.startsWith('/') ? path : `/${path}`
+
+    return `${cleanBase}${cleanPath}`
+  }
+
+  function shouldSendCredentials(server: Server): boolean {
+    return Boolean(
+      server.useOidc ||
+      server.accessMode === 'PUBLIC_OIDC' ||
+      server.accessMode === 'PUBLIC_PROTECTED',
+    )
+  }
+
+  function buildCorsHeaders(options: RequestInit): HeadersInit {
+    const headers = new Headers(options.headers)
+
+    if (!headers.has('Accept')) {
+      headers.set('Accept', 'application/json, text/plain, */*')
+    }
+
+    if (options.body && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
+
+    return headers
+  }
+
+  async function requestServer(
     server: Server,
     path: string,
     options: RequestInit = {},
   ): Promise<Response> {
+    if (!isClient) {
+      throw new Error('Server CORS requests can only run in the browser.')
+    }
+
     if (!server.baseUrl) {
       throw new Error(`Server "${server.title}" has no baseUrl configured.`)
     }
 
-    const url = `${server.baseUrl}${path}`
-
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'include', // sends the .acrocatranch.com Authelia session cookie
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    })
-
-    if (response.status === 401 || response.status === 403) {
-      // Authelia rejected — redirect to OIDC login
-      window.location.href = '/auth/authelia'
+    if (!server.allowBrowserRequests && server.requiresClientSideCheck) {
+      throw new Error(
+        `Server "${server.title}" is not configured to allow browser requests.`,
+      )
     }
 
-    return response
+    const url = joinServerUrl(server.baseUrl, path)
+    const headers = buildCorsHeaders(options)
+
+    return await fetch(url, {
+      ...options,
+      mode: 'cors',
+      credentials: shouldSendCredentials(server) ? 'include' : 'omit',
+      headers,
+    })
   }
 
   async function hideServer(id: number): Promise<{
@@ -977,6 +1008,7 @@ export const useServerStore = defineStore('serverStore', () => {
     healthUrl: string,
   ): Promise<ServerHealthResponse> {
     const startedAt = Date.now()
+    const server = getServerById(id)
 
     let report = {
       ok: false,
@@ -984,16 +1016,21 @@ export const useServerStore = defineStore('serverStore', () => {
       statusText: 'Browser request failed',
       latencyMs: 0,
       responseBody: null as unknown,
-      message: 'Browser could not reach this server. Check Tailscale and CORS.',
+      message:
+        'Browser could not reach this server. Check CORS and server access.',
     }
 
     try {
-      const response = await fetch(healthUrl, {
+      if (!server) {
+        throw new Error('Server not found.')
+      }
+
+      const healthPath = healthUrl.startsWith(server.baseUrl)
+        ? healthUrl.slice(server.baseUrl.length) || server.healthPath || '/'
+        : server.healthPath || '/'
+
+      const response = await requestServer(server, healthPath, {
         method: 'GET',
-        mode: 'cors',
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-        },
       })
 
       const contentType = response.headers.get('content-type') || ''
@@ -1018,7 +1055,7 @@ export const useServerStore = defineStore('serverStore', () => {
         message:
           error instanceof Error
             ? error.message
-            : 'Browser could not reach this server. Check Tailscale and CORS.',
+            : 'Browser could not reach this server. Check CORS and server access.',
       }
     }
 
@@ -1050,6 +1087,7 @@ export const useServerStore = defineStore('serverStore', () => {
 
     return result
   }
+
   async function testServerHealth(id: number): Promise<ServerHealthResponse> {
     const result = (await performFetch(
       `/api/server/health/${id}`,
@@ -1409,7 +1447,7 @@ export const useServerStore = defineStore('serverStore', () => {
     getCompatibleServers,
     updateServerApiKey,
     showHiddenServers,
-    autheliaFetch,
+    requestServer,
     cloneServerPayload,
     saveServerAsUserCopy,
     testServerHealthFromBrowser,

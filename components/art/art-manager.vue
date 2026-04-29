@@ -4,65 +4,21 @@
     <div
       class="mx-auto flex h-full w-full max-w-7xl flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-6"
     >
-      <div
-        class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
-      >
+      <div class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4">
         <h1 class="text-2xl font-bold text-primary sm:text-3xl">
           🎨 Art Manager
         </h1>
         <p class="text-sm text-base-content/70 sm:text-base">
-          Configure your art server, load a checkpoint, build a prompt, generate
-          something weird.
+          Build a prompt, load a model, generate something weird.
         </p>
-      </div>
-
-      <art-servers class="shrink-0" />
-
-      <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12">
-        <div class="min-h-0 xl:col-span-3">
-          <div
-            class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
-            <div class="mb-3 shrink-0 text-lg font-semibold text-primary">
-              🧠 Model
-            </div>
-            <div class="min-h-0 flex-1 overflow-auto">
-              <checkpoint-gallery />
-            </div>
-          </div>
-        </div>
-
-        <div class="min-h-0 xl:col-span-6">
-          <div
-            class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
-            <div class="mb-3 shrink-0 text-lg font-semibold text-primary">
-              📝 Prompt
-            </div>
-            <div class="min-h-0 flex-1 overflow-auto">
-              <art-randomizer />
-            </div>
-          </div>
-        </div>
-
-        <div class="min-h-0 xl:col-span-3">
-          <div
-            class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
-            <div class="mb-3 shrink-0 text-lg font-semibold text-primary">
-              🏛️ Gallery
-            </div>
-            <div class="min-h-0 flex-1 overflow-auto">
-              <collection-gallery />
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div class="flex-1">
-            <label class="mb-1 block text-sm font-semibold text-base-content/70">
+            <label
+              class="mb-1 block text-sm font-semibold text-base-content/70"
+            >
               Prompt
             </label>
             <textarea
@@ -75,19 +31,6 @@
           </div>
 
           <div class="flex flex-col gap-2 sm:w-48">
-            <label
-              class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
-            >
-              <span class="label-text text-xs font-semibold">
-                Use selected server
-              </span>
-              <input
-                v-model="useSelectedServer"
-                type="checkbox"
-                class="toggle toggle-primary toggle-sm"
-              />
-            </label>
-
             <button
               type="button"
               class="btn w-full rounded-xl font-semibold text-white"
@@ -123,6 +66,51 @@
       </div>
 
       <div
+        class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-3">
+          <div
+            class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <div class="mb-3 shrink-0 text-lg font-semibold text-primary">
+              🧠 Model
+            </div>
+            <div class="min-h-0 flex-1 overflow-auto">
+              <checkpoint-gallery />
+            </div>
+          </div>
+        </div>
+
+        <div class="min-h-0 xl:col-span-6">
+          <div
+            class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <div class="mb-3 shrink-0 text-lg font-semibold text-primary">
+              🧪 Prompt Lab
+            </div>
+            <div class="min-h-0 flex-1 overflow-auto">
+              <art-randomizer />
+            </div>
+          </div>
+        </div>
+
+        <div class="min-h-0 xl:col-span-3">
+          <div
+            class="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
+          >
+            <div class="mb-3 shrink-0 text-lg font-semibold text-primary">
+              🏛️ Gallery
+            </div>
+            <div class="min-h-0 flex-1 overflow-auto">
+              <collection-gallery />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <art-servers class="shrink-0" />
+
+      <div
         class="min-h-0 shrink rounded-2xl border border-base-300 bg-base-100 p-4"
       >
         <art-display />
@@ -146,7 +134,6 @@ const serverStore = useServerStore()
 const checkpointStore = useCheckpointStore()
 
 const isGenerating = ref(false)
-const useSelectedServer = ref(true)
 const lastResult = ref<{ success: boolean; message: string } | null>(null)
 
 async function generateArt() {
@@ -155,14 +142,13 @@ async function generateArt() {
 
   const activeServer = serverStore.activeArtServer
 
-  const overrides =
-    useSelectedServer.value && activeServer
-      ? {
-          serverId: activeServer.id,
-          serverName: activeServer.title,
-          checkpoint: checkpointStore.selectedCheckpoint?.name ?? undefined,
-        }
-      : {}
+  const overrides = activeServer
+    ? {
+        serverId: activeServer.id,
+        serverName: activeServer.title,
+        checkpoint: checkpointStore.selectedCheckpoint?.name ?? undefined,
+      }
+    : {}
 
   const result = await artStore.generateArt({
     promptString: promptStore.promptField,

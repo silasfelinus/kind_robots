@@ -664,54 +664,74 @@ model Scenario {
 }
 
 model Server {
-  id                         Int           @id @default(autoincrement())
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
+  id                         Int                @id @default(autoincrement())
+  createdAt                  DateTime           @default(now())
+  updatedAt                  DateTime           @updatedAt
   title                      String
   label                      String?
   description                String?
-  serverType                 ServerType    @default(ART)
+  serverType                 ServerType         @default(ART)
   category                   String?
   baseUrl                    String
   endpointPath               String?
   healthPath                 String?
   userId                     Int?
-  isPublic                   Boolean       @default(false)
-  isOfficial                 Boolean       @default(false)
-  isDefault                  Boolean       @default(false)
-  isActive                   Boolean       @default(true)
-  isEditable                 Boolean       @default(true)
-  requiresApiKey             Boolean       @default(false)
+  isPublic                   Boolean            @default(false)
+  isOfficial                 Boolean            @default(false)
+  isDefault                  Boolean            @default(false)
+  isActive                   Boolean            @default(true)
+  isEditable                 Boolean            @default(true)
+
+  accessMode                 ServerAccessMode   @default(LOCAL)
+  requiresClientSideCheck    Boolean            @default(false)
+  isPrivateNetwork           Boolean            @default(false)
+  allowBrowserRequests       Boolean            @default(true)
+
+  requiresApiKey             Boolean            @default(false)
   apiKeyName                 String?
-  supportsTxt2Img            Boolean       @default(false)
-  supportsImg2Img            Boolean       @default(false)
-  supportsChat               Boolean       @default(false)
-  supportsComfyWorkflow      Boolean       @default(false)
-  supportsCheckpointOverride Boolean       @default(false)
-  supportsSampler            Boolean       @default(false)
-  supportsNegativePrompt     Boolean       @default(false)
-  supportsSeed               Boolean       @default(false)
-  supportsSteps              Boolean       @default(false)
-  supportsVideo              Boolean       @default(false)
+  apiKey                     String?
+
+  useOidc                    Boolean            @default(false)
+  oidcProvider               String?
+
+  supportsTxt2Img            Boolean            @default(false)
+  supportsImg2Img            Boolean            @default(false)
+  supportsChat               Boolean            @default(false)
+  supportsComfyWorkflow      Boolean            @default(false)
+  supportsCheckpointOverride Boolean            @default(false)
+  supportsSampler            Boolean            @default(false)
+  supportsNegativePrompt     Boolean            @default(false)
+  supportsSeed               Boolean            @default(false)
+  supportsSteps              Boolean            @default(false)
+  supportsVideo              Boolean            @default(false)
+
   apiLink                    String?
   model                      String?
-  apiKey                     String?
   designer                   String?
   version                    String?
   notes                      String?
-  sortOrder                  Int           @default(0)
+  sortOrder                  Int                @default(0)
   lastCheckedAt              DateTime?
   lastStatus                 ServerStatus?
+
   Arts                       Art[]
   Bots                       Bot[]
   Chats                      Chat[]
-  user                       User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  useOidc                    Boolean       @default(false)
-  oidcProvider               String?       // e.g. "authelia"
+  user                       User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([serverType])
   @@index([isPublic])
   @@index([userId])
+  @@index([accessMode])
+}
+
+enum ServerAccessMode {
+  LOCAL
+  TAILSCALE
+  PUBLIC_PROTECTED
+  PUBLIC_API_KEY
+  PUBLIC_OIDC
+  PUBLIC_UNPROTECTED
 }
 
 /// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands

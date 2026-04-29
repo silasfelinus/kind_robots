@@ -161,7 +161,7 @@
           :server="server"
           :active="activeServerId === server.id"
           :expanded="expandedCardId === server.id"
-          :health-result="serverStore.healthResults[server.id] ?? null"
+          :health-result="serverStore.healthResults[server.id]?.data ?? null"
           :hidden="isServerHidden(server.id)"
           owned
           @select="selectServer(server.id)"

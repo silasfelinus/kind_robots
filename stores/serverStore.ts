@@ -22,14 +22,25 @@ export interface ServerOption {
 }
 
 export interface ServerHealthResponse {
-  id: number
-  title: string
-  healthUrl: string
-  ok: boolean
-  status: number
-  statusText: string
-  latencyMs: number
-  responseBody: unknown
+  success: boolean
+  message: string
+  data: {
+    id?: number
+    title?: string
+    healthUrl?: string
+    ok: boolean
+    status: number
+    statusText: string
+    latencyMs: number
+    responseBody: unknown
+    runLocation?: 'server' | 'browser'
+    accessMode?: string | null
+    requiresClientSideCheck?: boolean | null
+    isPrivateNetwork?: boolean | null
+    allowBrowserRequests?: boolean | null
+    savedReport?: unknown
+  }
+  statusCode: number
 }
 
 interface FetchResponse<T> {
@@ -38,7 +49,35 @@ interface FetchResponse<T> {
   message?: string
   skipped?: string[]
   status?: number
+  statusCode?: number
 }
+
+interface ServerHealthHandoffData {
+  id: number
+  title: string
+  healthUrl: string
+  accessMode?: string | null
+  requiresClientSideCheck?: boolean | null
+  isPrivateNetwork?: boolean | null
+  allowBrowserRequests?: boolean | null
+  runLocation: 'browser'
+}
+
+interface ServerHealthResultData {
+  id?: number
+  title?: string
+  healthUrl?: string
+  ok: boolean
+  status: number
+  statusText: string
+  latencyMs: number
+  responseBody: unknown
+  runLocation?: 'server' | 'browser'
+}
+
+type ServerHealthApiResponse = FetchResponse<
+  ServerHealthHandoffData | ServerHealthResultData
+>
 
 const isClient = typeof window !== 'undefined'
 
@@ -55,6 +94,40 @@ function isServer(value: unknown): value is Server {
 
 function isServerArray(value: unknown): value is Server[] {
   return Array.isArray(value) && value.every((item: unknown) => isServer(item))
+}
+
+function isServerHealthHandoffData(
+  value: unknown,
+): value is ServerHealthHandoffData {
+  if (!value || typeof value !== 'object') return false
+
+  const candidate = value as Partial<ServerHealthHandoffData>
+
+  return (
+    typeof candidate.id === 'number' &&
+    typeof candidate.title === 'string' &&
+    typeof candidate.healthUrl === 'string' &&
+    candidate.runLocation === 'browser'
+  )
+}
+
+function isServerHealthResultData(
+  value: unknown,
+): value is ServerHealthResultData {
+  if (!value || typeof value !== 'object') return false
+
+  const candidate = value as Partial<ServerHealthResultData>
+
+  return (
+    typeof candidate.ok === 'boolean' &&
+    typeof candidate.status === 'number' &&
+    typeof candidate.statusText === 'string' &&
+    typeof candidate.latencyMs === 'number'
+  )
+}
+
+function getResponseStatusCode(response: FetchResponse<unknown>): number {
+  return response.statusCode ?? response.status ?? 0
 }
 
 function parseStoredValue<T>(key: string, fallback: T): T {
@@ -899,72 +972,128 @@ export const useServerStore = defineStore('serverStore', () => {
     }
   }
 
-  async function testServerHealth(id: number): Promise<{
-    success: boolean
-    data?: ServerHealthResponse
-    message?: string
-  }> {
-    testingHealth.value = true
+  async function testServerHealthFromBrowser(
+    id: number,
+    healthUrl: string,
+  ): Promise<ServerHealthResponse> {
+    const startedAt = Date.now()
+
+    let report = {
+      ok: false,
+      status: 0,
+      statusText: 'Browser request failed',
+      latencyMs: 0,
+      responseBody: null as unknown,
+      message: 'Browser could not reach this server. Check Tailscale and CORS.',
+    }
 
     try {
-      const res = (await performFetch(
-        `/api/server/health/${id}`,
-      )) as FetchResponse<ServerHealthResponse>
+      const response = await fetch(healthUrl, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+        },
+      })
 
-      if (res.data) {
-        healthResults.value[id] = res.data
+      const contentType = response.headers.get('content-type') || ''
+      const responseBody = contentType.includes('application/json')
+        ? await response.json().catch(() => null)
+        : await response.text().catch(() => null)
 
-        const serverIndex = servers.value.findIndex(
-          (server: Server): boolean => server.id === id,
-        )
-
-        if (serverIndex !== -1) {
-          const currentServer = servers.value[serverIndex]
-
-          if (currentServer) {
-            const nextStatus: ServerStatus = res.data.ok
-              ? 'ONLINE'
-              : res.data.status > 0
-                ? 'DEGRADED'
-                : 'OFFLINE'
-
-            servers.value[serverIndex] = {
-              ...currentServer,
-              lastCheckedAt: new Date(),
-              lastStatus: nextStatus,
-            }
-          }
-        }
-
-        syncToLocalStorage()
-
-        return {
-          success: res.success,
-          data: res.data,
-          message:
-            res.message ||
-            (res.success
-              ? 'Server health test completed.'
-              : 'Server health check failed.'),
-        }
+      report = {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText || 'Unknown',
+        latencyMs: Date.now() - startedAt,
+        responseBody,
+        message: response.ok
+          ? 'Server health check succeeded from browser.'
+          : `Health endpoint returned HTTP ${response.status}.`,
       }
-
-      throw new Error(res.message || 'Failed to test server health')
     } catch (error) {
-      handleError(error, 'testing server health')
-
-      const message =
-        error instanceof Error ? error.message : 'Failed to test server health.'
-
-      setStoreError(ErrorType.NETWORK_ERROR, message, 'testServerHealth')
-
-      return {
-        success: false,
-        message,
+      report = {
+        ...report,
+        latencyMs: Date.now() - startedAt,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Browser could not reach this server. Check Tailscale and CORS.',
       }
-    } finally {
-      testingHealth.value = false
     }
+
+    const updateResult = (await performFetch(`/api/server/health/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(report),
+    })) as FetchResponse<unknown>
+
+    const result: ServerHealthResponse = {
+      success: report.ok,
+      message: report.message,
+      data: {
+        id,
+        healthUrl,
+        ok: report.ok,
+        status: report.status,
+        statusText: report.statusText,
+        latencyMs: report.latencyMs,
+        responseBody: report.responseBody,
+        runLocation: 'browser',
+        savedReport: updateResult,
+      },
+      statusCode: report.ok ? 200 : 502,
+    }
+
+    healthResults.value[id] = result
+    syncToLocalStorage()
+
+    return result
+  }
+  async function testServerHealth(id: number): Promise<ServerHealthResponse> {
+    const result = (await performFetch(
+      `/api/server/health/${id}`,
+    )) as ServerHealthApiResponse
+
+    const statusCode = getResponseStatusCode(result)
+
+    if (statusCode === 202 && isServerHealthHandoffData(result.data)) {
+      return await testServerHealthFromBrowser(id, result.data.healthUrl)
+    }
+
+    if (isServerHealthResultData(result.data)) {
+      const healthResult: ServerHealthResponse = {
+        success: result.success,
+        message: result.message || 'Server health check completed.',
+        data: result.data,
+        statusCode,
+      }
+
+      healthResults.value[id] = healthResult
+      syncToLocalStorage()
+
+      return healthResult
+    }
+
+    const fallback: ServerHealthResponse = {
+      success: false,
+      message: result.message || 'Server health check failed.',
+      data: {
+        id,
+        ok: false,
+        status: statusCode,
+        statusText: 'Invalid health response',
+        latencyMs: 0,
+        responseBody: result.data ?? null,
+        runLocation: 'server',
+      },
+      statusCode,
+    }
+
+    healthResults.value[id] = fallback
+    syncToLocalStorage()
+
+    return fallback
   }
 
   function selectServer(id: number): void {
@@ -1283,6 +1412,7 @@ export const useServerStore = defineStore('serverStore', () => {
     autheliaFetch,
     cloneServerPayload,
     saveServerAsUserCopy,
+    testServerHealthFromBrowser,
   }
 })
 

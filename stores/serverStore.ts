@@ -378,6 +378,87 @@ export const useServerStore = defineStore('serverStore', () => {
     }
   }
 
+  function cloneServerPayload(
+    source: Server | null,
+    updates: Partial<Server>,
+  ): Partial<Server> {
+    const base = source
+      ? {
+          title: source.title,
+          label: source.label,
+          description: source.description,
+          category: source.category,
+          serverType: source.serverType,
+          baseUrl: source.baseUrl,
+          endpointPath: source.endpointPath,
+          healthPath: source.healthPath,
+          isActive: source.isActive,
+          requiresApiKey: source.requiresApiKey,
+          apiKeyName: source.apiKeyName,
+          supportsTxt2Img: source.supportsTxt2Img,
+          supportsImg2Img: source.supportsImg2Img,
+          supportsChat: source.supportsChat,
+          supportsComfyWorkflow: source.supportsComfyWorkflow,
+          supportsCheckpointOverride: source.supportsCheckpointOverride,
+          supportsSampler: source.supportsSampler,
+          supportsNegativePrompt: source.supportsNegativePrompt,
+          supportsSeed: source.supportsSeed,
+          supportsSteps: source.supportsSteps,
+          designer: source.designer,
+          version: source.version,
+          notes: source.notes,
+          sortOrder: source.sortOrder,
+          lastStatus: 'UNKNOWN' as ServerStatus,
+        }
+      : {}
+
+    return {
+      ...base,
+      ...updates,
+      userId: userStore.user?.id,
+      isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isActive: updates.isActive ?? base.isActive ?? true,
+      lastStatus: 'UNKNOWN',
+    }
+  }
+
+  async function saveServerAsUserCopy(
+    sourceServerId: number | null,
+    updates: Partial<Server>,
+    mode: 'art' | 'text',
+  ): Promise<{ success: boolean; data?: Server; message?: string }> {
+    if (!userStore.isLoggedIn || !userStore.user?.id) {
+      return {
+        success: false,
+        message: 'Please log in before saving a custom server.',
+      }
+    }
+
+    const source =
+      typeof sourceServerId === 'number' ? getServerById(sourceServerId) : null
+
+    const payload = cloneServerPayload(source, updates)
+    const result = await addServer(payload)
+
+    if (!result.success || !result.data) {
+      return result
+    }
+
+    if (mode === 'art') {
+      await setActiveArtServer(result.data.id)
+    } else {
+      await setActiveTextServer(result.data.id)
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      message: 'Saved as your custom server.',
+    }
+  }
+
   const activeTextServer = computed<Server | null>(() => {
     if (activeTextServerId.value !== null) {
       const match = servers.value.find(
@@ -1182,6 +1263,8 @@ export const useServerStore = defineStore('serverStore', () => {
     updateServerApiKey,
     showHiddenServers,
     autheliaFetch,
+    cloneServerPayload,
+    saveServerAsUserCopy,
   }
 })
 

@@ -247,7 +247,10 @@ export async function generateImage({
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Kindrobots-Server-Token': process.env.ART_SERVER_PROXY_TOKEN ?? '',
+      },
       body: JSON.stringify(requestBody),
     })
 
@@ -255,8 +258,7 @@ export async function generateImage({
       let details = ''
       try {
         const errorData = await response.json()
-        details =
-          errorData?.error || errorData?.message || JSON.stringify(errorData)
+        details = stringifyServerError(errorData)
       } catch {
         details = response.statusText
       }
@@ -279,4 +281,26 @@ export async function generateImage({
 
 function calculateCfg(cfg: number, cfgHalf: boolean): number {
   return cfgHalf ? cfg + 0.5 : cfg
+}
+
+function stringifyServerError(errorData: unknown): string {
+  if (!errorData) return ''
+
+  if (typeof errorData === 'string') return errorData
+
+  if (typeof errorData === 'object') {
+    const data = errorData as Record<string, unknown>
+
+    const message = data.message
+    const error = data.error
+    const detail = data.detail
+
+    if (typeof error === 'string') return error
+    if (typeof message === 'string') return message
+    if (typeof detail === 'string') return detail
+
+    return JSON.stringify(data)
+  }
+
+  return String(errorData)
 }

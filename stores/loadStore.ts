@@ -43,7 +43,10 @@ export const useLoadStore = defineStore('loadStore', () => {
   ]
 
   function rememberLoadMessage(message: string) {
-    recentLoadMessages.value = [message, ...recentLoadMessages.value].slice(0, 4)
+    recentLoadMessages.value = [message, ...recentLoadMessages.value].slice(
+      0,
+      4,
+    )
   }
 
   function randomLoadMessage() {
@@ -51,7 +54,9 @@ export const useLoadStore = defineStore('loadStore', () => {
       (message) => !recentLoadMessages.value.includes(message),
     )
 
-    const messagePool = availableMessages.length ? availableMessages : loadMessages
+    const messagePool = availableMessages.length
+      ? availableMessages
+      : loadMessages
     const randomIndex = Math.floor(Math.random() * messagePool.length)
     const message = messagePool[randomIndex] ?? 'Loading failed successfully...'
 
@@ -65,7 +70,7 @@ export const useLoadStore = defineStore('loadStore', () => {
     desktopRevealStarted.value = true
 
     const butterflyStore = useButterflyStore()
-    butterflyStore.startStartupExit()
+    butterflyStore.markAllButterfliesForExit()
   }
 
   function resetRevealState() {

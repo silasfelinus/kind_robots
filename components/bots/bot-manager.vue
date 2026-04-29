@@ -586,7 +586,7 @@
                   v-if="activeHealth"
                   class="text-[0.65rem] font-mono opacity-50"
                 >
-                  {{ activeHealth.latencyMs }}ms
+                  {{ activeHealth.data.latencyMs }}ms
                 </span>
                 <button
                   class="text-xs px-3 py-1 rounded-lg border border-base-300 bg-base-200 hover:bg-base-300 transition-colors font-semibold disabled:opacity-40"
@@ -1029,19 +1029,19 @@ const activeHealth = computed(() =>
 function serverHealthClass(serverId: number): string {
   const h = serverStore.healthResults[serverId]
   if (!h) return 'bg-base-300'
-  return h.ok ? 'bg-teal-500' : 'bg-red-500'
+  return h.data.ok ? 'bg-teal-500' : 'bg-red-500'
 }
 
 function serverHealthTextClass(serverId: number): string {
   const h = serverStore.healthResults[serverId]
   if (!h) return 'opacity-30'
-  return h.ok ? 'text-teal-600' : 'text-red-600'
+  return h.data.ok ? 'text-teal-600' : 'text-red-600'
 }
 
 function serverHealthLabel(serverId: number): string {
   const h = serverStore.healthResults[serverId]
   if (!h) return 'untested'
-  return h.ok ? 'online' : 'offline'
+  return h.data.ok ? 'online' : 'offline'
 }
 
 function selectTextServer(serverId: number) {

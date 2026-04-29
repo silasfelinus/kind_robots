@@ -15,7 +15,6 @@
       class="pointer-events-none fixed left-3 top-3 z-30"
     >
       <button
-        ref="headerToggleRef"
         type="button"
         class="pointer-events-auto rounded-full bg-base-100/90 px-3 py-2 shadow hover:scale-105 active:scale-95"
         @click="displayStore.toggleHeader('open')"
@@ -56,6 +55,7 @@
       <button
         :style="displayStore.leftSidebarBackToggleStyle"
         class="btn btn-circle btn-xs"
+        aria-label="Reduce left sidebar"
         @click="displayStore.toggleLeftSidebar('backward')"
       >
         <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
@@ -64,6 +64,7 @@
       <button
         :style="displayStore.leftSidebarForwardToggleStyle"
         class="btn btn-circle btn-xs"
+        aria-label="Expand left sidebar"
         @click="displayStore.toggleLeftSidebar('forward')"
       >
         <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
@@ -74,6 +75,7 @@
       <button
         :style="displayStore.rightSidebarBackToggleStyle"
         class="btn btn-circle btn-xs"
+        aria-label="Reduce right sidebar"
         @click="displayStore.toggleRightSidebar('backward')"
       >
         <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
@@ -82,6 +84,7 @@
       <button
         :style="displayStore.rightSidebarForwardToggleStyle"
         class="btn btn-circle btn-xs"
+        aria-label="Expand right sidebar"
         @click="displayStore.toggleRightSidebar('forward')"
       >
         <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
@@ -108,13 +111,13 @@
       </div>
     </footer>
 
-    <template v-if="displayStore.mobileToggleRowVisible">
+    <template v-if="displayStore.bottomControlRowVisible">
       <div
-        v-for="(control, index) in mobileFooterControls"
+        v-for="(control, index) in bottomControls"
         :key="control.key"
         class="pointer-events-none fixed p-0.5"
         :style="
-          displayStore.getMobileToggleStyle(index, mobileFooterControls.length)
+          displayStore.getBottomControlStyle(index, bottomControls.length)
         "
       >
         <button
@@ -129,78 +132,11 @@
         </button>
       </div>
     </template>
-
-    <template v-else>
-      <div
-        class="pointer-events-none fixed p-0.5"
-        :style="displayStore.leftCornerToggleStyle"
-      >
-        <button
-          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-          aria-label="Toggle left sidebar"
-          @click="displayStore.toggleLeftSidebar('forward')"
-        >
-          <Icon name="kind-icon:sidebar-left" class="h-5 w-5" />
-        </button>
-      </div>
-
-      <div
-        class="pointer-events-none fixed p-0.5"
-        :style="displayStore.leftFooterToggleStyle"
-      >
-        <button
-          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-          aria-label="Previous footer section"
-          @click="showPreviousFooter"
-        >
-          <Icon name="kind-icon:chevron-left" class="h-5 w-5" />
-        </button>
-      </div>
-
-      <div
-        class="pointer-events-none fixed"
-        :style="displayStore.footerToggleStyle"
-      >
-        <button
-          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-full bg-base-100 shadow transition hover:scale-105 active:scale-95"
-          aria-label="Toggle footer"
-          @click="displayStore.toggleFooter"
-        >
-          <Icon name="footerToggleIcon" class="h-4 w-4" />
-        </button>
-      </div>
-
-      <div
-        class="pointer-events-none fixed p-0.5"
-        :style="displayStore.rightFooterToggleStyle"
-      >
-        <button
-          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-          aria-label="Next footer section"
-          @click="showNextFooter"
-        >
-          <Icon name="kind-icon:chevron-right" class="h-5 w-5" />
-        </button>
-      </div>
-
-      <div
-        class="pointer-events-none fixed p-0.5"
-        :style="displayStore.rightCornerToggleStyle"
-      >
-        <button
-          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-          aria-label="Toggle right sidebar"
-          @click="displayStore.toggleRightSidebar('forward')"
-        >
-          <Icon name="kind-icon:sidebar-right" class="h-5 w-5" />
-        </button>
-      </div>
-    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
@@ -212,13 +148,7 @@ const navStore = useNavStore()
 
 type FooterName = (typeof displayStore.footerComponentNames)[number]
 
-const footerToggleIcon = computed(() => {
-  return displayStore.footerStage === 'priority'
-    ? 'kind-icon:chevron-down'
-    : 'kind-icon:chevron-up'
-})
-
-type MobileFooterControl = {
+type BottomControl = {
   key: string
   label: string
   icon: string
@@ -240,6 +170,12 @@ const footerRouteMap: Record<FooterName, string> = {
   giftshop: '/giftshop',
 }
 
+const footerToggleIcon = computed(() => {
+  return displayStore.footerStage === 'priority'
+    ? 'kind-icon:chevron-down'
+    : 'kind-icon:chevron-up'
+})
+
 const footerInnerStyle = computed(() => {
   if (!displayStore.footerContentVisible) return { padding: '0' }
 
@@ -248,7 +184,7 @@ const footerInnerStyle = computed(() => {
   }
 })
 
-const mobileFooterControls = computed<MobileFooterControl[]>(() => [
+const bottomControls = computed<BottomControl[]>(() => [
   {
     key: 'left-sidebar',
     label: 'Toggle left sidebar',
@@ -311,4 +247,12 @@ function showPreviousFooter() {
 function showNextFooter() {
   setFooter(getWrappedFooter(1))
 }
+
+onMounted(() => {
+  displayStore.initialize()
+})
+
+onBeforeUnmount(() => {
+  displayStore.removeViewportWatcher()
+})
 </script>

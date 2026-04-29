@@ -386,22 +386,26 @@ const apiKeyName = ref('')
 const showApiKey = ref(false)
 const copiedUrl = ref(false)
 
-const accessModeOptions: Array<{
+type AccessModeOption = {
   value: ServerAccessMode
   label: string
   icon: string
   title: string
   description: string
   tone: string
-}> = [
-  {
-    value: 'LOCAL',
-    label: 'Local / LAN',
-    icon: 'kind-icon:home',
-    title: 'Local or LAN server',
-    description: 'Best for localhost, 192.168.x.x, or same-network testing.',
-    tone: 'border-info/30 bg-info/10 text-info-content',
-  },
+}
+
+const defaultAccessModeOption: AccessModeOption = {
+  value: 'LOCAL',
+  label: 'Local / LAN',
+  icon: 'kind-icon:home',
+  title: 'Local or LAN server',
+  description: 'Best for localhost, 192.168.x.x, or same-network testing.',
+  tone: 'border-info/30 bg-info/10 text-info-content',
+}
+
+const accessModeOptions: AccessModeOption[] = [
+  defaultAccessModeOption,
   {
     value: 'TAILSCALE',
     label: 'Tailscale, recommended',
@@ -449,12 +453,13 @@ const accessModeOptions: Array<{
   },
 ]
 
-const selectedAccessModeInfo = computed(
-  () =>
+const selectedAccessModeInfo = computed<AccessModeOption>(() => {
+  return (
     accessModeOptions.find(
       (mode) => mode.value === serverStore.serverForm.accessMode,
-    ) ?? accessModeOptions[0],
-)
+    ) ?? defaultAccessModeOption
+  )
+})
 
 const serverHasStoredKey = computed(() =>
   Boolean(serverStore.serverForm.apiKey),

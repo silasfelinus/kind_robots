@@ -6,6 +6,7 @@ describe('Art Management API Tests', () => {
   let generatedPath
   const invalidToken = 'someInvalidTokenValue'
   const userToken = Cypress.env('USER_TOKEN')
+  const LOLA_TEST_SERVER_ID = Number(Cypress.env('LOLA_TEST_SERVER_ID') ?? 24)
 
   before(() => {
     cy.request({
@@ -99,7 +100,7 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  it('should allow creating art with a valid bearer token', () => {
+  it('should allow creating art with a valid bearer token using Lola API test server', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/generate`,
@@ -108,22 +109,36 @@ describe('Art Management API Tests', () => {
         'x-api-key': apiKey,
         Authorization: `Bearer ${userToken}`,
       },
-      timeout: 120000, // 120 seconds
+      timeout: 120000,
       body: {
-        promptString: ' a Kind Robot',
-        steps: 20,
-        cfg: 7,
+        title: 'Cypress Lola Test',
+        promptString: 'a small kind robot holding a glowing pancake',
+        steps: 10,
+        cfg: 3,
+        cfgHalf: false,
         path: ' ',
-        seed: null,
+        seed: -1,
         galleryId: null,
         promptId: null,
         pitchId: null,
         userId: 9,
+        serverId: LOLA_TEST_SERVER_ID,
+        checkpoint: 'realcartoonPony_v1.safetensors',
+        sampler: 'Euler',
+        designer: 'silasfelinus',
+        galleryName: 'cafefred',
+        isPublic: false,
+        isMature: false,
       },
+      failOnStatusCode: false,
     }).then((response) => {
+      cy.log('Generate response:', JSON.stringify(response.body))
+
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
+      expect(response.body.data.serverId).to.eq(LOLA_TEST_SERVER_ID)
+
       artId = response.body.data.id
     })
   })

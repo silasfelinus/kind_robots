@@ -18,22 +18,16 @@ interface ComfyResponse {
 }
 
 describe('Comfy API Integration', () => {
-  const API_BASE = Cypress.env('API_BASE') ?? 'http://localhost:3000'
-  const LOCAL_COMFY_BASE =
-    Cypress.env('LOCAL_COMFY_BASE') ?? 'http://127.0.0.1:8188'
-
+  const API_BASE = Cypress.env('API_BASE') ?? 'https://kind-robots.vercel.app'
+  const COMFY_TEST_SERVER_ID = Number(Cypress.env('COMFY_TEST_SERVER_ID') ?? 25)
   const apiBase = `${API_BASE}/api/comfy`
   const apiKey = Cypress.env('API_KEY')
 
   before(() => {
     expect(apiKey, 'Cypress.env("API_KEY")').to.be.a('string').and.not.be.empty
-    expect(API_BASE, 'API_BASE should be local during tests').to.match(
-      /^http:\/\/(localhost|127\.0\.0\.1):\d+/,
-    )
-    expect(
-      LOCAL_COMFY_BASE,
-      'LOCAL_COMFY_BASE should be local during tests',
-    ).to.match(/^http:\/\/(localhost|127\.0\.0\.1):\d+/)
+    expect(API_BASE, 'API_BASE').to.be.a('string').and.not.be.empty
+    expect(COMFY_TEST_SERVER_ID, 'COMFY_TEST_SERVER_ID').to.be.a('number')
+    expect(COMFY_TEST_SERVER_ID, 'COMFY_TEST_SERVER_ID').to.be.greaterThan(0)
   })
 
   function pollPromptStatus(
@@ -82,29 +76,36 @@ describe('Comfy API Integration', () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: {
+        serverId: COMFY_TEST_SERVER_ID,
         modelType: 'flux',
         inputType: 'text',
         outputType: 'image',
         prompt:
-          'candid photograph at exotic alien sci-fi public hot spring, venusian moon, elaborate swirling sky, showering large magical bubbles floating around scene and reflecting the beautiful galaxy in space, Plum and rainbow braided hair streaks, alien women box jellyfish hybrids bathing in background',
+          'candid photograph at exotic alien sci-fi public hot spring, venusian moon, elaborate swirling sky, showering large magical bubbles floating around scene and reflecting the beautiful galaxy in space, plum and rainbow braided hair streaks, alien women box jellyfish hybrids bathing in background',
       },
       failOnStatusCode: false,
+      timeout: 120000,
     })
       .its('body')
       .then((body) => {
+        cy.log('Comfy submit response:', JSON.stringify(body))
+
         expect(body.success, 'submit success').to.eq(true)
-        expect(body.promptId, 'promptId returned').to.be.a('string')
+        expect(body.promptId, 'promptId returned').to.be.a('string').and.not.be
+          .empty
 
         const promptId = body.promptId as string
 
-        return pollPromptStatus(promptId).then((finalRes) => {
+        return pollPromptStatus(promptId, 120000).then((finalRes) => {
+          cy.log('Comfy final response:', JSON.stringify(finalRes))
+
           expect(finalRes.success, 'final success').to.eq(true)
           expect(finalRes.status).to.be.oneOf(['done', 'cached'])
         })
       })
   })
 
-  it('submits a local FLUX Kontext graph and completes successfully', () => {
+  it('submits a FLUX Kontext graph and completes successfully', () => {
     cy.request<ComfyResponse>({
       method: 'POST',
       url: `${apiBase}/extras/kontext`,
@@ -113,21 +114,27 @@ describe('Comfy API Integration', () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: {
-        apiUrl: `${LOCAL_COMFY_BASE}/prompt`,
+        serverId: COMFY_TEST_SERVER_ID,
         imageData:
           'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg==',
         wildcard_text: '__flux/lsd__',
       },
       failOnStatusCode: false,
+      timeout: 120000,
     })
       .its('body')
       .then((body) => {
+        cy.log('Kontext submit response:', JSON.stringify(body))
+
         expect(body.success, 'submit success').to.eq(true)
-        expect(body.promptId, 'promptId returned').to.be.a('string')
+        expect(body.promptId, 'promptId returned').to.be.a('string').and.not.be
+          .empty
 
         const promptId = body.promptId as string
 
-        return pollPromptStatus(promptId).then((finalRes) => {
+        return pollPromptStatus(promptId, 120000).then((finalRes) => {
+          cy.log('Kontext final response:', JSON.stringify(finalRes))
+
           expect(finalRes.success, 'final success').to.eq(true)
           expect(finalRes.status).to.be.oneOf(['done', 'cached'])
         })

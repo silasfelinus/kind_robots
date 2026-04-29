@@ -166,7 +166,7 @@
           aria-label="Toggle footer"
           @click="displayStore.toggleFooter"
         >
-          <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
+          <Icon name="footerToggleIcon" class="h-4 w-4" />
         </button>
       </div>
 
@@ -211,6 +211,12 @@ const displayStore = useDisplayStore()
 const navStore = useNavStore()
 
 type FooterName = (typeof displayStore.footerComponentNames)[number]
+
+const footerToggleIcon = computed(() => {
+  return displayStore.footerStage === 'priority'
+    ? 'kind-icon:chevron-down'
+    : 'kind-icon:chevron-up'
+})
 
 type MobileFooterControl = {
   key: string
@@ -260,7 +266,7 @@ const mobileFooterControls = computed<MobileFooterControl[]>(() => [
   {
     key: 'footer-toggle',
     label: 'Toggle footer',
-    icon: 'kind-icon:chevron-up',
+    icon: footerToggleIcon.value,
     roundedClass: 'rounded-full',
     action: displayStore.toggleFooter,
   },

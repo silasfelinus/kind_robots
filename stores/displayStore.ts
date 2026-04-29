@@ -627,16 +627,16 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const rightSidebarBackToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     top: rightToggleStyle.value.top,
-    right: `calc(${sectionPaddingSize.value + sidebarRightWidth.value}vw - 0.5rem)`,
-    transform: 'translate(100%, -50%)',
+    right: `calc(${sectionPaddingSize.value}vw + 0.5rem)`,
+    transform: 'translateY(-50%)',
     zIndex: '30',
   }))
 
   const rightSidebarForwardToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     top: rightToggleStyle.value.top,
-    right: `calc(${sectionPaddingSize.value}vw + 0.5rem)`,
-    transform: 'translateY(-50%)',
+    right: `calc(${sectionPaddingSize.value + sidebarRightWidth.value}vw - 0.5rem)`,
+    transform: 'translate(100%, -50%)',
     zIndex: '30',
   }))
 

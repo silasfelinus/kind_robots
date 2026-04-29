@@ -536,22 +536,29 @@ export const useDisplayStore = defineStore('displayStore', () => {
     )
   })
 
+  const footerShouldYieldToPrioritySidebars = computed(() => {
+    return state.viewportSize === 'large' || state.viewportSize === 'extraLarge'
+  })
+
   const footerLeftInset = computed(() => {
     const padding = sectionPaddingSize.value
-    const sidebarInset = leftSidebarPriority.value ? sidebarLeftWidth.value : 0
+    const sidebarInset =
+      footerShouldYieldToPrioritySidebars.value && leftSidebarPriority.value
+        ? sidebarLeftWidth.value
+        : 0
 
     return padding + sidebarInset + footerSideControlInset.value
   })
 
   const footerRightInset = computed(() => {
     const padding = sectionPaddingSize.value
-    const sidebarInset = rightSidebarPriority.value
-      ? sidebarRightWidth.value
-      : 0
+    const sidebarInset =
+      footerShouldYieldToPrioritySidebars.value && rightSidebarPriority.value
+        ? sidebarRightWidth.value
+        : 0
 
     return padding + sidebarInset + footerSideControlInset.value
   })
-
   const footerWidth = computed(() => {
     return Math.max(0, 100 - footerLeftInset.value - footerRightInset.value)
   })
@@ -1066,48 +1073,54 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
+  function applyViewportSize() {
+    try {
+      setCustomVh()
+
+      const width = window.innerWidth
+      state.isVertical = window.innerHeight > window.innerWidth
+      state.isTouchDevice =
+        'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+      if (width < 768) {
+        state.viewportSize = 'small'
+        state.isMobileViewport = true
+      } else if (width < 1024) {
+        state.viewportSize = 'medium'
+        state.isMobileViewport = false
+      } else if (width < 1440) {
+        state.viewportSize = 'large'
+        state.isMobileViewport = false
+      } else {
+        state.viewportSize = 'extraLarge'
+        state.isMobileViewport = false
+      }
+
+      if (
+        state.viewportSize === 'small' &&
+        state.sidebarLeftState === 'priority' &&
+        state.sidebarRightState === 'priority'
+      ) {
+        state.sidebarRightState = 'open'
+      }
+    } catch (error) {
+      handleError(error, 'Viewport update failed')
+    }
+  }
+
   function updateViewport() {
     if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
 
     resizeTimeout.value = setTimeout(() => {
-      try {
-        setCustomVh()
-        const width = window.innerWidth
-        state.isVertical = window.innerHeight > window.innerWidth
-        state.isTouchDevice =
-          'ontouchstart' in window || navigator.maxTouchPoints > 0
-
-        if (width < 768) {
-          state.viewportSize = 'small'
-          state.isMobileViewport = true
-        } else if (width < 1024) {
-          state.viewportSize = 'medium'
-          state.isMobileViewport = false
-        } else if (width < 1440) {
-          state.viewportSize = 'large'
-          state.isMobileViewport = false
-        } else {
-          state.viewportSize = 'extraLarge'
-          state.isMobileViewport = false
-        }
-
-        if (
-          state.viewportSize === 'small' &&
-          state.sidebarLeftState === 'priority' &&
-          state.sidebarRightState === 'priority'
-        ) {
-          state.sidebarRightState = 'open'
-        }
-      } catch (error) {
-        handleError(error, 'Custom width failed')
-      } finally {
-        resizeTimeout.value = null
-      }
-    }, 200)
+      applyViewportSize()
+      resizeTimeout.value = null
+    }, 80)
   }
 
   function removeViewportWatcher() {
     window.removeEventListener('resize', updateViewport)
+    window.removeEventListener('orientationchange', updateViewport)
+    window.visualViewport?.removeEventListener('resize', updateViewport)
   }
 
   function loadState() {
@@ -1189,9 +1202,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
     queueMicrotask(() => {
       try {
         loadState()
-        setCustomVh()
-        updateViewport()
+        applyViewportSize()
+
         window.addEventListener('resize', updateViewport)
+        window.addEventListener('orientationchange', updateViewport)
+
+        window.visualViewport?.addEventListener('resize', updateViewport)
+
         state.isInitialized = true
       } catch (error) {
         handleError(error, 'Task Failed: ')
@@ -1313,6 +1330,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     mobileToggleRowBottom,
     mobileToggleRowHeight,
     getMobileToggleStyle,
+    footerShouldYieldToPrioritySidebars,
+    applyViewportSize,
   }
 })
 

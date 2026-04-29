@@ -1,16 +1,19 @@
 // /server/utils/secretCrypto.ts
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
-const config = useRuntimeConfig()
-const rawSecret = config.private.SERVER_SECRET_KEY
+const getSecretKey = () => {
+  const config = useRuntimeConfig()
+  const rawSecret = config.serverSecretKey
 
-if (!rawSecret || rawSecret.length < 32) {
-  throw new Error('SERVER_SECRET_KEY must be at least 32 characters.')
+  if (typeof rawSecret !== 'string' || rawSecret.length < 32) {
+    throw new Error('SERVER_SECRET_KEY must be at least 32 characters.')
+  }
+
+  return crypto.createHash('sha256').update(rawSecret).digest()
 }
 
-const key = crypto.createHash('sha256').update(rawSecret).digest()
-
 export function encryptSecret(value: string): string {
+  const key = getSecretKey()
   const iv = crypto.randomBytes(12)
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
 
@@ -29,6 +32,7 @@ export function encryptSecret(value: string): string {
 }
 
 export function decryptSecret(value: string): string {
+  const key = getSecretKey()
   const [ivRaw, tagRaw, encryptedRaw] = value.split('.')
 
   if (!ivRaw || !tagRaw || !encryptedRaw) {

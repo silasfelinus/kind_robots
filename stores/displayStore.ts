@@ -1234,6 +1234,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     footerWallInset,
     sidePillWidth,
     sidePillHeight,
+    mainPanelHeight,
   }
 })
 

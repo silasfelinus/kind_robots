@@ -81,7 +81,7 @@ const containerStyles = computed(() => {
   if (!isFullscreen.value) {
     // Constrain to the main content area
     return {
-      height: displayStore.mainContentHeight,
+      height: displayStore.mainPanelHeight,
       width: displayStore.mainContentWidth,
       top: displayStore.headerHeight,
       left: displayStore.sidebarLeftWidth,

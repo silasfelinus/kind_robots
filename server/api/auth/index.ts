@@ -8,7 +8,7 @@ import prisma from '../../utils/prisma'
 import type { User } from '~/prisma/generated/prisma/client'
 
 const config = useRuntimeConfig()
-const JWT_SECRET = config.JWT_SECRET
+const JWT_SECRET = config.jwtSecret
 
 export interface ValidateApiKeyResult {
   success: boolean

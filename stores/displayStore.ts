@@ -218,8 +218,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerSpaceReserved = computed(() => {
-    return footerStage.value !== 'disabled'
-  })
+  return footerStage.value !== 'hidden' && footerStage.value !== 'disabled'
+})
 
   const footerContentVisible = computed(() => {
     return footerStage.value !== 'hidden' && footerStage.value !== 'disabled'
@@ -234,9 +234,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const effectiveFooterHeight = computed(() => {
-    if (!footerSpaceReserved.value) return 0
-    return footerHeight.value + promptOffset.value
-  })
+  if (!footerSpaceReserved.value) return 0
+  return footerHeight.value + promptOffset.value
+})
 
   const contentTopOffset = computed(() => {
     const padding = sectionPaddingSize.value
@@ -247,12 +247,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const contentBottomOffset = computed(() => {
-    const padding = sectionPaddingSize.value
-    const footer = footerSpaceReserved.value ? effectiveFooterHeight.value : 0
-    const paddingTotal = footerSpaceReserved.value ? padding : 0
-    return footer + paddingTotal
-  })
+  const padding = sectionPaddingSize.value
 
+  if (!footerSpaceReserved.value) {
+    return padding
+  }
+
+  return effectiveFooterHeight.value + padding
+})
   const sidebarContentHeight = computed(() => {
     const padding = sectionPaddingSize.value
     const headerExists = state.headerState !== 'hidden'
@@ -263,13 +265,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const mainPanelHeight = computed(() => {
-    const bottom = footerSpaceReserved.value
-      ? effectiveFooterHeight.value + sectionPaddingSize.value
-      : sectionPaddingSize.value
+  const bottom = footerSpaceReserved.value
+    ? effectiveFooterHeight.value + sectionPaddingSize.value
+    : sectionPaddingSize.value
 
-    return 100 - mainPanelTopOffset.value - bottom
-  })
-
+  return 100 - mainPanelTopOffset.value - bottom
+})
   const mainContentLeft = computed(() => {
     const padding = sectionPaddingSize.value
     return sidebarLeftVisible.value ? sidebarLeftWidth.value + padding : padding
@@ -491,25 +492,24 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerToggleBottom = computed(() => {
-    if (footerStage.value === 'hidden') {
-      return sectionPaddingSize.value + 4.5
-    }
+  if (footerStage.value === 'hidden') {
+    return footerControlBottom.value
+  }
 
-    if (footerStage.value === 'compact') {
-      return Math.max(
-        stackTopVh.value,
-        effectiveFooterHeight.value - footerToggleHeight.value,
-      )
-    }
-
+  if (footerStage.value === 'compact') {
     return Math.max(
       stackTopVh.value,
-      effectiveFooterHeight.value -
-        footerToggleHeight.value -
-        sectionPaddingSize.value * 0.25,
+      effectiveFooterHeight.value - footerToggleHeight.value,
     )
-  })
+  }
 
+  return Math.max(
+    stackTopVh.value,
+    effectiveFooterHeight.value -
+      footerToggleHeight.value -
+      sectionPaddingSize.value * 0.25,
+  )
+})
   const footerControlBaseStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
     width: `${sidePillWidth.value}vw`,

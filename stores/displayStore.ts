@@ -385,7 +385,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const headerWidth = computed(() => {
-    return 100 - headerLeftInset.value - headerRightInset.value
+    return Math.max(0, 100 - headerLeftInset.value - headerRightInset.value)
   })
 
   const footerLeftInset = computed(() => {
@@ -572,17 +572,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const headerStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
     const isHidden = state.headerState === 'hidden'
-
-    if (state.bigMode) {
-      return {
-        height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,
-        width: `calc(100vw - ${padding * 2}vw)`,
-        top: `calc(var(--vh) * ${padding})`,
-        left: `${padding}vw`,
-        opacity: isHidden ? '0' : '1',
-        pointerEvents: isHidden ? 'none' : 'auto',
-      }
-    }
 
     return {
       height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,

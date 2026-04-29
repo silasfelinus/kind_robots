@@ -424,60 +424,59 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const sidePillWidth = computed(() => {
-    const sizes: Record<ViewportSize, number> = {
-      small: 3.5,
-      medium: 3,
-      large: 2.5,
-      extraLarge: 2.25,
-    }
+  const sizes: Record<ViewportSize, number> = {
+    small: 11,
+    medium: 5,
+    large: 2.5,
+    extraLarge: 2.25,
+  }
 
-    return sizes[state.viewportSize]
-  })
-
+  return sizes[state.viewportSize]
+})
   const sidePillHeight = computed(() => {
-    const sizes: Record<FooterStage, Record<ViewportSize, number>> = {
-      hidden: {
-        small: 4,
-        medium: 3.5,
-        large: 3,
-        extraLarge: 3,
-      },
-      compact: {
-        small: 7,
-        medium: 6,
-        large: 5,
-        extraLarge: 4.5,
-      },
-      open: {
-        small: 6,
-        medium: 5.5,
-        large: 5,
-        extraLarge: 4.5,
-      },
-      priority: {
-        small: 6,
-        medium: 5.5,
-        large: 5,
-        extraLarge: 4.5,
-      },
-      disabled: {
-        small: 0,
-        medium: 0,
-        large: 0,
-        extraLarge: 0,
-      },
-    }
+  const sizes: Record<FooterStage, Record<ViewportSize, number>> = {
+    hidden: {
+      small: 5.5,
+      medium: 4,
+      large: 3,
+      extraLarge: 3,
+    },
+    compact: {
+      small: 7,
+      medium: 6,
+      large: 5,
+      extraLarge: 4.5,
+    },
+    open: {
+      small: 6.5,
+      medium: 5.5,
+      large: 5,
+      extraLarge: 4.5,
+    },
+    priority: {
+      small: 6.5,
+      medium: 5.5,
+      large: 5,
+      extraLarge: 4.5,
+    },
+    disabled: {
+      small: 0,
+      medium: 0,
+      large: 0,
+      extraLarge: 0,
+    },
+  }
 
-    const requestedHeight = sizes[footerStage.value][state.viewportSize]
-    const maxFooterHeight = Math.max(
-      0,
-      effectiveFooterHeight.value - footerControlBottom.value,
-    )
+  const requestedHeight = sizes[footerStage.value][state.viewportSize]
+  const maxFooterHeight = Math.max(
+    0,
+    effectiveFooterHeight.value - footerControlBottom.value,
+  )
 
-    if (footerStage.value === 'hidden') return requestedHeight
+  if (footerStage.value === 'hidden') return requestedHeight
 
-    return Math.min(requestedHeight, maxFooterHeight)
-  })
+  return Math.min(requestedHeight, maxFooterHeight)
+})
 
   const sidebarToggleBottom = computed(() => {
     return footerControlBottom.value

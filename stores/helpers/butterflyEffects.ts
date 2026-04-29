@@ -37,16 +37,6 @@ export type ToggleButterflyState = {
   returnTimeoutId: ReturnType<typeof setTimeout> | null
 }
 
-export type LoaderSpawnSide =
-  | 'top'
-  | 'bottom'
-  | 'left'
-  | 'right'
-  | 'top-left'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-right'
-
 export type LoaderRouteMode = 'drift' | 'orbit'
 export type LoaderGoalSpread = 'tight' | 'wide'
 export type LoaderSwarmPreset =
@@ -58,6 +48,12 @@ export type LoaderSwarmPreset =
 
 type LoaderPhase = 'entering' | 'orbiting' | 'holding' | 'released'
 
+export type LoaderExitMode =
+  | 'random-exit'
+  | 'nearest-exit'
+  | 'shared-exit'
+  | 'mixed-exit'
+
 type LoaderButterflyState = {
   id: string
   phase: LoaderPhase
@@ -65,6 +61,7 @@ type LoaderButterflyState = {
   entryGoal: ToggleAnchor | null
   holdAnchor: ToggleAnchor | null
   exitGoal: ToggleAnchor | null
+  exitMode: LoaderExitMode
   releaseRequested: boolean
   releaseOnGoal: boolean
   holdUntil: number
@@ -80,10 +77,9 @@ type LoaderButterflyState = {
 type LoaderScene = {
   preset: Exclude<LoaderSwarmPreset, 'random'>
   routeMode: LoaderRouteMode
-  spawnMode: 'inside' | 'shared-side' | 'shared-corner'
-  spawnSide?: LoaderSpawnSide
   goalMode: 'none' | 'shared' | 'individual'
   goalSpread: LoaderGoalSpread
+  exitMode: LoaderExitMode
   releaseOnGoal: boolean
   holdRange: { min: number; max: number }
   orbitSharedDirection: boolean
@@ -518,130 +514,24 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     return { x: butterfly.x, y: 100 + overshoot }
   }
 
-  function getSpawnPointFromSide(side: LoaderSpawnSide) {
-    if (side === 'top') return pointWithin(10, 90, -12, -4)
-    if (side === 'bottom') return pointWithin(10, 90, 104, 112)
-    if (side === 'left') return pointWithin(-12, -4, 18, 82)
-    if (side === 'right') return pointWithin(104, 112, 18, 82)
-    if (side === 'top-left') return pointWithin(-12, -4, -12, -4)
-    if (side === 'top-right') return pointWithin(104, 112, -12, -4)
-    if (side === 'bottom-left') return pointWithin(-12, -4, 104, 112)
-    return pointWithin(104, 112, 104, 112)
-  }
-
-  function getOppositeSide(side: LoaderSpawnSide): LoaderSpawnSide {
-    if (side === 'top') return 'bottom'
-    if (side === 'bottom') return 'top'
-    if (side === 'left') return 'right'
-    if (side === 'right') return 'left'
-    if (side === 'top-left') return 'bottom-right'
-    if (side === 'top-right') return 'bottom-left'
-    if (side === 'bottom-left') return 'top-right'
-    return 'top-left'
-  }
-
-  function getCornerGoalRect(
-    corner: LoaderSpawnSide,
-    spread: LoaderGoalSpread,
-  ): {
-    minX: number
-    maxX: number
-    minY: number
-    maxY: number
-  } {
-    const margin = spread === 'tight' ? 14 : 28
-
-    if (corner === 'top-left') {
-      return {
-        minX: 4,
-        maxX: margin,
-        minY: 4,
-        maxY: margin,
-      }
-    }
-
-    if (corner === 'top-right') {
-      return {
-        minX: 100 - margin,
-        maxX: 96,
-        minY: 4,
-        maxY: margin,
-      }
-    }
-
-    if (corner === 'bottom-left') {
-      return {
-        minX: 4,
-        maxX: margin,
-        minY: 100 - margin,
-        maxY: 96,
-      }
-    }
-
-    return {
-      minX: 100 - margin,
-      maxX: 96,
-      minY: 100 - margin,
-      maxY: 96,
-    }
-  }
-
-  function getSideBandGoalRect(
-    side: LoaderSpawnSide,
-    spread: LoaderGoalSpread,
-  ): {
-    minX: number
-    maxX: number
-    minY: number
-    maxY: number
-  } {
-    const margin = spread === 'tight' ? 16 : 32
-
-    if (side === 'top') {
-      return {
-        minX: 14,
-        maxX: 86,
-        minY: 4,
-        maxY: margin,
-      }
-    }
-
-    if (side === 'bottom') {
-      return {
-        minX: 14,
-        maxX: 86,
-        minY: 100 - margin,
-        maxY: 96,
-      }
-    }
-
-    if (side === 'left') {
-      return {
-        minX: 4,
-        maxX: margin,
-        minY: 16,
-        maxY: 84,
-      }
-    }
-
-    return {
-      minX: 100 - margin,
-      maxX: 96,
-      minY: 16,
-      maxY: 84,
-    }
-  }
-
   function chooseLoaderScene(
     preset: LoaderSwarmPreset = 'random',
   ): LoaderScene {
+    const randomExitMode = () =>
+      pickOne<LoaderExitMode>([
+        'random-exit',
+        'nearest-exit',
+        'shared-exit',
+        'mixed-exit',
+      ])
+
     if (preset === 'inside-drift') {
       return {
         preset: 'inside-drift',
         routeMode: 'drift',
-        spawnMode: 'inside',
         goalMode: 'individual',
         goalSpread: pickOne(['tight', 'wide']),
+        exitMode: randomExitMode(),
         releaseOnGoal: false,
         holdRange: { min: 900, max: 1800 },
         orbitSharedDirection: false,
@@ -653,10 +543,9 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       return {
         preset: 'edge-cross',
         routeMode: 'drift',
-        spawnMode: 'shared-side',
-        spawnSide: pickOne(['top', 'bottom', 'left', 'right']),
         goalMode: 'individual',
         goalSpread: pickOne(['tight', 'wide']),
+        exitMode: randomExitMode(),
         releaseOnGoal: true,
         holdRange: { min: 100, max: 350 },
         orbitSharedDirection: false,
@@ -668,15 +557,9 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       return {
         preset: 'corner-sweep',
         routeMode: 'drift',
-        spawnMode: 'shared-corner',
-        spawnSide: pickOne([
-          'top-left',
-          'top-right',
-          'bottom-left',
-          'bottom-right',
-        ]),
         goalMode: 'shared',
         goalSpread: pickOne(['tight', 'wide']),
+        exitMode: randomExitMode(),
         releaseOnGoal: true,
         holdRange: { min: 120, max: 320 },
         orbitSharedDirection: false,
@@ -688,9 +571,9 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       return {
         preset: 'orbit-release',
         routeMode: 'orbit',
-        spawnMode: 'inside',
         goalMode: 'shared',
         goalSpread: 'tight',
+        exitMode: randomExitMode(),
         releaseOnGoal: true,
         holdRange: { min: 900, max: 1800 },
         orbitSharedDirection: true,
@@ -710,31 +593,21 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     if (scene.goalMode === 'none') return null
     if (sharedGoal) return { ...sharedGoal }
 
-    if (scene.spawnMode === 'shared-corner' && scene.spawnSide) {
-      const opposite = getOppositeSide(scene.spawnSide)
-      const rect = getCornerGoalRect(opposite, scene.goalSpread)
-      return pointWithin(rect.minX, rect.maxX, rect.minY, rect.maxY)
+    if (scene.goalMode === 'shared') {
+      const spread = scene.goalSpread === 'tight' ? 10 : 24
+
+      return pointWithin(50 - spread, 50 + spread, 50 - spread, 50 + spread)
     }
 
-    if (scene.spawnMode === 'shared-side' && scene.spawnSide) {
-      const opposite = getOppositeSide(scene.spawnSide)
-      const rect = getSideBandGoalRect(opposite, scene.goalSpread)
-      return pointWithin(rect.minX, rect.maxX, rect.minY, rect.maxY)
+    if (scene.goalSpread === 'tight') {
+      return pointWithin(28, 72, 28, 72)
     }
 
-    return pointWithin(20, 80, 20, 80)
+    return pointWithin(12, 88, 12, 88)
   }
 
-  function getLoaderSpawnPoint(
-    scene: LoaderScene,
-    sharedSide: LoaderSpawnSide | null,
-  ) {
-    if (scene.spawnMode === 'inside') {
-      return pointWithin(12, 88, 12, 88)
-    }
-
-    const side = sharedSide || scene.spawnSide || 'top'
-    return getSpawnPointFromSide(side)
+  function getLoaderSpawnPoint() {
+    return pointWithin(8, 92, 8, 92)
   }
 
   function getLoaderHoldAnchor(
@@ -754,14 +627,13 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
     return pointWithin(18, 82, 18, 82)
   }
-
   function beginLoaderButterflyExit(
     butterfly: Butterfly,
     state: LoaderButterflyState,
   ) {
     if (butterfly.isExiting) return
 
-    const goal = getNearestExitGoal(butterfly)
+    const goal = getLoaderExitGoal(butterfly, state)
 
     butterfly.isExiting = true
     butterfly.goal.x = clampPercent(goal.x + randomBetween(-4, 4))
@@ -772,8 +644,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   function createLoaderButterflyState(
     butterfly: Butterfly,
     scene: LoaderScene,
-    sharedSpawnSide: LoaderSpawnSide | null,
     sharedGoal: ToggleAnchor | null,
+    sharedExitGoal: ToggleAnchor | null,
     sharedOrbitDirection: 1 | -1,
   ) {
     const entryGoal = getLoaderEntryGoal(scene, sharedGoal)
@@ -785,7 +657,10 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     const holdUntil =
       Date.now() + randomInt(scene.holdRange.min, scene.holdRange.max)
 
-    const exitGoal = null
+    const exitGoal =
+      scene.exitMode === 'shared-exit' || scene.exitMode === 'mixed-exit'
+        ? sharedExitGoal
+        : null
 
     loaderStates.value[butterfly.id] = {
       id: butterfly.id,
@@ -794,6 +669,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       entryGoal,
       holdAnchor,
       exitGoal,
+      exitMode: scene.exitMode,
       releaseRequested: false,
       releaseOnGoal: scene.releaseOnGoal,
       holdUntil,
@@ -808,7 +684,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       orbitExitAngle: Math.random() * Math.PI * 2,
     }
 
-    const spawn = getLoaderSpawnPoint(scene, sharedSpawnSide)
+    const spawn = getLoaderSpawnPoint()
     butterfly.x = spawn.x
     butterfly.y = spawn.y
     butterfly.goal.x = entryGoal?.x ?? holdAnchor?.x ?? spawn.x
@@ -818,6 +694,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     butterfly.baseZIndex = 50
     butterfly.zIndex = 50
     butterfly.scaleMod = 1
+
     butterfly.rotation =
       butterfly.goal.x >= butterfly.x
         ? 120
@@ -830,46 +707,111 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     amount = 20,
     preset: LoaderSwarmPreset = 'random',
   ) {
-    const safeAmount = Math.max(0, Math.floor(amount))
-    if (safeAmount === 0) return
+    try {
+      const safeAmount = Math.max(0, Math.floor(amount))
+      if (safeAmount === 0) return
 
-    clearLoaderStates()
+      clearLoaderStates()
 
-    const scene = chooseLoaderScene(preset)
-    activeLoaderPreset.value = preset
+      const scene = chooseLoaderScene(preset)
+      activeLoaderPreset.value = scene.preset
 
-    const sharedSpawnSide =
-      scene.spawnMode === 'shared-side' || scene.spawnMode === 'shared-corner'
-        ? scene.spawnSide || null
-        : null
+      const sharedGoal =
+        scene.goalMode === 'shared' ? getLoaderEntryGoal(scene, null) : null
 
-    const sharedGoal =
-      scene.goalMode === 'shared' ? getLoaderEntryGoal(scene, null) : null
+      const sharedExitGoal =
+        scene.exitMode === 'shared-exit' || scene.exitMode === 'mixed-exit'
+          ? getSharedExitGoal()
+          : null
 
-    const sharedOrbitDirection = pickOne([1, -1]) as 1 | -1
+      const sharedOrbitDirection = pickOne([1, -1]) as 1 | -1
+      const incoming: Butterfly[] = []
+      const localUsedNames = [...usedNames.value]
 
-    const incoming: Butterfly[] = []
-    const localUsedNames = [...usedNames.value]
+      for (let i = 0; i < safeAmount; i++) {
+        const butterfly = await createNewButterfly(
+          newButterflySettings,
+          localUsedNames,
+        )
 
-    for (let i = 0; i < safeAmount; i++) {
-      const butterfly = await createNewButterfly(
-        newButterflySettings,
-        localUsedNames,
-      )
+        createLoaderButterflyState(
+          butterfly,
+          scene,
+          sharedGoal,
+          sharedExitGoal,
+          sharedOrbitDirection,
+        )
 
-      createLoaderButterflyState(
-        butterfly,
-        scene,
-        sharedSpawnSide,
-        sharedGoal,
-        sharedOrbitDirection,
-      )
+        incoming.push(butterfly)
+        localUsedNames.push(butterfly.id)
+      }
 
-      incoming.push(butterfly)
-      localUsedNames.push(butterfly.id)
+      butterflies.value.push(...incoming)
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  function getRandomExitGoal(): ToggleAnchor {
+    type ExitSide = 'top' | 'bottom' | 'left' | 'right'
+
+    const overshoot = 18
+    const side = pickOne<ExitSide>(['top', 'bottom', 'left', 'right'])
+
+    if (side === 'top') {
+      return {
+        x: randomBetween(-8, 108),
+        y: -overshoot,
+      }
     }
 
-    butterflies.value.push(...incoming)
+    if (side === 'bottom') {
+      return {
+        x: randomBetween(-8, 108),
+        y: 100 + overshoot,
+      }
+    }
+
+    if (side === 'left') {
+      return {
+        x: -overshoot,
+        y: randomBetween(-8, 108),
+      }
+    }
+
+    return {
+      x: 100 + overshoot,
+      y: randomBetween(-8, 108),
+    }
+  }
+
+  function getSharedExitGoal(): ToggleAnchor {
+    return getRandomExitGoal()
+  }
+
+  function getLoaderExitGoal(
+    butterfly: Butterfly,
+    state: LoaderButterflyState,
+  ) {
+    if (state.exitMode === 'nearest-exit') {
+      return getNearestExitGoal(butterfly)
+    }
+
+    if (state.exitMode === 'random-exit') {
+      return getRandomExitGoal()
+    }
+
+    if (state.exitMode === 'shared-exit') {
+      return state.exitGoal || getNearestExitGoal(butterfly)
+    }
+
+    const useShared = Math.random() >= 0.5
+
+    if (useShared && state.exitGoal) {
+      return state.exitGoal
+    }
+
+    return pickOne([getNearestExitGoal(butterfly), getRandomExitGoal()])
   }
 
   function requestLoaderRelease() {
@@ -950,12 +892,12 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   }
 
   function isOutsideRemovalBounds(butterfly: Butterfly) {
-    const buffer = 12
+    const buffer = 10
     return (
       butterfly.x < -buffer ||
-      butterfly.x > 112 ||
+      butterfly.x > 100 + buffer ||
       butterfly.y < -buffer ||
-      butterfly.y > 112
+      butterfly.y > 100 + buffer
     )
   }
 
@@ -1268,20 +1210,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         if (butterfly) sendButterflyAway(butterfly)
       }, interval)
     }, delay)
-  }
-
-  function logButterflyEffect(
-    event: string,
-    details: Record<string, unknown> = {},
-  ) {
-    if (import.meta.server) return
-
-    console.info('[butterfly-effects]', event, {
-      active: butterflies.value.length,
-      exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
-        .length,
-      ...details,
-    })
   }
 
   function startStartupExit() {

@@ -911,44 +911,57 @@ export const useServerStore = defineStore('serverStore', () => {
         `/api/server/health/${id}`,
       )) as FetchResponse<ServerHealthResponse>
 
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to test server health')
-      }
+      if (res.data) {
+        healthResults.value[id] = res.data
 
-      healthResults.value[id] = res.data
+        const serverIndex = servers.value.findIndex(
+          (server: Server): boolean => server.id === id,
+        )
 
-      const serverIndex = servers.value.findIndex(
-        (server: Server): boolean => server.id === id,
-      )
+        if (serverIndex !== -1) {
+          const currentServer = servers.value[serverIndex]
 
-      if (serverIndex !== -1) {
-        const nextStatus: ServerStatus = res.data.ok ? 'ONLINE' : 'OFFLINE'
-        const currentServer = servers.value[serverIndex]
+          if (currentServer) {
+            const nextStatus: ServerStatus = res.data.ok
+              ? 'ONLINE'
+              : res.data.status > 0
+                ? 'DEGRADED'
+                : 'OFFLINE'
 
-        if (!currentServer) {
-          throw new Error('Server not found in local state')
+            servers.value[serverIndex] = {
+              ...currentServer,
+              lastCheckedAt: new Date(),
+              lastStatus: nextStatus,
+            }
+          }
         }
 
-        servers.value[serverIndex] = {
-          ...currentServer,
-          lastCheckedAt: new Date(),
-          lastStatus: nextStatus,
+        syncToLocalStorage()
+
+        return {
+          success: res.success,
+          data: res.data,
+          message:
+            res.message ||
+            (res.success
+              ? 'Server health test completed.'
+              : 'Server health check failed.'),
         }
       }
 
-      syncToLocalStorage()
-
-      return {
-        success: true,
-        data: res.data,
-        message: res.message || 'Server health test completed.',
-      }
+      throw new Error(res.message || 'Failed to test server health')
     } catch (error) {
       handleError(error, 'testing server health')
+
       const message =
-        (error as Error).message || 'Failed to test server health.'
+        error instanceof Error ? error.message : 'Failed to test server health.'
+
       setStoreError(ErrorType.NETWORK_ERROR, message, 'testServerHealth')
-      return { success: false, message }
+
+      return {
+        success: false,
+        message,
+      }
     } finally {
       testingHealth.value = false
     }

@@ -4,14 +4,32 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 
-function buildHealthUrl(baseUrl: string, healthPath?: string | null) {
+const HEALTH_TIMEOUT_MS = 8000
+
+function buildHealthUrl(baseUrl: string, healthPath?: string | null): string {
   const normalizedBase = baseUrl.replace(/\/+$/, '')
   const normalizedPath = healthPath
     ? healthPath.startsWith('/')
       ? healthPath
       : `/${healthPath}`
     : ''
+
   return `${normalizedBase}${normalizedPath}`
+}
+
+async function parseHealthResponse(response: Response): Promise<unknown> {
+  const contentType = response.headers.get('content-type') || ''
+
+  try {
+    if (contentType.includes('application/json')) {
+      return await response.json()
+    }
+
+    const text = await response.text()
+    return text.length > 1500 ? `${text.slice(0, 1500)}...` : text
+  } catch {
+    return null
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -19,7 +37,8 @@ export default defineEventHandler(async (event) => {
 
   try {
     id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid Server ID. Must be a positive integer.',
@@ -51,51 +70,90 @@ export default defineEventHandler(async (event) => {
     }
 
     const healthUrl = buildHealthUrl(server.baseUrl, server.healthPath)
+
+    let parsedUrl: URL
+
+    try {
+      parsedUrl = new URL(healthUrl)
+    } catch {
+      throw createError({
+        statusCode: 400,
+        message: `Invalid health URL: ${healthUrl}`,
+      })
+    }
+
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Health URL must use http or https.',
+      })
+    }
+
     const startedAt = Date.now()
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS)
 
     let ok = false
     let status = 0
     let statusText = 'Unknown'
     let responseBody: unknown = null
+    let failureReason: string | null = null
 
     try {
+      const headers: HeadersInit = {
+        Accept: 'application/json, text/plain, */*',
+      }
+
+      if (server.requiresApiKey && server.apiKey && server.apiKeyName) {
+        headers[server.apiKeyName] = server.apiKey
+      }
+
       const response = await fetch(healthUrl, {
         method: 'GET',
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-        },
+        headers,
+        signal: controller.signal,
       })
 
       ok = response.ok
       status = response.status
-      statusText = response.statusText
+      statusText = response.statusText || 'Unknown'
+      responseBody = await parseHealthResponse(response)
 
-      const contentType = response.headers.get('content-type') || ''
-      if (contentType.includes('application/json')) {
-        responseBody = await response.json()
-      } else {
-        responseBody = await response.text()
+      if (!ok) {
+        failureReason = `Health endpoint returned HTTP ${status}.`
       }
-    } catch (fetchError: any) {
-      statusText = fetchError?.message || 'Request failed'
+    } catch (fetchError) {
+      const message =
+        fetchError instanceof Error ? fetchError.message : 'Request failed'
+
+      statusText =
+        fetchError instanceof DOMException && fetchError.name === 'AbortError'
+          ? 'Request timed out'
+          : message
+
+      failureReason = statusText
+    } finally {
+      clearTimeout(timeout)
     }
 
     const latencyMs = Date.now() - startedAt
+    const lastStatus = ok ? 'ONLINE' : status > 0 ? 'DEGRADED' : 'OFFLINE'
 
     await prisma.server.update({
       where: { id },
       data: {
         lastCheckedAt: new Date(),
-        lastStatus: ok ? 'ONLINE' : 'OFFLINE',
+        lastStatus,
       },
     })
 
     event.node.res.statusCode = ok ? 200 : 502
+
     return {
       success: ok,
       message: ok
         ? 'Server health check succeeded.'
-        : 'Server health check failed.',
+        : failureReason || 'Server health check failed.',
       data: {
         id: server.id,
         title: server.title,
@@ -110,8 +168,8 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
-    console.error('[server.health] Error:', handled)
     event.node.res.statusCode = handled.statusCode || 500
+
     return {
       success: false,
       message: handled.message || `Failed to test Server with ID ${id}.`,

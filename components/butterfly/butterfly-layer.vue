@@ -25,6 +25,7 @@
           :style="{ background: butterfly.wingBottomColor }"
         />
       </div>
+
       <div class="right-wing">
         <div class="top" :style="{ background: butterfly.wingTopColor }" />
         <div
@@ -38,7 +39,7 @@
 
 <script setup lang="ts">
 // /components/content/butterfly/butterfly-layer.vue
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
@@ -53,101 +54,23 @@ const props = withDefaults(
   },
 )
 
-type ButterflyStoreLike = {
-  initialized?: boolean
-  initialize?: () => Promise<void> | void
-  butterflies?: unknown[]
-  spawnButterflies?: (count?: number) => void
-  spawnLoaderButterflies?: (count?: number) => void
-  removeRandomButterfly?: () => void
-  triggerRandomExit?: () => void
-  sendRandomButterflyOffscreen?: () => void
-  signalRandomButterflyExit?: () => void
-  releaseButterflies?: () => void
-}
-
 const butterflyStore = useButterflyStore()
-const storeApi = butterflyStore as unknown as ButterflyStoreLike
 const { butterflies } = storeToRefs(butterflyStore)
 
 const showSwarm = computed(() => butterflyStore.showSwarm)
 
-let exitIntervalId: ReturnType<typeof setInterval> | null = null
-
-function spawnInitialButterflies() {
-  if (storeApi.spawnLoaderButterflies) {
-    storeApi.spawnLoaderButterflies(20)
-    return
-  }
-  if (storeApi.spawnButterflies) {
-    storeApi.spawnButterflies(20)
-  }
-}
-
-function sendOneButterflyOut() {
-  if (storeApi.signalRandomButterflyExit) {
-    storeApi.signalRandomButterflyExit()
-    return
-  }
-  if (storeApi.sendRandomButterflyOffscreen) {
-    storeApi.sendRandomButterflyOffscreen()
-    return
-  }
-  if (storeApi.triggerRandomExit) {
-    storeApi.triggerRandomExit()
-    return
-  }
-  if (storeApi.removeRandomButterfly) {
-    storeApi.removeRandomButterfly()
-  }
-}
-
-function startExitSequence() {
-  if (exitIntervalId) return
-  if (storeApi.releaseButterflies) {
-    storeApi.releaseButterflies()
-  }
-  exitIntervalId = setInterval(() => {
-    if (!butterflies.value.length) {
-      stopExitSequence()
-      return
-    }
-    sendOneButterflyOut()
-  }, 260)
-}
-
-function stopExitSequence() {
-  if (!exitIntervalId) return
-  clearInterval(exitIntervalId)
-  exitIntervalId = null
-}
-
 onMounted(async () => {
-  if (!storeApi.initialized && storeApi.initialize) {
-    await storeApi.initialize()
-  }
-  if (!butterflies.value.length) {
-    spawnInitialButterflies()
-  }
-  if (props.beginExit) {
-    startExitSequence()
-  }
+  await butterflyStore.initializeLoaderButterflies(20)
 })
 
 watch(
   () => props.beginExit,
   (shouldExit) => {
     if (shouldExit) {
-      startExitSequence()
-      return
+      butterflyStore.triggerLoaderButterflyExit(0)
     }
-    stopExitSequence()
   },
 )
-
-onBeforeUnmount(() => {
-  stopExitSequence()
-})
 </script>
 
 <style scoped>
@@ -187,6 +110,7 @@ onBeforeUnmount(() => {
 .butterfly-layer--overlay {
   z-index: 84;
 }
+
 .butterfly-layer--released {
   z-index: 5;
 }

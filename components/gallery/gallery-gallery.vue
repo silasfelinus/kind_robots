@@ -69,10 +69,16 @@
             @click="toggle(gallery.key)"
           >
             <span
-              class="text-base leading-none shrink-0 w-6 text-center select-none"
+              class="flex h-6 w-6 shrink-0 items-center justify-center text-base leading-none select-none"
               aria-hidden="true"
-              >{{ gallery.icon }}</span
             >
+              <Icon
+                v-if="gallery.icon.startsWith('kind-icon:')"
+                :name="gallery.icon"
+                class="h-5 w-5 text-primary"
+              />
+              <span v-else>{{ gallery.icon }}</span>
+            </span>
 
             <span class="flex flex-col min-w-0 flex-1 gap-px">
               <span

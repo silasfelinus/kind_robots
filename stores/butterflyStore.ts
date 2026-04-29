@@ -145,7 +145,15 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     const animate = () => {
       const next = butterflies.value.filter((butterfly) => {
         updateButterflyPosition(butterfly)
-        return !(butterfly.isExiting && isOutsideRemovalBounds(butterfly))
+
+        const shouldRemove =
+          butterfly.isExiting && isOutsideRemovalBounds(butterfly)
+
+        if (shouldRemove) {
+          clearButterflyMotionState(butterfly.id)
+        }
+
+        return !shouldRemove
       })
 
       if (
@@ -297,8 +305,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       selectedButterflyId.value = ''
       animateButterflies()
       initialized.value = true
-
-      await spawnStartupSwarm(20)
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -311,8 +317,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterflies.value = []
       selectedButterflyId.value = ''
       targetCount.value = amount
-      await addButterflies(amount)
-      markAllButterfliesForExit()
+      await spawnLoaderButterflies(amount, 'random')
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -331,29 +336,28 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     const safeDelay = Math.max(0, Math.floor(delay))
 
     if (safeDelay === 0) {
-      markAllButterfliesForExit()
+      requestLoaderRelease()
       return
     }
 
     drainStartTimeoutId.value = setTimeout(() => {
       drainStartTimeoutId.value = null
-      markAllButterfliesForExit()
+      requestLoaderRelease()
     }, safeDelay)
   }
 
   async function initializeLoaderButterflies(amount = 20) {
     if (!initialized.value) {
-      butterflies.value = []
-      selectedButterflyId.value = ''
-      animateButterflies()
-      initialized.value = true
+      await initialize()
     }
 
-    if (!butterflies.value.length) {
-      await spawnStartupSwarm(amount)
-    }
+    stopDrain()
+    clearLoaderExitTimer()
+    butterflies.value = []
+    selectedButterflyId.value = ''
+    targetCount.value = amount
 
-    markAllButterfliesForExit()
+    await spawnLoaderButterflies(amount, 'random')
   }
 
   function removeButterflyById(id: string) {
@@ -463,6 +467,9 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     isToggleButterfly,
     handleToggleButterflyClick,
     relocateToggleButterfly,
+    spawnLoaderButterflies,
+    requestLoaderRelease,
+    clearButterflyMotionState,
   } = effects
 
   const getScaleModifier = computed(() => scaleModifier.value)

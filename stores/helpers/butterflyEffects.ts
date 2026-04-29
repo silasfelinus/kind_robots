@@ -37,6 +37,59 @@ export type ToggleButterflyState = {
   returnTimeoutId: ReturnType<typeof setTimeout> | null
 }
 
+export type LoaderSpawnSide =
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+
+export type LoaderRouteMode = 'drift' | 'orbit'
+export type LoaderGoalSpread = 'tight' | 'wide'
+export type LoaderSwarmPreset =
+  | 'random'
+  | 'inside-drift'
+  | 'edge-cross'
+  | 'corner-sweep'
+  | 'orbit-release'
+
+type LoaderPhase = 'entering' | 'orbiting' | 'holding' | 'released'
+
+type LoaderButterflyState = {
+  id: string
+  phase: LoaderPhase
+  routeMode: LoaderRouteMode
+  entryGoal: ToggleAnchor | null
+  holdAnchor: ToggleAnchor | null
+  exitGoal: ToggleAnchor | null
+  releaseRequested: boolean
+  releaseOnGoal: boolean
+  holdUntil: number
+  idleSeed: number
+  orbitCenter: ToggleAnchor | null
+  orbitRadius: number
+  orbitAngle: number
+  orbitStep: number
+  orbitDirection: 1 | -1
+  orbitExitAngle: number
+}
+
+type LoaderScene = {
+  preset: Exclude<LoaderSwarmPreset, 'random'>
+  routeMode: LoaderRouteMode
+  spawnMode: 'inside' | 'shared-side' | 'shared-corner'
+  spawnSide?: LoaderSpawnSide
+  goalMode: 'none' | 'shared' | 'individual'
+  goalSpread: LoaderGoalSpread
+  releaseOnGoal: boolean
+  holdRange: { min: number; max: number }
+  orbitSharedDirection: boolean
+  orbitSharedRotation: boolean
+}
+
 type ButterflyEffectsInput = {
   butterflies: Ref<Butterfly[]>
   selectedButterflyId: Ref<string>
@@ -75,9 +128,35 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   })
 
   const toggleStates = ref<Partial<Record<string, ToggleButterflyState>>>({})
+  const loaderStates = ref<Partial<Record<string, LoaderButterflyState>>>({})
+  const activeLoaderPreset = ref<LoaderSwarmPreset>('random')
 
   function clampPercent(value: number) {
     return clampToTwoDecimals(Math.max(-20, Math.min(120, value)))
+  }
+
+  function randomBetween(min: number, max: number) {
+    return clampToTwoDecimals(min + Math.random() * (max - min))
+  }
+
+  function randomInt(min: number, max: number) {
+    return Math.floor(min + Math.random() * (max - min + 1))
+  }
+
+  function pickOne<T>(items: T[]): T {
+    return items[Math.floor(Math.random() * items.length)] as T
+  }
+
+  function pointWithin(
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+  ): ToggleAnchor {
+    return {
+      x: clampPercent(randomBetween(minX, maxX)),
+      y: clampPercent(randomBetween(minY, maxY)),
+    }
   }
 
   function syncToggleAnchorFromDisplayStore(
@@ -178,8 +257,33 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     return toggleStates.value[butterflyId] || null
   }
 
+  function getLoaderButterflyState(butterflyId: string) {
+    return loaderStates.value[butterflyId] || null
+  }
+
   function isToggleButterfly(butterfly: Butterfly) {
     return Boolean(toggleStates.value[butterfly.id])
+  }
+
+  function isLoaderButterfly(butterfly: Butterfly) {
+    return Boolean(loaderStates.value[butterfly.id])
+  }
+
+  function clearButterflyMotionState(id: string) {
+    const toggleState = toggleStates.value[id]
+    if (toggleState?.returnTimeoutId) {
+      clearTimeout(toggleState.returnTimeoutId)
+    }
+
+    delete toggleStates.value[id]
+    delete loaderStates.value[id]
+
+    const keys = Object.keys(toggleButterflyIds.value) as ToggleButterflyKey[]
+    for (const key of keys) {
+      if (toggleButterflyIds.value[key] === id) {
+        toggleButterflyIds.value[key] = null
+      }
+    }
   }
 
   function getToggleSpawnPoint(key: ToggleButterflyKey) {
@@ -380,6 +484,10 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     }
   }
 
+  function clearLoaderStates() {
+    loaderStates.value = {}
+  }
+
   function getNearestExitGoal(butterfly: Butterfly) {
     const overshoot = 18
 
@@ -410,29 +518,413 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     return { x: butterfly.x, y: 100 + overshoot }
   }
 
+  function getSpawnPointFromSide(side: LoaderSpawnSide) {
+    if (side === 'top') return pointWithin(10, 90, -12, -4)
+    if (side === 'bottom') return pointWithin(10, 90, 104, 112)
+    if (side === 'left') return pointWithin(-12, -4, 18, 82)
+    if (side === 'right') return pointWithin(104, 112, 18, 82)
+    if (side === 'top-left') return pointWithin(-12, -4, -12, -4)
+    if (side === 'top-right') return pointWithin(104, 112, -12, -4)
+    if (side === 'bottom-left') return pointWithin(-12, -4, 104, 112)
+    return pointWithin(104, 112, 104, 112)
+  }
+
+  function getOppositeSide(side: LoaderSpawnSide): LoaderSpawnSide {
+    if (side === 'top') return 'bottom'
+    if (side === 'bottom') return 'top'
+    if (side === 'left') return 'right'
+    if (side === 'right') return 'left'
+    if (side === 'top-left') return 'bottom-right'
+    if (side === 'top-right') return 'bottom-left'
+    if (side === 'bottom-left') return 'top-right'
+    return 'top-left'
+  }
+
+  function getCornerGoalRect(
+    corner: LoaderSpawnSide,
+    spread: LoaderGoalSpread,
+  ): {
+    minX: number
+    maxX: number
+    minY: number
+    maxY: number
+  } {
+    const margin = spread === 'tight' ? 14 : 28
+
+    if (corner === 'top-left') {
+      return {
+        minX: 4,
+        maxX: margin,
+        minY: 4,
+        maxY: margin,
+      }
+    }
+
+    if (corner === 'top-right') {
+      return {
+        minX: 100 - margin,
+        maxX: 96,
+        minY: 4,
+        maxY: margin,
+      }
+    }
+
+    if (corner === 'bottom-left') {
+      return {
+        minX: 4,
+        maxX: margin,
+        minY: 100 - margin,
+        maxY: 96,
+      }
+    }
+
+    return {
+      minX: 100 - margin,
+      maxX: 96,
+      minY: 100 - margin,
+      maxY: 96,
+    }
+  }
+
+  function getSideBandGoalRect(
+    side: LoaderSpawnSide,
+    spread: LoaderGoalSpread,
+  ): {
+    minX: number
+    maxX: number
+    minY: number
+    maxY: number
+  } {
+    const margin = spread === 'tight' ? 16 : 32
+
+    if (side === 'top') {
+      return {
+        minX: 14,
+        maxX: 86,
+        minY: 4,
+        maxY: margin,
+      }
+    }
+
+    if (side === 'bottom') {
+      return {
+        minX: 14,
+        maxX: 86,
+        minY: 100 - margin,
+        maxY: 96,
+      }
+    }
+
+    if (side === 'left') {
+      return {
+        minX: 4,
+        maxX: margin,
+        minY: 16,
+        maxY: 84,
+      }
+    }
+
+    return {
+      minX: 100 - margin,
+      maxX: 96,
+      minY: 16,
+      maxY: 84,
+    }
+  }
+
+  function chooseLoaderScene(
+    preset: LoaderSwarmPreset = 'random',
+  ): LoaderScene {
+    if (preset === 'inside-drift') {
+      return {
+        preset: 'inside-drift',
+        routeMode: 'drift',
+        spawnMode: 'inside',
+        goalMode: 'individual',
+        goalSpread: pickOne(['tight', 'wide']),
+        releaseOnGoal: false,
+        holdRange: { min: 900, max: 1800 },
+        orbitSharedDirection: false,
+        orbitSharedRotation: false,
+      }
+    }
+
+    if (preset === 'edge-cross') {
+      return {
+        preset: 'edge-cross',
+        routeMode: 'drift',
+        spawnMode: 'shared-side',
+        spawnSide: pickOne(['top', 'bottom', 'left', 'right']),
+        goalMode: 'individual',
+        goalSpread: pickOne(['tight', 'wide']),
+        releaseOnGoal: true,
+        holdRange: { min: 100, max: 350 },
+        orbitSharedDirection: false,
+        orbitSharedRotation: false,
+      }
+    }
+
+    if (preset === 'corner-sweep') {
+      return {
+        preset: 'corner-sweep',
+        routeMode: 'drift',
+        spawnMode: 'shared-corner',
+        spawnSide: pickOne([
+          'top-left',
+          'top-right',
+          'bottom-left',
+          'bottom-right',
+        ]),
+        goalMode: 'shared',
+        goalSpread: pickOne(['tight', 'wide']),
+        releaseOnGoal: true,
+        holdRange: { min: 120, max: 320 },
+        orbitSharedDirection: false,
+        orbitSharedRotation: false,
+      }
+    }
+
+    if (preset === 'orbit-release') {
+      return {
+        preset: 'orbit-release',
+        routeMode: 'orbit',
+        spawnMode: 'inside',
+        goalMode: 'shared',
+        goalSpread: 'tight',
+        releaseOnGoal: true,
+        holdRange: { min: 900, max: 1800 },
+        orbitSharedDirection: true,
+        orbitSharedRotation: true,
+      }
+    }
+
+    return chooseLoaderScene(
+      pickOne(['inside-drift', 'edge-cross', 'corner-sweep', 'orbit-release']),
+    )
+  }
+
+  function getLoaderEntryGoal(
+    scene: LoaderScene,
+    sharedGoal: ToggleAnchor | null,
+  ) {
+    if (scene.goalMode === 'none') return null
+    if (sharedGoal) return { ...sharedGoal }
+
+    if (scene.spawnMode === 'shared-corner' && scene.spawnSide) {
+      const opposite = getOppositeSide(scene.spawnSide)
+      const rect = getCornerGoalRect(opposite, scene.goalSpread)
+      return pointWithin(rect.minX, rect.maxX, rect.minY, rect.maxY)
+    }
+
+    if (scene.spawnMode === 'shared-side' && scene.spawnSide) {
+      const opposite = getOppositeSide(scene.spawnSide)
+      const rect = getSideBandGoalRect(opposite, scene.goalSpread)
+      return pointWithin(rect.minX, rect.maxX, rect.minY, rect.maxY)
+    }
+
+    return pointWithin(20, 80, 20, 80)
+  }
+
+  function getLoaderSpawnPoint(
+    scene: LoaderScene,
+    sharedSide: LoaderSpawnSide | null,
+  ) {
+    if (scene.spawnMode === 'inside') {
+      return pointWithin(12, 88, 12, 88)
+    }
+
+    const side = sharedSide || scene.spawnSide || 'top'
+    return getSpawnPointFromSide(side)
+  }
+
+  function getLoaderHoldAnchor(
+    scene: LoaderScene,
+    entryGoal: ToggleAnchor | null,
+  ) {
+    if (scene.routeMode === 'orbit') {
+      return pointWithin(36, 64, 34, 66)
+    }
+
+    if (entryGoal) {
+      return {
+        x: clampPercent(entryGoal.x + randomBetween(-3, 3)),
+        y: clampPercent(entryGoal.y + randomBetween(-3, 3)),
+      }
+    }
+
+    return pointWithin(18, 82, 18, 82)
+  }
+
+  function beginLoaderButterflyExit(
+    butterfly: Butterfly,
+    state: LoaderButterflyState,
+  ) {
+    if (butterfly.isExiting) return
+
+    const goal = state.exitGoal || getNearestExitGoal(butterfly)
+    const stagger = randomBetween(-3.5, 3.5)
+
+    butterfly.isExiting = true
+    butterfly.goal.x = clampPercent(goal.x + stagger)
+    butterfly.goal.y = clampPercent(goal.y + randomBetween(-3.5, 3.5))
+    state.phase = 'released'
+  }
+
+  function createLoaderButterflyState(
+    butterfly: Butterfly,
+    scene: LoaderScene,
+    sharedSpawnSide: LoaderSpawnSide | null,
+    sharedGoal: ToggleAnchor | null,
+    sharedOrbitDirection: 1 | -1,
+  ) {
+    const entryGoal = getLoaderEntryGoal(scene, sharedGoal)
+    const holdAnchor = getLoaderHoldAnchor(scene, entryGoal)
+
+    const orbitCenter =
+      scene.routeMode === 'orbit' ? pointWithin(38, 62, 38, 62) : null
+
+    const holdUntil =
+      Date.now() + randomInt(scene.holdRange.min, scene.holdRange.max)
+
+    const exitGoal = entryGoal
+      ? {
+          x: clampPercent(entryGoal.x + randomBetween(-5, 5)),
+          y: clampPercent(entryGoal.y + randomBetween(-5, 5)),
+        }
+      : null
+
+    loaderStates.value[butterfly.id] = {
+      id: butterfly.id,
+      phase: 'entering',
+      routeMode: scene.routeMode,
+      entryGoal,
+      holdAnchor,
+      exitGoal,
+      releaseRequested: false,
+      releaseOnGoal: scene.releaseOnGoal,
+      holdUntil,
+      idleSeed: Math.random() * Math.PI * 2,
+      orbitCenter,
+      orbitRadius: randomBetween(8, 22),
+      orbitAngle: Math.random() * Math.PI * 2,
+      orbitStep: randomBetween(0.02, 0.05),
+      orbitDirection: scene.orbitSharedDirection
+        ? sharedOrbitDirection
+        : pickOne([1, -1]),
+      orbitExitAngle: Math.random() * Math.PI * 2,
+    }
+
+    const spawn = getLoaderSpawnPoint(scene, sharedSpawnSide)
+    butterfly.x = spawn.x
+    butterfly.y = spawn.y
+    butterfly.goal.x = entryGoal?.x ?? holdAnchor?.x ?? spawn.x
+    butterfly.goal.y = entryGoal?.y ?? holdAnchor?.y ?? spawn.y
+    butterfly.isExiting = false
+    butterfly.status = 'float'
+    butterfly.baseZIndex = 50
+    butterfly.zIndex = 50
+    butterfly.scaleMod = 1
+    butterfly.rotation =
+      butterfly.goal.x >= butterfly.x
+        ? 120
+        : scene.routeMode === 'orbit'
+          ? 110
+          : 30
+  }
+
+  async function spawnLoaderButterflies(
+    amount = 20,
+    preset: LoaderSwarmPreset = 'random',
+  ) {
+    const safeAmount = Math.max(0, Math.floor(amount))
+    if (safeAmount === 0) return
+
+    clearLoaderStates()
+
+    const scene = chooseLoaderScene(preset)
+    activeLoaderPreset.value = preset
+
+    const sharedSpawnSide =
+      scene.spawnMode === 'shared-side' || scene.spawnMode === 'shared-corner'
+        ? scene.spawnSide || null
+        : null
+
+    const sharedGoal =
+      scene.goalMode === 'shared' ? getLoaderEntryGoal(scene, null) : null
+
+    const sharedOrbitDirection = pickOne([1, -1]) as 1 | -1
+
+    const incoming: Butterfly[] = []
+    const localUsedNames = [...usedNames.value]
+
+    for (let i = 0; i < safeAmount; i++) {
+      const butterfly = await createNewButterfly(
+        newButterflySettings,
+        localUsedNames,
+      )
+
+      createLoaderButterflyState(
+        butterfly,
+        scene,
+        sharedSpawnSide,
+        sharedGoal,
+        sharedOrbitDirection,
+      )
+
+      incoming.push(butterfly)
+      localUsedNames.push(butterfly.id)
+    }
+
+    butterflies.value.push(...incoming)
+  }
+
+  function requestLoaderRelease() {
+    Object.values(loaderStates.value).forEach((state) => {
+      if (!state) return
+      state.releaseRequested = true
+
+      const butterfly = getButterflyById(state.id)
+      if (!butterfly || butterfly.isExiting) return
+
+      if (state.phase === 'holding' && !state.releaseOnGoal) {
+        beginLoaderButterflyExit(butterfly, state)
+      }
+    })
+  }
+
   function markButterflyForExit(butterfly: Butterfly) {
     if (butterfly.isExiting) return
 
+    const loaderState = getLoaderButterflyState(butterfly.id)
+    if (loaderState) {
+      beginLoaderButterflyExit(butterfly, loaderState)
+      return
+    }
+
     const goal = getNearestExitGoal(butterfly)
+    const stagger = randomBetween(-4, 4)
 
     butterfly.isExiting = true
-    butterfly.goal.x = clampToTwoDecimals(goal.x)
-    butterfly.goal.y = clampToTwoDecimals(goal.y)
+    butterfly.goal.x = clampPercent(goal.x + stagger)
+    butterfly.goal.y = clampPercent(goal.y + randomBetween(-4, 4))
   }
 
   function markAllButterfliesForExit() {
-    butterflies.value.forEach((butterfly, index) => {
+    butterflies.value.forEach((butterfly) => {
       if (butterfly.isExiting) return
 
-      markButterflyForExit(butterfly)
+      const loaderState = getLoaderButterflyState(butterfly.id)
+      if (loaderState) {
+        loaderState.releaseRequested = true
 
-      const stagger = index * 0.7
-      butterfly.goal.x = clampToTwoDecimals(
-        butterfly.goal.x + (Math.random() - 0.5) * stagger,
-      )
-      butterfly.goal.y = clampToTwoDecimals(
-        butterfly.goal.y + (Math.random() - 0.5) * stagger,
-      )
+        if (loaderState.phase === 'holding' && !loaderState.releaseOnGoal) {
+          beginLoaderButterflyExit(butterfly, loaderState)
+        }
+
+        return
+      }
+
+      markButterflyForExit(butterfly)
     })
 
     selectedButterflyId.value = ''
@@ -477,10 +969,154 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     )
   }
 
-  function updateButterflyPosition(butterfly: Butterfly) {
+  function moveTowardGoalWithNoise(butterfly: Butterfly, intensity = 1) {
     const noise2D = getNoise()
     const now = Date.now() * 0.001
+    const angle =
+      noise2D(
+        butterfly.x * 0.15 + butterfly.noiseOffsetX,
+        butterfly.y * 0.15 + butterfly.noiseOffsetY + now,
+      ) *
+      Math.PI *
+      2
 
+    const moveScale = 0.08
+    const noiseDx = Math.cos(angle) * butterfly.speed * moveScale * intensity
+    const noiseDy = Math.sin(angle) * butterfly.speed * moveScale * intensity
+
+    const goalDx = butterfly.goal.x - butterfly.x
+    const goalDy = butterfly.goal.y - butterfly.y
+    const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
+    const pull = butterfly.speed * moveScale * 0.6
+
+    butterfly.x = clampToTwoDecimals(
+      butterfly.x + noiseDx + (goalDx / goalDist) * pull,
+    )
+    butterfly.y = clampToTwoDecimals(
+      butterfly.y + noiseDy + (goalDy / goalDist) * pull,
+    )
+
+    const targetRotation =
+      Math.abs(goalDx) > 0.5
+        ? goalDx >= 0
+          ? 120
+          : 30
+        : noiseDx >= 0
+          ? 120
+          : 30
+
+    butterfly.rotation = clampToTwoDecimals(
+      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
+    )
+
+    butterfly.scaleMod = clampToTwoDecimals(
+      0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
+    )
+  }
+
+  function updateLoaderButterflyPosition(
+    butterfly: Butterfly,
+    state: LoaderButterflyState,
+  ) {
+    const reachedGoal = (goal: ToggleAnchor | null, threshold = 3.5) => {
+      if (!goal) return true
+      return (
+        Math.abs(butterfly.x - goal.x) <= threshold &&
+        Math.abs(butterfly.y - goal.y) <= threshold
+      )
+    }
+
+    if (state.phase === 'entering') {
+      butterfly.goal.x =
+        state.entryGoal?.x ?? state.holdAnchor?.x ?? butterfly.x
+      butterfly.goal.y =
+        state.entryGoal?.y ?? state.holdAnchor?.y ?? butterfly.y
+
+      moveTowardGoalWithNoise(butterfly)
+
+      if (reachedGoal(state.entryGoal, 4)) {
+        if (state.routeMode === 'orbit' && state.orbitCenter) {
+          state.phase = 'orbiting'
+          return
+        }
+
+        if (state.releaseOnGoal || state.releaseRequested) {
+          beginLoaderButterflyExit(butterfly, state)
+          return
+        }
+
+        state.phase = 'holding'
+      }
+
+      return
+    }
+
+    if (state.phase === 'orbiting' && state.orbitCenter) {
+      state.orbitAngle += state.orbitStep * state.orbitDirection
+
+      const orbitX =
+        state.orbitCenter.x + Math.cos(state.orbitAngle) * state.orbitRadius
+      const orbitY =
+        state.orbitCenter.y +
+        Math.sin(state.orbitAngle) * state.orbitRadius * 0.72
+
+      butterfly.goal.x = clampPercent(orbitX)
+      butterfly.goal.y = clampPercent(orbitY)
+
+      moveTowardGoalWithNoise(butterfly, 0.75)
+
+      const tangentDx =
+        -Math.sin(state.orbitAngle) * state.orbitDirection * state.orbitRadius
+      butterfly.rotation = clampToTwoDecimals(
+        butterfly.rotation +
+          ((tangentDx >= 0 ? 120 : 30) - butterfly.rotation) * 0.06,
+      )
+
+      const angleDiff = Math.abs(
+        Math.atan2(
+          Math.sin(state.orbitAngle - state.orbitExitAngle),
+          Math.cos(state.orbitAngle - state.orbitExitAngle),
+        ),
+      )
+
+      const orbitReady = Date.now() >= state.holdUntil && angleDiff < 0.24
+
+      if (orbitReady && (state.releaseOnGoal || state.releaseRequested)) {
+        beginLoaderButterflyExit(butterfly, state)
+        return
+      }
+
+      return
+    }
+
+    if (state.phase === 'holding') {
+      const anchor = state.holdAnchor ||
+        state.entryGoal || {
+          x: butterfly.x,
+          y: butterfly.y,
+        }
+
+      const wobble = Date.now() * 0.0018
+      butterfly.goal.x = clampPercent(
+        anchor.x + Math.cos(wobble + state.idleSeed) * 1.8,
+      )
+      butterfly.goal.y = clampPercent(
+        anchor.y + Math.sin(wobble * 1.2 + state.idleSeed) * 1.4,
+      )
+
+      moveTowardGoalWithNoise(butterfly, 0.55)
+
+      if (
+        Date.now() >= state.holdUntil &&
+        (state.releaseRequested || state.releaseOnGoal)
+      ) {
+        beginLoaderButterflyExit(butterfly, state)
+        return
+      }
+    }
+  }
+
+  function updateButterflyPosition(butterfly: Butterfly) {
     const toggleState = getToggleButterflyState(butterfly.id)
 
     if (toggleState) {
@@ -550,6 +1186,15 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       return
     }
 
+    const loaderState = getLoaderButterflyState(butterfly.id)
+    if (loaderState && !butterfly.isExiting) {
+      updateLoaderButterflyPosition(butterfly, loaderState)
+      return
+    }
+
+    const noise2D = getNoise()
+    const now = Date.now() * 0.001
+
     const angle =
       noise2D(
         butterfly.x * 0.15 + butterfly.noiseOffsetX,
@@ -571,22 +1216,16 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
-      const exitSpeed = Math.max(1.8, butterfly.speed * 1.35)
+      const pull = butterfly.speed * moveScale * 0.6
 
       butterfly.x = clampToTwoDecimals(
-        butterfly.x + (goalDx / goalDist) * exitSpeed,
+        butterfly.x + noiseDx + (goalDx / goalDist) * pull,
       )
       butterfly.y = clampToTwoDecimals(
-        butterfly.y + (goalDy / goalDist) * exitSpeed,
+        butterfly.y + noiseDy + (goalDy / goalDist) * pull,
       )
-
-      const targetRotation = goalDx >= 0 ? 120 : 30
-      butterfly.rotation = clampToTwoDecimals(
-        butterfly.rotation + (targetRotation - butterfly.rotation) * 0.12,
-      )
-
       butterfly.scaleMod = clampToTwoDecimals(
-        Math.max(0.25, butterfly.scaleMod * 0.985),
+        0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
       )
 
       return
@@ -623,7 +1262,10 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
       drainIntervalId.value = setInterval(() => {
         const available = butterflies.value.filter(
-          (butterfly) => !butterfly.isExiting && !isToggleButterfly(butterfly),
+          (butterfly) =>
+            !butterfly.isExiting &&
+            !isToggleButterfly(butterfly) &&
+            !isLoaderButterfly(butterfly),
         )
 
         if (!available.length) {
@@ -638,22 +1280,34 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     }, delay)
   }
 
+  function startStartupExit() {
+    requestLoaderRelease()
+  }
+
   return {
     toggleButterflyIds,
     toggleAnchors,
     toggleStates,
+    loaderStates,
+    activeLoaderPreset,
     clampPercent,
     syncToggleAnchorFromDisplayStore,
     syncToggleAnchors,
     createToggleButterflyState,
     getToggleButterflyState,
+    getLoaderButterflyState,
     isToggleButterfly,
+    isLoaderButterfly,
+    clearButterflyMotionState,
     getToggleSpawnPoint,
     spawnToggleButterflies,
+    spawnLoaderButterflies,
+    requestLoaderRelease,
     idleToggleButterfly,
     handleToggleButterflyClick,
     relocateToggleButterfly,
     destroyToggleButterflies,
+    clearLoaderStates,
     getNearestExitGoal,
     markButterflyForExit,
     markAllButterfliesForExit,
@@ -664,5 +1318,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     updateButterflyPosition,
     stopDrain,
     startDrain,
+    startStartupExit,
   }
 }

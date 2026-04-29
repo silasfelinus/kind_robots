@@ -761,12 +761,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   ) {
     if (butterfly.isExiting) return
 
-    const goal = state.exitGoal || getNearestExitGoal(butterfly)
-    const stagger = randomBetween(-3.5, 3.5)
+    const goal = getNearestExitGoal(butterfly)
 
     butterfly.isExiting = true
-    butterfly.goal.x = clampPercent(goal.x + stagger)
-    butterfly.goal.y = clampPercent(goal.y + randomBetween(-3.5, 3.5))
+    butterfly.goal.x = clampPercent(goal.x + randomBetween(-4, 4))
+    butterfly.goal.y = clampPercent(goal.y + randomBetween(-4, 4))
     state.phase = 'released'
   }
 
@@ -786,12 +785,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     const holdUntil =
       Date.now() + randomInt(scene.holdRange.min, scene.holdRange.max)
 
-    const exitGoal = entryGoal
-      ? {
-          x: clampPercent(entryGoal.x + randomBetween(-5, 5)),
-          y: clampPercent(entryGoal.y + randomBetween(-5, 5)),
-        }
-      : null
+    const exitGoal = null
 
     loaderStates.value[butterfly.id] = {
       id: butterfly.id,
@@ -910,8 +904,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   }
 
   function markAllButterfliesForExit() {
-    logButterflyEffect('mark-all:start')
-
     butterflies.value.forEach((butterfly, index) => {
       if (butterfly.isExiting) return
 
@@ -927,8 +919,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     })
 
     selectedButterflyId.value = ''
-
-    logButterflyEffect('mark-all:complete')
   }
   function sendButterflyAway(butterfly: Butterfly) {
     markButterflyForExit(butterfly)

@@ -1,7 +1,6 @@
 <!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
-    <!-- HEADER -->
     <header
       class="fixed overflow-hidden border-b-2 border-primary-focus text-primary-content transition-[height,width,left,top] duration-200"
       :style="displayStore.headerStyle"
@@ -11,7 +10,6 @@
       </slot>
     </header>
 
-    <!-- HEADER OPEN BUTTON -->
     <div
       v-if="displayStore.headerState === 'hidden'"
       class="pointer-events-none fixed left-3 top-3 z-30"
@@ -32,7 +30,6 @@
       :style="displayStore.cornerPanelStyle"
     />
 
-    <!-- LEFT SIDEBAR -->
     <aside
       class="fixed overflow-visible transition-all duration-200"
       :style="displayStore.leftSidebarStyle"
@@ -44,7 +41,6 @@
       </div>
     </aside>
 
-    <!-- RIGHT SIDEBAR -->
     <aside
       class="fixed overflow-visible transition-all duration-200"
       :style="displayStore.rightSidebarStyle"
@@ -56,7 +52,6 @@
       </div>
     </aside>
 
-    <!-- SIDEBAR INLINE TOGGLES -->
     <template v-if="displayStore.sidebarLeftVisible">
       <button
         :style="displayStore.leftSidebarBackToggleStyle"
@@ -93,7 +88,6 @@
       </button>
     </template>
 
-    <!-- MAIN CONTENT (PURE STORE CONTROL) -->
     <main
       class="fixed overflow-hidden border border-base-300/60 bg-base-200 transition-all duration-200"
       :style="displayStore.mainContentStyle"
@@ -103,7 +97,6 @@
       </div>
     </main>
 
-    <!-- FOOTER -->
     <footer
       class="fixed overflow-hidden bg-base-200 transition-all duration-200"
       :style="displayStore.footerStyle"
@@ -115,65 +108,60 @@
       </div>
     </footer>
 
-    <!-- LEFT CORNER -->
     <div
-      class="pointer-events-none fixed"
+      class="pointer-events-none fixed p-0.5"
       :style="displayStore.leftCornerToggleStyle"
     >
       <button
-        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
         @click="displayStore.toggleLeftSidebar('forward')"
       >
         <Icon name="kind-icon:sidebar-left" class="h-5 w-5" />
       </button>
     </div>
 
-    <!-- LEFT CHANNEL -->
     <div
-      class="pointer-events-none fixed"
+      class="pointer-events-none fixed p-0.5"
       :style="displayStore.leftFooterToggleStyle"
     >
       <button
-        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
         @click="showPreviousFooter"
       >
         <Icon name="kind-icon:chevron-left" class="h-5 w-5" />
       </button>
     </div>
 
-    <!-- CENTER FOOTER TOGGLE -->
     <div
       class="pointer-events-none fixed"
       :style="displayStore.footerToggleStyle"
     >
       <button
-        class="pointer-events-auto h-full w-full rounded-full bg-base-100 shadow hover:scale-105"
+        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-full bg-base-100 shadow transition hover:scale-105 active:scale-95"
         @click="displayStore.toggleFooter"
       >
         <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
       </button>
     </div>
 
-    <!-- RIGHT CHANNEL -->
     <div
-      class="pointer-events-none fixed"
+      class="pointer-events-none fixed p-0.5"
       :style="displayStore.rightFooterToggleStyle"
     >
       <button
-        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
         @click="showNextFooter"
       >
         <Icon name="kind-icon:chevron-right" class="h-5 w-5" />
       </button>
     </div>
 
-    <!-- RIGHT CORNER -->
     <div
-      class="pointer-events-none fixed"
+      class="pointer-events-none fixed p-0.5"
       :style="displayStore.rightCornerToggleStyle"
     >
       <button
-        class="pointer-events-auto h-full w-full rounded-2xl bg-base-100 shadow hover:scale-105"
+        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
         @click="displayStore.toggleRightSidebar('forward')"
       >
         <Icon name="kind-icon:sidebar-right" class="h-5 w-5" />
@@ -227,7 +215,9 @@ function getWrappedFooter(step: -1 | 1): FooterName {
 function setFooter(name: FooterName) {
   displayStore.setFooterComponent(name)
   navStore.setFooterDashboardTab(name)
+
   const routePath = footerRouteMap[name]
+
   if (routePath && route.path !== routePath) {
     router.push(routePath)
   }

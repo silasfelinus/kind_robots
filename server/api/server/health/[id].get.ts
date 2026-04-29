@@ -32,6 +32,20 @@ async function parseHealthResponse(response: Response): Promise<unknown> {
   }
 }
 
+function shouldUseClientSideHealthCheck(server: {
+  accessMode?: string | null
+  requiresClientSideCheck?: boolean | null
+  isPrivateNetwork?: boolean | null
+  allowBrowserRequests?: boolean | null
+}): boolean {
+  return Boolean(
+    server.requiresClientSideCheck ||
+    server.accessMode === 'TAILSCALE' ||
+    server.accessMode === 'LOCAL' ||
+    (server.isPrivateNetwork && server.allowBrowserRequests),
+  )
+}
+
 export default defineEventHandler(async (event) => {
   let id: number | null = null
 
@@ -87,6 +101,27 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         message: 'Health URL must use http or https.',
       })
+    }
+
+    if (shouldUseClientSideHealthCheck(server)) {
+      event.node.res.statusCode = 202
+
+      return {
+        success: true,
+        message:
+          'This server must be tested from the browser because it uses a private or Tailscale connection.',
+        data: {
+          id: server.id,
+          title: server.title,
+          healthUrl,
+          accessMode: server.accessMode,
+          requiresClientSideCheck: server.requiresClientSideCheck,
+          isPrivateNetwork: server.isPrivateNetwork,
+          allowBrowserRequests: server.allowBrowserRequests,
+          runLocation: 'browser',
+        },
+        statusCode: 202,
+      }
     }
 
     const startedAt = Date.now()
@@ -163,6 +198,7 @@ export default defineEventHandler(async (event) => {
         statusText,
         latencyMs,
         responseBody,
+        runLocation: 'server',
       },
       statusCode: event.node.res.statusCode,
     }

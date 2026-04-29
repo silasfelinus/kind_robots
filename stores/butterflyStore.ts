@@ -55,6 +55,22 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   const showSwarm = ref(true)
 
+  const loaderEffectName = ref('startup-exit')
+
+  function logLoaderEffect(
+    event: string,
+    details: Record<string, unknown> = {},
+  ) {
+    if (import.meta.server) return
+
+    console.info('[butterfly-loader]', event, {
+      effect: loaderEffectName.value,
+      count: butterflies.value.length,
+      initialized: initialized.value,
+      ...details,
+    })
+  }
+
   const originalButterflySettings = reactive({
     sizeRange: { min: 0.5, max: 1.5 },
     speedRange: { min: 1, max: 3 },
@@ -317,7 +333,23 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       butterflies.value = []
       selectedButterflyId.value = ''
       targetCount.value = amount
-      await spawnLoaderButterflies(amount, 'random')
+      loaderEffectName.value = 'startup-random-spawn-immediate-exit'
+
+      logLoaderEffect('spawn:start', { amount })
+
+      await addButterflies(amount)
+
+      logLoaderEffect('spawn:complete', {
+        spawned: butterflies.value.length,
+        exitMode: 'mark-all',
+      })
+
+      markAllButterfliesForExit()
+
+      logLoaderEffect('exit:requested', {
+        exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
+          .length,
+      })
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
@@ -335,14 +367,30 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
     const safeDelay = Math.max(0, Math.floor(delay))
 
+    logLoaderEffect('exit:triggered', {
+      delay: safeDelay,
+      mode: safeDelay === 0 ? 'immediate' : 'delayed',
+    })
+
     if (safeDelay === 0) {
-      requestLoaderRelease()
+      markAllButterfliesForExit()
+
+      logLoaderEffect('exit:marked', {
+        exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
+          .length,
+      })
+
       return
     }
 
     drainStartTimeoutId.value = setTimeout(() => {
       drainStartTimeoutId.value = null
-      requestLoaderRelease()
+      markAllButterfliesForExit()
+
+      logLoaderEffect('exit:marked-after-delay', {
+        exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
+          .length,
+      })
     }, safeDelay)
   }
 
@@ -720,6 +768,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     clearLoaderExitTimer,
     triggerLoaderButterflyExit,
     initializeLoaderButterflies,
+    loaderEffectName,
+    logLoaderEffect,
   }
 })
 

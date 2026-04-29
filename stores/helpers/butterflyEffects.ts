@@ -910,26 +910,26 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   }
 
   function markAllButterfliesForExit() {
-    butterflies.value.forEach((butterfly) => {
+    logButterflyEffect('mark-all:start')
+
+    butterflies.value.forEach((butterfly, index) => {
       if (butterfly.isExiting) return
 
-      const loaderState = getLoaderButterflyState(butterfly.id)
-      if (loaderState) {
-        loaderState.releaseRequested = true
-
-        if (loaderState.phase === 'holding' && !loaderState.releaseOnGoal) {
-          beginLoaderButterflyExit(butterfly, loaderState)
-        }
-
-        return
-      }
-
       markButterflyForExit(butterfly)
+
+      const stagger = index * 0.7
+      butterfly.goal.x = clampToTwoDecimals(
+        butterfly.goal.x + (Math.random() - 0.5) * stagger,
+      )
+      butterfly.goal.y = clampToTwoDecimals(
+        butterfly.goal.y + (Math.random() - 0.5) * stagger,
+      )
     })
 
     selectedButterflyId.value = ''
-  }
 
+    logButterflyEffect('mark-all:complete')
+  }
   function sendButterflyAway(butterfly: Butterfly) {
     markButterflyForExit(butterfly)
 
@@ -1278,6 +1278,20 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         if (butterfly) sendButterflyAway(butterfly)
       }, interval)
     }, delay)
+  }
+
+  function logButterflyEffect(
+    event: string,
+    details: Record<string, unknown> = {},
+  ) {
+    if (import.meta.server) return
+
+    console.info('[butterfly-effects]', event, {
+      active: butterflies.value.length,
+      exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
+        .length,
+      ...details,
+    })
   }
 
   function startStartupExit() {

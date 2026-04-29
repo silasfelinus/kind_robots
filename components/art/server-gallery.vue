@@ -242,12 +242,7 @@
               <div
                 class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-base-200"
               >
-                <Icon
-                  :name="
-                    server.supportsChat ? 'kind-icon:chat' : 'kind-icon:server'
-                  "
-                  class="h-4 w-4 opacity-70"
-                />
+                <Icon :name="serverIcon(server)" class="h-4 w-4 opacity-70" />
               </div>
 
               <div class="min-w-0 flex-1">
@@ -265,6 +260,28 @@
                 <p class="truncate text-[10px] opacity-50">
                   {{ server.description || server.baseUrl }}
                 </p>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  <span
+                    :class="[
+                      'badge badge-xs',
+                      accessModeBadgeClass(server.accessMode),
+                    ]"
+                  >
+                    {{ accessModeLabel(server.accessMode) }}
+                  </span>
+                  <span
+                    v-if="server.requiresClientSideCheck"
+                    class="badge badge-xs badge-info"
+                  >
+                    Browser test
+                  </span>
+                  <span
+                    v-if="server.isPrivateNetwork"
+                    class="badge badge-xs badge-success"
+                  >
+                    Private
+                  </span>
+                </div>
               </div>
 
               <span class="badge badge-xs badge-neutral shrink-0 opacity-70">
@@ -283,7 +300,11 @@ import { ref, computed, defineComponent, h, resolveComponent } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore } from '@/stores/errorStore'
-import type { Server, ServerType } from '~/prisma/generated/prisma/client'
+import type {
+  Server,
+  ServerAccessMode,
+  ServerType,
+} from '~/prisma/generated/prisma/client'
 
 const props = defineProps<{
   mode: 'text' | 'image'
@@ -358,13 +379,16 @@ function matches(server: Server): boolean {
     server.title?.toLowerCase().includes(q.value) ||
     server.label?.toLowerCase().includes(q.value) ||
     server.baseUrl?.toLowerCase().includes(q.value) ||
-    server.description?.toLowerCase().includes(q.value),
+    server.description?.toLowerCase().includes(q.value) ||
+    server.accessMode?.toLowerCase().includes(q.value) ||
+    server.oidcProvider?.toLowerCase().includes(q.value),
   )
 }
 
 const filteredPublic = computed<Server[]>(() =>
   publicServers.value.filter(matches),
 )
+
 const filteredMine = computed<Server[]>(() => myServers.value.filter(matches))
 
 const visibleServers = computed<Server[]>(() => [
@@ -397,7 +421,7 @@ const quickAddPresets = computed<Array<{ type: ServerType; label: string }>>(
         ]
       : [
           { type: 'COMFY', label: 'ComfyUI' },
-          { type: 'A1111', label: 'A1111' },
+          { type: 'A1111', label: 'A1111 / Forge' },
           { type: 'ART', label: 'Custom' },
         ],
 )
@@ -436,6 +460,12 @@ function beginEdit(server: Server) {
       isDefault: false,
       isEditable: true,
       apiKey: null,
+      accessMode: server.accessMode ?? 'LOCAL',
+      requiresClientSideCheck: server.requiresClientSideCheck ?? false,
+      isPrivateNetwork: server.isPrivateNetwork ?? false,
+      allowBrowserRequests: server.allowBrowserRequests ?? true,
+      useOidc: server.useOidc ?? false,
+      oidcProvider: server.oidcProvider ?? null,
     }
   } else {
     serverStore.selectServer(server.id)
@@ -490,6 +520,41 @@ function restoreServer(id: number) {
   }
 
   store.unhideServer?.(id)
+}
+
+function accessModeLabel(mode?: ServerAccessMode | null): string {
+  const labels: Record<ServerAccessMode, string> = {
+    LOCAL: 'Local',
+    TAILSCALE: 'Tailscale',
+    PUBLIC_PROTECTED: 'Protected',
+    PUBLIC_API_KEY: 'API Key',
+    PUBLIC_OIDC: 'OIDC',
+    PUBLIC_UNPROTECTED: 'Unprotected',
+  }
+
+  return mode ? labels[mode] : 'Local'
+}
+
+function accessModeBadgeClass(mode?: ServerAccessMode | null): string {
+  if (mode === 'TAILSCALE') return 'badge-success'
+  if (mode === 'LOCAL') return 'badge-info'
+  if (mode === 'PUBLIC_OIDC') return 'badge-secondary'
+  if (mode === 'PUBLIC_API_KEY') return 'badge-warning'
+  if (mode === 'PUBLIC_PROTECTED') return 'badge-warning'
+  if (mode === 'PUBLIC_UNPROTECTED') return 'badge-error'
+  return 'badge-neutral'
+}
+
+function serverIcon(server: Server): string {
+  if (server.accessMode === 'TAILSCALE') return 'kind-icon:shield'
+  if (server.useOidc || server.accessMode === 'PUBLIC_OIDC')
+    return 'kind-icon:user-check'
+  if (server.requiresApiKey || server.accessMode === 'PUBLIC_API_KEY')
+    return 'kind-icon:key'
+  if (server.serverType === 'COMFY') return 'kind-icon:node'
+  if (server.serverType === 'A1111') return 'kind-icon:art'
+  if (server.supportsChat) return 'kind-icon:chat'
+  return 'kind-icon:server'
 }
 
 const GallerySectionHeader = defineComponent({

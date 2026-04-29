@@ -56,8 +56,15 @@ export type ServerMinAggregateOutputType = {
   isDefault: boolean | null
   isActive: boolean | null
   isEditable: boolean | null
+  accessMode: $Enums.ServerAccessMode | null
+  requiresClientSideCheck: boolean | null
+  isPrivateNetwork: boolean | null
+  allowBrowserRequests: boolean | null
   requiresApiKey: boolean | null
   apiKeyName: string | null
+  apiKey: string | null
+  useOidc: boolean | null
+  oidcProvider: string | null
   supportsTxt2Img: boolean | null
   supportsImg2Img: boolean | null
   supportsChat: boolean | null
@@ -70,7 +77,6 @@ export type ServerMinAggregateOutputType = {
   supportsVideo: boolean | null
   apiLink: string | null
   model: string | null
-  apiKey: string | null
   designer: string | null
   version: string | null
   notes: string | null
@@ -97,8 +103,15 @@ export type ServerMaxAggregateOutputType = {
   isDefault: boolean | null
   isActive: boolean | null
   isEditable: boolean | null
+  accessMode: $Enums.ServerAccessMode | null
+  requiresClientSideCheck: boolean | null
+  isPrivateNetwork: boolean | null
+  allowBrowserRequests: boolean | null
   requiresApiKey: boolean | null
   apiKeyName: string | null
+  apiKey: string | null
+  useOidc: boolean | null
+  oidcProvider: string | null
   supportsTxt2Img: boolean | null
   supportsImg2Img: boolean | null
   supportsChat: boolean | null
@@ -111,7 +124,6 @@ export type ServerMaxAggregateOutputType = {
   supportsVideo: boolean | null
   apiLink: string | null
   model: string | null
-  apiKey: string | null
   designer: string | null
   version: string | null
   notes: string | null
@@ -138,8 +150,15 @@ export type ServerCountAggregateOutputType = {
   isDefault: number
   isActive: number
   isEditable: number
+  accessMode: number
+  requiresClientSideCheck: number
+  isPrivateNetwork: number
+  allowBrowserRequests: number
   requiresApiKey: number
   apiKeyName: number
+  apiKey: number
+  useOidc: number
+  oidcProvider: number
   supportsTxt2Img: number
   supportsImg2Img: number
   supportsChat: number
@@ -152,7 +171,6 @@ export type ServerCountAggregateOutputType = {
   supportsVideo: number
   apiLink: number
   model: number
-  apiKey: number
   designer: number
   version: number
   notes: number
@@ -193,8 +211,15 @@ export type ServerMinAggregateInputType = {
   isDefault?: true
   isActive?: true
   isEditable?: true
+  accessMode?: true
+  requiresClientSideCheck?: true
+  isPrivateNetwork?: true
+  allowBrowserRequests?: true
   requiresApiKey?: true
   apiKeyName?: true
+  apiKey?: true
+  useOidc?: true
+  oidcProvider?: true
   supportsTxt2Img?: true
   supportsImg2Img?: true
   supportsChat?: true
@@ -207,7 +232,6 @@ export type ServerMinAggregateInputType = {
   supportsVideo?: true
   apiLink?: true
   model?: true
-  apiKey?: true
   designer?: true
   version?: true
   notes?: true
@@ -234,8 +258,15 @@ export type ServerMaxAggregateInputType = {
   isDefault?: true
   isActive?: true
   isEditable?: true
+  accessMode?: true
+  requiresClientSideCheck?: true
+  isPrivateNetwork?: true
+  allowBrowserRequests?: true
   requiresApiKey?: true
   apiKeyName?: true
+  apiKey?: true
+  useOidc?: true
+  oidcProvider?: true
   supportsTxt2Img?: true
   supportsImg2Img?: true
   supportsChat?: true
@@ -248,7 +279,6 @@ export type ServerMaxAggregateInputType = {
   supportsVideo?: true
   apiLink?: true
   model?: true
-  apiKey?: true
   designer?: true
   version?: true
   notes?: true
@@ -275,8 +305,15 @@ export type ServerCountAggregateInputType = {
   isDefault?: true
   isActive?: true
   isEditable?: true
+  accessMode?: true
+  requiresClientSideCheck?: true
+  isPrivateNetwork?: true
+  allowBrowserRequests?: true
   requiresApiKey?: true
   apiKeyName?: true
+  apiKey?: true
+  useOidc?: true
+  oidcProvider?: true
   supportsTxt2Img?: true
   supportsImg2Img?: true
   supportsChat?: true
@@ -289,7 +326,6 @@ export type ServerCountAggregateInputType = {
   supportsVideo?: true
   apiLink?: true
   model?: true
-  apiKey?: true
   designer?: true
   version?: true
   notes?: true
@@ -403,8 +439,15 @@ export type ServerGroupByOutputType = {
   isDefault: boolean
   isActive: boolean
   isEditable: boolean
+  accessMode: $Enums.ServerAccessMode
+  requiresClientSideCheck: boolean
+  isPrivateNetwork: boolean
+  allowBrowserRequests: boolean
   requiresApiKey: boolean
   apiKeyName: string | null
+  apiKey: string | null
+  useOidc: boolean
+  oidcProvider: string | null
   supportsTxt2Img: boolean
   supportsImg2Img: boolean
   supportsChat: boolean
@@ -417,7 +460,6 @@ export type ServerGroupByOutputType = {
   supportsVideo: boolean
   apiLink: string | null
   model: string | null
-  apiKey: string | null
   designer: string | null
   version: string | null
   notes: string | null
@@ -467,8 +509,15 @@ export type ServerWhereInput = {
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFilter<"Server"> | boolean
+  isPrivateNetwork?: Prisma.BoolFilter<"Server"> | boolean
+  allowBrowserRequests?: Prisma.BoolFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  useOidc?: Prisma.BoolFilter<"Server"> | boolean
+  oidcProvider?: Prisma.StringNullableFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
   supportsImg2Img?: Prisma.BoolFilter<"Server"> | boolean
   supportsChat?: Prisma.BoolFilter<"Server"> | boolean
@@ -481,7 +530,6 @@ export type ServerWhereInput = {
   supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
   apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
   model?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
   designer?: Prisma.StringNullableFilter<"Server"> | string | null
   version?: Prisma.StringNullableFilter<"Server"> | string | null
   notes?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -512,8 +560,15 @@ export type ServerOrderByWithRelationInput = {
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  requiresClientSideCheck?: Prisma.SortOrder
+  isPrivateNetwork?: Prisma.SortOrder
+  allowBrowserRequests?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  useOidc?: Prisma.SortOrder
+  oidcProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
   supportsImg2Img?: Prisma.SortOrder
   supportsChat?: Prisma.SortOrder
@@ -526,7 +581,6 @@ export type ServerOrderByWithRelationInput = {
   supportsVideo?: Prisma.SortOrder
   apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -561,8 +615,15 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFilter<"Server"> | boolean
+  isPrivateNetwork?: Prisma.BoolFilter<"Server"> | boolean
+  allowBrowserRequests?: Prisma.BoolFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  useOidc?: Prisma.BoolFilter<"Server"> | boolean
+  oidcProvider?: Prisma.StringNullableFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
   supportsImg2Img?: Prisma.BoolFilter<"Server"> | boolean
   supportsChat?: Prisma.BoolFilter<"Server"> | boolean
@@ -575,7 +636,6 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
   apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
   model?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
   designer?: Prisma.StringNullableFilter<"Server"> | string | null
   version?: Prisma.StringNullableFilter<"Server"> | string | null
   notes?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -606,8 +666,15 @@ export type ServerOrderByWithAggregationInput = {
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  requiresClientSideCheck?: Prisma.SortOrder
+  isPrivateNetwork?: Prisma.SortOrder
+  allowBrowserRequests?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  useOidc?: Prisma.SortOrder
+  oidcProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
   supportsImg2Img?: Prisma.SortOrder
   supportsChat?: Prisma.SortOrder
@@ -620,7 +687,6 @@ export type ServerOrderByWithAggregationInput = {
   supportsVideo?: Prisma.SortOrder
   apiLink?: Prisma.SortOrderInput | Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
-  apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -655,8 +721,15 @@ export type ServerScalarWhereWithAggregatesInput = {
   isDefault?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isEditable?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  accessMode?: Prisma.EnumServerAccessModeWithAggregatesFilter<"Server"> | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  isPrivateNetwork?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  allowBrowserRequests?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  useOidc?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  oidcProvider?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   supportsImg2Img?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   supportsChat?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
@@ -669,7 +742,6 @@ export type ServerScalarWhereWithAggregatesInput = {
   supportsVideo?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   apiLink?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   model?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   version?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
@@ -694,8 +766,15 @@ export type ServerCreateInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -708,7 +787,6 @@ export type ServerCreateInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -739,8 +817,15 @@ export type ServerUncheckedCreateInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -753,7 +838,6 @@ export type ServerUncheckedCreateInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -781,8 +865,15 @@ export type ServerUpdateInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -795,7 +886,6 @@ export type ServerUpdateInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -826,8 +916,15 @@ export type ServerUncheckedUpdateInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -840,7 +937,6 @@ export type ServerUncheckedUpdateInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -870,8 +966,15 @@ export type ServerCreateManyInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -884,7 +987,6 @@ export type ServerCreateManyInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -909,8 +1011,15 @@ export type ServerUpdateManyMutationInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -923,7 +1032,6 @@ export type ServerUpdateManyMutationInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -950,8 +1058,15 @@ export type ServerUncheckedUpdateManyInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -964,7 +1079,6 @@ export type ServerUncheckedUpdateManyInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1002,8 +1116,15 @@ export type ServerCountOrderByAggregateInput = {
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  requiresClientSideCheck?: Prisma.SortOrder
+  isPrivateNetwork?: Prisma.SortOrder
+  allowBrowserRequests?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  useOidc?: Prisma.SortOrder
+  oidcProvider?: Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
   supportsImg2Img?: Prisma.SortOrder
   supportsChat?: Prisma.SortOrder
@@ -1016,7 +1137,6 @@ export type ServerCountOrderByAggregateInput = {
   supportsVideo?: Prisma.SortOrder
   apiLink?: Prisma.SortOrder
   model?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   version?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -1049,8 +1169,15 @@ export type ServerMaxOrderByAggregateInput = {
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  requiresClientSideCheck?: Prisma.SortOrder
+  isPrivateNetwork?: Prisma.SortOrder
+  allowBrowserRequests?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  useOidc?: Prisma.SortOrder
+  oidcProvider?: Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
   supportsImg2Img?: Prisma.SortOrder
   supportsChat?: Prisma.SortOrder
@@ -1063,7 +1190,6 @@ export type ServerMaxOrderByAggregateInput = {
   supportsVideo?: Prisma.SortOrder
   apiLink?: Prisma.SortOrder
   model?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   version?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -1090,8 +1216,15 @@ export type ServerMinOrderByAggregateInput = {
   isDefault?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   isEditable?: Prisma.SortOrder
+  accessMode?: Prisma.SortOrder
+  requiresClientSideCheck?: Prisma.SortOrder
+  isPrivateNetwork?: Prisma.SortOrder
+  allowBrowserRequests?: Prisma.SortOrder
   requiresApiKey?: Prisma.SortOrder
   apiKeyName?: Prisma.SortOrder
+  apiKey?: Prisma.SortOrder
+  useOidc?: Prisma.SortOrder
+  oidcProvider?: Prisma.SortOrder
   supportsTxt2Img?: Prisma.SortOrder
   supportsImg2Img?: Prisma.SortOrder
   supportsChat?: Prisma.SortOrder
@@ -1104,7 +1237,6 @@ export type ServerMinOrderByAggregateInput = {
   supportsVideo?: Prisma.SortOrder
   apiLink?: Prisma.SortOrder
   model?: Prisma.SortOrder
-  apiKey?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   version?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -1181,6 +1313,10 @@ export type EnumServerTypeFieldUpdateOperationsInput = {
   set?: $Enums.ServerType
 }
 
+export type EnumServerAccessModeFieldUpdateOperationsInput = {
+  set?: $Enums.ServerAccessMode
+}
+
 export type NullableEnumServerStatusFieldUpdateOperationsInput = {
   set?: $Enums.ServerStatus | null
 }
@@ -1243,8 +1379,15 @@ export type ServerCreateWithoutArtsInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1257,7 +1400,6 @@ export type ServerCreateWithoutArtsInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1287,8 +1429,15 @@ export type ServerUncheckedCreateWithoutArtsInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1301,7 +1450,6 @@ export type ServerUncheckedCreateWithoutArtsInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1344,8 +1492,15 @@ export type ServerUpdateWithoutArtsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1358,7 +1513,6 @@ export type ServerUpdateWithoutArtsInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1388,8 +1542,15 @@ export type ServerUncheckedUpdateWithoutArtsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1402,7 +1563,6 @@ export type ServerUncheckedUpdateWithoutArtsInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1429,8 +1589,15 @@ export type ServerCreateWithoutBotsInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1443,7 +1610,6 @@ export type ServerCreateWithoutBotsInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1473,8 +1639,15 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1487,7 +1660,6 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1530,8 +1702,15 @@ export type ServerUpdateWithoutBotsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1544,7 +1723,6 @@ export type ServerUpdateWithoutBotsInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1574,8 +1752,15 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1588,7 +1773,6 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1615,8 +1799,15 @@ export type ServerCreateWithoutChatsInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1629,7 +1820,6 @@ export type ServerCreateWithoutChatsInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1659,8 +1849,15 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1673,7 +1870,6 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1716,8 +1912,15 @@ export type ServerUpdateWithoutChatsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1730,7 +1933,6 @@ export type ServerUpdateWithoutChatsInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1760,8 +1962,15 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1774,7 +1983,6 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1801,8 +2009,15 @@ export type ServerCreateWithoutUserInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1815,7 +2030,6 @@ export type ServerCreateWithoutUserInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1844,8 +2058,15 @@ export type ServerUncheckedCreateWithoutUserInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1858,7 +2079,6 @@ export type ServerUncheckedCreateWithoutUserInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1917,8 +2137,15 @@ export type ServerScalarWhereInput = {
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
   isActive?: Prisma.BoolFilter<"Server"> | boolean
   isEditable?: Prisma.BoolFilter<"Server"> | boolean
+  accessMode?: Prisma.EnumServerAccessModeFilter<"Server"> | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFilter<"Server"> | boolean
+  isPrivateNetwork?: Prisma.BoolFilter<"Server"> | boolean
+  allowBrowserRequests?: Prisma.BoolFilter<"Server"> | boolean
   requiresApiKey?: Prisma.BoolFilter<"Server"> | boolean
   apiKeyName?: Prisma.StringNullableFilter<"Server"> | string | null
+  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
+  useOidc?: Prisma.BoolFilter<"Server"> | boolean
+  oidcProvider?: Prisma.StringNullableFilter<"Server"> | string | null
   supportsTxt2Img?: Prisma.BoolFilter<"Server"> | boolean
   supportsImg2Img?: Prisma.BoolFilter<"Server"> | boolean
   supportsChat?: Prisma.BoolFilter<"Server"> | boolean
@@ -1931,7 +2158,6 @@ export type ServerScalarWhereInput = {
   supportsVideo?: Prisma.BoolFilter<"Server"> | boolean
   apiLink?: Prisma.StringNullableFilter<"Server"> | string | null
   model?: Prisma.StringNullableFilter<"Server"> | string | null
-  apiKey?: Prisma.StringNullableFilter<"Server"> | string | null
   designer?: Prisma.StringNullableFilter<"Server"> | string | null
   version?: Prisma.StringNullableFilter<"Server"> | string | null
   notes?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -1957,8 +2183,15 @@ export type ServerCreateManyUserInput = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: $Enums.ServerAccessMode
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: string | null
+  apiKey?: string | null
+  useOidc?: boolean
+  oidcProvider?: string | null
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -1971,7 +2204,6 @@ export type ServerCreateManyUserInput = {
   supportsVideo?: boolean
   apiLink?: string | null
   model?: string | null
-  apiKey?: string | null
   designer?: string | null
   version?: string | null
   notes?: string | null
@@ -1996,8 +2228,15 @@ export type ServerUpdateWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2010,7 +2249,6 @@ export type ServerUpdateWithoutUserInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2039,8 +2277,15 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2053,7 +2298,6 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2082,8 +2326,15 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
+  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2096,7 +2347,6 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2172,8 +2422,15 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: boolean
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: boolean
+  apiKey?: boolean
+  useOidc?: boolean
+  oidcProvider?: boolean
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -2186,7 +2443,6 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   supportsVideo?: boolean
   apiLink?: boolean
   model?: boolean
-  apiKey?: boolean
   designer?: boolean
   version?: boolean
   notes?: boolean
@@ -2220,8 +2476,15 @@ export type ServerSelectScalar = {
   isDefault?: boolean
   isActive?: boolean
   isEditable?: boolean
+  accessMode?: boolean
+  requiresClientSideCheck?: boolean
+  isPrivateNetwork?: boolean
+  allowBrowserRequests?: boolean
   requiresApiKey?: boolean
   apiKeyName?: boolean
+  apiKey?: boolean
+  useOidc?: boolean
+  oidcProvider?: boolean
   supportsTxt2Img?: boolean
   supportsImg2Img?: boolean
   supportsChat?: boolean
@@ -2234,7 +2497,6 @@ export type ServerSelectScalar = {
   supportsVideo?: boolean
   apiLink?: boolean
   model?: boolean
-  apiKey?: boolean
   designer?: boolean
   version?: boolean
   notes?: boolean
@@ -2243,7 +2505,7 @@ export type ServerSelectScalar = {
   lastStatus?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "requiresApiKey" | "apiKeyName" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "apiLink" | "model" | "apiKey" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "accessMode" | "requiresClientSideCheck" | "isPrivateNetwork" | "allowBrowserRequests" | "requiresApiKey" | "apiKeyName" | "apiKey" | "useOidc" | "oidcProvider" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "apiLink" | "model" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Arts?: boolean | Prisma.Server$ArtsArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
@@ -2278,8 +2540,15 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     isDefault: boolean
     isActive: boolean
     isEditable: boolean
+    accessMode: $Enums.ServerAccessMode
+    requiresClientSideCheck: boolean
+    isPrivateNetwork: boolean
+    allowBrowserRequests: boolean
     requiresApiKey: boolean
     apiKeyName: string | null
+    apiKey: string | null
+    useOidc: boolean
+    oidcProvider: string | null
     supportsTxt2Img: boolean
     supportsImg2Img: boolean
     supportsChat: boolean
@@ -2292,7 +2561,6 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     supportsVideo: boolean
     apiLink: string | null
     model: string | null
-    apiKey: string | null
     designer: string | null
     version: string | null
     notes: string | null
@@ -2689,8 +2957,15 @@ export interface ServerFieldRefs {
   readonly isDefault: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isEditable: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly accessMode: Prisma.FieldRef<"Server", 'ServerAccessMode'>
+  readonly requiresClientSideCheck: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly isPrivateNetwork: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly allowBrowserRequests: Prisma.FieldRef<"Server", 'Boolean'>
   readonly requiresApiKey: Prisma.FieldRef<"Server", 'Boolean'>
   readonly apiKeyName: Prisma.FieldRef<"Server", 'String'>
+  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
+  readonly useOidc: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly oidcProvider: Prisma.FieldRef<"Server", 'String'>
   readonly supportsTxt2Img: Prisma.FieldRef<"Server", 'Boolean'>
   readonly supportsImg2Img: Prisma.FieldRef<"Server", 'Boolean'>
   readonly supportsChat: Prisma.FieldRef<"Server", 'Boolean'>
@@ -2703,7 +2978,6 @@ export interface ServerFieldRefs {
   readonly supportsVideo: Prisma.FieldRef<"Server", 'Boolean'>
   readonly apiLink: Prisma.FieldRef<"Server", 'String'>
   readonly model: Prisma.FieldRef<"Server", 'String'>
-  readonly apiKey: Prisma.FieldRef<"Server", 'String'>
   readonly designer: Prisma.FieldRef<"Server", 'String'>
   readonly version: Prisma.FieldRef<"Server", 'String'>
   readonly notes: Prisma.FieldRef<"Server", 'String'>

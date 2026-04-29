@@ -16,7 +16,7 @@
     >
       <button
         type="button"
-        class="pointer-events-auto rounded-full bg-base-100/90 px-3 py-2 shadow hover:scale-105 active:scale-95"
+        class="pointer-events-auto rounded-full border border-base-300 bg-base-100/90 px-3 py-2 text-base-content shadow-lg backdrop-blur transition hover:scale-105 hover:bg-primary hover:text-primary-content active:scale-95"
         @click="displayStore.toggleHeader('open')"
       >
         <Icon name="kind-icon:chevron-down" class="h-5 w-5" />
@@ -122,13 +122,21 @@
       >
         <button
           :class="[
-            'pointer-events-auto flex h-full w-full items-center justify-center bg-base-100 shadow transition hover:scale-105 active:scale-95',
+            'pointer-events-auto group flex h-full w-full items-center justify-center overflow-hidden border border-base-300/80 bg-base-100/95 text-base-content shadow-lg shadow-base-content/10 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-xl active:translate-y-0 active:scale-95',
             control.roundedClass,
+            control.buttonClass,
           ]"
           :aria-label="control.label"
           @click="control.action"
         >
-          <Icon :name="control.icon" class="h-5 w-5" />
+          <span
+            class="flex h-full w-full items-center justify-center rounded-[inherit] bg-linear-to-b from-white/15 to-transparent"
+          >
+            <Icon
+              :name="control.icon"
+              class="h-5 w-5 transition-transform duration-200 group-hover:scale-110"
+            />
+          </span>
         </button>
       </div>
     </template>
@@ -153,6 +161,7 @@ type BottomControl = {
   label: string
   icon: string
   roundedClass: string
+  buttonClass: string
   action: () => void
 }
 
@@ -188,8 +197,9 @@ const bottomControls = computed<BottomControl[]>(() => [
   {
     key: 'left-sidebar',
     label: 'Toggle left sidebar',
-    icon: 'kind-icon:sidebar-left',
+    icon: 'kind-icon:butterfly',
     roundedClass: 'rounded-2xl',
+    buttonClass: 'hover:bg-secondary hover:text-secondary-content',
     action: () => displayStore.toggleLeftSidebar('forward'),
   },
   {
@@ -197,6 +207,7 @@ const bottomControls = computed<BottomControl[]>(() => [
     label: 'Previous footer section',
     icon: 'kind-icon:chevron-left',
     roundedClass: 'rounded-2xl',
+    buttonClass: 'hover:bg-accent hover:text-accent-content',
     action: showPreviousFooter,
   },
   {
@@ -204,6 +215,8 @@ const bottomControls = computed<BottomControl[]>(() => [
     label: 'Toggle footer',
     icon: footerToggleIcon.value,
     roundedClass: 'rounded-full',
+    buttonClass:
+      'border-primary/60 bg-primary/15 text-primary hover:bg-primary hover:text-primary-content',
     action: displayStore.toggleFooter,
   },
   {
@@ -211,6 +224,7 @@ const bottomControls = computed<BottomControl[]>(() => [
     label: 'Next footer section',
     icon: 'kind-icon:chevron-right',
     roundedClass: 'rounded-2xl',
+    buttonClass: 'hover:bg-accent hover:text-accent-content',
     action: showNextFooter,
   },
   {
@@ -218,6 +232,7 @@ const bottomControls = computed<BottomControl[]>(() => [
     label: 'Toggle right sidebar',
     icon: 'kind-icon:sidebar-right',
     roundedClass: 'rounded-2xl',
+    buttonClass: 'hover:bg-info hover:text-info-content',
     action: () => displayStore.toggleRightSidebar('forward'),
   },
 ])

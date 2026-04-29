@@ -9,6 +9,18 @@
 * 🟢 You can import this file directly.
 */
 
+export const ServerAccessMode = {
+  LOCAL: 'LOCAL',
+  TAILSCALE: 'TAILSCALE',
+  PUBLIC_PROTECTED: 'PUBLIC_PROTECTED',
+  PUBLIC_API_KEY: 'PUBLIC_API_KEY',
+  PUBLIC_OIDC: 'PUBLIC_OIDC',
+  PUBLIC_UNPROTECTED: 'PUBLIC_UNPROTECTED'
+} as const
+
+export type ServerAccessMode = (typeof ServerAccessMode)[keyof typeof ServerAccessMode]
+
+
 export const ReactionType = {
   LOVED: 'LOVED',
   CLAPPED: 'CLAPPED',

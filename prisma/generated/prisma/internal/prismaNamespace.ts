@@ -2940,8 +2940,15 @@ export const ServerScalarFieldEnum = {
   isDefault: 'isDefault',
   isActive: 'isActive',
   isEditable: 'isEditable',
+  accessMode: 'accessMode',
+  requiresClientSideCheck: 'requiresClientSideCheck',
+  isPrivateNetwork: 'isPrivateNetwork',
+  allowBrowserRequests: 'allowBrowserRequests',
   requiresApiKey: 'requiresApiKey',
   apiKeyName: 'apiKeyName',
+  apiKey: 'apiKey',
+  useOidc: 'useOidc',
+  oidcProvider: 'oidcProvider',
   supportsTxt2Img: 'supportsTxt2Img',
   supportsImg2Img: 'supportsImg2Img',
   supportsChat: 'supportsChat',
@@ -2954,7 +2961,6 @@ export const ServerScalarFieldEnum = {
   supportsVideo: 'supportsVideo',
   apiLink: 'apiLink',
   model: 'model',
-  apiKey: 'apiKey',
   designer: 'designer',
   version: 'version',
   notes: 'notes',
@@ -3405,9 +3411,10 @@ export const ServerOrderByRelevanceFieldEnum = {
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
   apiKeyName: 'apiKeyName',
+  apiKey: 'apiKey',
+  oidcProvider: 'oidcProvider',
   apiLink: 'apiLink',
   model: 'model',
-  apiKey: 'apiKey',
   designer: 'designer',
   version: 'version',
   notes: 'notes'
@@ -3594,6 +3601,13 @@ export type EnumResourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'ServerType'
  */
 export type EnumServerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerType'>
+    
+
+
+/**
+ * Reference to a field of type 'ServerAccessMode'
+ */
+export type EnumServerAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerAccessMode'>
     
 
 

@@ -1033,6 +1033,11 @@ export const useServerStore = defineStore('serverStore', () => {
       notes: '',
       sortOrder: 0,
       lastStatus: 'UNKNOWN',
+      accessMode: 'LOCAL',
+      requiresClientSideCheck: false,
+      isPrivateNetwork: false,
+      allowBrowserRequests: true,
+      useOidc: false,
     }
 
     selectedServer.value = null

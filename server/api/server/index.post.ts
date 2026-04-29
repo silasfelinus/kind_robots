@@ -6,11 +6,32 @@ import { validateApiKey } from '@/server/utils/validateKey'
 import type {
   Prisma,
   Server,
+  ServerAccessMode,
   ServerStatus,
   ServerType,
 } from '~/prisma/generated/prisma/client'
 
 type ServerInput = Partial<Server>
+
+const serverTypes = [
+  'ART',
+  'TEXT',
+  'COMFY',
+  'A1111',
+  'OPENAI_COMPATIBLE',
+  'OTHER',
+] as const
+
+const serverStatuses = ['ONLINE', 'OFFLINE', 'DEGRADED', 'UNKNOWN'] as const
+
+const serverAccessModes = [
+  'LOCAL',
+  'TAILSCALE',
+  'PUBLIC_PROTECTED',
+  'PUBLIC_API_KEY',
+  'PUBLIC_OIDC',
+  'PUBLIC_UNPROTECTED',
+] as const
 
 function normalizeUrl(value?: string | null): string {
   if (!value || typeof value !== 'string') {
@@ -33,11 +54,20 @@ function normalizeUrl(value?: string | null): string {
 
 function normalizePath(value?: string | null): string | null {
   if (!value || typeof value !== 'string') return null
+
   const trimmed = value.trim()
   if (!trimmed) return null
+
   return trimmed.startsWith('/')
     ? trimmed.replace(/\/+$/, '')
     : `/${trimmed.replace(/\/+$/, '')}`
+}
+
+function normalizeOptionalString(value?: string | null): string | null {
+  if (!value || typeof value !== 'string') return null
+
+  const trimmed = value.trim()
+  return trimmed || null
 }
 
 function validateEnumValue<T extends string>(
@@ -46,13 +76,104 @@ function validateEnumValue<T extends string>(
   label: string,
 ): T | undefined {
   if (!value) return undefined
+
   if (!allowed.includes(value as T)) {
     throw createError({
       statusCode: 400,
       message: `Invalid ${label}: "${value}".`,
     })
   }
+
   return value as T
+}
+
+function resolveAccessDefaults(
+  accessMode: ServerAccessMode,
+  entry: ServerInput,
+) {
+  if (accessMode === 'TAILSCALE') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: true,
+      requiresClientSideCheck: true,
+      allowBrowserRequests: true,
+      useOidc: false,
+    }
+  }
+
+  if (accessMode === 'LOCAL') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: true,
+      requiresClientSideCheck: true,
+      allowBrowserRequests: true,
+      useOidc: false,
+    }
+  }
+
+  if (accessMode === 'PUBLIC_API_KEY') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: false,
+      requiresClientSideCheck: false,
+      allowBrowserRequests: entry.allowBrowserRequests ?? false,
+      useOidc: false,
+    }
+  }
+
+  if (accessMode === 'PUBLIC_OIDC') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: false,
+      requiresClientSideCheck: false,
+      allowBrowserRequests: entry.allowBrowserRequests ?? false,
+      useOidc: true,
+    }
+  }
+
+  if (accessMode === 'PUBLIC_PROTECTED') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: false,
+      requiresClientSideCheck: false,
+      allowBrowserRequests: entry.allowBrowserRequests ?? true,
+      useOidc: entry.useOidc ?? false,
+    }
+  }
+
+  return {
+    isPublic: false,
+    isPrivateNetwork: false,
+    requiresClientSideCheck: false,
+    allowBrowserRequests: entry.allowBrowserRequests ?? true,
+    useOidc: entry.useOidc ?? false,
+  }
+}
+
+function validateUnsafePublicServer(entry: {
+  accessMode: ServerAccessMode
+  serverType: ServerType
+  baseUrl: string
+  isPublic: boolean
+  isPrivateNetwork: boolean
+}) {
+  if (
+    entry.accessMode !== 'PUBLIC_UNPROTECTED' ||
+    !entry.isPublic ||
+    entry.isPrivateNetwork
+  ) {
+    return
+  }
+
+  const riskyServerTypes: ServerType[] = ['COMFY', 'A1111', 'ART']
+
+  if (riskyServerTypes.includes(entry.serverType)) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'Public unprotected image servers are not allowed. Use Tailscale, a protected public URL, an API key, or OIDC.',
+    })
+  }
 }
 
 function buildCreateInput(
@@ -60,17 +181,6 @@ function buildCreateInput(
   userId: number,
   isAdmin: boolean,
 ): Prisma.ServerCreateInput {
-  const serverTypes = [
-    'ART',
-    'TEXT',
-    'COMFY',
-    'A1111',
-    'OPENAI_COMPATIBLE',
-    'OTHER',
-  ] as const
-
-  const serverStatuses = ['ONLINE', 'OFFLINE', 'DEGRADED', 'UNKNOWN'] as const
-
   if (!entry.title || typeof entry.title !== 'string') {
     throw createError({
       statusCode: 400,
@@ -79,6 +189,7 @@ function buildCreateInput(
   }
 
   const title = entry.title.trim()
+
   if (!title) {
     throw createError({
       statusCode: 400,
@@ -97,27 +208,76 @@ function buildCreateInput(
       'serverType',
     ) || 'ART'
 
-  const lastStatus = validateEnumValue(
-    entry.lastStatus as string | undefined,
-    serverStatuses,
-    'lastStatus',
+  const accessMode =
+    validateEnumValue(
+      entry.accessMode as string | undefined,
+      serverAccessModes,
+      'accessMode',
+    ) || 'LOCAL'
+
+  const lastStatus =
+    validateEnumValue(
+      entry.lastStatus as string | undefined,
+      serverStatuses,
+      'lastStatus',
+    ) || 'UNKNOWN'
+
+  const accessDefaults = resolveAccessDefaults(
+    accessMode as ServerAccessMode,
+    entry,
   )
+
+  const requestedPublic = isAdmin ? (entry.isPublic ?? false) : false
+  const isPublic =
+    accessMode === 'TAILSCALE' || accessMode === 'LOCAL'
+      ? false
+      : requestedPublic
+
+  const isPrivateNetwork =
+    entry.isPrivateNetwork ?? accessDefaults.isPrivateNetwork
+
+  validateUnsafePublicServer({
+    accessMode: accessMode as ServerAccessMode,
+    serverType: serverType as ServerType,
+    baseUrl,
+    isPublic,
+    isPrivateNetwork,
+  })
 
   return {
     title,
-    label: entry.label?.trim() || null,
-    description: entry.description?.trim() || null,
-    category: entry.category?.trim() || null,
+    label: normalizeOptionalString(entry.label),
+    description: normalizeOptionalString(entry.description),
+    category: normalizeOptionalString(entry.category),
     serverType: serverType as ServerType,
     baseUrl,
     endpointPath,
     healthPath,
-    isPublic: isAdmin ? (entry.isPublic ?? false) : false,
+
+    user: { connect: { id: userId } },
+
+    accessMode: accessMode as ServerAccessMode,
+    requiresClientSideCheck:
+      entry.requiresClientSideCheck ?? accessDefaults.requiresClientSideCheck,
+    isPrivateNetwork,
+    allowBrowserRequests:
+      entry.allowBrowserRequests ?? accessDefaults.allowBrowserRequests,
+
+    isPublic,
     isOfficial: isAdmin ? (entry.isOfficial ?? false) : false,
     isDefault: isAdmin ? (entry.isDefault ?? false) : false,
     isActive: entry.isActive ?? true,
-    requiresApiKey: entry.requiresApiKey ?? false,
-    apiKeyName: entry.apiKeyName?.trim() || null,
+    isEditable: entry.isEditable ?? true,
+
+    requiresApiKey: entry.requiresApiKey ?? accessMode === 'PUBLIC_API_KEY',
+    apiKeyName: normalizeOptionalString(entry.apiKeyName),
+
+    useOidc: entry.useOidc ?? accessDefaults.useOidc,
+    oidcProvider:
+      accessMode === 'PUBLIC_OIDC' || entry.useOidc
+        ? normalizeOptionalString(entry.oidcProvider) || 'authelia'
+        : normalizeOptionalString(entry.oidcProvider),
+
     supportsTxt2Img: entry.supportsTxt2Img ?? false,
     supportsImg2Img: entry.supportsImg2Img ?? false,
     supportsChat: entry.supportsChat ?? false,
@@ -127,13 +287,17 @@ function buildCreateInput(
     supportsNegativePrompt: entry.supportsNegativePrompt ?? false,
     supportsSeed: entry.supportsSeed ?? false,
     supportsSteps: entry.supportsSteps ?? false,
-    designer: entry.designer?.trim() || null,
-    version: entry.version?.trim() || null,
-    notes: entry.notes?.trim() || null,
+    supportsVideo: entry.supportsVideo ?? false,
+
+    apiLink: normalizeOptionalString(entry.apiLink),
+    model: normalizeOptionalString(entry.model),
+    designer: normalizeOptionalString(entry.designer),
+    version: normalizeOptionalString(entry.version),
+    notes: normalizeOptionalString(entry.notes),
+
     sortOrder: typeof entry.sortOrder === 'number' ? entry.sortOrder : 0,
     lastCheckedAt: entry.lastCheckedAt || null,
-    lastStatus: (lastStatus as ServerStatus | undefined) || 'UNKNOWN',
-    user: { connect: { id: userId } },
+    lastStatus: lastStatus as ServerStatus,
   }
 }
 
@@ -143,6 +307,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -168,6 +333,7 @@ export default defineEventHandler(async (event) => {
               title: data.title,
               baseUrl: data.baseUrl,
               endpointPath: data.endpointPath,
+              accessMode: data.accessMode,
             },
           })
 
@@ -188,6 +354,7 @@ export default defineEventHandler(async (event) => {
       }
 
       event.node.res.statusCode = 201
+
       return {
         success: true,
         message: `${created.length} ${pluralLabel} created, ${skipped.length} skipped.`,
@@ -206,6 +373,7 @@ export default defineEventHandler(async (event) => {
         title: data.title,
         baseUrl: data.baseUrl,
         endpointPath: data.endpointPath,
+        accessMode: data.accessMode,
       },
     })
 
@@ -213,13 +381,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 409,
         message:
-          'A server with the same title and URL already exists for this user.',
+          'A server with the same title, URL, endpoint, and access mode already exists for this user.',
       })
     }
 
     const created = await prisma.server.create({ data })
 
     event.node.res.statusCode = 201
+
     return {
       success: true,
       message: `${singularLabel} created successfully.`,
@@ -229,6 +398,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode || 500
+
     return {
       success: false,
       message: handled.message || 'Failed to create Server.',

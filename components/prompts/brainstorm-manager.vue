@@ -222,7 +222,7 @@
                 type="button"
                 class="btn btn-info rounded-2xl"
                 :disabled="pitchStore.loading || !canGenerate"
-                @click="generateBrainstorm"
+                @click="generateBrainstorm(false)"
               >
                 <span
                   v-if="pitchStore.loading"
@@ -233,51 +233,119 @@
               </button>
             </div>
 
-            <div v-if="apiLines.length" class="mt-3 space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="font-bold text-info">
-                  AI candidates
-                  <span class="badge badge-info badge-sm ml-1">{{
-                    apiLines.length
-                  }}</span>
-                </h3>
+<div v-if="candidates.length" class="mt-3 space-y-3">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h3 class="font-bold text-info">
+      AI candidates
+      <span class="badge badge-info badge-sm ml-1">
+        {{ pendingCandidates.length }}
+      </span>
+    </h3>
 
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-info rounded-2xl"
-                    @click="acceptAllLines"
-                  >
-                    Accept all
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-secondary rounded-2xl"
-                    @click="saveLinesAsPitch"
-                  >
-                    Save as pitch
-                  </button>
-                </div>
-              </div>
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        class="btn btn-xs btn-info rounded-2xl"
+        :disabled="!pendingCandidates.length"
+        @click="acceptAllPendingCandidates"
+      >
+        Accept pending
+      </button>
 
-              <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
-                <div
-                  v-for="(line, index) in apiLines"
-                  :key="`ai-${index}`"
-                  class="grid grid-cols-[1fr_auto] gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
-                >
-                  <p class="text-sm">{{ line }}</p>
+      <button
+        type="button"
+        class="btn btn-xs btn-warning rounded-2xl"
+        :disabled="!pendingCandidates.length"
+        @click="rejectAllCandidates"
+      >
+        Reject pending
+      </button>
 
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-primary rounded-xl"
-                    @click="acceptLine(line)"
-                  >
-                    Keep
-                  </button>
-                </div>
-              </div>
-            </div>
+      <button
+        type="button"
+        class="btn btn-xs btn-primary rounded-2xl"
+        :disabled="pitchStore.loading || !canGenerate || !hasRejectedCandidates"
+      @click="generateBrainstorm(true)"
+      >
+        Resubmit rejected
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-xs btn-secondary rounded-2xl"
+        :disabled="!acceptedCandidates.length"
+        @click="saveLinesAsPitch"
+      >
+        Save accepted
+      </button>
+    </div>
+  </div>
+
+  <label class="form-control">
+    <div class="label py-1">
+      <span class="label-text text-xs font-semibold">Rejection feedback</span>
+    </div>
+    <textarea
+      v-model="rejectionFeedback"
+      class="textarea textarea-bordered min-h-24 rounded-2xl text-sm"
+      placeholder="Tell the bot what went wrong and what to do instead..."
+    />
+  </label>
+
+  <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+    <div
+      v-for="candidate in candidates"
+      :key="candidate.id"
+      class="space-y-2 rounded-xl border border-base-300 bg-base-100 p-2"
+      :class="{
+        'border-success/60 bg-success/10': candidate.status === 'accepted',
+        'border-error/60 bg-error/10 opacity-75': candidate.status === 'rejected',
+      }"
+    >
+      <div class="flex items-start justify-between gap-2">
+        <p class="text-sm">{{ candidate.text }}</p>
+
+        <span
+          class="badge badge-xs"
+          :class="{
+            'badge-ghost': candidate.status === 'pending',
+            'badge-success': candidate.status === 'accepted',
+            'badge-error': candidate.status === 'rejected',
+          }"
+        >
+          {{ candidate.status }}
+        </span>
+      </div>
+
+      <textarea
+        v-if="candidate.status === 'rejected'"
+        v-model="candidate.feedback"
+        class="textarea textarea-bordered textarea-xs min-h-16 rounded-xl text-xs"
+        placeholder="Optional feedback for this rejected line..."
+      />
+
+      <div class="flex flex-wrap justify-end gap-2">
+        <button
+          type="button"
+          class="btn btn-xs btn-primary rounded-xl"
+          :disabled="candidate.status === 'accepted'"
+          @click="acceptCandidate(candidate.id)"
+        >
+          Keep
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-xs btn-error btn-outline rounded-xl"
+          :disabled="candidate.status === 'rejected'"
+          @click="rejectCandidate(candidate.id, rejectionFeedback)"
+        >
+          Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
             <div
               v-else-if="statusMessage && !pitchStore.loading"
@@ -607,7 +675,7 @@
             <button
               type="button"
               class="btn btn-info rounded-2xl"
-              @click="generateBrainstorm"
+               @click="generateBrainstorm(false )"
             >
               <icon name="kind-icon:brain" class="h-4 w-4" />
               Generate from this
@@ -802,6 +870,20 @@ type ActionResult<T = unknown> = {
   data?: T
 }
 
+type CandidateStatus = 'pending' | 'accepted' | 'rejected'
+
+type BrainstormCandidate = {
+  id: string
+  text: string
+  status: CandidateStatus
+  feedback: string
+}
+
+const candidates = ref<BrainstormCandidate[]>([])
+const rejectionFeedback = ref(
+  'These are too sports-themed. Treat the title as a character name, not a sports topic. Avoid sports, teams, games, athletes, equipment, fields, coaches, and competitions.',
+)
+
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const userStore = useUserStore()
@@ -813,6 +895,8 @@ const creationSources: CreationSourceType[] = [
   'UPLOAD',
   'UNKNOWN',
 ]
+
+
 const sections: { key: BrainstormSection; label: string; icon: string }[] = [
   { key: 'add', label: 'Builder', icon: 'kind-icon:plus' },
   { key: 'gallery', label: 'Gallery', icon: 'kind-icon:gallery' },
@@ -896,11 +980,97 @@ const pitchPrompts = computed(() => {
   return promptStore.prompts.filter((prompt) => prompt.pitchId === pitchId)
 })
 
-const apiLines = computed(() => parseLines(pitchStore.apiResponse))
+
+
+const pendingCandidates = computed(() =>
+  candidates.value.filter((candidate) => candidate.status === 'pending'),
+)
+
+const acceptedCandidates = computed(() =>
+  candidates.value.filter((candidate) => candidate.status === 'accepted'),
+)
+
+const rejectedCandidates = computed(() =>
+  candidates.value.filter((candidate) => candidate.status === 'rejected'),
+)
+
+const hasRejectedCandidates = computed(() => rejectedCandidates.value.length > 0)
+
+function setCandidatesFromResponse(value: unknown, replace = true) {
+  const nextCandidates = parseLines(value).map((text, index) => ({
+    id: `${Date.now()}-${index}`,
+    text,
+    status: 'pending' as CandidateStatus,
+    feedback: '',
+  }))
+
+  candidates.value = replace
+    ? nextCandidates
+    : [...candidates.value, ...nextCandidates]
+}
+
+function acceptCandidate(candidateId: string) {
+  const candidate = candidates.value.find((item) => item.id === candidateId)
+  if (!candidate) return
+
+  candidate.status = 'accepted'
+  acceptLine(candidate.text)
+}
+
+function rejectCandidate(candidateId: string, feedback = '') {
+  const candidate = candidates.value.find((item) => item.id === candidateId)
+  if (!candidate) return
+
+  candidate.status = 'rejected'
+  candidate.feedback = feedback.trim()
+  setAction('Candidate rejected. Robot has been lightly bonked with feedback.', true)
+}
+
+function rejectAllCandidates() {
+  const rejectedCount = pendingCandidates.value.length
+
+  pendingCandidates.value.forEach((candidate) => {
+    candidate.status = 'rejected'
+    candidate.feedback = rejectionFeedback.value.trim()
+  })
+
+  setAction(`Rejected ${rejectedCount} candidate(s).`, true)
+}
+
+function acceptAllPendingCandidates() {
+  pendingCandidates.value.forEach((candidate) => acceptCandidate(candidate.id))
+  setAction('Accepted pending generated lines.', true)
+}
+
+function buildRejectionFeedbackBlock() {
+  if (!hasRejectedCandidates.value) return ''
+
+  const rejected = rejectedCandidates.value
+    .map((candidate, index) => {
+      const feedback = candidate.feedback || rejectionFeedback.value
+
+      return [
+        `${index + 1}. Rejected: ${candidate.text}`,
+        `Feedback: ${feedback}`,
+      ].join('\n')
+    })
+    .join('\n\n')
+
+  return [
+    'Revision feedback:',
+    rejectionFeedback.value.trim(),
+    rejected,
+    'Do not repeat rejected patterns. Generate fresh candidates that obey the feedback.',
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+}
+
 
 const canSave = computed(() =>
   Boolean(pitchForm.pitch?.trim() && pitchForm.title?.trim()),
 )
+
 const canGenerate = computed(() =>
   Boolean(pitchForm.title?.trim() && pitchForm.pitch?.trim()),
 )
@@ -933,6 +1103,8 @@ onMounted(async () => {
 })
 
 function selectPitch(pitchId: number) {
+  candidates.value = []
+  pitchStore.apiResponse = ''
   pitchStore.setSelectedPitch(pitchId)
   pitchStore.setSelectedTitle(pitchId)
 }
@@ -940,6 +1112,7 @@ function selectPitch(pitchId: number) {
 function startFreshPitch() {
   pitchStore.selectedPitch = null
   pitchStore.selectedTitle = null
+  candidates.value = []
 
   Object.assign(pitchForm, {
     title: defaultBrainstormSeed.title,
@@ -991,16 +1164,21 @@ function acceptLine(line: string) {
   markEdited()
 }
 
-function acceptAllLines() {
-  apiLines.value.forEach(acceptLine)
-  setAction('Accepted generated lines.', true)
-}
 
-async function generateBrainstorm() {
+
+async function generateBrainstorm(useRejectionFeedback = false) {
   if (!canGenerate.value) return
 
   pitchStore.apiResponse = ''
-  pitchStore.selectedTitle = buildPitchContext()
+
+  const feedbackBlock = useRejectionFeedback ? buildRejectionFeedbackBlock() : ''
+  const baseDescription = pitchForm.description?.trim() || ''
+
+  pitchStore.selectedTitle = {
+    ...buildPitchContext(),
+    description: [baseDescription, feedbackBlock].filter(Boolean).join('\n\n'),
+  }
+
   pitchStore.exampleString = joinExamples(examples.value)
   setAction('Generating lines...', true)
 
@@ -1012,10 +1190,8 @@ async function generateBrainstorm() {
     if (responseText.trim()) {
       generatedThisSession.value = true
       activeCreationSource.value = hasHumanEdits.value ? 'HYBRID' : 'AI'
-      setAction(
-        `Generated ${parseLines(responseText).length || 1} line(s).`,
-        true,
-      )
+      setCandidatesFromResponse(responseText, !useRejectionFeedback)
+      setAction(`Generated ${parseLines(responseText).length || 1} candidate(s).`, true)
       return
     }
 
@@ -1062,9 +1238,12 @@ async function savePitch() {
 }
 
 async function saveLinesAsPitch() {
-  const lines = joinExamples(apiLines.value)
+  const lines = joinExamples(
+    acceptedCandidates.value.map((candidate) => candidate.text), 
+  )
+
   if (!lines) {
-    setAction('No generated lines to save.', false)
+    setAction('No accepted lines to save.', false)
     return
   }
 
@@ -1082,16 +1261,14 @@ async function saveLinesAsPitch() {
     await pitchStore.fetchPitches(true)
     pitchStore.setSelectedPitch(result.data.id)
     pitchStore.setSelectedTitle(result.data.id)
-    setAction('Generated lines saved as a brainstorm pitch.', true)
+    setAction('Accepted lines saved as a brainstorm pitch.', true)
+     candidates.value = []
   } else {
-    setAction(
-      result.message || 'Could not save generated lines as pitch.',
-      false,
-    )
+    setAction(result.message || 'Could not save accepted lines as pitch.', false)
   }
 
   isSaving.value = false
-}
+} 
 
 async function generateArtImage() {
   const prompt = pitchForm.imagePrompt?.trim()

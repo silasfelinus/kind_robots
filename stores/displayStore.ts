@@ -707,15 +707,27 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   })
 
-  const footerStyle = computed<CSSProperties>(() => ({
+  const footerStyle = computed<CSSProperties>(() => {
+  if (!footerSpaceReserved.value) {
+    return {
+      top: '100vh',
+      left: `${footerLeftInset.value}vw`,
+      width: `${footerWidth.value}vw`,
+      height: '0px',
+      opacity: '0',
+      pointerEvents: 'none',
+    }
+  }
+
+  return {
     top: `calc(var(--vh) * ${100 - effectiveFooterHeight.value - sectionPaddingSize.value})`,
     left: `${footerLeftInset.value}vw`,
     width: `${footerWidth.value}vw`,
     height: `calc(var(--vh) * ${effectiveFooterHeight.value})`,
     opacity: footerContentVisible.value ? '1' : '0',
     pointerEvents: footerContentVisible.value ? 'auto' : 'none',
-  }))
-
+  }
+})
   const isLargeViewport = computed(() =>
     ['large', 'extraLarge'].includes(state.viewportSize),
   )

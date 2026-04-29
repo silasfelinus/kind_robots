@@ -144,7 +144,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       const displayStore = useDisplayStore()
 
       syncToggleAnchorFromDisplayStore('header', displayStore.headerToggleStyle)
-      syncToggleAnchorFromDisplayStore('footer', displayStore.footerToggleStyle)
       syncToggleAnchorFromDisplayStore(
         'left-sidebar',
         displayStore.leftToggleStyle,
@@ -572,16 +571,22 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
-      const pull = butterfly.speed * moveScale * 0.6
+      const exitSpeed = Math.max(1.8, butterfly.speed * 1.35)
 
       butterfly.x = clampToTwoDecimals(
-        butterfly.x + noiseDx + (goalDx / goalDist) * pull,
+        butterfly.x + (goalDx / goalDist) * exitSpeed,
       )
       butterfly.y = clampToTwoDecimals(
-        butterfly.y + noiseDy + (goalDy / goalDist) * pull,
+        butterfly.y + (goalDy / goalDist) * exitSpeed,
       )
+
+      const targetRotation = goalDx >= 0 ? 120 : 30
+      butterfly.rotation = clampToTwoDecimals(
+        butterfly.rotation + (targetRotation - butterfly.rotation) * 0.12,
+      )
+
       butterfly.scaleMod = clampToTwoDecimals(
-        0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
+        Math.max(0.25, butterfly.scaleMod * 0.985),
       )
 
       return
@@ -633,10 +638,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     }, delay)
   }
 
-  function startStartupExit() {
-    startDrain(500, 180)
-  }
-
   return {
     toggleButterflyIds,
     toggleAnchors,
@@ -663,6 +664,5 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     updateButterflyPosition,
     stopDrain,
     startDrain,
-    startStartupExit,
   }
 }

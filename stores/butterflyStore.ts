@@ -307,14 +307,17 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   async function spawnStartupSwarm(amount = 20) {
     try {
       stopDrain()
+      clearLoaderExitTimer()
       butterflies.value = []
       selectedButterflyId.value = ''
       targetCount.value = amount
       await addButterflies(amount)
+      markAllButterfliesForExit()
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }
   }
+
   function clearLoaderExitTimer() {
     if (!drainStartTimeoutId.value) return
 
@@ -340,16 +343,17 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function initializeLoaderButterflies(amount = 20) {
     if (!initialized.value) {
-      await initialize()
-      triggerLoaderButterflyExit()
-      return
+      butterflies.value = []
+      selectedButterflyId.value = ''
+      animateButterflies()
+      initialized.value = true
     }
 
     if (!butterflies.value.length) {
       await spawnStartupSwarm(amount)
     }
 
-    triggerLoaderButterflyExit()
+    markAllButterfliesForExit()
   }
 
   function removeButterflyById(id: string) {
@@ -450,7 +454,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     isOutsideRemovalBounds,
     stopDrain,
     startDrain,
-    startStartupExit,
     markButterflyForExit,
     markAllButterfliesForExit,
     sendButterflyAway,
@@ -706,7 +709,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     sendButterflyAway,
     clearButterflyById,
     markAllButterfliesForExit,
-    startStartupExit,
 
     clearLoaderExitTimer,
     triggerLoaderButterflyExit,

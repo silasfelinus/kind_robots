@@ -108,65 +108,94 @@
       </div>
     </footer>
 
-    <div
-      class="pointer-events-none fixed p-0.5"
-      :style="displayStore.leftCornerToggleStyle"
-    >
-      <button
-        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-        @click="displayStore.toggleLeftSidebar('forward')"
+    <template v-if="displayStore.mobileToggleRowVisible">
+      <div
+        v-for="(control, index) in mobileFooterControls"
+        :key="control.key"
+        class="pointer-events-none fixed p-0.5"
+        :style="
+          displayStore.getMobileToggleStyle(index, mobileFooterControls.length)
+        "
       >
-        <Icon name="kind-icon:sidebar-left" class="h-5 w-5" />
-      </button>
-    </div>
+        <button
+          :class="[
+            'pointer-events-auto flex h-full w-full items-center justify-center bg-base-100 shadow transition hover:scale-105 active:scale-95',
+            control.roundedClass,
+          ]"
+          :aria-label="control.label"
+          @click="control.action"
+        >
+          <Icon :name="control.icon" class="h-5 w-5" />
+        </button>
+      </div>
+    </template>
 
-    <div
-      class="pointer-events-none fixed p-0.5"
-      :style="displayStore.leftFooterToggleStyle"
-    >
-      <button
-        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-        @click="showPreviousFooter"
+    <template v-else>
+      <div
+        class="pointer-events-none fixed p-0.5"
+        :style="displayStore.leftCornerToggleStyle"
       >
-        <Icon name="kind-icon:chevron-left" class="h-5 w-5" />
-      </button>
-    </div>
+        <button
+          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
+          aria-label="Toggle left sidebar"
+          @click="displayStore.toggleLeftSidebar('forward')"
+        >
+          <Icon name="kind-icon:sidebar-left" class="h-5 w-5" />
+        </button>
+      </div>
 
-    <div
-      class="pointer-events-none fixed"
-      :style="displayStore.footerToggleStyle"
-    >
-      <button
-        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-full bg-base-100 shadow transition hover:scale-105 active:scale-95"
-        @click="displayStore.toggleFooter"
+      <div
+        class="pointer-events-none fixed p-0.5"
+        :style="displayStore.leftFooterToggleStyle"
       >
-        <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
-      </button>
-    </div>
+        <button
+          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
+          aria-label="Previous footer section"
+          @click="showPreviousFooter"
+        >
+          <Icon name="kind-icon:chevron-left" class="h-5 w-5" />
+        </button>
+      </div>
 
-    <div
-      class="pointer-events-none fixed p-0.5"
-      :style="displayStore.rightFooterToggleStyle"
-    >
-      <button
-        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-        @click="showNextFooter"
+      <div
+        class="pointer-events-none fixed"
+        :style="displayStore.footerToggleStyle"
       >
-        <Icon name="kind-icon:chevron-right" class="h-5 w-5" />
-      </button>
-    </div>
+        <button
+          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-full bg-base-100 shadow transition hover:scale-105 active:scale-95"
+          aria-label="Toggle footer"
+          @click="displayStore.toggleFooter"
+        >
+          <Icon name="kind-icon:chevron-up" class="h-4 w-4" />
+        </button>
+      </div>
 
-    <div
-      class="pointer-events-none fixed p-0.5"
-      :style="displayStore.rightCornerToggleStyle"
-    >
-      <button
-        class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
-        @click="displayStore.toggleRightSidebar('forward')"
+      <div
+        class="pointer-events-none fixed p-0.5"
+        :style="displayStore.rightFooterToggleStyle"
       >
-        <Icon name="kind-icon:sidebar-right" class="h-5 w-5" />
-      </button>
-    </div>
+        <button
+          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
+          aria-label="Next footer section"
+          @click="showNextFooter"
+        >
+          <Icon name="kind-icon:chevron-right" class="h-5 w-5" />
+        </button>
+      </div>
+
+      <div
+        class="pointer-events-none fixed p-0.5"
+        :style="displayStore.rightCornerToggleStyle"
+      >
+        <button
+          class="pointer-events-auto flex h-full w-full items-center justify-center rounded-2xl bg-base-100 shadow transition hover:scale-105 active:scale-95"
+          aria-label="Toggle right sidebar"
+          @click="displayStore.toggleRightSidebar('forward')"
+        >
+          <Icon name="kind-icon:sidebar-right" class="h-5 w-5" />
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -182,6 +211,14 @@ const displayStore = useDisplayStore()
 const navStore = useNavStore()
 
 type FooterName = (typeof displayStore.footerComponentNames)[number]
+
+type MobileFooterControl = {
+  key: string
+  label: string
+  icon: string
+  roundedClass: string
+  action: () => void
+}
 
 const footerOptions = [...displayStore.footerComponentNames] as FooterName[]
 
@@ -204,6 +241,44 @@ const footerInnerStyle = computed(() => {
     padding: '0.5rem',
   }
 })
+
+const mobileFooterControls = computed<MobileFooterControl[]>(() => [
+  {
+    key: 'left-sidebar',
+    label: 'Toggle left sidebar',
+    icon: 'kind-icon:sidebar-left',
+    roundedClass: 'rounded-2xl',
+    action: () => displayStore.toggleLeftSidebar('forward'),
+  },
+  {
+    key: 'previous-footer',
+    label: 'Previous footer section',
+    icon: 'kind-icon:chevron-left',
+    roundedClass: 'rounded-2xl',
+    action: showPreviousFooter,
+  },
+  {
+    key: 'footer-toggle',
+    label: 'Toggle footer',
+    icon: 'kind-icon:chevron-up',
+    roundedClass: 'rounded-full',
+    action: displayStore.toggleFooter,
+  },
+  {
+    key: 'next-footer',
+    label: 'Next footer section',
+    icon: 'kind-icon:chevron-right',
+    roundedClass: 'rounded-2xl',
+    action: showNextFooter,
+  },
+  {
+    key: 'right-sidebar',
+    label: 'Toggle right sidebar',
+    icon: 'kind-icon:sidebar-right',
+    roundedClass: 'rounded-2xl',
+    action: () => displayStore.toggleRightSidebar('forward'),
+  },
+])
 
 function getWrappedFooter(step: -1 | 1): FooterName {
   const current = displayStore.footerComponent

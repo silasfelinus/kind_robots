@@ -815,17 +815,21 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   }
 
   function requestLoaderRelease() {
-    Object.values(loaderStates.value).forEach((state) => {
-      if (!state) return
-      state.releaseRequested = true
+    try {
+      Object.values(loaderStates.value).forEach((state) => {
+        if (!state) return
+        state.releaseRequested = true
 
-      const butterfly = getButterflyById(state.id)
-      if (!butterfly || butterfly.isExiting) return
+        const butterfly = getButterflyById(state.id)
+        if (!butterfly || butterfly.isExiting) return
 
-      if (state.phase === 'holding' && !state.releaseOnGoal) {
-        beginLoaderButterflyExit(butterfly, state)
-      }
-    })
+        if (state.phase === 'holding' && !state.releaseOnGoal) {
+          beginLoaderButterflyExit(butterfly, state)
+        }
+      })
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
   }
 
   function markButterflyForExit(butterfly: Butterfly) {
@@ -846,22 +850,27 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   }
 
   function markAllButterfliesForExit() {
-    butterflies.value.forEach((butterfly, index) => {
-      if (butterfly.isExiting) return
+    try {
+      butterflies.value.forEach((butterfly, index) => {
+        if (butterfly.isExiting) return
 
-      markButterflyForExit(butterfly)
+        markButterflyForExit(butterfly)
 
-      const stagger = index * 0.7
-      butterfly.goal.x = clampToTwoDecimals(
-        butterfly.goal.x + (Math.random() - 0.5) * stagger,
-      )
-      butterfly.goal.y = clampToTwoDecimals(
-        butterfly.goal.y + (Math.random() - 0.5) * stagger,
-      )
-    })
+        const stagger = index * 0.7
+        butterfly.goal.x = clampToTwoDecimals(
+          butterfly.goal.x + (Math.random() - 0.5) * stagger,
+        )
+        butterfly.goal.y = clampToTwoDecimals(
+          butterfly.goal.y + (Math.random() - 0.5) * stagger,
+        )
+      })
 
-    selectedButterflyId.value = ''
+      selectedButterflyId.value = ''
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
   }
+
   function sendButterflyAway(butterfly: Butterfly) {
     markButterflyForExit(butterfly)
 
@@ -1193,21 +1202,27 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       drainStartTimeoutId.value = null
 
       drainIntervalId.value = setInterval(() => {
-        const available = butterflies.value.filter(
-          (butterfly) =>
-            !butterfly.isExiting &&
-            !isToggleButterfly(butterfly) &&
-            !isLoaderButterfly(butterfly),
-        )
+        try {
+          const available = butterflies.value.filter(
+            (butterfly) =>
+              !butterfly.isExiting &&
+              !isToggleButterfly(butterfly) &&
+              !isLoaderButterfly(butterfly),
+          )
 
-        if (!available.length) {
+          if (!available.length) {
+            stopDrain()
+            return
+          }
+
+          const butterfly =
+            available[Math.floor(Math.random() * available.length)]
+
+          if (butterfly) sendButterflyAway(butterfly)
+        } catch (error) {
           stopDrain()
-          return
+          addError(ErrorType.STORE_ERROR, error)
         }
-
-        const butterfly =
-          available[Math.floor(Math.random() * available.length)]
-        if (butterfly) sendButterflyAway(butterfly)
       }, interval)
     }, delay)
   }

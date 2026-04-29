@@ -18,11 +18,24 @@ interface ComfyResponse {
 }
 
 describe('Comfy API Integration', () => {
-  const API_BASE = Cypress.env('API_BASE') ?? ''
-  const apiBase = `${API_BASE}/api/comfy`
-  const apiKey = Cypress.env('API_KEY') // required
+  const API_BASE = Cypress.env('API_BASE') ?? 'http://localhost:3000'
+  const LOCAL_COMFY_BASE =
+    Cypress.env('LOCAL_COMFY_BASE') ?? 'http://127.0.0.1:8188'
 
-  // Poll until the prompt is complete (returns final body)
+  const apiBase = `${API_BASE}/api/comfy`
+  const apiKey = Cypress.env('API_KEY')
+
+  before(() => {
+    expect(apiKey, 'Cypress.env("API_KEY")').to.be.a('string').and.not.be.empty
+    expect(API_BASE, 'API_BASE should be local during tests').to.match(
+      /^http:\/\/(localhost|127\.0\.0\.1):\d+/,
+    )
+    expect(
+      LOCAL_COMFY_BASE,
+      'LOCAL_COMFY_BASE should be local during tests',
+    ).to.match(/^http:\/\/(localhost|127\.0\.0\.1):\d+/)
+  })
+
   function pollPromptStatus(
     promptId: string,
     timeoutMs = 60000,
@@ -36,6 +49,9 @@ describe('Comfy API Integration', () => {
           method: 'GET',
           url: `${apiBase}/prompt/${promptId}`,
           failOnStatusCode: false,
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
         })
         .then((res) => {
           const body = res.body as ComfyResponse
@@ -45,10 +61,12 @@ describe('Comfy API Integration', () => {
               body.status === 'running' ||
               body.status === 'pending') &&
             elapsed < timeoutMs
+
           if (!done && keepWaiting) {
             elapsed += intervalMs
             return cy.wait(intervalMs).then(check)
           }
+
           return cy.wrap(body)
         })
 
@@ -56,10 +74,9 @@ describe('Comfy API Integration', () => {
   }
 
   it('submits a simple text→image FLUX job and completes successfully', () => {
-    // Mirrors your working "T1: text to image"
     cy.request<ComfyResponse>({
       method: 'POST',
-      url: `${apiBase}`,
+      url: apiBase,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
@@ -69,8 +86,9 @@ describe('Comfy API Integration', () => {
         inputType: 'text',
         outputType: 'image',
         prompt:
-          'candid photograph at exotic alien sci-fi public hot spring, venusian moon, elaborate swirling sky, showering large magical bubbles floating around scene and reflecting the beautiful galaxy in space, Plum and rainbow braided hair streaks, alien women box jellyfish  hybrids bathing in background',
+          'candid photograph at exotic alien sci-fi public hot spring, venusian moon, elaborate swirling sky, showering large magical bubbles floating around scene and reflecting the beautiful galaxy in space, Plum and rainbow braided hair streaks, alien women box jellyfish hybrids bathing in background',
       },
+      failOnStatusCode: false,
     })
       .its('body')
       .then((body) => {
@@ -78,6 +96,7 @@ describe('Comfy API Integration', () => {
         expect(body.promptId, 'promptId returned').to.be.a('string')
 
         const promptId = body.promptId as string
+
         return pollPromptStatus(promptId).then((finalRes) => {
           expect(finalRes.success, 'final success').to.eq(true)
           expect(finalRes.status).to.be.oneOf(['done', 'cached'])
@@ -85,8 +104,7 @@ describe('Comfy API Integration', () => {
       })
   })
 
-  it('submits a FLUX Kontext graph and completes successfully', () => {
-    // Mirrors your working "K1: flux kontext fixed graph"
+  it('submits a local FLUX Kontext graph and completes successfully', () => {
     cy.request<ComfyResponse>({
       method: 'POST',
       url: `${apiBase}/extras/kontext`,
@@ -95,12 +113,12 @@ describe('Comfy API Integration', () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: {
-        apiUrl: 'https://comfy.acrocatranch.com/prompt',
-        // 1x1 PNG pixel (as in your example)
+        apiUrl: `${LOCAL_COMFY_BASE}/prompt`,
         imageData:
           'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg==',
         wildcard_text: '__flux/lsd__',
       },
+      failOnStatusCode: false,
     })
       .its('body')
       .then((body) => {
@@ -108,6 +126,7 @@ describe('Comfy API Integration', () => {
         expect(body.promptId, 'promptId returned').to.be.a('string')
 
         const promptId = body.promptId as string
+
         return pollPromptStatus(promptId).then((finalRes) => {
           expect(finalRes.success, 'final success').to.eq(true)
           expect(finalRes.status).to.be.oneOf(['done', 'cached'])
@@ -120,8 +139,12 @@ describe('Comfy API Integration', () => {
       method: 'GET',
       url: `${apiBase}/prompt/does-not-exist`,
       failOnStatusCode: false,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
     }).then((res) => {
       const body = res.body as ComfyResponse
+
       expect(body.success).to.be.false
       expect(body.status).to.be.oneOf(['unknown', 'error'])
     })

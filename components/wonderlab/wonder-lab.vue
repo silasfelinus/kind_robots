@@ -104,15 +104,6 @@ onMounted(async () => {
   if (!seen) {
     window.addEventListener('scroll', handleScroll, { passive: true })
   }
-
-  try {
-    await componentStore.initialize()
-  } catch (error) {
-    errorMessages.value.push('Failed to initialize components')
-    console.error('Error during initialization:', error)
-  } finally {
-    isLoading.value = false
-  }
 })
 </script>
 

@@ -223,11 +223,30 @@ export async function generateImage({
 }: GenerateImageInput): Promise<GenerateImageResponse> {
   const endpoint = getServerEndpoint(server)
 
-  if (server.serverType === 'COMFY' || server.supportsComfyWorkflow) {
+  if (server.serverType !== 'A1111') {
     throw new Error(
-      `Server "${server.title}" is a Comfy server. This route currently supports A1111-style txt2img servers only.`,
+      `Server "${server.title}" is ${server.serverType}. This route only supports A1111 txt2img servers.`,
     )
   }
+
+  if (server.supportsComfyWorkflow) {
+    throw new Error(
+      `Server "${server.title}" supports Comfy workflows. Use the Comfy route instead.`,
+    )
+  }
+
+  if (!endpoint.includes('/sdapi/v1/txt2img')) {
+    throw new Error(
+      `Server "${server.title}" endpoint does not look like an A1111 txt2img endpoint: ${endpoint}`,
+    )
+  }
+
+  console.log('[Art Generate] Calling upstream image server', {
+    serverId: server.id,
+    title: server.title,
+    serverType: server.serverType,
+    endpoint,
+  })
 
   const requestBody = {
     prompt,

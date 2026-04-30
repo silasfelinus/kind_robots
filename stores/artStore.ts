@@ -6,6 +6,7 @@ import type {
   Reaction,
   ArtImage,
   Tag,
+  Server,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { usePromptStore } from './promptStore'
@@ -25,6 +26,7 @@ import { useCollectionStore } from './collectionStore'
 import { useCheckpointStore } from './checkpointStore'
 import { artListPresets } from '@/stores/seeds/artList'
 import { useRandomStore } from './randomStore'
+import { useServerStore } from './serverStore'
 
 interface ApiResponse<T> {
   success: boolean
@@ -152,6 +154,7 @@ export const useArtStore = defineStore('artStore', () => {
   const promptStore = usePromptStore()
   const collectionStore = useCollectionStore()
   const randomStore = useRandomStore()
+  const serverStore = useServerStore()
 
   const hoverArt = ref<Art | null>(null)
   const initializing = ref(false)
@@ -484,6 +487,109 @@ export const useArtStore = defineStore('artStore', () => {
     return artImageRequestMap.value[id]
   }
 
+  function calculateCfg(cfg: number, cfgHalf: boolean): number {
+    return cfgHalf ? cfg + 0.5 : cfg
+  }
+
+  function getArtGenerationEndpointPath(server: Server): string {
+    const endpointPath = server.endpointPath || '/sdapi/v1/txt2img'
+
+    if (server.serverType === 'A1111') {
+      if (endpointPath.endsWith('/sdapi/v1/txt2img')) {
+        return endpointPath
+      }
+
+      if (endpointPath.endsWith('/sdapi/v1')) {
+        return `${endpointPath}/txt2img`
+      }
+
+      if (endpointPath.endsWith('/sdapi')) {
+        return `${endpointPath}/v1/txt2img`
+      }
+
+      return '/sdapi/v1/txt2img'
+    }
+
+    return endpointPath
+  }
+
+  function getClientServerHeaders(server: Server): HeadersInit {
+    const headers: Record<string, string> = {
+      Accept: 'application/json, text/plain, */*',
+      'Content-Type': 'application/json',
+    }
+
+    if (server.requiresApiKey && server.apiKey && server.apiKeyName) {
+      const apiKeyName = server.apiKeyName.trim()
+
+      if (apiKeyName.toLowerCase() === 'authorization') {
+        headers.Authorization = server.apiKey.startsWith('Bearer ')
+          ? server.apiKey
+          : `Bearer ${server.apiKey}`
+      } else {
+        headers[apiKeyName] = server.apiKey
+      }
+    }
+
+    return headers
+  }
+
+  async function generateImageFromBrowserServer(
+    server: Server,
+    form: GenerateArtData,
+  ): Promise<string> {
+    if (server.serverType !== 'A1111') {
+      throw new Error(
+        `Server "${server.title}" is ${server.serverType}. Browser art generation currently supports A1111 servers only.`,
+      )
+    }
+
+    if (!server.allowBrowserRequests) {
+      throw new Error(
+        `Server "${server.title}" does not allow browser requests.`,
+      )
+    }
+
+    const response = await serverStore.requestServer(
+      server,
+      getArtGenerationEndpointPath(server),
+      {
+        method: 'POST',
+        headers: getClientServerHeaders(server),
+        body: JSON.stringify({
+          prompt: form.promptString,
+          negative_prompt: form.negativePrompt || ' ',
+          steps: form.steps ?? 20,
+          cfg_scale: calculateCfg(form.cfg ?? 3, form.cfgHalf ?? false),
+          seed: form.seed ?? -1,
+          width: 512,
+          height: 512,
+          sampler_index: form.sampler || 'Euler a',
+          override_settings: {
+            sd_model_checkpoint:
+              form.checkpoint || 'Flux/flux1-dev-fp8.safetensors',
+          },
+          user: form.designer || 'kindguest',
+        }),
+      },
+    )
+
+    if (!response.ok) {
+      const message = await response.text()
+      throw new Error(
+        `Browser image generation failed: ${response.status} ${response.statusText}${message ? ` - ${message}` : ''}`,
+      )
+    }
+
+    const data = await response.json()
+
+    if (!Array.isArray(data.images) || !data.images[0]) {
+      throw new Error('Browser image generation returned no image.')
+    }
+
+    return data.images[0]
+  }
+
   function getArtImageByArtId(
     artId: number,
     images?: ArtImage[],
@@ -618,6 +724,121 @@ export const useArtStore = defineStore('artStore', () => {
     await collectionStore.fetchCollections?.()
   }
 
+  async function generateImageFromBackendServer(form: GenerateArtData) {
+    return await performFetch<Art>('/api/art/generate', {
+      method: 'POST',
+      body: JSON.stringify(form),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+
+  async function fetchSelectedArtServer(
+    data: GenerateArtData,
+  ): Promise<Server> {
+    const query = new URLSearchParams()
+
+    if (data.serverId) {
+      query.set('id', String(data.serverId))
+    }
+
+    if (data.serverName) {
+      query.set('name', data.serverName)
+    }
+
+    const url = query.toString()
+      ? `/api/server/resolve?${query.toString()}`
+      : '/api/server/resolve?capability=art'
+
+    const response = await performFetch<Server>(url)
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to resolve art server.')
+    }
+
+    return response.data
+  }
+
+  type ArtGenerationMode = 'browser' | 'backend'
+
+  function getArtGenerationMode(server: Server): ArtGenerationMode {
+    if (!server.isActive) {
+      throw new Error(`Server "${server.title}" is not active.`)
+    }
+
+    if (server.serverType !== 'A1111') {
+      throw new Error(
+        `Server "${server.title}" is ${server.serverType}. This generator currently supports A1111 only.`,
+      )
+    }
+
+    if (!server.supportsTxt2Img) {
+      throw new Error(`Server "${server.title}" does not support txt2img.`)
+    }
+
+    const shouldUseBrowser =
+      server.allowBrowserRequests &&
+      (server.requiresClientSideCheck ||
+        server.isPrivateNetwork ||
+        server.accessMode === 'LOCAL')
+
+    return shouldUseBrowser ? 'browser' : 'backend'
+  }
+
+  function getSelectedArtServer(data: GenerateArtData): Server {
+    const selectedServer =
+      typeof data.serverId === 'number'
+        ? serverStore.getServerById(data.serverId)
+        : serverStore.activeArtServer
+
+    if (!selectedServer) {
+      throw new Error('No active art server selected.')
+    }
+
+    return selectedServer
+  }
+
+  async function saveBrowserGeneratedArt(
+    data: GenerateArtData & { imageBase64: string },
+  ): Promise<Art> {
+    const response = await performFetch<Art>(
+      '/api/art/save-generated',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+      3,
+      120_000,
+    )
+
+    if (!response.success || !response.data) {
+      throw new Error(
+        response.message || 'Failed to save browser-generated art.',
+      )
+    }
+
+    return response.data
+  }
+
+  async function generateBackendArt(data: GenerateArtData): Promise<Art> {
+    const response = await performFetch<Art>(
+      '/api/art/generate',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+      3,
+      120_000,
+    )
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to generate art.')
+    }
+
+    return response.data
+  }
+
   async function generateArt(
     artData?: GenerateArtData,
   ): Promise<ApiResponse<Art>> {
@@ -682,21 +903,27 @@ export const useArtStore = defineStore('artStore', () => {
     try {
       clearError()
 
-      const response = await performFetch<Art>(
-        '/api/art/generate',
-        {
-          method: 'POST',
-          body: JSON.stringify(data),
-        },
-        3,
-        120_000,
-      )
+      const server = await fetchSelectedArtServer(data)
+      const generationMode = getArtGenerationMode(server)
 
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to generate art.')
+      let art: Art
+
+      if (generationMode === 'browser') {
+        const imageBase64 = await generateImageFromBrowserServer(server, data)
+
+        art = await saveBrowserGeneratedArt({
+          ...data,
+          imageBase64,
+          serverId: server.id,
+          serverName: server.title,
+        })
+      } else {
+        art = await generateBackendArt({
+          ...data,
+          serverId: server.id,
+          serverName: server.title,
+        })
       }
-
-      const art = response.data
 
       await ensureCollectionsReady()
 
@@ -793,6 +1020,7 @@ export const useArtStore = defineStore('artStore', () => {
     loadArtImagesInChunks,
     hoverArt,
     setHoverArt,
+    generateImageFromBrowserServer,
   }
 })
 

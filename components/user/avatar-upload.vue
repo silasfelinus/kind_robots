@@ -10,12 +10,12 @@
     />
 
     <button
-      type="button"
-      class="btn btn-circle btn-sm btn-ghost border border-base-300 bg-base-200 hover:border-primary hover:bg-base-100"
-      :disabled="isUploading"
-      :title="isUploading ? 'Uploading...' : 'Upload new avatar'"
-      @click="fileInput?.click()"
-    >
+  type="button"
+  class="flex h-7 w-7 items-center justify-center rounded-full border border-base-300 bg-base-100 shadow hover:border-primary hover:bg-base-200"
+  :disabled="isUploading"
+  :title="isUploading ? 'Uploading...' : 'Upload new avatar'"
+  @click="fileInput?.click()"
+>
       <icon
         :name="isUploading ? 'kind-icon:spinner' : 'kind-icon:camera'"
         class="h-4 w-4"

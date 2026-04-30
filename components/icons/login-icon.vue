@@ -1,27 +1,41 @@
 <!-- /components/content/icons/login-icon.vue -->
 <template>
-  <router-link
+  <NuxtLink
     :to="routeToNavigate"
-    class="w-full h-full flex items-center justify-center transition-transform hover:scale-110"
+    class="flex h-full w-full min-w-0 items-center justify-center overflow-hidden rounded-2xl transition-transform hover:scale-105"
+    :title="navLabel"
+    :aria-label="navLabel"
   >
-    <user-avatar
+    <div
       v-if="isLoggedIn"
-      class="w-full h-full rounded-full border border-base-300 object-cover"
-    />
-    <Icon v-else name="kind-icon:person" class="w-full h-full" />
-  </router-link>
+      class="flex h-full w-full min-w-0 items-center justify-start gap-1.5 overflow-hidden rounded-2xl border border-base-300 bg-base-200 px-1.5 py-1"
+    >
+      <user-avatar
+        class="h-full max-h-full aspect-square shrink-0 rounded-full border border-primary/60 object-cover"
+      />
+
+      <span
+        class="min-w-0 flex-1 truncate text-left text-[clamp(0.65rem,1vw,0.85rem)] font-black leading-none text-base-content"
+      >
+        {{ username }}
+      </span>
+    </div>
+
+    <div
+      v-else
+      class="flex h-full w-full items-center justify-center overflow-hidden"
+    >
+      <Icon name="kind-icon:person" class="h-full w-full" />
+    </div>
+  </NuxtLink>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useSmartbarStore } from '@/stores/smartbarStore'
 
 const userStore = useUserStore()
-const smartbarStore = useSmartbarStore()
 
-// Don't need storeToRefs; just use computed
-const isEditing = computed(() => smartbarStore.isEditing)
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 const username = computed(() => userStore.user?.username || 'User')
 
@@ -31,6 +45,5 @@ const routeToNavigate = computed(() =>
   isLoggedIn.value ? '/dashboard' : '/login',
 )
 
-// exposed label for smart-icons
 defineExpose({ navLabel })
 </script>

@@ -1,21 +1,37 @@
 <!-- /components/content/user/avatar-upload.vue -->
 <template>
-  <div>
+  <div v-if="userStore.isLoggedIn" class="relative group">
     <input
+      ref="fileInput"
       type="file"
       accept="image/png, image/jpeg, image/webp"
-      class="mb-4"
+      class="hidden"
       @change="uploadAvatar"
     />
 
-    <div v-if="isUploading" class="text-info">Uploading image...</div>
-    <div v-else-if="uploadError" class="text-error">{{ uploadError }}</div>
-    <div v-else-if="uploadSuccess" class="text-success">
-      {{ uploadSuccess }}
-    </div>
+    <button
+      type="button"
+      class="btn btn-circle btn-sm btn-ghost border border-base-300 bg-base-200 hover:border-primary hover:bg-base-100"
+      :disabled="isUploading"
+      :title="isUploading ? 'Uploading...' : 'Upload new avatar'"
+      @click="fileInput?.click()"
+    >
+      <icon
+        :name="isUploading ? 'kind-icon:spinner' : 'kind-icon:camera'"
+        class="h-4 w-4"
+        :class="isUploading ? 'animate-spin' : ''"
+      />
+    </button>
 
-    <div v-if="newArt" class="mt-6">
-      <art-card :art="newArt" :art-image="userAvatarImage || undefined" />
+    <!-- Tooltip -->
+    <span
+      class="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-base-300 px-2 py-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+    >
+      {{ isUploading ? 'Uploading...' : uploadSuccess ? '✓ Done' : 'Upload avatar' }}
+    </span>
+
+    <div v-if="uploadError" class="absolute -bottom-14 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-error/90 px-2 py-1 text-xs text-error-content">
+      {{ uploadError }}
     </div>
   </div>
 </template>
@@ -24,116 +40,73 @@
 import { ref, computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
-import { useCollectionStore } from './../../stores/collectionStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 
-// Stores
 const artStore = useArtStore()
 const userStore = useUserStore()
 const collectionStore = useCollectionStore()
 
-// User data
+const fileInput = ref<HTMLInputElement | null>(null)
+const isUploading = ref(false)
+const uploadError = ref<string | null>(null)
+const uploadSuccess = ref(false)
+
 const userId = computed(() => userStore.userId)
 const username = computed(() => userStore.username)
 
-// State
-const newArt = ref<Art | null | undefined>(undefined)
-const userAvatarImage = ref<ArtImage | null | undefined>(undefined)
-const isUploading = ref(false)
-const uploadError = ref<string | null>(null)
-const uploadSuccess = ref<string | null>(null)
-
-// Allowed file types
-const allowedFileTypes = ['image/png', 'image/jpeg', 'image/webp']
-
-// Upload avatar handler
 async function uploadAvatar(event: Event) {
   const input = event.target as HTMLInputElement
-  const uploadedFile = input?.files?.[0]
+  const file = input?.files?.[0]
+  if (!file) return
 
-  if (uploadedFile) {
-    console.log('File selected:', uploadedFile.name, uploadedFile.type)
+  const allowed = ['image/png', 'image/jpeg', 'image/webp']
+  if (!allowed.includes(file.type)) {
+    uploadError.value = 'PNG, JPEG, or WebP only'
+    return
+  }
 
-    // Check file type
-    if (!allowedFileTypes.includes(uploadedFile.type)) {
-      console.error(
-        'Unsupported file type. Please upload a PNG, JPEG, or WebP image.',
-      )
-      uploadError.value =
-        'Unsupported file type. Only PNG, JPEG, or WebP allowed.'
-      return
-    }
+  const formData = new FormData()
+  formData.append('image', file)
+  formData.append('galleryName', 'userUpload')
+  formData.append('userId', userId.value?.toString() || '10')
+  formData.append('galleryId', '21')
+  formData.append('fileType', file.type)
 
-    const formData = new FormData()
-    formData.append('image', uploadedFile)
-    formData.append('galleryName', 'userUpload')
-    formData.append('userId', userId.value?.toString() || '10')
-    formData.append('galleryId', '21') // Replace with dynamic if applicable
-    formData.append('fileType', uploadedFile.type)
+  isUploading.value = true
+  uploadError.value = null
+  uploadSuccess.value = false
 
-    console.log('FormData:', [...formData.entries()])
+  try {
+    await artStore.uploadImage(formData)
+    const artImage = artStore.artImages.at(-1)
+    if (!artImage?.id) throw new Error('Upload returned no image')
 
-    isUploading.value = true
-    uploadError.value = null
-    uploadSuccess.value = null
+    const newArt = await artStore.createArt({
+      promptString: '[AvatarImage]',
+      path: '[AvatarImage]',
+      userId: userId.value,
+      designer: username.value || 'Kind Guest',
+      artImageId: artImage.id,
+      seed: null,
+      steps: null,
+      galleryId: null,
+      promptId: null,
+      pitchId: null,
+    })
 
-    try {
-      console.log('Starting image upload...')
-      await artStore.uploadImage(formData)
-      console.log('Image uploaded successfully. Updating art store...')
+    if (!newArt?.id) throw new Error('Art creation failed')
 
-      userAvatarImage.value = artStore.artImages.at(-1) || undefined
-      console.log('Latest uploaded image:', userAvatarImage.value)
+    await collectionStore.addArtToCollection({ artId: newArt.id, label: 'avatars' })
+    await userStore.updateUserInfo({ id: userId.value, artImageId: artImage.id })
 
-      if (userAvatarImage.value?.id) {
-        console.log('Creating new art entry with uploaded image...')
-        const newArtData = {
-          promptString: '[AvatarImage]',
-          path: '[AvatarImage]',
-          userId: userId.value,
-          designer: username.value || 'Kind Guest',
-          artImageId: userAvatarImage.value.id,
-          seed: null,
-          steps: null,
-          galleryId: null,
-          promptId: null,
-          pitchId: null,
-        }
-        newArt.value = await artStore.createArt(newArtData)
-
-        console.log('New art created:', newArt.value)
-
-        if (newArt.value?.id) {
-          console.log('Adding new art to collection...')
-          await collectionStore.addArtToCollection({
-            artId: newArt.value.id,
-            label: 'avatars',
-          })
-          console.log('Art added to collection successfully.')
-
-          console.log('Updating user profile with new avatar image...')
-          await userStore.updateUserInfo({
-            id: userId.value,
-            artImageId: userAvatarImage.value.id,
-          })
-          console.log('User profile updated successfully.')
-
-          uploadSuccess.value =
-            'Avatar uploaded and profile updated successfully!'
-        } else {
-          throw new Error('New art creation failed.')
-        }
-      }
-    } catch (error) {
-      console.error('Error during upload process:', error)
-      uploadError.value =
-        'An error occurred while uploading your avatar. Please try again.'
-    } finally {
-      isUploading.value = false
-    }
-  } else {
-    console.error('No file selected.')
-    uploadError.value =
-      'No file selected. Please choose an image file to upload.'
+    uploadSuccess.value = true
+    setTimeout(() => (uploadSuccess.value = false), 3000)
+  } catch (error) {
+    uploadError.value = 'Upload failed, please try again'
+    setTimeout(() => (uploadError.value = null), 4000)
+  } finally {
+    isUploading.value = false
+    if (fileInput.value) fileInput.value.value = ''
   }
 }
 </script>

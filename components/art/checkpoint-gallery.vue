@@ -158,7 +158,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import type { Art } from '~/prisma/generated/prisma/client'
@@ -248,7 +247,11 @@ const refreshModel = async () => {
     await checkpointStore.fetchCurrentModelFromApi()
     errorStore.clearError()
   } catch (err) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, err)
+    const msg =
+      err instanceof Error && err.message
+        ? err.message
+        : 'Could not reach art server'
+    errorStore.setError(ErrorType.NETWORK_ERROR, msg)
   }
 }
 
@@ -305,7 +308,11 @@ onMounted(async () => {
 
     errorStore.clearError()
   } catch (err) {
-    errorStore.setError(ErrorType.NETWORK_ERROR, err)
+    const msg =
+      err instanceof Error && err.message
+        ? err.message
+        : 'Could not reach art server'
+    errorStore.setError(ErrorType.NETWORK_ERROR, msg)
   }
 })
 </script>

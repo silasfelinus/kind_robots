@@ -163,7 +163,10 @@ async function generateArt() {
   }
 
   if (!result.success) {
-    errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
+    errorStore.addError(
+      ErrorType.GENERAL_ERROR,
+      result.message ?? 'Generation failed.',
+    )
   }
 
   isGenerating.value = false
@@ -174,7 +177,7 @@ onMounted(async () => {
     await serverStore.initialize()
   }
 
-  checkpointStore.initialize()
+  await checkpointStore.initialize()
 })
 </script>
 

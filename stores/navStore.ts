@@ -1,9 +1,10 @@
 // /stores/navStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { performFetch, handleError } from '@/stores/utils'
 import type { SmartIcon } from '~/prisma/generated/prisma/client'
 import smartIconSeeds from '@/stores/seeds/smartIcons.json'
+import { useSmartbarStore } from '@/stores/smartbarStore'
+import { handleError } from '@/stores/utils'
 
 export type NavTab = 'favorites' | 'navigation' | 'all'
 
@@ -33,7 +34,97 @@ export type FooterDashboardTab =
   | 'brainstorm'
   | 'giftshop'
 
-const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
+const navIconsStorageKey = 'navIcons'
+const navFavoritesStorageKey = 'navFavorites'
+const userDashboardTabStorageKey = 'userDashboardTab'
+const wonderDashboardTabStorageKey = 'wonderDashboardTab'
+const wonderLabFolderStorageKey = 'wonderLabFolder'
+const footerDashboardTabStorageKey = 'footerDashboardTab'
+
+const isClient = typeof window !== 'undefined'
+
+function safeGetLocalStorage(key: string): string | null {
+  if (!isClient) return null
+
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!isClient) return
+
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function safeParseArray<T>(raw: string | null): T[] {
+  if (!raw) return []
+
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function normalizeIcon(icon: SmartIcon): SmartIcon {
+  return {
+    ...icon,
+    type: icon.type || 'directory',
+  }
+}
+
+function normalizeIcons(icons: SmartIcon[]): SmartIcon[] {
+  return icons.map(normalizeIcon)
+}
+
+function seededIcons(): SmartIcon[] {
+  return normalizeIcons(smartIconSeeds as SmartIcon[])
+}
+
+function isFooterDashboardTab(
+  value: string | null,
+): value is FooterDashboardTab {
+  return (
+    value === 'fx' ||
+    value === 'kind' ||
+    value === 'art' ||
+    value === 'story' ||
+    value === 'theme' ||
+    value === 'user' ||
+    value === 'lab' ||
+    value === 'brainstorm' ||
+    value === 'giftshop'
+  )
+}
+
+function isWonderDashboardTab(
+  value: string | null,
+): value is WonderDashboardTab {
+  return (
+    value === 'memory-test' ||
+    value === 'wonder-lab' ||
+    value === 'screen-fx' ||
+    value === 'rebel-button'
+  )
+}
+
+function isUserDashboardTab(value: string | null): value is UserDashboardTab {
+  return (
+    value === 'dashboard' ||
+    value === 'subscription' ||
+    value === 'milestones' ||
+    value === 'servers' ||
+    value === 'themes' ||
+    value === 'chats' ||
+    value === 'galleries'
+  )
+}
 
 export const useNavStore = defineStore('navStore', () => {
   const items = ref<SmartIcon[]>([])
@@ -41,208 +132,177 @@ export const useNavStore = defineStore('navStore', () => {
   const activeTab = ref<NavTab>('navigation')
   const activeModelType = ref<string | null>(null)
   const isInitialized = ref(false)
+  const isInitializing = ref(false)
   const loading = ref(false)
+  const lastError = ref<string | null>(null)
 
   const initializePromise = ref<Promise<void> | null>(null)
-  const fetchIconsPromise = ref<Promise<SmartIcon[]> | null>(null)
 
   const routeHistory = ref<string[]>([])
   const currentIndex = ref<number>(-1)
+
+  const userDashboardTab = ref<UserDashboardTab>('dashboard')
+  const footerDashboardTab = ref<FooterDashboardTab>('fx')
+  const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
+  const wonderLabFolder = ref<string | null>(null)
+
+  const smartbarStore = useSmartbarStore()
 
   const directoryIcons = computed(() =>
     items.value.filter((icon) => (icon.type ?? 'directory') === 'directory'),
   )
 
-  const userDashboardTab = ref<UserDashboardTab>('dashboard')
-  const footerDashboardTab = ref<FooterDashboardTab>('fx')
-
-  function setUserDashboardTab(tab: UserDashboardTab) {
-    userDashboardTab.value = tab
-    syncToLocalStorage()
-  }
-
   const modelTypes = computed(() => {
     const set = new Set<string>()
+
     for (const icon of directoryIcons.value) {
       const modelType = (icon.modelType ?? '').trim()
       const category = (icon.category ?? '').trim()
+
       if (modelType && category === 'model') {
         set.add(modelType)
       }
     }
+
     return Array.from(set).sort()
   })
 
   const favoritesIcons = computed(() => {
     const favSet = new Set(favorites.value)
+
     return directoryIcons.value.filter((icon) => {
       const link = (icon.link ?? '').trim()
       return link.length > 0 && favSet.has(link)
     })
   })
 
-  function setFooterDashboardTab(tab: FooterDashboardTab) {
-    footerDashboardTab.value = tab
-    syncToLocalStorage()
+  const canGoBack = computed(() => currentIndex.value > 0)
+
+  const canGoForward = computed(
+    () =>
+      currentIndex.value >= 0 &&
+      currentIndex.value < routeHistory.value.length - 1,
+  )
+
+  const backPath = computed(() =>
+    canGoBack.value ? routeHistory.value[currentIndex.value - 1] : null,
+  )
+
+  const forwardPath = computed(() =>
+    canGoForward.value ? routeHistory.value[currentIndex.value + 1] : null,
+  )
+
+  function setLastError(error: unknown, fallback: string): void {
+    lastError.value = error instanceof Error ? error.message : fallback
   }
 
-  const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
-  const wonderLabFolder = ref<string | null>(null)
-
-  function setWonderDashboardTab(tab: WonderDashboardTab) {
-    wonderDashboardTab.value = tab
-    syncToLocalStorage()
-  }
-
-  function setWonderLabFolder(folder: string | null) {
-    wonderLabFolder.value = folder
-    syncToLocalStorage()
+  function clearError(): void {
+    lastError.value = null
   }
 
   function syncToLocalStorage() {
-    if (typeof window === 'undefined') return
-    try {
-      localStorage.setItem('navIcons', JSON.stringify(items.value))
-      localStorage.setItem('navFavorites', JSON.stringify(favorites.value))
-      localStorage.setItem('userDashboardTab', userDashboardTab.value)
-      localStorage.setItem('wonderDashboardTab', wonderDashboardTab.value)
-      localStorage.setItem('wonderLabFolder', wonderLabFolder.value ?? '')
-      localStorage.setItem('footerDashboardTab', footerDashboardTab.value)
-    } catch {}
+    safeSetLocalStorage(navIconsStorageKey, JSON.stringify(items.value))
+    safeSetLocalStorage(navFavoritesStorageKey, JSON.stringify(favorites.value))
+    safeSetLocalStorage(userDashboardTabStorageKey, userDashboardTab.value)
+    safeSetLocalStorage(wonderDashboardTabStorageKey, wonderDashboardTab.value)
+    safeSetLocalStorage(wonderLabFolderStorageKey, wonderLabFolder.value ?? '')
+    safeSetLocalStorage(footerDashboardTabStorageKey, footerDashboardTab.value)
   }
+
   function hydrateFromLocalStorage() {
-    if (typeof window === 'undefined') return
+    const storedIcons = safeParseArray<SmartIcon>(
+      safeGetLocalStorage(navIconsStorageKey),
+    )
 
-    try {
-      const rawIcons = localStorage.getItem('navIcons')
-      const rawFavorites = localStorage.getItem('navFavorites')
-
-      const rawFooterDashboardTab = localStorage.getItem('footerDashboardTab')
-
-      if (
-        rawFooterDashboardTab === 'fx' ||
-        rawFooterDashboardTab === 'kind' ||
-        rawFooterDashboardTab === 'art' ||
-        rawFooterDashboardTab === 'story' ||
-        rawFooterDashboardTab === 'theme' ||
-        rawFooterDashboardTab === 'user' ||
-        rawFooterDashboardTab === 'lab' ||
-        rawFooterDashboardTab === 'brainstorm' ||
-        rawFooterDashboardTab === 'giftshop'
-      ) {
-        footerDashboardTab.value = rawFooterDashboardTab
-      }
-      const rawWonderDashboardTab = localStorage.getItem('wonderDashboardTab')
-      const rawWonderLabFolder = localStorage.getItem('wonderLabFolder')
-
-      if (
-        rawWonderDashboardTab === 'memory-test' ||
-        rawWonderDashboardTab === 'wonder-lab' ||
-        rawWonderDashboardTab === 'screen-fx' ||
-        rawWonderDashboardTab === 'rebel-button'
-      ) {
-        wonderDashboardTab.value = rawWonderDashboardTab
-      }
-
-      wonderLabFolder.value = rawWonderLabFolder || null
-
-      if (rawIcons) {
-        const parsed = JSON.parse(rawIcons)
-        if (Array.isArray(parsed)) {
-          items.value = parsed
-        }
-      }
-
-      if (rawFavorites) {
-        const parsed = JSON.parse(rawFavorites)
-        if (Array.isArray(parsed)) {
-          favorites.value = parsed
-        }
-      }
-    } catch {}
-  }
-
-  if (typeof window !== 'undefined') {
-    hydrateFromLocalStorage()
-
-    watch(favorites, () => syncToLocalStorage(), { deep: true })
-  }
-
-  watch(userDashboardTab, () => syncToLocalStorage())
-  watch(wonderDashboardTab, () => syncToLocalStorage())
-  watch(wonderLabFolder, () => syncToLocalStorage())
-  watch(footerDashboardTab, () => syncToLocalStorage())
-
-  async function fetchAllIcons(force = false): Promise<SmartIcon[]> {
-    if (!force && items.value.length) {
-      return items.value
+    if (storedIcons.length) {
+      items.value = normalizeIcons(storedIcons)
     }
 
-    if (fetchIconsPromise.value) {
-      return fetchIconsPromise.value
+    favorites.value = safeParseArray<string>(
+      safeGetLocalStorage(navFavoritesStorageKey),
+    )
+
+    const storedUserDashboardTab = safeGetLocalStorage(
+      userDashboardTabStorageKey,
+    )
+
+    if (isUserDashboardTab(storedUserDashboardTab)) {
+      userDashboardTab.value = storedUserDashboardTab
     }
 
-    fetchIconsPromise.value = (async () => {
-      loading.value = true
+    const storedFooterDashboardTab = safeGetLocalStorage(
+      footerDashboardTabStorageKey,
+    )
 
-      try {
-        const res = await performFetch<SmartIcon[]>('/api/icons')
+    if (isFooterDashboardTab(storedFooterDashboardTab)) {
+      footerDashboardTab.value = storedFooterDashboardTab
+    }
 
-        if (res.success && res.data?.length) {
-          items.value = res.data
-          syncToLocalStorage()
-          return items.value
-        }
+    const storedWonderDashboardTab = safeGetLocalStorage(
+      wonderDashboardTabStorageKey,
+    )
 
-        return []
-      } catch (error) {
-        handleError(error, 'fetching SmartIcons')
-        return []
-      } finally {
-        loading.value = false
-        fetchIconsPromise.value = null
-      }
-    })()
+    if (isWonderDashboardTab(storedWonderDashboardTab)) {
+      wonderDashboardTab.value = storedWonderDashboardTab
+    }
 
-    return fetchIconsPromise.value
+    wonderLabFolder.value =
+      safeGetLocalStorage(wonderLabFolderStorageKey) || null
   }
 
-  async function initialize(): Promise<void> {
-    if (isInitialized.value) return
-    if (initializePromise.value) return initializePromise.value
+  function applyIconsFromSmartbar(): void {
+    if (smartbarStore.icons.length) {
+      items.value = normalizeIcons(smartbarStore.icons)
+      syncToLocalStorage()
+      return
+    }
+
+    if (!items.value.length) {
+      items.value = seededIcons()
+      syncToLocalStorage()
+    }
+  }
+
+  function syncModelTypeIfNeeded(): void {
+    if (!activeModelType.value && modelTypes.value.length > 0) {
+      activeModelType.value = modelTypes.value[0] ?? null
+    }
+  }
+
+  async function initialize(force = false): Promise<void> {
+    if (isInitialized.value && !force) return
+    if (initializePromise.value && !force) return initializePromise.value
 
     initializePromise.value = (async () => {
       try {
+        isInitializing.value = true
+        loading.value = true
+        clearError()
+
         hydrateFromLocalStorage()
 
-        if (!items.value.length) {
-          const fetched = await fetchAllIcons()
-
-          if (!fetched.length) {
-            items.value = (smartIconSeeds as SmartIcon[]).map((icon) => ({
-              ...icon,
-              type: (icon as any).type || 'directory',
-            }))
-            syncToLocalStorage()
-          }
+        if (!smartbarStore.isInitialized) {
+          await smartbarStore.initialize()
         }
 
-        if (!activeModelType.value && modelTypes.value.length > 0) {
-          activeModelType.value = modelTypes.value[0] ?? null
-        }
+        applyIconsFromSmartbar()
+        syncModelTypeIfNeeded()
 
         isInitialized.value = true
       } catch (error) {
         handleError(error, 'initializing navStore')
+        setLastError(error, 'Failed to initialize nav store')
 
         if (!items.value.length) {
-          items.value = (smartIconSeeds as SmartIcon[]).map((icon) => ({
-            ...icon,
-            type: (icon as any).type || 'directory',
-          }))
+          items.value = seededIcons()
           syncToLocalStorage()
+          syncModelTypeIfNeeded()
         }
+
+        isInitialized.value = false
       } finally {
+        loading.value = false
+        isInitializing.value = false
         initializePromise.value = null
       }
     })()
@@ -250,13 +310,28 @@ export const useNavStore = defineStore('navStore', () => {
     return initializePromise.value
   }
 
+  function setIcons(data: SmartIcon[]) {
+    items.value = normalizeIcons(data)
+    syncToLocalStorage()
+    syncModelTypeIfNeeded()
+  }
+
+  function refreshIconsFromSmartbar() {
+    applyIconsFromSmartbar()
+    syncModelTypeIfNeeded()
+  }
+
   function toggleFavorite(link?: string | null) {
     const normalized = (link ?? '').trim()
     if (!normalized) return
 
-    const idx = favorites.value.indexOf(normalized)
-    if (idx === -1) favorites.value.push(normalized)
-    else favorites.value.splice(idx, 1)
+    const index = favorites.value.indexOf(normalized)
+
+    if (index === -1) {
+      favorites.value.push(normalized)
+    } else {
+      favorites.value.splice(index, 1)
+    }
 
     syncToLocalStorage()
   }
@@ -274,13 +349,24 @@ export const useNavStore = defineStore('navStore', () => {
     activeModelType.value = modelType
   }
 
-  function setIcons(data: SmartIcon[]) {
-    items.value = data
+  function setUserDashboardTab(tab: UserDashboardTab) {
+    userDashboardTab.value = tab
     syncToLocalStorage()
+  }
 
-    if (!activeModelType.value && modelTypes.value.length > 0) {
-      activeModelType.value = modelTypes.value[0] ?? null
-    }
+  function setFooterDashboardTab(tab: FooterDashboardTab) {
+    footerDashboardTab.value = tab
+    syncToLocalStorage()
+  }
+
+  function setWonderDashboardTab(tab: WonderDashboardTab) {
+    wonderDashboardTab.value = tab
+    syncToLocalStorage()
+  }
+
+  function setWonderLabFolder(folder: string | null) {
+    wonderLabFolder.value = folder
+    syncToLocalStorage()
   }
 
   function recordVisit(path: string) {
@@ -317,53 +403,65 @@ export const useNavStore = defineStore('navStore', () => {
     currentIndex.value = routeHistory.value.length - 1
   }
 
-  const canGoBack = computed(() => currentIndex.value > 0)
-  const canGoForward = computed(
-    () =>
-      currentIndex.value >= 0 &&
-      currentIndex.value < routeHistory.value.length - 1,
-  )
+  function resetInitialization() {
+    isInitialized.value = false
+    isInitializing.value = false
+    initializePromise.value = null
+    lastError.value = null
+  }
 
-  const backPath = computed(() =>
-    canGoBack.value ? routeHistory.value[currentIndex.value - 1] : null,
-  )
+  if (isClient) {
+    hydrateFromLocalStorage()
 
-  const forwardPath = computed(() =>
-    canGoForward.value ? routeHistory.value[currentIndex.value + 1] : null,
-  )
+    watch(favorites, () => syncToLocalStorage(), { deep: true })
+    watch(userDashboardTab, () => syncToLocalStorage())
+    watch(wonderDashboardTab, () => syncToLocalStorage())
+    watch(wonderLabFolder, () => syncToLocalStorage())
+    watch(footerDashboardTab, () => syncToLocalStorage())
+  }
 
   return {
     items,
     favorites,
     activeTab,
     activeModelType,
+
     isInitialized,
+    isInitializing,
     loading,
+    lastError,
+    initializePromise,
+
     directoryIcons,
     modelTypes,
     favoritesIcons,
+
     routeHistory,
     currentIndex,
     backPath,
     forwardPath,
     canGoBack,
     canGoForward,
+
+    userDashboardTab,
+    wonderDashboardTab,
+    wonderLabFolder,
+    footerDashboardTab,
+
     initialize,
-    fetchAllIcons,
+    resetInitialization,
+    refreshIconsFromSmartbar,
     toggleFavorite,
     isFavorite,
     setActiveTab,
     setActiveModelType,
     setIcons,
     syncToLocalStorage,
+    hydrateFromLocalStorage,
     recordVisit,
-    userDashboardTab,
     setUserDashboardTab,
-    wonderDashboardTab,
-    wonderLabFolder,
     setWonderDashboardTab,
     setWonderLabFolder,
-    footerDashboardTab,
     setFooterDashboardTab,
   }
 })

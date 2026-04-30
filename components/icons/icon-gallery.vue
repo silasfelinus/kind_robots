@@ -137,12 +137,6 @@ function openEditModal(icon: SmartIcon) {
   selectedIcon.value = icon
 }
 
-onMounted(async () => {
-  if (!smartbarStore.isInitialized) {
-    await smartbarStore.initialize()
-  }
-})
-
 const filteredIcons = computed(() =>
   icons.value.filter((i: SmartIcon) => {
     if (filterScope.value === 'user' && i.userId !== user.value?.id)

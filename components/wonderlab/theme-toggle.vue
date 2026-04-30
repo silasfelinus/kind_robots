@@ -74,7 +74,6 @@ const closeMenu = (e: MouseEvent) => {
 
 // Initialize theme and setup event listeners
 onMounted(() => {
-  themeStore.initialize()
   window.addEventListener('click', closeMenu)
   displayStore.updateViewport() // Update viewport on mount
 })

@@ -84,7 +84,7 @@ onMounted(async () => {
   }
 
   if (!themeStore.initialized) {
-    await themeStore.initialize()
+    await themeStore.initialize({ fetchShared: false })
   }
 })
 

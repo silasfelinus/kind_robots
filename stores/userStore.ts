@@ -85,6 +85,7 @@ export const useUserStore = defineStore('userStore', () => {
   const patchUserPromise = ref<Promise<User | null> | null>(null)
   const queuedUserPatch = ref<UserPatch>({})
   const lastPatchSignature = ref<string | null>(null)
+  const userByIdPromises = ref<Record<number, Promise<User | null>>>({})
 
   const isGuest = computed(() => !user.value || user.value.id === 10)
   const isLoggedIn = computed(() => !!user.value && user.value.id !== 10)
@@ -103,6 +104,22 @@ export const useUserStore = defineStore('userStore', () => {
   function readStoredStayLoggedIn(): boolean {
     const storedStay = getFromLocalStorage('stayLoggedIn')
     return storedStay === null ? true : storedStay === 'true'
+  }
+
+  function cacheUser(u: User) {
+    const index = users.value.findIndex(
+      (existingUser) => existingUser.id === u.id,
+    )
+
+    if (index !== -1) {
+      users.value.splice(index, 1, u)
+    } else {
+      users.value.push(u)
+    }
+
+    if (user.value?.id === u.id) {
+      user.value = u
+    }
   }
 
   function readStoredGoogleFlag(): boolean {
@@ -426,26 +443,11 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  async function getUserNameByUserId(
-    id: number | null,
-  ): Promise<string | null> {
-    if (id === null) {
-      return null
-    }
-
-    const existing = users.value.find((u) => u.id === id)
-
-    if (existing) {
-      return existing.username
-    }
-
-    await fetchUsers()
-    return users.value.find((u) => u.id === id)?.username ?? null
-  }
-
   async function getUserById(id: number | null): Promise<User | null> {
-    if (id === null) {
-      return null
+    if (id === null) return null
+
+    if (user.value?.id === id) {
+      return user.value
     }
 
     const existing = users.value.find((u) => u.id === id)
@@ -454,8 +456,50 @@ export const useUserStore = defineStore('userStore', () => {
       return existing
     }
 
-    await fetchUsers()
-    return users.value.find((u) => u.id === id) ?? null
+    if (userByIdPromises.value[id]) {
+      return userByIdPromises.value[id]
+    }
+
+    userByIdPromises.value[id] = (async () => {
+      try {
+        const response = await performFetch<User>(`/api/users/${id}`)
+
+        if (!response.success || !response.data) {
+          throw new Error(response.message || `Failed to fetch user ${id}`)
+        }
+
+        cacheUser(response.data)
+
+        return response.data
+      } catch (error) {
+        handleError(error, 'getUserById')
+        return null
+      } finally {
+        delete userByIdPromises.value[id]
+      }
+    })()
+
+    return userByIdPromises.value[id]
+  }
+
+  async function getUserNameByUserId(
+    id: number | null,
+  ): Promise<string | null> {
+    if (id === null) return null
+
+    if (user.value?.id === id) {
+      return user.value.username
+    }
+
+    const existing = users.value.find((u) => u.id === id)
+
+    if (existing) {
+      return existing.username
+    }
+
+    const fetched = await getUserById(id)
+
+    return fetched?.username ?? null
   }
 
   function logout() {
@@ -674,6 +718,7 @@ export const useUserStore = defineStore('userStore', () => {
     userImage,
     getUserNameByUserId,
     getUserById,
+    userByIdPromises,
   }
 })
 

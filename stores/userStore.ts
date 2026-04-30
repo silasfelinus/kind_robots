@@ -439,7 +439,19 @@ export const useUserStore = defineStore('userStore', () => {
 
     try {
       const artImage = await artStore.getArtImageById(target.artImageId)
-      return artImage?.imageData || fallbackAvatar
+      if (!artImage?.imageData) return fallbackAvatar
+
+      const data = artImage.imageData
+      // Already a usable URL
+      if (
+        data.startsWith('/') ||
+        data.startsWith('http') ||
+        data.startsWith('data:')
+      ) {
+        return data
+      }
+      // Raw base64 — prefix it so browsers can render it
+      return `data:image/png;base64,${data}`
     } catch (error) {
       handleError(error, 'userImage')
       return fallbackAvatar

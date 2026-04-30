@@ -58,16 +58,15 @@ onMounted(async () => {
   await resolveAvatar()
 })
 
-// Re-resolve if user changes (e.g. after login or upload)
 watch(
-  () => userStore.user,
-  async (newUser) => {
-    console.log('[avatar-image] user changed:', newUser)
-    await resolveAvatar()
+  () => [userStore.user?.artImageId, userStore.user?.avatarImage],
+  async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
+    if (newArtId !== oldArtId || newAvatar !== oldAvatar) {
+      console.log('[avatar-image] relevant user fields changed, resolving')
+      await resolveAvatar()
+    }
   },
-  { deep: true },
 )
-
 const handleAvatarClick = () => {
   try {
     flipped.value = !flipped.value

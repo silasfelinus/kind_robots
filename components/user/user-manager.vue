@@ -15,17 +15,21 @@
 
           <div class="min-w-0 flex-1">
             <h1
-              class="max-w-full break-words text-xl font-black leading-tight sm:text-2xl"
+              class="max-w-full wrap-break-word text-xl font-black leading-tight sm:text-2xl"
             >
               {{ username }}
             </h1>
-            <p class="mt-1 break-words text-xs text-base-content/60 sm:text-sm">
+            <p
+              class="mt-1 wrap-break-word text-xs text-base-content/60 sm:text-sm"
+            >
               {{ userStatus }}
             </p>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-end">
+        <div
+          class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-end"
+        >
           <button
             v-if="userStore.isLoggedIn"
             type="button"
@@ -62,17 +66,24 @@
           :key="stat.label"
           class="min-w-0 rounded-2xl border border-base-300 bg-base-200 px-2 py-2 text-center"
         >
-          <p class="truncate text-base font-black sm:text-lg" :class="stat.className">
+          <p
+            class="truncate text-base font-black sm:text-lg"
+            :class="stat.className"
+          >
             {{ stat.value }}
           </p>
-          <p class="truncate text-[0.65rem] uppercase tracking-wide text-base-content/50 sm:text-xs">
+          <p
+            class="truncate text-[0.65rem] uppercase tracking-wide text-base-content/50 sm:text-xs"
+          >
             {{ stat.label }}
           </p>
         </div>
       </div>
     </header>
 
-    <div class="grid min-h-0 flex-1 grid-cols-1 overflow-hidden xl:grid-cols-[17rem_minmax(0,1fr)]">
+    <div
+      class="grid min-h-0 flex-1 grid-cols-1 overflow-hidden xl:grid-cols-[17rem_minmax(0,1fr)]"
+    >
       <aside
         class="shrink-0 overflow-hidden border-b border-base-300 bg-base-100 xl:min-h-0 xl:border-b-0 xl:border-r"
       >
@@ -96,7 +107,9 @@
               <span class="block truncate text-sm font-black">
                 {{ section.label }}
               </span>
-              <span class="hidden truncate text-xs text-base-content/55 xl:block">
+              <span
+                class="hidden truncate text-xs text-base-content/55 xl:block"
+              >
                 {{ section.description }}
               </span>
             </span>
@@ -111,7 +124,9 @@
         >
           <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
             <div class="grid min-w-0 gap-3">
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4"
+              >
                 <h2 class="text-xl font-black">Account Snapshot</h2>
 
                 <div class="mt-3 grid gap-2 sm:grid-cols-2">
@@ -120,17 +135,21 @@
                     :key="detail.label"
                     class="min-w-0 rounded-2xl bg-base-100 p-3"
                   >
-                    <p class="text-xs uppercase tracking-wide text-base-content/50">
+                    <p
+                      class="text-xs uppercase tracking-wide text-base-content/50"
+                    >
                       {{ detail.label }}
                     </p>
-                    <p class="break-words text-base font-bold">
+                    <p class="wrap-break-word text-base font-bold">
                       {{ detail.value }}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4"
+              >
                 <h2 class="text-xl font-black">Profile Tools</h2>
 
                 <div class="mt-3 grid gap-3">
@@ -146,7 +165,9 @@
                     @click="logout"
                   >
                     <icon name="kind-icon:logout" class="h-5 w-5" />
-                    <span>{{ isLoggingOut ? 'Logging out...' : 'Logout' }}</span>
+                    <span>{{
+                      isLoggingOut ? 'Logging out...' : 'Logout'
+                    }}</span>
                   </button>
 
                   <NuxtLink
@@ -162,7 +183,9 @@
             </div>
 
             <div class="grid min-w-0 gap-3 xl:content-start">
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4">
+              <div
+                class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4"
+              >
                 <h2 class="text-lg font-black">Quick Jump</h2>
 
                 <div class="mt-3 grid grid-cols-2 gap-2 xl:grid-cols-1">
@@ -198,7 +221,9 @@
           v-else-if="activeSection === 'milestones'"
           class="h-full min-h-0 overflow-y-auto p-2 sm:p-3"
         >
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4">
+          <div
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4"
+          >
             <h2 class="text-2xl font-black">Milestones</h2>
             <p class="mt-1 text-sm text-base-content/60">
               Rewards, progress, jellybeans, and dopamine with better branding.

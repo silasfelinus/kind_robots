@@ -14,7 +14,6 @@ const userStore = useUserStore()
 
 onMounted(async () => {
   const token = route.query.token as string | undefined
-  console.log('[auth/google] onMounted — token present:', !!token)
 
   if (!token) {
     console.error('[auth/google] ❌ No token in query — redirecting to login')
@@ -23,25 +22,11 @@ onMounted(async () => {
   }
 
   try {
-    console.log('[auth/google] Calling initialize() with token')
     await userStore.initialize({ token, force: true })
-    console.log(
-      '[auth/google] initialize() done — isLoggedIn:',
-      userStore.isLoggedIn,
-      '| username:',
-      userStore.username,
-    )
-    console.log('[auth/google] localStorage state after init:', {
-      token: localStorage.getItem('token')?.slice(0, 20) + '...',
-      googleToken: localStorage.getItem('googleToken'),
-      stayLoggedIn: localStorage.getItem('stayLoggedIn'),
-    })
 
     if (userStore.isLoggedIn) {
       userStore.setGoogleToken(true) // sets boolean flag + forces stayLoggedIn=true
-      console.log(
-        '[auth/google] ✅ setGoogleToken(true) called — redirecting to dashboard',
-      )
+
       await router.push('/dashboard')
     } else {
       console.warn(

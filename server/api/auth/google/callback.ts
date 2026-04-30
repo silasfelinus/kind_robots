@@ -21,7 +21,6 @@ interface GoogleUserInfoResponse {
 
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event)
-  console.log('[Google Callback] Handler entered', { hasCode: !!code })
 
   if (!code) {
     console.error('[Google Callback] ❌ No authorization code in query')
@@ -35,13 +34,7 @@ export default defineEventHandler(async (event) => {
   const clientSecret = process.env.GOOGLE_SECRET
   const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'
 
-  console.log('[Google Callback] Env check', {
-    clientId: clientId ? '✅ present' : '❌ MISSING',
-    clientSecret: clientSecret ? '✅ present' : '❌ MISSING',
-  })
-
   try {
-    console.log('[Google Callback] Exchanging code for token...')
     const tokenResponse = await $fetch<GoogleTokenResponse>(
       'https://oauth2.googleapis.com/token',
       {
@@ -57,23 +50,13 @@ export default defineEventHandler(async (event) => {
     )
 
     const { access_token } = tokenResponse
-    console.log('[Google Callback] Token exchange success', {
-      hasAccessToken: !!access_token,
-    })
 
-    console.log('[Google Callback] Fetching Google user info...')
     const userInfo = await $fetch<GoogleUserInfoResponse>(
       'https://www.googleapis.com/oauth2/v3/userinfo',
       { headers: { Authorization: `Bearer ${access_token}` } },
     )
 
     const { email, sub: googleId, name, picture } = userInfo
-    console.log('[Google Callback] User info received', {
-      email,
-      googleId,
-      name,
-      hasPicture: !!picture,
-    })
 
     if (!email) {
       console.error('[Google Callback] ❌ No email returned from Google')
@@ -81,13 +64,8 @@ export default defineEventHandler(async (event) => {
     }
 
     let user = await prisma.user.findUnique({ where: { email } })
-    console.log('[Google Callback] DB lookup result', {
-      userFound: !!user,
-      userId: user?.id,
-    })
 
     if (!user) {
-      console.log('[Google Callback] Creating new user for', email)
       const apiKey = generateApiKey()
       user = await prisma.user.create({
         data: {
@@ -98,23 +76,11 @@ export default defineEventHandler(async (event) => {
           apiKey,
         },
       })
-      console.log('[Google Callback] New user created', {
-        userId: user.id,
-        username: user.username,
-      })
     }
 
-    console.log('[Google Callback] Generating JWT for user', {
-      userId: user.id,
-    })
     const jwt = await createToken(user)
-    console.log('[Google Callback] JWT generated, length:', jwt.length)
 
     const redirectTarget = `/auth/google?token=${jwt}`
-    console.log(
-      '[Google Callback] Redirecting to:',
-      redirectTarget.substring(0, 40) + '...[token]',
-    )
 
     return sendRedirect(event, redirectTarget)
   } catch (error) {

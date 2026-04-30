@@ -455,7 +455,7 @@ export const useServerStore = defineStore('serverStore', () => {
       throw new Error(`Server "${server.title}" has no baseUrl configured.`)
     }
 
-    if (!server.allowBrowserRequests && server.requiresClientSideCheck) {
+    if (!server.allowBrowserRequests) {
       throw new Error(
         `Server "${server.title}" is not configured to allow browser requests.`,
       )

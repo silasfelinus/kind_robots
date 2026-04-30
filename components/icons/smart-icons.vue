@@ -70,10 +70,16 @@
           <template
             v-if="!isEditing && prependIcons && prependIcons.length > 0"
           >
+            <!-- prepend icon wrapper div, add dynamic width -->
             <div
               v-for="icon in prependIcons"
               :key="icon.id"
-              class="flex h-full aspect-square items-stretch justify-center"
+              class="flex h-full items-stretch justify-center"
+              :class="
+                icon.component === 'login-icon' && userStore.isLoggedIn
+                  ? 'w-24 sm:w-28 md:w-32'
+                  : 'aspect-square'
+              "
             >
               <button
                 type="button"

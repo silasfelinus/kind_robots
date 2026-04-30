@@ -70,11 +70,28 @@ export default defineEventHandler(async (event) => {
       '[COMFY] 🔍 Submitting Graph:\n' + JSON.stringify(graph, null, 2),
     )
 
+    // /server/api/comfy/index.ts  — replace the fetch block
+
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: graph }),
     })
+
+    // Guard: surface HTML error pages as readable errors instead of JSON parse crash
+    const contentType = res.headers.get('content-type') ?? ''
+    if (!res.ok || !contentType.includes('application/json')) {
+      const text = await res.text()
+      console.error(
+        `[COMFY] ❌ Unexpected response (${res.status}):`,
+        text.slice(0, 300),
+      )
+      return {
+        success: false,
+        error: `ComfyUI server returned HTTP ${res.status}`,
+        hint: text.slice(0, 200),
+      }
+    }
 
     const json = await res.json()
 
@@ -96,11 +113,11 @@ export default defineEventHandler(async (event) => {
   } catch (err: any) {
     console.error('[COMFY] ❌ Build + Submit failed:', err)
     return {
-  error: true,
-  statusCode: 500,
-  statusMessage: 'Build + Submit failed',
-  message: err.message || 'Unknown error',
-}
+      error: true,
+      statusCode: 500,
+      statusMessage: 'Build + Submit failed',
+      message: err.message || 'Unknown error',
+    }
   }
 })
 

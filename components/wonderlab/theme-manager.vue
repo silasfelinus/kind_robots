@@ -520,11 +520,7 @@ function onForgeSelect(e: Event) {
 
 // ── Lifecycle ─────────────────────────────────────────────────────
 onMounted(async () => {
-  if (!themeStore.initialized) {
-    isLoading.value = true
-    await themeStore.initialize()
-    isLoading.value = false
-  } else if (!themeStore.sharedThemes.length) {
+  if (!themeStore.sharedThemes.length) {
     await themeStore.getThemes()
   }
 })

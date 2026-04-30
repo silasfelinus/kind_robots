@@ -60,10 +60,6 @@ const { icons, smartBarIds } = storeToRefs(smartbarStore)
 const query = ref('')
 const filterType = ref('')
 
-onMounted(async () => {
-  if (!smartbarStore.isInitialized) await smartbarStore.initialize()
-})
-
 const filtered = computed(() => {
   return icons.value.filter((i) => {
     if (filterType.value && i.type !== filterType.value) return false

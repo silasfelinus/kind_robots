@@ -86,11 +86,14 @@ const prependIcons = computed(() =>
   headerState.value === 'compact' ||
   headerState.value === 'priority'
     ? [
+        // In the prependIcons computed, change the login entry label:
         {
           id: '__login',
           component: 'login-icon',
           color: 'text-primary',
-          label: 'login',
+          label: userStore.isLoggedIn
+            ? userStore.username || 'Profile'
+            : 'Login',
         },
         {
           id: '__jellybean',

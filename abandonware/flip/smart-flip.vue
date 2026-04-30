@@ -7,7 +7,7 @@
           class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
         >
           <div class="flex items-center justify-between gap-2 min-w-0">
-            <div class="flex items-center gap-1 md:gap-2 flex-shrink-0">
+            <div class="flex items-center gap-1 md:gap-2 shrink-0">
               <button
                 v-for="state in states"
                 :key="state.id"
@@ -116,7 +116,7 @@ import type { SmartState } from '@/stores/helpers/displayHelper'
 import SmartFront from '@/components/navigation/smart-front.vue'
 import SmartBack from '@/components/navigation/smart-back.vue'
 import SmartDash from '../smart-dash.vue'
-import SmartIcons from '@/components/navigation/smart-icons.vue'
+import SmartIcons from '~/components/icons/smart-icons.vue'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()

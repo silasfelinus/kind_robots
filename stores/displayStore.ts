@@ -39,7 +39,7 @@ type FooterStage = 'hidden' | 'compact' | 'open' | 'priority' | 'disabled'
 export const useDisplayStore = defineStore('displayStore', () => {
   const state = reactive({
     headerState: 'open' as DisplayState,
-    sidebarLeftState: 'compact' as DisplayState,
+    sidebarLeftState: 'hidden' as DisplayState,
     sidebarRightState: 'hidden' as DisplayState,
     footerState: 'hidden' as DisplayState,
 
@@ -730,7 +730,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     current: SidebarStage,
     direction: SidebarDirection,
   ) {
-    const order: SidebarStage[] = ['hidden', 'compact', 'open', 'priority']
+    const order: SidebarStage[] = ['hidden', 'open', 'priority']
     const index = order.indexOf(current)
 
     if (direction === 'backward') {

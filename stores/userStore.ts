@@ -14,6 +14,59 @@ import {
   stopLoading,
 } from './helpers/userHelper'
 
+type LoginCredentials = {
+  username: string
+  password?: string
+}
+
+type RegisterUserData = {
+  username: string
+  email?: string
+  password?: string
+}
+
+type UserPatch = Partial<User>
+
+type InitializeOptions = {
+  token?: string
+  force?: boolean
+}
+
+const fallbackAvatar = '/images/kindart.webp'
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`
+  }
+
+  if (value && typeof value === 'object') {
+    const sorted = Object.keys(value)
+      .sort()
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = (value as Record<string, unknown>)[key]
+        return acc
+      }, {})
+
+    return JSON.stringify(sorted)
+  }
+
+  return JSON.stringify(value)
+}
+
+function valuesMatch(a: unknown, b: unknown): boolean {
+  return stableStringify(a) === stableStringify(b)
+}
+
+function cleanPatch(fields: UserPatch): UserPatch {
+  return Object.entries(fields).reduce<UserPatch>((patch, [key, value]) => {
+    if (value !== undefined) {
+      ;(patch as Record<string, unknown>)[key] = value
+    }
+
+    return patch
+  }, {})
+}
+
 export const useUserStore = defineStore('userStore', () => {
   const user = ref<User | null>(null)
   const token = ref<string | undefined>()
@@ -25,8 +78,13 @@ export const useUserStore = defineStore('userStore', () => {
   const recipient = ref<User | null>(null)
   const googleToken = ref(false)
   const initialized = ref(false)
+
   const initializePromise = ref<Promise<void> | null>(null)
+  const validatePromise = ref<Promise<boolean> | null>(null)
   const fetchUsersPromise = ref<Promise<User[]> | null>(null)
+  const patchUserPromise = ref<Promise<User | null> | null>(null)
+  const queuedUserPatch = ref<UserPatch>({})
+  const lastPatchSignature = ref<string | null>(null)
 
   const isGuest = computed(() => !user.value || user.value.id === 10)
   const isLoggedIn = computed(() => !!user.value && user.value.id !== 10)
@@ -42,50 +100,267 @@ export const useUserStore = defineStore('userStore', () => {
   const matchRecord = computed(() => user.value?.matchRecord ?? 0)
   const clickRecord = computed(() => user.value?.clickRecord ?? 0)
 
-  async function initialize(customToken?: string): Promise<void> {
-    if (initialized.value) return
-    if (initializePromise.value) return initializePromise.value
+  function readStoredStayLoggedIn(): boolean {
+    const storedStay = getFromLocalStorage('stayLoggedIn')
+    return storedStay === null ? true : storedStay === 'true'
+  }
+
+  function readStoredGoogleFlag(): boolean {
+    return getFromLocalStorage('googleToken') === 'true'
+  }
+
+  function readStoredToken(): string | undefined {
+    const storedToken = getFromLocalStorage('token')
+    return storedToken || undefined
+  }
+
+  function setLoading(val: boolean) {
+    loading.value = val
+  }
+
+  function setStayLoggedIn(val: boolean) {
+    stayLoggedIn.value = val
+    saveToLocalStorage('stayLoggedIn', val.toString())
+  }
+
+  function setGoogleToken(val: boolean) {
+    googleToken.value = val
+
+    if (val) {
+      setStayLoggedIn(true)
+    }
+
+    saveToLocalStorage('googleToken', val.toString())
+  }
+
+  function setToken(newToken: string) {
+    token.value = newToken || undefined
+
+    if (newToken) {
+      saveToLocalStorage('token', newToken)
+    } else {
+      removeFromLocalStorage('token')
+    }
+  }
+
+  function clearAuthStorage() {
+    removeFromLocalStorage('token')
+    removeFromLocalStorage('googleToken')
+  }
+
+  function resetSessionState() {
+    user.value = null
+    token.value = undefined
+    googleToken.value = false
+    recipient.value = null
+    lastError.value = null
+  }
+
+  function updateUserInList(u: User) {
+    const index = users.value.findIndex(
+      (existingUser) => existingUser.id === u.id,
+    )
+
+    if (index !== -1) {
+      users.value.splice(index, 1, u)
+    } else {
+      users.value.push(u)
+    }
+  }
+
+  async function setUser(u: User) {
+    user.value = u
+    updateUserInList(u)
+  }
+
+  function getChangedUserFields(fields: UserPatch): UserPatch {
+    const cleaned = cleanPatch(fields)
+
+    if (!user.value) {
+      return {}
+    }
+
+    return Object.entries(cleaned).reduce<UserPatch>((patch, [key, value]) => {
+      const currentValue = (user.value as Record<string, unknown>)[key]
+
+      if (!valuesMatch(currentValue, value)) {
+        ;(patch as Record<string, unknown>)[key] = value
+      }
+
+      return patch
+    }, {})
+  }
+
+  function queueUserPatch(fields: UserPatch) {
+    queuedUserPatch.value = {
+      ...queuedUserPatch.value,
+      ...cleanPatch(fields),
+    }
+  }
+
+  async function flushUserPatchQueue(): Promise<User | null> {
+    if (patchUserPromise.value) {
+      return patchUserPromise.value
+    }
+
+    patchUserPromise.value = (async () => {
+      let latestUser: User | null = null
+
+      try {
+        while (Object.keys(queuedUserPatch.value).length > 0) {
+          if (!user.value || user.value.id === 10) {
+            queuedUserPatch.value = {}
+            return null
+          }
+
+          const patch = getChangedUserFields(queuedUserPatch.value)
+          queuedUserPatch.value = {}
+
+          if (!Object.keys(patch).length) {
+            continue
+          }
+
+          const signature = stableStringify(patch)
+
+          if (signature === lastPatchSignature.value) {
+            continue
+          }
+
+          lastPatchSignature.value = signature
+
+          const res = await performFetch<User>(`/api/users/${user.value.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(patch),
+          })
+
+          if (!res.success || !res.data) {
+            throw new Error(res.message || 'Failed to update user')
+          }
+
+          await setUser(res.data)
+          latestUser = res.data
+          lastError.value = null
+        }
+
+        return latestUser
+      } catch (error) {
+        handleError(error, 'flushUserPatchQueue')
+        lastError.value =
+          error instanceof Error ? error.message : 'Failed to update user'
+        return null
+      } finally {
+        patchUserPromise.value = null
+        lastPatchSignature.value = null
+      }
+    })()
+
+    return patchUserPromise.value
+  }
+
+  async function initialize(
+    options: InitializeOptions | string = {},
+  ): Promise<void> {
+    const normalizedOptions =
+      typeof options === 'string' ? { token: options } : options
+
+    if (initialized.value && !normalizedOptions.force) {
+      return
+    }
+
+    if (initializePromise.value && !normalizedOptions.force) {
+      return initializePromise.value
+    }
 
     initializePromise.value = (async () => {
       try {
-        const storedToken = getFromLocalStorage('token')
-        const googleStored = getFromLocalStorage('googleToken')
-        const stay = getFromLocalStorage('stayLoggedIn') === 'true'
+        loading.value = true
+        lastError.value = null
 
-        setStayLoggedIn(stay)
+        const shouldStayLoggedIn = readStoredStayLoggedIn()
+        const storedToken = readStoredToken()
+        const tokenToUse = normalizedOptions.token || storedToken
 
-        if (googleStored) {
-          googleToken.value = true
+        stayLoggedIn.value = shouldStayLoggedIn
+        googleToken.value = readStoredGoogleFlag()
+
+        if (!tokenToUse) {
+          resetSessionState()
+          initialized.value = true
+          return
         }
 
-        const tokenToUse = customToken || googleStored || storedToken
+        token.value = tokenToUse
 
-        if (tokenToUse) {
-          token.value = tokenToUse
-          const success = await validateAndFetchUserData()
+        const success = await validateAndFetchUserData()
 
-          if (!success) {
-            removeFromLocalStorage('token')
-            removeFromLocalStorage('googleToken')
-            token.value = undefined
-            googleToken.value = false
-            user.value = null
-          } else if (customToken) {
-            saveToLocalStorage('token', customToken)
-          }
+        if (!success) {
+          clearAuthStorage()
+          resetSessionState()
+          initialized.value = true
+          return
+        }
+
+        if (normalizedOptions.token && stayLoggedIn.value) {
+          saveToLocalStorage('token', normalizedOptions.token)
         }
 
         initialized.value = true
       } catch (error) {
         initialized.value = false
         handleError(error, 'initialize user store')
+        lastError.value =
+          error instanceof Error ? error.message : 'Failed to initialize user'
         throw error
       } finally {
+        loading.value = false
         initializePromise.value = null
       }
     })()
 
     return initializePromise.value
+  }
+
+  async function validateAndFetchUserData(): Promise<boolean> {
+    if (!token.value) {
+      return false
+    }
+
+    if (validatePromise.value) {
+      return validatePromise.value
+    }
+
+    validatePromise.value = (async () => {
+      try {
+        const res = await performFetch<User>('/api/auth/validate/token', {
+          method: 'POST',
+          body: JSON.stringify({ token: token.value }),
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        if (res.success && res.data) {
+          await setUser(res.data)
+
+          if (stayLoggedIn.value && token.value) {
+            saveToLocalStorage('token', token.value)
+          }
+
+          lastError.value = null
+          return true
+        }
+
+        lastError.value = res.message || 'Invalid token'
+        return false
+      } catch (error) {
+        handleError(error, 'validateAndFetchUserData')
+        lastError.value = 'Validation error'
+        return false
+      } finally {
+        validatePromise.value = null
+      }
+    })()
+
+    return validatePromise.value
   }
 
   async function fetchUsers(force = false): Promise<User[]> {
@@ -119,22 +394,6 @@ export const useUserStore = defineStore('userStore', () => {
     return fetchUsersPromise.value
   }
 
-  function setStayLoggedIn(val: boolean) {
-    stayLoggedIn.value = val
-    saveToLocalStorage('stayLoggedIn', val.toString())
-  }
-
-  function setGoogleToken(val: boolean) {
-    googleToken.value = val
-    setStayLoggedIn(true)
-    saveToLocalStorage('googleToken', val.toString())
-  }
-
-  function setToken(newToken: string) {
-    token.value = newToken || undefined
-    saveToLocalStorage('token', newToken)
-  }
-
   async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
     let target = users.value.find((u) => u.id === resolvedId)
@@ -148,58 +407,73 @@ export const useUserStore = defineStore('userStore', () => {
       target = users.value.find((u) => u.id === resolvedId)
     }
 
-    if (!target) return '/images/kindart.webp'
-    if (!target.artImageId) return target.avatarImage || '/images/kindart.webp'
+    if (!target) {
+      return fallbackAvatar
+    }
+
+    if (!target.artImageId) {
+      return target.avatarImage || fallbackAvatar
+    }
 
     const artStore = useArtStore()
 
     try {
       const artImage = await artStore.getArtImageById(target.artImageId)
-      return artImage?.imageData || '/images/kindart.webp'
+      return artImage?.imageData || fallbackAvatar
     } catch (error) {
       handleError(error, 'userImage')
-      return '/images/kindart.webp'
+      return fallbackAvatar
     }
   }
 
   async function getUserNameByUserId(
     id: number | null,
   ): Promise<string | null> {
-    if (id === null) return null
+    if (id === null) {
+      return null
+    }
 
     const existing = users.value.find((u) => u.id === id)
-    if (existing) return existing.username
+
+    if (existing) {
+      return existing.username
+    }
 
     await fetchUsers()
     return users.value.find((u) => u.id === id)?.username ?? null
   }
 
   async function getUserById(id: number | null): Promise<User | null> {
-    if (id === null) return null
+    if (id === null) {
+      return null
+    }
 
     const existing = users.value.find((u) => u.id === id)
-    if (existing) return existing
+
+    if (existing) {
+      return existing
+    }
 
     await fetchUsers()
     return users.value.find((u) => u.id === id) ?? null
   }
 
   function logout() {
-    console.log('Logging out user.')
-    user.value = null
-    token.value = undefined
-    googleToken.value = false
+    resetSessionState()
     initialized.value = false
     initializePromise.value = null
+    validatePromise.value = null
+    fetchUsersPromise.value = null
+    patchUserPromise.value = null
+    queuedUserPatch.value = {}
+    lastPatchSignature.value = null
     users.value = []
-    recipient.value = null
-    lastError.value = null
-    ;['token', 'user', 'stayLoggedIn', 'googleToken'].forEach(
-      removeFromLocalStorage,
-    )
+    clearAuthStorage()
+    removeFromLocalStorage('user')
+    removeFromLocalStorage('stayLoggedIn')
   }
 
-  async function login(credentials: { username: string; password?: string }) {
+  async function login(credentials: LoginCredentials) {
     startLoading(setLoading)
 
     try {
@@ -210,34 +484,35 @@ export const useUserStore = defineStore('userStore', () => {
 
       if (res.success && res.data) {
         await setUser(res.data)
-        token.value = res.data.token ?? undefined
+
+        const responseToken = (res.data as User & { token?: string }).token
+        token.value = responseToken ?? token.value
 
         if (stayLoggedIn.value && token.value) {
           saveToLocalStorage('token', token.value)
         }
 
-        if (!res.data.token && token.value) {
-          await updateUserToken(token.value)
-        }
+        initialized.value = true
+        lastError.value = null
 
         return { success: true }
       }
 
       handleError(new Error(res.message || 'Login failed'), 'login')
+      lastError.value = res.message || 'Login failed'
+
       return { success: false, message: res.message }
     } catch (error) {
       handleError(error, 'login')
+      lastError.value = 'An unknown error occurred'
+
       return { success: false, message: 'An unknown error occurred' }
     } finally {
       stopLoading(setLoading)
     }
   }
 
-  async function register(userData: {
-    username: string
-    email?: string
-    password?: string
-  }) {
+  async function register(userData: RegisterUserData) {
     try {
       const res = await performFetch<{ user: User; token: string }>(
         '/api/user/register',
@@ -250,118 +525,61 @@ export const useUserStore = defineStore('userStore', () => {
       if (res.success && res.data) {
         user.value = res.data.user
         token.value = res.data.token
+        initialized.value = true
         updateUserInList(res.data.user)
+
+        if (stayLoggedIn.value) {
+          saveToLocalStorage('token', res.data.token)
+        }
+
+        lastError.value = null
         return res
       }
 
       handleError(new Error(res.message), 'register')
+      lastError.value = res.message
+
       return { success: false, message: res.message }
     } catch (error) {
       handleError(error, 'register')
+      lastError.value = 'Unknown error'
+
       return { success: false, message: 'Unknown error' }
     }
   }
 
-  async function validateAndFetchUserData(): Promise<boolean> {
-    if (!token.value) return false
-
-    try {
-      const res = await performFetch<User>('/api/auth/validate/token', {
-        method: 'POST',
-        body: JSON.stringify({ token: token.value }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (res.success && res.data) {
-        await setUser(res.data)
-
-        if (stayLoggedIn.value && token.value) {
-          saveToLocalStorage('token', token.value)
-        }
-
-        lastError.value = null
-        return true
-      }
-
-      lastError.value = res.message || 'Invalid token'
-      return false
-    } catch (error) {
-      handleError(error, 'validateAndFetchUserData')
-      lastError.value = 'Validation error'
-      return false
-    }
-  }
-
   async function updateUserToken(newToken: string) {
-    try {
-      const res = await performFetch<User>(`/api/users/${userId.value}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ token: newToken }),
-      })
-
-      if (res.success && res.data) {
-        await setUser(res.data)
-      }
-    } catch (error) {
-      handleError(error, 'updateUserToken')
+    if (!newToken) {
+      return
     }
+
+    token.value = newToken
+
+    if (stayLoggedIn.value) {
+      saveToLocalStorage('token', newToken)
+    }
+
+    await updateUser({ token: newToken } as UserPatch)
   }
 
-  async function setUser(u: User) {
-    user.value = u
-    updateUserInList(u)
+  async function updateUser(fields: UserPatch) {
+    if (!user.value || user.value.id === 10) {
+      return
+    }
+
+    queueUserPatch(fields)
+    await flushUserPatchQueue()
   }
 
-  function updateUserInList(u: User) {
-    const index = users.value.findIndex(
-      (existingUser) => existingUser.id === u.id,
-    )
-
-    if (index !== -1) {
-      users.value.splice(index, 1, u)
-    } else {
-      users.value.push(u)
-    }
-  }
-
-  async function updateUser(fields: Partial<User>) {
-    if (!user.value) return
-
-    try {
-      const res = await performFetch<User>(`/api/users/${user.value.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fields),
-      })
-
-      if (res.success && res.data) {
-        await setUser(res.data)
-      } else {
-        throw new Error(res.message)
-      }
-    } catch (error) {
-      handleError(error, 'updateUser')
-    }
-  }
-
-  async function updateUserInfo(info: Partial<User>) {
-    try {
-      const res = await performFetch<User>(`/api/users/${userId.value}`, {
-        method: 'PATCH',
-        body: JSON.stringify(info),
-      })
-
-      if (res.success && res.data) {
-        await setUser(res.data)
-      } else {
-        throw new Error(res.message)
-      }
-    } catch (error) {
-      handleError(error, 'updateUserInfo')
-    }
+  async function updateUserInfo(info: UserPatch) {
+    await updateUser(info)
   }
 
   async function updateKarmaAndMana() {
+    if (!user.value || user.value.id === 10) {
+      return { success: false, message: 'Guest users do not update karma.' }
+    }
+
     try {
       const milestoneStore = useMilestoneStore()
 
@@ -374,25 +592,32 @@ export const useUserStore = defineStore('userStore', () => {
       const updatedKarma = count * 1000
       const updatedMana = count
 
-      const res = await performFetch<User>(`/api/users/${userId.value}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ karma: updatedKarma, mana: updatedMana }),
-      })
+      const latestUser = await flushSpecificUserPatch({
+        karma: updatedKarma,
+        mana: updatedMana,
+      } as UserPatch)
 
-      if (res.success && res.data) {
-        user.value = { ...res.data, karma: updatedKarma, mana: updatedMana }
+      if (latestUser) {
         users.value = updateUserFields(users.value, userId.value, {
           karma: updatedKarma,
           mana: updatedMana,
         })
+
         return { success: true, message: 'Karma and mana updated.' }
       }
 
-      throw new Error(res.message)
+      throw new Error('Failed to update karma and mana.')
     } catch (error) {
       handleError(error, 'updateKarmaAndMana')
       return { success: false, message: 'Failed to update karma and mana.' }
     }
+  }
+
+  async function flushSpecificUserPatch(
+    fields: UserPatch,
+  ): Promise<User | null> {
+    queueUserPatch(fields)
+    return flushUserPatchQueue()
   }
 
   async function getUsernames(): Promise<string[]> {
@@ -403,10 +628,6 @@ export const useUserStore = defineStore('userStore', () => {
       handleError(error, 'getUsernames')
       return []
     }
-  }
-
-  function setLoading(val: boolean) {
-    loading.value = val
   }
 
   return {

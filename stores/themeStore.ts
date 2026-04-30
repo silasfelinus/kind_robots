@@ -1,7 +1,7 @@
 // /stores/themeStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed, watch, nextTick } from 'vue'
-import { performFetch } from '@/stores/utils'
+import { performFetch, handleError } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type { Theme } from '~/prisma/generated/prisma/client'
@@ -36,6 +36,16 @@ type ThemeApiPayload = Partial<Omit<Theme, 'values'>> & {
   values?: string
 }
 
+type ThemeInitializeOptions = {
+  force?: boolean
+  fetchShared?: boolean
+}
+
+const defaultThemeName = 'retro'
+const themeStorageKey = 'theme'
+const themeFormStorageKey = 'themeForm'
+const showCustomStorageKey = 'showCustom'
+
 function toApiPayload(
   src: ThemeForm | Partial<Theme>,
   userId?: number,
@@ -61,8 +71,45 @@ function toApiPayload(
   }
 }
 
+function canUseDom(): boolean {
+  return typeof window !== 'undefined' && typeof document !== 'undefined'
+}
+
+function safeGetLocalStorage(key: string): string | null {
+  if (!canUseDom()) return null
+
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!canUseDom()) return
+
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function safeParseThemeForm(raw: string | null): ThemeForm | null {
+  if (!raw) return null
+
+  try {
+    const parsed = JSON.parse(raw) as ThemeForm
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function themeNameFromInput(input: string | ThemeForm): string {
+  return typeof input === 'string' ? input : input.name || 'custom'
+}
+
 export const useThemeStore = defineStore('themeStore', () => {
-  const activeTheme = ref<ActiveTheme>('retro')
+  const activeTheme = ref<ActiveTheme>(defaultThemeName)
   const themeForm = ref<ThemeForm>({})
   const applyAfterSave = ref(true)
   const sharedThemes = ref<Theme[]>([])
@@ -71,17 +118,26 @@ export const useThemeStore = defineStore('themeStore', () => {
   const botOverride = ref(true)
   const firstThemeChanged = ref(false)
   const initialized = ref(false)
+  const initializing = ref(false)
+  const loadingThemes = ref(false)
+  const lastError = ref<string | null>(null)
+
   const initializePromise = ref<Promise<void> | null>(null)
   const getThemesPromise = ref<Promise<Theme[]> | null>(null)
+  const savingThemeForm = ref(false)
 
   const currentTheme = computed(() =>
     typeof activeTheme.value === 'string'
       ? activeTheme.value
-      : activeTheme.value?.name || 'retro',
+      : activeTheme.value?.name || defaultThemeName,
   )
 
+  function setLastError(error: unknown, fallback: string): void {
+    lastError.value = error instanceof Error ? error.message : fallback
+  }
+
   function clearAppliedThemeValues(): void {
-    if (typeof document === 'undefined') return
+    if (!canUseDom()) return
 
     const root = document.documentElement
 
@@ -99,7 +155,7 @@ export const useThemeStore = defineStore('themeStore', () => {
   async function getActiveThemeSnapshot(
     themeName?: string,
   ): Promise<ThemeForm | null> {
-    if (typeof document === 'undefined') return null
+    if (!canUseDom()) return null
 
     await nextTick()
 
@@ -119,12 +175,34 @@ export const useThemeStore = defineStore('themeStore', () => {
     open.value = !open.value
   }
 
-  async function setActiveTheme(input: string | ThemeForm): Promise<{
+  function setShowCustom(value: boolean): void {
+    showCustom.value = value
+    safeSetLocalStorage(showCustomStorageKey, String(value))
+  }
+
+  function persistThemeForm(): void {
+    safeSetLocalStorage(themeFormStorageKey, JSON.stringify(themeForm.value))
+  }
+
+  async function setActiveTheme(
+    input: string | ThemeForm,
+    options: { skipSnapshot?: boolean } = {},
+  ): Promise<{
     success: boolean
     message?: string
   }> {
-    if (typeof document === 'undefined') {
+    if (!canUseDom()) {
       return { success: false, message: 'Cannot set theme server-side' }
+    }
+
+    const nextThemeName = themeNameFromInput(input)
+
+    if (
+      typeof input === 'string' &&
+      currentTheme.value === input &&
+      firstThemeChanged.value
+    ) {
+      return { success: true }
     }
 
     if (typeof input === 'string') {
@@ -136,48 +214,47 @@ export const useThemeStore = defineStore('themeStore', () => {
 
       clearAppliedThemeValues()
       document.documentElement.setAttribute('data-theme', input)
-      localStorage.setItem('theme', input)
+      safeSetLocalStorage(themeStorageKey, input)
       activeTheme.value = input
 
-      const snapshot = await getActiveThemeSnapshot(input)
-      themeForm.value =
-        snapshot || normalizeThemeFromServer(extractComputedTheme(input))
+      if (!options.skipSnapshot) {
+        const snapshot = await getActiveThemeSnapshot(input)
+        themeForm.value =
+          snapshot || normalizeThemeFromServer(extractComputedTheme(input))
+      }
+
       firstThemeChanged.value = true
+      lastError.value = null
 
       return { success: true }
     }
 
     if (input.values && isThemeValuesRecord(input.values)) {
       const values = sanitizeThemeValues(input.values)
+      const normalized = normalizeThemeFromServer({ ...input, values })
+
       clearAppliedThemeValues()
       applyThemeValues(values)
       document.documentElement.setAttribute('data-theme', 'custom')
-      localStorage.setItem('theme', input.name || 'custom')
+      safeSetLocalStorage(themeStorageKey, nextThemeName)
 
-      const normalized = normalizeThemeFromServer(input)
       activeTheme.value = normalized
       themeForm.value = normalized
       firstThemeChanged.value = true
+      lastError.value = null
 
       return { success: true }
     }
 
     const message = '[themeStore] Invalid input passed to setActiveTheme'
     console.warn(message)
+
     return { success: false, message }
   }
 
   function updateBotTheme(theme: string): void {
     if (botOverride.value) {
       void setActiveTheme(theme)
-    }
-  }
-
-  function setShowCustom(value: boolean): void {
-    showCustom.value = value
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('showCustom', String(value))
     }
   }
 
@@ -231,69 +308,96 @@ export const useThemeStore = defineStore('themeStore', () => {
       return sharedThemes.value
     }
 
-    if (getThemesPromise.value) {
+    if (getThemesPromise.value && !force) {
       return getThemesPromise.value
     }
 
     getThemesPromise.value = (async () => {
-      const { success, data } = await performFetch<{ themes: Theme[] }>(
-        '/api/themes',
-      )
+      try {
+        loadingThemes.value = true
+        lastError.value = null
 
-      if (success && data?.themes) {
-        sharedThemes.value = data.themes
+        const { success, data, message } = await performFetch<{
+          themes: Theme[]
+        }>('/api/themes')
+
+        if (success && data?.themes) {
+          sharedThemes.value = data.themes
+          return sharedThemes.value
+        }
+
+        throw new Error(message || 'No themes found or fetch failed.')
+      } catch (error) {
+        handleError(error, 'getThemes')
+        setLastError(error, 'Failed to fetch themes')
         return sharedThemes.value
+      } finally {
+        loadingThemes.value = false
+        getThemesPromise.value = null
       }
-
-      sharedThemes.value = []
-      console.warn('[themeStore] No themes found or fetch failed.')
-      return []
     })()
 
-    try {
-      return await getThemesPromise.value
-    } finally {
-      getThemesPromise.value = null
-    }
+    return getThemesPromise.value
   }
 
-  function initialize(): Promise<void> | void {
-    if (typeof window === 'undefined') return
-    if (initialized.value) return
-    if (initializePromise.value) return initializePromise.value
+  async function initialize(
+    options: ThemeInitializeOptions = {},
+  ): Promise<void> {
+    if (!canUseDom()) return
+    if (initialized.value && !options.force) return
+    if (initializePromise.value && !options.force)
+      return initializePromise.value
 
     initializePromise.value = (async () => {
       try {
-        const storedFlag = localStorage.getItem('showCustom')
+        initializing.value = true
+        lastError.value = null
+
+        const storedFlag = safeGetLocalStorage(showCustomStorageKey)
+
         if (storedFlag !== null) {
           showCustom.value = storedFlag === 'true'
         }
 
-        const storedTheme = localStorage.getItem('theme') || 'retro'
-        const storedForm = localStorage.getItem('themeForm')
+        const storedTheme =
+          safeGetLocalStorage(themeStorageKey) || defaultThemeName
+        const storedForm = safeParseThemeForm(
+          safeGetLocalStorage(themeFormStorageKey),
+        )
+
         const builtIn = daisyuiThemes.includes(storedTheme)
+
+        savingThemeForm.value = true
 
         if (builtIn) {
           await setActiveTheme(storedTheme)
-        } else if (storedForm) {
-          const parsed = JSON.parse(storedForm) as ThemeForm
-          if (parsed?.values) {
-            await setActiveTheme(normalizeThemeFromServer(parsed))
-          } else {
-            await setActiveTheme('retro')
-          }
+        } else if (storedForm?.values) {
+          await setActiveTheme(normalizeThemeFromServer(storedForm))
         } else {
-          await setActiveTheme('retro')
+          await setActiveTheme(defaultThemeName)
         }
 
-        await getThemes()
+        savingThemeForm.value = false
+
+        if (options.fetchShared !== false) {
+          await getThemes(Boolean(options.force))
+        }
+
         initialized.value = true
       } catch (error) {
         console.warn('[themeStore] Failed to initialize themeStore:', error)
-        await setActiveTheme('retro')
+        handleError(error, 'initialize themeStore')
+        setLastError(error, 'Failed to initialize theme store')
+
+        try {
+          await setActiveTheme(defaultThemeName)
+        } catch {}
+
         initialized.value = false
         throw error
       } finally {
+        savingThemeForm.value = false
+        initializing.value = false
         initializePromise.value = null
       }
     })()
@@ -306,21 +410,31 @@ export const useThemeStore = defineStore('themeStore', () => {
     const userId = userStore.user?.id || 10
     const payload = toApiPayload(theme, userId)
 
-    const result = await performFetch('/api/themes', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
+    try {
+      const result = await performFetch('/api/themes', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
 
-    if (result.success) {
-      await getThemes(true)
-    } else {
-      useErrorStore().setError(
-        ErrorType.NETWORK_ERROR,
-        result.message || 'Theme save failed.',
-      )
+      if (result.success) {
+        await getThemes(true)
+      } else {
+        useErrorStore().setError(
+          ErrorType.NETWORK_ERROR,
+          result.message || 'Theme save failed.',
+        )
+      }
+
+      return result
+    } catch (error) {
+      handleError(error, 'addTheme')
+      setLastError(error, 'Theme save failed.')
+
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Theme save failed.',
+      }
     }
-
-    return result
   }
 
   async function updateTheme(
@@ -331,35 +445,59 @@ export const useThemeStore = defineStore('themeStore', () => {
     const userId = userStore.user?.id || 10
     const payload = toApiPayload(updates, userId)
 
-    const { success } = await performFetch(`/api/themes/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(payload),
-    })
+    try {
+      const { success, message } = await performFetch(`/api/themes/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      })
 
-    if (success) {
-      await getThemes(true)
+      if (success) {
+        await getThemes(true)
+        lastError.value = null
+        return
+      }
+
+      throw new Error(message || 'Theme update failed.')
+    } catch (error) {
+      handleError(error, 'updateTheme')
+      setLastError(error, 'Theme update failed.')
     }
   }
 
   async function deleteTheme(id: number): Promise<void> {
-    const { success } = await performFetch(`/api/themes/${id}`, {
-      method: 'DELETE',
-    })
+    try {
+      const { success, message } = await performFetch(`/api/themes/${id}`, {
+        method: 'DELETE',
+      })
 
-    if (success) {
-      await getThemes(true)
+      if (success) {
+        sharedThemes.value = sharedThemes.value.filter(
+          (theme) => theme.id !== id,
+        )
+        return
+      }
+
+      throw new Error(message || 'Theme delete failed.')
+    } catch (error) {
+      handleError(error, 'deleteTheme')
+      setLastError(error, 'Theme delete failed.')
     }
   }
 
   if (typeof window !== 'undefined') {
-    let saveTimeout: ReturnType<typeof setTimeout>
+    let saveTimeout: ReturnType<typeof setTimeout> | null = null
 
     watch(
       themeForm,
       (val) => {
-        clearTimeout(saveTimeout)
+        if (savingThemeForm.value) return
+
+        if (saveTimeout) {
+          clearTimeout(saveTimeout)
+        }
+
         saveTimeout = setTimeout(() => {
-          localStorage.setItem('themeForm', JSON.stringify(val))
+          safeSetLocalStorage(themeFormStorageKey, JSON.stringify(val))
         }, 250)
       },
       { deep: true },
@@ -377,6 +515,9 @@ export const useThemeStore = defineStore('themeStore', () => {
     firstThemeChanged,
     applyAfterSave,
     initialized,
+    initializing,
+    loadingThemes,
+    lastError,
     initializePromise,
     toggleMenu,
     setActiveTheme,

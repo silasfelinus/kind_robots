@@ -79,7 +79,22 @@ type ServerHealthApiResponse = FetchResponse<
   ServerHealthHandoffData | ServerHealthResultData
 >
 
+type ServerInitializeOptions = {
+  force?: boolean
+  fetchRemote?: boolean
+}
+
+type SetActiveServerOptions = {
+  persistUser?: boolean
+}
+
 const isClient = typeof window !== 'undefined'
+
+const serversStorageKey = 'servers'
+const serverFormStorageKey = 'serverForm'
+const activeArtServerIdStorageKey = 'activeArtServerId'
+const activeTextServerIdStorageKey = 'activeTextServerId'
+const serverHealthResultsStorageKey = 'serverHealthResults'
 
 function isServer(value: unknown): value is Server {
   if (!value || typeof value !== 'object') return false
@@ -130,18 +145,32 @@ function getResponseStatusCode(response: FetchResponse<unknown>): number {
   return response.statusCode ?? response.status ?? 0
 }
 
-function parseStoredValue<T>(key: string, fallback: T): T {
-  if (!isClient) return fallback
+function safeGetLocalStorage(key: string): string | null {
+  if (!isClient) return null
 
   try {
-    const rawValue = localStorage.getItem(key)
-    if (!rawValue) return fallback
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!isClient) return
+
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function parseStoredValue<T>(key: string, fallback: T): T {
+  const rawValue = safeGetLocalStorage(key)
+
+  if (!rawValue) return fallback
+
+  try {
     return JSON.parse(rawValue) as T
-  } catch (error) {
-    console.error(
-      `[serverStore] Failed to parse localStorage key "${key}":`,
-      error,
-    )
+  } catch {
     return fallback
   }
 }
@@ -169,28 +198,25 @@ export const useServerStore = defineStore('serverStore', () => {
   const activeArtServerId: Ref<number | null> = ref(null)
   const activeTextServerId: Ref<number | null> = ref(null)
   const healthResults: Ref<Record<number, ServerHealthResponse>> = ref({})
+
   const isSaving = ref(false)
   const isInitialized = ref(false)
+  const isInitializing = ref(false)
   const loading = ref(false)
   const testingHealth = ref(false)
   const showHiddenServers = ref(false)
+  const lastError = ref<string | null>(null)
 
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<Server[]> | null>(null)
+  const fetchServerByIdPromises = ref<Record<number, Promise<Server | null>>>(
+    {},
+  )
+  const healthPromises = ref<Record<number, Promise<ServerHealthResponse>>>({})
   const hasLoaded = ref(false)
 
   const userStore = useUserStore()
   const errorStore = useErrorStore()
-
-  const ownedServers = computed<Server[]>(() =>
-    servers.value.filter(
-      (server: Server): boolean => server.userId === userStore.user?.id,
-    ),
-  )
-
-  function isServerHidden(id: number): boolean {
-    return hiddenServerIdSet.value.has(id)
-  }
 
   const hiddenServerIds = computed<number[]>(() => {
     const ids = userStore.user?.hiddenServerIds
@@ -202,6 +228,26 @@ export const useServerStore = defineStore('serverStore', () => {
 
   const hiddenServerIdSet = computed<Set<number>>(
     () => new Set(hiddenServerIds.value),
+  )
+
+  const ownedServers = computed<Server[]>(() =>
+    servers.value.filter(
+      (server: Server): boolean => server.userId === userStore.user?.id,
+    ),
+  )
+
+  const publicServers = computed<Server[]>(() =>
+    servers.value.filter((server: Server): boolean => Boolean(server.isPublic)),
+  )
+
+  const officialServers = computed<Server[]>(() =>
+    servers.value.filter((server: Server): boolean =>
+      Boolean(server.isOfficial),
+    ),
+  )
+
+  const activeServers = computed<Server[]>(() =>
+    servers.value.filter((server: Server): boolean => Boolean(server.isActive)),
   )
 
   const hiddenServers = computed<Server[]>(() =>
@@ -216,6 +262,156 @@ export const useServerStore = defineStore('serverStore', () => {
       return !hiddenServerIdSet.value.has(server.id)
     }),
   )
+
+  const artServers = computed<Server[]>(() =>
+    visibleActiveServers.value.filter((server: Server): boolean => {
+      return (
+        server.serverType === 'ART' ||
+        server.serverType === 'A1111' ||
+        server.serverType === 'COMFY' ||
+        Boolean(server.supportsTxt2Img) ||
+        Boolean(server.supportsImg2Img) ||
+        Boolean(server.supportsComfyWorkflow)
+      )
+    }),
+  )
+
+  const textServers = computed<Server[]>(() =>
+    visibleActiveServers.value.filter((server: Server): boolean => {
+      return (
+        server.serverType === 'TEXT' ||
+        server.serverType === 'OPENAI_COMPATIBLE' ||
+        Boolean(server.supportsChat)
+      )
+    }),
+  )
+
+  const comfyServers = computed<Server[]>(() =>
+    visibleActiveServers.value.filter((server: Server): boolean => {
+      return (
+        server.serverType === 'COMFY' || Boolean(server.supportsComfyWorkflow)
+      )
+    }),
+  )
+
+  const dropdownServers = computed<Server[]>(() =>
+    [...visibleActiveServers.value].sort((a: Server, b: Server): number =>
+      sortServers(a, b),
+    ),
+  )
+
+  const activeArtServer = computed<Server | null>(() => {
+    if (activeArtServerId.value !== null) {
+      const match = servers.value.find(
+        (server: Server): boolean => server.id === activeArtServerId.value,
+      )
+
+      if (match) return match
+    }
+
+    if (typeof userStore.user?.preferredArtServerId === 'number') {
+      const preferred = servers.value.find(
+        (server: Server): boolean =>
+          server.id === userStore.user?.preferredArtServerId,
+      )
+
+      if (preferred) return preferred
+    }
+
+    return (
+      artServers.value.find((server: Server): boolean =>
+        Boolean(server.isDefault),
+      ) ||
+      artServers.value.find((server: Server): boolean =>
+        Boolean(server.isOfficial),
+      ) ||
+      artServers.value[0] ||
+      null
+    )
+  })
+
+  const activeTextServer = computed<Server | null>(() => {
+    if (activeTextServerId.value !== null) {
+      const match = servers.value.find(
+        (server: Server): boolean => server.id === activeTextServerId.value,
+      )
+
+      if (match) return match
+    }
+
+    if (typeof userStore.user?.preferredTextServerId === 'number') {
+      const preferred = servers.value.find(
+        (server: Server): boolean =>
+          server.id === userStore.user?.preferredTextServerId,
+      )
+
+      if (preferred) return preferred
+    }
+
+    return (
+      textServers.value.find((server: Server): boolean =>
+        Boolean(server.isDefault),
+      ) ||
+      textServers.value.find((server: Server): boolean =>
+        Boolean(server.isOfficial),
+      ) ||
+      textServers.value[0] ||
+      null
+    )
+  })
+
+  const artServerOptions = computed<ServerOption[]>(() =>
+    artServers.value
+      .slice()
+      .sort((a: Server, b: Server): number => sortServers(a, b))
+      .map(
+        (server: Server): ServerOption => ({
+          value: server.id,
+          label: server.label || server.title,
+          description: server.description || '',
+          serverType: server.serverType,
+          isOfficial: Boolean(server.isOfficial),
+          isDefault: Boolean(server.isDefault),
+        }),
+      ),
+  )
+
+  const textServerOptions = computed<ServerOption[]>(() =>
+    textServers.value
+      .slice()
+      .sort((a: Server, b: Server): number => sortServers(a, b))
+      .map(
+        (server: Server): ServerOption => ({
+          value: server.id,
+          label: server.label || server.title,
+          description: server.description || '',
+          serverType: server.serverType,
+          isOfficial: Boolean(server.isOfficial),
+          isDefault: Boolean(server.isDefault),
+        }),
+      ),
+  )
+
+  function setStoreError(
+    errorType: ErrorType,
+    message: string,
+    context: string,
+  ): void {
+    lastError.value = message
+    errorStore.setError(errorType, message)
+
+    if (import.meta.dev) {
+      console.error(`[serverStore] ${context}: ${message}`)
+    }
+  }
+
+  function clearStoreError(): void {
+    lastError.value = null
+  }
+
+  function isServerHidden(id: number): boolean {
+    return hiddenServerIdSet.value.has(id)
+  }
 
   function joinServerUrl(baseUrl: string, path: string): string {
     const cleanBase = baseUrl.replace(/\/+$/, '')
@@ -276,441 +472,110 @@ export const useServerStore = defineStore('serverStore', () => {
     })
   }
 
-  async function hideServer(id: number): Promise<{
-    success: boolean
-    message?: string
-  }> {
-    if (!userStore.isLoggedIn) {
-      return {
-        success: false,
-        message: 'Please log in to hide servers.',
-      }
-    }
-
-    const nextHiddenServerIds = [...new Set([...hiddenServerIds.value, id])]
-
-    try {
-      await userStore.updateUser({
-        hiddenServerIds: nextHiddenServerIds,
-      })
-
-      if (activeArtServerId.value === id) {
-        activeArtServerId.value = null
-      }
-
-      if (activeTextServerId.value === id) {
-        activeTextServerId.value = null
-      }
-
-      syncToLocalStorage()
-
-      return {
-        success: true,
-        message: 'Server hidden.',
-      }
-    } catch (error) {
-      handleError(error, 'hiding server')
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : 'Failed to hide server.',
-      }
-    }
-  }
-
-  async function unhideServer(id: number): Promise<{
-    success: boolean
-    message?: string
-  }> {
-    if (!userStore.isLoggedIn) {
-      return {
-        success: false,
-        message: 'Please log in to restore servers.',
-      }
-    }
-
-    const nextHiddenServerIds = hiddenServerIds.value.filter(
-      (serverId: number): boolean => serverId !== id,
+  function upsertServer(server: Server): void {
+    const index = servers.value.findIndex(
+      (entry: Server): boolean => entry.id === server.id,
     )
 
-    try {
-      await userStore.updateUser({
-        hiddenServerIds: nextHiddenServerIds,
-      })
-
-      syncToLocalStorage()
-
-      return {
-        success: true,
-        message: 'Server restored.',
-      }
-    } catch (error) {
-      handleError(error, 'restoring server')
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : 'Failed to restore server.',
-      }
-    }
-  }
-
-  const publicServers = computed<Server[]>(() =>
-    servers.value.filter((server: Server): boolean => Boolean(server.isPublic)),
-  )
-
-  const officialServers = computed<Server[]>(() =>
-    servers.value.filter((server: Server): boolean =>
-      Boolean(server.isOfficial),
-    ),
-  )
-
-  const activeServers = computed<Server[]>(() =>
-    servers.value.filter((server: Server): boolean => Boolean(server.isActive)),
-  )
-
-  const artServers = computed<Server[]>(() =>
-    visibleActiveServers.value.filter((server: Server): boolean => {
-      return (
-        server.serverType === 'ART' ||
-        server.serverType === 'A1111' ||
-        Boolean(server.supportsTxt2Img) ||
-        Boolean(server.supportsImg2Img)
-      )
-    }),
-  )
-
-  const textServers = computed<Server[]>(() =>
-    visibleActiveServers.value.filter((server: Server): boolean => {
-      return (
-        server.serverType === 'TEXT' ||
-        server.serverType === 'OPENAI_COMPATIBLE' ||
-        Boolean(server.supportsChat)
-      )
-    }),
-  )
-
-  const comfyServers = computed<Server[]>(() =>
-    visibleActiveServers.value.filter((server: Server): boolean => {
-      return (
-        server.serverType === 'COMFY' || Boolean(server.supportsComfyWorkflow)
-      )
-    }),
-  )
-
-  const dropdownServers = computed<Server[]>(() =>
-    [...visibleActiveServers.value].sort((a: Server, b: Server): number =>
-      sortServers(a, b),
-    ),
-  )
-  const activeArtServer = computed<Server | null>(() => {
-    if (activeArtServerId.value !== null) {
-      const match = servers.value.find(
-        (server: Server): boolean => server.id === activeArtServerId.value,
-      )
-      if (match) return match
-    }
-
-    if (typeof userStore.user?.preferredArtServerId === 'number') {
-      const preferred = servers.value.find(
-        (server: Server): boolean =>
-          server.id === userStore.user?.preferredArtServerId,
-      )
-      if (preferred) return preferred
-    }
-
-    return (
-      artServers.value.find((server: Server): boolean =>
-        Boolean(server.isDefault),
-      ) ||
-      artServers.value.find((server: Server): boolean =>
-        Boolean(server.isOfficial),
-      ) ||
-      artServers.value[0] ||
-      null
-    )
-  })
-
-  async function updateServerApiKey(
-    id: number,
-    payload: {
-      apiKey?: string | null
-      apiKeyName?: string | null
-      clearKey?: boolean
-    },
-  ): Promise<{ success: boolean; message?: string }> {
-    isSaving.value = true
-
-    try {
-      const res = (await performFetch(`/api/server/key/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })) as FetchResponse<Server>
-
-      if (!res.success || !res.data || !isServer(res.data)) {
-        throw new Error(res.message || 'Failed to update server API key.')
-      }
-
-      const index = servers.value.findIndex((server) => server.id === id)
-
-      if (index !== -1) {
-        servers.value[index] = res.data
-      }
-
-      if (selectedServer.value?.id === id) {
-        selectedServer.value = res.data
-        serverForm.value = { ...res.data }
-      }
-
-      syncToLocalStorage()
-
-      return {
-        success: true,
-        message: res.message || 'Server API key updated.',
-      }
-    } catch (error) {
-      handleError(error, 'updating server API key')
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update server API key.',
-      }
-    } finally {
-      isSaving.value = false
-    }
-  }
-
-  function cloneServerPayload(
-    source: Server | null,
-    updates: Partial<Server>,
-  ): Partial<Server> {
-    const base = source
-      ? {
-          title: source.title,
-          label: source.label,
-          description: source.description,
-          category: source.category,
-          serverType: source.serverType,
-          baseUrl: source.baseUrl,
-          endpointPath: source.endpointPath,
-          healthPath: source.healthPath,
-          isActive: source.isActive,
-          requiresApiKey: source.requiresApiKey,
-          apiKeyName: source.apiKeyName,
-          supportsTxt2Img: source.supportsTxt2Img,
-          supportsImg2Img: source.supportsImg2Img,
-          supportsChat: source.supportsChat,
-          supportsComfyWorkflow: source.supportsComfyWorkflow,
-          supportsCheckpointOverride: source.supportsCheckpointOverride,
-          supportsSampler: source.supportsSampler,
-          supportsNegativePrompt: source.supportsNegativePrompt,
-          supportsSeed: source.supportsSeed,
-          supportsSteps: source.supportsSteps,
-          designer: source.designer,
-          version: source.version,
-          notes: source.notes,
-          sortOrder: source.sortOrder,
-          lastStatus: 'UNKNOWN' as ServerStatus,
-        }
-      : {}
-
-    return {
-      ...base,
-      ...updates,
-      userId: userStore.user?.id,
-      isPublic: false,
-      isOfficial: false,
-      isDefault: false,
-      isActive: updates.isActive ?? base.isActive ?? true,
-      lastStatus: 'UNKNOWN',
-    }
-  }
-
-  async function saveServerAsUserCopy(
-    sourceServerId: number | null,
-    updates: Partial<Server>,
-    mode: 'art' | 'text',
-  ): Promise<{ success: boolean; data?: Server; message?: string }> {
-    if (!userStore.isLoggedIn || !userStore.user?.id) {
-      return {
-        success: false,
-        message: 'Please log in before saving a custom server.',
-      }
-    }
-
-    const source =
-      typeof sourceServerId === 'number' ? getServerById(sourceServerId) : null
-
-    const payload = cloneServerPayload(source, updates)
-    const result = await addServer(payload)
-
-    if (!result.success || !result.data) {
-      return result
-    }
-
-    if (mode === 'art') {
-      await setActiveArtServer(result.data.id)
+    if (index >= 0) {
+      servers.value.splice(index, 1, server)
     } else {
-      await setActiveTextServer(result.data.id)
+      servers.value.push(server)
     }
 
-    return {
-      success: true,
-      data: result.data,
-      message: 'Saved as your custom server.',
-    }
+    servers.value.sort(sortServers)
   }
 
-  const activeTextServer = computed<Server | null>(() => {
-    if (activeTextServerId.value !== null) {
-      const match = servers.value.find(
-        (server: Server): boolean => server.id === activeTextServerId.value,
-      )
-      if (match) return match
-    }
-
-    if (typeof userStore.user?.preferredTextServerId === 'number') {
-      const preferred = servers.value.find(
-        (server: Server): boolean =>
-          server.id === userStore.user?.preferredTextServerId,
-      )
-      if (preferred) return preferred
-    }
-
-    return (
-      textServers.value.find((server: Server): boolean =>
-        Boolean(server.isDefault),
-      ) ||
-      textServers.value.find((server: Server): boolean =>
-        Boolean(server.isOfficial),
-      ) ||
-      textServers.value[0] ||
-      null
+  function mergeServers(incoming: Server[]): void {
+    const incomingIds = new Set<number>(
+      incoming.map((server: Server): number => server.id),
     )
-  })
 
-  const artServerOptions = computed<ServerOption[]>(() =>
-    artServers.value
-      .slice()
-      .sort((a: Server, b: Server): number => sortServers(a, b))
-      .map(
-        (server: Server): ServerOption => ({
-          value: server.id,
-          label: server.label || server.title,
-          description: server.description || '',
-          serverType: server.serverType,
-          isOfficial: Boolean(server.isOfficial),
-          isDefault: Boolean(server.isDefault),
-        }),
+    servers.value = [
+      ...servers.value.filter(
+        (server: Server): boolean => !incomingIds.has(server.id),
       ),
-  )
+      ...incoming,
+    ].sort(sortServers)
+  }
 
-  const textServerOptions = computed<ServerOption[]>(() =>
-    textServers.value
-      .slice()
-      .sort((a: Server, b: Server): number => sortServers(a, b))
-      .map(
-        (server: Server): ServerOption => ({
-          value: server.id,
-          label: server.label || server.title,
-          description: server.description || '',
-          serverType: server.serverType,
-          isOfficial: Boolean(server.isOfficial),
-          isDefault: Boolean(server.isDefault),
-        }),
-      ),
-  )
+  function applyPreferredServersFromUser(): void {
+    if (
+      activeArtServerId.value === null &&
+      typeof userStore.user?.preferredArtServerId === 'number'
+    ) {
+      activeArtServerId.value = userStore.user.preferredArtServerId
+    }
+
+    if (
+      activeTextServerId.value === null &&
+      typeof userStore.user?.preferredTextServerId === 'number'
+    ) {
+      activeTextServerId.value = userStore.user.preferredTextServerId
+    }
+  }
 
   function syncToLocalStorage(): void {
-    if (!isClient) return
-
-    try {
-      localStorage.setItem('servers', JSON.stringify(servers.value))
-      localStorage.setItem('serverForm', JSON.stringify(serverForm.value))
-      localStorage.setItem(
-        'activeArtServerId',
-        JSON.stringify(activeArtServerId.value),
-      )
-      localStorage.setItem(
-        'activeTextServerId',
-        JSON.stringify(activeTextServerId.value),
-      )
-      localStorage.setItem(
-        'serverHealthResults',
-        JSON.stringify(healthResults.value),
-      )
-    } catch (error) {
-      console.error('[serverStore] localStorage sync error:', error)
-    }
+    safeSetLocalStorage(serversStorageKey, JSON.stringify(servers.value))
+    safeSetLocalStorage(serverFormStorageKey, JSON.stringify(serverForm.value))
+    safeSetLocalStorage(
+      activeArtServerIdStorageKey,
+      JSON.stringify(activeArtServerId.value),
+    )
+    safeSetLocalStorage(
+      activeTextServerIdStorageKey,
+      JSON.stringify(activeTextServerId.value),
+    )
+    safeSetLocalStorage(
+      serverHealthResultsStorageKey,
+      JSON.stringify(healthResults.value),
+    )
   }
 
   function loadFromLocalStorage(): void {
     if (!isClient) return
 
-    const storedServers = parseStoredValue<unknown[]>('servers', [])
-    const storedForm = parseStoredValue<ServerForm>('serverForm', {})
+    const storedServers = parseStoredValue<unknown[]>(serversStorageKey, [])
+    const storedForm = parseStoredValue<ServerForm>(serverFormStorageKey, {})
     const storedActiveArtServerId = parseStoredValue<number | null>(
-      'activeArtServerId',
+      activeArtServerIdStorageKey,
       null,
     )
     const storedActiveTextServerId = parseStoredValue<number | null>(
-      'activeTextServerId',
+      activeTextServerIdStorageKey,
       null,
     )
     const storedHealthResults = parseStoredValue<
       Record<number, ServerHealthResponse>
-    >('serverHealthResults', {})
+    >(serverHealthResultsStorageKey, {})
 
-    servers.value = isServerArray(storedServers) ? storedServers : []
+    servers.value = isServerArray(storedServers)
+      ? storedServers.slice().sort(sortServers)
+      : []
     serverForm.value = storedForm
     activeArtServerId.value = storedActiveArtServerId
     activeTextServerId.value = storedActiveTextServerId
     healthResults.value = storedHealthResults
   }
 
-  function setStoreError(
-    errorType: ErrorType,
-    message: string,
-    context: string,
-  ): void {
-    errorStore.setError(errorType, message)
-    console.error(`[serverStore] ${context}: ${message}`)
-  }
-
-  async function initialize(): Promise<void> {
-    if (isInitialized.value) return
-    if (initializePromise.value) return initializePromise.value
+  async function initialize(
+    options: ServerInitializeOptions = {},
+  ): Promise<void> {
+    if (isInitialized.value && !options.force) return
+    if (initializePromise.value && !options.force)
+      return initializePromise.value
 
     initializePromise.value = (async () => {
       try {
+        isInitializing.value = true
+        clearStoreError()
+
         loadFromLocalStorage()
+        applyPreferredServersFromUser()
 
-        const fetchedServers = await fetchAllServers()
-        const fetchedIds = new Set<number>(
-          fetchedServers.map((server: Server): number => server.id),
-        )
-
-        servers.value = [
-          ...servers.value.filter(
-            (server: Server): boolean => !fetchedIds.has(server.id),
-          ),
-          ...fetchedServers,
-        ].sort(sortServers)
-
-        if (
-          activeArtServerId.value === null &&
-          typeof userStore.user?.preferredArtServerId === 'number'
-        ) {
-          activeArtServerId.value = userStore.user.preferredArtServerId
-        }
-
-        if (
-          activeTextServerId.value === null &&
-          typeof userStore.user?.preferredTextServerId === 'number'
-        ) {
-          activeTextServerId.value = userStore.user.preferredTextServerId
+        if (options.fetchRemote) {
+          const fetchedServers = await fetchAllServers(Boolean(options.force))
+          mergeServers(fetchedServers)
         }
 
         syncToLocalStorage()
@@ -724,6 +589,7 @@ export const useServerStore = defineStore('serverStore', () => {
           'initialize',
         )
       } finally {
+        isInitializing.value = false
         initializePromise.value = null
       }
     })()
@@ -732,13 +598,20 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   async function fetchAllServers(force = false): Promise<Server[]> {
-    if (!force && hasLoaded.value) return servers.value
-    if (fetchPromise.value) return fetchPromise.value
+    if (!force && hasLoaded.value && servers.value.length) {
+      return servers.value
+    }
+
+    if (fetchPromise.value && !force) {
+      return fetchPromise.value
+    }
 
     fetchPromise.value = (async () => {
       loading.value = true
 
       try {
+        clearStoreError()
+
         const res = (await performFetch('/api/server')) as FetchResponse<
           Server[]
         >
@@ -759,7 +632,7 @@ export const useServerStore = defineStore('serverStore', () => {
           'Failed to fetch servers.',
           'fetchAllServers',
         )
-        return []
+        return servers.value
       } finally {
         loading.value = false
         fetchPromise.value = null
@@ -770,41 +643,48 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   async function fetchServerById(id: number): Promise<Server | null> {
-    loading.value = true
+    const existing = getServerById(id)
 
-    try {
-      const res = (await performFetch(
-        `/api/server/${id}`,
-      )) as FetchResponse<Server>
+    if (existing) {
+      return existing
+    }
 
-      if (res.success && res.data && isServer(res.data)) {
-        const index = servers.value.findIndex(
-          (server: Server): boolean => server.id === id,
-        )
+    if (fetchServerByIdPromises.value[id]) {
+      return fetchServerByIdPromises.value[id]
+    }
 
-        if (index !== -1) {
-          servers.value[index] = res.data
-        } else {
-          servers.value.push(res.data)
+    fetchServerByIdPromises.value[id] = (async () => {
+      loading.value = true
+
+      try {
+        clearStoreError()
+
+        const res = (await performFetch(
+          `/api/server/${id}`,
+        )) as FetchResponse<Server>
+
+        if (res.success && res.data && isServer(res.data)) {
+          upsertServer(res.data)
+          syncToLocalStorage()
+          return res.data
         }
 
-        servers.value.sort(sortServers)
-        syncToLocalStorage()
-        return res.data
+        throw new Error(res.message || 'Failed to fetch server')
+      } catch (error) {
+        handleError(error, 'fetching server by ID')
+        setStoreError(
+          ErrorType.NETWORK_ERROR,
+          'Failed to fetch server.',
+          'fetchServerById',
+        )
+        return null
+      } finally {
+        loading.value = false
+        delete fetchServerByIdPromises.value[id]
       }
+    })()
 
-      throw new Error(res.message || 'Failed to fetch server')
-    } catch (error) {
-      handleError(error, 'fetching server by ID')
-      setStoreError(
-        ErrorType.NETWORK_ERROR,
-        'Failed to fetch server.',
-        'fetchServerById',
-      )
-      return null
-    } finally {
-      loading.value = false
-    }
+    return fetchServerByIdPromises.value[id]
   }
 
   async function addServer(
@@ -813,6 +693,8 @@ export const useServerStore = defineStore('serverStore', () => {
     isSaving.value = true
 
     try {
+      clearStoreError()
+
       const res = (await performFetch('/api/server', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -823,8 +705,7 @@ export const useServerStore = defineStore('serverStore', () => {
         throw new Error(res.message || 'Failed to create server')
       }
 
-      servers.value.push(res.data)
-      servers.value.sort(sortServers)
+      upsertServer(res.data)
       syncToLocalStorage()
 
       return {
@@ -851,6 +732,8 @@ export const useServerStore = defineStore('serverStore', () => {
     isSaving.value = true
 
     try {
+      clearStoreError()
+
       const res = (await performFetch('/api/server', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -863,17 +746,7 @@ export const useServerStore = defineStore('serverStore', () => {
         throw new Error(res.message || 'Failed to create servers')
       }
 
-      const createdIds = new Set<number>(
-        createdServers.map((server: Server): number => server.id),
-      )
-
-      servers.value = [
-        ...servers.value.filter(
-          (server: Server): boolean => !createdIds.has(server.id),
-        ),
-        ...createdServers,
-      ].sort(sortServers)
-
+      mergeServers(createdServers)
       syncToLocalStorage()
 
       return {
@@ -886,6 +759,7 @@ export const useServerStore = defineStore('serverStore', () => {
       handleError(error, 'creating servers')
       const message = (error as Error).message || 'Failed to create servers.'
       setStoreError(ErrorType.STORE_ERROR, message, 'addServers')
+
       return {
         success: false,
         data: [],
@@ -903,6 +777,8 @@ export const useServerStore = defineStore('serverStore', () => {
     isSaving.value = true
 
     try {
+      clearStoreError()
+
       const res = (await performFetch(`/api/server/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -913,17 +789,7 @@ export const useServerStore = defineStore('serverStore', () => {
         throw new Error(res.message || 'Failed to update server')
       }
 
-      const index = servers.value.findIndex(
-        (server: Server): boolean => server.id === id,
-      )
-
-      if (index !== -1) {
-        servers.value[index] = res.data
-      } else {
-        servers.value.push(res.data)
-      }
-
-      servers.value.sort(sortServers)
+      upsertServer(res.data)
 
       if (selectedServer.value?.id === id) {
         selectedServer.value = res.data
@@ -947,12 +813,64 @@ export const useServerStore = defineStore('serverStore', () => {
     }
   }
 
+  async function updateServerApiKey(
+    id: number,
+    payload: {
+      apiKey?: string | null
+      apiKeyName?: string | null
+      clearKey?: boolean
+    },
+  ): Promise<{ success: boolean; message?: string }> {
+    isSaving.value = true
+
+    try {
+      clearStoreError()
+
+      const res = (await performFetch(`/api/server/key/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })) as FetchResponse<Server>
+
+      if (!res.success || !res.data || !isServer(res.data)) {
+        throw new Error(res.message || 'Failed to update server API key.')
+      }
+
+      upsertServer(res.data)
+
+      if (selectedServer.value?.id === id) {
+        selectedServer.value = res.data
+        serverForm.value = { ...res.data }
+      }
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        message: res.message || 'Server API key updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating server API key')
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update server API key.',
+      }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
   async function deleteServer(
     id: number,
   ): Promise<{ success: boolean; message?: string }> {
     loading.value = true
 
     try {
+      clearStoreError()
+
       const response = (await performFetch(`/api/server/${id}`, {
         method: 'DELETE',
       })) as FetchResponse<undefined>
@@ -960,6 +878,7 @@ export const useServerStore = defineStore('serverStore', () => {
       if (!response.success) {
         const message = response.message || 'Failed to delete server.'
         setStoreError(ErrorType.STORE_ERROR, message, 'deleteServer')
+
         return {
           success: false,
           message,
@@ -994,12 +913,107 @@ export const useServerStore = defineStore('serverStore', () => {
       handleError(error, 'deleting server')
       const message = 'Failed to delete server.'
       setStoreError(ErrorType.STORE_ERROR, message, 'deleteServer')
+
       return {
         success: false,
         message,
       }
     } finally {
       loading.value = false
+    }
+  }
+
+  async function hideServer(id: number): Promise<{
+    success: boolean
+    message?: string
+  }> {
+    if (!userStore.isLoggedIn) {
+      return {
+        success: false,
+        message: 'Please log in to hide servers.',
+      }
+    }
+
+    if (hiddenServerIdSet.value.has(id)) {
+      return {
+        success: true,
+        message: 'Server already hidden.',
+      }
+    }
+
+    const nextHiddenServerIds = [...new Set([...hiddenServerIds.value, id])]
+
+    try {
+      await userStore.updateUser({
+        hiddenServerIds: nextHiddenServerIds,
+      })
+
+      if (activeArtServerId.value === id) {
+        activeArtServerId.value = null
+      }
+
+      if (activeTextServerId.value === id) {
+        activeTextServerId.value = null
+      }
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        message: 'Server hidden.',
+      }
+    } catch (error) {
+      handleError(error, 'hiding server')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to hide server.',
+      }
+    }
+  }
+
+  async function unhideServer(id: number): Promise<{
+    success: boolean
+    message?: string
+  }> {
+    if (!userStore.isLoggedIn) {
+      return {
+        success: false,
+        message: 'Please log in to restore servers.',
+      }
+    }
+
+    if (!hiddenServerIdSet.value.has(id)) {
+      return {
+        success: true,
+        message: 'Server already visible.',
+      }
+    }
+
+    const nextHiddenServerIds = hiddenServerIds.value.filter(
+      (serverId: number): boolean => serverId !== id,
+    )
+
+    try {
+      await userStore.updateUser({
+        hiddenServerIds: nextHiddenServerIds,
+      })
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        message: 'Server restored.',
+      }
+    } catch (error) {
+      handleError(error, 'restoring server')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to restore server.',
+      }
     }
   }
 
@@ -1089,49 +1103,64 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   async function testServerHealth(id: number): Promise<ServerHealthResponse> {
-    const result = (await performFetch(
-      `/api/server/health/${id}`,
-    )) as ServerHealthApiResponse
-
-    const statusCode = getResponseStatusCode(result)
-
-    if (statusCode === 202 && isServerHealthHandoffData(result.data)) {
-      return await testServerHealthFromBrowser(id, result.data.healthUrl)
+    if (healthPromises.value[id]) {
+      return healthPromises.value[id]
     }
 
-    if (isServerHealthResultData(result.data)) {
-      const healthResult: ServerHealthResponse = {
-        success: result.success,
-        message: result.message || 'Server health check completed.',
-        data: result.data,
-        statusCode,
+    healthPromises.value[id] = (async () => {
+      testingHealth.value = true
+
+      try {
+        const result = (await performFetch(
+          `/api/server/health/${id}`,
+        )) as ServerHealthApiResponse
+
+        const statusCode = getResponseStatusCode(result)
+
+        if (statusCode === 202 && isServerHealthHandoffData(result.data)) {
+          return await testServerHealthFromBrowser(id, result.data.healthUrl)
+        }
+
+        if (isServerHealthResultData(result.data)) {
+          const healthResult: ServerHealthResponse = {
+            success: result.success,
+            message: result.message || 'Server health check completed.',
+            data: result.data,
+            statusCode,
+          }
+
+          healthResults.value[id] = healthResult
+          syncToLocalStorage()
+
+          return healthResult
+        }
+
+        const fallback: ServerHealthResponse = {
+          success: false,
+          message: result.message || 'Server health check failed.',
+          data: {
+            id,
+            ok: false,
+            status: statusCode,
+            statusText: 'Invalid health response',
+            latencyMs: 0,
+            responseBody: result.data ?? null,
+            runLocation: 'server',
+          },
+          statusCode,
+        }
+
+        healthResults.value[id] = fallback
+        syncToLocalStorage()
+
+        return fallback
+      } finally {
+        testingHealth.value = false
+        delete healthPromises.value[id]
       }
+    })()
 
-      healthResults.value[id] = healthResult
-      syncToLocalStorage()
-
-      return healthResult
-    }
-
-    const fallback: ServerHealthResponse = {
-      success: false,
-      message: result.message || 'Server health check failed.',
-      data: {
-        id,
-        ok: false,
-        status: statusCode,
-        statusText: 'Invalid health response',
-        latencyMs: 0,
-        responseBody: result.data ?? null,
-        runLocation: 'server',
-      },
-      statusCode,
-    }
-
-    healthResults.value[id] = fallback
-    syncToLocalStorage()
-
-    return fallback
+    return healthPromises.value[id]
   }
 
   function selectServer(id: number): void {
@@ -1240,40 +1269,6 @@ export const useServerStore = defineStore('serverStore', () => {
     }
   }
 
-  async function setActiveTextServer(id: number | null): Promise<{
-    success: boolean
-    message?: string
-  }> {
-    const result = validateTextServer(id)
-
-    if (!result.success) {
-      setStoreError(
-        ErrorType.VALIDATION_ERROR,
-        result.message || 'Invalid text server.',
-        'setActiveTextServer',
-      )
-      return result
-    }
-
-    activeTextServerId.value = id
-
-    if (userStore.isLoggedIn) {
-      await userStore.updateUser({
-        preferredTextServerId: id,
-      })
-    }
-
-    syncToLocalStorage()
-
-    return {
-      success: true,
-      message:
-        id === null
-          ? 'Using Kind Robots default text server.'
-          : 'Preferred text server updated.',
-    }
-  }
-
   function validateTextServer(id: number | null): {
     success: boolean
     message?: string
@@ -1305,37 +1300,53 @@ export const useServerStore = defineStore('serverStore', () => {
     return { success: true }
   }
 
-  async function setActiveArtServer(id: number | null): Promise<{
+  async function setActiveTextServer(
+    id: number | null,
+    options: SetActiveServerOptions = { persistUser: true },
+  ): Promise<{
     success: boolean
     message?: string
   }> {
-    const result = validateArtServer(id)
+    const result = validateTextServer(id)
 
     if (!result.success) {
       setStoreError(
         ErrorType.VALIDATION_ERROR,
-        result.message || 'Invalid art server.',
-        'setActiveArtServer',
+        result.message || 'Invalid text server.',
+        'setActiveTextServer',
       )
       return result
     }
 
-    activeArtServerId.value = id
-
-    if (userStore.isLoggedIn) {
-      await userStore.updateUser({
-        preferredArtServerId: id,
-      })
+    if (activeTextServerId.value === id) {
+      return {
+        success: true,
+        message:
+          id === null
+            ? 'Using Kind Robots default text server.'
+            : 'Preferred text server unchanged.',
+      }
     }
 
+    activeTextServerId.value = id
     syncToLocalStorage()
+
+    if (
+      options.persistUser !== false &&
+      userStore.isLoggedIn &&
+      userStore.user?.preferredTextServerId !== id
+    ) {
+      await userStore.updateUser({
+        preferredTextServerId: id,
+      })
+    }
 
     return {
       success: true,
       message:
         id === null
-          ? 'Using Kind Robots default image server.'
-          : 'Preferred image server updated.',
+          ? 'Using Kind Robots default text server.'
+          : 'Preferred text server updated.',
     }
   }
 
@@ -1373,6 +1384,56 @@ export const useServerStore = defineStore('serverStore', () => {
     return { success: true }
   }
 
+  async function setActiveArtServer(
+    id: number | null,
+    options: SetActiveServerOptions = { persistUser: true },
+  ): Promise<{
+    success: boolean
+    message?: string
+  }> {
+    const result = validateArtServer(id)
+
+    if (!result.success) {
+      setStoreError(
+        ErrorType.VALIDATION_ERROR,
+        result.message || 'Invalid art server.',
+        'setActiveArtServer',
+      )
+      return result
+    }
+
+    if (activeArtServerId.value === id) {
+      return {
+        success: true,
+        message:
+          id === null
+            ? 'Using Kind Robots default image server.'
+            : 'Preferred image server unchanged.',
+      }
+    }
+
+    activeArtServerId.value = id
+    syncToLocalStorage()
+
+    if (
+      options.persistUser !== false &&
+      userStore.isLoggedIn &&
+      userStore.user?.preferredArtServerId !== id
+    ) {
+      await userStore.updateUser({
+        preferredArtServerId: id,
+      })
+    }
+
+    return {
+      success: true,
+      message:
+        id === null
+          ? 'Using Kind Robots default image server.'
+          : 'Preferred image server updated.',
+    }
+  }
+
   function clearActiveServers(): void {
     activeArtServerId.value = null
     activeTextServerId.value = null
@@ -1399,6 +1460,103 @@ export const useServerStore = defineStore('serverStore', () => {
     return comfyServers.value
   }
 
+  function cloneServerPayload(
+    source: Server | null,
+    updates: Partial<Server>,
+  ): Partial<Server> {
+    const base = source
+      ? {
+          title: source.title,
+          label: source.label,
+          description: source.description,
+          category: source.category,
+          serverType: source.serverType,
+          baseUrl: source.baseUrl,
+          endpointPath: source.endpointPath,
+          healthPath: source.healthPath,
+          isActive: source.isActive,
+          requiresApiKey: source.requiresApiKey,
+          apiKeyName: source.apiKeyName,
+          supportsTxt2Img: source.supportsTxt2Img,
+          supportsImg2Img: source.supportsImg2Img,
+          supportsChat: source.supportsChat,
+          supportsComfyWorkflow: source.supportsComfyWorkflow,
+          supportsCheckpointOverride: source.supportsCheckpointOverride,
+          supportsSampler: source.supportsSampler,
+          supportsNegativePrompt: source.supportsNegativePrompt,
+          supportsSeed: source.supportsSeed,
+          supportsSteps: source.supportsSteps,
+          designer: source.designer,
+          version: source.version,
+          notes: source.notes,
+          sortOrder: source.sortOrder,
+          accessMode: source.accessMode,
+          requiresClientSideCheck: source.requiresClientSideCheck,
+          isPrivateNetwork: source.isPrivateNetwork,
+          allowBrowserRequests: source.allowBrowserRequests,
+          useOidc: source.useOidc,
+          lastStatus: 'UNKNOWN' as ServerStatus,
+        }
+      : {}
+
+    return {
+      ...base,
+      ...updates,
+      userId: userStore.user?.id,
+      isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isActive: updates.isActive ?? base.isActive ?? true,
+      lastStatus: 'UNKNOWN',
+    }
+  }
+
+  async function saveServerAsUserCopy(
+    sourceServerId: number | null,
+    updates: Partial<Server>,
+    mode: 'art' | 'text',
+  ): Promise<{ success: boolean; data?: Server; message?: string }> {
+    if (!userStore.isLoggedIn || !userStore.user?.id) {
+      return {
+        success: false,
+        message: 'Please log in before saving a custom server.',
+      }
+    }
+
+    const source =
+      typeof sourceServerId === 'number' ? getServerById(sourceServerId) : null
+
+    const payload = cloneServerPayload(source, updates)
+    const result = await addServer(payload)
+
+    if (!result.success || !result.data) {
+      return result
+    }
+
+    if (mode === 'art') {
+      await setActiveArtServer(result.data.id)
+    } else {
+      await setActiveTextServer(result.data.id)
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      message: 'Saved as your custom server.',
+    }
+  }
+
+  function resetInitialization(): void {
+    isInitialized.value = false
+    isInitializing.value = false
+    initializePromise.value = null
+    fetchPromise.value = null
+    fetchServerByIdPromises.value = {}
+    healthPromises.value = {}
+    hasLoaded.value = false
+    lastError.value = null
+  }
+
   return {
     servers,
     selectedServer,
@@ -1406,17 +1564,27 @@ export const useServerStore = defineStore('serverStore', () => {
     activeArtServerId,
     activeTextServerId,
     healthResults,
+
     isSaving,
     isInitialized,
+    isInitializing,
     loading,
     testingHealth,
+    showHiddenServers,
+    lastError,
+
     initializePromise,
     fetchPromise,
+    fetchServerByIdPromises,
+    healthPromises,
     hasLoaded,
+
     ownedServers,
     publicServers,
     officialServers,
     activeServers,
+    hiddenServers,
+    visibleActiveServers,
     artServers,
     textServers,
     comfyServers,
@@ -1425,32 +1593,45 @@ export const useServerStore = defineStore('serverStore', () => {
     activeTextServer,
     artServerOptions,
     textServerOptions,
+
     syncToLocalStorage,
     loadFromLocalStorage,
     initialize,
+    resetInitialization,
     fetchAllServers,
     fetchServerById,
+
     addServer,
     addServers,
     updateServer,
+    updateServerApiKey,
     deleteServer,
+
+    hideServer,
+    unhideServer,
+    isServerHidden,
+
     testServerHealth,
+    testServerHealthFromBrowser,
+    requestServer,
+
     selectServer,
     deselectServer,
     createNewServer,
     saveServer,
+
+    validateArtServer,
+    validateTextServer,
     setActiveArtServer,
     setActiveTextServer,
     clearActiveServers,
+
     getServerById,
     getServersByType,
     getCompatibleServers,
-    updateServerApiKey,
-    showHiddenServers,
-    requestServer,
+
     cloneServerPayload,
     saveServerAsUserCopy,
-    testServerHealthFromBrowser,
   }
 })
 

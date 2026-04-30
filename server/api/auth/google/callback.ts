@@ -1,4 +1,3 @@
-//server/api/auth/google/callback.ts
 import { defineEventHandler, getQuery, sendRedirect, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { createToken, generateApiKey } from '..'
@@ -13,7 +12,7 @@ interface GoogleTokenResponse {
 }
 
 interface GoogleUserInfoResponse {
-  sub: string // Google ID
+  sub: string
   email: string
   email_verified: boolean
   name: string
@@ -22,8 +21,10 @@ interface GoogleUserInfoResponse {
 
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event)
+  console.log('[Google Callback] Handler entered', { hasCode: !!code })
 
   if (!code) {
+    console.error('[Google Callback] ❌ No authorization code in query')
     throw createError({
       statusCode: 400,
       message: 'Authorization code is missing',
@@ -34,8 +35,13 @@ export default defineEventHandler(async (event) => {
   const clientSecret = process.env.GOOGLE_SECRET
   const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'
 
+  console.log('[Google Callback] Env check', {
+    clientId: clientId ? '✅ present' : '❌ MISSING',
+    clientSecret: clientSecret ? '✅ present' : '❌ MISSING',
+  })
+
   try {
-    // Exchange the code for a token
+    console.log('[Google Callback] Exchanging code for token...')
     const tokenResponse = await $fetch<GoogleTokenResponse>(
       'https://oauth2.googleapis.com/token',
       {
@@ -51,26 +57,37 @@ export default defineEventHandler(async (event) => {
     )
 
     const { access_token } = tokenResponse
+    console.log('[Google Callback] Token exchange success', {
+      hasAccessToken: !!access_token,
+    })
 
-    // Fetch user info from Google
+    console.log('[Google Callback] Fetching Google user info...')
     const userInfo = await $fetch<GoogleUserInfoResponse>(
       'https://www.googleapis.com/oauth2/v3/userinfo',
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      },
+      { headers: { Authorization: `Bearer ${access_token}` } },
     )
 
     const { email, sub: googleId, name, picture } = userInfo
+    console.log('[Google Callback] User info received', {
+      email,
+      googleId,
+      name,
+      hasPicture: !!picture,
+    })
 
     if (!email) {
+      console.error('[Google Callback] ❌ No email returned from Google')
       throw createError({ statusCode: 400, message: 'Email is required' })
     }
 
-    // Check if the user exists
     let user = await prisma.user.findUnique({ where: { email } })
+    console.log('[Google Callback] DB lookup result', {
+      userFound: !!user,
+      userId: user?.id,
+    })
 
     if (!user) {
-      // If the user doesn't exist, create a new one
+      console.log('[Google Callback] Creating new user for', email)
       const apiKey = generateApiKey()
       user = await prisma.user.create({
         data: {
@@ -81,15 +98,27 @@ export default defineEventHandler(async (event) => {
           apiKey,
         },
       })
+      console.log('[Google Callback] New user created', {
+        userId: user.id,
+        username: user.username,
+      })
     }
 
-    // Generate a token for the user
+    console.log('[Google Callback] Generating JWT for user', {
+      userId: user.id,
+    })
     const jwt = await createToken(user)
+    console.log('[Google Callback] JWT generated, length:', jwt.length)
 
-    // Redirect the user to the dashboard with the token
-    return sendRedirect(event, `/auth/google?token=${jwt}`)
+    const redirectTarget = `/auth/google?token=${jwt}`
+    console.log(
+      '[Google Callback] Redirecting to:',
+      redirectTarget.substring(0, 40) + '...[token]',
+    )
+
+    return sendRedirect(event, redirectTarget)
   } catch (error) {
-    console.error('Error during Google OAuth callback:', error)
+    console.error('[Google Callback] ❌ Fatal error:', error)
     throw createError({ statusCode: 500, message: 'Internal Server Error' })
   }
 })

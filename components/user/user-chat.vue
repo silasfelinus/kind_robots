@@ -1,150 +1,257 @@
 <!-- /components/content/user/user-chat.vue -->
 <template>
-  <div>
-    <!-- Fallback for non-authenticated users -->
-    <div v-if="!currentUser" class="login-page">
-      <h2 class="text-2xl font-bold mb-4">
+  <div class="h-full w-full min-h-0">
+    <div
+      v-if="!currentUser"
+      class="flex h-full w-full flex-col items-center justify-center gap-4 rounded-2xl bg-base-200 p-4"
+    >
+      <h2 class="text-center text-2xl font-bold">
         Please log in to access your chats
       </h2>
       <login-page />
     </div>
 
-    <!-- Main Chat Page -->
-    <div v-else class="chat-page bg-base-200 p-6 rounded-2xl">
-      <h1 class="text-2xl font-bold mb-6">Chat</h1>
-
-      <!-- User Selector -->
-      <div class="user-selector mb-6">
-        <label class="block text-lg font-semibold mb-2">Select User:</label>
-        <select
-          v-model="selectedRecipientId"
-          class="w-full p-3 rounded-lg border bg-base-100"
-          @change="handleRecipientChange"
-        >
-          <option value="">-- No Recipient --</option>
-          <option
-            v-for="user in users"
-            :key="user.id"
-            :value="user.id"
-            :class="{
-              'font-bold text-primary': unreadCount(user.id) > 0,
-            }"
-          >
-            {{ user.username }}
-            <span
-              v-if="unreadCount(user.id) > 0"
-              class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full"
-            >
-              {{ unreadCount(user.id) }}
-            </span>
-          </option>
-        </select>
-      </div>
-
-      <!-- Message List -->
-      <div
-        class="message-list bg-base-100 p-4 rounded-lg border max-h-[400px] overflow-y-auto"
+    <section
+      v-else
+      class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200"
+    >
+      <header
+        class="flex shrink-0 flex-col gap-2 border-b border-base-300 bg-base-100 p-3 sm:flex-row sm:items-center sm:justify-between"
       >
-        <h2 v-if="recipient" class="text-lg font-semibold mb-2">
-          Chat with {{ recipient?.username }}
-        </h2>
-        <p v-else class="text-gray-500">Select a user to start chatting.</p>
-
-        <div v-if="currentMessages.length > 0" class="space-y-4">
-          <div
-            v-for="message in currentMessages"
-            :key="message.id"
-            class="chat-message p-3 rounded-lg"
-            :class="{
-              'bg-primary text-white': message.userId === currentUser!.id,
-              'bg-secondary text-white': message.userId !== currentUser!.id,
-            }"
-          >
-            <p class="font-semibold">
-              {{
-                message.userId === currentUser!.id ? 'You' : recipient?.username
-              }}
-            </p>
-            <p>{{ message.content }}</p>
-          </div>
+        <div class="min-w-0">
+          <h1 class="truncate text-2xl font-bold text-primary">Chat</h1>
+          <p class="truncate text-sm text-base-content/70">
+            Pick a human. Send words. Cause tiny social ripples.
+          </p>
         </div>
-        <p v-else class="text-gray-500">No messages yet.</p>
-      </div>
 
-      <!-- Message Input -->
-      <div v-if="recipient" class="message-input mt-4 flex">
-        <textarea
-          v-model="newMessage"
-          class="flex-grow p-3 rounded-lg border bg-base-100"
-          placeholder="Type your message..."
-        ></textarea>
         <button
-          class="ml-4 px-4 py-2 rounded-lg bg-accent text-white"
-          @click="sendMessage"
+          class="btn btn-sm btn-outline rounded-2xl"
+          :disabled="isLoading"
+          @click="refreshChatData"
         >
-          Send
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          Refresh
         </button>
+      </header>
+
+      <div
+        class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 lg:grid-cols-[minmax(180px,260px)_1fr]"
+      >
+        <aside
+          class="flex min-h-0 flex-col gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <label class="text-sm font-semibold text-base-content/70">
+            Select User
+          </label>
+
+          <select
+            v-model.number="selectedRecipientId"
+            class="select select-bordered w-full rounded-2xl"
+            @change="handleRecipientChange"
+          >
+            <option :value="null">No Recipient</option>
+            <option
+              v-for="user in availableUsers"
+              :key="user.id"
+              :value="user.id"
+            >
+              {{ user.username
+              }}{{
+                unreadCount(user.id) > 0 ? ` (${unreadCount(user.id)})` : ''
+              }}
+            </option>
+          </select>
+
+          <div
+            class="min-h-0 flex-1 overflow-y-auto rounded-2xl bg-base-200 p-2"
+          >
+            <button
+              v-for="user in availableUsers"
+              :key="user.id"
+              class="btn btn-ghost btn-sm mb-2 flex w-full justify-between rounded-2xl"
+              :class="{ 'btn-primary': user.id === selectedRecipientId }"
+              @click="selectRecipient(user.id)"
+            >
+              <span class="truncate">{{ user.username }}</span>
+              <span
+                v-if="unreadCount(user.id) > 0"
+                class="badge badge-secondary"
+              >
+                {{ unreadCount(user.id) }}
+              </span>
+            </button>
+          </div>
+        </aside>
+
+        <main
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div class="shrink-0 border-b border-base-300 p-3">
+            <h2 v-if="recipient" class="truncate text-lg font-semibold">
+              Chat with {{ recipient.username }}
+            </h2>
+            <p v-else class="text-sm text-base-content/60">
+              Select a user to start chatting.
+            </p>
+          </div>
+
+          <div class="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+            <div
+              v-for="message in currentMessages"
+              :key="message.id"
+              class="max-w-[85%] rounded-2xl p-3"
+              :class="
+                message.userId === currentUser.id
+                  ? 'ml-auto bg-primary text-primary-content'
+                  : 'mr-auto bg-secondary text-secondary-content'
+              "
+            >
+              <p class="text-xs font-bold opacity-80">
+                {{
+                  message.userId === currentUser.id
+                    ? 'You'
+                    : recipient?.username
+                }}
+              </p>
+              <p class="whitespace-pre-wrap wrap-break-word">
+                {{ message.content }}
+              </p>
+            </div>
+
+            <p
+              v-if="!currentMessages.length"
+              class="rounded-2xl bg-base-200 p-4 text-center text-base-content/60"
+            >
+              No messages yet.
+            </p>
+          </div>
+
+          <form
+            v-if="recipient"
+            class="flex shrink-0 flex-col gap-2 border-t border-base-300 p-3 sm:flex-row"
+            @submit.prevent="sendMessage"
+          >
+            <textarea
+              v-model="newMessage"
+              class="textarea textarea-bordered min-h-16 flex-1 resize-none rounded-2xl"
+              placeholder="Type your message..."
+            />
+            <button
+              class="btn btn-accent rounded-2xl sm:self-stretch"
+              type="submit"
+              :disabled="!newMessage.trim()"
+            >
+              <Icon name="kind-icon:send" class="h-4 w-4" />
+              Send
+            </button>
+          </form>
+        </main>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import type { User } from '~/prisma/generated/prisma/client'
+import type { Chat } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 import { useChatStore } from '@/stores/chatStore'
 
-// Store references
 const userStore = useUserStore()
 const chatStore = useChatStore()
 
-// Reactive state
 const newMessage = ref('')
-const selectedRecipientId = ref<number | null>(chatStore.selectedRecipientId)
-
-// Computed properties
-const currentUser = computed(() => userStore.user)
-const recipient = computed(() =>
-  userStore.users.find((user: User) => user.id === selectedRecipientId.value),
+const selectedRecipientId = ref<number | null>(
+  chatStore.selectedRecipientId ?? null,
 )
-const currentMessages = computed(() => {
-  if (!selectedRecipientId.value) return []
+const isLoading = ref(false)
 
-  // Filter chats linked by `originId` or direct sender/recipient
+const currentUser = computed(() => userStore.user)
+const users = computed(() => userStore.users)
+
+const availableUsers = computed(() =>
+  users.value.filter((user) => user.id !== currentUser.value?.id),
+)
+
+const recipient = computed(() =>
+  availableUsers.value.find(
+    (user: User) => user.id === selectedRecipientId.value,
+  ),
+)
+
+const currentMessages = computed(() => {
+  const activeUserId = currentUser.value?.id
+  const activeRecipientId = selectedRecipientId.value
+
+  if (!activeRecipientId || !activeUserId) return []
+
   return chatStore.chats.filter(
     (chat: Chat) =>
-      chat.originId === selectedRecipientId.value ||
-      (chat.userId === currentUser.value!.id &&
-        chat.recipientId === selectedRecipientId.value) ||
-      (chat.userId === selectedRecipientId.value &&
-        chat.recipientId === currentUser.value!.id),
+      chat.originId === activeRecipientId ||
+      (chat.userId === activeUserId &&
+        chat.recipientId === activeRecipientId) ||
+      (chat.userId === activeRecipientId && chat.recipientId === activeUserId),
   )
 })
-const users = computed(() => userStore.users)
+
 const unreadCount = (userId: number) => chatStore.unreadCountByRecipient(userId)
 
-// Fetch data on mount
 onMounted(async () => {
-  await userStore.fetchUsers()
-  await chatStore.initialize()
+  if (!userStore.initialized) {
+    await userStore.initialize()
+  }
+
+  if (!currentUser.value) {
+    return
+  }
+
+  await refreshChatData()
 })
 
-// Handle recipient change
+async function refreshChatData() {
+  if (isLoading.value) return
+
+  isLoading.value = true
+
+  try {
+    await Promise.all([
+      userStore.users.length
+        ? Promise.resolve(userStore.users)
+        : userStore.fetchUsers(),
+      chatStore.initialize(),
+    ])
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function selectRecipient(userId: number) {
+  selectedRecipientId.value = userId
+  handleRecipientChange()
+}
+
 function handleRecipientChange() {
   if (selectedRecipientId.value) {
     chatStore.selectRecipient(selectedRecipientId.value)
   }
 }
 
-// Send a new message
 async function sendMessage() {
-  if (!newMessage.value.trim() || !selectedRecipientId.value) return
+  if (
+    !newMessage.value.trim() ||
+    !selectedRecipientId.value ||
+    !currentUser.value
+  ) {
+    return
+  }
 
-  const originChat = currentMessages.value[0] // Assume first chat in thread is the origin
+  const originChat = currentMessages.value[0]
 
   await chatStore.addChat({
     content: newMessage.value.trim(),
-    userId: currentUser.value!.id,
+    userId: currentUser.value.id,
     recipientId: selectedRecipientId.value,
     type: 'ToUser',
     originId: originChat ? originChat.originId || originChat.id : null,
@@ -154,23 +261,3 @@ async function sendMessage() {
   newMessage.value = ''
 }
 </script>
-
-<style scoped>
-.chat-page {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.message-list {
-  min-height: 200px;
-}
-
-.message-input textarea {
-  min-height: 50px;
-}
-
-.login-page {
-  text-align: center;
-  padding: 50px;
-}
-</style>

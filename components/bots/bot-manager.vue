@@ -1203,7 +1203,7 @@ onMounted(async () => {
 
   if (!bots.value.length) {
     isLoading.value = true
-    await botStore.initialize() // also initializes serverStore internally
+    await botStore.initialize({ fetchRemote: true })
     isLoading.value = false
   }
 

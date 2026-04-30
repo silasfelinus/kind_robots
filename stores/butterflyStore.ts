@@ -48,7 +48,18 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   const showNames = ref(true)
   const selectedButterflyId = ref('')
   const targetCount = ref(20)
+
   const initialized = ref(false)
+  const initializing = ref(false)
+  const initializePromise = ref<Promise<void> | null>(null)
+
+  const gameInitialized = ref(false)
+  const gameLoading = ref(false)
+  const initGamePromise = ref<Promise<void> | null>(null)
+
+  const startupSwarmPromise = ref<Promise<void> | null>(null)
+  const loaderDebug = ref(false)
+  const lastError = ref<string | null>(null)
 
   const drainIntervalId = ref<ReturnType<typeof setInterval> | null>(null)
   const drainStartTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -61,7 +72,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     event: string,
     details: Record<string, unknown> = {},
   ) {
-    if (import.meta.server) return
+    if (import.meta.server || !loaderDebug.value) return
 
     console.info('[butterfly-loader]', event, {
       effect: loaderEffectName.value,
@@ -313,46 +324,89 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
-  async function initialize() {
-    if (initialized.value) return
+  async function initialize(force = false) {
+    if (initialized.value && !force) return
+    if (initializePromise.value && !force) return initializePromise.value
 
-    try {
-      butterflies.value = []
-      selectedButterflyId.value = ''
-      animateButterflies()
-      initialized.value = true
-    } catch (error) {
-      addError(ErrorType.STORE_ERROR, error)
-    }
+    initializePromise.value = (async () => {
+      try {
+        initializing.value = true
+        lastError.value = null
+
+        if (force) {
+          pauseAnimation()
+          stopDrain()
+          clearLoaderExitTimer()
+          destroyToggleButterflies()
+          butterflies.value = []
+          selectedButterflyId.value = ''
+        }
+
+        loadPresets()
+        animateButterflies()
+
+        initialized.value = true
+      } catch (error) {
+        initialized.value = false
+        lastError.value =
+          error instanceof Error
+            ? error.message
+            : 'Failed to initialize butterflies'
+        addError(ErrorType.STORE_ERROR, error)
+      } finally {
+        initializing.value = false
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
   }
 
-  async function spawnStartupSwarm(amount = 20) {
-    try {
-      stopDrain()
-      clearLoaderExitTimer()
-      butterflies.value = []
-      selectedButterflyId.value = ''
-      targetCount.value = amount
-      loaderEffectName.value = 'startup-random-spawn-immediate-exit'
-
-      logLoaderEffect('spawn:start', { amount })
-
-      await addButterflies(amount)
-
-      logLoaderEffect('spawn:complete', {
-        spawned: butterflies.value.length,
-        exitMode: 'mark-all',
-      })
-
-      markAllButterfliesForExit()
-
-      logLoaderEffect('exit:requested', {
-        exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
-          .length,
-      })
-    } catch (error) {
-      addError(ErrorType.STORE_ERROR, error)
+  async function spawnStartupSwarm(amount = 20, force = false) {
+    if (startupSwarmPromise.value && !force) {
+      return startupSwarmPromise.value
     }
+
+    startupSwarmPromise.value = (async () => {
+      try {
+        if (!initialized.value) {
+          await initialize()
+        }
+
+        stopDrain()
+        clearLoaderExitTimer()
+        butterflies.value = []
+        selectedButterflyId.value = ''
+        targetCount.value = amount
+        loaderEffectName.value = 'startup-random-spawn-immediate-exit'
+
+        logLoaderEffect('spawn:start', { amount })
+
+        await addButterflies(amount)
+
+        logLoaderEffect('spawn:complete', {
+          spawned: butterflies.value.length,
+          exitMode: 'mark-all',
+        })
+
+        markAllButterfliesForExit()
+
+        logLoaderEffect('exit:requested', {
+          exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
+            .length,
+        })
+      } catch (error) {
+        lastError.value =
+          error instanceof Error
+            ? error.message
+            : 'Failed to spawn startup swarm'
+        addError(ErrorType.STORE_ERROR, error)
+      } finally {
+        startupSwarmPromise.value = null
+      }
+    })()
+
+    return startupSwarmPromise.value
   }
 
   function clearLoaderExitTimer() {
@@ -457,19 +511,58 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }
   }
 
+  function safeGetLocalStorage(key: string): string | null {
+    if (import.meta.server) return null
+
+    try {
+      return localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  }
+
+  function safeSetLocalStorage(key: string, value: string) {
+    if (import.meta.server) return
+
+    try {
+      localStorage.setItem(key, value)
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
+  function safeRemoveLocalStorage(key: string) {
+    if (import.meta.server) return
+
+    try {
+      localStorage.removeItem(key)
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
+  }
+
   function savePreset() {
-    presets.value.push({ ...newButterflySettings })
-    localStorage.setItem('butterflyPresets', JSON.stringify(presets.value))
+    safeSetLocalStorage('butterflyPresets', JSON.stringify(presets.value))
   }
 
   function loadPresets() {
-    const stored = localStorage.getItem('butterflyPresets')
-    if (stored) presets.value = JSON.parse(stored)
+    const stored = safeGetLocalStorage('butterflyPresets')
+    if (!stored) return
+
+    try {
+      const parsed = JSON.parse(stored)
+
+      if (Array.isArray(parsed)) {
+        presets.value = parsed
+      }
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
   }
 
   function resetPresets() {
     presets.value = []
-    localStorage.removeItem('butterflyPresets')
+    safeRemoveLocalStorage('butterflyPresets')
   }
 
   function applyPreset(index: number) {
@@ -480,9 +573,14 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function updateButterflySettings(
     newSettings: Partial<ButterflySettingsWithOptions>,
+    options: { save?: boolean } = {},
   ) {
     Object.assign(newButterflySettings, newSettings)
-    if (Object.keys(newSettings).length) savePreset()
+
+    if (options.save) {
+      presets.value.push({ ...newButterflySettings })
+      savePreset()
+    }
   }
 
   const usedNames = computed(() => butterflies.value.map((b) => b.id))
@@ -561,38 +659,79 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       }))
   })
 
-  async function initGame() {
-    try {
-      const userStore = useUserStore()
-      const userId = userStore.userId
+  async function initGame(force = false) {
+    if (gameInitialized.value && !force) return
+    if (initGamePromise.value && !force) return initGamePromise.value
 
-      if (!userId) {
+    initGamePromise.value = (async () => {
+      try {
+        gameLoading.value = true
+        lastError.value = null
+
+        const userStore = useUserStore()
+        const activeUserId = userStore.userId
+
+        if (!activeUserId || activeUserId === 10) {
+          dbButterflies.value = []
+          userCaughtIds.value = new Set()
+          gameInitialized.value = true
+          return
+        }
+
+        const [allRes, recordRes] = await Promise.all([
+          $fetch<DbButterfly[]>('/api/butterflies'),
+          $fetch<DbButterflyRecord[]>('/api/butterfly-records', {
+            query: { userId: activeUserId },
+          }),
+        ])
+
+        const safeButterflies = Array.isArray(allRes) ? allRes : []
+        const safeRecords = Array.isArray(recordRes) ? recordRes : []
+
+        dbButterflies.value = safeButterflies
+        userCaughtIds.value = new Set(
+          safeRecords
+            .map((record) => record.butterflyId)
+            .filter((id): id is number => typeof id === 'number'),
+        )
+
+        gameInitialized.value = true
+      } catch (error) {
         dbButterflies.value = []
         userCaughtIds.value = new Set()
-        return
+        gameInitialized.value = false
+        lastError.value =
+          error instanceof Error
+            ? error.message
+            : 'Failed to initialize butterfly game'
+        addError(ErrorType.STORE_ERROR, error)
+      } finally {
+        gameLoading.value = false
+        initGamePromise.value = null
       }
+    })()
 
-      const [allRes, recordRes] = await Promise.all([
-        $fetch<DbButterfly[]>('/api/butterflies'),
-        $fetch<DbButterflyRecord[]>('/api/butterfly-records', {
-          query: { userId },
-        }),
-      ])
+    return initGamePromise.value
+  }
 
-      const safeButterflies = Array.isArray(allRes) ? allRes : []
-      const safeRecords = Array.isArray(recordRes) ? recordRes : []
+  function resetInitialization() {
+    pauseAnimation()
+    stopDrain()
+    clearLoaderExitTimer()
+    destroyToggleButterflies()
 
-      dbButterflies.value = safeButterflies
-      userCaughtIds.value = new Set(
-        safeRecords
-          .map((record) => record.butterflyId)
-          .filter((id): id is number => typeof id === 'number'),
-      )
-    } catch (error) {
-      dbButterflies.value = []
-      userCaughtIds.value = new Set()
-      addError(ErrorType.STORE_ERROR, error)
-    }
+    butterflies.value = []
+    selectedButterflyId.value = ''
+    initialized.value = false
+    initializing.value = false
+    initializePromise.value = null
+
+    gameInitialized.value = false
+    gameLoading.value = false
+    initGamePromise.value = null
+
+    startupSwarmPromise.value = null
+    lastError.value = null
   }
 
   const discoveryButterfly = ref<Butterfly | null>(null)
@@ -770,6 +909,16 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     initializeLoaderButterflies,
     loaderEffectName,
     logLoaderEffect,
+
+    initializing,
+    initializePromise,
+    gameInitialized,
+    gameLoading,
+    initGamePromise,
+    startupSwarmPromise,
+    loaderDebug,
+    lastError,
+    resetInitialization,
   }
 })
 

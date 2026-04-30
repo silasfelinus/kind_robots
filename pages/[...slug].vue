@@ -101,13 +101,6 @@ onMounted(async () => {
     displayAction,
   } = route.query
 
-  console.log(
-    '[slug] onMounted —',
-    route.fullPath,
-    '| queryToken present:',
-    !!queryToken,
-  )
-
   if (displayMode) displayStore.displayMode = displayMode as displayModeState
   if (displayAction)
     displayStore.displayAction = displayAction as displayActionState

@@ -140,8 +140,6 @@ export async function validateApiKey(
       }
     }
 
-    console.log('User valid:', user)
-
     return {
       success: true,
       user, // Pass the validated user object
@@ -224,10 +222,8 @@ export async function validateUserCredentials(
     const user = await prisma.user.findUnique({ where: { username } })
 
     if (!user) {
-      console.log('Debug: User not found')
       return null
     }
-    console.log('User found, validating', user)
 
     if (user.password && password) {
       const isPasswordValid = await bcryptCompare(password, user.password)

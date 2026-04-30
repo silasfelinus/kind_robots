@@ -2,6 +2,7 @@
 
 import { defineEventHandler, readBody } from 'h3'
 import { pipelines } from './pipelines'
+import { resolveComfyUrl } from './extras/resolveComfyUrl'
 
 // Modifier functions
 import inpaint from './modifiers/inpaint'
@@ -21,6 +22,7 @@ export type ControlType = 'depth' | 'scribble' | 'canny' | 'custom'
 
 export interface BuildGraphInput {
   modelType: ModelType
+  serverId?: number
   inputType: 'text' | 'image'
   outputType: 'image' | 'text'
   prompt: string
@@ -54,23 +56,9 @@ export default defineEventHandler(async (event) => {
   try {
     const input = await readBody<BuildGraphInput>(event)
     const graph = await buildGraph(input)
-    const comfyHttpUrl =
-      input.apiUrl ||
-      (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null)
 
-    if (!comfyHttpUrl) {
-      throw new Error('Missing COMFY_URL and no apiUrl provided')
-    }
-
-    const promptId = `comfy-${Date.now()}`
-    console.log(
-      `[COMFY] 🚀 Submitting prompt with ID: ${promptId} to ${comfyHttpUrl}`,
-    )
-    console.log(
-      '[COMFY] 🔍 Submitting Graph:\n' + JSON.stringify(graph, null, 2),
-    )
-
-    // /server/api/comfy/index.ts  — replace the fetch block
+    // Resolve URL: explicit apiUrl > serverId DB lookup > COMFY_URL env
+    const comfyHttpUrl = input.apiUrl ?? (await resolveComfyUrl(input.serverId))
 
     const res = await fetch(comfyHttpUrl, {
       method: 'POST',
@@ -78,7 +66,6 @@ export default defineEventHandler(async (event) => {
       body: JSON.stringify({ prompt: graph }),
     })
 
-    // Guard: surface HTML error pages as readable errors instead of JSON parse crash
     const contentType = res.headers.get('content-type') ?? ''
     if (!res.ok || !contentType.includes('application/json')) {
       const text = await res.text()
@@ -94,9 +81,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const json = await res.json()
-
     if (!json?.prompt_id) {
-      console.warn('[COMFY] ⚠️ No prompt_id in response')
       return {
         success: false,
         error: 'No prompt_id in Comfy response',
@@ -112,12 +97,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (err: any) {
     console.error('[COMFY] ❌ Build + Submit failed:', err)
-    return {
-      error: true,
-      statusCode: 500,
-      statusMessage: 'Build + Submit failed',
-      message: err.message || 'Unknown error',
-    }
+    return { success: false, error: err.message || 'Unknown error' }
   }
 })
 

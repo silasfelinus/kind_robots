@@ -34,65 +34,171 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'TITLE',
 ]
 
+type ReactionFetchKey = `art:${number}` | `component:${number}`
+
+type AddReactionPayload = {
+  userId: number
+  reactionType: ReactionTypeEnum
+  rating: number
+  comment?: string
+  artId?: number | null
+  artImageId?: number | null
+  pitchId?: number | null
+  componentId?: number | null
+  chatId?: number | null
+  botId?: number | null
+  galleryId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  tagId?: number | null
+  reactionCategory?: ReactionCategoryEnum
+}
+
+type UpdateReactionPayload = {
+  reactionType?: ReactionTypeEnum
+  rating?: number
+  comment?: string
+}
+
 export const useReactionStore = defineStore('reactionStore', () => {
   const reactions = ref<Reaction[]>([])
   const isInitialized = ref(false)
+  const isInitializing = ref(false)
+  const lastError = ref<string | null>(null)
 
+  const initializePromise = ref<Promise<void> | null>(null)
   const loadingMap = ref<Record<string, boolean>>({})
-  const fetchPromises = ref<Record<string, Promise<void> | null>>({})
+  const fetchPromises = ref<Record<string, Promise<Reaction[]>>>({})
   const loadedKeys = ref<Set<string>>(new Set())
 
-  function getKey(type: string, id: number) {
-    return `${type}:${id}`
-  }
-
-  function setLoading(key: string, val: boolean) {
-    loadingMap.value[key] = val
-  }
-
   const getReactionsByComponentId = computed(() => (componentId: number) => {
-    return reactions.value.filter((r) => r.componentId === componentId)
+    return reactions.value.filter(
+      (reaction) => reaction.componentId === componentId,
+    )
+  })
+
+  const getReactionsByArtId = computed(() => (artId: number) => {
+    return reactions.value.filter((reaction) => reaction.artId === artId)
   })
 
   const getUserReactionForComponent = computed(
     () => (componentId: number, userId: number) => {
       return reactions.value.find(
-        (r) => r.componentId === componentId && r.userId === userId,
+        (reaction) =>
+          reaction.componentId === componentId && reaction.userId === userId,
       )
     },
   )
 
-  function initialize() {
-    if (isInitialized.value) return
-    isInitialized.value = true
+  const getUserReactionForArt = computed(
+    () => (artId: number, userId: number) => {
+      return reactions.value.find(
+        (reaction) => reaction.artId === artId && reaction.userId === userId,
+      )
+    },
+  )
+
+  function getKey(type: 'art' | 'component', id: number): ReactionFetchKey {
+    return `${type}:${id}`
   }
 
-  async function fetchReactionsByArtId(artId: number, force = false) {
+  function setLoading(key: string, value: boolean) {
+    loadingMap.value[key] = value
+  }
+
+  function setLastError(error: unknown, fallback: string) {
+    lastError.value = error instanceof Error ? error.message : fallback
+  }
+
+  function clearError() {
+    lastError.value = null
+  }
+
+  function upsertReaction(reaction: Reaction) {
+    const index = reactions.value.findIndex((entry) => entry.id === reaction.id)
+
+    if (index >= 0) {
+      reactions.value.splice(index, 1, reaction)
+    } else {
+      reactions.value.push(reaction)
+    }
+  }
+
+  function mergeReactions(incoming: Reaction[]) {
+    for (const reaction of incoming) {
+      upsertReaction(reaction)
+    }
+  }
+
+  function removeReactionLocally(reactionId: number) {
+    reactions.value = reactions.value.filter(
+      (reaction) => reaction.id !== reactionId,
+    )
+  }
+
+  async function initialize(force = false): Promise<void> {
+    if (isInitialized.value && !force) return
+    if (initializePromise.value && !force) return initializePromise.value
+
+    initializePromise.value = (async () => {
+      try {
+        isInitializing.value = true
+        clearError()
+        isInitialized.value = true
+      } catch (error) {
+        isInitialized.value = false
+        handleError(error, 'initializing reaction store')
+        setLastError(error, 'Failed to initialize reaction store')
+      } finally {
+        isInitializing.value = false
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
+  }
+
+  async function fetchReactionsByArtId(
+    artId: number,
+    force = false,
+  ): Promise<Reaction[]> {
     const key = getKey('art', artId)
 
-    if (!force && loadedKeys.value.has(key)) return
-    if (fetchPromises.value[key]) return fetchPromises.value[key]
+    if (!force && loadedKeys.value.has(key)) {
+      return getReactionsByArtId.value(artId)
+    }
+
+    if (fetchPromises.value[key] && !force) {
+      return fetchPromises.value[key]
+    }
 
     fetchPromises.value[key] = (async () => {
       setLoading(key, true)
 
       try {
+        clearError()
+
         const res = await performFetch<Reaction[]>(
           `/api/reactions/art/${artId}`,
         )
-        if (!res.success) throw new Error(res.message)
+
+        if (!res.success) {
+          throw new Error(res.message || 'Failed to fetch art reactions')
+        }
 
         const incoming = res.data || []
-        const existingIds = new Set(reactions.value.map((r) => r.id))
-        const deduped = incoming.filter((r) => !existingIds.has(r.id))
-
-        reactions.value = [...reactions.value, ...deduped]
+        mergeReactions(incoming)
         loadedKeys.value.add(key)
-      } catch (e) {
-        handleError(e, 'fetching reactions by art ID')
+
+        return getReactionsByArtId.value(artId)
+      } catch (error) {
+        handleError(error, 'fetching reactions by art ID')
+        setLastError(error, 'Failed to fetch art reactions')
+        return getReactionsByArtId.value(artId)
       } finally {
         setLoading(key, false)
-        fetchPromises.value[key] = null
+        delete fetchPromises.value[key]
       }
     })()
 
@@ -102,119 +208,184 @@ export const useReactionStore = defineStore('reactionStore', () => {
   async function fetchReactionsByComponentId(
     componentId: number,
     force = false,
-  ) {
+  ): Promise<Reaction[]> {
     const key = getKey('component', componentId)
 
-    if (!force && loadedKeys.value.has(key)) return
-    if (fetchPromises.value[key]) return fetchPromises.value[key]
+    if (!force && loadedKeys.value.has(key)) {
+      return getReactionsByComponentId.value(componentId)
+    }
+
+    if (fetchPromises.value[key] && !force) {
+      return fetchPromises.value[key]
+    }
 
     fetchPromises.value[key] = (async () => {
       setLoading(key, true)
 
       try {
+        clearError()
+
         const res = await performFetch<Reaction[]>(
           `/api/reactions/component/${componentId}`,
         )
-        if (!res.success) throw new Error(res.message)
+
+        if (!res.success) {
+          throw new Error(res.message || 'Failed to fetch component reactions')
+        }
 
         const incoming = res.data || []
-        const existingIds = new Set(reactions.value.map((r) => r.id))
-        const deduped = incoming.filter((r) => !existingIds.has(r.id))
-
-        reactions.value = [...reactions.value, ...deduped]
+        mergeReactions(incoming)
         loadedKeys.value.add(key)
-      } catch (e) {
-        handleError(e, 'fetching reactions by component ID')
+
+        return getReactionsByComponentId.value(componentId)
+      } catch (error) {
+        handleError(error, 'fetching reactions by component ID')
+        setLastError(error, 'Failed to fetch component reactions')
+        return getReactionsByComponentId.value(componentId)
       } finally {
         setLoading(key, false)
-        fetchPromises.value[key] = null
+        delete fetchPromises.value[key]
       }
     })()
 
     return fetchPromises.value[key]
   }
 
-  async function addReaction(payload: {
-    userId: number
-    reactionType: ReactionTypeEnum
-    rating: number
-    comment?: string
-    artId?: number | null
-    artImageId?: number | null
-    pitchId?: number | null
-    componentId?: number | null
-    chatId?: number | null
-    botId?: number | null
-    galleryId?: number | null
-    promptId?: number | null
-    resourceId?: number | null
-    rewardId?: number | null
-    tagId?: number | null
-    reactionCategory?: ReactionCategoryEnum
-  }) {
+  async function addReaction(payload: AddReactionPayload) {
     try {
+      clearError()
+
       const res = await performFetch<Reaction>('/api/reactions', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
 
-      if (!res.success) throw new Error(res.message)
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to add reaction')
+      }
 
-      if (res.data) reactions.value.push(res.data)
+      upsertReaction(res.data)
+
+      if (payload.artId) {
+        loadedKeys.value.delete(getKey('art', payload.artId))
+      }
+
+      if (payload.componentId) {
+        loadedKeys.value.delete(getKey('component', payload.componentId))
+      }
+
       return res.data
-    } catch (e) {
-      handleError(e, 'adding reaction')
-      throw e
+    } catch (error) {
+      handleError(error, 'adding reaction')
+      setLastError(error, 'Failed to add reaction')
+      return null
     }
   }
 
   async function updateReaction(
     reactionId: number,
-    updates: {
-      reactionType?: ReactionTypeEnum
-      rating?: number
-      comment?: string
-    },
+    updates: UpdateReactionPayload,
   ) {
     try {
+      clearError()
+
       const res = await performFetch<Reaction>(`/api/reactions/${reactionId}`, {
         method: 'PATCH',
         body: JSON.stringify(updates),
       })
 
-      if (!res.success) throw new Error(res.message)
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to update reaction')
+      }
 
-      const index = reactions.value.findIndex((r) => r.id === reactionId)
-      if (index !== -1 && res.data) reactions.value[index] = res.data
-
+      upsertReaction(res.data)
       return res.data
-    } catch (e) {
-      handleError(e, 'updating reaction')
-      throw e
+    } catch (error) {
+      handleError(error, 'updating reaction')
+      setLastError(error, 'Failed to update reaction')
+      return null
     }
   }
 
   async function deleteReaction(reactionId: number) {
+    const existing = reactions.value.find(
+      (reaction) => reaction.id === reactionId,
+    )
+
     try {
+      clearError()
+
       const res = await performFetch(`/api/reactions/${reactionId}`, {
         method: 'DELETE',
       })
 
-      if (!res.success) throw new Error(res.message)
+      if (!res.success) {
+        throw new Error(res.message || 'Failed to delete reaction')
+      }
 
-      reactions.value = reactions.value.filter((r) => r.id !== reactionId)
-    } catch (e) {
-      handleError(e, 'deleting reaction')
+      removeReactionLocally(reactionId)
+
+      if (existing?.artId) {
+        loadedKeys.value.delete(getKey('art', existing.artId))
+      }
+
+      if (existing?.componentId) {
+        loadedKeys.value.delete(getKey('component', existing.componentId))
+      }
+
+      return true
+    } catch (error) {
+      handleError(error, 'deleting reaction')
+      setLastError(error, 'Failed to delete reaction')
+      return false
     }
+  }
+
+  function resetReactionsForKey(type: 'art' | 'component', id: number) {
+    const key = getKey(type, id)
+    loadedKeys.value.delete(key)
+    delete fetchPromises.value[key]
+
+    if (type === 'art') {
+      reactions.value = reactions.value.filter(
+        (reaction) => reaction.artId !== id,
+      )
+      return
+    }
+
+    reactions.value = reactions.value.filter(
+      (reaction) => reaction.componentId !== id,
+    )
+  }
+
+  function resetInitialization() {
+    isInitialized.value = false
+    isInitializing.value = false
+    initializePromise.value = null
+    fetchPromises.value = {}
+    loadedKeys.value = new Set()
+    loadingMap.value = {}
+    lastError.value = null
   }
 
   return {
     reactions,
     isInitialized,
+    isInitializing,
+    lastError,
+    initializePromise,
     loadingMap,
+    fetchPromises,
+    loadedKeys,
+
     getReactionsByComponentId,
+    getReactionsByArtId,
     getUserReactionForComponent,
+    getUserReactionForArt,
+
     initialize,
+    resetInitialization,
+    resetReactionsForKey,
     fetchReactionsByArtId,
     fetchReactionsByComponentId,
     addReaction,

@@ -14,6 +14,63 @@ import {
 
 const isClient = typeof window !== 'undefined'
 
+type CharacterInitializeOptions = {
+  force?: boolean
+  fetchRemote?: boolean
+  createDefaultForm?: boolean
+}
+
+const charactersStorageKey = 'characters'
+const characterFormStorageKey = 'characterForm'
+const useGeneratedStorageKey = 'useGenerated'
+const characterPlaceholder = '/images/character-placeholder.webp'
+
+function safeGetLocalStorage(key: string): string | null {
+  if (!isClient) return null
+
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function safeSetLocalStorage(key: string, value: string): void {
+  if (!isClient) return
+
+  try {
+    localStorage.setItem(key, value)
+  } catch {}
+}
+
+function safeParseObject<T>(raw: string | null, fallback: T): T {
+  if (!raw) return fallback
+
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function safeParseCharacterArray(raw: string | null): Character[] {
+  if (!raw) return []
+
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? (parsed as Character[]) : []
+  } catch {
+    return []
+  }
+}
+
+function sortCharacters(a: Character, b: Character): number {
+  const aName = a.name || ''
+  const bName = b.name || ''
+  return aName.localeCompare(bName)
+}
+
 export const useCharacterStore = defineStore('characterStore', () => {
   const characters = ref<Character[]>([])
   const selectedCharacter = ref<Character | null>(null)
@@ -28,22 +85,24 @@ export const useCharacterStore = defineStore('characterStore', () => {
   const isGeneratingArt = ref(false)
   const loading = ref(false)
   const isInitialized = ref(false)
+  const isInitializing = ref(false)
+  const lastError = ref<string | null>(null)
 
-  const fetchPromise = ref<Promise<void> | null>(null)
+  const initializePromise = ref<Promise<void> | null>(null)
+  const fetchPromise = ref<Promise<Character[]> | null>(null)
+  const fetchCharacterRewardsPromises = ref<Record<number, Promise<unknown[]>>>(
+    {},
+  )
   const hasLoaded = ref(false)
 
   const generationMode = ref(false)
 
-  function initialize() {
-    if (isInitialized.value) return
+  function setLastError(error: unknown, fallback: string): void {
+    lastError.value = error instanceof Error ? error.message : fallback
+  }
 
-    loadFromLocalStorage()
-
-    if (!characterForm.value || Object.keys(characterForm.value).length === 0) {
-      characterForm.value = generateDefaultCharacter()
-    }
-
-    isInitialized.value = true
+  function clearError(): void {
+    lastError.value = null
   }
 
   function generateDefaultCharacter() {
@@ -53,28 +112,108 @@ export const useCharacterStore = defineStore('characterStore', () => {
         getRandomValue(key as RandomizerKeys),
       ]),
     )
+
     return base as Partial<Character>
   }
 
-  async function fetchCharacters(force = false) {
-    if (!force && hasLoaded.value) return
-    if (fetchPromise.value) return fetchPromise.value
+  function syncToLocalStorage() {
+    safeSetLocalStorage(charactersStorageKey, JSON.stringify(characters.value))
+    safeSetLocalStorage(
+      characterFormStorageKey,
+      JSON.stringify(characterForm.value),
+    )
+    safeSetLocalStorage(
+      useGeneratedStorageKey,
+      JSON.stringify(useGenerated.value),
+    )
+  }
+
+  function loadFromLocalStorage() {
+    characters.value = safeParseCharacterArray(
+      safeGetLocalStorage(charactersStorageKey),
+    ).sort(sortCharacters)
+
+    characterForm.value = safeParseObject<Partial<Character>>(
+      safeGetLocalStorage(characterFormStorageKey),
+      {},
+    )
+
+    useGenerated.value = safeParseObject<Record<string, boolean>>(
+      safeGetLocalStorage(useGeneratedStorageKey),
+      {},
+    )
+  }
+
+  async function initialize(
+    options: CharacterInitializeOptions = {},
+  ): Promise<void> {
+    if (isInitialized.value && !options.force) return
+    if (initializePromise.value && !options.force)
+      return initializePromise.value
+
+    initializePromise.value = (async () => {
+      try {
+        isInitializing.value = true
+        clearError()
+
+        loadFromLocalStorage()
+
+        if (options.fetchRemote) {
+          await fetchCharacters(Boolean(options.force))
+        }
+
+        if (
+          options.createDefaultForm !== false &&
+          (!characterForm.value ||
+            Object.keys(characterForm.value).length === 0)
+        ) {
+          characterForm.value = generateDefaultCharacter()
+          syncToLocalStorage()
+        }
+
+        isInitialized.value = true
+      } catch (error) {
+        handleError(error, 'initializing character store')
+        setLastError(error, 'Failed to initialize character store')
+        isInitialized.value = false
+      } finally {
+        isInitializing.value = false
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
+  }
+
+  async function fetchCharacters(force = false): Promise<Character[]> {
+    if (!force && hasLoaded.value && characters.value.length) {
+      return characters.value
+    }
+
+    if (fetchPromise.value && !force) {
+      return fetchPromise.value
+    }
 
     fetchPromise.value = (async () => {
       loading.value = true
+
       try {
+        clearError()
+
         const response = await performFetch<Character[]>('/api/characters')
 
         if (response.success && response.data) {
-          characters.value = response.data
+          characters.value = response.data.slice().sort(sortCharacters)
           hasLoaded.value = true
           syncToLocalStorage()
-          return
+          return characters.value
         }
 
         throw new Error(response.message || 'Failed to fetch characters')
       } catch (error) {
         handleError(error, 'fetching characters')
+        setLastError(error, 'Failed to fetch characters')
+        return characters.value
       } finally {
         loading.value = false
         fetchPromise.value = null
@@ -84,36 +223,13 @@ export const useCharacterStore = defineStore('characterStore', () => {
     return fetchPromise.value
   }
 
-  function syncToLocalStorage() {
-    if (!isClient) return
-
-    localStorage.setItem('characters', JSON.stringify(characters.value))
-    localStorage.setItem('characterForm', JSON.stringify(characterForm.value))
-    localStorage.setItem('useGenerated', JSON.stringify(useGenerated.value))
-  }
-
-  function loadFromLocalStorage() {
-    if (!isClient) return
-
-    try {
-      const savedCharacters = localStorage.getItem('characters')
-      const savedForm = localStorage.getItem('characterForm')
-      const savedGenerated = localStorage.getItem('useGenerated')
-
-      if (savedCharacters) characters.value = JSON.parse(savedCharacters)
-      if (savedForm) characterForm.value = JSON.parse(savedForm)
-      if (savedGenerated) useGenerated.value = JSON.parse(savedGenerated)
-    } catch (error) {
-      handleError(error, 'loading character store')
-    }
-  }
-
   async function selectCharacter(id: number) {
-    const found = characters.value.find((c) => c.id === id)
+    const found = characters.value.find((character) => character.id === id)
     if (!found) return
 
     selectedCharacter.value = found
     characterForm.value = { ...found }
+    syncToLocalStorage()
     await updateArtImagePath()
   }
 
@@ -121,33 +237,53 @@ export const useCharacterStore = defineStore('characterStore', () => {
     selectedCharacter.value = null
     characterForm.value = {}
     artImagePath.value = ''
+    syncToLocalStorage()
   }
 
   async function updateArtImagePath() {
     const artStore = useArtStore()
 
-    if (!selectedCharacter.value?.artImageId) {
-      artImagePath.value = '/images/character-placeholder.webp'
+    const artImageId =
+      selectedCharacter.value?.artImageId ?? characterForm.value.artImageId
+
+    if (!artImageId) {
+      artImagePath.value = characterPlaceholder
       return
     }
 
     try {
-      const image = await artStore.getArtImageById(
-        selectedCharacter.value.artImageId,
-      )
+      const image = await artStore.getArtImageById(artImageId)
 
       artImagePath.value = image
         ? `data:image/${image.fileType};base64,${image.imageData}`
-        : '/images/character-placeholder.webp'
-    } catch {
-      artImagePath.value = '/images/character-placeholder.webp'
+        : characterPlaceholder
+    } catch (error) {
+      handleError(error, 'updating character art image path')
+      artImagePath.value = characterPlaceholder
     }
+  }
+
+  function upsertCharacter(character: Character) {
+    const index = characters.value.findIndex(
+      (entry) => entry.id === character.id,
+    )
+
+    if (index >= 0) {
+      characters.value.splice(index, 1, character)
+    } else {
+      characters.value.push(character)
+    }
+
+    characters.value.sort(sortCharacters)
+    syncToLocalStorage()
   }
 
   async function saveCharacter() {
     isSaving.value = true
 
     try {
+      clearError()
+
       const char = { ...characterForm.value }
 
       if (char.id) {
@@ -159,6 +295,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       syncToLocalStorage()
     } catch (error) {
       handleError(error, 'saving character')
+      setLastError(error, 'Failed to save character')
     } finally {
       isSaving.value = false
     }
@@ -166,6 +303,8 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
   async function createCharacter(character: Partial<Character>) {
     try {
+      clearError()
+
       const response = await performFetch<Character>('/api/characters', {
         method: 'POST',
         body: JSON.stringify(character),
@@ -173,17 +312,25 @@ export const useCharacterStore = defineStore('characterStore', () => {
       })
 
       if (response.success && response.data) {
-        characters.value.push(response.data)
+        upsertCharacter(response.data)
         selectedCharacter.value = response.data
-        syncToLocalStorage()
+        characterForm.value = { ...response.data }
+        await updateArtImagePath()
+        return response.data
       }
+
+      throw new Error(response.message || 'Failed to create character')
     } catch (error) {
       handleError(error, 'creating character')
+      setLastError(error, 'Failed to create character')
+      return null
     }
   }
 
   async function updateCharacter(id: number, updates: Partial<Character>) {
     try {
+      clearError()
+
       const response = await performFetch<Character>(`/api/characters/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(updates),
@@ -191,41 +338,61 @@ export const useCharacterStore = defineStore('characterStore', () => {
       })
 
       if (response.success && response.data) {
-        const index = characters.value.findIndex((c) => c.id === id)
-        if (index !== -1) characters.value[index] = response.data
-
+        upsertCharacter(response.data)
         selectedCharacter.value = response.data
+        characterForm.value = { ...response.data }
         await updateArtImagePath()
-        syncToLocalStorage()
+        return response.data
       }
+
+      throw new Error(response.message || 'Failed to update character')
     } catch (error) {
       handleError(error, 'mutating character')
+      setLastError(error, 'Failed to update character')
+      return null
     }
   }
 
   async function deleteCharacter(id: number) {
     try {
+      clearError()
+
       const response = await performFetch(`/api/characters/${id}`, {
         method: 'DELETE',
       })
 
       if (response.success) {
-        characters.value = characters.value.filter((c) => c.id !== id)
+        characters.value = characters.value.filter(
+          (character) => character.id !== id,
+        )
 
         if (selectedCharacter.value?.id === id) {
           selectedCharacter.value = null
+          characterForm.value = generateDefaultCharacter()
+          artImagePath.value = ''
         }
 
         syncToLocalStorage()
+        return true
       }
+
+      throw new Error(response.message || 'Failed to delete character')
     } catch (error) {
       handleError(error, 'deleting character')
+      setLastError(error, 'Failed to delete character')
+      return false
     }
   }
 
   async function generateRandomCharacter() {
     try {
+      clearError()
+
       const galleryStore = useGalleryStore()
+
+      if (!galleryStore.initialized) {
+        await galleryStore.initialize()
+      }
 
       const randomGalleryImage = await galleryStore.changeToRandomImage()
       const randomStats = rerollStats()
@@ -238,13 +405,16 @@ export const useCharacterStore = defineStore('characterStore', () => {
       }
 
       generatedCharacter.value = { ...characterForm.value }
+      syncToLocalStorage()
     } catch (error) {
       handleError(error, 'generating random character')
+      setLastError(error, 'Failed to generate random character')
     }
   }
 
   function setArtImageId(id: number) {
     characterForm.value.artImageId = id
+    syncToLocalStorage()
     void updateArtImagePath()
   }
 
@@ -254,29 +424,48 @@ export const useCharacterStore = defineStore('characterStore', () => {
   ) {
     if (selectedCharacter.value) {
       selectedCharacter.value[field] = value
+      characterForm.value[field] = value
     } else {
       characterForm.value[field] = value
     }
+
+    syncToLocalStorage()
   }
 
   function rerollCharacterStats() {
     Object.assign(characterForm.value, rerollStats())
+    syncToLocalStorage()
   }
 
-  async function fetchCharacterRewards(characterId: number) {
-    try {
-      const response = await performFetch(
-        `/api/rewards/character/${characterId}`,
-      )
-      return response.success && response.data ? response.data : []
-    } catch (error) {
-      handleError(error, 'fetching character rewards')
-      return []
+  async function fetchCharacterRewards(
+    characterId: number,
+  ): Promise<unknown[]> {
+    if (fetchCharacterRewardsPromises.value[characterId]) {
+      return fetchCharacterRewardsPromises.value[characterId]
     }
+
+    fetchCharacterRewardsPromises.value[characterId] = (async () => {
+      try {
+        const response = await performFetch<unknown[]>(
+          `/api/rewards/character/${characterId}`,
+        )
+
+        return response.success && response.data ? response.data : []
+      } catch (error) {
+        handleError(error, 'fetching character rewards')
+        return []
+      } finally {
+        delete fetchCharacterRewardsPromises.value[characterId]
+      }
+    })()
+
+    return fetchCharacterRewardsPromises.value[characterId]
   }
 
   async function generateFields(fieldsToUpgrade: string[]) {
     try {
+      clearError()
+
       const response = await performFetch<Partial<Character>>(
         '/api/character/generate',
         {
@@ -291,9 +480,11 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
       if (response.success && response.data) {
         Object.assign(characterForm.value, response.data)
+        syncToLocalStorage()
       }
     } catch (error) {
       handleError(error, 'generating fields')
+      setLastError(error, 'Failed to generate character fields')
     }
   }
 
@@ -301,6 +492,8 @@ export const useCharacterStore = defineStore('characterStore', () => {
     isGeneratingArt.value = true
 
     try {
+      clearError()
+
       if (!characterForm.value.artPrompt) {
         throw new Error('Art prompt is required.')
       }
@@ -318,12 +511,23 @@ export const useCharacterStore = defineStore('characterStore', () => {
       if (response.success && response.data) {
         characterForm.value.artImageId = response.data.artImageId
         await updateArtImagePath()
+        syncToLocalStorage()
       }
     } catch (error) {
       handleError(error, 'generating art')
+      setLastError(error, 'Failed to generate character art')
     } finally {
       isGeneratingArt.value = false
     }
+  }
+
+  function resetInitialization() {
+    isInitialized.value = false
+    isInitializing.value = false
+    initializePromise.value = null
+    fetchPromise.value = null
+    fetchCharacterRewardsPromises.value = {}
+    lastError.value = null
   }
 
   return {
@@ -334,12 +538,23 @@ export const useCharacterStore = defineStore('characterStore', () => {
     artImagePath,
     useGenerated,
     keepField,
+
     isSaving,
     isGeneratingArt,
     isInitialized,
+    isInitializing,
     loading,
+    lastError,
     generationMode,
+    initializePromise,
+    fetchPromise,
+    fetchCharacterRewardsPromises,
+    hasLoaded,
+
     initialize,
+    resetInitialization,
+    syncToLocalStorage,
+    loadFromLocalStorage,
     fetchCharacters,
     selectCharacter,
     deselectCharacter,
@@ -355,6 +570,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
     fetchCharacterRewards,
     generateFields,
     generateArtImage,
+    generateDefaultCharacter,
   }
 })
 

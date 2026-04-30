@@ -32,6 +32,7 @@ describe('Comfy API Integration', () => {
 
   function pollPromptStatus(
     promptId: string,
+    serverId: number,
     timeoutMs = 60000,
     intervalMs = 2000,
   ): Cypress.Chainable<ComfyResponse> {
@@ -41,7 +42,7 @@ describe('Comfy API Integration', () => {
       cy
         .request<ComfyResponse>({
           method: 'GET',
-          url: `${apiBase}/prompt/${promptId}`,
+          url: `${apiBase}/prompt/${promptId}?serverId=${serverId}`,
           failOnStatusCode: false,
           headers: {
             Authorization: `Bearer ${apiKey}`,
@@ -90,18 +91,26 @@ describe('Comfy API Integration', () => {
       .then((body) => {
         cy.log('Comfy submit response:', JSON.stringify(body))
 
-        expect(body.success, 'submit success').to.eq(true)
+        expect(
+          body.success,
+          `submit success — body: ${JSON.stringify(body)}`,
+        ).to.eq(true)
         expect(body.promptId, 'promptId returned').to.be.a('string').and.not.be
           .empty
 
         const promptId = body.promptId as string
 
-        return pollPromptStatus(promptId, 120000).then((finalRes) => {
-          cy.log('Comfy final response:', JSON.stringify(finalRes))
+        return pollPromptStatus(promptId, COMFY_TEST_SERVER_ID, 120000).then(
+          (finalRes) => {
+            cy.log('Comfy final response:', JSON.stringify(finalRes))
 
-          expect(finalRes.success, 'final success').to.eq(true)
-          expect(finalRes.status).to.be.oneOf(['done', 'cached'])
-        })
+            expect(
+              finalRes.success,
+              `final success — body: ${JSON.stringify(finalRes)}`,
+            ).to.eq(true)
+            expect(finalRes.status).to.be.oneOf(['done', 'cached'])
+          },
+        )
       })
   })
 
@@ -126,25 +135,33 @@ describe('Comfy API Integration', () => {
       .then((body) => {
         cy.log('Kontext submit response:', JSON.stringify(body))
 
-        expect(body.success, 'submit success').to.eq(true)
+        expect(
+          body.success,
+          `submit success — body: ${JSON.stringify(body)}`,
+        ).to.eq(true)
         expect(body.promptId, 'promptId returned').to.be.a('string').and.not.be
           .empty
 
         const promptId = body.promptId as string
 
-        return pollPromptStatus(promptId, 120000).then((finalRes) => {
-          cy.log('Kontext final response:', JSON.stringify(finalRes))
+        return pollPromptStatus(promptId, COMFY_TEST_SERVER_ID, 120000).then(
+          (finalRes) => {
+            cy.log('Kontext final response:', JSON.stringify(finalRes))
 
-          expect(finalRes.success, 'final success').to.eq(true)
-          expect(finalRes.status).to.be.oneOf(['done', 'cached'])
-        })
+            expect(
+              finalRes.success,
+              `final success — body: ${JSON.stringify(finalRes)}`,
+            ).to.eq(true)
+            expect(finalRes.status).to.be.oneOf(['done', 'cached'])
+          },
+        )
       })
   })
 
   it('handles unknown promptId gracefully', () => {
     cy.request<ComfyResponse>({
       method: 'GET',
-      url: `${apiBase}/prompt/does-not-exist`,
+      url: `${apiBase}/prompt/does-not-exist?serverId=${COMFY_TEST_SERVER_ID}`,
       failOnStatusCode: false,
       headers: {
         Authorization: `Bearer ${apiKey}`,

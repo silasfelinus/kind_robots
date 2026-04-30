@@ -1,5 +1,6 @@
 // /server/api/comfy/prompt/[promptId].get.ts
-import { getRouterParam, createError } from 'h3'
+import { getRouterParam, getQuery, createError } from 'h3'
+import { resolveComfyBase } from './../extras/resolveComfyUrl'
 
 function findInQueue(list: any, id: string): { found: boolean; index: number } {
   // Handles: ['pidA','pidB'] OR [['pidA',...], ['pidB',...]] OR objects with .prompt_id
@@ -24,20 +25,17 @@ function findInQueue(list: any, id: string): { found: boolean; index: number } {
 
 export default defineEventHandler(async (event) => {
   const promptId = getRouterParam(event, 'promptId')
+  if (!promptId)
+    throw createError({ statusCode: 400, statusMessage: 'Missing promptId' })
 
-  if (!promptId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Missing promptId in route',
-    })
-  }
+  const query = getQuery(event)
+  const serverId = query.serverId ? Number(query.serverId) : null
 
-  const baseUrl = process.env.COMFY_URL
-  if (!baseUrl) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'COMFY_URL is not defined',
-    })
+  let baseUrl: string
+  try {
+    baseUrl = await resolveComfyBase(serverId)
+  } catch (err: any) {
+    throw createError({ statusCode: 500, statusMessage: err.message })
   }
 
   const historyUrl = `${baseUrl}/history/${promptId}`

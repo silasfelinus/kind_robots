@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody } from 'h3'
 import turboGraph from './json/fluxTurbo.json'
 import defaultImageJson from './json/defaultImage.json' // { "base64": "<no data: header>" }
+import { resolveComfyUrl } from './extras/resolveComfyUrl'
 
 // If you're on TS, make sure tsconfig has: "resolveJsonModule": true
 const DEFAULT_IMAGE_BASE64: string =
@@ -19,15 +20,14 @@ function toRawBase64(s?: string | null) {
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<{
+      serverId?: number
       apiUrl?: string
       data?: string | string[]
       imageData?: string | string[]
       prompt?: string
     }>(event)
 
-    const comfyHttpUrl =
-      body.apiUrl ||
-      (process.env.COMFY_URL ? `${process.env.COMFY_URL}/prompt` : null)
+    const comfyHttpUrl = body.apiUrl ?? (await resolveComfyUrl(body.serverId))
 
     if (!comfyHttpUrl) {
       return {

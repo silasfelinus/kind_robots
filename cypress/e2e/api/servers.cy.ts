@@ -296,13 +296,42 @@ describe('Server API Full CRUD + Ownership Tests', () => {
       },
       failOnStatusCode: false,
     }).then((res) => {
-      expect([200, 502]).to.include(res.status)
+      expect([200, 202, 502]).to.include(res.status)
       expect(res.body).to.have.property('success')
       expect(res.body).to.have.property('message')
       expect(res.body).to.have.property('data')
       expect(res.body.data.id).to.eq(serverId)
       expect(res.body.data).to.have.property('healthUrl')
+
+      if (res.status === 202) {
+        expect(res.body.success).to.eq(true)
+        expect(res.body.statusCode).to.eq(202)
+        expect(res.body.data.runLocation).to.eq('browser')
+        expect(res.body.message).to.include('tested from the browser')
+        expect(res.body.data).to.have.property('accessMode')
+        expect(res.body.data).to.have.property('requiresClientSideCheck')
+        expect(res.body.data).to.have.property('isPrivateNetwork')
+        expect(res.body.data).to.have.property('allowBrowserRequests')
+        return
+      }
+
+      expect(res.body.statusCode).to.eq(res.status)
+      expect(res.body.data.runLocation).to.eq('server')
       expect(res.body.data).to.have.property('latencyMs')
+      expect(res.body.data.latencyMs).to.be.a('number')
+      expect(res.body.data).to.have.property('ok')
+      expect(res.body.data).to.have.property('status')
+      expect(res.body.data).to.have.property('statusText')
+
+      if (res.status === 200) {
+        expect(res.body.success).to.eq(true)
+        expect(res.body.data.ok).to.eq(true)
+      }
+
+      if (res.status === 502) {
+        expect(res.body.success).to.eq(false)
+        expect(res.body.data.ok).to.eq(false)
+      }
     })
   })
 

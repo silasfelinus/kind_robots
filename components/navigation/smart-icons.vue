@@ -119,7 +119,8 @@
           <div
             v-for="(icon, index) in rowIcons"
             :key="icon.id"
-            class="relative flex h-full aspect-square items-stretch justify-center shrink-0 text-base-content hover:z-10"
+            class="relative flex h-full items-stretch justify-center shrink-0 text-base-content hover:z-10"
+            :class="iconShellClass(icon)"
             :draggable="isEditing"
             @dragstart="smartbarStore.startDrag(index)"
             @dragover.prevent
@@ -364,6 +365,18 @@ function computedLabel(icon: SmartIcon): string {
     default:
       return icon.label || ''
   }
+}
+
+function iconShellClass(icon: SmartIcon): string {
+  if (isEditing.value) return 'aspect-square'
+
+  if (icon.type === 'utility' && icon.component === 'login-icon') {
+    return userStore.isLoggedIn
+      ? 'w-24 sm:w-28 md:w-32 lg:w-36'
+      : 'aspect-square'
+  }
+
+  return 'aspect-square'
 }
 
 function resolvedPrependComponent(componentName: string) {

@@ -7,40 +7,28 @@
     >
       <div class="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div class="flex min-w-0 items-center gap-2 sm:gap-3">
-  
-<div class="flex min-w-0 items-center gap-2 sm:gap-3">
+          <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+            <div class="relative shrink-0">
+              <avatar-image
+                class="h-20 w-20 rounded-2xl border-2 border-primary object-cover shadow-md sm:h-24 sm:w-24"
+              />
+              <div class="absolute bottom-1 right-1">
+                <avatar-upload />
+              </div>
+            </div>
 
-  <div class="relative shrink-0">
-    <avatar-image
-      class="h-20 w-20 rounded-2xl border-2 border-primary object-cover shadow-md sm:h-24 sm:w-24"
-    />
-    <div class="absolute bottom-1 right-1">
-      <avatar-upload />
-    </div>
-  </div>
-
-  <div class="min-w-0 flex-1">
-    <h1 class="max-w-full wrap-break-word text-xl font-black leading-tight sm:text-2xl">
-      {{ username }}
-    </h1>
-    <p class="mt-1 wrap-break-word text-xs text-base-content/60 sm:text-sm">
-      {{ userStatus }}
-    </p>
-  </div>
-
-</div>
-
-          <div class="min-w-0 flex-1">
-            <h1
-              class="max-w-full wrap-break-word text-xl font-black leading-tight sm:text-2xl"
-            >
-              {{ username }}
-            </h1>
-            <p
-              class="mt-1 wrap-break-word text-xs text-base-content/60 sm:text-sm"
-            >
-              {{ userStatus }}
-            </p>
+            <div class="min-w-0 flex-1">
+              <h1
+                class="max-w-full wrap-break-word text-xl font-black leading-tight sm:text-2xl"
+              >
+                {{ username }}
+              </h1>
+              <p
+                class="mt-1 wrap-break-word text-xs text-base-content/60 sm:text-sm"
+              >
+                {{ userStatus }}
+              </p>
+            </div>
           </div>
         </div>
 

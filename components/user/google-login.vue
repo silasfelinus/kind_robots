@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 function loginWithGoogle() {
+  console.log('[Google Login] Initiating OAuth redirect to /api/auth/google')
   window.location.href = '/api/auth/google'
 }
 </script>

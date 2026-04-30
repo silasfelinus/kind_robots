@@ -101,43 +101,31 @@ onMounted(async () => {
     displayAction,
   } = route.query
 
-  if (displayMode) {
-    displayStore.displayMode = displayMode as displayModeState
-  }
+  console.log(
+    '[slug] onMounted —',
+    route.fullPath,
+    '| queryToken present:',
+    !!queryToken,
+  )
 
-  if (displayAction) {
+  if (displayMode) displayStore.displayMode = displayMode as displayModeState
+  if (displayAction)
     displayStore.displayAction = displayAction as displayActionState
-  }
-
-  if (botId) {
-    botStore.selectBot(Number(botId))
-  }
-
-  if (characterId) {
-    characterStore.selectCharacter(Number(characterId))
-  }
-
-  if (scenarioId) {
-    scenarioStore.selectScenario(Number(scenarioId))
-  }
-
-  if (chatId) {
-    chatStore.selectChat(Number(chatId))
-  }
-
-  if (pitchId) {
-    pitchStore.selectPitch(Number(pitchId))
-  }
-
-  if (promptId) {
-    promptStore.selectPrompt(Number(promptId))
-  }
+  if (botId) botStore.selectBot(Number(botId))
+  if (characterId) characterStore.selectCharacter(Number(characterId))
+  if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))
+  if (chatId) chatStore.selectChat(Number(chatId))
+  if (pitchId) pitchStore.selectPitch(Number(pitchId))
+  if (promptId) promptStore.selectPrompt(Number(promptId))
 
   if (queryToken && !userStore.user) {
+    console.log('[slug] Token in query and no user — calling initialize()')
     await userStore.initialize(queryToken as string)
+    console.log('[slug] initialize() done — isLoggedIn:', userStore.isLoggedIn)
   }
 
   if (!userStore.user && queryToken) {
+    console.warn('[slug] Still no user after initialize — redirecting to login')
     await router.push('/login')
   }
 })

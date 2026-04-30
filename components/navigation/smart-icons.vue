@@ -18,7 +18,7 @@
 
       <div
         ref="scrollContainer"
-        class="smart-icons-scroll flex h-full min-h-0 flex-1 min-w-0 items-stretch gap-1 overflow-x-auto overflow-y-hidden transition-all duration-300"
+        class="smart-icons-scroll touch-pan-x flex h-full min-h-0 flex-1 min-w-0 items-stretch gap-1 overflow-x-auto overflow-y-hidden transition-all duration-300"
         :class="[
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
           !canScrollLeft && !canScrollRight ? 'justify-center px-2' : '',
@@ -28,9 +28,9 @@
         @mousemove="handleScrollMouseMove"
         @mouseup="handleScrollMouseUp"
         @mouseleave="handleScrollMouseUp"
-        @touchstart="handleScrollTouchStart"
-        @touchmove="handleScrollTouchMove"
-        @touchend="handleScrollTouchEnd"
+        @touchstart.passive="handleScrollTouchStart"
+        @touchmove.passive="handleScrollTouchMove"
+        @touchend.passive="handleScrollTouchEnd"
         @wheel.passive="handleWheel"
       >
         <div ref="row" class="flex h-full min-w-max items-stretch gap-1">

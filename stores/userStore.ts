@@ -165,12 +165,15 @@ export const useUserStore = defineStore('userStore', () => {
     removeFromLocalStorage('googleToken')
   }
 
-  function resetSessionState() {
+  function resetSessionState(clearError = true) {
     user.value = null
     token.value = undefined
     googleToken.value = false
     recipient.value = null
-    lastError.value = null
+
+    if (clearError) {
+      lastError.value = null
+    }
   }
 
   function updateUserInList(u: User) {
@@ -313,7 +316,7 @@ export const useUserStore = defineStore('userStore', () => {
 
         if (!success) {
           clearAuthStorage()
-          resetSessionState()
+          resetSessionState(false)
           initialized.value = true
           return
         }
@@ -517,40 +520,84 @@ export const useUserStore = defineStore('userStore', () => {
     removeFromLocalStorage('stayLoggedIn')
   }
 
+  type LoginResponseData =
+    | (User & { token?: string })
+    | {
+        user: User
+        token?: string
+      }
+
+  function normalizeLoginData(data: LoginResponseData): {
+    user: User | null
+    token?: string
+  } {
+    if ('user' in data) {
+      return {
+        user: data.user,
+        token: data.token,
+      }
+    }
+
+    return {
+      user: data,
+      token: data.token,
+    }
+  }
+
   async function login(credentials: LoginCredentials) {
     startLoading(setLoading)
 
     try {
-      const res = await performFetch<User>('/api/auth/login', {
+      lastError.value = null
+
+      const res = await performFetch<LoginResponseData>('/api/auth/login', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       })
 
-      if (res.success && res.data) {
-        await setUser(res.data)
-
-        const responseToken = (res.data as User & { token?: string }).token
-        token.value = responseToken ?? token.value
-
-        if (stayLoggedIn.value && token.value) {
-          saveToLocalStorage('token', token.value)
-        }
-
-        initialized.value = true
-        lastError.value = null
-
-        return { success: true }
+      if (!res.success || !res.data) {
+        const message = res.message || 'Login failed'
+        handleError(new Error(message), 'login')
+        lastError.value = message
+        return { success: false, message }
       }
 
-      handleError(new Error(res.message || 'Login failed'), 'login')
-      lastError.value = res.message || 'Login failed'
+      const loginData = normalizeLoginData(res.data)
 
-      return { success: false, message: res.message }
+      if (!loginData.user?.id) {
+        const message = 'Login response did not include a valid user.'
+        handleError(new Error(message), 'login')
+        lastError.value = message
+        return { success: false, message }
+      }
+
+      if (!loginData.token) {
+        const message = 'Login response did not include a token.'
+        handleError(new Error(message), 'login')
+        lastError.value = message
+        return { success: false, message }
+      }
+
+      await setUser(loginData.user)
+      setToken(loginData.token)
+
+      initialized.value = true
+      lastError.value = null
+
+      return {
+        success: true,
+        message: 'Login successful.',
+      }
     } catch (error) {
       handleError(error, 'login')
-      lastError.value = 'An unknown error occurred'
+      const message = error instanceof Error ? error.message : 'Login failed'
+      lastError.value = message
 
-      return { success: false, message: 'An unknown error occurred' }
+      return {
+        success: false,
+        message,
+      }
     } finally {
       stopLoading(setLoading)
     }

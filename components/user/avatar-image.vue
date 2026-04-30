@@ -1,29 +1,20 @@
 <!-- /components/content/story/avatar-image.vue -->
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-    <div
-      class="h-full w-full cursor-pointer perspective-[1000px]"
-      @click="handleAvatarClick"
-    >
-      <div
-        :class="[
-          'relative h-full w-full transition-transform duration-700 ease-in-out transform-3d',
-          flipped ? 'transform-[rotateY(180deg)]' : '',
-        ]"
-      >
-        <div class="absolute inset-0 overflow-hidden backface-hidden">
+    <div class="flip-card h-full w-full" @click="handleAvatarClick">
+      <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
+        <div class="flip-card-front">
           <img
-            :src="avatarImage"
+            :src="resolvedImage"
             alt="Avatar"
             class="w-full h-full object-cover shadow-lg hover:shadow-xl"
             draggable="false"
           />
         </div>
-
-        <div class="absolute inset-0 overflow-hidden backface-hidden transform-[rotateY(180deg)]">
+        <div class="flip-card-back">
           <img
-            :src="avatarImage"
-            alt="Avatar"
+            :src="resolvedImage"
+            alt="Avatar (back)"
             class="w-full h-full object-cover shadow-lg hover:shadow-xl"
             draggable="false"
           />
@@ -34,37 +25,92 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const flipped = ref(false)
 const hydrated = ref(false)
+const resolvedImage = ref('/images/botcafe.webp')
 
 const userStore = useUserStore()
 const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
-const fallbackImage = '/images/botcafe.webp'
+async function resolveAvatar() {
+  console.log('[avatar-image] resolveAvatar called')
+  console.log('[avatar-image] userStore.user:', userStore.user)
+  console.log('[avatar-image] userStore.userId:', userStore.userId)
+  console.log('[avatar-image] userStore.avatarImage:', userStore.avatarImage)
+  console.log(
+    '[avatar-image] userStore.user?.artImageId:',
+    userStore.user?.artImageId,
+  )
 
-const avatarImage = computed(() => {
-  const src = userStore.currentUser?.avatarImage
-  if (typeof src !== 'string' || !src.length) return fallbackImage
-  return src.startsWith('/') ? src : `/images/${src}`
-})
+  const result = await userStore.userImage()
+  console.log('[avatar-image] userImage() resolved to:', result)
+  resolvedImage.value = result
+}
 
-onMounted(() => {
+onMounted(async () => {
   hydrated.value = true
+  await resolveAvatar()
 })
+
+// Re-resolve if user changes (e.g. after login or upload)
+watch(
+  () => userStore.user,
+  async (newUser) => {
+    console.log('[avatar-image] user changed:', newUser)
+    await resolveAvatar()
+  },
+  { deep: true },
+)
 
 const handleAvatarClick = () => {
   try {
     flipped.value = !flipped.value
     displayStore.toggleBigMode()
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to toggle big mode'
+    const message =
+      error instanceof Error ? error.message : 'Failed to toggle big mode'
     errorStore.setError(ErrorType.INTERACTION_ERROR, message)
   }
 }
 </script>
+
+<style scoped>
+.flip-card {
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+</style>

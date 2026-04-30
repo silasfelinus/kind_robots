@@ -39,17 +39,7 @@ const displayStore = useDisplayStore()
 const errorStore = useErrorStore()
 
 async function resolveAvatar() {
-  console.log('[avatar-image] resolveAvatar called')
-  console.log('[avatar-image] userStore.user:', userStore.user)
-  console.log('[avatar-image] userStore.userId:', userStore.userId)
-  console.log('[avatar-image] userStore.avatarImage:', userStore.avatarImage)
-  console.log(
-    '[avatar-image] userStore.user?.artImageId:',
-    userStore.user?.artImageId,
-  )
-
   const result = await userStore.userImage()
-  console.log('[avatar-image] userImage() resolved to:', result)
   resolvedImage.value = result
 }
 
@@ -62,7 +52,6 @@ watch(
   () => [userStore.user?.artImageId, userStore.user?.avatarImage],
   async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
     if (newArtId !== oldArtId || newAvatar !== oldAvatar) {
-      console.log('[avatar-image] relevant user fields changed, resolving')
       await resolveAvatar()
     }
   },

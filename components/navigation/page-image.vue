@@ -1,6 +1,6 @@
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-    <div class="flip-card h-full w-full" @click.stop="handleClick">
+    <div class="flip-card h-full w-full" @click="handleClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img

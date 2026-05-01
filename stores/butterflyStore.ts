@@ -366,27 +366,28 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       try {
         if (!initialized.value) {
           await initialize()
+        } else {
+          animateButterflies()
         }
 
         stopDrain()
         clearLoaderExitTimer()
+        clearLoaderStates()
         butterflies.value = []
         selectedButterflyId.value = ''
         targetCount.value = amount
-        loaderEffectName.value = 'startup-random-spawn-immediate-exit'
+        showSwarm.value = true
+        loaderEffectName.value = 'startup-immediate-exit'
 
         logLoaderEffect('spawn:start', { amount })
 
-        await addButterflies(amount)
+        await spawnLoaderButterflies(amount, 'inside-drift')
 
-        logLoaderEffect('spawn:complete', {
-          spawned: butterflies.value.length,
-          exitMode: 'mark-all',
-        })
-
+        animateButterflies()
         markAllButterfliesForExit()
 
         logLoaderEffect('exit:requested', {
+          spawned: butterflies.value.length,
           exiting: butterflies.value.filter((butterfly) => butterfly.isExiting)
             .length,
         })
@@ -594,6 +595,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     spawnLoaderButterflies,
     requestLoaderRelease,
     clearButterflyMotionState,
+    clearLoaderStates,
   } = effects
 
   const getScaleModifier = computed(() => scaleModifier.value)
@@ -896,6 +898,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     loaderDebug,
     lastError,
     resetInitialization,
+    clearLoaderStates,
   }
 })
 

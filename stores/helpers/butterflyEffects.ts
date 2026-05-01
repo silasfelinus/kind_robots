@@ -911,9 +911,14 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     )
   }
 
-  function moveTowardGoalWithNoise(butterfly: Butterfly, intensity = 1) {
+  function moveTowardGoalWithNoise(
+    butterfly: Butterfly,
+    intensity = 1,
+    pullMultiplier = 0.75,
+  ) {
     const noise2D = getNoise()
     const now = Date.now() * 0.001
+
     const angle =
       noise2D(
         butterfly.x * 0.15 + butterfly.noiseOffsetX,
@@ -923,32 +928,37 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       2
 
     const moveScale = 0.08
-    const noiseDx = Math.cos(angle) * butterfly.speed * moveScale * intensity
-    const noiseDy = Math.sin(angle) * butterfly.speed * moveScale * intensity
-
     const goalDx = butterfly.goal.x - butterfly.x
     const goalDy = butterfly.goal.y - butterfly.y
     const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
-    const pull = butterfly.speed * moveScale * 0.6
+
+    const goalUnitX = goalDx / goalDist
+    const goalUnitY = goalDy / goalDist
+
+    const tangentX = -goalUnitY
+    const tangentY = goalUnitX
+
+    const rawNoiseDx = Math.cos(angle) * butterfly.speed * moveScale * intensity
+    const rawNoiseDy = Math.sin(angle) * butterfly.speed * moveScale * intensity
+
+    const tangentNoise = rawNoiseDx * tangentX + rawNoiseDy * tangentY
+    const maxSway = butterfly.speed * moveScale * intensity
+    const sway = Math.max(-maxSway, Math.min(tangentNoise, maxSway))
+
+    const pull = butterfly.speed * moveScale * pullMultiplier
 
     butterfly.x = clampToTwoDecimals(
-      butterfly.x + noiseDx + (goalDx / goalDist) * pull,
+      butterfly.x + goalUnitX * pull + tangentX * sway,
     )
     butterfly.y = clampToTwoDecimals(
-      butterfly.y + noiseDy + (goalDy / goalDist) * pull,
+      butterfly.y + goalUnitY * pull + tangentY * sway,
     )
 
     const targetRotation =
-      Math.abs(goalDx) > 0.5
-        ? goalDx >= 0
-          ? 120
-          : 30
-        : noiseDx >= 0
-          ? 120
-          : 30
+      Math.abs(goalDx) > 0.5 ? (goalDx >= 0 ? 120 : 30) : sway >= 0 ? 120 : 30
 
     butterfly.rotation = clampToTwoDecimals(
-      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
+      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.06,
     )
 
     butterfly.scaleMod = clampToTwoDecimals(
@@ -974,7 +984,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       butterfly.goal.y =
         state.entryGoal?.y ?? state.holdAnchor?.y ?? butterfly.y
 
-      moveTowardGoalWithNoise(butterfly)
+      moveTowardGoalWithNoise(butterfly, 0.55, 1.2)
 
       if (reachedGoal(state.entryGoal, 4)) {
         if (state.routeMode === 'orbit' && state.orbitCenter) {
@@ -1005,7 +1015,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       butterfly.goal.x = clampPercent(orbitX)
       butterfly.goal.y = clampPercent(orbitY)
 
-      moveTowardGoalWithNoise(butterfly, 0.75)
+      moveTowardGoalWithNoise(butterfly, 0.45, 1.15)
 
       const tangentDx =
         -Math.sin(state.orbitAngle) * state.orbitDirection * state.orbitRadius
@@ -1046,7 +1056,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         anchor.y + Math.sin(wobble * 1.2 + state.idleSeed) * 1.4,
       )
 
-      moveTowardGoalWithNoise(butterfly, 0.55)
+      moveTowardGoalWithNoise(butterfly, 0.35, 1.1)
 
       if (
         Date.now() >= state.holdUntil &&
@@ -1129,8 +1139,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     }
 
     const loaderState = getLoaderButterflyState(butterfly.id)
-    if (loaderState && !butterfly.isExiting) {
-      updateLoaderButterflyPosition(butterfly, loaderState)
+    if (butterfly.isExiting) {
+      butterfly.zIndex = Math.max(1, butterfly.zIndex - 0.9)
+
+      moveTowardGoalWithNoise(butterfly, 0.28, 2.25)
+
       return
     }
 

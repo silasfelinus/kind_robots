@@ -127,6 +127,25 @@ export const applyColorScheme = (
   }
 }
 
+const EXIT_SIDES = ['left', 'right', 'top', 'bottom'] as const
+
+export const randomExitGoal = (): {
+  goal: { x: number; y: number }
+  exitSide: Butterfly['exitSide']
+} => {
+  const side = EXIT_SIDES[Math.floor(Math.random() * EXIT_SIDES.length)]
+  const rand = () => clampToTwoDecimals(Math.random() * 100)
+  const goal =
+    side === 'left'
+      ? { x: -10, y: rand() }
+      : side === 'right'
+        ? { x: 110, y: rand() }
+        : side === 'top'
+          ? { x: rand(), y: -10 }
+          : { x: rand(), y: 110 }
+  return { goal, exitSide: side }
+}
+
 export const createNewButterfly = async (
   settings: ButterflySettingsWithOptions,
   usedNames: string[],

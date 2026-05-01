@@ -60,17 +60,8 @@ const { butterflies } = storeToRefs(butterflyStore)
 const showSwarm = computed(() => butterflyStore.showSwarm)
 
 onMounted(async () => {
-  await butterflyStore.initializeLoaderButterflies(20)
+  await butterflyStore.spawnStartupSwarm(20)
 })
-
-watch(
-  () => props.beginExit,
-  (shouldExit) => {
-    if (shouldExit) {
-      butterflyStore.triggerLoaderButterflyExit(0)
-    }
-  },
-)
 </script>
 
 <style scoped>

@@ -851,18 +851,20 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
   function markAllButterfliesForExit() {
     try {
-      butterflies.value.forEach((butterfly, index) => {
+      butterflies.value.forEach((butterfly) => {
         if (butterfly.isExiting) return
 
-        markButterflyForExit(butterfly)
+        const loaderState = getLoaderButterflyState(butterfly.id)
+        if (loaderState) {
+          beginLoaderButterflyExit(butterfly, loaderState)
+          return
+        }
 
-        const stagger = index * 0.7
-        butterfly.goal.x = clampToTwoDecimals(
-          butterfly.goal.x + (Math.random() - 0.5) * stagger,
-        )
-        butterfly.goal.y = clampToTwoDecimals(
-          butterfly.goal.y + (Math.random() - 0.5) * stagger,
-        )
+        // Plain butterfly (startup swarm etc.) — assign random exit directly
+        const exitGoal = getRandomExitGoal()
+        butterfly.goal.x = exitGoal.x
+        butterfly.goal.y = exitGoal.y
+        butterfly.isExiting = true
       })
 
       selectedButterflyId.value = ''

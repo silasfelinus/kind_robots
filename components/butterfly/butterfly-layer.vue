@@ -1,7 +1,7 @@
 <template>
   <!-- /components/content/butterfly/butterfly-layer.vue -->
   <div
-    v-if="showSwarm"
+    v-show="showSwarm"
     class="butterfly-layer"
     :class="{
       'butterfly-layer--overlay': overlayVisible,

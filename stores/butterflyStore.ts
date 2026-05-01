@@ -268,22 +268,17 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         return
       }
 
-      const nextButterflies: Butterfly[] = []
-      const localUsedNames = [...usedNames.value]
+      const nextButterflies = await Promise.all(
+        Array.from({ length: safeAmount }, () =>
+          createNewButterfly(newButterflySettings, usedNames.value),
+        ),
+      )
 
-      for (let i = 0; i < safeAmount; i++) {
-        const newButterfly = await createNewButterfly(
-          newButterflySettings,
-          localUsedNames,
-        )
-
-        if (newButterfly.userId == null && currentUserStore.userId != null) {
-          newButterfly.userId = currentUserStore.userId
+      nextButterflies.forEach((butterfly) => {
+        if (butterfly.userId == null && currentUserStore.userId != null) {
+          butterfly.userId = currentUserStore.userId
         }
-
-        nextButterflies.push(newButterfly)
-        localUsedNames.push(newButterfly.id)
-      }
+      })
 
       butterflies.value.push(...nextButterflies)
       selectedButterflyId.value =
@@ -468,15 +463,12 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   async function toggleSwarm(amount = 20) {
     try {
-      const activeButterflies = butterflies.value.filter((b) => !b.isExiting)
-
-      if (activeButterflies.length > 0) {
-        clearButterflies()
-        return
+      if (butterflies.value.length === 0) {
+        showSwarm.value = true
+        await addButterflies(amount)
+      } else {
+        showSwarm.value = !showSwarm.value
       }
-
-      stopDrain()
-      await addButterflies(amount)
     } catch (error) {
       addError(ErrorType.STORE_ERROR, error)
     }

@@ -1,7 +1,5 @@
 <template>
   <div v-if="showOverlay || !pageReadyEmitted" class="loader-root">
- 
-
     <loading-messages
       v-if="showOverlay"
       :stores-ready="storesReady"
@@ -35,6 +33,7 @@ import { useSmartbarStore } from '../../stores/smartbarStore'
 import { useComponentStore } from '../../stores/componentStore'
 import { usePageStore } from '../../stores/pageStore'
 import { useNavStore } from '../../stores/navStore'
+import { useButterflyStore } from '@/stores/butterflyStore'
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
@@ -58,6 +57,7 @@ const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 const randomStore = useRandomStore()
 const navStore = useNavStore()
+const butterflyStore = useButterflyStore()
 
 const emit = defineEmits<{
   pageReady: [boolean]
@@ -116,6 +116,7 @@ async function initializeStores() {
       choiceStore.initialize?.(),
       componentStore.initialize?.(),
       randomStore.initialize?.(),
+      butterflyStore.initialize?.(),
     ])
   } catch (error) {
     errorStore.setError(

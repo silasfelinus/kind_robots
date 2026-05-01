@@ -860,8 +860,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
           return
         }
 
-        // Plain butterfly (startup swarm etc.) — assign random exit directly
-        const exitGoal = getRandomExitGoal()
+        const exitGoal = getNearestExitGoal(butterfly)
         butterfly.goal.x = exitGoal.x
         butterfly.goal.y = exitGoal.y
         butterfly.isExiting = true

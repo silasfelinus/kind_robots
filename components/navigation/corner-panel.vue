@@ -181,6 +181,13 @@
               >
                 Giftshop
               </NuxtLink>
+              <NuxtLink
+                to="/privacy"
+                class="block hover:underline"
+                @click="close"
+              >
+                Privacy Policy
+              </NuxtLink>
             </div>
 
             <div

@@ -486,13 +486,24 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
   function getNearestExitGoal(butterfly: Butterfly) {
     const overshoot = 24
-    const horizontalSide = butterfly.x <= 50 ? 'left' : 'right'
+    const spread = 34
 
-    const verticalSide = butterfly.y <= 50 ? 'top' : 'bottom'
+    const goesLeft = butterfly.x <= 50
+    const goesTop = butterfly.y <= 50
 
-    const x = horizontalSide === 'left' ? -overshoot : 100 + overshoot
+    const x = goesLeft
+      ? randomBetween(-overshoot - spread, Math.min(-overshoot, butterfly.x))
+      : randomBetween(
+          Math.max(100 + overshoot, butterfly.x),
+          100 + overshoot + spread,
+        )
 
-    const y = verticalSide === 'top' ? -overshoot : 100 + overshoot
+    const y = goesTop
+      ? randomBetween(-overshoot - spread, Math.min(-overshoot, butterfly.y))
+      : randomBetween(
+          Math.max(100 + overshoot, butterfly.y),
+          100 + overshoot + spread,
+        )
 
     return {
       x: clampToTwoDecimals(x),
@@ -503,13 +514,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   function chooseLoaderScene(
     preset: LoaderSwarmPreset = 'random',
   ): LoaderScene {
-    const randomExitMode = () =>
-      pickOne<LoaderExitMode>([
-        'random-exit',
-        'nearest-exit',
-        'shared-exit',
-        'mixed-exit',
-      ])
+    const randomExitMode = (): LoaderExitMode => 'nearest-exit'
 
     if (preset === 'inside-drift') {
       return {
@@ -630,10 +635,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   ) {
     if (butterfly.isExiting) return
 
-    const goal = getExitJitteredGoal(
-      butterfly,
-      getLoaderExitGoal(butterfly, state),
-    )
+    const goal = getLoaderExitGoal(butterfly, state)
 
     butterfly.isExiting = true
     butterfly.goal.x = goal.x
@@ -841,7 +843,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       return
     }
 
-    const goal = getExitJitteredGoal(butterfly, getNearestExitGoal(butterfly))
+    const goal = getNearestExitGoal(butterfly)
 
     butterfly.isExiting = true
     butterfly.goal.x = goal.x
@@ -1165,26 +1167,52 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     butterfly.rotation = clampToTwoDecimals(
       butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
     )
-
     if (butterfly.isExiting) {
       const goalDx = butterfly.goal.x - butterfly.x
       const goalDy = butterfly.goal.y - butterfly.y
       const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
-      const pull = butterfly.speed * moveScale * 0.6
+
+      const exitMoveScale = 0.1
+      const pull = butterfly.speed * exitMoveScale * 1.15
+      const sway = butterfly.speed * exitMoveScale * 0.28
+
+      const forwardX = goalDx / goalDist
+      const forwardY = goalDy / goalDist
+
+      const sideX = -forwardY
+      const sideY = forwardX
+
+      const swayWave = noise2D(
+        butterfly.x * 0.1 + butterfly.noiseOffsetX,
+        butterfly.y * 0.1 + butterfly.noiseOffsetY + now * 1.7,
+      )
 
       butterfly.x = clampToTwoDecimals(
-        butterfly.x + noiseDx + (goalDx / goalDist) * pull,
+        butterfly.x + forwardX * pull + sideX * swayWave * sway,
       )
       butterfly.y = clampToTwoDecimals(
-        butterfly.y + noiseDy + (goalDy / goalDist) * pull,
+        butterfly.y + forwardY * pull + sideY * swayWave * sway,
       )
+
+      const targetRotation =
+        Math.abs(goalDx) > 0.5
+          ? goalDx >= 0
+            ? 120
+            : 30
+          : noiseDx >= 0
+            ? 120
+            : 30
+
+      butterfly.rotation = clampToTwoDecimals(
+        butterfly.rotation + (targetRotation - butterfly.rotation) * 0.07,
+      )
+
       butterfly.scaleMod = clampToTwoDecimals(
         0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
       )
 
       return
     }
-
     butterfly.x = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.x + noiseDx, 100)),
     )

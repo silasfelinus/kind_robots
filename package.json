@@ -75,7 +75,8 @@
     "stripe": "^22.0.1"
   },
   "overrides": {
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "oxc-parser": "0.117.0"
   },
   "type": "module",
   "engines": {

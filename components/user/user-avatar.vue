@@ -43,9 +43,6 @@ const handleAvatarError = (event: Event) => {
 watch(
   () => [userStore.user?.artImageId, userStore.user?.avatarImage],
   async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
-    console.info(
-      `[user-avatar] User image changed — artImageId: ${oldArtId} → ${newArtId}, avatarImage: ${oldAvatar} → ${newAvatar}`,
-    )
     await fetchAvatar()
   },
 )

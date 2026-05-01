@@ -413,6 +413,7 @@ export const useUserStore = defineStore('userStore', () => {
 
     return fetchUsersPromise.value
   }
+
   async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
     let target = users.value.find((u) => u.id === resolvedId)
@@ -427,10 +428,23 @@ export const useUserStore = defineStore('userStore', () => {
     }
 
     if (!target) {
+      console.warn('[userImage] no target found for id:', resolvedId)
       return fallbackAvatar
     }
 
+    console.debug(
+      '[userImage] target:',
+      target.username,
+      '| artImageId:',
+      target.artImageId,
+      '| avatarImage:',
+      target.avatarImage,
+    )
+
     if (!target.artImageId) {
+      console.debug(
+        '[userImage] no artImageId, returning avatarImage or fallback',
+      )
       return target.avatarImage || fallbackAvatar
     }
 
@@ -438,7 +452,15 @@ export const useUserStore = defineStore('userStore', () => {
 
     try {
       const artImage = await artStore.getArtImageById(target.artImageId)
-      if (!artImage?.imageData) return target.avatarImage || fallbackAvatar
+      console.debug('[userImage] artImage result:', artImage)
+
+      if (!artImage?.imageData) {
+        console.warn(
+          '[userImage] artImage has no imageData, falling back to avatarImage:',
+          target.avatarImage,
+        )
+        return target.avatarImage || fallbackAvatar
+      }
 
       const data = artImage.imageData
       if (

@@ -339,7 +339,9 @@ const rowIcons = computed<SmartIcon[]>(() =>
   isEditing.value ? editableIcons.value : activeIcons.value,
 )
 
-const showTitles = computed(() => !isEditing.value && !displayStore.bigMode)
+const showTitles = computed(
+  () => !isEditing.value && displayStore.headerState !== 'compact',
+)
 
 const confirmingDeleteId = ref<number | null>(null)
 
@@ -484,7 +486,6 @@ watch(() => rowIcons.value.length, syncAfterLayout)
 watch(() => props.prependIcons?.length, syncAfterLayout)
 watch(
   () => [
-    displayStore.bigMode,
     displayStore.viewportSize,
     displayStore.headerState,
     displayStore.sidebarRightState,

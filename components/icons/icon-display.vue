@@ -1,22 +1,22 @@
 <!-- /components/content/icons/icon-display.vue -->
 <template>
   <div
-    class="relative snap-start shrink-0 flex flex-col items-center justify-center px-1"
+    class="relative flex shrink-0 snap-start flex-col items-center justify-center px-1"
     style="aspect-ratio: 1 / 1; height: 100%; align-self: stretch"
   >
     <div
-      class="w-full flex-1 min-h-0 flex items-center justify-center overflow-hidden"
+      class="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
     >
       <div
         v-if="isEditing"
-        class="w-full h-full flex items-center justify-center"
+        class="flex h-full w-full items-center justify-center"
       >
         <div
-          class="w-full h-full flex items-center justify-center overflow-hidden"
+          class="flex h-full w-full items-center justify-center overflow-hidden"
         >
           <Icon
             :name="icon.icon || 'kind-icon:help'"
-            class="force-fill w-full h-full"
+            class="force-fill h-full w-full"
           />
         </div>
       </div>
@@ -24,14 +24,14 @@
       <NuxtLink
         v-else-if="icon.link && icon.type !== 'utility'"
         :to="icon.link"
-        class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+        class="flex h-full w-full items-center justify-center transition-transform sm:hover:scale-110"
       >
         <div
-          class="w-full h-full flex items-center justify-center overflow-hidden"
+          class="flex h-full w-full items-center justify-center overflow-hidden"
         >
           <Icon
             :name="icon.icon || 'kind-icon:help'"
-            class="force-fill w-full h-full"
+            class="force-fill h-full w-full"
             :class="{ glow: isActiveRoute }"
           />
         </div>
@@ -44,19 +44,19 @@
           componentMap[icon.component]
         "
         :is="componentMap[icon.component]"
-        class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+        class="flex h-full w-full items-center justify-center transition-transform sm:hover:scale-110"
       />
 
       <div
         v-else
-        class="w-full h-full flex items-center justify-center transition-transform sm:hover:scale-110"
+        class="flex h-full w-full items-center justify-center transition-transform sm:hover:scale-110"
       >
         <div
-          class="w-[90%] h-[90%] flex items-center justify-center overflow-hidden"
+          class="flex h-[90%] w-[90%] items-center justify-center overflow-hidden"
         >
           <Icon
             :name="icon.icon || 'kind-icon:help'"
-            class="force-fill w-full h-full"
+            class="force-fill h-full w-full"
           />
         </div>
       </div>
@@ -64,18 +64,20 @@
 
     <div
       v-if="isEditing"
-      class="w-full flex items-center justify-center"
+      class="flex w-full items-center justify-center"
       style="height: 22%"
     >
       <template v-if="confirmingDelete">
         <button
-          class="text-[0.6rem] bg-gray-300 text-black rounded-full px-1.5 py-0.5 hover:bg-gray-400 mr-1 font-bold"
+          type="button"
+          class="mr-1 rounded-full bg-gray-300 px-1.5 py-0.5 text-[0.6rem] font-bold text-black hover:bg-gray-400"
           @click="confirmingDelete = false"
         >
           No
         </button>
         <button
-          class="text-[0.6rem] bg-red-600 text-white rounded-full px-1.5 py-0.5 hover:bg-red-700 font-bold"
+          type="button"
+          class="rounded-full bg-red-600 px-1.5 py-0.5 text-[0.6rem] font-bold text-white hover:bg-red-700"
           @click="removeIcon"
         >
           Remove
@@ -83,7 +85,8 @@
       </template>
       <button
         v-else
-        class="text-[0.6rem] bg-red-500 text-white rounded-full px-1.5 py-0.5 hover:bg-red-600 font-bold"
+        type="button"
+        class="rounded-full bg-red-500 px-1.5 py-0.5 text-[0.6rem] font-bold text-white hover:bg-red-600"
         @click="confirmingDelete = true"
       >
         ✕
@@ -91,12 +94,12 @@
     </div>
 
     <div
-      v-else-if="!bigMode"
-      class="w-full flex items-center justify-center"
+      v-else-if="!isCompactHeader"
+      class="flex w-full items-center justify-center"
       style="height: 22%"
     >
       <span
-        class="text-center font-bold truncate max-w-full leading-none"
+        class="max-w-full truncate text-center font-bold leading-none"
         style="font-size: clamp(0.55rem, 1vw, 0.8rem)"
         :title="computedLabel"
       >
@@ -107,6 +110,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/icons/icon-display.vue
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
@@ -143,7 +147,7 @@ const route = useRoute()
 const { butterflies } = storeToRefs(butterflyStore)
 
 const isEditing = computed(() => smartbarStore.isEditing)
-const bigMode = computed(() => displayStore.bigMode)
+const isCompactHeader = computed(() => displayStore.headerState === 'compact')
 
 const confirmingDelete = ref(false)
 
@@ -157,7 +161,7 @@ function removeIcon() {
 }
 
 const isActiveRoute = computed(
-  () => props.icon.link && route.path.startsWith(props.icon.link),
+  () => !!(props.icon.link && route.path.startsWith(props.icon.link)),
 )
 
 const computedLabel = computed(() => {

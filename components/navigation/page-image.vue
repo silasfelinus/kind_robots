@@ -47,33 +47,40 @@ const handleClick = () => {
   flipped.value = !flipped.value
 }
 </script>
-
 <style scoped>
 .flip-card {
   width: 100%;
   height: 100%;
   perspective: 1000px;
   cursor: pointer;
+  /* Isolate the stacking context */
+  isolation: isolate;
 }
+
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
   transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d; /* Safari */
 }
+
 .flip-card-inner.is-flipped {
   transform: rotateY(180deg);
 }
+
 .flip-card-front,
 .flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
   backface-visibility: hidden;
   border-radius: 1rem;
-  overflow: hidden;
+  /* DO NOT use overflow: hidden here — breaks 3D */
 }
+
 .flip-card-back {
   transform: rotateY(180deg);
 }

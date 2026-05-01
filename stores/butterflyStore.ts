@@ -448,20 +448,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     }, safeDelay)
   }
 
-  async function initializeLoaderButterflies(amount = 20) {
-    if (!initialized.value) {
-      await initialize()
-    }
-
-    stopDrain()
-    clearLoaderExitTimer()
-    butterflies.value = []
-    selectedButterflyId.value = ''
-    targetCount.value = amount
-
-    await spawnLoaderButterflies(amount, 'random')
-  }
-
   function removeButterflyById(id: string) {
     const index = butterflies.value.findIndex(
       (butterfly) => butterfly.id === id,
@@ -906,7 +892,6 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
     clearLoaderExitTimer,
     triggerLoaderButterflyExit,
-    initializeLoaderButterflies,
     loaderEffectName,
     logLoaderEffect,
 

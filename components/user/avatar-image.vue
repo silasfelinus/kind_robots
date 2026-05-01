@@ -39,9 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const flipped = ref(false)
@@ -49,32 +48,40 @@ const hydrated = ref(false)
 const resolvedImage = ref<string | null>(null)
 
 const userStore = useUserStore()
-const artStore = useArtStore()
 const errorStore = useErrorStore()
 
-watchEffect(async () => {
-  const user = userStore.user
+const FALLBACK = '/images/kindart.webp'
 
-  if (user?.artImageId) {
-    try {
-      console.log(userStore.user?.avatarImage, userStore.user?.artImageId)
-      const artImage = await artStore.getArtImageById(user.artImageId)
-      resolvedImage.value = artImage?.imageData || user.avatarImage || null
-    } catch (error) {
-      console.error('Failed to fetch art image:', error)
-      resolvedImage.value = user.avatarImage || null
-    }
-  } else {
-    resolvedImage.value = user?.avatarImage || null
-  }
-})
+const fetchAvatar = async () => {
+  const result = await userStore.userImage()
+  resolvedImage.value = result === FALLBACK ? null : result
+  console.debug('[avatar-image] resolvedImage →', resolvedImage.value)
+}
 
-onMounted(() => {
+watch(
+  () => [userStore.user?.artImageId, userStore.user?.avatarImage],
+  async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
+    console.info(
+      `[avatar-image] User image changed — artImageId: ${oldArtId} → ${newArtId}, avatarImage: ${oldAvatar} → ${newAvatar}`,
+    )
+    await fetchAvatar()
+  },
+)
+
+onMounted(async () => {
   hydrated.value = true
+  await fetchAvatar()
 })
 
 const handleAvatarClick = () => {
   try {
+    console.group('[avatar-image] click debug')
+    console.log('user:', userStore.user?.username)
+    console.log('user.avatarImage:', userStore.user?.avatarImage)
+    console.log('user.artImageId:', userStore.user?.artImageId)
+    console.log('resolvedImage.value:', resolvedImage.value)
+    console.log('hydrated:', hydrated.value)
+    console.groupEnd()
     flipped.value = !flipped.value
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to toggle'

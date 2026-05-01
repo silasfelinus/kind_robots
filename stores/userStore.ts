@@ -413,7 +413,6 @@ export const useUserStore = defineStore('userStore', () => {
 
     return fetchUsersPromise.value
   }
-
   async function userImage(userIdOverride?: number): Promise<string> {
     const resolvedId = userIdOverride ?? userId.value
     let target = users.value.find((u) => u.id === resolvedId)
@@ -439,10 +438,9 @@ export const useUserStore = defineStore('userStore', () => {
 
     try {
       const artImage = await artStore.getArtImageById(target.artImageId)
-      if (!artImage?.imageData) return fallbackAvatar
+      if (!artImage?.imageData) return target.avatarImage || fallbackAvatar
 
       const data = artImage.imageData
-      // Already a usable URL
       if (
         data.startsWith('/') ||
         data.startsWith('http') ||
@@ -450,11 +448,10 @@ export const useUserStore = defineStore('userStore', () => {
       ) {
         return data
       }
-      // Raw base64 — prefix it so browsers can render it
       return `data:image/png;base64,${data}`
     } catch (error) {
       handleError(error, 'userImage')
-      return fallbackAvatar
+      return target.avatarImage || fallbackAvatar
     }
   }
 

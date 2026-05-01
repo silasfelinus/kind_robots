@@ -21,8 +21,8 @@ const butterflyStore = useButterflyStore()
 
 const hasActiveButterflies = computed(
   () =>
-    butterflyStore.butterflies.filter((butterfly) => !butterfly.isExiting)
-      .length > 0,
+    butterflyStore.showSwarm &&
+    butterflyStore.butterflies.filter((b) => !b.isExiting).length > 0,
 )
 
 function toggleAmiSwarm() {

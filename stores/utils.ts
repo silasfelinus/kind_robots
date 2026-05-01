@@ -24,7 +24,11 @@ export async function performFetch<T = unknown>(
 
   const normalizedHeaders = new Headers(options.headers ?? {})
 
-  if (!normalizedHeaders.has('Content-Type') && options.body) {
+  if (
+    !normalizedHeaders.has('Content-Type') &&
+    options.body &&
+    !(options.body instanceof FormData)
+  ) {
     normalizedHeaders.set('Content-Type', 'application/json')
   }
 

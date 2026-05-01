@@ -19,6 +19,7 @@ export type UserDashboardTab =
 
 export type WonderDashboardTab =
   | 'memory-test'
+  | 'memory-dungeon'
   | 'wonder-lab'
   | 'screen-fx'
   | 'rebel-button'

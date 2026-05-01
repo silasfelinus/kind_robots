@@ -1,4 +1,15 @@
 <!-- /components/content/user/user-avatar.vue -->
+<template>
+  <div class="flex items-center justify-center">
+    <img
+      :src="avatarUrl"
+      :alt="`${username}'s avatar`"
+      class="rounded-full min-h-1 min-w-1 border-bg-200 border-2 object-cover"
+      @error="handleAvatarError"
+    />
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '../../stores/userStore'
@@ -12,21 +23,43 @@ const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
 
 const fetchAvatar = async () => {
-  if (!effectiveUserId.value) return
+  if (!effectiveUserId.value) {
+    console.warn('[user-avatar] No valid userId. Using default avatar.')
+    return
+  }
   try {
-    // userStore.userImage() already returns a usable src — URL or data:image/...
     avatarUrl.value = await userStore.userImage(effectiveUserId.value)
+    console.debug(
+      `[user-avatar] Resolved avatar for userId: ${effectiveUserId.value} →`,
+      avatarUrl.value,
+    )
   } catch (error) {
-    console.error('[Avatar Component] Failed to fetch avatar:', error)
+    console.error('[user-avatar] Failed to fetch avatar:', error)
     avatarUrl.value = '/images/kindart.webp'
   }
 }
 
 const handleAvatarError = (event: Event) => {
+  console.warn('[user-avatar] Image failed to load. Falling back to default.')
   ;(event.target as HTMLImageElement).src = '/images/kindart.webp'
 }
 
-watch(() => userStore.user?.artImageId, fetchAvatar)
+watch(
+  () => [userStore.user?.artImageId, userStore.user?.avatarImage],
+  async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
+    console.info(
+      `[user-avatar] User image changed — artImageId: ${oldArtId} → ${newArtId}, avatarImage: ${oldAvatar} → ${newAvatar}`,
+    )
+    await fetchAvatar()
+  },
+)
 
 onMounted(fetchAvatar)
 </script>
+
+<style scoped>
+img {
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+</style>

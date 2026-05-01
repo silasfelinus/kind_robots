@@ -217,6 +217,15 @@ const footerLinks: WonderFooterLink[] = [
     toolText: 'Leaderboard, new game setup, and shiny score-chasing nonsense.',
   },
   {
+    label: 'Memory Dungeon',
+    shortLabel: 'Dungeon',
+    key: 'memory-dungeon',
+    icon: 'kind-icon:brain',
+    description: 'Match cursed cards, clear levels, and claim weird rewards.',
+    toolText:
+      'Dungeon run controls, rewards, lives, challenges, and leaderboard tools.',
+  },
+  {
     label: 'Rebel Button',
     shortLabel: 'Button',
     key: 'rebel-button',

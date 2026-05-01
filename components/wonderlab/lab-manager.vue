@@ -1,3 +1,4 @@
+<!-- /components/content/wonderlab/lab-manager.vue -->
 <template>
   <section
     class="flex h-full w-full min-h-0 flex-col overflow-hidden rounded-2xl bg-base-300 p-3"
@@ -20,7 +21,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+      <div class="grid grid-cols-2 gap-2 md:grid-cols-5">
         <button
           v-for="section in sections"
           :key="section.key"
@@ -55,11 +56,11 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/wonderlab/lab-manager.vue
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { useNavStore, type WonderDashboardTab } from '@/stores/navStore'
 
 import MemoryTest from '@/components/wonderlab/memory-test.vue'
+import MemoryDungeon from '@/components/weird/memory-dungeon.vue'
 import WonderLab from '@/components/wonderlab/wonder-lab.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
 import RebelButton from '@/components/weird/rebel-button.vue'
@@ -86,6 +87,12 @@ const sections: WonderManagerSection[] = [
     description: 'Match cards and chase records',
   },
   {
+    key: 'memory-dungeon',
+    label: 'Dungeon',
+    icon: 'kind-icon:dragon',
+    description: 'Memory roguelite rewards',
+  },
+  {
     key: 'rebel-button',
     label: 'Rebel Button',
     icon: 'kind-icon:button',
@@ -107,6 +114,7 @@ const sections: WonderManagerSection[] = [
 
 const componentMap: Record<WonderDashboardTab, Component> = {
   'memory-test': MemoryTest,
+  'memory-dungeon': MemoryDungeon,
   'wonder-lab': WonderLab,
   'screen-fx': ScreenFx,
   'rebel-button': RebelButton,

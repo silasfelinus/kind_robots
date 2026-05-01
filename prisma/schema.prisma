@@ -42,7 +42,8 @@ model Art {
   ArtImage       ArtImage?
   Dominions      Dominion[]
   Reaction       Reaction[]
-  Butterflies Butterfly[]
+  Dreams         Dream[]
+  Butterflies    Butterfly[]
   ArtCollection  ArtCollection[] @relation("ArtToArtCollection")
 
   @@index([galleryId], map: "Art_galleryId_fkey")
@@ -93,6 +94,7 @@ model ArtImage {
   Butterflies Butterfly[]
   Dominions   Dominion[]
   Scenarios   Scenario[]
+  Dreams              Dream[]
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
@@ -110,6 +112,7 @@ model ArtCollection {
   username    String?
   User        User      @relation(fields: [userId], references: [id])
   art         Art[]     @relation("ArtToArtCollection")
+  Dreams       Dream[]
   Butterflies Butterfly[]
 
   @@index([userId], map: "ArtCollection_userId_fkey")
@@ -331,6 +334,7 @@ model Chat {
   characterId     Int?
   isRead          Boolean    @default(false)
   isMature        Boolean    @default(false)
+  dreamId         Int?
   serverId        Int?
   serverName      String?    @db.VarChar(256)
   ArtImage        ArtImage?
@@ -340,12 +344,14 @@ model Chat {
   Server          Server?    @relation(fields: [serverId], references: [id])
   User            User?      @relation(fields: [userId], references: [id])
   Reactions       Reaction[]
+  Dream           Dream?     @relation(fields: [dreamId], references: [id], onDelete: Cascade)
 
   @@index([serverId], map: "Chat_serverId_fkey")
   @@index([botId], map: "Chat_botId_fkey")
   @@index([characterId], map: "Chat_characterId_fkey")
   @@index([promptId], map: "Chat_promptId_fkey")
   @@index([userId], map: "Chat_userId_fkey")
+  @@index([dreamId], map: "Chat_dreamId_fkey")
 }
 
 /// Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
@@ -410,6 +416,56 @@ model Dominion {
   @@index([artId], map: "Dominion_artId_fkey")
   @@index([artImageId], map: "Dominion_artImageId_fkey")
 }
+model Dream {
+  id              Int        @id @default(autoincrement())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime?  @default(now()) @updatedAt
+
+  title           String     @db.VarChar(255)
+  slug            String?    @unique @db.VarChar(255)
+  description     String?    @db.Text
+
+  currentVibe     String     @db.Text
+  currentPrompt   String?    @db.Text
+
+  userId          Int        @default(10)
+  pitchId         Int?
+  artId           Int?
+  artImageId      Int?
+  textServerId    Int?
+  artServerId     Int?
+  artCollectionId Int?
+  galleryId       Int?
+  scenarioId      Int?
+
+  isPublic        Boolean    @default(true)
+  isMature        Boolean    @default(false)
+  isActive        Boolean    @default(true)
+
+  User            User           @relation(fields: [userId], references: [id])
+  Gallery         Gallery?       @relation(fields: [galleryId], references: [id])
+  Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
+  Art             Art?           @relation(fields: [artId], references: [id])
+  Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
+  ArtImage        ArtImage?      @relation(fields: [artImageId], references: [id])
+  ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
+
+  Chats           Chat[]
+  Reactions       Reaction[]
+  Tags            Tag[]          @relation("DreamToTag")
+
+  @@index([userId])
+  @@index([pitchId])
+  @@index([artId])
+  @@index([artImageId])
+  @@index([artCollectionId])
+  @@index([galleryId])
+  @@index([scenarioId])
+  @@index([isPublic])
+  @@index([isActive])
+}
+
+
 
 /// our mostly-obsolete system for collecting images. It assumed data was kept as physical files on disk, and is still used to access the original seed images, which are only partly digitized and used primarily for our Memory Match game, which is the clearest proof of concept that all of this can be used for a functional purpose.
 model Gallery {
@@ -431,6 +487,7 @@ model Gallery {
   User           User?      @relation(fields: [userId], references: [id])
   Prompts        Prompt[]
   Reactions      Reaction[]
+  Dreams       Dream[]
   
 
   @@index([userId], map: "Gallery_userId_fkey")
@@ -511,6 +568,7 @@ model Pitch {
   Reactions      Reaction[]
   Tags           Tag[]      @relation("PitchToTag")
   Butterflies Butterfly[]
+  Dreams              Dream[]
 
   @@index([userId], map: "Pitch_userId_fkey")
 }
@@ -535,6 +593,7 @@ model Prompt {
   Pitch      Pitch?     @relation(fields: [pitchId], references: [id])
   User       User?      @relation(fields: [userId], references: [id])
   Butterflies Butterfly[]
+  
   Reactions  Reaction[]
 
   @@index([botId], map: "Prompt_botId_fkey")
@@ -564,11 +623,13 @@ model Reaction {
   rewardId         Int?
   tagId            Int?
   chatId           Int?
+  dreamId           Int?
   ArtImage         ArtImage?
   Art              Art?             @relation(fields: [artId], references: [id])
   Bot              Bot?             @relation(fields: [botId], references: [id])
   Chat             Chat?            @relation(fields: [chatId], references: [id])
   Component        Component?       @relation(fields: [componentId], references: [id])
+  Dream            Dream?             @relation(fields: [dreamId], references: [id])
   Gallery          Gallery?         @relation(fields: [galleryId], references: [id])
   Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
   Prompt           Prompt?          @relation(fields: [promptId], references: [id])
@@ -581,6 +642,7 @@ model Reaction {
   @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
+  @@index([dreamId], map: "Reaction_dreamId_fkey")
   @@index([botId], map: "Reaction_botId_fkey")
   @@index([chatId], map: "Reaction_chatId_fkey")
   @@index([galleryId], map: "Reaction_galleryId_fkey")
@@ -658,6 +720,7 @@ model Scenario {
   User         User        @relation(fields: [userId], references: [id])
   Characters   Character[] @relation("CharacterToScenario")
   Butterflies Butterfly[]
+  Dreams      Dream[]
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")
@@ -776,6 +839,7 @@ model Tag {
   Dominions  Dominion[]  @relation("DominionToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
   Butterflies Butterfly[]
+  Dreams      Dream[]    @relation("DreamToTag")
 
   @@index([userId], map: "Tag_userId_fkey")
 }
@@ -869,6 +933,7 @@ model User {
   Tags                  Tag[]
   Themes                Theme[]
   Butterflies           Butterfly[]
+  Dreams              Dream[]
   ButterflyRecords      ButterflyRecord[]
   hiddenServerIds Json? @map("HiddenServers")
 }
@@ -933,6 +998,7 @@ enum ReactionCategory {
   PITCH
   COMPONENT
   CHAT_EXCHANGE
+  DREAM
   BOT
   GALLERY
   MESSAGE
@@ -974,6 +1040,7 @@ enum ChatType {
   ToUser
   ToCharacter
   Weirdlandia
+  Dream
 }
 
 enum PitchType {
@@ -986,6 +1053,7 @@ enum PitchType {
   BOT
   ARTGALLERY
   INSPIRATION
+  DREAM
 }
 
 enum ServerType {

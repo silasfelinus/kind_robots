@@ -39,6 +39,7 @@ export const ReactionCategory = {
   PITCH: 'PITCH',
   COMPONENT: 'COMPONENT',
   CHAT_EXCHANGE: 'CHAT_EXCHANGE',
+  DREAM: 'DREAM',
   BOT: 'BOT',
   GALLERY: 'GALLERY',
   MESSAGE: 'MESSAGE',
@@ -88,7 +89,8 @@ export const ChatType = {
   ToForum: 'ToForum',
   ToUser: 'ToUser',
   ToCharacter: 'ToCharacter',
-  Weirdlandia: 'Weirdlandia'
+  Weirdlandia: 'Weirdlandia',
+  Dream: 'Dream'
 } as const
 
 export type ChatType = (typeof ChatType)[keyof typeof ChatType]
@@ -103,7 +105,8 @@ export const PitchType = {
   VIBE: 'VIBE',
   BOT: 'BOT',
   ARTGALLERY: 'ARTGALLERY',
-  INSPIRATION: 'INSPIRATION'
+  INSPIRATION: 'INSPIRATION',
+  DREAM: 'DREAM'
 } as const
 
 export type PitchType = (typeof PitchType)[keyof typeof PitchType]

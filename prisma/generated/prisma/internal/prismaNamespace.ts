@@ -394,6 +394,7 @@ export const ModelName = {
   Chat: 'Chat',
   Component: 'Component',
   Dominion: 'Dominion',
+  Dream: 'Dream',
   Gallery: 'Gallery',
   Log: 'Log',
   Milestone: 'Milestone',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dominion" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
+    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dominion" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1090,6 +1091,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DominionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DominionCountAggregateOutputType> | number
+        }
+      }
+    }
+    Dream: {
+      payload: Prisma.$DreamPayload<ExtArgs>
+      fields: Prisma.DreamFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DreamFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DreamFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>
+        }
+        findFirst: {
+          args: Prisma.DreamFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DreamFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>
+        }
+        findMany: {
+          args: Prisma.DreamFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>[]
+        }
+        create: {
+          args: Prisma.DreamCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>
+        }
+        createMany: {
+          args: Prisma.DreamCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.DreamDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>
+        }
+        update: {
+          args: Prisma.DreamUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>
+        }
+        deleteMany: {
+          args: Prisma.DreamDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DreamUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.DreamUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DreamPayload>
+        }
+        aggregate: {
+          args: Prisma.DreamAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDream>
+        }
+        groupBy: {
+          args: Prisma.DreamGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DreamGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DreamCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DreamCountAggregateOutputType> | number
         }
       }
     }
@@ -2672,6 +2739,7 @@ export const ChatScalarFieldEnum = {
   characterId: 'characterId',
   isRead: 'isRead',
   isMature: 'isMature',
+  dreamId: 'dreamId',
   serverId: 'serverId',
   serverName: 'serverName'
 } as const
@@ -2732,6 +2800,32 @@ export const DominionScalarFieldEnum = {
 } as const
 
 export type DominionScalarFieldEnum = (typeof DominionScalarFieldEnum)[keyof typeof DominionScalarFieldEnum]
+
+
+export const DreamScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  currentVibe: 'currentVibe',
+  currentPrompt: 'currentPrompt',
+  userId: 'userId',
+  pitchId: 'pitchId',
+  artId: 'artId',
+  artImageId: 'artImageId',
+  textServerId: 'textServerId',
+  artServerId: 'artServerId',
+  artCollectionId: 'artCollectionId',
+  galleryId: 'galleryId',
+  scenarioId: 'scenarioId',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive'
+} as const
+
+export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
 
 
 export const GalleryScalarFieldEnum = {
@@ -2856,7 +2950,8 @@ export const ReactionScalarFieldEnum = {
   resourceId: 'resourceId',
   rewardId: 'rewardId',
   tagId: 'tagId',
-  chatId: 'chatId'
+  chatId: 'chatId',
+  dreamId: 'dreamId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -3288,6 +3383,17 @@ export const DominionOrderByRelevanceFieldEnum = {
 } as const
 
 export type DominionOrderByRelevanceFieldEnum = (typeof DominionOrderByRelevanceFieldEnum)[keyof typeof DominionOrderByRelevanceFieldEnum]
+
+
+export const DreamOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  currentVibe: 'currentVibe',
+  currentPrompt: 'currentPrompt'
+} as const
+
+export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
 
 
 export const GalleryOrderByRelevanceFieldEnum = {
@@ -3758,6 +3864,7 @@ export type GlobalOmitConfig = {
   chat?: Prisma.ChatOmit
   component?: Prisma.ComponentOmit
   dominion?: Prisma.DominionOmit
+  dream?: Prisma.DreamOmit
   gallery?: Prisma.GalleryOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit

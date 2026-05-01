@@ -100,6 +100,11 @@ export type Component = Prisma.ComponentModel
  */
 export type Dominion = Prisma.DominionModel
 /**
+ * Model Dream
+ * 
+ */
+export type Dream = Prisma.DreamModel
+/**
  * Model Gallery
  * our mostly-obsolete system for collecting images. It assumed data was kept as physical files on disk, and is still used to access the original seed images, which are only partly digitized and used primarily for our Memory Match game, which is the clearest proof of concept that all of this can be used for a functional purpose.
  */

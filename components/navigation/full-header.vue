@@ -12,8 +12,7 @@
       :title="avatarToggleTitle"
       @click="handleAvatarClick"
     >
-      <avatar-image
-        alt="User Avatar"
+      <page-image
         class="m-0 block h-full w-full object-cover rounded-2xl object-center p-0"
       />
 

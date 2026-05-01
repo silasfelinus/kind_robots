@@ -1,7 +1,7 @@
 <!-- /components/content/story/avatar-image.vue -->
 <template>
   <div v-if="hydrated" class="relative w-full h-full">
-    <div class="flip-card h-full w-full" @click="handleAvatarClick">
+    <div class="flip-card h-full w-full" @click.stop="handleAvatarClick">
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img
@@ -59,10 +59,8 @@ watch(
 const handleAvatarClick = () => {
   try {
     flipped.value = !flipped.value
-    displayStore.toggleBigMode()
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to toggle big mode'
+    const message = error instanceof Error ? error.message : 'Failed to toggle'
     errorStore.setError(ErrorType.INTERACTION_ERROR, message)
   }
 }

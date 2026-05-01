@@ -1,87 +1,32 @@
 <!-- /components/content/user/user-avatar.vue -->
-<template>
-  <div class="flex items-center justify-center">
-    <img
-      :src="avatarUrl"
-      :alt="`${username}'s avatar`"
-      class="rounded-full min-h-1 min-w-1 border-bg-200 border-2 object-cover"
-      @error="handleAvatarError"
-    />
-  </div>
-</template>
-
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '../../stores/userStore'
 
-// Props
 const props = defineProps<{ userId?: number }>()
 
-// User Store
 const userStore = useUserStore()
 
-// State
-const avatarUrl = ref('/images/kindart.webp') // Default avatar
+const avatarUrl = ref('/images/kindart.webp')
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
 const username = computed(() => userStore.username || 'Guest')
 
-// Helper to determine if the image is base64 or raw data
-const isImageData = (data: string): boolean => {
-  return data.startsWith('data:image/') || /^[A-Za-z0-9+/]+={0,2}$/.test(data)
-}
-
-// Fetch the avatar URL
 const fetchAvatar = async () => {
-  if (!effectiveUserId.value) {
-    console.warn(`[Avatar Component] No valid userId. Using default avatar.`)
-    return
-  }
-
+  if (!effectiveUserId.value) return
   try {
-    const userImage = await userStore.userImage(effectiveUserId.value)
-
-    // Check if the userImage is raw data or a URL
-    if (userImage && isImageData(userImage)) {
-      avatarUrl.value = `data:image/png;base64,${userImage}`
-    } else {
-      avatarUrl.value = userImage || '/images/kindart.webp'
-    }
-
-    console.debug(
-      `[Avatar Component] Fetched avatar for userId: ${effectiveUserId.value}`,
-    )
+    // userStore.userImage() already returns a usable src — URL or data:image/...
+    avatarUrl.value = await userStore.userImage(effectiveUserId.value)
   } catch (error) {
-    console.error(`[Avatar Component] Failed to fetch avatar:`, error)
+    console.error('[Avatar Component] Failed to fetch avatar:', error)
+    avatarUrl.value = '/images/kindart.webp'
   }
 }
 
-// Handle avatar loading errors
 const handleAvatarError = (event: Event) => {
-  const imgElement = event.target as HTMLImageElement
-  console.warn(
-    `[Avatar Component] Failed to load avatar. Setting default avatar.`,
-  )
-  imgElement.src = '/images/kindart.webp'
+  ;(event.target as HTMLImageElement).src = '/images/kindart.webp'
 }
 
-// Watch for changes in user.artImageId
-watch(
-  () => userStore.user?.artImageId, // Watched value
-  async (newValue, oldValue) => {
-    console.info(
-      `[Avatar Component] Detected artImageId change: ${oldValue} -> ${newValue}`,
-    )
-    await fetchAvatar() // Refetch avatar whenever the artImageId changes
-  },
-)
+watch(() => userStore.user?.artImageId, fetchAvatar)
 
-// Lifecycle Hook
 onMounted(fetchAvatar)
 </script>
-
-<style scoped>
-img {
-  height: auto;
-  aspect-ratio: 1 / 1; /* Maintains a perfect circle */
-}
-</style>

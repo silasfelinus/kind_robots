@@ -5,19 +5,33 @@
       <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
         <div class="flip-card-front">
           <img
+            v-if="resolvedImage"
             :src="resolvedImage"
             alt="Avatar"
             class="w-full h-full object-cover shadow-lg hover:shadow-xl"
             draggable="false"
           />
+          <div
+            v-else
+            class="w-full h-full flex items-center justify-center bg-base-300"
+          >
+            <Icon name="kind-icon:person" class="w-full h-full text-accent" />
+          </div>
         </div>
         <div class="flip-card-back">
           <img
+            v-if="resolvedImage"
             :src="resolvedImage"
             alt="Avatar (back)"
             class="w-full h-full object-cover shadow-lg hover:shadow-xl"
             draggable="false"
           />
+          <div
+            v-else
+            class="w-full h-full flex items-center justify-center bg-base-300"
+          >
+            <Icon name="kind-icon:person" class="w-full h-full text-accent" />
+          </div>
         </div>
       </div>
     </div>
@@ -25,37 +39,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watchEffect, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import { useDisplayStore } from '@/stores/displayStore'
+import { useArtStore } from '@/stores/artStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 
 const flipped = ref(false)
 const hydrated = ref(false)
-const resolvedImage = ref('/images/botcafe.webp')
+const resolvedImage = ref<string | null>(null)
 
 const userStore = useUserStore()
-const displayStore = useDisplayStore()
+const artStore = useArtStore()
 const errorStore = useErrorStore()
 
-async function resolveAvatar() {
-  const result = await userStore.userImage()
-  resolvedImage.value = result
-}
+watchEffect(async () => {
+  const user = userStore.user
 
-onMounted(async () => {
-  hydrated.value = true
-  await resolveAvatar()
+  if (user?.artImageId) {
+    try {
+      console.log(userStore.user?.avatarImage, userStore.user?.artImageId)
+      const artImage = await artStore.getArtImageById(user.artImageId)
+      resolvedImage.value = artImage?.imageData || user.avatarImage || null
+    } catch (error) {
+      console.error('Failed to fetch art image:', error)
+      resolvedImage.value = user.avatarImage || null
+    }
+  } else {
+    resolvedImage.value = user?.avatarImage || null
+  }
 })
 
-watch(
-  () => [userStore.user?.artImageId, userStore.user?.avatarImage],
-  async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
-    if (newArtId !== oldArtId || newAvatar !== oldAvatar) {
-      await resolveAvatar()
-    }
-  },
-)
+onMounted(() => {
+  hydrated.value = true
+})
+
 const handleAvatarClick = () => {
   try {
     flipped.value = !flipped.value

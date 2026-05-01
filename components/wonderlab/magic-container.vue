@@ -1,12 +1,11 @@
 <!-- /components/content/story/magic-container.vue -->
-// /components/content/story/magic-container.vue
 <template>
   <div class="relative inline-block">
     <div
-      class="transition-transform duration-500 ease-in-out origin-center w-full h-full"
+      class="h-full w-full origin-center transition-transform duration-500 ease-in-out"
       :class="{
-        'scale-[1.5]': displayStore.bigMode,
-        'scale-100': !displayStore.bigMode,
+        'scale-[1.5]': isCompactHeader,
+        'scale-100': !isCompactHeader,
       }"
     >
       <slot />
@@ -15,7 +14,11 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/story/magic-container.vue
+import { computed } from 'vue'
 import { useDisplayStore } from '~/stores/displayStore'
 
 const displayStore = useDisplayStore()
+
+const isCompactHeader = computed(() => displayStore.headerState === 'compact')
 </script>

@@ -1,28 +1,29 @@
 <!-- /components/content/layout/fullscreen-toggle.vue -->
 <template>
-  <!-- Slim, floating flip icon for desktop viewports -->
   <div
     v-if="!displayStore.isMobileViewport"
-    class="flex items-center space-x-2 z-50"
+    class="z-50 flex items-center space-x-2"
   >
-    <!-- Fullscreen/Two-column button -->
     <button
+      type="button"
       class="icon-button"
       :class="{
         'text-accent': isFullScreen,
-        ' text-info': !isFullScreen,
+        'text-info': !isFullScreen,
       }"
+      :title="buttonTitle"
       @click="toggleFullScreen"
     >
       <Icon
         :name="isFullScreen ? 'mdi-monitor' : 'mdi-view-column'"
-        class="w-5 h-5"
+        class="h-5 w-5"
       />
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/layout/fullscreen-toggle.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
@@ -30,8 +31,12 @@ const displayStore = useDisplayStore()
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
 
-const toggleFullScreen = () => {
-  displayStore.toggleBigMode()
+const buttonTitle = computed(() =>
+  isFullScreen.value ? 'Return to column layout' : 'Use fullscreen layout',
+)
+
+function toggleFullScreen() {
+  displayStore.isFullScreen = !displayStore.isFullScreen
 }
 </script>
 

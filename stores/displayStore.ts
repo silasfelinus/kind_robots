@@ -54,7 +54,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     isAnimating: false,
     currentAnimation: '',
     fullscreenState: 'nuxt' as FullscreenState,
-    bigMode: false,
     displayMode: 'scenario' as displayModeState,
     displayAction: 'gallery' as displayActionState,
     previousRoute: '',
@@ -225,10 +224,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
     if (state.headerState === 'hidden') return 0
 
     const sizes: Record<ViewportSize, number> = {
-      small: state.bigMode ? 6 : 14,
-      medium: state.bigMode ? 12 : 13,
-      large: state.bigMode ? 10 : 12,
-      extraLarge: state.bigMode ? 8 : 13,
+      small: 14,
+      medium: 13,
+      large: 12,
+      extraLarge: 13,
     }
 
     return sizes[state.viewportSize]
@@ -768,11 +767,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function toggleBigMode() {
-    state.bigMode = !state.bigMode
-    saveState()
-  }
-
   function setMainComponent(name: string) {
     state.mainComponent = name
   }
@@ -1104,7 +1098,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     toggleLeftSidebar,
     toggleRightSidebar,
     toggleFooter,
-    toggleBigMode,
     toggleSection,
     toggleExtended,
     toggleRandomAnimation,

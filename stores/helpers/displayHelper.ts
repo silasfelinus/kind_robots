@@ -60,7 +60,6 @@ export interface DisplayStoreState {
   currentAnimation: string
   resizeTimeout: ReturnType<typeof setTimeout> | null
   fullscreenState: FullscreenState
-  bigMode: boolean
   displayMode: displayModeState
   displayAction: displayActionState
   previousRoute: string

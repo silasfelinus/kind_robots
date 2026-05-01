@@ -1,61 +1,63 @@
 <!-- /components/content/layout/kind-buttons.vue -->
 <template>
   <div class="kind-buttons">
-    <!-- Tutorial / NuxtPage Toggle (Top-right corner) -->
     <button
       v-if="!isFullScreen"
-      class="fixed top-30 right-4 bg-primary text-base-200 rounded-lg shadow-md hover:bg-accent transition duration-300 z-50 p-1"
+      type="button"
+      class="fixed right-4 top-30 z-50 rounded-lg bg-primary p-1 text-base-200 shadow-md transition duration-300 hover:bg-accent"
       @click="toggleTutorial"
     >
       Show {{ showTutorial ? 'Nuxt Page' : 'Tutorial' }}
     </button>
 
-    <!-- Fullscreen / Two-column Toggle (Bottom-right corner) -->
     <div
       v-if="!displayStore.isMobileViewport"
-      class="fixed lg:flex bottom-4 right-4 items-center space-x-2 text-base-200 rounded-lg shadow-md p-2 transition duration-300 z-50"
+      class="fixed bottom-4 right-4 z-50 items-center space-x-2 rounded-lg p-2 text-base-200 shadow-md transition duration-300 lg:flex"
     >
-      <!-- Two-column layout button -->
       <button
-        class="icon-button"
-        :class="{
-          'bg-info text-base-200': isFullScreen,
-          'bg-gray-400 text-gray-700': !isFullScreen,
-        }"
-        @click="toggleFullScreen"
-      >
-        <Icon name="kind-icon:grid" class="w-6 h-6" />
-      </button>
-      <!-- One-column layout button -->
-      <button
+        type="button"
         class="icon-button"
         :class="{
           'bg-info text-base-200': !isFullScreen,
           'bg-gray-400 text-gray-700': isFullScreen,
         }"
-        @click="toggleFullScreen"
+        title="Use two-column layout"
+        @click="setFullScreen(false)"
       >
-        <Icon name="kind-icon:fullscreen" class="w-6 h-6" />
+        <Icon name="kind-icon:grid" class="h-6 w-6" />
+      </button>
+
+      <button
+        type="button"
+        class="icon-button"
+        :class="{
+          'bg-info text-base-200': isFullScreen,
+          'bg-gray-400 text-gray-700': !isFullScreen,
+        }"
+        title="Use fullscreen layout"
+        @click="setFullScreen(true)"
+      >
+        <Icon name="kind-icon:fullscreen" class="h-6 w-6" />
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/layout/kind-buttons.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
 
 const isFullScreen = computed(() => displayStore.isFullScreen)
-
-const toggleFullScreen = () => {
-  displayStore.toggleBigMode()
-}
-
 const showTutorial = computed(() => displayStore.showTutorial)
 
-const toggleTutorial = () => {
+function setFullScreen(value: boolean) {
+  displayStore.isFullScreen = value
+}
+
+function toggleTutorial() {
   displayStore.toggleTutorial()
 }
 </script>

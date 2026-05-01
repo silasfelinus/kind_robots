@@ -1,40 +1,40 @@
 <!-- /components/navigation/smart-slide.vue -->
 <template>
-  <section class="relative w-full max-w-4xl h-[90%] mx-auto overflow-visible">
-    <div class="flex flex-col w-full h-full">
-      <div class="px-2 md:px-3 lg:px-4 pt-2">
+  <section class="relative mx-auto h-[90%] w-full max-w-4xl overflow-visible">
+    <div class="flex h-full w-full flex-col">
+      <div class="px-2 pt-2 md:px-3 lg:px-4">
         <div
-          class="w-full rounded-2xl border border-base-300 bg-base-200/90 px-2.5 md:px-3.5 py-1.5 md:py-2 flex flex-col gap-1.5 md:gap-2"
+          class="flex w-full flex-col gap-1.5 rounded-2xl border border-base-300 bg-base-200/90 px-2.5 py-1.5 md:gap-2 md:px-3.5 md:py-2"
         >
-          <div class="flex items-center justify-between gap-2 min-w-0">
-            <div class="flex items-center gap-1 md:gap-2 flex-shrink-0">
+          <div class="flex min-w-0 items-center justify-between gap-2">
+            <div class="flex shrink-0 items-center gap-1 md:gap-2">
               <button
                 v-for="state in states"
                 :key="state.id"
                 type="button"
-                class="btn btn-ghost btn-xs rounded-full px-2 md:px-3 text-[10px] md:text-xs flex items-center gap-1"
+                class="btn btn-ghost btn-xs flex items-center gap-1 rounded-full px-2 text-[10px] md:px-3 md:text-xs"
                 :class="{
                   'border-base-300 bg-base-200/70': smartState === state.id,
                 }"
                 @click="setSmart(state.id)"
               >
-                <Icon :name="state.icon" class="w-3 h-3 md:w-4 md:h-4" />
+                <Icon :name="state.icon" class="h-3 w-3 md:h-4 md:w-4" />
                 <span class="hidden sm:inline">{{ state.label }}</span>
               </button>
             </div>
           </div>
 
-          <div v-if="!bigMode" class="w-full overflow-x-auto">
+          <div v-if="!isCompactHeader" class="w-full overflow-x-auto">
             <smart-icons />
           </div>
         </div>
       </div>
 
       <div
-        class="relative flex-1 min-h-0 px-2 md:px-3 lg:px-4 pb-2 md:pb-3 lg:pb-4"
+        class="relative min-h-0 flex-1 px-2 pb-2 md:px-3 md:pb-3 lg:px-4 lg:pb-4"
       >
         <div
-          class="stage rounded-3xl border-2 border-black shadow-xl bg-base-100/95"
+          class="stage rounded-3xl border-2 border-black bg-base-100/95 shadow-xl"
         >
           <div class="scene">
             <div class="absolute inset-0">
@@ -61,13 +61,12 @@ import type { SmartState } from '@/stores/helpers/displayHelper'
 import SmartFront from '@/components/navigation/smart-front.vue'
 import SmartBack from '@/components/navigation/smart-back.vue'
 import SmartDash from './smart-dash.vue'
-import SmartIcons from '~/components/icons/smart-icons.vue'
+import SmartIcons from '@/components/icons/smart-icons.vue'
 
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 
-const bigMode = computed(() => displayStore.bigMode)
-
+const isCompactHeader = computed(() => displayStore.headerState === 'compact')
 const smartState = computed<SmartState>(() => displayStore.SmartState)
 
 const title = computed(

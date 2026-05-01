@@ -94,7 +94,6 @@
         <div><strong>Viewport:</strong> {{ displayStore.viewportSize }}</div>
         <div><strong>Touch:</strong> {{ displayStore.isTouchDevice }}</div>
         <div><strong>--vh:</strong> {{ vhValue }}</div>
-        <div><strong>Big Mode:</strong> {{ displayStore.bigMode }}</div>
         <div>
           <strong>Fullscreen:</strong> {{ displayStore.fullscreenState }}
         </div>

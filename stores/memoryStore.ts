@@ -62,7 +62,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const cardSize = computed(() => {
     const screen = displayStore.viewportSize
     const difficulty = selectedDifficulty.value.label
-    const isBig = displayStore.bigMode
+    const isCompactHeader = displayStore.headerState === 'compact'
 
     const sizeMap: Record<string, Record<ViewportSize, number>> = {
       Easy: { small: 90, medium: 100, large: 130, extraLarge: 150 },
@@ -72,7 +72,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     }
 
     const baseSize = sizeMap[difficulty]?.[screen] ?? 90
-    return isBig ? Math.round(baseSize * 1.2) : baseSize
+    return isCompactHeader ? Math.round(baseSize * 1.2) : baseSize
   })
 
   const gameBoardStyle = computed(() => {

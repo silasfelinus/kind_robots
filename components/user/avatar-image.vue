@@ -76,11 +76,6 @@ onMounted(async () => {
 const handleAvatarClick = () => {
   try {
     console.group('[avatar-image] click debug')
-    console.log('user:', userStore.user?.username)
-    console.log('user.avatarImage:', userStore.user?.avatarImage)
-    console.log('user.artImageId:', userStore.user?.artImageId)
-    console.log('resolvedImage.value:', resolvedImage.value)
-    console.log('hydrated:', hydrated.value)
     console.groupEnd()
     flipped.value = !flipped.value
   } catch (error) {

@@ -19,7 +19,7 @@
 
     <!-- Who We Are -->
     <section class="mb-10">
-      <h2 class="section-heading">Who We Are</h2>
+      <h2 class="text-xl font-semibold mb-2">Who We Are</h2>
       <p>
         Kind Robots (<a href="https://kindrobots.org" class="link"
           >kindrobots.org</a
@@ -32,7 +32,7 @@
 
     <!-- What We Collect -->
     <section class="mb-10">
-      <h2 class="section-heading">What We Collect and Why</h2>
+      <h2 class="text-xl font-semibold mb-2">What We Collect and Why</h2>
       <p>
         To provide core functionality — accounts, saved art, prompts, and
         creative history — we store basic account information and the content
@@ -46,7 +46,9 @@
 
     <!-- Law Enforcement -->
     <section class="mb-10">
-      <h2 class="section-heading">Law Enforcement and Legal Requests</h2>
+      <h2 class="text-xl font-semibold mb-2">
+        Law Enforcement and Legal Requests
+      </h2>
       <p>
         The only exception to our non-sharing commitment is a valid court order.
         If we are legally compelled to disclose your information, we will comply
@@ -59,7 +61,7 @@
 
     <!-- Admin Access -->
     <section class="mb-10">
-      <h2 class="section-heading">Admin Access</h2>
+      <h2 class="text-xl font-semibold mb-2">Admin Access</h2>
       <p>
         As the site administrator, it is technically possible that I may
         encounter passwords, private art, private prompts, or other personal
@@ -72,7 +74,7 @@
 
     <!-- Public vs Private -->
     <section class="mb-10">
-      <h2 class="section-heading">Public vs. Private Content</h2>
+      <h2 class="text-xl font-semibold mb-2">Public vs. Private Content</h2>
       <p class="mb-4">
         Kind Robots uses an
         <code class="badge badge-ghost font-mono">isPublic</code> flag on
@@ -101,7 +103,7 @@
 
     <!-- Ownership -->
     <section class="mb-10">
-      <h2 class="section-heading">Ownership</h2>
+      <h2 class="text-xl font-semibold mb-2">Ownership</h2>
       <p>You own what you make. Full stop.</p>
       <p class="mt-3">
         Kind Robots does not claim ownership over your creations — your prompts,
@@ -143,7 +145,7 @@
 
     <!-- Security -->
     <section class="mb-10">
-      <h2 class="section-heading">Data Security</h2>
+      <h2 class="text-xl font-semibold mb-2">Data Security</h2>
       <p>
         We take reasonable precautions to protect your data. No system is
         perfectly secure, and we won't pretend otherwise. If there is ever a
@@ -153,7 +155,7 @@
 
     <!-- Your Rights -->
     <section class="mb-10">
-      <h2 class="section-heading">Your Rights</h2>
+      <h2 class="text-xl font-semibold mb-2">Your Rights</h2>
       <p>
         You can request deletion of your account and associated data at any
         time. You can change public content to private at any time. You are in
@@ -163,7 +165,7 @@
 
     <!-- Changes -->
     <section class="mb-10">
-      <h2 class="section-heading">Changes to This Policy</h2>
+      <h2 class="text-xl font-semibold mb-2">Changes to This Policy</h2>
       <p>
         If we make meaningful changes to this policy, we'll post the update here
         with a revised date. We're not in the business of sneaking changes past
@@ -173,7 +175,7 @@
 
     <!-- Contact -->
     <section class="mb-10">
-      <h2 class="section-heading">Contact</h2>
+      <h2 class="text-xl font-semibold mb-2">Contact</h2>
       <p>
         Questions, concerns, or just want to talk it over? Reach out at
         <a href="mailto:admin@kindrobots.org" class="link font-medium"

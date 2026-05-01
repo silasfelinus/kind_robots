@@ -61,6 +61,7 @@ export const ModelName = {
   Chat: 'Chat',
   Component: 'Component',
   Dominion: 'Dominion',
+  Dream: 'Dream',
   Gallery: 'Gallery',
   Log: 'Log',
   Milestone: 'Milestone',
@@ -319,6 +320,7 @@ export const ChatScalarFieldEnum = {
   characterId: 'characterId',
   isRead: 'isRead',
   isMature: 'isMature',
+  dreamId: 'dreamId',
   serverId: 'serverId',
   serverName: 'serverName'
 } as const
@@ -379,6 +381,32 @@ export const DominionScalarFieldEnum = {
 } as const
 
 export type DominionScalarFieldEnum = (typeof DominionScalarFieldEnum)[keyof typeof DominionScalarFieldEnum]
+
+
+export const DreamScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  currentVibe: 'currentVibe',
+  currentPrompt: 'currentPrompt',
+  userId: 'userId',
+  pitchId: 'pitchId',
+  artId: 'artId',
+  artImageId: 'artImageId',
+  textServerId: 'textServerId',
+  artServerId: 'artServerId',
+  artCollectionId: 'artCollectionId',
+  galleryId: 'galleryId',
+  scenarioId: 'scenarioId',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive'
+} as const
+
+export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
 
 
 export const GalleryScalarFieldEnum = {
@@ -503,7 +531,8 @@ export const ReactionScalarFieldEnum = {
   resourceId: 'resourceId',
   rewardId: 'rewardId',
   tagId: 'tagId',
-  chatId: 'chatId'
+  chatId: 'chatId',
+  dreamId: 'dreamId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -935,6 +964,17 @@ export const DominionOrderByRelevanceFieldEnum = {
 } as const
 
 export type DominionOrderByRelevanceFieldEnum = (typeof DominionOrderByRelevanceFieldEnum)[keyof typeof DominionOrderByRelevanceFieldEnum]
+
+
+export const DreamOrderByRelevanceFieldEnum = {
+  title: 'title',
+  slug: 'slug',
+  description: 'description',
+  currentVibe: 'currentVibe',
+  currentPrompt: 'currentPrompt'
+} as const
+
+export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
 
 
 export const GalleryOrderByRelevanceFieldEnum = {

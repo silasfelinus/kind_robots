@@ -433,6 +433,7 @@ export type ArtImageWhereInput = {
   Butterflies?: Prisma.ButterflyListRelationFilter
   Dominions?: Prisma.DominionListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
+  Dreams?: Prisma.DreamListRelationFilter
 }
 
 export type ArtImageOrderByWithRelationInput = {
@@ -475,6 +476,7 @@ export type ArtImageOrderByWithRelationInput = {
   Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
   Dominions?: Prisma.DominionOrderByRelationAggregateInput
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
+  Dreams?: Prisma.DreamOrderByRelationAggregateInput
   _relevance?: Prisma.ArtImageOrderByRelevanceInput
 }
 
@@ -521,6 +523,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   Butterflies?: Prisma.ButterflyListRelationFilter
   Dominions?: Prisma.DominionListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
+  Dreams?: Prisma.DreamListRelationFilter
 }, "id" | "artId" | "botId" | "componentId" | "milestoneId" | "pitchId" | "promptId" | "reactionId" | "resourceId" | "rewardId" | "tagId" | "chatId" | "characterId" | "butterflyId">
 
 export type ArtImageOrderByWithAggregationInput = {
@@ -606,6 +609,7 @@ export type ArtImageCreateInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateInput = {
@@ -634,6 +638,7 @@ export type ArtImageUncheckedCreateInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUpdateInput = {
@@ -661,6 +666,7 @@ export type ArtImageUpdateInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateInput = {
@@ -689,6 +695,7 @@ export type ArtImageUncheckedUpdateInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateManyInput = {
@@ -1083,6 +1090,22 @@ export type ArtImageUpdateOneWithoutDominionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutDominionsInput, Prisma.ArtImageUpdateWithoutDominionsInput>, Prisma.ArtImageUncheckedUpdateWithoutDominionsInput>
 }
 
+export type ArtImageCreateNestedOneWithoutDreamsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutDreamsInput, Prisma.ArtImageUncheckedCreateWithoutDreamsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutDreamsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneWithoutDreamsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutDreamsInput, Prisma.ArtImageUncheckedCreateWithoutDreamsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutDreamsInput
+  upsert?: Prisma.ArtImageUpsertWithoutDreamsInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutDreamsInput, Prisma.ArtImageUpdateWithoutDreamsInput>, Prisma.ArtImageUncheckedUpdateWithoutDreamsInput>
+}
+
 export type ArtImageCreateNestedManyWithoutGalleryInput = {
   create?: Prisma.XOR<Prisma.ArtImageCreateWithoutGalleryInput, Prisma.ArtImageUncheckedCreateWithoutGalleryInput> | Prisma.ArtImageCreateWithoutGalleryInput[] | Prisma.ArtImageUncheckedCreateWithoutGalleryInput[]
   connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutGalleryInput | Prisma.ArtImageCreateOrConnectWithoutGalleryInput[]
@@ -1431,6 +1454,7 @@ export type ArtImageCreateWithoutArtInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutArtInput = {
@@ -1458,6 +1482,7 @@ export type ArtImageUncheckedCreateWithoutArtInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutArtInput = {
@@ -1500,6 +1525,7 @@ export type ArtImageUpdateWithoutArtInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutArtInput = {
@@ -1527,6 +1553,7 @@ export type ArtImageUncheckedUpdateWithoutArtInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutBotInput = {
@@ -1553,6 +1580,7 @@ export type ArtImageCreateWithoutBotInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutBotInput = {
@@ -1580,6 +1608,7 @@ export type ArtImageUncheckedCreateWithoutBotInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutBotInput = {
@@ -1622,6 +1651,7 @@ export type ArtImageUpdateWithoutBotInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutBotInput = {
@@ -1649,6 +1679,7 @@ export type ArtImageUncheckedUpdateWithoutBotInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutButterfliesInput = {
@@ -1675,6 +1706,7 @@ export type ArtImageCreateWithoutButterfliesInput = {
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutButterfliesInput = {
@@ -1702,6 +1734,7 @@ export type ArtImageUncheckedCreateWithoutButterfliesInput = {
   butterflyId?: number | null
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutButterfliesInput = {
@@ -1744,6 +1777,7 @@ export type ArtImageUpdateWithoutButterfliesInput = {
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutButterfliesInput = {
@@ -1771,6 +1805,7 @@ export type ArtImageUncheckedUpdateWithoutButterfliesInput = {
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutCharacterInput = {
@@ -1797,6 +1832,7 @@ export type ArtImageCreateWithoutCharacterInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutCharacterInput = {
@@ -1824,6 +1860,7 @@ export type ArtImageUncheckedCreateWithoutCharacterInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutCharacterInput = {
@@ -1866,6 +1903,7 @@ export type ArtImageUpdateWithoutCharacterInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutCharacterInput = {
@@ -1893,6 +1931,7 @@ export type ArtImageUncheckedUpdateWithoutCharacterInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutChatInput = {
@@ -1919,6 +1958,7 @@ export type ArtImageCreateWithoutChatInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutChatInput = {
@@ -1946,6 +1986,7 @@ export type ArtImageUncheckedCreateWithoutChatInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutChatInput = {
@@ -1988,6 +2029,7 @@ export type ArtImageUpdateWithoutChatInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutChatInput = {
@@ -2015,6 +2057,7 @@ export type ArtImageUncheckedUpdateWithoutChatInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutComponentInput = {
@@ -2041,6 +2084,7 @@ export type ArtImageCreateWithoutComponentInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutComponentInput = {
@@ -2068,6 +2112,7 @@ export type ArtImageUncheckedCreateWithoutComponentInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutComponentInput = {
@@ -2110,6 +2155,7 @@ export type ArtImageUpdateWithoutComponentInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutComponentInput = {
@@ -2137,6 +2183,7 @@ export type ArtImageUncheckedUpdateWithoutComponentInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutDominionsInput = {
@@ -2163,6 +2210,7 @@ export type ArtImageCreateWithoutDominionsInput = {
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutDominionsInput = {
@@ -2190,6 +2238,7 @@ export type ArtImageUncheckedCreateWithoutDominionsInput = {
   butterflyId?: number | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutDominionsInput = {
@@ -2232,6 +2281,7 @@ export type ArtImageUpdateWithoutDominionsInput = {
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutDominionsInput = {
@@ -2259,6 +2309,133 @@ export type ArtImageUncheckedUpdateWithoutDominionsInput = {
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageCreateWithoutDreamsInput = {
+  imageData: string
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  rarity?: number | null
+  butterflyId?: number | null
+  Art?: Prisma.ArtCreateNestedOneWithoutArtImageInput
+  Bot?: Prisma.BotCreateNestedOneWithoutArtImageInput
+  Character?: Prisma.CharacterCreateNestedOneWithoutArtImageInput
+  Chat?: Prisma.ChatCreateNestedOneWithoutArtImageInput
+  Component?: Prisma.ComponentCreateNestedOneWithoutArtImageInput
+  Gallery?: Prisma.GalleryCreateNestedOneWithoutArtImageInput
+  Milestone?: Prisma.MilestoneCreateNestedOneWithoutArtImageInput
+  Pitch?: Prisma.PitchCreateNestedOneWithoutArtImageInput
+  Prompt?: Prisma.PromptCreateNestedOneWithoutArtImageInput
+  Reaction?: Prisma.ReactionCreateNestedOneWithoutArtImageInput
+  Resource?: Prisma.ResourceCreateNestedOneWithoutArtImageInput
+  Reward?: Prisma.RewardCreateNestedOneWithoutArtImageInput
+  Tag?: Prisma.TagCreateNestedOneWithoutArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
+  Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageUncheckedCreateWithoutDreamsInput = {
+  id?: number
+  galleryId?: number | null
+  imageData: string
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  artId?: number | null
+  fileName?: string | null
+  fileType?: string
+  rarity?: number | null
+  botId?: number | null
+  componentId?: number | null
+  milestoneId?: number | null
+  pitchId?: number | null
+  promptId?: number | null
+  reactionId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  tagId?: number | null
+  chatId?: number | null
+  characterId?: number | null
+  butterflyId?: number | null
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
+  Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+}
+
+export type ArtImageCreateOrConnectWithoutDreamsInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutDreamsInput, Prisma.ArtImageUncheckedCreateWithoutDreamsInput>
+}
+
+export type ArtImageUpsertWithoutDreamsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutDreamsInput, Prisma.ArtImageUncheckedUpdateWithoutDreamsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutDreamsInput, Prisma.ArtImageUncheckedCreateWithoutDreamsInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutDreamsInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutDreamsInput, Prisma.ArtImageUncheckedUpdateWithoutDreamsInput>
+}
+
+export type ArtImageUpdateWithoutDreamsInput = {
+  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Art?: Prisma.ArtUpdateOneWithoutArtImageNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutArtImageNestedInput
+  Character?: Prisma.CharacterUpdateOneWithoutArtImageNestedInput
+  Chat?: Prisma.ChatUpdateOneWithoutArtImageNestedInput
+  Component?: Prisma.ComponentUpdateOneWithoutArtImageNestedInput
+  Gallery?: Prisma.GalleryUpdateOneWithoutArtImageNestedInput
+  Milestone?: Prisma.MilestoneUpdateOneWithoutArtImageNestedInput
+  Pitch?: Prisma.PitchUpdateOneWithoutArtImageNestedInput
+  Prompt?: Prisma.PromptUpdateOneWithoutArtImageNestedInput
+  Reaction?: Prisma.ReactionUpdateOneWithoutArtImageNestedInput
+  Resource?: Prisma.ResourceUpdateOneWithoutArtImageNestedInput
+  Reward?: Prisma.RewardUpdateOneWithoutArtImageNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
+  Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutDreamsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  milestoneId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reactionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
+  Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutGalleryInput = {
@@ -2285,6 +2462,7 @@ export type ArtImageCreateWithoutGalleryInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutGalleryInput = {
@@ -2312,6 +2490,7 @@ export type ArtImageUncheckedCreateWithoutGalleryInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutGalleryInput = {
@@ -2392,6 +2571,7 @@ export type ArtImageCreateWithoutMilestoneInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutMilestoneInput = {
@@ -2419,6 +2599,7 @@ export type ArtImageUncheckedCreateWithoutMilestoneInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutMilestoneInput = {
@@ -2461,6 +2642,7 @@ export type ArtImageUpdateWithoutMilestoneInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutMilestoneInput = {
@@ -2488,6 +2670,7 @@ export type ArtImageUncheckedUpdateWithoutMilestoneInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutPitchInput = {
@@ -2514,6 +2697,7 @@ export type ArtImageCreateWithoutPitchInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutPitchInput = {
@@ -2541,6 +2725,7 @@ export type ArtImageUncheckedCreateWithoutPitchInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutPitchInput = {
@@ -2583,6 +2768,7 @@ export type ArtImageUpdateWithoutPitchInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutPitchInput = {
@@ -2610,6 +2796,7 @@ export type ArtImageUncheckedUpdateWithoutPitchInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutPromptInput = {
@@ -2636,6 +2823,7 @@ export type ArtImageCreateWithoutPromptInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutPromptInput = {
@@ -2663,6 +2851,7 @@ export type ArtImageUncheckedCreateWithoutPromptInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutPromptInput = {
@@ -2705,6 +2894,7 @@ export type ArtImageUpdateWithoutPromptInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutPromptInput = {
@@ -2732,6 +2922,7 @@ export type ArtImageUncheckedUpdateWithoutPromptInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutReactionInput = {
@@ -2758,6 +2949,7 @@ export type ArtImageCreateWithoutReactionInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutReactionInput = {
@@ -2785,6 +2977,7 @@ export type ArtImageUncheckedCreateWithoutReactionInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutReactionInput = {
@@ -2827,6 +3020,7 @@ export type ArtImageUpdateWithoutReactionInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutReactionInput = {
@@ -2854,6 +3048,7 @@ export type ArtImageUncheckedUpdateWithoutReactionInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutResourceInput = {
@@ -2880,6 +3075,7 @@ export type ArtImageCreateWithoutResourceInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutResourceInput = {
@@ -2907,6 +3103,7 @@ export type ArtImageUncheckedCreateWithoutResourceInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutResourceInput = {
@@ -2949,6 +3146,7 @@ export type ArtImageUpdateWithoutResourceInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutResourceInput = {
@@ -2976,6 +3174,7 @@ export type ArtImageUncheckedUpdateWithoutResourceInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutRewardInput = {
@@ -3002,6 +3201,7 @@ export type ArtImageCreateWithoutRewardInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutRewardInput = {
@@ -3029,6 +3229,7 @@ export type ArtImageUncheckedCreateWithoutRewardInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutRewardInput = {
@@ -3071,6 +3272,7 @@ export type ArtImageUpdateWithoutRewardInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutRewardInput = {
@@ -3098,6 +3300,7 @@ export type ArtImageUncheckedUpdateWithoutRewardInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutScenariosInput = {
@@ -3124,6 +3327,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutScenariosInput = {
@@ -3151,6 +3355,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   butterflyId?: number | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutScenariosInput = {
@@ -3193,6 +3398,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutScenariosInput = {
@@ -3220,6 +3426,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutTagInput = {
@@ -3246,6 +3453,7 @@ export type ArtImageCreateWithoutTagInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutTagInput = {
@@ -3273,6 +3481,7 @@ export type ArtImageUncheckedCreateWithoutTagInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutTagInput = {
@@ -3315,6 +3524,7 @@ export type ArtImageUpdateWithoutTagInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutTagInput = {
@@ -3342,6 +3552,7 @@ export type ArtImageUncheckedUpdateWithoutTagInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutUserInput = {
@@ -3368,6 +3579,7 @@ export type ArtImageCreateWithoutUserInput = {
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutUserInput = {
@@ -3395,6 +3607,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtImageInput
   Dominions?: Prisma.DominionUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutUserInput = {
@@ -3471,6 +3684,7 @@ export type ArtImageUpdateWithoutGalleryInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutGalleryInput = {
@@ -3498,6 +3712,7 @@ export type ArtImageUncheckedUpdateWithoutGalleryInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutGalleryInput = {
@@ -3572,6 +3787,7 @@ export type ArtImageUpdateWithoutUserInput = {
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutUserInput = {
@@ -3599,6 +3815,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtImageNestedInput
   Dominions?: Prisma.DominionUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutUserInput = {
@@ -3634,12 +3851,14 @@ export type ArtImageCountOutputType = {
   Butterflies: number
   Dominions: number
   Scenarios: number
+  Dreams: number
 }
 
 export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Butterflies?: boolean | ArtImageCountOutputTypeCountButterfliesArgs
   Dominions?: boolean | ArtImageCountOutputTypeCountDominionsArgs
   Scenarios?: boolean | ArtImageCountOutputTypeCountScenariosArgs
+  Dreams?: boolean | ArtImageCountOutputTypeCountDreamsArgs
 }
 
 /**
@@ -3671,6 +3890,13 @@ export type ArtImageCountOutputTypeCountDominionsArgs<ExtArgs extends runtime.Ty
  */
 export type ArtImageCountOutputTypeCountScenariosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ScenarioWhereInput
+}
+
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DreamWhereInput
 }
 
 
@@ -3714,6 +3940,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Butterflies?: boolean | Prisma.ArtImage$ButterfliesArgs<ExtArgs>
   Dominions?: boolean | Prisma.ArtImage$DominionsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.ArtImage$ScenariosArgs<ExtArgs>
+  Dreams?: boolean | Prisma.ArtImage$DreamsArgs<ExtArgs>
   _count?: boolean | Prisma.ArtImageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["artImage"]>
 
@@ -3763,6 +3990,7 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Butterflies?: boolean | Prisma.ArtImage$ButterfliesArgs<ExtArgs>
   Dominions?: boolean | Prisma.ArtImage$DominionsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.ArtImage$ScenariosArgs<ExtArgs>
+  Dreams?: boolean | Prisma.ArtImage$DreamsArgs<ExtArgs>
   _count?: boolean | Prisma.ArtImageCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -3786,6 +4014,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
     Dominions: Prisma.$DominionPayload<ExtArgs>[]
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
+    Dreams: Prisma.$DreamPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4167,6 +4396,7 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   Butterflies<T extends Prisma.ArtImage$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dominions<T extends Prisma.ArtImage$DominionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$DominionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DominionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Scenarios<T extends Prisma.ArtImage$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Dreams<T extends Prisma.ArtImage$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4901,6 +5131,30 @@ export type ArtImage$ScenariosArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ScenarioScalarFieldEnum | Prisma.ScenarioScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.Dreams
+ */
+export type ArtImage$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dream
+   */
+  select?: Prisma.DreamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dream
+   */
+  omit?: Prisma.DreamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DreamInclude<ExtArgs> | null
+  where?: Prisma.DreamWhereInput
+  orderBy?: Prisma.DreamOrderByWithRelationInput | Prisma.DreamOrderByWithRelationInput[]
+  cursor?: Prisma.DreamWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DreamScalarFieldEnum | Prisma.DreamScalarFieldEnum[]
 }
 
 /**

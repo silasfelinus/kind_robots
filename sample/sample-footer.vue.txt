@@ -1,0 +1,495 @@
+// @ts-nocheck /* eslint-disable */ // test-ignore
+<!-- /components/navigation/sample-footer.vue -->
+<template>
+  <div
+    v-if="footerState !== 'hidden'"
+    class="flex h-full min-h-0 w-full overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 shadow-inner"
+    :class="isCompact ? 'px-2 py-2' : 'p-2 md:p-3'"
+  >
+    <template v-if="isCompact">
+      <div
+        class="flex h-full min-h-0 w-full items-stretch gap-2 overflow-hidden"
+      >
+        <section
+          class="flex h-full w-44 shrink-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-2"
+        >
+          <Icon name="kind-icon:box" class="h-6 w-6 shrink-0 text-primary" />
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-sm font-bold">Samples</div>
+            <div class="truncate text-xs text-base-content/50">
+              {{ sampleStore.items.length }} loaded
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="flex h-full min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 px-2"
+        >
+          <select
+            v-model.number="selectedId"
+            class="select select-bordered select-sm h-full min-h-0 w-48 shrink-0 rounded-2xl"
+            @change="selectSample"
+          >
+            <option :value="0">Choose sample</option>
+            <option
+              v-for="item in sampleStore.items"
+              :key="item.id"
+              :value="item.id"
+            >
+              {{ item.title || `Sample ${item.id}` }}
+            </option>
+          </select>
+
+          <input
+            v-model="sampleStore.form.title"
+            class="input input-bordered input-sm h-full min-h-0 min-w-0 flex-1 rounded-2xl"
+            placeholder="Sample title"
+          />
+
+          <input
+            v-model="sampleStore.form.type"
+            class="input input-bordered input-sm h-full min-h-0 w-36 shrink-0 rounded-2xl"
+            placeholder="Type"
+          />
+
+          <button
+            type="button"
+            class="btn btn-sm btn-primary h-full min-h-0 shrink-0 text-white"
+            :disabled="sampleStore.isSaving || !canSave"
+            @click="sampleStore.saveModel"
+          >
+            {{ sampleStore.isSaving ? 'Saving...' : 'Save' }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-ghost h-full min-h-0 shrink-0"
+            @click="sampleStore.createNewModel"
+          >
+            New
+          </button>
+        </section>
+      </div>
+    </template>
+
+    <template v-else-if="isOpen">
+      <div
+        class="grid h-full min-h-0 w-full grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[16rem_minmax(0,1fr)]"
+      >
+        <section
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div
+            class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
+          >
+            <span class="text-sm font-semibold">Samples</span>
+            <span class="badge badge-outline text-xs">
+              {{ sampleStore.items.length }}
+            </span>
+          </div>
+
+          <div class="min-h-0 flex-1 overflow-y-auto p-2">
+            <button
+              v-for="item in sampleStore.items"
+              :key="`open-${item.id}`"
+              type="button"
+              class="mb-1.5 flex w-full items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition"
+              :class="
+                sampleStore.selected?.id === item.id
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-transparent hover:bg-base-200'
+              "
+              @click="selectSampleById(item.id)"
+            >
+              <Icon name="kind-icon:box" class="h-6 w-6 shrink-0" />
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-sm font-semibold">
+                  {{ item.title || `Sample ${item.id}` }}
+                </div>
+                <div class="truncate text-xs text-base-content/55">
+                  {{ item.type || 'No type' }}
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <section
+          class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div
+            class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
+          >
+            <div class="min-w-0">
+              <div class="truncate text-sm font-bold">
+                {{ sampleStore.selected ? 'Edit Sample' : 'New Sample' }}
+              </div>
+              <div class="truncate text-xs text-base-content/50">
+                Minimal footer controls
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-1.5">
+              <button
+                type="button"
+                class="btn btn-xs btn-ghost"
+                @click="sampleStore.createNewModel"
+              >
+                New
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-xs btn-ghost"
+                :disabled="!sampleStore.selected"
+                @click="sampleStore.deselectModel"
+              >
+                Clear
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-xs btn-primary text-white"
+                :disabled="sampleStore.isSaving || !canSave"
+                @click="sampleStore.saveModel"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="grid min-h-0 grid-cols-1 gap-3 overflow-y-auto p-3 md:grid-cols-2"
+          >
+            <label class="form-control">
+              <span class="label-text font-semibold">Title</span>
+              <input
+                v-model="sampleStore.form.title"
+                class="input input-bordered rounded-2xl"
+                placeholder="Sample title"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-semibold">Type</span>
+              <input
+                v-model="sampleStore.form.type"
+                class="input input-bordered rounded-2xl"
+                placeholder="nav, utility, test..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-semibold">Label</span>
+              <input
+                v-model="sampleStore.form.label"
+                class="input input-bordered rounded-2xl"
+                placeholder="Optional label"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-semibold">Link</span>
+              <input
+                v-model="sampleStore.form.link"
+                class="input input-bordered rounded-2xl"
+                placeholder="/sample-link"
+              />
+            </label>
+          </div>
+
+          <div
+            class="flex shrink-0 items-center justify-between gap-3 border-t border-base-300 bg-base-200/60 px-3 py-2"
+          >
+            <p class="min-w-0 truncate text-xs text-base-content/55">
+              {{ sampleStatus }}
+            </p>
+
+            <button
+              type="button"
+              class="btn btn-xs btn-error text-white"
+              :disabled="!sampleStore.selected?.id"
+              @click="deleteSelectedSample"
+            >
+              Delete
+            </button>
+          </div>
+        </section>
+      </div>
+    </template>
+
+    <template v-else>
+      <div
+        class="grid h-full min-h-0 w-full grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)_minmax(15rem,20rem)] gap-3 overflow-hidden"
+      >
+        <section
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div
+            class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-3"
+          >
+            <div>
+              <div class="text-sm font-bold">Sample Library</div>
+              <div class="text-xs text-base-content/50">
+                {{ sampleStore.items.length }} records
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-xs btn-primary text-white"
+              @click="sampleStore.createNewModel"
+            >
+              New
+            </button>
+          </div>
+
+          <div class="min-h-0 flex-1 overflow-y-auto p-2">
+            <button
+              v-for="item in sampleStore.items"
+              :key="`priority-${item.id}`"
+              type="button"
+              class="mb-2 flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition"
+              :class="
+                sampleStore.selected?.id === item.id
+                  ? 'border-primary bg-primary/10'
+                  : 'border-base-300 bg-base-200/60 hover:bg-base-200'
+              "
+              @click="selectSampleById(item.id)"
+            >
+              <Icon
+                name="kind-icon:box"
+                class="mt-0.5 h-7 w-7 shrink-0 text-primary"
+              />
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-sm font-bold">
+                  {{ item.title || `Sample ${item.id}` }}
+                </div>
+                <div class="truncate text-xs text-base-content/55">
+                  {{ item.type || 'No type' }}
+                </div>
+                <div class="mt-1 line-clamp-2 text-xs text-base-content/50">
+                  {{ item.label || item.link || 'No extra details yet.' }}
+                </div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <section
+          class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div class="border-b border-base-300 px-4 py-3">
+            <div class="text-base font-bold">
+              {{ sampleStore.selected ? 'Edit Sample' : 'Create Sample' }}
+            </div>
+            <div class="text-sm text-base-content/55">
+              Store-backed controls for the sample manager.
+            </div>
+          </div>
+
+          <div
+            class="grid min-h-0 grid-cols-1 gap-3 overflow-y-auto p-4 lg:grid-cols-2"
+          >
+            <label class="form-control">
+              <span class="label-text font-semibold">Title</span>
+              <input
+                v-model="sampleStore.form.title"
+                class="input input-bordered rounded-2xl"
+                placeholder="Sample title"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-semibold">Type</span>
+              <input
+                v-model="sampleStore.form.type"
+                class="input input-bordered rounded-2xl"
+                placeholder="utility"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-semibold">Icon</span>
+              <input
+                v-model="sampleStore.form.icon"
+                class="input input-bordered rounded-2xl"
+                placeholder="kind-icon:box"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label-text font-semibold">Label</span>
+              <input
+                v-model="sampleStore.form.label"
+                class="input input-bordered rounded-2xl"
+                placeholder="Short label"
+              />
+            </label>
+
+            <label class="form-control lg:col-span-2">
+              <span class="label-text font-semibold">Link</span>
+              <input
+                v-model="sampleStore.form.link"
+                class="input input-bordered rounded-2xl"
+                placeholder="/sample"
+              />
+            </label>
+
+            <label class="form-control lg:col-span-2">
+              <span class="label-text font-semibold">Component</span>
+              <input
+                v-model="sampleStore.form.component"
+                class="input input-bordered rounded-2xl"
+                placeholder="sample-component"
+              />
+            </label>
+          </div>
+
+          <div
+            class="flex shrink-0 items-center justify-between gap-3 border-t border-base-300 bg-base-200/60 px-4 py-3"
+          >
+            <p class="min-w-0 truncate text-sm text-base-content/60">
+              {{ sampleStatus }}
+            </p>
+
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost"
+                @click="sampleStore.deselectModel"
+              >
+                Clear
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-error text-white"
+                :disabled="!sampleStore.selected?.id"
+                @click="deleteSelectedSample"
+              >
+                Delete
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-primary text-white"
+                :disabled="sampleStore.isSaving || !canSave"
+                @click="sampleStore.saveModel"
+              >
+                {{ sampleStore.isSaving ? 'Saving...' : 'Save Sample' }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div class="border-b border-base-300 px-4 py-3">
+            <div class="text-sm font-bold">Preview</div>
+            <div class="text-xs text-base-content/50">Current form state</div>
+          </div>
+
+          <div class="min-h-0 flex-1 overflow-y-auto p-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <div class="mb-2 flex items-center gap-2">
+                <Icon
+                  :name="sampleStore.form.icon || 'kind-icon:box'"
+                  class="h-8 w-8 text-primary"
+                />
+                <div class="min-w-0">
+                  <div class="truncate text-base font-bold">
+                    {{ sampleStore.form.title || 'Untitled sample' }}
+                  </div>
+                  <div class="truncate text-xs text-base-content/55">
+                    {{ sampleStore.form.type || 'No type' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-2 text-sm text-base-content/70">
+                <p>
+                  {{ sampleStore.form.label || 'No label yet.' }}
+                </p>
+                <p class="font-mono text-xs">
+                  {{ sampleStore.form.link || '/sample-link' }}
+                </p>
+                <p class="font-mono text-xs">
+                  {{ sampleStore.form.component || 'sample-component' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </template>
+  </div>
+</template>
+
+<script setup lang="ts">
+// /components/navigation/sample-footer.vue
+import { computed, onMounted, ref, watch } from 'vue'
+import { useDisplayStore } from '@/stores/displayStore'
+import { useSampleModelStore } from '@/stores/sampleModelStore'
+
+const displayStore = useDisplayStore()
+const sampleStore = useSampleModelStore()
+
+const footerState = computed(() => displayStore.footerState)
+const isCompact = computed(() => footerState.value === 'compact')
+const isOpen = computed(() => footerState.value === 'open')
+
+const selectedId = ref(0)
+
+const canSave = computed(() => {
+  return Boolean(
+    sampleStore.form.title?.trim() && sampleStore.form.type?.trim(),
+  )
+})
+
+const sampleStatus = computed(() => {
+  if (sampleStore.loading) return 'Loading samples...'
+  if (sampleStore.isSaving) return 'Saving sample...'
+  if (sampleStore.selected?.id) {
+    return `Selected sample #${sampleStore.selected.id}`
+  }
+  return 'Create or select a sample.'
+})
+
+function selectSample() {
+  if (!selectedId.value) {
+    sampleStore.deselectModel()
+    return
+  }
+
+  sampleStore.selectModel(selectedId.value)
+}
+
+function selectSampleById(id: number) {
+  selectedId.value = id
+  sampleStore.selectModel(id)
+}
+
+async function deleteSelectedSample() {
+  if (!sampleStore.selected?.id) return
+
+  const id = sampleStore.selected.id
+  await sampleStore.deleteModel(id)
+
+  if (selectedId.value === id) {
+    selectedId.value = 0
+  }
+}
+
+watch(
+  () => sampleStore.selected?.id,
+  (id) => {
+    selectedId.value = id ?? 0
+  },
+)
+
+onMounted(async () => {
+  await sampleStore.initialize()
+})
+</script>

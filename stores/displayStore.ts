@@ -27,6 +27,7 @@ const footerComponentNames = [
   'lab',
   'brainstorm',
   'giftshop',
+  'dream',
 ] as const
 
 type FooterComponentName = (typeof footerComponentNames)[number]

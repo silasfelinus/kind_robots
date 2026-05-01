@@ -188,14 +188,3 @@
     </footer>
   </div>
 </template>
-
-<script setup lang="ts">
-// No props needed — this is a static content component.
-// Future enhancement: pull lastUpdated from a config or CMS if the policy becomes versioned.
-</script>
-
-<style scoped>
-.section-heading {
-  @apply text-xl font-semibold mb-3 mt-1;
-}
-</style>

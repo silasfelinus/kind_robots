@@ -485,33 +485,19 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   }
 
   function getNearestExitGoal(butterfly: Butterfly) {
-    const overshoot = 18
+    const overshoot = 24
+    const horizontalSide = butterfly.x <= 50 ? 'left' : 'right'
 
-    const distanceToLeft = butterfly.x
-    const distanceToRight = 100 - butterfly.x
-    const distanceToTop = butterfly.y
-    const distanceToBottom = 100 - butterfly.y
+    const verticalSide = butterfly.y <= 50 ? 'top' : 'bottom'
 
-    const nearestDistance = Math.min(
-      distanceToLeft,
-      distanceToRight,
-      distanceToTop,
-      distanceToBottom,
-    )
+    const x = horizontalSide === 'left' ? -overshoot : 100 + overshoot
 
-    if (nearestDistance === distanceToLeft) {
-      return { x: -overshoot, y: butterfly.y }
+    const y = verticalSide === 'top' ? -overshoot : 100 + overshoot
+
+    return {
+      x: clampToTwoDecimals(x),
+      y: clampToTwoDecimals(y),
     }
-
-    if (nearestDistance === distanceToRight) {
-      return { x: 100 + overshoot, y: butterfly.y }
-    }
-
-    if (nearestDistance === distanceToTop) {
-      return { x: butterfly.x, y: -overshoot }
-    }
-
-    return { x: butterfly.x, y: 100 + overshoot }
   }
 
   function chooseLoaderScene(
@@ -627,17 +613,31 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
     return pointWithin(18, 82, 18, 82)
   }
+
+  function getExitJitteredGoal(butterfly: Butterfly, goal: ToggleAnchor) {
+    const xDirection = goal.x < butterfly.x ? -1 : 1
+    const yDirection = goal.y < butterfly.y ? -1 : 1
+
+    return {
+      x: clampPercent(goal.x + randomBetween(0, 5) * xDirection),
+      y: clampPercent(goal.y + randomBetween(0, 5) * yDirection),
+    }
+  }
+
   function beginLoaderButterflyExit(
     butterfly: Butterfly,
     state: LoaderButterflyState,
   ) {
     if (butterfly.isExiting) return
 
-    const goal = getLoaderExitGoal(butterfly, state)
+    const goal = getExitJitteredGoal(
+      butterfly,
+      getLoaderExitGoal(butterfly, state),
+    )
 
     butterfly.isExiting = true
-    butterfly.goal.x = clampPercent(goal.x + randomBetween(-4, 4))
-    butterfly.goal.y = clampPercent(goal.y + randomBetween(-4, 4))
+    butterfly.goal.x = goal.x
+    butterfly.goal.y = goal.y
     state.phase = 'released'
   }
 
@@ -841,12 +841,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       return
     }
 
-    const goal = getNearestExitGoal(butterfly)
-    const stagger = randomBetween(-4, 4)
+    const goal = getExitJitteredGoal(butterfly, getNearestExitGoal(butterfly))
 
     butterfly.isExiting = true
-    butterfly.goal.x = clampPercent(goal.x + stagger)
-    butterfly.goal.y = clampPercent(goal.y + randomBetween(-4, 4))
+    butterfly.goal.x = goal.x
+    butterfly.goal.y = goal.y
   }
 
   function markAllButterfliesForExit() {

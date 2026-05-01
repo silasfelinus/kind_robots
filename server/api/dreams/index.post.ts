@@ -46,6 +46,7 @@ function normalizeSlug(value: string): string {
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -71,6 +72,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { username: true },
+    })
+
+    const sender = userRecord?.username || `User ${user.id}`
+
     const slug = body.slug?.trim()
       ? normalizeSlug(body.slug)
       : normalizeSlug(title)
@@ -83,7 +91,7 @@ export default defineEventHandler(async (event) => {
           label: `${title} Collection`,
           description: `Curated art for ${title}`,
           userId: user.id,
-          username: user.username,
+          username: sender,
           isPublic: body.isPublic ?? true,
           isMature: body.isMature ?? false,
         },
@@ -145,7 +153,8 @@ export default defineEventHandler(async (event) => {
 
     await prisma.chat.create({
       data: {
-        sender: user.username || 'Dreamer',
+        type: 'Dream',
+        sender,
         content: `Dream started: ${title}`,
         title,
         userId: user.id,
@@ -156,6 +165,7 @@ export default defineEventHandler(async (event) => {
         channel: `dream-${data.id}`,
       },
     })
+
     event.node.res.statusCode = 201
     return {
       success: true,

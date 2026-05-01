@@ -1,28 +1,38 @@
-// /server/api/dreams/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+// /server/api/dreams/chats/index.post.ts
+import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
 
-type DreamCreateBody = {
-  title?: string
-  slug?: string | null
-  description?: string | null
+type DreamChatCreateBody = {
+  dreamId?: number | null
+  type?: ChatType
+  sender?: string
+  recipient?: string | null
+  content?: string
+  title?: string | null
+  isPublic?: boolean
+  isFavorite?: boolean
+  previousEntryId?: number | null
+  originId?: number | null
+  botId?: number | null
+  recipientId?: number | null
+  artImageId?: number | null
+  promptId?: number | null
+  botName?: string | null
+  channel?: string | null
+  botResponse?: string | null
+  characterId?: number | null
+  isRead?: boolean
+  isMature?: boolean
+  serverId?: number | null
+  serverName?: string | null
+  updateDream?: boolean
   currentVibe?: string
   currentPrompt?: string | null
-  pitchId?: number | null
   artId?: number | null
-  artImageId?: number | null
-  textServerId?: number | null
-  artServerId?: number | null
-  artCollectionId?: number | null
-  galleryId?: number | null
-  scenarioId?: number | null
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-  createCollection?: boolean
+  addArtToCollection?: boolean
 }
 
 function normalizeNullableId(value: unknown): number | null | undefined {
@@ -35,17 +45,25 @@ function normalizeNullableId(value: unknown): number | null | undefined {
   return parsed
 }
 
-function normalizeSlug(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
+function requirePositiveId(value: unknown, label: string): number {
+  const parsed = Number(value)
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: `Invalid ${label}. It must be a positive integer.`,
+    })
+  }
+
+  return parsed
 }
 
 export default defineEventHandler(async (event) => {
+  let dreamId = 0
+
   try {
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -53,67 +71,71 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const body = await readBody<DreamCreateBody>(event)
+    const body = await readBody<DreamChatCreateBody>(event)
+    dreamId = requirePositiveId(body.dreamId, 'Dream ID')
 
-    const title = body.title?.trim()
-    if (!title) {
+    const dream = await prisma.dream.findUnique({
+      where: { id: dreamId },
+    })
+
+    if (!dream) {
+      throw createError({
+        statusCode: 404,
+        message: `Dream with ID ${dreamId} not found.`,
+      })
+    }
+
+    if (!dream.isPublic && dream.userId !== user.id && user.Role !== 'ADMIN') {
+      throw createError({
+        statusCode: 403,
+        message: 'You are not authorized to post to this dream.',
+      })
+    }
+
+    const content = body.content?.trim()
+    if (!content) {
       throw createError({
         statusCode: 400,
-        message: 'The "title" field is required.',
+        message: 'The "content" field is required.',
       })
     }
 
-    const currentVibe = body.currentVibe?.trim()
-    if (!currentVibe) {
-      throw createError({
-        statusCode: 400,
-        message: 'The "currentVibe" field is required.',
-      })
-    }
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { username: true },
+    })
 
-    const slug = body.slug?.trim()
-      ? normalizeSlug(body.slug)
-      : normalizeSlug(title)
+    const sender =
+      body.sender?.trim() || userRecord?.username || `User ${user.id}`
 
-    let artCollectionId = normalizeNullableId(body.artCollectionId)
-
-    if (body.createCollection && !artCollectionId) {
-      const collection = await prisma.artCollection.create({
-        data: {
-          label: `${title} Collection`,
-          description: `Curated art for ${title}`,
-          userId: user.id,
-          username: `User ${user.id}`,
-          isPublic: body.isPublic ?? true,
-          isMature: body.isMature ?? false,
-        },
-      })
-
-      artCollectionId = collection.id
-    }
-
-    const dataInput: Prisma.DreamUncheckedCreateInput = {
-      title,
-      slug,
-      description: body.description ?? null,
-      currentVibe,
-      currentPrompt: body.currentPrompt ?? null,
+    const chatInput: Prisma.ChatUncheckedCreateInput = {
+      type: body.type ?? 'Dream',
+      sender,
+      recipient: body.recipient ?? null,
+      content,
+      title: body.title ?? null,
+      isPublic: body.isPublic ?? dream.isPublic,
+      isFavorite: body.isFavorite ?? false,
+      previousEntryId: normalizeNullableId(body.previousEntryId),
+      originId: normalizeNullableId(body.originId),
       userId: user.id,
-      pitchId: normalizeNullableId(body.pitchId),
-      artId: normalizeNullableId(body.artId),
+      botId: normalizeNullableId(body.botId),
+      recipientId: normalizeNullableId(body.recipientId),
       artImageId: normalizeNullableId(body.artImageId),
-      textServerId: normalizeNullableId(body.textServerId),
-      artServerId: normalizeNullableId(body.artServerId),
-      artCollectionId,
-      galleryId: normalizeNullableId(body.galleryId),
-      scenarioId: normalizeNullableId(body.scenarioId),
-      isPublic: body.isPublic ?? true,
-      isMature: body.isMature ?? false,
-      isActive: body.isActive ?? true,
+      promptId: normalizeNullableId(body.promptId),
+      botName: body.botName ?? null,
+      channel: body.channel ?? `dream-${dreamId}`,
+      botResponse: body.botResponse ?? null,
+      characterId: normalizeNullableId(body.characterId),
+      isRead: body.isRead ?? false,
+      isMature: body.isMature ?? dream.isMature,
+      dreamId,
+      serverId: normalizeNullableId(body.serverId),
+      serverName: body.serverName ?? null,
     }
 
-    const data = await prisma.dream.create({
-      data: dataInput,
+    const data = await prisma.chat.create({
+      data: chatInput,
       include: {
         User: {
           select: {
@@ -122,8 +144,7 @@ export default defineEventHandler(async (event) => {
             avatarImage: true,
           },
         },
-        Pitch: true,
-        Art: true,
+        Prompt: true,
         ArtImage: {
           select: {
             id: true,
@@ -136,32 +157,44 @@ export default defineEventHandler(async (event) => {
             galleryId: true,
           },
         },
-        ArtCollection: true,
-        Gallery: true,
-        Scenario: true,
-        Tags: true,
+        Reactions: true,
       },
     })
 
-    await prisma.chat.create({
-      data: {
-        type: 'Dream',
-        sender: `User ${user.id}` || 'Dreamer',
-        content: `Dream started: ${title}`,
-        title,
-        userId: user.id,
-        dreamId: data.id,
-        artImageId: data.artImageId ?? undefined,
-        isPublic: data.isPublic,
-        isMature: data.isMature,
-        channel: `dream-${data.id}`,
-      },
-    })
+    const artId = normalizeNullableId(body.artId)
+    const artImageId = normalizeNullableId(body.artImageId)
+
+    if (body.updateDream) {
+      await prisma.dream.update({
+        where: { id: dreamId },
+        data: {
+          ...(body.currentVibe !== undefined
+            ? { currentVibe: body.currentVibe }
+            : {}),
+          ...(body.currentPrompt !== undefined
+            ? { currentPrompt: body.currentPrompt }
+            : {}),
+          ...(artId !== undefined ? { artId } : {}),
+          ...(artImageId !== undefined ? { artImageId } : {}),
+        },
+      })
+    }
+
+    if (body.addArtToCollection && dream.artCollectionId && artId) {
+      await prisma.artCollection.update({
+        where: { id: dream.artCollectionId },
+        data: {
+          art: {
+            connect: { id: artId },
+          },
+        },
+      })
+    }
 
     event.node.res.statusCode = 201
     return {
       success: true,
-      message: 'Dream created successfully.',
+      message: 'Dream chat created successfully.',
       data,
       statusCode: 201,
     }
@@ -171,7 +204,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || 'Failed to create dream.',
+      message: handled.message || `Failed to create chat for Dream ${dreamId}.`,
       data: null,
       statusCode: event.node.res.statusCode,
     }

@@ -668,6 +668,8 @@ export const useArtStore = defineStore('artStore', () => {
       const response = await performFetch<ArtImage>('/api/art/upload', {
         method: 'POST',
         body: formData,
+        // No Content-Type header — browser sets it automatically with the correct
+        // multipart boundary when body is FormData. Setting it manually breaks parsing.
       })
 
       if (response.success && response.data) {
@@ -685,7 +687,6 @@ export const useArtStore = defineStore('artStore', () => {
     } catch (error: unknown) {
       handleError(error, 'uploading image')
       setError(error, 'Upload failed.')
-
       return {
         success: false,
         message: 'Upload failed',

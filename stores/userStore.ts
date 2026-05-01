@@ -432,19 +432,10 @@ export const useUserStore = defineStore('userStore', () => {
       return fallbackAvatar
     }
 
-    console.debug(
-      '[userImage] target:',
-      target.username,
-      '| artImageId:',
-      target.artImageId,
-      '| avatarImage:',
-      target.avatarImage,
-    )
+
 
     if (!target.artImageId) {
-      console.debug(
-        '[userImage] no artImageId, returning avatarImage or fallback',
-      )
+
       return target.avatarImage || fallbackAvatar
     }
 
@@ -452,7 +443,7 @@ export const useUserStore = defineStore('userStore', () => {
 
     try {
       const artImage = await artStore.getArtImageById(target.artImageId)
-      console.debug('[userImage] artImage result:', artImage)
+
 
       if (!artImage?.imageData) {
         console.warn(

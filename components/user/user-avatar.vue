@@ -29,10 +29,6 @@ const fetchAvatar = async () => {
   }
   try {
     avatarUrl.value = await userStore.userImage(effectiveUserId.value)
-    console.debug(
-      `[user-avatar] Resolved avatar for userId: ${effectiveUserId.value} →`,
-      avatarUrl.value,
-    )
   } catch (error) {
     console.error('[user-avatar] Failed to fetch avatar:', error)
     avatarUrl.value = '/images/kindart.webp'

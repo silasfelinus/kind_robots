@@ -3,11 +3,36 @@
   <div class="container mx-auto p-4 space-y-4">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <h1 class="text-3xl font-bold text-primary">Smart Icon Gallery</h1>
-      <NuxtLink to="/addicon" class="btn btn-primary btn-sm rounded-xl">
-        ➕ Add New Icon
-      </NuxtLink>
-    </div>
+
+  <h1 class="text-3xl font-bold text-primary">Smart Icon Gallery</h1>
+
+  <div class="flex flex-wrap items-center justify-center gap-2">
+
+    <button
+
+      type="button"
+
+      class="btn btn-outline btn-sm rounded-xl"
+
+      :disabled="smartbarStore.loading"
+
+      @click="smartbarStore.fetchIcons(true)"
+
+    >
+
+      {{ smartbarStore.loading ? 'Refreshing...' : 'Refresh Icons' }}
+
+    </button>
+
+    <NuxtLink to="/addicon" class="btn btn-primary btn-sm rounded-xl">
+
+      ➕ Add New Icon
+
+    </NuxtLink>
+
+  </div>
+
+</div>
 
     <!-- Custom Toggle -->
     <div
@@ -162,4 +187,11 @@ async function toggleIcon(id: number) {
     await smartbarStore.addIconToSmartBar(id)
   }
 }
+
+onMounted(async () => {
+  await smartbarStore.initialize({
+    hydrate: true,
+    refresh: true,
+  })
+})
 </script>

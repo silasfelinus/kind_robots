@@ -195,10 +195,19 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        username: true,
+      },
+    })
+
+    const sender = userRecord?.username || `User ${user.id}`
+
     await prisma.chat.create({
       data: {
         type: 'Dream',
-        sender: `User ${user.id}` || 'Dreamer',
+        sender,
         content: 'Dream updated.',
         userId: user.id,
         dreamId: id,

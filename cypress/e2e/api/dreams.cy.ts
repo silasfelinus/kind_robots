@@ -354,7 +354,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: adds a Dream chat entry', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
@@ -366,6 +366,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
         userId: testUserId,
         isPublic: true,
         isMature: false,
+        dreamId: publicDreamId,
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
@@ -381,7 +382,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: adds a model response chat and updates Dream state', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
@@ -424,7 +425,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: rejects Dream chat without auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -442,7 +443,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: rejects Dream chat with invalid auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
       headers: {
         Authorization: `Bearer ${invalidToken}`,
         'Content-Type': 'application/json',
@@ -461,7 +462,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: rejects Dream chat without content', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
@@ -481,7 +482,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('GET: fetch Dream chat history', () => {
     cy.request<ApiResponse<any[]>>({
       method: 'GET',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
@@ -498,7 +499,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('GET: fetch Dream chat history with limit', () => {
     cy.request<ApiResponse<any[]>>({
       method: 'GET',
-      url: `${dreamsUrl}/${publicDreamId}/chats?limit=2`,
+      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}&limit=2`,
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
@@ -567,7 +568,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('GET: hard-deleted Dream chat history returns 404', () => {
     cy.request<ApiResponse>({
       method: 'GET',
-      url: `${dreamsUrl}/${publicDreamId}/chats`,
+      url: `${dreamsUrl}/chats`,
       headers: {
         Authorization: `Bearer ${userToken}`,
       },

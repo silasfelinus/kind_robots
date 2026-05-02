@@ -1,84 +1,96 @@
-// /server/api/dreams/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+// /server/api/dreams/chats/index.get.ts
+import { defineEventHandler, createError, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 
-function getDreamId(event: any): number {
-  const id = Number(event.context.params?.id)
+function requirePositiveId(value: unknown, label: string): number {
+  const parsed = Number(value)
 
-  if (!Number.isInteger(id) || id <= 0) {
+  if (!Number.isInteger(parsed) || parsed <= 0) {
     throw createError({
       statusCode: 400,
-      message: 'Invalid Dream ID. It must be a positive integer.',
+      message: `Invalid ${label}. It must be a positive integer.`,
     })
   }
 
-  return id
+  return parsed
 }
 
 export default defineEventHandler(async (event) => {
-  let id = 0
+  let dreamId = 0
 
   try {
-    id = getDreamId(event)
+    const query = getQuery(event)
+    dreamId = requirePositiveId(query.dreamId, 'Dream ID')
+
+    const limit = Math.min(Number(query.limit) || 100, 250)
 
     const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const userRecord = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        username: true,
-        Role: true,
-      },
-    })
-
-    if (!userRecord) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authenticated user could not be found.',
-      })
-    }
+    const userId = isValid && user ? user.id : null
 
     const dream = await prisma.dream.findUnique({
-      where: { id },
+      where: { id: dreamId },
       select: {
         id: true,
-        title: true,
         userId: true,
+        isPublic: true,
+        isMature: true,
       },
     })
 
     if (!dream) {
       throw createError({
         statusCode: 404,
-        message: `Dream with ID ${id} not found.`,
+        message: `Dream with ID ${dreamId} not found.`,
       })
     }
 
-    if (dream.userId !== userRecord.id && userRecord.Role !== 'ADMIN') {
+    if (!dream.isPublic && dream.userId !== userId && user?.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
-        message: 'You are not authorized to delete this dream.',
+        message: 'You are not authorized to view this dream chat.',
       })
     }
 
-    const data = await prisma.dream.delete({
-      where: { id },
+    const data = await prisma.chat.findMany({
+      where: {
+        dreamId,
+        ...(dream.isPublic ? { isPublic: true } : {}),
+      },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+      include: {
+        User: {
+          select: {
+            id: true,
+            username: true,
+            avatarImage: true,
+          },
+        },
+        Bot: true,
+        Character: true,
+        Prompt: true,
+        ArtImage: {
+          select: {
+            id: true,
+            fileName: true,
+            fileType: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
+            artId: true,
+            galleryId: true,
+          },
+        },
+        Reactions: true,
+      },
     })
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Dream "${dream.title}" deleted successfully by ${userRecord.username || `User ${userRecord.id}`}.`,
+      message: 'Dream chat history fetched successfully.',
       data,
       statusCode: 200,
     }
@@ -88,7 +100,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: handled.message || `Failed to delete Dream with ID ${id}.`,
+      message: handled.message || `Failed to fetch chats for Dream ${dreamId}.`,
       data: null,
       statusCode: event.node.res.statusCode,
     }

@@ -46,11 +46,15 @@
       <add-scenario />
     </div>
 
-    <div class="flex min-h-0 flex-1 flex-col gap-6">
-      <div
-        class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+    <div
+      class="grid min-h-0 flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"
+    >
+      <section
+        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
       >
-        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div>
             <h2 class="text-xl font-bold text-base-content">
               Scenario Gallery
@@ -73,7 +77,33 @@
         </div>
 
         <scenario-gallery />
-      </div>
+      </section>
+
+      <section
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+      >
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-base-content">Cast Your Weirdos</h2>
+
+          <p class="text-sm text-base-content/70">
+            Pick a character for the current adventure.
+          </p>
+
+          <div
+            v-if="characterStore.selectedCharacter"
+            class="mt-3 rounded-2xl border border-primary/30 bg-primary/10 p-3 text-sm text-base-content"
+          >
+            Selected:
+            <span class="font-bold text-primary">
+              {{ characterStore.selectedCharacter.name }}
+            </span>
+          </div>
+        </div>
+
+        <div class="min-h-0 flex-1 overflow-y-auto rounded-2xl bg-base-300">
+          <character-gallery />
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -111,7 +141,7 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    choiceStore.initialize()
+    await choiceStore.initialize()
 
     await Promise.all([
       characterStore.initialize({

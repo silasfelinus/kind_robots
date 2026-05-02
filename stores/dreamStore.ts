@@ -24,6 +24,7 @@ export interface DreamForm extends Partial<Dream> {
 }
 
 export interface DreamChatForm extends Partial<Chat> {
+  dreamId?: number | null
   updateDream?: boolean
   currentVibe?: string
   currentPrompt?: string | null
@@ -572,7 +573,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     try {
       const res = await performFetch<DreamChatWithRelations[]>(
-        `/api/dreams/${dreamId}/chats?limit=${limit}`,
+        `/api/dreams/chats?dreamId=${dreamId}&limit=${limit}`,
       )
 
       if (!res.success || !res.data) {
@@ -613,17 +614,17 @@ export const useDreamStore = defineStore('dreamStore', () => {
     try {
       const body: DreamChatForm = {
         ...payload,
+        dreamId: normalizedDreamId,
         userId: currentUserId.value,
         type: payload.type ?? 'Dream',
         content: payload.content?.trim(),
       }
-
       if (!body.content) {
         throw new Error('Dream chat content is required.')
       }
 
       const res = await performFetch<DreamChatWithRelations>(
-        `/api/dreams/${normalizedDreamId}/chats`,
+        '/api/dreams/chats',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

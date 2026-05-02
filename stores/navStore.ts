@@ -17,6 +17,14 @@ export type UserDashboardTab =
   | 'chats'
   | 'galleries'
 
+export type DreamDashboardTab =
+  | 'cockpit'
+  | 'gallery'
+  | 'prompts'
+  | 'collections'
+  | 'servers'
+  | 'settings'
+
 export type WonderDashboardTab =
   | 'memory-test'
   | 'memory-dungeon'
@@ -34,6 +42,7 @@ export type FooterDashboardTab =
   | 'lab'
   | 'brainstorm'
   | 'giftshop'
+  | 'dream'
 
 const navIconsStorageKey = 'navIcons'
 const navFavoritesStorageKey = 'navFavorites'
@@ -41,6 +50,7 @@ const userDashboardTabStorageKey = 'userDashboardTab'
 const wonderDashboardTabStorageKey = 'wonderDashboardTab'
 const wonderLabFolderStorageKey = 'wonderLabFolder'
 const footerDashboardTabStorageKey = 'footerDashboardTab'
+const dreamDashboardTabStorageKey = 'dreamDashboardTab'
 
 const isClient = typeof window !== 'undefined'
 
@@ -52,6 +62,17 @@ function safeGetLocalStorage(key: string): string | null {
   } catch {
     return null
   }
+}
+
+function isDreamDashboardTab(value: string | null): value is DreamDashboardTab {
+  return (
+    value === 'cockpit' ||
+    value === 'gallery' ||
+    value === 'prompts' ||
+    value === 'collections' ||
+    value === 'servers' ||
+    value === 'settings'
+  )
 }
 
 function safeSetLocalStorage(key: string, value: string): void {
@@ -146,6 +167,7 @@ export const useNavStore = defineStore('navStore', () => {
   const footerDashboardTab = ref<FooterDashboardTab>('fx')
   const wonderDashboardTab = ref<WonderDashboardTab>('memory-test')
   const wonderLabFolder = ref<string | null>(null)
+  const dreamDashboardTab = ref<DreamDashboardTab>('cockpit')
 
   const smartbarStore = useSmartbarStore()
 
@@ -208,6 +230,7 @@ export const useNavStore = defineStore('navStore', () => {
     safeSetLocalStorage(wonderDashboardTabStorageKey, wonderDashboardTab.value)
     safeSetLocalStorage(wonderLabFolderStorageKey, wonderLabFolder.value ?? '')
     safeSetLocalStorage(footerDashboardTabStorageKey, footerDashboardTab.value)
+    safeSetLocalStorage(dreamDashboardTabStorageKey, dreamDashboardTab.value)
   }
 
   function hydrateFromLocalStorage() {
@@ -222,6 +245,14 @@ export const useNavStore = defineStore('navStore', () => {
     favorites.value = safeParseArray<string>(
       safeGetLocalStorage(navFavoritesStorageKey),
     )
+
+    const storedDreamDashboardTab = safeGetLocalStorage(
+      dreamDashboardTabStorageKey,
+    )
+
+    if (isDreamDashboardTab(storedDreamDashboardTab)) {
+      dreamDashboardTab.value = storedDreamDashboardTab
+    }
 
     const storedUserDashboardTab = safeGetLocalStorage(
       userDashboardTabStorageKey,
@@ -262,6 +293,11 @@ export const useNavStore = defineStore('navStore', () => {
       items.value = seededIcons()
       syncToLocalStorage()
     }
+  }
+
+  function setDreamDashboardTab(tab: DreamDashboardTab) {
+    dreamDashboardTab.value = tab
+    syncToLocalStorage()
   }
 
   function syncModelTypeIfNeeded(): void {
@@ -419,6 +455,7 @@ export const useNavStore = defineStore('navStore', () => {
     watch(wonderDashboardTab, () => syncToLocalStorage())
     watch(wonderLabFolder, () => syncToLocalStorage())
     watch(footerDashboardTab, () => syncToLocalStorage())
+    watch(dreamDashboardTab, () => syncToLocalStorage())
   }
 
   return {
@@ -464,5 +501,7 @@ export const useNavStore = defineStore('navStore', () => {
     setWonderDashboardTab,
     setWonderLabFolder,
     setFooterDashboardTab,
+    dreamDashboardTab,
+    setDreamDashboardTab,
   }
 })

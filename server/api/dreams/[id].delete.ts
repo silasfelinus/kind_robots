@@ -24,10 +24,27 @@ export default defineEventHandler(async (event) => {
     id = getDreamId(event)
 
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
+      })
+    }
+
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        username: true,
+        Role: true,
+      },
+    })
+
+    if (!userRecord) {
+      throw createError({
+        statusCode: 401,
+        message: 'Authenticated user could not be found.',
       })
     }
 
@@ -47,7 +64,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (dream.userId !== user.id && user.Role !== 'ADMIN') {
+    if (dream.userId !== userRecord.id && userRecord.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
         message: 'You are not authorized to delete this dream.',
@@ -61,7 +78,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Dream with ID ${id} deleted successfully.`,
+      message: `Dream "${dream.title}" deleted successfully by ${userRecord.username || `User ${userRecord.id}`}.`,
       data,
       statusCode: 200,
     }

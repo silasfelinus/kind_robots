@@ -21,6 +21,7 @@ export interface AddChatInput {
   sender?: string | null
   serverId?: number | null
   serverName?: string | null
+  dreamId?: number | null
 }
 
 export function buildNewChat(
@@ -53,6 +54,7 @@ export function buildNewChat(
     isMature: false,
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,
+    dreamId: input.dreamId ?? null,
   }
 }
 
@@ -110,7 +112,10 @@ export async function markChatAsRead(chatId: number): Promise<void> {
   try {
     await performFetch(`/api/chats/${chatId}/read`, { method: 'PUT' })
   } catch (error) {
-    handleError(ErrorType.NETWORK_ERROR, `Failed to mark chat ${chatId} as read`)
+    handleError(
+      ErrorType.NETWORK_ERROR,
+      `Failed to mark chat ${chatId} as read`,
+    )
   }
 }
 

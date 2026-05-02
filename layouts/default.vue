@@ -174,6 +174,7 @@ const footerRouteMap: Record<FooterName, string> = {
   lab: '/wonderlab',
   brainstorm: '/brainstorm',
   giftshop: '/giftshop',
+  dream: '/dreams',
 }
 
 const footerToggleIcon = computed(() => {

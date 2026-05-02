@@ -919,4 +919,4 @@ export const useDreamStore = defineStore('dreamStore', () => {
   }
 })
 
-export type { Dream, Chat }
+export type { Dream }

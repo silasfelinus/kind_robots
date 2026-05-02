@@ -147,18 +147,28 @@ export const useCharacterStore = defineStore('characterStore', () => {
   async function initialize(
     options: CharacterInitializeOptions = {},
   ): Promise<void> {
-    if (isInitialized.value && !options.force) return
-    if (initializePromise.value && !options.force)
+    const shouldFetchRemote =
+      Boolean(options.fetchRemote) &&
+      (Boolean(options.force) ||
+        !hasLoaded.value ||
+        characters.value.length === 0)
+
+    if (isInitialized.value && !options.force && !shouldFetchRemote) return
+
+    if (initializePromise.value && !options.force) {
       return initializePromise.value
+    }
 
     initializePromise.value = (async () => {
       try {
         isInitializing.value = true
         clearError()
 
-        loadFromLocalStorage()
+        if (!isInitialized.value || options.force) {
+          loadFromLocalStorage()
+        }
 
-        if (options.fetchRemote) {
+        if (shouldFetchRemote) {
           await fetchCharacters(Boolean(options.force))
         }
 
@@ -186,7 +196,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   async function fetchCharacters(force = false): Promise<Character[]> {
-    if (!force && hasLoaded.value && characters.value.length) {
+    if (!force && hasLoaded.value) {
       return characters.value
     }
 

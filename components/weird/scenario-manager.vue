@@ -1,54 +1,149 @@
 <!-- /components/content/weird/scenario-manager.vue -->
 <template>
   <div
-    class="w-full h-screen bg-base-200 p-4 flex flex-col overflow-y-auto relative"
+    class="flex h-full w-full flex-col overflow-y-auto rounded-2xl bg-base-200 p-4"
   >
-    <!-- Title Bar -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="mb-6 flex items-center justify-between gap-4">
       <div class="flex-1 text-center">
         <h1
-          class="text-3xl font-bold bg-primary text-white rounded-2xl inline-block py-1 px-2"
+          class="inline-block rounded-2xl bg-primary px-3 py-2 text-3xl font-bold text-primary-content"
         >
           Choose Your Own Weird Adventure
         </h1>
       </div>
-      <!-- Floating Add Scenario Button -->
+
       <button
-        class="btn btn-accent rounded-full shadow-lg hover:shadow-xl ml-4"
+        class="btn btn-accent rounded-full shadow-lg hover:shadow-xl"
+        type="button"
         @click="toggleAddScenario"
       >
-        <Icon name="kind-icon:plus" class="w-6 h-6" />
+        <Icon name="kind-icon:plus" class="h-6 w-6" />
       </button>
     </div>
 
-    <!-- Conditional Add Scenario Section -->
+    <div
+      v-if="isLoadingManager"
+      class="mb-6 rounded-2xl border border-info/40 bg-info/10 p-4 text-info"
+    >
+      Loading weirdness from the database...
+    </div>
+
+    <div
+      v-if="managerError"
+      class="mb-6 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+    >
+      {{ managerError }}
+    </div>
+
     <div
       v-if="showAddScenario"
-      class="bg-base-300 p-4 rounded-lg shadow-md mb-6"
+      class="mb-6 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
     >
-      <h2 class="text-xl font-bold text-gray-600 mb-4">Create/Edit Scenario</h2>
+      <h2 class="mb-4 text-xl font-bold text-base-content">
+        Create/Edit Scenario
+      </h2>
+
       <add-scenario />
     </div>
 
-    <!-- Scenario Gallery and Selected Scenario -->
-    <div class="flex flex-col gap-6">
-      <!-- Scenario Gallery -->
-      <div class="bg-base-300 p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-600 mb-4">Scenario Gallery</h2>
+    <div class="flex min-h-0 flex-1 flex-col gap-6">
+      <div
+        class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+      >
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-base-content">
+              Scenario Gallery
+            </h2>
+
+            <p class="text-sm text-base-content/70">
+              {{ scenarioSummary }}
+            </p>
+          </div>
+
+          <button
+            class="btn btn-sm btn-secondary rounded-xl"
+            type="button"
+            :disabled="isLoadingManager"
+            @click="refreshManagerData"
+          >
+            <Icon name="kind-icon:refresh" class="h-4 w-4" />
+            Refresh DB
+          </button>
+        </div>
+
         <scenario-gallery />
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useChoiceStore } from '@/stores/choiceStore'
+import { useRewardStore } from '@/stores/rewardStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 
-// Local state for add scenario toggle
+const characterStore = useCharacterStore()
+const choiceStore = useChoiceStore()
+const rewardStore = useRewardStore()
+const scenarioStore = useScenarioStore()
+
 const showAddScenario = ref(false)
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
 
-// Toggle add scenario visibility
+const scenarioSummary = computed(() => {
+  const scenarioCount = scenarioStore.scenarios.length
+  const characterCount = characterStore.characters.length
+  const rewardCount = rewardStore.rewards.length
+
+  return `${scenarioCount} scenarios, ${characterCount} characters, ${rewardCount} rewards loaded. The goblin spreadsheet is satisfied.`
+})
+
 function toggleAddScenario() {
   showAddScenario.value = !showAddScenario.value
 }
+
+async function loadManagerData(force = false) {
+  isLoadingManager.value = true
+  managerError.value = null
+
+  try {
+    choiceStore.initialize()
+
+    await Promise.all([
+      characterStore.initialize({
+        force,
+        fetchRemote: true,
+        createDefaultForm: true,
+      }),
+      scenarioStore.initialize({
+        force,
+        fetchRemote: true,
+        includeSeeds: true,
+      }),
+      rewardStore.initialize({
+        force,
+        fetchRemote: true,
+      }),
+    ])
+  } catch (error) {
+    managerError.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to load scenario manager data.'
+  } finally {
+    isLoadingManager.value = false
+  }
+}
+
+async function refreshManagerData() {
+  await loadManagerData(true)
+}
+
+onMounted(async () => {
+  await loadManagerData()
+})
 </script>

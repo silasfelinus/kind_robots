@@ -243,79 +243,97 @@ export const useBotStore = defineStore('botStore', () => {
   }
 
   async function initialize(options: BotInitializeOptions = {}): Promise<void> {
-    if (isInitialized.value && !options.force) return
-    if (initializePromise.value && !options.force)
-      return initializePromise.value
+  const wantsRemoteFetch = options.fetchRemote === true
+  const needsRemoteFetch = wantsRemoteFetch && (!isLoaded.value || options.force)
 
-    initializePromise.value = (async () => {
-      try {
-        isInitializing.value = true
-        clearError()
+  if (initializePromise.value && !options.force) {
+    await initializePromise.value
 
-        hydrateFromLocalStorage()
+    if (needsRemoteFetch) {
+      await fetchBots(false)
+    }
 
-        if (options.initializeServerStore !== false) {
-          await serverStore.initialize()
-        }
-
-        if (options.fetchRemote) {
-          await fetchBots(Boolean(options.force))
-        }
-
-        if (
-          options.createBlankForm !== false &&
-          !currentBot.value &&
-          Object.keys(botForm.value).length === 0
-        ) {
-          createNewBot()
-        }
-
-        isInitialized.value = true
-      } catch (error: unknown) {
-        handleError(error, 'initializing bot store')
-        setLastError(error, 'Failed to initialize bot store')
-        isInitialized.value = false
-      } finally {
-        isInitializing.value = false
-        initializePromise.value = null
-      }
-    })()
-
-    return initializePromise.value
+    return
   }
+
+  if (isInitialized.value && !options.force && !needsRemoteFetch) {
+    return
+  }
+
+  initializePromise.value = (async () => {
+    try {
+      isInitializing.value = true
+      clearError()
+
+      hydrateFromLocalStorage()
+
+      if (options.initializeServerStore !== false) {
+        await serverStore.initialize()
+      }
+
+      if (wantsRemoteFetch) {
+        await fetchBots(Boolean(options.force))
+      }
+
+      if (
+        options.createBlankForm !== false &&
+        !currentBot.value &&
+        Object.keys(botForm.value).length === 0
+      ) {
+        createNewBot()
+      }
+
+      isInitialized.value = true
+    } catch (error: unknown) {
+      handleError(error, 'initializing bot store')
+      setLastError(error, 'Failed to initialize bot store')
+      isInitialized.value = false
+    } finally {
+      isInitializing.value = false
+      initializePromise.value = null
+    }
+  })()
+
+  return initializePromise.value
+}
 
   async function fetchBots(force = false): Promise<Bot[]> {
-    if (!force && isLoaded.value && bots.value.length) return bots.value
-    if (fetchBotsPromise.value && !force) return fetchBotsPromise.value
+  if (!force && isLoaded.value && bots.value.length > 0) {
+    return bots.value
+  }
 
-    fetchBotsPromise.value = (async () => {
-      loading.value = true
-
-      try {
-        clearError()
-
-        const response = await performFetch<Bot[]>('/api/bots')
-
-        if (response.success && response.data) {
-          bots.value = response.data.slice().sort(sortBots)
-          isLoaded.value = true
-          persist()
-          return bots.value
-        }
-
-        throw new Error(response.message || 'Failed to fetch bots')
-      } catch (error: unknown) {
-        handleError(error, 'fetching bots')
-        setLastError(error, 'Failed to fetch bots')
-        return bots.value
-      } finally {
-        loading.value = false
-        fetchBotsPromise.value = null
-      }
-    })()
-
+  if (fetchBotsPromise.value && !force) {
     return fetchBotsPromise.value
   }
+
+  fetchBotsPromise.value = (async () => {
+    loading.value = true
+
+    try {
+      clearError()
+
+      const response = await performFetch<Bot[]>('/api/bots')
+
+      if (response.success && Array.isArray(response.data)) {
+        bots.value = response.data.slice().sort(sortBots)
+        isLoaded.value = true
+        persist()
+        return bots.value
+      }
+
+      throw new Error(response.message || 'Failed to fetch bots')
+    } catch (error: unknown) {
+      handleError(error, 'fetching bots')
+      setLastError(error, 'Failed to fetch bots')
+      return bots.value
+    } finally {
+      loading.value = false
+      fetchBotsPromise.value = null
+    }
+  })()
+
+  return fetchBotsPromise.value
+}
 
   async function selectBot(botId: number): Promise<void> {
     if (currentBot.value?.id === botId) return

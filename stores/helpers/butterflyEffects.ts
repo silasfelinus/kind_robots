@@ -138,7 +138,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
   const toggleStates = ref<Partial<Record<string, ToggleButterflyState>>>({})
   const loaderStates = ref<Partial<Record<string, LoaderButterflyState>>>({})
-const exitWanderStates = ref<Partial<Record<string, ExitWanderState>>>({})
+  const exitWanderStates = ref<Partial<Record<string, ExitWanderState>>>({})
   const activeLoaderPreset = ref<LoaderSwarmPreset>('random')
 
   function clampPercent(value: number) {
@@ -280,22 +280,22 @@ const exitWanderStates = ref<Partial<Record<string, ExitWanderState>>>({})
   }
 
   function clearButterflyMotionState(id: string) {
-  const toggleState = toggleStates.value[id]
-  if (toggleState?.returnTimeoutId) {
-    clearTimeout(toggleState.returnTimeoutId)
-  }
+    const toggleState = toggleStates.value[id]
+    if (toggleState?.returnTimeoutId) {
+      clearTimeout(toggleState.returnTimeoutId)
+    }
 
-  delete toggleStates.value[id]
-  delete loaderStates.value[id]
-  delete exitWanderStates.value[id]
+    delete toggleStates.value[id]
+    delete loaderStates.value[id]
+    delete exitWanderStates.value[id]
 
-  const keys = Object.keys(toggleButterflyIds.value) as ToggleButterflyKey[]
-  for (const key of keys) {
-    if (toggleButterflyIds.value[key] === id) {
-      toggleButterflyIds.value[key] = null
+    const keys = Object.keys(toggleButterflyIds.value) as ToggleButterflyKey[]
+    for (const key of keys) {
+      if (toggleButterflyIds.value[key] === id) {
+        toggleButterflyIds.value[key] = null
+      }
     }
   }
-}
 
   function getToggleSpawnPoint(key: ToggleButterflyKey) {
     if (key === 'header') {
@@ -496,164 +496,166 @@ const exitWanderStates = ref<Partial<Record<string, ExitWanderState>>>({})
   }
 
   function clearLoaderStates() {
-  loaderStates.value = {}
-  exitWanderStates.value = {}
-}
+    loaderStates.value = {}
+    exitWanderStates.value = {}
+  }
 
   function getNearestExitGoal(butterfly: Butterfly) {
-  const overshoot = 24
-  const spread = 34
+    const overshoot = 24
+    const spread = 34
 
-  const goesLeft = butterfly.x <= 50
-  const goesTop = butterfly.y <= 50
+    const goesLeft = butterfly.x <= 50
+    const goesTop = butterfly.y <= 50
 
-  const x = goesLeft
-    ? randomBetween(-overshoot - spread, Math.min(-overshoot, butterfly.x))
-    : randomBetween(
-        Math.max(100 + overshoot, butterfly.x),
-        100 + overshoot + spread,
-      )
+    const x = goesLeft
+      ? randomBetween(-overshoot - spread, Math.min(-overshoot, butterfly.x))
+      : randomBetween(
+          Math.max(100 + overshoot, butterfly.x),
+          100 + overshoot + spread,
+        )
 
-  const y = goesTop
-    ? randomBetween(-overshoot - spread, Math.min(-overshoot, butterfly.y))
-    : randomBetween(
-        Math.max(100 + overshoot, butterfly.y),
-        100 + overshoot + spread,
-      )
+    const y = goesTop
+      ? randomBetween(-overshoot - spread, Math.min(-overshoot, butterfly.y))
+      : randomBetween(
+          Math.max(100 + overshoot, butterfly.y),
+          100 + overshoot + spread,
+        )
 
-  return {
-    x: clampToTwoDecimals(x),
-    y: clampToTwoDecimals(y),
-  }
-}
-
-function createExitWanderState(butterfly: Butterfly): ExitWanderState {
-  const goalDx = butterfly.goal.x - butterfly.x
-  const goalDy = butterfly.goal.y - butterfly.y
-  const goalAngle = Math.atan2(goalDy, goalDx)
-
-  return {
-    id: butterfly.id,
-    seed: Math.random() * Math.PI * 2,
-    nextDecisionAt: Date.now() + randomInt(120, 520),
-    headingAngle: goalAngle + randomBetween(-0.9, 0.9),
-    wanderStrength: randomBetween(0.16, 0.72),
-    directness: randomBetween(0.58, 0.9),
-    wobbleSpeed: randomBetween(0.0016, 0.0048),
-    wobbleWidth: randomBetween(0.2, 1.25),
-    hesitationUntil: Math.random() < 0.2 ? Date.now() + randomInt(80, 260) : 0,
-    burstUntil: Math.random() < 0.24 ? Date.now() + randomInt(180, 520) : 0,
-  }
-}
-
-function getExitWanderState(butterfly: Butterfly) {
-  if (!exitWanderStates.value[butterfly.id]) {
-    exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
+    return {
+      x: clampToTwoDecimals(x),
+      y: clampToTwoDecimals(y),
+    }
   }
 
-  return exitWanderStates.value[butterfly.id] as ExitWanderState
-}
+  function createExitWanderState(butterfly: Butterfly): ExitWanderState {
+    const goalDx = butterfly.goal.x - butterfly.x
+    const goalDy = butterfly.goal.y - butterfly.y
+    const goalAngle = Math.atan2(goalDy, goalDx)
 
-function refreshExitWanderDecision(
-  butterfly: Butterfly,
-  state: ExitWanderState,
-) {
-  const now = Date.now()
-  if (now < state.nextDecisionAt) return
-
-  const goalDx = butterfly.goal.x - butterfly.x
-  const goalDy = butterfly.goal.y - butterfly.y
-  const goalAngle = Math.atan2(goalDy, goalDx)
-
-  const randomPanic = Math.random() < 0.18
-  const sideFlutter = Math.random() < 0.42
-  const angleSwing = randomPanic
-    ? randomBetween(-Math.PI, Math.PI)
-    : sideFlutter
-      ? randomBetween(-1.25, 1.25)
-      : randomBetween(-0.42, 0.42)
-
-  state.headingAngle = goalAngle + angleSwing
-  state.wanderStrength = randomBetween(0.18, randomPanic ? 1.1 : 0.68)
-  state.directness = randomPanic
-    ? randomBetween(0.32, 0.58)
-    : randomBetween(0.62, 0.92)
-  state.nextDecisionAt = now + randomInt(130, 620)
-
-  if (Math.random() < 0.16) {
-    state.hesitationUntil = now + randomInt(70, 230)
+    return {
+      id: butterfly.id,
+      seed: Math.random() * Math.PI * 2,
+      nextDecisionAt: Date.now() + randomInt(120, 520),
+      headingAngle: goalAngle + randomBetween(-0.9, 0.9),
+      wanderStrength: randomBetween(0.16, 0.72),
+      directness: randomBetween(0.58, 0.9),
+      wobbleSpeed: randomBetween(0.0016, 0.0048),
+      wobbleWidth: randomBetween(0.2, 1.25),
+      hesitationUntil:
+        Math.random() < 0.2 ? Date.now() + randomInt(80, 260) : 0,
+      burstUntil:
+        Math.random() < 0.24 ? Date.now() + randomInt(180, 520) : 0,
+    }
   }
 
-  if (Math.random() < 0.22) {
-    state.burstUntil = now + randomInt(180, 520)
+  function getExitWanderState(butterfly: Butterfly) {
+    if (!exitWanderStates.value[butterfly.id]) {
+      exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
+    }
+
+    return exitWanderStates.value[butterfly.id] as ExitWanderState
   }
-}
 
-function moveExitingButterfly(butterfly: Butterfly) {
-  const noise2D = getNoise()
-  const now = Date.now()
-  const state = getExitWanderState(butterfly)
+  function refreshExitWanderDecision(
+    butterfly: Butterfly,
+    state: ExitWanderState,
+  ) {
+    const now = Date.now()
+    if (now < state.nextDecisionAt) return
 
-  refreshExitWanderDecision(butterfly, state)
+    const goalDx = butterfly.goal.x - butterfly.x
+    const goalDy = butterfly.goal.y - butterfly.y
+    const goalAngle = Math.atan2(goalDy, goalDx)
 
-  const goalDx = butterfly.goal.x - butterfly.x
-  const goalDy = butterfly.goal.y - butterfly.y
-  const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
+    const randomPanic = Math.random() < 0.18
+    const sideFlutter = Math.random() < 0.42
+    const angleSwing = randomPanic
+      ? randomBetween(-Math.PI, Math.PI)
+      : sideFlutter
+        ? randomBetween(-1.25, 1.25)
+        : randomBetween(-0.42, 0.42)
 
-  const forwardX = goalDx / goalDist
-  const forwardY = goalDy / goalDist
+    state.headingAngle = goalAngle + angleSwing
+    state.wanderStrength = randomBetween(0.18, randomPanic ? 1.1 : 0.68)
+    state.directness = randomPanic
+      ? randomBetween(0.32, 0.58)
+      : randomBetween(0.62, 0.92)
+    state.nextDecisionAt = now + randomInt(130, 620)
 
-  const tangentX = -forwardY
-  const tangentY = forwardX
+    if (Math.random() < 0.16) {
+      state.hesitationUntil = now + randomInt(70, 230)
+    }
 
-  const flutterNoise = noise2D(
-    butterfly.x * 0.11 + butterfly.noiseOffsetX,
-    butterfly.y * 0.11 + butterfly.noiseOffsetY + now * 0.0017 + state.seed,
-  )
+    if (Math.random() < 0.22) {
+      state.burstUntil = now + randomInt(180, 520)
+    }
+  }
 
-  const wobble =
-    Math.sin(now * state.wobbleSpeed + state.seed) *
-    state.wobbleWidth *
-    state.wanderStrength
+  function moveExitingButterfly(butterfly: Butterfly) {
+    const noise2D = getNoise()
+    const now = Date.now()
+    const state = getExitWanderState(butterfly)
 
-  const chosenX = Math.cos(state.headingAngle)
-  const chosenY = Math.sin(state.headingAngle)
+    refreshExitWanderDecision(butterfly, state)
 
-  const pullScale = now < state.hesitationUntil ? 0.25 : state.directness
-  const burstScale = now < state.burstUntil ? 1.35 : 1
-  const moveScale = 0.095
+    const goalDx = butterfly.goal.x - butterfly.x
+    const goalDy = butterfly.goal.y - butterfly.y
+    const goalDist = Math.sqrt(goalDx * goalDx + goalDy * goalDy) || 1
 
-  const pull = butterfly.speed * moveScale * pullScale * burstScale
-  const wander = butterfly.speed * moveScale * state.wanderStrength
-  const sway = butterfly.speed * moveScale * 0.85
+    const forwardX = goalDx / goalDist
+    const forwardY = goalDy / goalDist
 
-  butterfly.x = clampToTwoDecimals(
-    butterfly.x +
-      forwardX * pull +
-      chosenX * wander * 0.48 +
-      tangentX * (flutterNoise * sway + wobble * 0.18),
-  )
+    const tangentX = -forwardY
+    const tangentY = forwardX
 
-  butterfly.y = clampToTwoDecimals(
-    butterfly.y +
-      forwardY * pull +
-      chosenY * wander * 0.48 +
-      tangentY * (flutterNoise * sway + wobble * 0.18),
-  )
+    const flutterNoise = noise2D(
+      butterfly.x * 0.11 + butterfly.noiseOffsetX,
+      butterfly.y * 0.11 + butterfly.noiseOffsetY + now * 0.0017 + state.seed,
+    )
 
-  const rotationDriver = chosenX * 0.7 + forwardX * 0.3
-  const targetRotation = rotationDriver >= 0 ? 120 : 30
+    const wobble =
+      Math.sin(now * state.wobbleSpeed + state.seed) *
+      state.wobbleWidth *
+      state.wanderStrength
 
-  butterfly.rotation = clampToTwoDecimals(
-    butterfly.rotation + (targetRotation - butterfly.rotation) * 0.075,
-  )
+    const chosenX = Math.cos(state.headingAngle)
+    const chosenY = Math.sin(state.headingAngle)
 
-  butterfly.scaleMod = clampToTwoDecimals(
-    0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
-  )
+    const pullScale = now < state.hesitationUntil ? 0.25 : state.directness
+    const burstScale = now < state.burstUntil ? 1.35 : 1
+    const moveScale = 0.095
 
-  butterfly.zIndex = Math.max(1, butterfly.zIndex - 0.65)
-}
+    const pull = butterfly.speed * moveScale * pullScale * burstScale
+    const wander = butterfly.speed * moveScale * state.wanderStrength
+    const sway = butterfly.speed * moveScale * 0.85
+
+    butterfly.x = clampToTwoDecimals(
+      butterfly.x +
+        forwardX * pull +
+        chosenX * wander * 0.48 +
+        tangentX * (flutterNoise * sway + wobble * 0.18),
+    )
+
+    butterfly.y = clampToTwoDecimals(
+      butterfly.y +
+        forwardY * pull +
+        chosenY * wander * 0.48 +
+        tangentY * (flutterNoise * sway + wobble * 0.18),
+    )
+
+    const rotationDriver = chosenX * 0.7 + forwardX * 0.3
+    const targetRotation = rotationDriver >= 0 ? 120 : 30
+
+    butterfly.rotation = clampToTwoDecimals(
+      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.075,
+    )
+
+    butterfly.scaleMod = clampToTwoDecimals(
+      0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
+    )
+
+    butterfly.zIndex = Math.max(1, butterfly.zIndex - 0.65)
+  }
 
   function chooseLoaderScene(
     preset: LoaderSwarmPreset = 'random',
@@ -763,30 +765,20 @@ function moveExitingButterfly(butterfly: Butterfly) {
     return pointWithin(18, 82, 18, 82)
   }
 
-  function getExitJitteredGoal(butterfly: Butterfly, goal: ToggleAnchor) {
-    const xDirection = goal.x < butterfly.x ? -1 : 1
-    const yDirection = goal.y < butterfly.y ? -1 : 1
-
-    return {
-      x: clampPercent(goal.x + randomBetween(0, 5) * xDirection),
-      y: clampPercent(goal.y + randomBetween(0, 5) * yDirection),
-    }
-  }
-
   function beginLoaderButterflyExit(
-  butterfly: Butterfly,
-  state: LoaderButterflyState,
-) {
-  if (butterfly.isExiting) return
+    butterfly: Butterfly,
+    state: LoaderButterflyState,
+  ) {
+    if (butterfly.isExiting) return
 
-  const goal = getLoaderExitGoal(butterfly, state)
+    const goal = getLoaderExitGoal(butterfly, state)
 
-  butterfly.isExiting = true
-  butterfly.goal.x = goal.x
-  butterfly.goal.y = goal.y
-  state.phase = 'released'
-  exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
-}
+    butterfly.isExiting = true
+    butterfly.goal.x = goal.x
+    butterfly.goal.y = goal.y
+    state.phase = 'released'
+    exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
+  }
 
   function createLoaderButterflyState(
     butterfly: Butterfly,
@@ -965,6 +957,7 @@ function moveExitingButterfly(butterfly: Butterfly) {
     try {
       Object.values(loaderStates.value).forEach((state) => {
         if (!state) return
+
         state.releaseRequested = true
 
         const butterfly = getButterflyById(state.id)
@@ -980,46 +973,45 @@ function moveExitingButterfly(butterfly: Butterfly) {
   }
 
   function markButterflyForExit(butterfly: Butterfly) {
-  if (butterfly.isExiting) return
+    if (butterfly.isExiting) return
 
-  const loaderState = getLoaderButterflyState(butterfly.id)
-  if (loaderState) {
-    beginLoaderButterflyExit(butterfly, loaderState)
-    return
+    const loaderState = getLoaderButterflyState(butterfly.id)
+    if (loaderState) {
+      beginLoaderButterflyExit(butterfly, loaderState)
+      return
+    }
+
+    const goal = getNearestExitGoal(butterfly)
+
+    butterfly.isExiting = true
+    butterfly.goal.x = goal.x
+    butterfly.goal.y = goal.y
+    exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
   }
-
-  const goal = getNearestExitGoal(butterfly)
-
-  butterfly.isExiting = true
-  butterfly.goal.x = goal.x
-  butterfly.goal.y = goal.y
-  exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
-}
-
 
   function markAllButterfliesForExit() {
-  try {
-    butterflies.value.forEach((butterfly) => {
-      if (butterfly.isExiting) return
+    try {
+      butterflies.value.forEach((butterfly) => {
+        if (butterfly.isExiting) return
 
-      const loaderState = getLoaderButterflyState(butterfly.id)
-      if (loaderState) {
-        beginLoaderButterflyExit(butterfly, loaderState)
-        return
-      }
+        const loaderState = getLoaderButterflyState(butterfly.id)
+        if (loaderState) {
+          beginLoaderButterflyExit(butterfly, loaderState)
+          return
+        }
 
-      const exitGoal = getNearestExitGoal(butterfly)
-      butterfly.goal.x = exitGoal.x
-      butterfly.goal.y = exitGoal.y
-      butterfly.isExiting = true
-      exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
-    })
+        const exitGoal = getNearestExitGoal(butterfly)
+        butterfly.goal.x = exitGoal.x
+        butterfly.goal.y = exitGoal.y
+        butterfly.isExiting = true
+        exitWanderStates.value[butterfly.id] = createExitWanderState(butterfly)
+      })
 
-    selectedButterflyId.value = ''
-  } catch (error) {
-    addError(ErrorType.STORE_ERROR, error)
+      selectedButterflyId.value = ''
+    } catch (error) {
+      addError(ErrorType.STORE_ERROR, error)
+    }
   }
-}
 
   function sendButterflyAway(butterfly: Butterfly) {
     markButterflyForExit(butterfly)
@@ -1212,7 +1204,6 @@ function moveExitingButterfly(butterfly: Butterfly) {
         (state.releaseRequested || state.releaseOnGoal)
       ) {
         beginLoaderButterflyExit(butterfly, state)
-        return
       }
     }
   }
@@ -1288,10 +1279,16 @@ function moveExitingButterfly(butterfly: Butterfly) {
     }
 
     const loaderState = getLoaderButterflyState(butterfly.id)
+
+    if (loaderState && !butterfly.isExiting) {
+      updateLoaderButterflyPosition(butterfly, loaderState)
+      return
+    }
+
     if (butterfly.isExiting) {
-  moveExitingButterfly(butterfly)
-  return
-}
+      moveExitingButterfly(butterfly)
+      return
+    }
 
     const noise2D = getNoise()
     const now = Date.now() * 0.001
@@ -1312,10 +1309,7 @@ function moveExitingButterfly(butterfly: Butterfly) {
     butterfly.rotation = clampToTwoDecimals(
       butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
     )
-    if (butterfly.isExiting) {
-  moveExitingButterfly(butterfly)
-  return
-}
+
     butterfly.x = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.x + noiseDx, 100)),
     )

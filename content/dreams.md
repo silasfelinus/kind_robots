@@ -3,7 +3,7 @@ title: Dreams
 room: 'Dream Deck'
 subtitle: Shape a shared generative dream
 description: Start with a prompt or image, then let users steer the story, chat, and visuals as the dream evolves.
-image: dream/dream-001.png
+image: dreams/dream-001.png
 gallery: weirdlandia
 tags: ['dreams', 'chat', 'art', 'AI']
 category: user

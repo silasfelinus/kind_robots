@@ -315,13 +315,7 @@ const showPromptForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
 const isCompact = computed(() => {
-<<<<<<< HEAD:components/brainstorm/prompt-gallery.vue
-  return (
-    props.compact || props.variant === 'row' || props.variant === 'dropdown'
-  )
-=======
   return props.compact || props.variant === 'row' || props.variant === 'dropdown'
->>>>>>> 91f616574b58b46ad7aff49741afe0cb44323572:components/prompts/prompt-gallery.vue
 })
 
 const formTitle = computed(() => {

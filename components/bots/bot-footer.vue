@@ -212,16 +212,21 @@
       <div
         class="grid h-full min-h-0 w-full grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] gap-3 overflow-hidden"
       >
-        <section class="min-h-0 overflow-hidden">
-          <bot-carousel
-            title="Bot Carousel"
-            subtitle="Browse and select a bot"
-            :show-hero="true"
-            :show-rail="true"
-            :show-expanded-panel="false"
-            :show-edit-actions="false"
-            :compact-cards="true"
-            @selected="selectBot"
+        <section
+          class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <bot-gallery
+            variant="row"
+            title="Bot Shelf"
+            subtitle="Choose a bot"
+            :show-images="true"
+            :show-controls="false"
+            :show-toolbar="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="false"
+            :show-launch-button="false"
+            :compact="true"
           />
         </section>
 
@@ -249,7 +254,9 @@
                     {{ botStore.currentBot.subtitle }}
                   </div>
 
-                  <div class="mt-1 line-clamp-3 text-sm leading-relaxed text-base-content/70">
+                  <div
+                    class="mt-1 line-clamp-3 text-sm leading-relaxed text-base-content/70"
+                  >
                     {{ selectedBotSummary }}
                   </div>
                 </div>
@@ -459,7 +466,8 @@ async function openBots() {
 async function launchBot() {
   if (!canLaunch.value) return
 
-  await openBots()
+  navStore.setDashboardTab('bot', 'interact')
+  await router.push('/bots')
 }
 
 function refreshPromptOffset() {
@@ -515,7 +523,7 @@ onMounted(async () => {
   await Promise.all([
     botStore.initialize({
       fetchRemote: true,
-      initializeServerStore: true,
+      initializeServerStore: false,
       createBlankForm: true,
     }),
     navStore.initialize(),

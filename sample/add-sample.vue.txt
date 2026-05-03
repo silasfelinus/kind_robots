@@ -1,137 +1,362 @@
-// @ts-nocheck
-/* eslint-disable */
-// test-ignore
-
-// /components/content/sample/add-sample.vue
+<!-- /components/content/sample/add-sample.vue -->
 <template>
-  <div class="rounded-2xl border p-6 m-4 mx-auto bg-base-200 max-w-5xl space-y-6">
-    <h1 class="text-4xl text-center font-bold">Create or Edit a Sample</h1>
+  <div
+    class="mx-auto flex w-full max-w-7xl flex-col gap-6 rounded-2xl border border-base-300 bg-base-200 p-4"
+  >
+    <header class="text-center">
+      <h1 class="text-3xl font-bold text-primary md:text-4xl">
+        {{ heading }}
+      </h1>
 
-    <!-- Selector + Designer -->
-    <div class="flex flex-wrap justify-between items-center gap-4">
-      <sample-selector />
+      <p class="mt-2 text-sm text-base-content/70">
+        {{ subtitle }}
+      </p>
+    </header>
 
-      <div v-if="sampleStore.selectedItem" class="flex items-center">
-        <button class="btn btn-icon" @click="deselectCurrentItem">
-          <icon name="mdi:close-box" class="text-2xl" />
-        </button>
-        <span class="ml-2 text-sm">Create new entry</span>
-      </div>
+    <div
+      v-if="mode === 'edit' && !sampleStore.selected"
+      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+    >
+      Select a sample before editing.
+    </div>
 
-      <div class="flex-grow max-w-xs">
-        <label class="block text-sm font-semibold mb-1">Designer</label>
-        <input
-          v-if="canEditDesigner"
-          v-model="sampleStore.form.designer"
-          type="text"
-          class="input input-bordered w-full"
-        />
-        <p v-else class="text-sm text-base-content/70">{{ sampleStore.form.designer }}</p>
-      </div>
+    <template v-else>
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Title</span>
+          </span>
 
-      <div class="flex gap-4">
-        <div>
-          <label class="block text-sm font-semibold mb-1">Visibility</label>
-          <div class="flex space-x-2">
-            <button
-              type="button"
-              class="btn btn-sm"
-              :class="sampleStore.form.isPublic ? 'btn-primary' : 'btn-outline'"
-              @click="sampleStore.form.isPublic = true"
-            >
-              Public
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm"
-              :class="!sampleStore.form.isPublic ? 'btn-primary' : 'btn-outline'"
-              @click="sampleStore.form.isPublic = false"
-            >
-              Private
-            </button>
+          <input
+            v-model="sampleStore.form.title"
+            type="text"
+            placeholder="Sample title"
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Type</span>
+          </span>
+
+          <input
+            v-model="sampleStore.form.type"
+            type="text"
+            placeholder="utility, model, story..."
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Label</span>
+          </span>
+
+          <input
+            v-model="sampleStore.form.label"
+            type="text"
+            placeholder="Short display label"
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Icon</span>
+          </span>
+
+          <input
+            v-model="sampleStore.form.icon"
+            type="text"
+            placeholder="kind-icon:box"
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control lg:col-span-2">
+          <span class="label">
+            <span class="label-text font-bold">Description</span>
+          </span>
+
+          <textarea
+            v-model="sampleStore.form.description"
+            placeholder="Describe what this sample represents..."
+            class="textarea textarea-bordered min-h-28 w-full bg-base-100"
+          />
+        </label>
+      </section>
+
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Link</span>
+          </span>
+
+          <input
+            v-model="sampleStore.form.link"
+            type="text"
+            placeholder="/sample"
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Component</span>
+          </span>
+
+          <input
+            v-model="sampleStore.form.component"
+            type="text"
+            placeholder="sample-component"
+            class="input input-bordered w-full bg-base-100"
+          />
+        </label>
+      </section>
+
+      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div
+          class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h2 class="text-xl font-bold text-base-content">
+              Sample Choices
+            </h2>
+
+            <p class="text-sm text-base-content/70">
+              Reusable choice fields let this sample model match the rest of the app.
+            </p>
           </div>
+
+          <Icon
+            :name="sampleStore.form.icon || 'kind-icon:box'"
+            class="h-10 w-10 text-primary"
+          />
         </div>
-      </div>
-    </div>
 
-    <!-- Form Fields -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="space-y-4">
-        <choice-manager label="title" model="SampleModel" />
-        <choice-manager label="label" model="SampleModel" />
-        <choice-manager label="type" model="SampleModel" />
-      </div>
-      <div class="space-y-4">
-        <choice-manager label="icon" model="SampleModel" />
-        <choice-manager label="link" model="SampleModel" />
-        <choice-manager label="component" model="SampleModel" />
-      </div>
-    </div>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <choice-manager label="title" model="SampleModel" />
+          <choice-manager label="type" model="SampleModel" />
+          <choice-manager label="label" model="SampleModel" />
+        </div>
+      </section>
 
-    <!-- Submit -->
-    <form @submit.prevent="handleSubmit" class="pt-4">
-      <div v-if="isLoading" class="loading loading-ring loading-lg"></div>
-      <div v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</div>
-      <div v-if="successMessage" class="text-green-500 mt-2">{{ successMessage }}</div>
+      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <h2 class="mb-4 text-xl font-bold text-base-content">
+          Preview
+        </h2>
 
-      <button type="submit" class="btn btn-primary mt-4" :disabled="isLoading">
-        <span v-if="isLoading">Saving...</span>
-        <span v-else>{{ sampleStore.form.id ? 'Update Sample' : 'Create Sample' }}</span>
-      </button>
-    </form>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="flex items-center gap-3">
+            <Icon
+              :name="sampleStore.form.icon || 'kind-icon:box'"
+              class="h-10 w-10 shrink-0 text-primary"
+            />
+
+            <div class="min-w-0">
+              <h3 class="truncate text-lg font-bold text-base-content">
+                {{ sampleStore.form.title || 'Untitled Sample' }}
+              </h3>
+
+              <p class="truncate text-sm text-base-content/60">
+                {{ sampleStore.form.type || 'No type yet' }}
+              </p>
+            </div>
+          </div>
+
+          <p class="mt-3 text-sm text-base-content/70">
+            {{ sampleStore.form.description || 'No description yet.' }}
+          </p>
+        </div>
+      </section>
+
+      <div
+        v-if="statusMessage"
+        class="rounded-2xl border p-3 text-sm"
+        :class="
+          statusTone === 'error'
+            ? 'border-error/40 bg-error/10 text-error'
+            : 'border-success/40 bg-success/10 text-success'
+        "
+      >
+        {{ statusMessage }}
+      </div>
+
+      <footer class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+        <button
+          v-if="mode === 'edit'"
+          class="btn btn-ghost rounded-xl"
+          type="button"
+          @click="resetFromSelected"
+        >
+          Revert
+        </button>
+
+        <button
+          v-else
+          class="btn btn-ghost rounded-xl"
+          type="button"
+          @click="resetForAdd"
+        >
+          Reset
+        </button>
+
+        <button
+          class="btn btn-success rounded-xl"
+          type="button"
+          :disabled="sampleStore.isSaving"
+          @click="saveSample"
+        >
+          <span
+            v-if="sampleStore.isSaving"
+            class="loading loading-spinner loading-sm"
+          />
+          {{ saveLabel }}
+        </button>
+      </footer>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useSampleStore } from '@/stores/sampleStore'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useChoiceStore } from '@/stores/choiceStore'
+import { useSampleModelStore } from '@/stores/sampleModelStore'
 import { useUserStore } from '@/stores/userStore'
 
-const sampleStore = useSampleStore()
-const choiceStore = useChoiceStore()
-const userStore = useUserStore()
-
-const isLoading = ref(false)
-const errorMessage = ref(null)
-const successMessage = ref(null)
-
-const canEditDesigner = computed(() =>
-  !sampleStore.form.id || sampleStore.form.userId === userStore.userId
+const props = withDefaults(
+  defineProps<{
+    mode?: 'add' | 'edit'
+  }>(),
+  {
+    mode: 'add',
+  },
 )
 
-function deselectCurrentItem() {
-  sampleStore.deselect()
+const emit = defineEmits<{
+  saved: []
+}>()
+
+const choiceStore = useChoiceStore()
+const sampleStore = useSampleModelStore()
+const userStore = useUserStore()
+
+const statusMessage = ref('')
+const statusTone = ref<'success' | 'error'>('success')
+
+const mode = computed(() => props.mode)
+
+const heading = computed(() =>
+  mode.value === 'edit' ? 'Edit Sample' : 'Create Sample',
+)
+
+const subtitle = computed(() =>
+  mode.value === 'edit'
+    ? 'Update the reusable model entry without spawning another component goblin.'
+    : 'Create a reusable model entry using the new one-component form pattern.',
+)
+
+const saveLabel = computed(() =>
+  mode.value === 'edit' ? 'Save Changes' : 'Save Sample',
+)
+
+onMounted(async () => {
+  await Promise.all([sampleStore.initialize(), choiceStore.initialize()])
+  prepareForm()
+})
+
+watch(
+  () => props.mode,
+  () => {
+    prepareForm()
+  },
+)
+
+function prepareForm() {
+  if (mode.value === 'edit') {
+    resetFromSelected()
+    return
+  }
+
+  resetForAdd()
 }
 
-async function handleSubmit() {
-  isLoading.value = true
-  errorMessage.value = null
-  successMessage.value = null
+function resetForAdd() {
+  sampleStore.startAddingModel?.()
+
+  if (!Object.keys(sampleStore.form || {}).length) {
+    sampleStore.form = {
+      title: '',
+      type: '',
+      label: '',
+      icon: 'kind-icon:box',
+      description: '',
+      link: '',
+      component: '',
+      userId: userStore.userId || 10,
+      isPublic: true,
+    }
+  }
+
+  statusMessage.value = ''
+}
+
+function resetFromSelected() {
+  if (!sampleStore.selected) return
+
+  sampleStore.form = sampleStore.toModelForm(sampleStore.selected)
+  statusMessage.value = ''
+}
+
+async function saveSample() {
+  if (mode.value === 'edit' && !sampleStore.form.id) {
+    statusTone.value = 'error'
+    statusMessage.value = 'No sample selected or invalid ID.'
+    return
+  }
+
+  if (!sampleStore.form.title?.trim()) {
+    statusTone.value = 'error'
+    statusMessage.value = 'Please provide a title.'
+    return
+  }
+
+  if (!sampleStore.form.type?.trim()) {
+    statusTone.value = 'error'
+    statusMessage.value = 'Please provide a type.'
+    return
+  }
 
   try {
-    const fields = ['title', 'label', 'type', 'icon', 'link', 'component']
-    fields.forEach((field) => {
+    for (const field of ['title', 'type', 'label']) {
       choiceStore.applyToForm(sampleStore.form, field, 'SampleModel')
-    })
-
-    const result = await sampleStore.save()
-    if (result.success) {
-      successMessage.value = sampleStore.form.id
-        ? 'Sample updated successfully!'
-        : 'Sample created successfully!'
-    } else {
-      errorMessage.value = result.message || 'Failed to save sample.'
     }
+
+    sampleStore.form = {
+      ...sampleStore.form,
+      icon: sampleStore.form.icon || 'kind-icon:box',
+      userId: sampleStore.form.userId || userStore.userId || 10,
+    }
+
+    const saved = await sampleStore.saveModel()
+
+    if (!saved) {
+      throw new Error(sampleStore.error || 'Failed to save sample.')
+    }
+
+    statusTone.value = 'success'
+    statusMessage.value =
+      mode.value === 'edit'
+        ? 'Sample updated successfully.'
+        : 'Sample saved successfully.'
+
+    emit('saved')
   } catch (error) {
-    errorMessage.value = `Error: ${(error as Error).message}`
-  } finally {
-    isLoading.value = false
+    console.error('Failed to save sample:', error)
+    statusTone.value = 'error'
+    statusMessage.value =
+      error instanceof Error ? error.message : 'Failed to save sample.'
   }
 }
-
-onMounted(() => {
-  sampleStore.initialize()
-  choiceStore.initialize()
-})
 </script>

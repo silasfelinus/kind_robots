@@ -1,99 +1,430 @@
-// @ts-nocheck
-/* eslint-disable */
-// test-ignore
+<!-- /components/content/sample/sample-gallery.vue -->
 <template>
-  <div class="container mx-auto p-4 space-y-4">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <h1 class="text-3xl font-bold text-primary">Sample Model Gallery</h1>
-      <NuxtLink to="/add-sample" class="btn btn-primary btn-sm rounded-xl">
-        ➕ Add New Entry
-      </NuxtLink>
-    </div>
+  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="truncate text-lg font-bold text-base-content">
+            {{ title }}
+          </h2>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-4">
-      <select v-model="filterScope" class="select select-bordered rounded-lg">
-        <option value="all">All Entries</option>
-        <option value="user">My Entries</option>
-        <option value="public">Public Only</option>
-      </select>
+          <p v-if="sampleStore.selected" class="truncate text-sm text-base-content/70">
+            Selected:
+            <span class="font-semibold text-primary">
+              {{ sampleStore.selected.title || 'Untitled Sample' }}
+            </span>
+          </p>
 
-      <select v-model="filterType" class="select select-bordered rounded-lg">
-        <option value="">All Types</option>
-        <option value="nav">Navigation</option>
-        <option value="utility">Utility</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-
-    <!-- Entry Grid -->
-    <div class="grid grid-cols-[repeat(auto-fit,_minmax(140px,_1fr))] gap-6">
-      <div
-        v-for="entry in filteredEntries"
-        :key="entry.id"
-        class="relative group p-4 border rounded-2xl bg-base-100 shadow-md flex flex-col items-center gap-2"
-      >
-        <Icon :name="entry.icon || 'kind-icon:help'" class="text-4xl" />
-        <div class="text-center text-sm font-medium">
-          {{ entry.label || entry.title }}
+          <p v-else class="text-sm text-base-content/60">
+            {{ subtitle }}
+          </p>
         </div>
 
-        <button
-          class="btn btn-xs mt-1"
-          @click="toggleActive(entry.id)"
-          :class="{
-            'btn-secondary': isActive(entry.id),
-            'btn-outline': !isActive(entry.id),
-          }"
+        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
+          {{ filteredSamples.length }}
+        </span>
+      </div>
+
+      <div
+        v-if="showControls"
+        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+      >
+        <select
+          v-model="selectedScope"
+          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+          aria-label="Filter samples by scope"
         >
-          {{ isActive(entry.id) ? 'Remove' : 'Add' }}
+          <option value="all">All entries</option>
+          <option value="mine">Mine</option>
+          <option value="public">Public</option>
+        </select>
+
+        <select
+          v-model="selectedType"
+          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+          aria-label="Filter samples by type"
+        >
+          <option value="all">All types</option>
+          <option v-for="type in sampleTypes" :key="type" :value="type">
+            {{ type }}
+          </option>
+        </select>
+
+        <input
+          v-model="searchQuery"
+          type="search"
+          aria-label="Search samples"
+          placeholder="Search samples..."
+          class="input input-bordered input-sm w-full bg-base-100"
+        />
+      </div>
+
+      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="startAddingSample"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add
+        </button>
+
+        <button
+          v-if="allowEdit"
+          class="btn btn-secondary btn-sm rounded-xl"
+          type="button"
+          :disabled="!sampleStore.selected"
+          @click="startEditingSample"
+        >
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          Edit
+        </button>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="!sampleStore.selected"
+          @click="clearSelectedSample"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Clear
+        </button>
+
+        <button
+          v-if="allowRefresh"
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="isLoading"
+          @click="refreshSamples(true)"
+        >
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          Refresh
         </button>
       </div>
-    </div>
+    </header>
+
+    <section
+      v-if="showSampleForm"
+      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+    >
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h3 class="text-sm font-bold text-base-content">
+          {{ formTitle }}
+        </h3>
+
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          type="button"
+          @click="closeSampleForm"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+        </button>
+      </div>
+
+      <add-sample :mode="formMode" @saved="handleSampleSaved" />
+    </section>
+
+    <section class="min-h-0 flex-1 overflow-auto">
+      <div
+        v-if="isLoading"
+        class="flex h-full items-center justify-center py-12"
+      >
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+
+      <div
+        v-else-if="sampleStore.error"
+        class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
+      >
+        <p class="text-lg font-bold">
+          {{ sampleStore.error }}
+        </p>
+      </div>
+
+      <div
+        v-else-if="filteredSamples.length === 0"
+        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
+      >
+        <Icon name="kind-icon:box" class="h-10 w-10" />
+        <p class="text-lg font-bold">No samples found.</p>
+
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="startAddingSample"
+        >
+          Add a sample
+        </button>
+      </div>
+
+      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
+        <select
+          class="select select-bordered w-full bg-base-100"
+          :value="sampleStore.selected?.id ?? ''"
+          aria-label="Select sample"
+          @change="selectSampleFromEvent"
+        >
+          <option value="">Choose a sample</option>
+          <option
+            v-for="sample in filteredSamples"
+            :key="sample.id"
+            :value="sample.id"
+          >
+            {{ sample.title || 'Untitled Sample' }}
+          </option>
+        </select>
+      </div>
+
+      <div v-else :class="layoutClass">
+        <sample-card
+          v-for="sample in filteredSamples"
+          :key="sample.id"
+          :sample="sample"
+          :selected="sampleStore.selected?.id === sample.id"
+          :show-image="showImages"
+          :compact="isCompact"
+          :show-actions="showCardActions"
+          :show-description="showDescriptions"
+          :show-meta="showMeta"
+          :show-debug="showDebug"
+          :allow-edit="allowEdit"
+          :allow-delete="allowDelete"
+          @select="selectSample"
+          @edit="startEditingSampleById"
+          @delete="handleSampleDeleted"
+        />
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
+import { computed, onMounted, ref } from 'vue'
+import { useSampleModelStore } from '@/stores/sampleModelStore'
 import { useUserStore } from '@/stores/userStore'
-import { useSampleStore } from '@/stores/sampleStore'
 
-const userStore = useUserStore()
-const sampleStore = useSampleStore()
+type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
-const { user } = storeToRefs(userStore)
-const { items } = storeToRefs(sampleStore)
-
-const filterScope = ref<'all' | 'user' | 'public'>('all')
-const filterType = ref('')
-
-// Replace with your equivalent active ID array
-const activeIds = ref<number[]>([])
-
-onMounted(() => {
-  sampleStore.initialize()
-})
-
-const filteredEntries = computed(() =>
-  items.value.filter((entry) => {
-    if (filterScope.value === 'user' && entry.userId !== user.value?.id)
-      return false
-    if (filterScope.value === 'public' && !entry.isPublic) return false
-    if (filterType.value && entry.type !== filterType.value) return false
-    return true
-  }),
+const props = withDefaults(
+  defineProps<{
+    variant?: GalleryVariant
+    title?: string
+    subtitle?: string
+    showImages?: boolean
+    showControls?: boolean
+    showToolbar?: boolean
+    showCardActions?: boolean
+    showDescriptions?: boolean
+    showMeta?: boolean
+    showDebug?: boolean
+    allowAdd?: boolean
+    allowEdit?: boolean
+    allowDelete?: boolean
+    allowRefresh?: boolean
+    compact?: boolean
+    autoLoad?: boolean
+  }>(),
+  {
+    variant: 'dashboard',
+    title: 'Samples',
+    subtitle: 'Pick a reusable sample entry.',
+    showImages: true,
+    showControls: true,
+    showToolbar: true,
+    showCardActions: true,
+    showDescriptions: true,
+    showMeta: true,
+    showDebug: false,
+    allowAdd: true,
+    allowEdit: true,
+    allowDelete: true,
+    allowRefresh: true,
+    compact: false,
+    autoLoad: true,
+  },
 )
 
-function isActive(id: number) {
-  return activeIds.value.includes(id)
+const sampleStore = useSampleModelStore()
+const userStore = useUserStore()
+
+const selectedScope = ref<'all' | 'mine' | 'public'>('all')
+const selectedType = ref('all')
+const searchQuery = ref('')
+const isLoading = ref(false)
+const showSampleForm = ref(false)
+const formMode = ref<'add' | 'edit'>('add')
+
+const title = computed(() => props.title)
+const subtitle = computed(() => props.subtitle)
+const showImages = computed(() => props.showImages)
+const showControls = computed(() => props.showControls)
+const showToolbar = computed(() => props.showToolbar)
+const showCardActions = computed(() => props.showCardActions)
+const showDescriptions = computed(() => props.showDescriptions)
+const showMeta = computed(() => props.showMeta)
+const showDebug = computed(() => props.showDebug)
+const allowAdd = computed(() => props.allowAdd)
+const allowEdit = computed(() => props.allowEdit)
+const allowDelete = computed(() => props.allowDelete)
+const allowRefresh = computed(() => props.allowRefresh)
+
+const isCompact = computed(
+  () =>
+    props.compact || props.variant === 'row' || props.variant === 'dropdown',
+)
+
+const formTitle = computed(() =>
+  formMode.value === 'edit' ? 'Edit Sample' : 'Add Sample',
+)
+
+const layoutClass = computed(() =>
+  props.variant === 'row' ? 'sample-row' : 'sample-grid',
+)
+
+const sampleTypes = computed(() => {
+  const set = new Set<string>()
+
+  for (const sample of sampleStore.items) {
+    const type = sample.type?.trim()
+
+    if (type) {
+      set.add(type)
+    }
+  }
+
+  return Array.from(set).sort()
+})
+
+const filteredSamples = computed(() => {
+  let samples = sampleStore.items
+
+  if (selectedScope.value === 'mine') {
+    samples = samples.filter((sample) => sample.userId === userStore.userId)
+  }
+
+  if (selectedScope.value === 'public') {
+    samples = samples.filter((sample) => sample.isPublic)
+  }
+
+  if (selectedType.value !== 'all') {
+    samples = samples.filter((sample) => sample.type === selectedType.value)
+  }
+
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.trim().toLowerCase()
+
+    samples = samples.filter((sample) => {
+      return (
+        (sample.title || '').toLowerCase().includes(query) ||
+        (sample.label || '').toLowerCase().includes(query) ||
+        (sample.type || '').toLowerCase().includes(query) ||
+        (sample.description || '').toLowerCase().includes(query)
+      )
+    })
+  }
+
+  return samples
+})
+
+onMounted(async () => {
+  if (props.autoLoad) {
+    await refreshSamples()
+  }
+})
+
+async function refreshSamples(force = false) {
+  isLoading.value = true
+
+  try {
+    await sampleStore.initialize({
+      force,
+      fetchRemote: true,
+    })
+  } finally {
+    isLoading.value = false
+  }
 }
 
-function toggleActive(id: number) {
-  const updated = isActive(id)
-    ? activeIds.value.filter((x) => x !== id)
-    : [...activeIds.value, id]
-  activeIds.value = updated
+async function selectSample(id: number) {
+  await sampleStore.selectModel(id)
+}
+
+function selectSampleFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+  const id = Number(target.value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    clearSelectedSample()
+    return
+  }
+
+  void selectSample(id)
+}
+
+function startAddingSample() {
+  sampleStore.startAddingModel()
+  formMode.value = 'add'
+  showSampleForm.value = true
+}
+
+async function startEditingSample() {
+  const id = sampleStore.selected?.id
+
+  if (!id) return
+
+  await startEditingSampleById(id)
+}
+
+async function startEditingSampleById(id: number) {
+  const sample = await sampleStore.startEditingModel(id)
+
+  if (!sample) return
+
+  formMode.value = 'edit'
+  showSampleForm.value = true
+}
+
+function clearSelectedSample() {
+  sampleStore.deselectModel()
+  showSampleForm.value = false
+}
+
+function closeSampleForm() {
+  showSampleForm.value = false
+}
+
+async function handleSampleSaved() {
+  showSampleForm.value = false
+  await refreshSamples(true)
+}
+
+function handleSampleDeleted(id: number) {
+  if (sampleStore.selected?.id === id) {
+    sampleStore.deselectModel()
+  }
 }
 </script>
+
+<style scoped>
+.sample-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.sample-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.sample-row > * {
+  min-width: min(240px, 85vw);
+  max-width: 340px;
+}
+</style>

@@ -1,0 +1,171 @@
+<!-- /components/content/sample/sample-card.vue -->
+<template>
+  <article
+    :class="[
+      'relative flex cursor-pointer flex-col rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
+      compact ? 'gap-2 p-3' : 'gap-4 p-4',
+      selected ? 'border-primary bg-primary/10' : 'border-base-300',
+    ]"
+    @click="selectSample"
+  >
+    <div
+      v-if="showActions && (selected || compact)"
+      class="absolute right-2 top-2 z-20 flex items-center gap-2"
+    >
+      <button
+        v-if="allowEdit"
+        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        type="button"
+        title="Edit Sample"
+        @click.stop="emit('edit', sample.id)"
+      >
+        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+      </button>
+
+      <button
+        v-if="allowDelete"
+        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        type="button"
+        title="Delete Sample"
+        @click.stop="deleteSample"
+      >
+        <Icon name="kind-icon:trash" class="h-4 w-4" />
+      </button>
+    </div>
+
+    <div
+      v-if="showImage"
+      :class="[
+        'flex items-center justify-center rounded-2xl bg-base-300',
+        compact ? 'h-24 w-full' : 'h-36 w-full',
+      ]"
+    >
+      <Icon
+        :name="sample.icon || fallbackIcon"
+        :class="compact ? 'h-12 w-12' : 'h-20 w-20'"
+        class="text-primary/70"
+      />
+    </div>
+
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <h2
+        :class="[
+          'font-bold leading-tight text-base-content',
+          compact ? 'line-clamp-1 text-base' : 'text-lg',
+        ]"
+      >
+        {{ sample.title || 'Untitled Sample' }}
+      </h2>
+
+      <p
+        v-if="showDescription"
+        :class="[
+          'text-base-content/70',
+          compact ? 'line-clamp-2 text-sm' : 'text-sm',
+        ]"
+      >
+        {{ sample.description || sample.label || 'No description yet.' }}
+      </p>
+
+      <div v-if="showMeta" class="flex flex-wrap gap-2">
+        <span class="badge badge-outline badge-sm">
+          {{ sample.type || 'sample' }}
+        </span>
+
+        <span v-if="sample.label" class="badge badge-ghost badge-sm">
+          {{ sample.label }}
+        </span>
+
+        <span
+          class="badge badge-sm"
+          :class="sample.isPublic ? 'badge-primary' : 'badge-warning'"
+        >
+          {{ sample.isPublic ? 'Public' : 'Private' }}
+        </span>
+      </div>
+    </div>
+
+    <div v-if="showDebug" class="mt-2">
+      <button
+        class="btn btn-ghost btn-xs rounded-xl"
+        type="button"
+        @click.stop="showDetails = !showDetails"
+      >
+        {{ showDetails ? 'Hide' : 'Show' }} Details
+      </button>
+
+      <pre
+        v-if="showDetails"
+        class="mt-2 max-h-48 overflow-auto rounded-xl bg-base-300 p-3 text-xs text-base-content/70"
+        >{{ JSON.stringify(sample, null, 2) }}</pre
+      >
+    </div>
+  </article>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useSampleModelStore } from '@/stores/sampleModelStore'
+
+type SampleModel = {
+  id: number
+  title?: string | null
+  type?: string | null
+  label?: string | null
+  icon?: string | null
+  description?: string | null
+  link?: string | null
+  component?: string | null
+  isPublic?: boolean | null
+}
+
+const props = withDefaults(
+  defineProps<{
+    sample: SampleModel
+    selected?: boolean
+    showImage?: boolean
+    compact?: boolean
+    showActions?: boolean
+    showDescription?: boolean
+    showMeta?: boolean
+    showDebug?: boolean
+    allowEdit?: boolean
+    allowDelete?: boolean
+    fallbackIcon?: string
+  }>(),
+  {
+    selected: false,
+    showImage: true,
+    compact: false,
+    showActions: true,
+    showDescription: true,
+    showMeta: true,
+    showDebug: false,
+    allowEdit: true,
+    allowDelete: true,
+    fallbackIcon: 'kind-icon:box',
+  },
+)
+
+const emit = defineEmits<{
+  select: [id: number]
+  edit: [id: number]
+  delete: [id: number]
+}>()
+
+const sampleStore = useSampleModelStore()
+const showDetails = ref(false)
+
+function selectSample() {
+  sampleStore.selectModel(props.sample.id)
+  emit('select', props.sample.id)
+}
+
+async function deleteSample() {
+  const result = await sampleStore.deleteModel(props.sample.id)
+
+  if (result?.success !== false) {
+    emit('delete', props.sample.id)
+  }
+}
+</script>

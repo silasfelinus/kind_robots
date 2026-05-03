@@ -2,377 +2,489 @@
 <template>
   <div
     v-if="footerState !== 'hidden'"
-    class="flex h-full min-h-0 w-full overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 p-2 shadow-inner md:p-3"
+    class="flex h-full min-h-0 w-full overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 shadow-inner"
+    :class="isCompact ? 'px-2 py-2' : 'p-2 md:p-3'"
   >
-    <div v-if="isCompact" class="flex h-full w-full min-h-0">
+    <template v-if="isCompact">
       <div
-        class="grid h-full w-full min-h-0 grid-cols-[1fr_auto] items-stretch gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
+        class="grid h-full min-h-0 w-full grid-cols-[minmax(0,1fr)_auto_auto] items-stretch gap-2 overflow-hidden"
       >
         <textarea
           ref="promptMeasureRef"
           v-model="promptStore.promptField"
-          class="textarea textarea-bordered h-full min-h-0 w-full resize-none overflow-y-auto bg-base-100 text-sm"
-          placeholder="Enter your creative prompt..."
-          :disabled="loading"
+          class="textarea textarea-bordered h-full min-h-0 min-w-0 resize-none overflow-y-auto rounded-2xl bg-base-100 px-3 py-2 text-sm leading-snug"
+          placeholder="Prompt the pixel goblin..."
+          :disabled="isGenerating || artStore.loading"
           @input="syncPrompt"
+          @keydown.enter.exact.prevent="generateArt"
         />
 
         <button
-          class="btn h-full min-h-0 w-24 font-semibold text-white"
-          :class="
-            isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-          "
-          :disabled="isGenerating || !promptStore.promptField.trim()"
+          class="btn btn-sm btn-primary h-full shrink-0 rounded-2xl text-white"
+          type="button"
+          :disabled="!canGenerate"
           @click="generateArt"
         >
-          {{ isGenerating ? 'Working...' : 'Create Art' }}
+          <span
+            v-if="isGenerating"
+            class="loading loading-spinner loading-xs"
+          />
+          <span v-else>Create</span>
+        </button>
+
+        <button
+          class="btn btn-sm btn-secondary h-full shrink-0 rounded-2xl"
+          type="button"
+          @click="openArtWorkshop"
+        >
+          Open
         </button>
       </div>
-    </div>
+    </template>
 
-    <div
-      v-else-if="isOpen"
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr]"
-    >
+    <template v-else-if="isOpen">
       <div
-        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+        class="grid h-full min-h-0 w-full grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1.5fr)_minmax(260px,0.8fr)]"
       >
-        <div class="mb-3 flex items-center justify-between gap-2">
-          <h2 class="text-base font-semibold">🎨 Art Footer</h2>
-
-          <button
-            class="btn btn-sm font-semibold text-white"
-            :class="
-              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-            "
-            :disabled="isGenerating || !promptStore.promptField.trim()"
-            @click="generateArt"
-          >
-            {{ isGenerating ? 'Working...' : '🖌️ Create Art' }}
-          </button>
-        </div>
-
-        <div class="flex min-h-0 flex-1 flex-col gap-3">
+        <section
+          class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
           <div
-            class="flex min-h-0 flex-1 flex-col rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 px-3 py-2"
           >
-            <label class="mb-2 text-sm font-semibold text-base-content/80">
-              Prompt
+            <div class="min-w-0">
+              <h2 class="truncate text-sm font-bold text-base-content">
+                Art Prompt
+              </h2>
+
+              <p class="truncate text-xs text-base-content/50">
+                {{ activeArtServerLabel }} · {{ selectedCheckpointLabel }}
+              </p>
+            </div>
+
+            <div class="flex shrink-0 gap-1.5">
+              <button
+                class="btn btn-xs btn-ghost rounded-xl"
+                type="button"
+                @click="applyPretty"
+              >
+                Pretty
+              </button>
+
+              <button
+                class="btn btn-xs btn-ghost rounded-xl"
+                type="button"
+                @click="randomStore.applySurprise"
+              >
+                Surprise
+              </button>
+
+              <button
+                class="btn btn-xs btn-ghost rounded-xl"
+                type="button"
+                @click="resetFooter"
+              >
+                Clear
+              </button>
+
+              <button
+                class="btn btn-xs btn-primary rounded-xl text-white"
+                type="button"
+                :disabled="!canGenerate"
+                @click="generateArt"
+              >
+                <span
+                  v-if="isGenerating"
+                  class="loading loading-spinner loading-xs"
+                />
+                <span v-else>Create</span>
+              </button>
+            </div>
+          </div>
+
+          <textarea
+            ref="promptMeasureRef"
+            v-model="promptStore.promptField"
+            class="textarea min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 px-3 py-2.5 text-sm leading-relaxed"
+            placeholder="Describe the image..."
+            :disabled="isGenerating || artStore.loading"
+            @input="syncPrompt"
+            @keydown.enter.exact.prevent="generateArt"
+          />
+
+          <div
+            class="grid shrink-0 grid-cols-2 gap-2 border-t border-base-300 bg-base-200/60 p-3"
+          >
+            <label class="form-control">
+              <div class="mb-1 flex items-center justify-between">
+                <span class="text-xs font-bold text-base-content/60">CFG</span>
+                <span class="font-mono text-xs font-bold text-primary">
+                  {{ localCfg.toFixed(1) }}
+                </span>
+              </div>
+
+              <input
+                v-model.number="localCfg"
+                type="range"
+                min="0"
+                max="30"
+                step="0.5"
+                class="range range-primary range-xs"
+              />
             </label>
 
-            <textarea
-              ref="promptMeasureRef"
-              v-model="promptStore.promptField"
-              class="textarea textarea-bordered min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 text-sm"
-              placeholder="Enter your creative prompt..."
-              :disabled="loading"
-              @input="syncPrompt"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div class="space-y-3">
-                <label class="block text-sm font-semibold text-base-content/80">
-                  🎚 CFG Scale: {{ localCfg }}
-                </label>
-                <input
-                  v-model.number="localCfg"
-                  type="range"
-                  min="0"
-                  max="30"
-                  step="0.5"
-                  class="range range-primary"
-                />
+            <label class="form-control">
+              <div class="mb-1 flex items-center justify-between">
+                <span class="text-xs font-bold text-base-content/60">
+                  Steps
+                </span>
+                <span class="font-mono text-xs font-bold text-secondary">
+                  {{ artStore.artForm.steps ?? 25 }}
+                </span>
               </div>
-            </div>
 
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div class="space-y-3">
-                <label class="block text-sm font-semibold text-base-content/80">
-                  🧮 Steps: {{ artStore.artForm.steps }}
-                </label>
-                <input
-                  v-model.number="artStore.artForm.steps"
-                  type="range"
-                  min="5"
-                  max="50"
-                  step="1"
-                  class="range range-secondary"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
-      >
-        <div
-          class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
-        >
-          Prompt Preview
-        </div>
-
-        <div
-          class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3 font-mono text-sm"
-        >
-          {{ promptStore.promptField || 'No prompt yet...' }}
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-else
-      class="grid h-full w-full min-h-0 grid-cols-1 gap-3 xl:grid-cols-[1.5fr_1fr]"
-    >
-      <div
-        class="flex min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
-      >
-        <div class="mb-3 flex items-center justify-between gap-2">
-          <h2 class="text-base font-semibold">🎨 Art Footer</h2>
-
-          <button
-            class="btn btn-sm font-semibold text-white"
-            :class="
-              isGenerating ? 'bg-secondary' : 'bg-primary hover:bg-primary/90'
-            "
-            :disabled="isGenerating || !promptStore.promptField.trim()"
-            @click="generateArt"
-          >
-            {{ isGenerating ? 'Working...' : '🖌️ Create Art' }}
-          </button>
-        </div>
-
-        <div
-          class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[1.2fr_0.9fr]"
-        >
-          <div class="flex min-h-0 flex-col gap-3">
-            <div
-              class="flex min-h-0 flex-1 flex-col rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
-              <label class="mb-2 text-sm font-semibold text-base-content/80">
-                Prompt
-              </label>
-
-              <textarea
-                v-model="promptStore.promptField"
-                class="textarea textarea-bordered min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 text-sm"
-                placeholder="Enter your creative prompt..."
-                :disabled="loading"
-                @input="syncPrompt"
+              <input
+                v-model.number="artStore.artForm.steps"
+                type="range"
+                min="5"
+                max="80"
+                step="1"
+                class="range range-secondary range-xs"
               />
-            </div>
+            </label>
+          </div>
+        </section>
 
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-                <div class="space-y-3">
-                  <label
-                    class="block text-sm font-semibold text-base-content/80"
-                  >
-                    🎚 CFG Scale: {{ localCfg }}
-                  </label>
-                  <input
-                    v-model.number="localCfg"
-                    type="range"
-                    min="0"
-                    max="30"
-                    step="0.5"
-                    class="range range-primary"
-                  />
-                </div>
-              </div>
+        <section
+          class="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="grid gap-2">
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Public</span>
 
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-                <div class="space-y-3">
-                  <label
-                    class="block text-sm font-semibold text-base-content/80"
-                  >
-                    🧮 Steps: {{ artStore.artForm.steps }}
-                  </label>
-                  <input
-                    v-model.number="artStore.artForm.steps"
-                    type="range"
-                    min="5"
-                    max="50"
-                    step="1"
-                    class="range range-secondary"
-                  />
-                </div>
-              </div>
-            </div>
+              <input
+                v-model="artStore.artForm.isPublic"
+                type="checkbox"
+                class="toggle toggle-success toggle-sm"
+              />
+            </label>
 
-            <Transition name="fade-expand">
-              <div
-                v-if="useNegative"
-                class="rounded-2xl border border-base-300 bg-base-200 p-3"
-              >
-                <div class="space-y-2">
-                  <label class="text-sm font-semibold text-base-content/80">
-                    Negative Prompt
-                  </label>
-                  <textarea
-                    v-model="artStore.artForm.negativePrompt"
-                    class="textarea textarea-bordered min-h-24 w-full resize-none bg-base-100 text-sm"
-                    placeholder="e.g. blurry, extra limbs..."
-                    :disabled="loading"
-                  />
-                </div>
-              </div>
-            </Transition>
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Mature</span>
+
+              <input
+                v-model="artStore.artForm.isMature"
+                type="checkbox"
+                class="toggle toggle-warning toggle-sm"
+              />
+            </label>
+
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Negative</span>
+
+              <input
+                v-model="useNegative"
+                type="checkbox"
+                class="toggle toggle-error toggle-sm"
+                @change="toggleNegativePrompt"
+              />
+            </label>
           </div>
 
-          <div class="flex min-h-0 flex-col gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="mb-3 text-sm font-semibold uppercase tracking-wide text-base-content/70"
-              >
-                Quick Controls
-              </div>
+          <Transition name="fade-expand">
+            <textarea
+              v-if="useNegative"
+              v-model="artStore.artForm.negativePrompt"
+              class="textarea textarea-bordered min-h-0 flex-1 resize-none rounded-2xl bg-base-200 text-sm"
+              placeholder="blurry, extra limbs, cursed anatomy..."
+              :disabled="isGenerating || artStore.loading"
+              @input="queuePromptOffsetRefresh"
+            />
+          </Transition>
 
-              <div class="space-y-3">
-                <CollectionSelector />
-
-                <div class="grid grid-cols-1 gap-2">
-                  <label
-                    class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-                  >
-                    <span class="label-text font-semibold">✨ Make Pretty</span>
-                    <input
-                      v-model="makePretty"
-                      type="checkbox"
-                      class="toggle toggle-accent"
-                    />
-                  </label>
-
-                  <label
-                    class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-                  >
-                    <span class="label-text font-semibold">🚫 Negative</span>
-                    <input
-                      v-model="useNegative"
-                      type="checkbox"
-                      class="toggle toggle-error"
-                      @change="toggleNegativePrompt"
-                    />
-                  </label>
-
-                  <label
-                    class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
-                  >
-                    <span class="label-text font-semibold">🔓 Public</span>
-                    <input
-                      v-model="artStore.artForm.isPublic"
-                      type="checkbox"
-                      class="toggle toggle-success"
-                    />
-                  </label>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                  <button
-                    class="btn btn-sm btn-secondary"
-                    @click="randomStore.applySurprise"
-                  >
-                    🎲 Surprise
-                  </button>
-
-                  <button class="btn btn-sm btn-warning" @click="resetUIState">
-                    ♻️ Reset
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div
+            v-if="statusMessage"
+            class="rounded-2xl border p-2 text-xs"
+            :class="
+              statusTone === 'error'
+                ? 'border-error/40 bg-error/10 text-error'
+                : 'border-success/40 bg-success/10 text-success'
+            "
+          >
+            {{ statusMessage }}
           </div>
-        </div>
+        </section>
       </div>
+    </template>
 
-      <div class="hidden min-h-0 xl:flex xl:flex-col">
-        <div
-          class="flex h-full min-h-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+    <template v-else>
+      <div
+        class="grid h-full min-h-0 w-full grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.75fr)_minmax(260px,0.6fr)]"
+      >
+        <section
+          class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
         >
           <div
-            class="mb-2 text-sm font-semibold uppercase tracking-wide text-base-content/70"
+            class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
           >
-            Status
-          </div>
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-bold text-base-content">
+                Art Generator
+              </h2>
 
-          <div class="grid gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
-              >
-                CFG
-              </div>
-              <div class="mt-1 text-lg font-semibold">{{ localCfg }}</div>
+              <p class="truncate text-xs text-base-content/50">
+                {{ activeArtServerLabel }} · {{ selectedCheckpointLabel }}
+              </p>
             </div>
 
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+            <div class="flex shrink-0 gap-2">
+              <button
+                class="btn btn-xs btn-ghost rounded-xl"
+                type="button"
+                @click="openArtWorkshop"
               >
-                Steps
-              </div>
-              <div class="mt-1 text-lg font-semibold">
-                {{ artStore.artForm.steps }}
-              </div>
-            </div>
+                Workshop
+              </button>
 
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
+              <button
+                class="btn btn-sm btn-primary rounded-2xl text-white"
+                type="button"
+                :disabled="!canGenerate"
+                @click="generateArt"
               >
-                Public
-              </div>
-              <div class="mt-1 text-sm font-semibold">
-                {{ artStore.artForm.isPublic ? 'Yes' : 'No' }}
-              </div>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
-              >
-                Negative Prompt
-              </div>
-              <div class="mt-1 text-sm font-semibold">
-                {{ useNegative ? 'Enabled' : 'Disabled' }}
-              </div>
+                <span
+                  v-if="isGenerating"
+                  class="loading loading-spinner loading-sm"
+                />
+                <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+                {{ isGenerating ? 'Working...' : 'Create Art' }}
+              </button>
             </div>
           </div>
-        </div>
+
+          <textarea
+            ref="promptMeasureRef"
+            v-model="promptStore.promptField"
+            class="textarea min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 px-4 py-3 text-sm leading-relaxed"
+            placeholder="A cozy robot greenhouse where butterflies debug the moon..."
+            :disabled="isGenerating || artStore.loading"
+            @input="syncPrompt"
+            @keydown.enter.exact.prevent="generateArt"
+          />
+
+          <div
+            class="grid shrink-0 grid-cols-1 gap-3 border-t border-base-300 bg-base-200/60 p-3 md:grid-cols-2"
+          >
+            <label class="form-control">
+              <div class="mb-1 flex items-center justify-between">
+                <span class="text-xs font-bold text-base-content/60">CFG</span>
+                <span class="font-mono text-sm font-bold text-primary">
+                  {{ localCfg.toFixed(1) }}
+                </span>
+              </div>
+
+              <input
+                v-model.number="localCfg"
+                type="range"
+                min="0"
+                max="30"
+                step="0.5"
+                class="range range-primary range-sm"
+              />
+            </label>
+
+            <label class="form-control">
+              <div class="mb-1 flex items-center justify-between">
+                <span class="text-xs font-bold text-base-content/60">
+                  Steps
+                </span>
+                <span class="font-mono text-sm font-bold text-secondary">
+                  {{ artStore.artForm.steps ?? 25 }}
+                </span>
+              </div>
+
+              <input
+                v-model.number="artStore.artForm.steps"
+                type="range"
+                min="5"
+                max="80"
+                step="1"
+                class="range range-secondary range-sm"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section
+          class="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div
+            class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+          >
+            Quick Controls
+          </div>
+
+          <div class="grid gap-2">
+            <collection-selector />
+
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Pretty</span>
+
+              <input
+                v-model="makePretty"
+                type="checkbox"
+                class="toggle toggle-accent toggle-sm"
+                @change="applyPretty"
+              />
+            </label>
+
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Negative</span>
+
+              <input
+                v-model="useNegative"
+                type="checkbox"
+                class="toggle toggle-error toggle-sm"
+                @change="toggleNegativePrompt"
+              />
+            </label>
+
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Public</span>
+
+              <input
+                v-model="artStore.artForm.isPublic"
+                type="checkbox"
+                class="toggle toggle-success toggle-sm"
+              />
+            </label>
+
+            <label
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <span class="label-text text-sm font-bold">Mature</span>
+
+              <input
+                v-model="artStore.artForm.isMature"
+                type="checkbox"
+                class="toggle toggle-warning toggle-sm"
+              />
+            </label>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              class="btn btn-sm btn-secondary rounded-xl"
+              type="button"
+              @click="randomStore.applySurprise"
+            >
+              Surprise
+            </button>
+
+            <button
+              class="btn btn-sm btn-warning rounded-xl"
+              type="button"
+              @click="resetFooter"
+            >
+              Reset
+            </button>
+          </div>
+        </section>
+
+        <section
+          class="hidden min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 xl:flex"
+        >
+          <div
+            class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+          >
+            Preview
+          </div>
+
+          <div
+            class="min-h-0 flex-1 overflow-auto rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p v-if="promptStore.promptField" class="whitespace-pre-wrap">
+              {{ promptStore.promptField }}
+            </p>
+
+            <p v-else class="text-base-content/35">
+              Your prompt preview will show here.
+            </p>
+
+            <div
+              v-if="useNegative && artStore.artForm.negativePrompt"
+              class="mt-3 border-t border-base-300 pt-3"
+            >
+              <p class="font-bold text-error">Negative</p>
+
+              <p class="mt-1 whitespace-pre-wrap">
+                {{ artStore.artForm.negativePrompt }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            v-if="statusMessage"
+            class="mt-3 rounded-2xl border p-2 text-xs"
+            :class="
+              statusTone === 'error'
+                ? 'border-error/40 bg-error/10 text-error'
+                : 'border-success/40 bg-success/10 text-success'
+            "
+          >
+            {{ statusMessage }}
+          </div>
+        </section>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
   ref,
   watch,
-  watchEffect,
-  nextTick,
-  onMounted,
-  onBeforeUnmount,
 } from 'vue'
+import { useRouter } from 'vue-router'
 import { useArtStore } from '@/stores/artStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useRandomStore } from '@/stores/randomStore'
 import { useDisplayStore } from '@/stores/displayStore'
+import { ErrorType, useErrorStore } from '@/stores/errorStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useNavStore } from '@/stores/navStore'
+import { usePromptStore } from '@/stores/promptStore'
+import { useRandomStore } from '@/stores/randomStore'
+import { useServerStore } from '@/stores/serverStore'
 import { negativeList } from '@/stores/seeds/artList'
 
+const router = useRouter()
 const artStore = useArtStore()
-const promptStore = usePromptStore()
-const milestoneStore = useMilestoneStore()
-const errorStore = useErrorStore()
 const checkpointStore = useCheckpointStore()
-const randomStore = useRandomStore()
 const displayStore = useDisplayStore()
+const errorStore = useErrorStore()
+const milestoneStore = useMilestoneStore()
+const navStore = useNavStore()
+const promptStore = usePromptStore()
+const randomStore = useRandomStore()
+const serverStore = useServerStore()
+
+const footerOffsetKey = 'art'
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
@@ -384,89 +496,51 @@ let promptResizeObserver: ResizeObserver | null = null
 const isGenerating = ref(false)
 const makePretty = ref(false)
 const useNegative = ref(false)
+const statusMessage = ref('')
+const statusTone = ref<'success' | 'error'>('success')
 
-const loading = computed(() => artStore.loading)
-
-const localCfg = ref<number>(
-  (artStore.artForm.cfg ?? 3) + (artStore.artForm.cfgHalf ? 0.5 : 0),
+const localCfg = ref(
+  (artStore.artForm.cfg ?? 7) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
 
-watch(localCfg, (val) => {
-  artStore.artForm.cfg = Math.floor(val)
-  artStore.artForm.cfgHalf = val % 1 >= 0.5
+const activeArtServerLabel = computed(() => {
+  return (
+    serverStore.activeArtServer?.label ||
+    serverStore.activeArtServer?.title ||
+    'No art server'
+  )
 })
 
-watchEffect(() => {
-  if (makePretty.value) {
-    randomStore.applyMakePretty()
-  }
+const selectedCheckpointLabel = computed(() => {
+  return (
+    checkpointStore.selectedCheckpoint?.customLabel ||
+    checkpointStore.selectedCheckpoint?.label ||
+    checkpointStore.selectedCheckpoint?.name ||
+    'No checkpoint'
+  )
+})
+
+const canGenerate = computed(() => {
+  return Boolean(
+    !isGenerating.value &&
+      !artStore.loading &&
+      promptStore.promptField?.trim() &&
+      serverStore.activeArtServer,
+  )
+})
+
+watch(localCfg, (value) => {
+  artStore.artForm.cfg = Math.floor(value)
+  artStore.artForm.cfgHalf = value % 1 >= 0.5
 })
 
 watch(
   () => checkpointStore.selectedCheckpoint?.isMature,
   (isMature) => {
-    artStore.artForm.isMature = !!isMature
+    artStore.artForm.isMature = Boolean(isMature)
   },
   { immediate: true },
 )
-
-function syncPrompt() {
-  promptStore.syncToLocalStorage()
-  artStore.artForm.promptString = promptStore.promptField
-  queuePromptOffsetRefresh()
-}
-
-function toggleNegativePrompt() {
-  artStore.updateArtListSelection(
-    '__negative__',
-    useNegative.value ? negativeList : [],
-  )
-  queuePromptOffsetRefresh()
-}
-
-function resetUIState() {
-  randomStore.resetAll()
-  makePretty.value = false
-  useNegative.value = false
-  artStore.artForm.negativePrompt = ''
-  queuePromptOffsetRefresh()
-}
-
-function refreshPromptOffset() {
-  if (displayStore.footerComponent !== 'art') {
-    displayStore.clearPromptOffset('art')
-    return
-  }
-
-  if (footerState.value === 'hidden') {
-    displayStore.clearPromptOffset('art')
-    return
-  }
-
-  if (footerState.value === 'priority') {
-    displayStore.clearPromptOffset('art')
-    return
-  }
-
-  const el = promptMeasureRef.value
-  if (!el) {
-    displayStore.clearPromptOffset('art')
-    return
-  }
-
-  displayStore.refreshPromptOffset(
-    'art',
-    el.scrollHeight,
-    el.clientHeight,
-    footerState.value === 'compact' ? 1.5 : 2.5,
-  )
-}
-
-function queuePromptOffsetRefresh() {
-  nextTick(() => {
-    refreshPromptOffset()
-  })
-}
 
 watch(
   () => [
@@ -481,7 +555,165 @@ watch(
   },
 )
 
-onMounted(() => {
+function setStatus(message: string, tone: 'success' | 'error' = 'success') {
+  statusMessage.value = message
+  statusTone.value = tone
+}
+
+function syncPrompt() {
+  promptStore.syncToLocalStorage?.()
+  artStore.artForm.promptString = promptStore.promptField
+  queuePromptOffsetRefresh()
+}
+
+function applyPretty() {
+  if (!makePretty.value) return
+
+  randomStore.applyMakePretty()
+  syncPrompt()
+}
+
+function toggleNegativePrompt() {
+  artStore.updateArtListSelection(
+    '__negative__',
+    useNegative.value ? negativeList : [],
+  )
+
+  if (!useNegative.value) {
+    artStore.artForm.negativePrompt = ''
+  }
+
+  queuePromptOffsetRefresh()
+}
+
+function resetFooter() {
+  randomStore.resetAll()
+  makePretty.value = false
+  useNegative.value = false
+  statusMessage.value = ''
+  promptStore.promptField = ''
+  artStore.artForm.promptString = ''
+  artStore.artForm.negativePrompt = ''
+  artStore.updateArtListSelection('__negative__', [])
+  queuePromptOffsetRefresh()
+}
+
+async function openArtWorkshop() {
+  navStore.setDashboardTab('art', 'overview')
+  await router.push('/art')
+}
+
+function refreshPromptOffset() {
+  if (displayStore.footerComponent !== footerOffsetKey) {
+    displayStore.clearPromptOffset(footerOffsetKey)
+    return
+  }
+
+  if (footerState.value === 'hidden') {
+    displayStore.clearPromptOffset(footerOffsetKey)
+    return
+  }
+
+  if (footerState.value === 'priority') {
+    displayStore.clearPromptOffset(footerOffsetKey)
+    return
+  }
+
+  const el = promptMeasureRef.value
+
+  if (!el) {
+    displayStore.clearPromptOffset(footerOffsetKey)
+    return
+  }
+
+  displayStore.refreshPromptOffset(
+    footerOffsetKey,
+    el.scrollHeight,
+    el.clientHeight,
+    footerState.value === 'compact' ? 1.5 : 2.5,
+  )
+}
+
+function queuePromptOffsetRefresh() {
+  nextTick(() => {
+    refreshPromptOffset()
+  })
+}
+
+async function generateArt() {
+  if (!canGenerate.value) return
+
+  isGenerating.value = true
+  statusMessage.value = ''
+
+  const activeServer = serverStore.activeArtServer
+
+  try {
+    if (!activeServer) {
+      throw new Error('No active art server selected.')
+    }
+
+    syncPrompt()
+
+    const result = await artStore.generateArt({
+      promptString: promptStore.promptField,
+      negativePrompt: artStore.artForm.negativePrompt,
+      steps: artStore.artForm.steps,
+      cfg: artStore.artForm.cfg,
+      cfgHalf: artStore.artForm.cfgHalf,
+      isMature: artStore.artForm.isMature,
+      isPublic: artStore.artForm.isPublic,
+      seed: artStore.artForm.seed,
+      galleryId: artStore.artForm.galleryId,
+      promptId: artStore.artForm.promptId,
+      pitchId: artStore.artForm.pitchId,
+      serverId: activeServer.id,
+      serverName: activeServer.label || activeServer.title,
+      checkpoint:
+        checkpointStore.selectedCheckpoint?.name ||
+        artStore.artForm.checkpoint,
+      sampler:
+        checkpointStore.selectedSampler?.name ||
+        artStore.artForm.sampler,
+      designer: artStore.artForm.designer,
+      userId: artStore.artForm.userId,
+      pitch: artStore.artForm.pitch,
+    })
+
+    if (!result.success) {
+      throw new Error(result.message || 'Generation failed.')
+    }
+
+    setStatus(result.message || 'Art generated.')
+    await milestoneStore.rewardMilestone(11)
+    navStore.setDashboardTab('art', 'selected')
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Generation failed.'
+
+    setStatus(message, 'error')
+    errorStore.addError(ErrorType.GENERAL_ERROR, message)
+  } finally {
+    isGenerating.value = false
+    queuePromptOffsetRefresh()
+  }
+}
+
+onMounted(async () => {
+  await Promise.all([
+    navStore.initialize(),
+    serverStore.initialize({
+      fetchRemote: true,
+    }),
+    artStore.initialize({
+      fetchRemote: false,
+      hydrateImages: false,
+      initializeServerStore: false,
+      initializeCollections: false,
+    }),
+    checkpointStore.initialize(),
+  ])
+
   queuePromptOffsetRefresh()
 
   promptResizeObserver = new ResizeObserver(() => {
@@ -496,62 +728,31 @@ onMounted(() => {
 onBeforeUnmount(() => {
   promptResizeObserver?.disconnect()
   promptResizeObserver = null
-  displayStore.clearPromptOffset('art')
+  displayStore.clearPromptOffset(footerOffsetKey)
 })
-
-async function generateArt() {
-  const validKeys = [
-    'checkpoint',
-    'designer',
-    'sampler',
-    'promptString',
-    'negativePrompt',
-    'title',
-    'collection',
-  ] as const
-
-  for (const key of validKeys) {
-    const values = artStore.artListSelections[key]
-    if (values !== undefined) {
-      const joined = Array.isArray(values) ? values.join(', ') : String(values)
-      ;(artStore.artForm as Record<string, unknown>)[key] = joined
-    }
-  }
-
-  artStore.artForm.promptString = promptStore.promptField
-
-  isGenerating.value = true
-  const result = await artStore.generateArt()
-
-  if (!result.success) {
-    errorStore.addError(ErrorType.GENERAL_ERROR, result.message)
-  } else {
-    await milestoneStore.rewardMilestone(11)
-  }
-
-  isGenerating.value = false
-  queuePromptOffsetRefresh()
-}
 </script>
 
 <style scoped>
 .fade-expand-enter-active,
 .fade-expand-leave-active {
-  transition: all 0.25s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    max-height 0.2s ease;
   overflow: hidden;
 }
 
 .fade-expand-enter-from,
 .fade-expand-leave-to {
+  max-height: 0;
   opacity: 0;
   transform: translateY(0.35rem);
-  max-height: 0;
 }
 
 .fade-expand-enter-to,
 .fade-expand-leave-from {
+  max-height: 16rem;
   opacity: 1;
   transform: translateY(0);
-  max-height: 16rem;
 }
 </style>

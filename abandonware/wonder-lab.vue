@@ -9,7 +9,7 @@
         v-if="!introCollapsed && !componentStore.selectedComponent"
         class="z-10 px-4 pt-6 pb-4 flex justify-center"
       >
-        <smart-container name="✨ Welcome to the WonderLab">
+        <div name="✨ Welcome to the WonderLab">
           <div class="text-base-content text-sm sm:text-md">
             Where components come alive—and sometimes crash gloriously.
           </div>
@@ -24,7 +24,7 @@
             </p>
             <component-sync v-if="isAdmin" class="mt-4" />
           </div>
-        </smart-container>
+        </div>
       </div>
     </transition>
 

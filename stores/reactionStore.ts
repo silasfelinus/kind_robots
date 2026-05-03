@@ -7,16 +7,10 @@ import type {
   ReactionCategory,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import PitchManager from '~/abandonware/pitches/pitch-manager.vue'
 
-export type ReactionTypeEnum =
-  | 'LOVED'
-  | 'CLAPPED'
-  | 'BOOED'
-  | 'HATED'
-  | 'NEUTRAL'
-  | 'FLAGGED'
-
-export type ReactionCategoryEnum = 'ART' | 'PITCH' | 'COMPONENT' | 'TITLE'
+export type ReactionTypeEnum = `${ReactionType}`
+export type ReactionCategoryEnum = `${ReactionCategory}`
 
 export const reactionTypes: ReactionTypeEnum[] = [
   'LOVED',
@@ -29,30 +23,59 @@ export const reactionTypes: ReactionTypeEnum[] = [
 
 export const reactionCategories: ReactionCategoryEnum[] = [
   'ART',
+  'ART_IMAGE',
   'PITCH',
   'COMPONENT',
-  'TITLE',
+  'CHAT_EXCHANGE',
+  'DREAM',
+  'BOT',
+  'GALLERY',
+  'MESSAGE',
+  'POST',
+  'PROMPT',
+  'RESOURCE',
+  'REWARD',
+  'TAG',
 ]
 
 type ReactionFetchKey = `art:${number}` | `component:${number}`
+
+export type ReactionTargetType =
+  | 'art'
+  | 'artImage'
+  | 'bot'
+  | 'chat'
+  | 'component'
+  | 'dream'
+  | 'gallery'
+  | 'message'
+  | 'pitch'
+  | 'post'
+  | 'prompt'
+  | 'resource'
+  | 'reward'
+  | 'tag'
 
 type AddReactionPayload = {
   userId: number
   reactionType: ReactionTypeEnum
   rating: number
   comment?: string
+  reactionCategory?: ReactionCategoryEnum
   artId?: number | null
   artImageId?: number | null
   pitchId?: number | null
   componentId?: number | null
   chatId?: number | null
+  dreamId?: number | null
   botId?: number | null
   galleryId?: number | null
+  messageId?: number | null
+  postId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
   tagId?: number | null
-  reactionCategory?: ReactionCategoryEnum
 }
 
 type UpdateReactionPayload = {
@@ -377,6 +400,9 @@ export const useReactionStore = defineStore('reactionStore', () => {
     loadingMap,
     fetchPromises,
     loadedKeys,
+
+    reactionTypes,
+    reactionCategories,
 
     getReactionsByComponentId,
     getReactionsByArtId,

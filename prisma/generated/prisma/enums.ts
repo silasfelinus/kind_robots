@@ -90,7 +90,12 @@ export const ChatType = {
   ToUser: 'ToUser',
   ToCharacter: 'ToCharacter',
   Weirdlandia: 'Weirdlandia',
-  Dream: 'Dream'
+  Dream: 'Dream',
+  Reward: 'Reward',
+  Story: 'Story',
+  Scenario: 'Scenario',
+  Character: 'Character',
+  Bot: 'Bot'
 } as const
 
 export type ChatType = (typeof ChatType)[keyof typeof ChatType]

@@ -1,7 +1,7 @@
 <!-- /components/content/bots/card-front.vue -->
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore } from '@/stores/botStore'
 
 const botsStore = useBotStore()
 const currentBot = computed(() => botsStore.currentBot)
@@ -16,7 +16,7 @@ const currentBot = computed(() => botsStore.currentBot)
       class="row-span-full lg:row-span-1 flex flex-col items-center space-y-4"
     >
       <div
-        class="card bg-base-300 text-base-content shadow-xl flex-grow overflow-auto w-full"
+        class="card bg-base-300 text-base-content shadow-xl grow overflow-auto w-full"
       >
         <div class="flex flex-col items-center p-4">
           <avatar-image class="w-64 h-64 object-cover rounded-full mb-4" />

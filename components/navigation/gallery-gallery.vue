@@ -150,8 +150,6 @@
                 :show-stats="true"
               />
 
-              <dominion-gallery v-else-if="gallery.key === 'dominions'" />
-
               <art-gallery
                 v-else-if="gallery.key === 'galleries'"
                 title="Art Gallery"
@@ -232,13 +230,6 @@ const galleries = [
     page: 'artgallery',
     icon: 'kind-icon:folder',
     description: 'Browse art grouped into named collections',
-  },
-  {
-    key: 'dominions',
-    name: 'Dominions',
-    page: 'dominions',
-    icon: 'kind-icon:card',
-    description: 'Manage and filter custom Dominion cards',
   },
   {
     key: 'galleries',

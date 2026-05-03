@@ -1,20 +1,19 @@
 <!-- /components/content/weird/scenario-card.vue -->
 <template>
-  <article
-    :class="[
-      'relative flex cursor-pointer flex-col rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      selected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectScenario"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="scenario.id"
+    target-type="scenario"
+    reaction-category="SCENARIO"
+    :target-title="scenarioTitle"
+    @select="selectScenario"
   >
-    <div
-      v-if="showActions && (selected || compact)"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2"
-    >
+    <template #actions>
       <button
-        v-if="canEdit"
-        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        v-if="showActions && canEdit && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Scenario"
         @click.stop="emit('edit', scenario.id)"
@@ -23,8 +22,8 @@
       </button>
 
       <button
-        v-if="allowClone"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow hover:bg-secondary hover:text-secondary-content"
+        v-if="showActions && allowClone && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Scenario"
         @click.stop="emit('clone', scenario.id)"
@@ -33,15 +32,15 @@
       </button>
 
       <button
-        v-if="canDelete"
-        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        v-if="showActions && canDelete && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Scenario"
         @click.stop="deleteScenario"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       :class="[
@@ -52,26 +51,45 @@
       <div
         v-if="showImage"
         :class="[
-          'shrink-0 overflow-hidden rounded-2xl bg-base-300',
+          'relative shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-300',
           compact ? 'h-32 w-full' : 'h-40 w-full md:h-48 md:w-48',
         ]"
       >
         <img
           :src="computedScenarioImage"
-          alt="Scenario Image"
-          class="h-full w-full object-cover transition-transform hover:scale-105"
+          :alt="scenarioTitle"
+          class="h-full w-full object-cover transition-transform group-hover:scale-105"
           loading="lazy"
         />
+
+        <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+          <span
+            v-if="scenario.userId === userStore.userId"
+            class="badge badge-primary badge-sm"
+          >
+            Yours
+          </span>
+
+          <span v-else class="badge badge-ghost badge-sm"> Scenario </span>
+        </div>
+
+        <div
+          v-if="activeSelected"
+          class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+        >
+          <Icon name="kind-icon:check" class="h-4 w-4" />
+        </div>
       </div>
 
       <div class="flex min-w-0 flex-1 flex-col gap-2">
         <h2
           :class="[
-            'font-bold leading-tight text-base-content',
+            'font-black leading-tight text-base-content',
             compact ? 'line-clamp-1 text-base' : 'text-xl',
           ]"
+          :title="scenarioTitle"
         >
-          {{ scenario.title || 'Untitled Scenario' }}
+          {{ scenarioTitle }}
         </h2>
 
         <p
@@ -93,15 +111,20 @@
           </span>
 
           <span v-if="scenario.userId" class="badge badge-ghost badge-sm">
-            User {{ scenario.userId }}
+            User #{{ scenario.userId }}
+          </span>
+
+          <span v-if="scenario.artImageId" class="badge badge-primary badge-sm">
+            Art Image #{{ scenario.artImageId }}
           </span>
         </div>
 
         <div
           v-if="showInspirations && scenario.inspirations && !compact"
-          class="rounded-xl bg-base-100 p-3 text-sm text-base-content/70"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm text-base-content/70"
         >
           <p class="mb-1 font-bold text-base-content">Inspirations</p>
+
           <p class="whitespace-pre-wrap">
             {{ scenario.inspirations }}
           </p>
@@ -110,7 +133,7 @@
     </div>
 
     <div
-      v-if="showChoices && selected && introChoices.length"
+      v-if="showChoices && activeSelected && introChoices.length"
       class="grid w-full grid-cols-1 gap-3 pt-2 md:grid-cols-2 xl:grid-cols-3"
     >
       <button
@@ -123,11 +146,25 @@
         {{ intro }}
       </button>
     </div>
-  </article>
+
+    <details
+      v-if="showDebug"
+      class="rounded-2xl border border-base-300 bg-base-100 p-2"
+      @click.stop
+    >
+      <summary class="cursor-pointer text-xs font-bold text-base-content/70">
+        Debug
+      </summary>
+
+      <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+        JSON.stringify(scenario, null, 2)
+      }}</pre>
+    </details>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
@@ -144,9 +181,12 @@ const props = withDefaults(
     showMeta?: boolean
     showInspirations?: boolean
     showChoices?: boolean
+    showReaction?: boolean
+    showDebug?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
     allowClone?: boolean
+    fallbackImage?: string
   }>(),
   {
     selected: false,
@@ -157,14 +197,16 @@ const props = withDefaults(
     showMeta: true,
     showInspirations: true,
     showChoices: true,
+    showReaction: true,
+    showDebug: false,
     allowEdit: true,
     allowDelete: true,
     allowClone: true,
+    fallbackImage: '/images/scenarios/space.webp',
   },
 )
 
 const emit = defineEmits<{
-  select: [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -177,23 +219,37 @@ const artStore = useArtStore()
 
 const artImage = ref<ArtImage | null>(null)
 
-const canEdit = computed(
-  () =>
+const activeSelected = computed(() => {
+  return (
+    props.selected || scenarioStore.selectedScenario?.id === props.scenario.id
+  )
+})
+
+const scenarioTitle = computed(() => {
+  return props.scenario.title || `Scenario #${props.scenario.id}`
+})
+
+const canEdit = computed(() => {
+  return (
     props.allowEdit &&
-    (userStore.isAdmin || userStore.userId === props.scenario.userId),
-)
+    (userStore.isAdmin || userStore.userId === props.scenario.userId)
+  )
+})
 
-const canDelete = computed(
-  () =>
+const canDelete = computed(() => {
+  return (
     props.allowDelete &&
-    (userStore.isAdmin || userStore.userId === props.scenario.userId),
-)
+    (userStore.isAdmin || userStore.userId === props.scenario.userId)
+  )
+})
 
-const computedScenarioImage = computed(() =>
-  artImage.value
-    ? `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
-    : props.scenario.imagePath || '/images/scenarios/space.webp',
-)
+const computedScenarioImage = computed(() => {
+  if (artImage.value?.imageData) {
+    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+  }
+
+  return props.scenario.imagePath || props.fallbackImage
+})
 
 const introChoices = computed<string[]>(() => {
   const raw = props.scenario.intros
@@ -208,9 +264,9 @@ const introChoices = computed<string[]>(() => {
     const parsed = JSON.parse(raw)
 
     if (Array.isArray(parsed)) {
-      return parsed.filter(
-        (entry): entry is string => typeof entry === 'string',
-      )
+      return parsed.filter((entry): entry is string => {
+        return typeof entry === 'string'
+      })
     }
 
     return []
@@ -224,7 +280,6 @@ const introChoices = computed<string[]>(() => {
 
 function selectScenario() {
   scenarioStore.selectScenario(props.scenario.id)
-  emit('select', props.scenario.id)
 }
 
 async function deleteScenario() {
@@ -240,7 +295,9 @@ function setCurrentChoice(choice: string) {
   emit('choice', choice)
 }
 
-onMounted(async () => {
+async function loadScenarioImage() {
+  artImage.value = null
+
   if (!props.scenario.artImageId || !props.showImage) return
 
   try {
@@ -252,5 +309,16 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load scenario art image:', error)
   }
+}
+
+onMounted(async () => {
+  await loadScenarioImage()
 })
+
+watch(
+  () => props.scenario.artImageId,
+  async () => {
+    await loadScenarioImage()
+  },
+)
 </script>

@@ -27,7 +27,6 @@ export type displayModeState =
   | 'pitch'
   | 'art'
   | 'collection'
-  | 'dominion'
 
 export type displayActionState =
   | 'gallery'

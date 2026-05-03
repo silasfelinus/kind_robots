@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { usePitchStore } from '~/stores/pitchStore'
+import { usePitchStore } from '@/stores/pitchStore'
 
 const pitchStore = usePitchStore()
 

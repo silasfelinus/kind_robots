@@ -12,8 +12,8 @@ import { computed, watchEffect, type Component } from 'vue'
 import ButterflyFooter from '@/components/butterfly/butterfly-footer.vue'
 import BotFooter from '@/components/bots/bot-footer.vue'
 import ArtFooter from '@/components/art/art-footer.vue'
-import StoryFooter from '~/components/weird/story-footer.vue'
-import ThemeFooter from '~/components/wonderlab/theme-footer.vue'
+import ScenarioFooter from '@/components/scenarios/scenario-footer.vue'
+import ThemeFooter from '@/components/themes/theme-footer.vue'
 import UserFooter from '@/components/user/user-footer.vue'
 import LabFooter from '@/components/wonderlab/lab-footer.vue'
 import BrainstormFooter from '@/components/brainstorm/brainstorm-footer.vue'
@@ -33,7 +33,7 @@ const footerComponentMap: Record<FooterName, Component> = {
   fx: ButterflyFooter,
   bot: BotFooter,
   art: ArtFooter,
-  story: StoryFooter,
+  scenario: ScenarioFooter,
   theme: ThemeFooter,
   user: UserFooter,
   lab: LabFooter,

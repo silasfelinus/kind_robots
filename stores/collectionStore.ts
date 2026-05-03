@@ -133,6 +133,48 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     )
   }
 
+  async function updateCollectionDetails(
+    id: number,
+    updates: {
+      label?: string
+      description?: string
+      isPublic?: boolean
+      isMature?: boolean
+    },
+  ): Promise<ArtCollection | null> {
+    try {
+      const response = await performFetch<ArtCollection>(
+        `/api/art/collection/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(updates),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update collection')
+      }
+
+      const index = state.collections.findIndex((collection) => {
+        return collection.id === id
+      })
+
+      if (index !== -1) {
+        state.collections[index] = response.data
+      }
+
+      if (state.currentCollection?.id === id) {
+        state.currentCollection = response.data
+      }
+
+      return response.data
+    } catch (error) {
+      handleError(error, 'updating collection details')
+      return null
+    }
+  }
+
   async function createCollection(
     label: string,
     userId: number,
@@ -503,5 +545,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     removeArtFromLocalCollection,
     createEmptyCollection,
     parseStoredCollections,
+    updateCollectionDetails,
   }
 })

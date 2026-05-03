@@ -3,7 +3,7 @@
   <div class="min-h-screen flex flex-col justify-center sm:py-12 bg-base-300">
     <div class="relative py-3 sm:max-w-xl sm:mx-auto">
       <div
-        class="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 shadow-lg transform rounded-3xl"
+        class="absolute inset-0 bg-linear-to-r from-blue-400 to-indigo-500 shadow-lg transform rounded-3xl"
       />
       <div
         class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20"
@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore } from '@/stores/botStore'
 
 const botStore = useBotStore()
 const selectedBot = ref('')

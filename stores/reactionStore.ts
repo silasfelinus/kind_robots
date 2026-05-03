@@ -7,7 +7,6 @@ import type {
   ReactionCategory,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
-import PitchManager from '~/abandonware/pitches/pitch-manager.vue'
 
 export type ReactionTypeEnum = `${ReactionType}`
 export type ReactionCategoryEnum = `${ReactionCategory}`
@@ -35,6 +34,7 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'PROMPT',
   'RESOURCE',
   'REWARD',
+  'SCENARIO',
   'TAG',
 ]
 
@@ -54,6 +54,7 @@ export type ReactionTargetType =
   | 'prompt'
   | 'resource'
   | 'reward'
+  | 'scenario'
   | 'tag'
 
 type AddReactionPayload = {
@@ -75,6 +76,7 @@ type AddReactionPayload = {
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
+  scenario: number | null
   tagId?: number | null
 }
 

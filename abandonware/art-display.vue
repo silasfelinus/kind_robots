@@ -62,10 +62,7 @@ const closeDisplay = () => {
 
 // 🔁 Re-fetch artImage if needed
 watchEffect(async () => {
-  if (
-    art.value?.artImageId &&
-    (!artImage.value || !artImage.value.imageData)
-  ) {
+  if (art.value?.artImageId && (!artImage.value || !artImage.value.imageData)) {
     const fetched = await artStore.getOrFetchArtImageById(art.value.artImageId)
     if (fetched?.imageData) {
       artStore.currentArtImage = fetched

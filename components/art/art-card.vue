@@ -1,19 +1,18 @@
 <!-- /components/content/art/art-card.vue -->
 <template>
-  <article
-    :class="[
-      'relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectArt"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="art.id"
+    target-type="art"
+    reaction-category="ART"
+    :target-title="art.promptString || `Art #${art.id}`"
+    @select="selectArt"
   >
-    <div
-      v-if="showActions && (activeSelected || compact)"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit"
+        v-if="showActions && allowEdit && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Art"
@@ -23,7 +22,7 @@
       </button>
 
       <button
-        v-if="allowCopyPrompt"
+        v-if="showActions && allowCopyPrompt && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Copy Prompt"
@@ -33,7 +32,7 @@
       </button>
 
       <button
-        v-if="canDelete"
+        v-if="showActions && canDelete && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Art"
@@ -41,14 +40,11 @@
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       v-if="showImage"
-      :class="[
-        'relative flex items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-        compact ? 'aspect-square w-full' : 'aspect-square w-full',
-      ]"
+      class="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
     >
       <div
         v-if="loadingImage"
@@ -70,9 +66,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm">
-          Private
-        </span>
+        <span v-else class="badge badge-warning badge-sm"> Private </span>
 
         <span v-if="art.isMature" class="badge badge-error badge-sm">
           Mature
@@ -179,13 +173,16 @@
           Debug
         </summary>
 
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(art, null, 2) }}</pre>
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(art, null, 2)
+        }}</pre>
       </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
+// /components/content/art/art-card.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
@@ -204,6 +201,7 @@ const props = withDefaults(
     showMeta?: boolean
     showGenerationMeta?: boolean
     showSelectButton?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
@@ -222,6 +220,7 @@ const props = withDefaults(
     showMeta: true,
     showGenerationMeta: false,
     showSelectButton: false,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowDelete: true,
@@ -255,6 +254,7 @@ const canDelete = computed(() => {
 
 const cfgDisplay = computed(() => {
   const cfg = props.art.cfg ?? 0
+
   return props.art.cfgHalf ? `${cfg}.5` : String(cfg)
 })
 
@@ -313,11 +313,8 @@ async function selectArt() {
 }
 
 async function deleteArt() {
-  const result = await artStore.deleteArt(props.art.id)
-
-  if (result) {
-    emit('delete', props.art.id)
-  }
+  await artStore.deleteArt(props.art.id)
+  emit('delete', props.art.id)
 }
 
 async function copyPrompt() {

@@ -276,14 +276,13 @@ const menuItems = [
 const directoryLinks = [
   { to: '/artgallery', label: 'Art' },
   { to: '/bots', label: 'Bots' },
-  { to: '/pitches', label: 'Pitches' },
+  { to: '/brainstorm', label: 'Brainstorm' },
   { to: '/stories', label: 'Stories' },
   { to: '/wonderlab', label: 'Wonderlab' },
-  { to: '/dominions', label: 'Dominion Generator' },
+  { to: '/dreams', label: 'Dream Generator' },
   { to: '/forum', label: 'Forum' },
   { to: '/memory', label: 'Memory' },
   { to: '/characters', label: 'Characters' },
-  { to: '/scenarios', label: 'Scenarios' },
   { to: '/rewards', label: 'Rewards' },
   { to: '/icons', label: 'Icons' },
 ]

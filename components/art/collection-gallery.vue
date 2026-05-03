@@ -801,37 +801,34 @@ async function createNewCollection() {
     Boolean(collectionForm.isMature),
   )
 
-  if (
-    created?.id &&
-    collectionForm.description?.trim() &&
-    typeof collectionStore.updateCollection === 'function'
-  ) {
-    await collectionStore.updateCollection(created.id, {
-      description: collectionForm.description.trim(),
+  if (!created?.id) {
+    throw new Error('Failed to create collection.')
+  }
+
+  const description = collectionForm.description?.trim() || ''
+
+  if (description) {
+    const updated = await collectionStore.updateCollectionDetails(created.id, {
+      description,
     })
+
+    if (!updated) {
+      throw new Error('Collection created, but description was not saved.')
+    }
   }
 }
 
 async function saveExistingCollection(id: number) {
-  if (typeof collectionStore.updateCollection === 'function') {
-    await collectionStore.updateCollection(id, {
-      label: collectionForm.label || 'Untitled Collection',
-      description: collectionForm.description || '',
-      isPublic: Boolean(collectionForm.isPublic),
-      isMature: Boolean(collectionForm.isMature),
-    })
-    return
-  }
+  const result = await collectionStore.updateCollectionDetails(id, {
+    label: collectionForm.label?.trim() || 'Untitled Collection',
+    description: collectionForm.description || '',
+    isPublic: Boolean(collectionForm.isPublic),
+    isMature: Boolean(collectionForm.isMature),
+  })
 
-  if (typeof collectionStore.updateCollectionLabel === 'function') {
-    await collectionStore.updateCollectionLabel(
-      id,
-      collectionForm.label || 'Untitled Collection',
-    )
-    return
+  if (!result) {
+    throw new Error('Failed to update collection.')
   }
-
-  throw new Error('collectionStore.updateCollection is not available.')
 }
 
 async function saveCollectionLabel(collection: ArtCollection) {
@@ -850,12 +847,10 @@ async function saveCollectionLabel(collection: ArtCollection) {
 async function saveCollectionVisibility(collection: ArtCollection) {
   if (!canEditCollection(collection)) return
 
-  if (typeof collectionStore.updateCollection === 'function') {
-    await collectionStore.updateCollection(collection.id, {
-      isPublic: collection.isPublic,
-      isMature: collection.isMature,
-    })
-  }
+  await collectionStore.updateCollectionFlags(collection.id, {
+    isPublic: collection.isPublic,
+    isMature: collection.isMature,
+  })
 }
 
 function confirmRemoveAllArt(collection: ArtCollection) {

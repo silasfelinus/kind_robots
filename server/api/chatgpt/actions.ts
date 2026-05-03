@@ -763,7 +763,6 @@ const R: Record<ModelKey, RegistryItem> = {
           User: true,
           Reactions: true,
           Components: true,
-          Dominions: true,
           Pitches: true,
         },
       },

@@ -209,29 +209,29 @@ const storyMeasureRef = ref<HTMLTextAreaElement | null>(null)
 let storyResizeObserver: ResizeObserver | null = null
 
 function refreshPromptOffset() {
-  if (displayStore.footerComponent !== 'story') {
-    displayStore.clearPromptOffset('story')
+  if (displayStore.footerComponent !== 'scenario') {
+    displayStore.clearPromptOffset('scenario')
     return
   }
 
   if (footerState.value === 'hidden') {
-    displayStore.clearPromptOffset('story')
+    displayStore.clearPromptOffset('scenario')
     return
   }
 
   if (footerState.value === 'priority') {
-    displayStore.clearPromptOffset('story')
+    displayStore.clearPromptOffset('scenario')
     return
   }
 
   const el = storyMeasureRef.value
   if (!el) {
-    displayStore.clearPromptOffset('story')
+    displayStore.clearPromptOffset('scenario')
     return
   }
 
   displayStore.refreshPromptOffset(
-    'story',
+    'scenario',
     el.scrollHeight,
     el.clientHeight,
     footerState.value === 'compact' ? 1.5 : 2.5,
@@ -270,6 +270,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   storyResizeObserver?.disconnect()
   storyResizeObserver = null
-  displayStore.clearPromptOffset('story')
+  displayStore.clearPromptOffset('scenario')
 })
 </script>

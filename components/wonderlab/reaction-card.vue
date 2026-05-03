@@ -1,7 +1,11 @@
 <!-- /components/content/reactions/reaction-card.vue -->
 <template>
-  <section class="rounded-2xl border border-base-300 bg-base-200 p-4 shadow-sm">
+  <section
+    class="rounded-2xl border border-base-300 bg-base-200 shadow-sm"
+    :class="compact ? 'p-3' : 'p-4'"
+  >
     <div
+      v-if="showHeader"
       class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
     >
       <div class="min-w-0">
@@ -11,7 +15,10 @@
           Reaction
         </p>
 
-        <h2 class="truncate text-xl font-black text-primary">
+        <h2
+          class="truncate font-black text-primary"
+          :class="compact ? 'text-base' : 'text-xl'"
+        >
           {{ targetTitle || formattedTargetType }}
         </h2>
 
@@ -27,39 +34,46 @@
 
     <div class="grid gap-4">
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <label class="mb-2 block text-sm font-bold text-base-content/70">
-          Rating
-        </label>
-
-        <div class="flex flex-wrap items-center gap-1">
-          <button
-            v-for="star in 5"
-            :key="star"
-            type="button"
-            class="text-4xl leading-none transition active:scale-95"
-            :class="
-              hoverRating >= star || (!hoverRating && rating >= star)
-                ? 'text-warning scale-110'
-                : 'text-base-content/25 hover:text-warning/70'
-            "
-            @mouseenter="hoverRating = star"
-            @mouseleave="hoverRating = 0"
-            @click="setRating(star)"
-          >
-            ★
-          </button>
+        <div
+          class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <label class="text-sm font-bold text-base-content/70"> Rate </label>
 
           <button
-            class="btn btn-xs btn-ghost ml-2 rounded-xl"
+            v-if="rating"
+            class="btn btn-xs btn-ghost rounded-xl"
             type="button"
             @click="rating = 0"
           >
             Clear stars
           </button>
         </div>
+
+        <div class="mt-2 flex flex-wrap items-center gap-1 sm:gap-2">
+          <button
+            v-for="star in 5"
+            :key="star"
+            type="button"
+            class="select-none leading-none transition active:scale-95"
+            :class="[
+              compact ? 'text-3xl' : 'text-4xl sm:text-5xl',
+              hoverRating >= star || (!hoverRating && rating >= star)
+                ? 'scale-110 text-warning'
+                : 'text-base-content/25 hover:text-warning/70',
+            ]"
+            @mouseenter="hoverRating = star"
+            @mouseleave="hoverRating = 0"
+            @click="setRating(star)"
+          >
+            ★
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,260px)_1fr]">
+      <div
+        class="grid grid-cols-1 gap-3"
+        :class="compact ? '' : 'md:grid-cols-[minmax(0,240px)_1fr]'"
+      >
         <label class="form-control">
           <span class="label">
             <span class="label-text font-bold">Reaction Type</span>
@@ -68,6 +82,7 @@
           <select
             v-model="selectedReactionType"
             class="select select-bordered bg-base-100"
+            :class="compact ? 'select-sm' : ''"
           >
             <option v-for="type in reactionTypes" :key="type" :value="type">
               {{ type }}
@@ -75,7 +90,7 @@
           </select>
         </label>
 
-        <label class="form-control">
+        <label v-if="showComment" class="form-control">
           <span class="label">
             <span class="label-text font-bold">Comment</span>
           </span>
@@ -83,25 +98,40 @@
           <input
             v-model="comment"
             class="input input-bordered bg-base-100"
+            :class="compact ? 'input-sm' : ''"
             placeholder="Optional comment..."
           />
         </label>
       </div>
 
-      <div class="flex flex-wrap justify-end gap-2">
-        <button
-          class="btn btn-ghost rounded-xl"
-          type="button"
-          @click="clearReaction"
-        >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
-          Clear
-        </button>
+      <div class="flex flex-wrap justify-between gap-2">
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="btn btn-accent rounded-xl"
+            :class="compact ? 'btn-sm' : ''"
+            type="button"
+            @click="toggleComment"
+          >
+            <Icon name="kind-icon:comment" class="h-4 w-4" />
+            {{ showComment ? 'Hide Comment' : 'Comment' }}
+          </button>
+
+          <button
+            class="btn btn-ghost rounded-xl"
+            :class="compact ? 'btn-sm' : ''"
+            type="button"
+            @click="clearReaction"
+          >
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+            Clear
+          </button>
+        </div>
 
         <button
           class="btn btn-primary rounded-xl text-white"
+          :class="compact ? 'btn-sm' : ''"
           type="button"
-          :disabled="isSubmitting"
+          :disabled="isSubmitting || !canSubmit"
           @click="submitReaction"
         >
           <span
@@ -111,6 +141,22 @@
 
           <Icon v-else name="kind-icon:check" class="h-4 w-4" />
           Submit
+        </button>
+      </div>
+
+      <div
+        v-if="showShare"
+        class="flex flex-wrap justify-center gap-2 border-t border-base-300 pt-3"
+      >
+        <button
+          v-for="platform in sharePlatforms"
+          :key="platform.key"
+          class="btn btn-sm btn-secondary rounded-xl"
+          type="button"
+          @click="share(platform.key)"
+        >
+          <Icon :name="platform.icon" class="h-4 w-4" />
+          {{ platform.label }}
         </button>
       </div>
 
@@ -141,19 +187,7 @@ import {
   useReactionStore,
 } from '@/stores/reactionStore'
 
-type ReactionCategory =
-  | 'ART'
-  | 'ART_IMAGE'
-  | 'BOT'
-  | 'CHAT_EXCHANGE'
-  | 'COMPONENT'
-  | 'DREAM'
-  | 'GALLERY'
-  | 'PITCH'
-  | 'PROMPT'
-  | 'RESOURCE'
-  | 'REWARD'
-  | 'TAG'
+type SharePlatform = 'facebook' | 'twitter' | 'instagram' | 'copy'
 
 const props = withDefaults(
   defineProps<{
@@ -161,11 +195,25 @@ const props = withDefaults(
     targetType: ReactionTargetType
     reactionCategory: ReactionCategoryEnum
     targetTitle?: string
+    compact?: boolean
+    showHeader?: boolean
+    showShare?: boolean
+    startCommentOpen?: boolean
   }>(),
   {
     targetTitle: '',
+    compact: false,
+    showHeader: true,
+    showShare: false,
+    startCommentOpen: false,
   },
 )
+
+const emit = defineEmits<{
+  submitted: []
+  cleared: []
+  shared: [platform: SharePlatform]
+}>()
 
 const reactionStore = useReactionStore()
 const userStore = useUserStore()
@@ -174,9 +222,37 @@ const rating = ref(0)
 const hoverRating = ref(0)
 const selectedReactionType = ref<ReactionTypeEnum>('NEUTRAL')
 const comment = ref('')
+const showComment = ref(props.startCommentOpen)
 const isSubmitting = ref(false)
 const reactionMessage = ref('')
 const reactionStatus = ref<'success' | 'error' | ''>('')
+
+const sharePlatforms: Array<{
+  key: SharePlatform
+  label: string
+  icon: string
+}> = [
+  {
+    key: 'facebook',
+    label: 'Facebook',
+    icon: 'kind-icon:facebook',
+  },
+  {
+    key: 'twitter',
+    label: 'Twitter',
+    icon: 'kind-icon:twitter',
+  },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    icon: 'kind-icon:instagram',
+  },
+  {
+    key: 'copy',
+    label: 'Copy',
+    icon: 'kind-icon:copy',
+  },
+]
 
 const formattedTargetType = computed(() => {
   return props.targetType
@@ -184,8 +260,16 @@ const formattedTargetType = computed(() => {
     .replace(/^./, (letter) => letter.toUpperCase())
 })
 
+const canSubmit = computed(() => {
+  return Boolean(props.targetId && props.targetType && props.reactionCategory)
+})
+
 function setRating(value: number) {
   rating.value = value
+}
+
+function toggleComment() {
+  showComment.value = !showComment.value
 }
 
 function clearReaction() {
@@ -193,8 +277,10 @@ function clearReaction() {
   hoverRating.value = 0
   selectedReactionType.value = 'NEUTRAL'
   comment.value = ''
+  showComment.value = props.startCommentOpen
   reactionMessage.value = ''
   reactionStatus.value = ''
+  emit('cleared')
 }
 
 function getTargetIdPayload() {
@@ -212,6 +298,7 @@ function getTargetIdPayload() {
     prompt: 'promptId',
     resource: 'resourceId',
     reward: 'rewardId',
+    scenario: 'scenarioId',
     tag: 'tagId',
   }
 
@@ -227,6 +314,12 @@ async function submitReaction() {
     return
   }
 
+  if (!canSubmit.value) {
+    reactionStatus.value = 'error'
+    reactionMessage.value = 'Missing reaction target.'
+    return
+  }
+
   isSubmitting.value = true
   reactionMessage.value = ''
   reactionStatus.value = ''
@@ -237,12 +330,13 @@ async function submitReaction() {
       userId: userStore.user.id,
       rating: rating.value,
       reactionType: selectedReactionType.value,
-      comment: comment.value,
+      comment: comment.value.trim(),
       reactionCategory: props.reactionCategory,
-    })
+    } as Parameters<typeof reactionStore.addReaction>[0])
 
     reactionStatus.value = 'success'
     reactionMessage.value = 'Reaction submitted.'
+    emit('submitted')
   } catch (error) {
     reactionStatus.value = 'error'
     reactionMessage.value =
@@ -250,5 +344,20 @@ async function submitReaction() {
   } finally {
     isSubmitting.value = false
   }
+}
+
+async function share(platform: SharePlatform) {
+  const title = props.targetTitle || formattedTargetType.value
+  const text = `Check this out: ${title}`
+
+  if (platform === 'copy') {
+    await navigator.clipboard.writeText(text)
+    reactionStatus.value = 'success'
+    reactionMessage.value = 'Copied share text.'
+    emit('shared', platform)
+    return
+  }
+
+  emit('shared', platform)
 }
 </script>

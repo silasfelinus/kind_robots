@@ -40,7 +40,6 @@ model Art {
   Server         Server?         @relation(fields: [serverId], references: [id])
   User           User?           @relation(fields: [userId], references: [id])
   ArtImage       ArtImage?
-  Dominions      Dominion[]
   Reaction       Reaction[]
   Dreams         Dream[]
   Butterflies    Butterfly[]
@@ -92,7 +91,6 @@ model ArtImage {
   Tag         Tag?       @relation(fields: [tagId], references: [id])
   User        User?      @relation(fields: [userId], references: [id])
   Butterflies Butterfly[]
-  Dominions   Dominion[]
   Scenarios   Scenario[]
   Dreams              Dream[]
 
@@ -193,7 +191,6 @@ model Butterfly {
   artImageId      Int?               @unique
   ArtImage        ArtImage?          @relation(fields: [artImageId], references: [id])
 
-  /// Follows Bot/Dominion/Pitch convention for ownership + visibility.
   designer        String?            @db.VarChar(255)
   userId          Int?               @default(1)
   isPublic        Boolean            @default(true)
@@ -372,50 +369,7 @@ model Component {
   Tags              Tag[]      @relation("ComponentToTag")
 }
 
-/// this is a novelty dominion card generator, allowing the creation and sharing of custom cards for the excellent Dominion card game system.
-model Dominion {
-  id           Int       @id @default(autoincrement())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @default(now()) @updatedAt
-  title        String    @db.VarChar(256)
-  slug         String?   @unique @db.VarChar(256)
-  description  String?   @db.Text
-  italics      String?   @db.VarChar(764)
-  color        String?   @db.VarChar(64)
-  designer     String?   @db.VarChar(256)
-  userId       Int?      @default(10)
-  isPublic     Boolean   @default(true)
-  isMature     Boolean   @default(false)
-  artId        Int?
-  artImageId   Int?
-  types        String    @db.LongText
-  keywords     String    @db.LongText
-  cardAdd      Int       @default(0)
-  actionAdd    Int       @default(0)
-  buyAdd       Int       @default(0)
-  coinAdd      Int       @default(0)
-  victoryAdd   Int       @default(0)
-  isDuration   Boolean   @default(false)
-  durationJSON String?   @db.LongText
-  priceCoins   Int       @default(0)
-  priceDebt    Int       @default(0)
-  pricePotion  Int       @default(0)
-  effects      String    @db.LongText
-  setupText    String?   @db.VarChar(764)
-  notes        String?   @db.VarChar(764)
-  setId        String?
-  version      Int       @default(1)
-  icon         String?   @db.VarChar(128)
-  Art          Art?      @relation(fields: [artId], references: [id])
-  ArtImage     ArtImage? @relation(fields: [artImageId], references: [id])
-  User         User?     @relation(fields: [userId], references: [id])
-  tags         Tag[]     @relation("DominionToTag")
 
-  @@index([userId], map: "DominionCard_userId_idx")
-  @@index([setId], map: "DominionCard_setId_idx")
-  @@index([artId], map: "Dominion_artId_fkey")
-  @@index([artImageId], map: "Dominion_artImageId_fkey")
-}
 model Dream {
   id              Int        @id @default(autoincrement())
   createdAt       DateTime   @default(now())
@@ -819,7 +773,7 @@ model SmartIcon {
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 
-/// tags are used to sort Pitches, Reactions, Dominions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
+/// tags are used to sort Pitches, Reactions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
 model Tag {
   id         Int         @id @default(autoincrement())
   createdAt  DateTime    @default(now())
@@ -836,7 +790,6 @@ model Tag {
   Reactions  Reaction[]
   User       User?       @relation(fields: [userId], references: [id])
   Components Component[] @relation("ComponentToTag")
-  Dominions  Dominion[]  @relation("DominionToTag")
   Pitches    Pitch[]     @relation("PitchToTag")
   Butterflies Butterfly[]
   Dreams      Dream[]    @relation("DreamToTag")
@@ -918,7 +871,6 @@ model User {
   Bots                  Bot[]
   Characters            Character[]
   Chats                 Chat[]
-  Dominions             Dominion[]
   Galleries             Gallery[]
   Logs                  Log[]
   Milestones            MilestoneRecord[]
@@ -1006,7 +958,10 @@ enum ReactionCategory {
   PROMPT
   RESOURCE
   REWARD
+  SCENARIO
   TAG
+  THEME
+
 }
 
 enum ResourceType {

@@ -1,20 +1,19 @@
 <!-- /components/content/sample/sample-card.vue -->
 <template>
-  <article
-    :class="[
-      'relative flex cursor-pointer flex-col rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      selected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectSample"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="sample.id"
+    target-type="resource"
+    reaction-category="RESOURCE"
+    :target-title="sampleTitle"
+    @select="selectSample"
   >
-    <div
-      v-if="showActions && (selected || compact)"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit"
-        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        v-if="showActions && allowEdit && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Sample"
         @click.stop="emit('edit', sample.id)"
@@ -23,20 +22,20 @@
       </button>
 
       <button
-        v-if="allowDelete"
-        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        v-if="showActions && allowDelete && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Sample"
         @click.stop="deleteSample"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       v-if="showImage"
       :class="[
-        'flex items-center justify-center rounded-2xl bg-base-300',
+        'relative flex items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300',
         compact ? 'h-24 w-full' : 'h-36 w-full',
       ]"
     >
@@ -45,16 +44,40 @@
         :class="compact ? 'h-12 w-12' : 'h-20 w-20'"
         class="text-primary/70"
       />
+
+      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+        <span
+          v-if="activeSelected"
+          class="badge badge-primary badge-sm"
+        >
+          Selected
+        </span>
+
+        <span
+          class="badge badge-sm"
+          :class="sample.isPublic ? 'badge-success' : 'badge-warning'"
+        >
+          {{ sample.isPublic ? 'Public' : 'Private' }}
+        </span>
+      </div>
+
+      <div
+        v-if="activeSelected"
+        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+      >
+        <Icon name="kind-icon:check" class="h-4 w-4" />
+      </div>
     </div>
 
     <div class="flex min-w-0 flex-1 flex-col gap-2">
       <h2
         :class="[
-          'font-bold leading-tight text-base-content',
+          'font-black leading-tight text-base-content',
           compact ? 'line-clamp-1 text-base' : 'text-lg',
         ]"
+        :title="sampleTitle"
       >
-        {{ sample.title || 'Untitled Sample' }}
+        {{ sampleTitle }}
       </h2>
 
       <p
@@ -76,35 +99,43 @@
           {{ sample.label }}
         </span>
 
-        <span
-          class="badge badge-sm"
-          :class="sample.isPublic ? 'badge-primary' : 'badge-warning'"
-        >
-          {{ sample.isPublic ? 'Public' : 'Private' }}
+        <span v-if="sample.component" class="badge badge-primary badge-sm">
+          {{ sample.component }}
+        </span>
+
+        <span v-if="sample.link" class="badge badge-secondary badge-sm">
+          Link
         </span>
       </div>
-    </div>
 
-    <div v-if="showDebug" class="mt-2">
       <button
-        class="btn btn-ghost btn-xs rounded-xl"
+        v-if="showSelectButton"
+        class="btn btn-sm mt-auto rounded-xl"
+        :class="activeSelected ? 'btn-primary text-white' : 'btn-outline'"
         type="button"
-        @click.stop="showDetails = !showDetails"
+        @click.stop="selectSample"
       >
-        {{ showDetails ? 'Hide' : 'Show' }} Details
+        <Icon name="kind-icon:check" class="h-4 w-4" />
+        {{ activeSelected ? 'Selected' : 'Select' }}
       </button>
 
-      <pre
-        v-if="showDetails"
-        class="mt-2 max-h-48 overflow-auto rounded-xl bg-base-300 p-3 text-xs text-base-content/70"
-        >{{ JSON.stringify(sample, null, 2) }}</pre
+      <details
+        v-if="showDebug"
+        class="rounded-2xl border border-base-300 bg-base-100 p-2"
+        @click.stop
       >
+        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
+          Debug
+        </summary>
+
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(sample, null, 2) }}</pre>
+      </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useSampleModelStore } from '@/stores/sampleModelStore'
 
 type SampleModel = {
@@ -128,6 +159,8 @@ const props = withDefaults(
     showActions?: boolean
     showDescription?: boolean
     showMeta?: boolean
+    showSelectButton?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
@@ -140,6 +173,8 @@ const props = withDefaults(
     showActions: true,
     showDescription: true,
     showMeta: true,
+    showSelectButton: false,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowDelete: true,
@@ -148,17 +183,22 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()
 
 const sampleStore = useSampleModelStore()
-const showDetails = ref(false)
+
+const activeSelected = computed(() => {
+  return props.selected || sampleStore.selectedModel?.id === props.sample.id
+})
+
+const sampleTitle = computed(() => {
+  return props.sample.title || props.sample.label || `Sample #${props.sample.id}`
+})
 
 function selectSample() {
   sampleStore.selectModel(props.sample.id)
-  emit('select', props.sample.id)
 }
 
 async function deleteSample() {

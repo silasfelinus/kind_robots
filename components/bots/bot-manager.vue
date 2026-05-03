@@ -14,18 +14,19 @@
   >
     <template #default="{ activeTab: currentTab }">
       <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+        <div
+          class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"
+        >
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <bot-gallery
               variant="row"
               title="Bot Roster"
-              subtitle="Pick the bot."
+              subtitle="Pick the voice."
               :show-controls="false"
               :show-toolbar="false"
               :show-images="true"
               :show-card-actions="true"
               :show-launch-button="true"
-              :show-server="false"
               :compact="true"
             />
           </div>
@@ -110,7 +111,7 @@ const managerSummary = computed(() => {
     serverStore.activeTextServer?.title ||
     'no text server'
 
-  return `${botCount} bots loaded, ${visibleCount} visible. Current bot: ${selectedBot}. Text engine: ${activeTextServer}.`
+  return `${botCount} bots loaded, ${visibleCount} visible. Current bot: ${selectedBot}. Runtime text engine: ${activeTextServer}.`
 })
 
 function setTab(tab: string) {
@@ -127,7 +128,7 @@ async function loadManagerData(force = false) {
       botStore.initialize({
         force,
         fetchRemote: true,
-        initializeServerStore: true,
+        initializeServerStore: false,
         createBlankForm: true,
       }),
       serverStore.initialize({

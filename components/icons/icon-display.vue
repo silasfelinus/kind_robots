@@ -123,7 +123,7 @@ import { useButterflyStore } from '@/stores/butterflyStore'
 import type { SmartIcon } from '@/stores/smartbarStore'
 
 import SwarmIcon from './swarm-icon.vue'
-import ThemeIcon from '../themes/theme-icon.vue'
+import ThemeIcon from './theme-icon.vue'
 import LoginIcon from './login-icon.vue'
 import JellybeanIcon from './jellybean-icon.vue'
 

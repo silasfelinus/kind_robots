@@ -5,12 +5,12 @@
   >
     <div v-if="currentBot" class="col-span-full lg:col-span-1 flex flex-col">
       <div
-        class="card bg-base-300 text-base-content shadow-xl flex-grow overflow-auto"
+        class="card bg-base-300 text-base-content shadow-xl grow overflow-auto"
       >
         <div class="flex flex-col lg:flex-row items-stretch">
           <avatar-image />
         </div>
-        <div class="card-body flex-grow overflow-auto">
+        <div class="card-body grow overflow-auto">
           <h1 class="text-5xl font-semibold mb-4 card-title">
             {{ currentBot.name }}
           </h1>
@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useBotStore } from '../../stores/botStore'
+import { useBotStore } from '@/stores/botStore'
 
 const botsStore = useBotStore()
 const currentBot = computed(() => botsStore.currentBot)

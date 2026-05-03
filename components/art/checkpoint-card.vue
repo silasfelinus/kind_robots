@@ -1,13 +1,15 @@
 <!-- /components/content/art/checkpoint-card.vue -->
 <template>
-  <article
-    :class="[
-      'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-100 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-3 p-4',
-      isActive ? 'border-primary bg-primary/10 shadow-md' : 'border-base-300',
-      isHiddenMature ? 'opacity-75' : '',
-    ]"
-    @click="selectCheckpoint"
+  <reactable-card
+    :selected="isActive"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="checkpoint.id ?? null"
+    target-type="resource"
+    reaction-category="RESOURCE"
+    :target-title="checkpointLabel"
+    :card-class="isHiddenMature ? 'opacity-75' : ''"
+    @select="selectCheckpoint"
   >
     <div
       v-if="showImage"
@@ -24,6 +26,7 @@
         :show-prompt="false"
         :show-meta="false"
         :show-select-button="false"
+        :show-reaction="false"
         :auto-load-image="autoLoadArtImage"
         class="h-full w-full rounded-none border-0 bg-transparent p-0"
       />
@@ -141,10 +144,11 @@
         JSON.stringify(checkpoint, null, 2)
       }}</pre>
     </details>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
+// /components/content/art/checkpoint-card.vue
 import { computed } from 'vue'
 import type { Art } from '~/prisma/generated/prisma/client'
 import type { Resource } from '@/stores/resourceStore'
@@ -176,6 +180,7 @@ const props = withDefaults(
     showSelectButton?: boolean
     showActiveBadge?: boolean
     showMatureBadge?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowSelect?: boolean
     autoLoadArtImage?: boolean
@@ -194,6 +199,7 @@ const props = withDefaults(
     showSelectButton: false,
     showActiveBadge: true,
     showMatureBadge: true,
+    showReaction: true,
     showDebug: false,
     allowSelect: true,
     autoLoadArtImage: true,

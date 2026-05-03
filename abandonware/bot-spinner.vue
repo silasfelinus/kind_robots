@@ -4,7 +4,7 @@
     class="relative flex flex-col items-center p-2 bg-base overflow-auto h-screen z-10"
   >
     <div
-      class="absolute inset-0 bg-gradient-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
+      class="absolute inset-0 bg-linear-to-t from-base via-transparent to-base opacity-30 pointer-events-none z-10"
     />
     <div class="mx-2 my-2">
       <transition-group name="list" tag="div" class="space-y-2">
@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { useBotStore, type Bot } from './../../stores/botStore'
+import { useBotStore, type Bot } from '@/stores/botStore'
 
 const botsStore = useBotStore()
 const bots = computed(() => botsStore.bots)

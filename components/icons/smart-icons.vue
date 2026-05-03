@@ -304,7 +304,7 @@ import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 
 import SwarmIcon from '@/components/icons/swarm-icon.vue'
-import ThemeIcon from '@/components/wonderlab/theme-icon.vue'
+import ThemeIcon from './theme-icon.vue'
 import LoginIcon from '@/components/icons/login-icon.vue'
 import JellybeanIcon from '@/components/icons/jellybean-icon.vue'
 

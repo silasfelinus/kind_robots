@@ -14,20 +14,6 @@
     "modelType": "ami"
   },
   {
-    "title": "Add Dominion",
-    "type": "directory",
-    "userId": 10,
-    "designer": "content-seeder",
-    "icon": "kind-icon:dominion",
-    "label": "Dominion Workshop",
-    "link": "/adddominion",
-    "component": "dominion-nav",
-    "isPublic": true,
-    "description": "Fresh mechanics beat re-skins. Be spicy, be clear.",
-    "category": "model",
-    "modelType": "dominion"
-  },
-  {
     "title": "Ami",
     "type": "directory",
     "userId": 10,
@@ -223,20 +209,7 @@
     "category": "ami",
     "modelType": "ami"
   },
-  {
-    "title": "Dominions",
-    "type": "directory",
-    "userId": 10,
-    "designer": "content-seeder",
-    "icon": "kind-icon:dominion",
-    "label": "Hall of Dominion",
-    "link": "/dominions",
-    "component": "dominion-nav",
-    "isPublic": true,
-    "description": "Balance is iterative. Gallery is your playtest queue.",
-    "category": "model",
-    "modelType": "dominion"
-  },
+
   {
     "title": "Edit Art",
     "type": "directory",

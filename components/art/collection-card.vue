@@ -1,20 +1,21 @@
 <!-- /components/content/art/collection-card.vue -->
 <template>
-  <article
-    :class="[
-      'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
-      isHiddenMature ? 'opacity-75' : '',
-    ]"
-    @click="selectCollection"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="collection.id"
+    target-type="gallery"
+    reaction-category="GALLERY"
+    :target-title="collectionLabel"
+    :card-class="isHiddenMature ? 'opacity-75' : ''"
+    @select="selectCollection"
   >
-    <div
-      v-if="showActions && (activeSelected || compact)"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit && canEdit"
+        v-if="
+          showActions && allowEdit && canEdit && (activeSelected || compact)
+        "
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Collection"
@@ -24,7 +25,9 @@
       </button>
 
       <button
-        v-if="allowDelete && canEdit"
+        v-if="
+          showActions && allowDelete && canEdit && (activeSelected || compact)
+        "
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Collection"
@@ -32,7 +35,7 @@
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       v-if="showImage"
@@ -49,6 +52,7 @@
         :show-prompt="false"
         :show-meta="false"
         :show-select-button="false"
+        :show-reaction="false"
         :auto-load-image="autoLoadPreviewImage"
         class="h-full w-full rounded-none border-0 bg-transparent p-0"
       />
@@ -198,7 +202,7 @@
         }}</pre>
       </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
@@ -219,6 +223,7 @@ const props = withDefaults(
     showMeta?: boolean
     showStats?: boolean
     showSelectButton?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
@@ -237,6 +242,7 @@ const props = withDefaults(
     showMeta: true,
     showStats: false,
     showSelectButton: true,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowDelete: true,

@@ -60,11 +60,4 @@ export const modes: ModeInfo[] = [
     addRoute: '/addart',
     galleryRoute: '/artgallery',
   },
-  {
-    name: 'dominion',
-    icon: 'kind-icon:dominion',
-    label: 'Dominion',
-    addRoute: '/adddominion',
-    galleryRoute: '/dominions',
-  },
 ]

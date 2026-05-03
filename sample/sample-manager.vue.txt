@@ -1,0 +1,122 @@
+<!-- /components/content/sample/sample-manager.vue -->
+<template>
+  <dashboard-shell
+    title="Sample Manager"
+    :summary="managerSummary"
+    :tabs="tabs"
+    :active-tab="activeTab"
+    :loading="isLoadingManager"
+    :error="managerError"
+    loading-message="Loading sample model data..."
+    nav-grid-class="xl:grid-cols-5"
+    @set-tab="setTab"
+    @refresh="refreshManagerData"
+  >
+    <template #default="{ activeTab: currentTab }">
+      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <sample-gallery
+              variant="row"
+              title="Samples"
+              subtitle="Pick a reusable sample entry."
+              :show-controls="false"
+              :show-toolbar="true"
+              :show-images="true"
+              :compact="true"
+            />
+          </div>
+
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <sample-interact />
+          </div>
+        </div>
+      </section>
+
+      <sample-gallery
+        v-else-if="currentTab === 'samples'"
+        variant="dashboard"
+        title="Sample Gallery"
+        subtitle="Select, add, edit, or delete sample entries."
+      />
+
+      <sample-gallery
+        v-else-if="currentTab === 'types'"
+        variant="dashboard"
+        title="Sample Types"
+        subtitle="Browse sample records by type."
+        :show-controls="true"
+        :show-toolbar="true"
+      />
+
+      <server-manager v-else-if="currentTab === 'servers'" />
+
+      <sample-interact v-else-if="currentTab === 'interact'" />
+
+      <div
+        v-else
+        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      >
+        Unknown sample tab: {{ currentTab }}
+      </div>
+    </template>
+  </dashboard-shell>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useNavStore } from '@/stores/navStore'
+import { useSampleModelStore } from '@/stores/sampleModelStore'
+
+const dashboardKey = 'sample' as const
+
+const navStore = useNavStore()
+const sampleStore = useSampleModelStore()
+
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
+
+const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
+const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
+
+const managerSummary = computed(() => {
+  const sampleCount = sampleStore.items.length
+  const selectedSample = sampleStore.selected?.title || 'no sample'
+
+  return `${sampleCount} samples loaded. Current selection: ${selectedSample}.`
+})
+
+function setTab(tab: string) {
+  navStore.setDashboardTab(dashboardKey, tab)
+}
+
+async function loadManagerData(force = false) {
+  isLoadingManager.value = true
+  managerError.value = null
+
+  try {
+    await Promise.all([
+      navStore.initialize(),
+      sampleStore.initialize({
+        force,
+        fetchRemote: true,
+      }),
+    ])
+  } catch (error) {
+    managerError.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to load sample manager data.'
+  } finally {
+    isLoadingManager.value = false
+  }
+}
+
+async function refreshManagerData() {
+  await loadManagerData(true)
+}
+
+onMounted(async () => {
+  await loadManagerData()
+})
+</script>

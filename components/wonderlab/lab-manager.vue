@@ -64,14 +64,12 @@
 import { computed, type Component } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
-import MemoryTest from '@/components/wonderlab/memory-test.vue'
-import MemoryDungeon from '@/components/weird/memory-dungeon.vue'
-import WonderLab from '@/components/wonderlab/wonder-lab.vue'
+import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
+import WonderLab from '@/components/wonderlab/lab-manager.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
-import RebelButton from '@/components/weird/rebel-button.vue'
+import RebelButton from '@/components/pages/rebel-button.vue'
 
 type WonderDashboardTab =
-  | 'memory-test'
   | 'memory-dungeon'
   | 'rebel-button'
   | 'wonder-lab'
@@ -87,12 +85,6 @@ type WonderManagerSection = {
 const navStore = useNavStore()
 
 const sections: WonderManagerSection[] = [
-  {
-    key: 'memory-test',
-    label: 'Memory',
-    icon: 'kind-icon:brain',
-    description: 'Match cards and chase records',
-  },
   {
     key: 'memory-dungeon',
     label: 'Dungeon',
@@ -120,7 +112,6 @@ const sections: WonderManagerSection[] = [
 ]
 
 const componentMap: Record<WonderDashboardTab, Component> = {
-  'memory-test': MemoryTest,
   'memory-dungeon': MemoryDungeon,
   'rebel-button': RebelButton,
   'wonder-lab': WonderLab,
@@ -135,7 +126,7 @@ const activeSection = computed<WonderDashboardTab>({
       return tab
     }
 
-    return 'memory-test'
+    return 'memory-dungeon'
   },
   set: (tab: WonderDashboardTab) => {
     navStore.setDashboardTab('wonder', tab)
@@ -143,7 +134,7 @@ const activeSection = computed<WonderDashboardTab>({
 })
 
 const activeComponent = computed(() => {
-  return componentMap[activeSection.value] ?? MemoryTest
+  return componentMap[activeSection.value] ?? MemoryDungeon
 })
 
 const activeLabel = computed(() => {

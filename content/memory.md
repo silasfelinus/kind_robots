@@ -16,4 +16,4 @@ sort: highlight
 navComponent: 'art-nav'
 ---
 
-:memory-test
+:memory-dungeon

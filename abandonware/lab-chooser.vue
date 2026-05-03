@@ -24,7 +24,7 @@
     </div>
 
     <!-- Components Section -->
-    <div class="flex-grow w-full overflow-y-auto h-full">
+    <div class="grow w-full overflow-y-auto h-full">
       <LazyWonderLab v-if="activeTab === 'wonder-lab'" />
       <LazyStoreTester v-if="activeTab === 'store-tester'" />
       <LazyAnimationTester v-if="activeTab === 'animation-tester'" />

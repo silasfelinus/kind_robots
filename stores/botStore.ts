@@ -1,6 +1,6 @@
 // /stores/botStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed, watch, type Ref } from 'vue'
+import { computed, ref, watch, type Ref } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import {
   updateBot,
@@ -13,6 +13,7 @@ import {
 } from './helpers/botHelper'
 import { performFetch, handleError } from './utils'
 import { useServerStore } from './serverStore'
+import { useUserStore } from './userStore'
 
 export interface BotForm extends Partial<Bot> {
   serverId?: number | null
@@ -26,11 +27,18 @@ type BotInitializeOptions = {
   createBlankForm?: boolean
 }
 
+type BotSaveResult = {
+  success: boolean
+  message: string
+  data?: Bot | null
+}
+
 const isClient = typeof window !== 'undefined'
 const botsStorageKey = 'bots'
 const botFormStorageKey = 'botForm'
 const currentBotStorageKey = 'currentBot'
 const currentImagePathStorageKey = 'currentImagePath'
+const botPlaceholder = '/images/bot.webp'
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -81,7 +89,23 @@ function safeParseBotArray(raw: string | null): Bot[] {
 }
 
 function sortBots(a: Bot, b: Bot): number {
-  return a.name.localeCompare(b.name)
+  return (a.name || '').localeCompare(b.name || '')
+}
+
+function normalizeBotId(input: number | string | Bot | null | undefined) {
+  if (typeof input === 'number') return Number.isInteger(input) ? input : 0
+
+  if (typeof input === 'string') {
+    const id = Number(input)
+    return Number.isInteger(id) ? id : 0
+  }
+
+  if (input && typeof input === 'object' && 'id' in input) {
+    const id = Number(input.id)
+    return Number.isInteger(id) ? id : 0
+  }
+
+  return 0
 }
 
 export const useBotStore = defineStore('botStore', () => {
@@ -93,6 +117,7 @@ export const useBotStore = defineStore('botStore', () => {
   const isLoaded = ref(false)
   const isInitialized = ref(false)
   const isInitializing = ref(false)
+  const isSaving = ref(false)
   const lastError = ref<string | null>(null)
 
   const pendingLaunchMessage = ref('')
@@ -106,18 +131,20 @@ export const useBotStore = defineStore('botStore', () => {
 
   const totalBots = computed<number>(() => bots.value.length)
 
-  const selectedBotId = computed<number | null>(
-    () => currentBot.value?.id ?? null,
-  )
+  const selectedBotId = computed<number | null>(() => currentBot.value?.id ?? null)
+
+  const selectedBot = computed(() => currentBot.value)
+
+  const error = computed(() => lastError.value)
 
   const hasUnsavedChanges = computed<boolean>(() => {
-    return (
-      JSON.stringify(currentBot.value ?? {}) !== JSON.stringify(botForm.value)
-    )
+    return JSON.stringify(currentBot.value ?? {}) !== JSON.stringify(botForm.value)
   })
 
   const ownedBots = computed<Bot[]>(() => {
-    return bots.value.filter((bot: Bot) => typeof bot.userId === 'number')
+    const userStore = useUserStore()
+
+    return bots.value.filter((bot: Bot) => bot.userId === userStore.userId)
   })
 
   const publicBots = computed<Bot[]>(() => {
@@ -126,6 +153,14 @@ export const useBotStore = defineStore('botStore', () => {
 
   const readyBots = computed<Bot[]>(() => {
     return bots.value.filter((bot: Bot) => !bot.underConstruction)
+  })
+
+  const visibleBots = computed<Bot[]>(() => {
+    const userStore = useUserStore()
+
+    return bots.value.filter((bot) => {
+      return Boolean(bot.isPublic) || bot.userId === userStore.userId || userStore.isAdmin
+    })
   })
 
   function setLastError(error: unknown, fallback: string): void {
@@ -139,8 +174,13 @@ export const useBotStore = defineStore('botStore', () => {
   function persist(): void {
     safeSetLocalStorage(botsStorageKey, JSON.stringify(bots.value))
     safeSetLocalStorage(botFormStorageKey, JSON.stringify(botForm.value))
-    safeSetLocalStorage(currentBotStorageKey, JSON.stringify(currentBot.value))
     safeSetLocalStorage(currentImagePathStorageKey, currentImagePath.value)
+
+    if (currentBot.value) {
+      safeSetLocalStorage(currentBotStorageKey, JSON.stringify(currentBot.value))
+    } else {
+      safeRemoveLocalStorage(currentBotStorageKey)
+    }
   }
 
   function hydrateFromLocalStorage(): void {
@@ -167,6 +207,67 @@ export const useBotStore = defineStore('botStore', () => {
     }
   }
 
+  function normalizeBotForm(input: Partial<BotForm> = {}): BotForm {
+    const activeTextServer = serverStore.activeTextServer
+
+    return {
+      ...input,
+      serverId: input.serverId ?? activeTextServer?.id ?? null,
+      serverName: input.serverName ?? activeTextServer?.title ?? null,
+    }
+  }
+
+  function createDefaultBotForm(overrides: Partial<BotForm> = {}): BotForm {
+    const userStore = useUserStore()
+    const activeTextServer = serverStore.activeTextServer
+
+    return normalizeBotForm({
+      name: '',
+      subtitle: '',
+      description: '',
+      botIntro: '',
+      userIntro: '',
+      prompt: '',
+      personality: '',
+      tagline: '',
+      avatarImage: '',
+      theme: '',
+      modules: '',
+      sampleResponse: '',
+      trainingPath: '',
+      BotType: 'assistant',
+      isPublic: false,
+      underConstruction: false,
+      canDelete: true,
+      designer: userStore.user?.username || '',
+      userId: userStore.userId || userStore.user?.id || null,
+      serverId: activeTextServer?.id ?? null,
+      serverName: activeTextServer?.title ?? null,
+      ...overrides,
+    })
+  }
+
+  function toBotForm(bot: Bot): BotForm {
+    return normalizeBotForm({
+      ...bot,
+      serverId: bot.serverId ?? null,
+      serverName: bot.serverName ?? null,
+    })
+  }
+
+  function setBotForm(updates: Partial<BotForm>): void {
+    botForm.value = normalizeBotForm({
+      ...botForm.value,
+      ...updates,
+    })
+
+    if (typeof updates.avatarImage === 'string') {
+      currentImagePath.value = updates.avatarImage
+    }
+
+    persist()
+  }
+
   function upsertBot(bot: Bot): void {
     const index = bots.value.findIndex((entry: Bot) => entry.id === bot.id)
 
@@ -187,19 +288,10 @@ export const useBotStore = defineStore('botStore', () => {
       currentBot.value = null
       botForm.value = {}
       currentImagePath.value = ''
+      pendingLaunchMessage.value = ''
     }
 
     persist()
-  }
-
-  function normalizeBotForm(input: Partial<BotForm> = {}): BotForm {
-    const activeTextServer = serverStore.activeTextServer
-
-    return {
-      ...input,
-      serverId: input.serverId ?? activeTextServer?.id ?? null,
-      serverName: input.serverName ?? activeTextServer?.title ?? null,
-    }
   }
 
   function setPendingLaunchMessage(message: string): void {
@@ -210,157 +302,209 @@ export const useBotStore = defineStore('botStore', () => {
     pendingLaunchMessage.value = ''
   }
 
-  function createNewBot(): void {
-    const activeTextServer = serverStore.activeTextServer
-
-    botForm.value = {
-      name: '',
-      subtitle: '',
-      description: '',
-      botIntro: '',
-      userIntro: '',
-      prompt: '',
-      personality: '',
-      tagline: '',
-      avatarImage: '',
-      theme: '',
-      modules: '',
-      sampleResponse: '',
-      trainingPath: '',
-      BotType: 'assistant',
-      isPublic: false,
-      underConstruction: false,
-      canDelete: true,
-      designer: '',
-      serverId: activeTextServer?.id ?? null,
-      serverName: activeTextServer?.title ?? null,
-    }
-
+  function startAddingBot(overrides: Partial<BotForm> = {}): void {
     currentBot.value = null
-    currentImagePath.value = ''
+    botForm.value = createDefaultBotForm(overrides)
+    currentImagePath.value = botForm.value.avatarImage || ''
     pendingLaunchMessage.value = ''
     persist()
   }
 
+  async function startEditingBot(input?: number | string | Bot): Promise<Bot | null> {
+    const botId = normalizeBotId(input ?? currentBot.value)
+
+    if (!botId) {
+      startAddingBot()
+      return null
+    }
+
+    const bot =
+      bots.value.find((entry) => entry.id === botId) ??
+      (await loadBotById(botId))
+
+    if (!bot) {
+      setLastError(new Error(`Bot ${botId} was not found.`), 'Bot was not found')
+      return null
+    }
+
+    currentBot.value = bot
+    botForm.value = toBotForm(bot)
+    currentImagePath.value = bot.avatarImage || ''
+    pendingLaunchMessage.value = ''
+    persist()
+
+    return bot
+  }
+
+  async function startCloningBot(
+    input: number | string | Bot,
+    overrides: Partial<BotForm> = {},
+  ): Promise<Bot | null> {
+    const botId = normalizeBotId(input)
+
+    if (!botId) return null
+
+    const source =
+      bots.value.find((entry) => entry.id === botId) ??
+      (await loadBotById(botId))
+
+    if (!source) {
+      setLastError(new Error(`Bot ${botId} was not found.`), 'Bot was not found')
+      return null
+    }
+
+    const userStore = useUserStore()
+
+    currentBot.value = null
+    botForm.value = normalizeBotForm({
+      ...toBotForm(source),
+      ...overrides,
+      id: undefined,
+      name: `Copy of ${source.name || 'Unnamed Bot'}`,
+      userId: overrides.userId ?? userStore.userId ?? null,
+      isPublic: overrides.isPublic ?? false,
+      canDelete: true,
+      underConstruction: source.underConstruction ?? false,
+    })
+    currentImagePath.value = botForm.value.avatarImage || source.avatarImage || ''
+    pendingLaunchMessage.value = ''
+    persist()
+
+    return source
+  }
+
+  function createNewBot(): void {
+    startAddingBot()
+  }
+
   async function initialize(options: BotInitializeOptions = {}): Promise<void> {
-  const wantsRemoteFetch = options.fetchRemote === true
-  const needsRemoteFetch = wantsRemoteFetch && (!isLoaded.value || options.force)
+    const wantsRemoteFetch = options.fetchRemote === true
+    const needsRemoteFetch =
+      wantsRemoteFetch && (!isLoaded.value || Boolean(options.force))
 
-  if (initializePromise.value && !options.force) {
-    await initializePromise.value
+    if (initializePromise.value && !options.force) {
+      await initializePromise.value
 
-    if (needsRemoteFetch) {
-      await fetchBots(false)
-    }
-
-    return
-  }
-
-  if (isInitialized.value && !options.force && !needsRemoteFetch) {
-    return
-  }
-
-  initializePromise.value = (async () => {
-    try {
-      isInitializing.value = true
-      clearError()
-
-      hydrateFromLocalStorage()
-
-      if (options.initializeServerStore !== false) {
-        await serverStore.initialize()
-      }
-
-      if (wantsRemoteFetch) {
-        await fetchBots(Boolean(options.force))
-      }
-
-      if (
-        options.createBlankForm !== false &&
-        !currentBot.value &&
-        Object.keys(botForm.value).length === 0
-      ) {
-        createNewBot()
-      }
-
-      isInitialized.value = true
-    } catch (error: unknown) {
-      handleError(error, 'initializing bot store')
-      setLastError(error, 'Failed to initialize bot store')
-      isInitialized.value = false
-    } finally {
-      isInitializing.value = false
-      initializePromise.value = null
-    }
-  })()
-
-  return initializePromise.value
-}
-
-  async function fetchBots(force = false): Promise<Bot[]> {
-  if (!force && isLoaded.value && bots.value.length > 0) {
-    return bots.value
-  }
-
-  if (fetchBotsPromise.value && !force) {
-    return fetchBotsPromise.value
-  }
-
-  fetchBotsPromise.value = (async () => {
-    loading.value = true
-
-    try {
-      clearError()
-
-      const response = await performFetch<Bot[]>('/api/bots')
-
-      if (response.success && Array.isArray(response.data)) {
-        bots.value = response.data.slice().sort(sortBots)
-        isLoaded.value = true
-        persist()
-        return bots.value
-      }
-
-      throw new Error(response.message || 'Failed to fetch bots')
-    } catch (error: unknown) {
-      handleError(error, 'fetching bots')
-      setLastError(error, 'Failed to fetch bots')
-      return bots.value
-    } finally {
-      loading.value = false
-      fetchBotsPromise.value = null
-    }
-  })()
-
-  return fetchBotsPromise.value
-}
-
-  async function selectBot(botId: number): Promise<void> {
-    if (currentBot.value?.id === botId) return
-
-    const found = bots.value.find((bot: Bot) => bot.id === botId)
-
-    if (!found) {
-      const fetched = await loadBotById(botId)
-
-      if (!fetched) {
-        handleError(`Bot ID ${botId} not found`, 'selecting bot')
-        return
+      if (needsRemoteFetch) {
+        await fetchBots(false)
       }
 
       return
     }
 
+    if (isInitialized.value && !options.force && !needsRemoteFetch) {
+      return
+    }
+
+    initializePromise.value = (async () => {
+      try {
+        isInitializing.value = true
+        clearError()
+
+        hydrateFromLocalStorage()
+
+        if (options.initializeServerStore !== false) {
+          await serverStore.initialize({
+            fetchRemote: true,
+          })
+        }
+
+        if (wantsRemoteFetch) {
+          await fetchBots(Boolean(options.force))
+        }
+
+        if (
+          options.createBlankForm !== false &&
+          !currentBot.value &&
+          Object.keys(botForm.value).length === 0
+        ) {
+          startAddingBot()
+        }
+
+        isInitialized.value = true
+      } catch (error: unknown) {
+        handleError(error, 'initializing bot store')
+        setLastError(error, 'Failed to initialize bot store')
+        isInitialized.value = false
+      } finally {
+        isInitializing.value = false
+        initializePromise.value = null
+      }
+    })()
+
+    return initializePromise.value
+  }
+
+  async function fetchBots(force = false): Promise<Bot[]> {
+    if (!force && isLoaded.value && bots.value.length > 0) {
+      return bots.value
+    }
+
+    if (fetchBotsPromise.value && !force) {
+      return fetchBotsPromise.value
+    }
+
+    fetchBotsPromise.value = (async () => {
+      loading.value = true
+
+      try {
+        clearError()
+
+        const response = await performFetch<Bot[]>('/api/bots')
+
+        if (response.success && Array.isArray(response.data)) {
+          bots.value = response.data.slice().sort(sortBots)
+          isLoaded.value = true
+          persist()
+
+          return bots.value
+        }
+
+        throw new Error(response.message || 'Failed to fetch bots')
+      } catch (error: unknown) {
+        handleError(error, 'fetching bots')
+        setLastError(error, 'Failed to fetch bots')
+
+        return bots.value
+      } finally {
+        loading.value = false
+        fetchBotsPromise.value = null
+      }
+    })()
+
+    return fetchBotsPromise.value
+  }
+
+  async function selectBot(input: number | string | Bot): Promise<Bot | null> {
+    const botId = normalizeBotId(input)
+
+    if (!botId) return null
+
+    if (currentBot.value?.id === botId) return currentBot.value
+
+    const found =
+      bots.value.find((bot: Bot) => bot.id === botId) ??
+      (await loadBotById(botId))
+
+    if (!found) {
+      handleError(`Bot ID ${botId} not found`, 'selecting bot')
+      setLastError(new Error(`Bot ID ${botId} not found`), 'Bot not found')
+      return null
+    }
+
     currentBot.value = found
-    botForm.value = normalizeBotForm(found as BotForm)
+    botForm.value = toBotForm(found)
     currentImagePath.value = found.avatarImage || ''
     persist()
+
+    return found
   }
 
   function revertBotForm(): void {
     if (!currentBot.value) return
 
-    botForm.value = normalizeBotForm(currentBot.value as BotForm)
+    botForm.value = toBotForm(currentBot.value)
+    currentImagePath.value = currentBot.value.avatarImage || ''
     persist()
   }
 
@@ -375,6 +519,7 @@ export const useBotStore = defineStore('botStore', () => {
   async function updateCurrentBot(): Promise<Bot | null> {
     if (!currentBot.value) {
       handleError('No current bot', 'updateCurrentBot')
+      setLastError(new Error('No current bot'), 'No current bot')
       return null
     }
 
@@ -385,14 +530,14 @@ export const useBotStore = defineStore('botStore', () => {
 
       const updated = await updateBot(
         currentBot.value.id,
-        botForm.value,
+        normalizeBotForm(botForm.value),
         currentImagePath.value,
       )
 
       if (updated) {
         upsertBot(updated)
         currentBot.value = updated
-        botForm.value = normalizeBotForm(updated as BotForm)
+        botForm.value = toBotForm(updated)
         currentImagePath.value = updated.avatarImage || ''
         persist()
       }
@@ -414,24 +559,46 @@ export const useBotStore = defineStore('botStore', () => {
     await updateCurrentBot()
   }
 
-  async function saveBot(): Promise<Bot | null> {
-    if (typeof botForm.value.id === 'number') {
-      return await updateCurrentBot()
-    }
+  async function saveBot(): Promise<BotSaveResult> {
+    isSaving.value = true
 
-    const created = await addSingleBot(botForm.value)
+    try {
+      clearError()
 
-    if (created) {
-      currentBot.value = created
-      botForm.value = normalizeBotForm(created as BotForm)
-      currentImagePath.value = created.avatarImage || ''
+      const saved =
+        typeof botForm.value.id === 'number'
+          ? await updateCurrentBot()
+          : await addSingleBot(botForm.value)
+
+      if (!saved) {
+        throw new Error(lastError.value || 'Failed to save bot')
+      }
+
+      currentBot.value = saved
+      botForm.value = toBotForm(saved)
+      currentImagePath.value = saved.avatarImage || ''
       persist()
-    }
 
-    return created
+      return {
+        success: true,
+        message: botForm.value.id ? 'Bot updated.' : 'Bot created.',
+        data: saved,
+      }
+    } catch (error: unknown) {
+      handleError(error, 'saveBot')
+      setLastError(error, 'Failed to save bot')
+
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to save bot',
+        data: null,
+      }
+    } finally {
+      isSaving.value = false
+    }
   }
 
-  async function deleteBotById(id: number): Promise<boolean> {
+  async function deleteBotById(id: number) {
     loading.value = true
 
     try {
@@ -443,15 +610,24 @@ export const useBotStore = defineStore('botStore', () => {
         removeBotLocally(id)
 
         if (!currentBot.value && Object.keys(botForm.value).length === 0) {
-          createNewBot()
+          startAddingBot()
+        }
+
+        return {
+          success: true,
+          message: 'Bot deleted.',
         }
       }
 
-      return success
+      throw new Error('Failed to delete bot')
     } catch (error: unknown) {
       handleError(error, 'deleteBotById')
       setLastError(error, 'Failed to delete bot')
-      return false
+
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to delete bot',
+      }
     } finally {
       loading.value = false
     }
@@ -515,7 +691,7 @@ export const useBotStore = defineStore('botStore', () => {
 
     if (cached) {
       currentBot.value = cached
-      botForm.value = normalizeBotForm(cached as BotForm)
+      botForm.value = toBotForm(cached)
       currentImagePath.value = cached.avatarImage ?? ''
       persist()
       return cached
@@ -536,7 +712,7 @@ export const useBotStore = defineStore('botStore', () => {
         if (bot) {
           upsertBot(bot)
           currentBot.value = bot
-          botForm.value = normalizeBotForm(bot as BotForm)
+          botForm.value = toBotForm(bot)
           currentImagePath.value = bot.avatarImage ?? ''
           persist()
         }
@@ -555,11 +731,15 @@ export const useBotStore = defineStore('botStore', () => {
     return loadBotByIdPromises.value[id]
   }
 
+  function getBotFromStore(id: number): Bot | null {
+    return bots.value.find((bot) => bot.id === id) ?? null
+  }
+
   async function getBotImage(botId: number): Promise<string> {
     const bot = bots.value.find((entry: Bot) => entry.id === botId)
 
     if (!bot) {
-      return '/images/bot.webp'
+      return botPlaceholder
     }
 
     if (botImagePromises.value[botId]) {
@@ -571,7 +751,7 @@ export const useBotStore = defineStore('botStore', () => {
         return await botImage(bot)
       } catch (error: unknown) {
         handleError(error, 'getBotImage')
-        return '/images/bot.webp'
+        return botPlaceholder
       } finally {
         delete botImagePromises.value[botId]
       }
@@ -618,6 +798,12 @@ export const useBotStore = defineStore('botStore', () => {
     persist()
   }
 
+  function setCurrentImagePath(path: string): void {
+    currentImagePath.value = path
+    botForm.value.avatarImage = path
+    persist()
+  }
+
   function resetInitialization(): void {
     isInitialized.value = false
     isInitializing.value = false
@@ -652,13 +838,16 @@ export const useBotStore = defineStore('botStore', () => {
   return {
     bots,
     currentBot,
+    selectedBot,
     botForm,
     currentImagePath,
     loading,
+    isSaving,
     isLoaded,
     isInitialized,
     isInitializing,
     lastError,
+    error,
     pendingLaunchMessage,
     initializePromise,
     fetchBotsPromise,
@@ -671,28 +860,43 @@ export const useBotStore = defineStore('botStore', () => {
     ownedBots,
     publicBots,
     readyBots,
+    visibleBots,
 
     setPendingLaunchMessage,
     clearPendingLaunchMessage,
-    selectBot,
-    revertBotForm,
-    deselectBot,
-    createNewBot,
+
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
+    persist,
+
     fetchBots,
+    loadBotById,
+    selectBot,
+    deselectBot,
+    revertBotForm,
+
+    startAddingBot,
+    startEditingBot,
+    startCloningBot,
+    createNewBot,
+    createDefaultBotForm,
+    toBotForm,
+    normalizeBotForm,
+    setBotForm,
+
     updateCurrentBot,
     saveUserIntro,
     saveBot,
     deleteBotById,
     addBotsToStore,
     addSingleBot,
-    loadBotById,
     getBotImage,
+    getBotFromStore,
     seedBots,
     setBotServer,
     applyActiveTextServer,
+    setCurrentImagePath,
 
     getBotById,
     updateBot,

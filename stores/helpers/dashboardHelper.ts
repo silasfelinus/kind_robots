@@ -72,6 +72,63 @@ export const dashboardConfigs = {
     ],
   },
 
+character: {
+  key: 'character',
+  label: 'Character',
+  defaultTab: 'overview',
+  tabs: [
+    {
+      key: 'overview',
+      label: 'Overview',
+      icon: 'kind-icon:sparkles',
+      title: 'Character Overview',
+      summary: 'Pair a character with scenarios, rewards, dreams, and chat.',
+    },
+    {
+      key: 'characters',
+      label: 'Characters',
+      icon: 'kind-icon:person',
+      title: 'Character Gallery',
+      summary: 'Select, add, edit, clone, or delete characters.',
+    },
+    {
+      key: 'scenarios',
+      label: 'Scenarios',
+      icon: 'kind-icon:map',
+      title: 'Scenario Pairing',
+      summary: 'Choose a setting for character interactions.',
+    },
+    {
+      key: 'rewards',
+      label: 'Rewards',
+      icon: 'kind-icon:gift',
+      title: 'Reward Pairing',
+      summary: 'Choose powers, items, or plot grenades.',
+    },
+    {
+      key: 'dreams',
+      label: 'Dreams',
+      icon: 'kind-icon:moon',
+      title: 'Dream Pairing',
+      summary: 'Use characters inside collaborative dream sessions.',
+    },
+    {
+      key: 'servers',
+      label: 'Servers',
+      icon: 'kind-icon:server',
+      title: 'Character Servers',
+      summary: 'Choose text and art engines.',
+    },
+    {
+      key: 'interact',
+      label: 'Interact',
+      icon: 'kind-icon:chat',
+      title: 'Character Interact',
+      summary: 'Chat, adventure, or generate prompts with the selected character.',
+    },
+  ],
+},
+
   dream: {
     key: 'dream',
     label: 'Dream',

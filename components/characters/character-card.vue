@@ -1,184 +1,327 @@
 <!-- /components/content/weird/character-card.vue -->
 <template>
-  <div
+  <article
     :class="[
-      'relative flex flex-col bg-base-200 border rounded-2xl p-4 m-2 hover:shadow-lg transition-all cursor-pointer',
-      isSelected ? 'border-primary bg-primary/10' : 'border-gray-400',
+      'relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
+      compact ? 'gap-2 p-3' : 'gap-4 p-4',
+      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
     ]"
+    @click="selectCharacter"
   >
-    <!-- Delete Button -->
-    <button
-      v-if="canDelete"
-      class="absolute top-2 right-2 bg-error text-white p-2 rounded-full hover:bg-error-content transition-transform hover:scale-110 z-20"
-      title="Delete Character"
-      @click.stop="deleteCharacter"
-    >
-      <Icon name="kind-icon:trash" class="w-4 h-4" />
-    </button>
-
-    <!-- Character Image -->
     <div
-      class="relative flex justify-center items-center overflow-hidden rounded-lg"
+      v-if="showActions && (activeSelected || compact)"
+      class="absolute right-2 top-2 z-20 flex items-center gap-2"
+    >
+      <button
+        v-if="allowEdit"
+        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        type="button"
+        title="Edit Character"
+        @click.stop="emit('edit', character.id)"
+      >
+        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+      </button>
+
+      <button
+        v-if="allowClone"
+        class="rounded-full bg-base-100 p-2 text-secondary shadow hover:bg-secondary hover:text-secondary-content"
+        type="button"
+        title="Clone Character"
+        @click.stop="emit('clone', character.id)"
+      >
+        <Icon name="kind-icon:copy" class="h-4 w-4" />
+      </button>
+
+      <button
+        v-if="canDelete"
+        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        type="button"
+        title="Delete Character"
+        @click.stop="deleteCharacter"
+      >
+        <Icon name="kind-icon:trash" class="h-4 w-4" />
+      </button>
+    </div>
+
+    <div
+      v-if="showImage"
+      :class="[
+        'relative overflow-hidden rounded-2xl border border-base-300 bg-base-300',
+        compact ? 'h-32 w-full' : 'h-44 w-full',
+      ]"
     >
       <img
         :src="computedCharacterImage"
         alt="Character Portrait"
-        class="rounded-2xl w-full h-40 object-cover transition-transform hover:scale-105"
+        class="h-full w-full object-cover transition-transform hover:scale-105"
         loading="lazy"
       />
-    </div>
 
-    <!-- Name and Summary -->
-    <div class="flex flex-col mt-4">
-      <h2 class="text-xl font-bold text-gray-800 truncate">
-        {{ displayName }}
-      </h2>
-      <p class="text-sm text-gray-600">
-        Class: {{ character.class || 'Unknown' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        Species: {{ character.species || 'Unknown' }}
-      </p>
-      <p class="text-sm text-gray-600">
-        Genre: {{ character.genre || 'Unknown' }}
-      </p>
-    </div>
-
-    <!-- Stats Section -->
-    <div
-      class="grid grid-cols-3 gap-2 bg-base-300 rounded-lg shadow-inner p-3 mt-4"
-    >
-      <div
-        v-for="i in statKeys"
-        :key="'stat-' + i"
-        class="flex flex-col items-center bg-base-200 border border-gray-300 rounded-md p-2 hover:shadow-md"
-      >
-        <span class="text-xs font-bold uppercase text-gray-700">
-          {{ character[`statName${i}`] || `Stat ${i}` }}
+      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+        <span v-if="character.isPublic" class="badge badge-success badge-sm">
+          Public
         </span>
-        <span class="text-lg font-extrabold text-gray-800">
-          {{ character[`statValue${i}`] || 0 }}
+
+        <span v-else class="badge badge-warning badge-sm">
+          Private
         </span>
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex justify-between items-center mt-4">
-      <button
-        class="btn flex items-center space-x-2 transition-transform hover:scale-105"
-        :class="{
-          'btn-primary shadow-lg': selectedMode === 'chat',
-          'btn-outline': selectedMode !== 'chat',
-        }"
-        @click.stop="toggleMode('chat')"
-      >
-        <Icon name="kind-icon:message" class="w-5 h-5" />
-        <span>Chat</span>
-      </button>
-      <button
-        class="btn flex items-center space-x-2 transition-transform hover:scale-105"
-        :class="{
-          'btn-secondary shadow-lg': selectedMode === 'adventure',
-          'btn-outline': selectedMode !== 'adventure',
-        }"
-        @click.stop="toggleMode('adventure')"
-      >
-        <Icon name="kind-icon:compass" class="w-5 h-5" />
-        <span>Adventure</span>
-      </button>
-    </div>
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <div class="min-w-0">
+        <h2
+          :class="[
+            'font-black leading-tight text-base-content',
+            compact ? 'line-clamp-1 text-base' : 'text-xl',
+          ]"
+        >
+          {{ displayName }}
+        </h2>
 
-    <!-- Conditional Display for WeirdCard or WeirdChat -->
-    <div class="mt-4">
-      <WeirdCard
-        v-if="selectedMode === 'adventure'"
-        :character="character"
-        class="mt-4"
-      />
-      <WeirdChat
-        v-if="selectedMode === 'chat'"
-        :character="character"
-        class="mt-4"
-      />
-    </div>
+        <p
+          v-if="showDescription"
+          :class="[
+            'mt-1 text-base-content/70',
+            compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-sm',
+          ]"
+        >
+          {{ character.backstory || character.personality || 'No story yet.' }}
+        </p>
+      </div>
 
-    <!-- Toggle Raw Character Object -->
-    <div class="mt-4">
-      <button class="btn btn-accent w-full" @click="toggleRawDetails">
-        {{
-          showRawDetails
-            ? 'Hide Raw Character Object'
-            : 'Show Raw Character Object'
-        }}
-      </button>
-      <pre
-        v-if="showRawDetails"
-        class="bg-base-100 rounded-lg p-2 mt-2 text-sm overflow-x-auto"
-        >{{ character }}
-      </pre>
+      <div v-if="showMeta" class="flex flex-wrap gap-2">
+        <span v-if="character.class" class="badge badge-outline badge-sm">
+          {{ character.class }}
+        </span>
+
+        <span v-if="character.species" class="badge badge-ghost badge-sm">
+          {{ character.species }}
+        </span>
+
+        <span v-if="character.genre" class="badge badge-primary badge-sm">
+          {{ character.genre }}
+        </span>
+      </div>
+
+      <div
+        v-if="showStats"
+        class="grid grid-cols-3 gap-2 rounded-2xl bg-base-300 p-2"
+      >
+        <div
+          v-for="index in statIndexes"
+          :key="`stat-${index}`"
+          class="rounded-xl border border-base-300 bg-base-200 p-2 text-center"
+        >
+          <div class="truncate text-[10px] font-bold uppercase text-base-content/60">
+            {{ statName(index) }}
+          </div>
+
+          <div class="text-lg font-black text-base-content">
+            {{ statValue(index) }}
+          </div>
+        </div>
+      </div>
+
+      <div v-if="showModeButtons" class="grid grid-cols-2 gap-2 pt-1">
+        <button
+          class="btn btn-sm rounded-xl"
+          :class="activeMode === 'chat' ? 'btn-primary text-white' : 'btn-outline'"
+          type="button"
+          @click.stop="toggleMode('chat')"
+        >
+          <Icon name="kind-icon:message" class="h-4 w-4" />
+          Chat
+        </button>
+
+        <button
+          class="btn btn-sm rounded-xl"
+          :class="
+            activeMode === 'adventure'
+              ? 'btn-secondary'
+              : 'btn-outline'
+          "
+          type="button"
+          @click.stop="toggleMode('adventure')"
+        >
+          <Icon name="kind-icon:compass" class="h-4 w-4" />
+          Adventure
+        </button>
+      </div>
+
+      <div
+        v-if="activeMode === 'chat' && showInlineInteract"
+        class="rounded-2xl border border-base-300 bg-base-100 p-3"
+      >
+        <weird-chat :character="character" />
+      </div>
+
+      <div
+        v-if="activeMode === 'adventure' && showInlineInteract"
+        class="rounded-2xl border border-base-300 bg-base-100 p-3"
+      >
+        <weird-card :character="character" />
+      </div>
+
+      <details
+        v-if="showDebug"
+        class="rounded-2xl border border-base-300 bg-base-100 p-2"
+        @click.stop
+      >
+        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
+          Debug
+        </summary>
+
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(character, null, 2) }}</pre>
+      </details>
     </div>
-  </div>
+  </article>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import type { Character } from '~/prisma/generated/prisma/client'
+import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
-import { useArtStore } from '@/stores/artStore'
 
-// Props
-const { character } = defineProps({
-  character: {
-    type: Object,
-    required: true,
+type CharacterMode = 'chat' | 'adventure'
+
+const props = withDefaults(
+  defineProps<{
+    character: Character
+    selected?: boolean
+    isSelected?: boolean
+    compact?: boolean
+    showImage?: boolean
+    showActions?: boolean
+    showDescription?: boolean
+    showMeta?: boolean
+    showStats?: boolean
+    showModeButtons?: boolean
+    showInlineInteract?: boolean
+    showDebug?: boolean
+    allowEdit?: boolean
+    allowClone?: boolean
+    allowDelete?: boolean
+    fallbackImage?: string
+  }>(),
+  {
+    selected: false,
+    isSelected: false,
+    compact: false,
+    showImage: true,
+    showActions: true,
+    showDescription: true,
+    showMeta: true,
+    showStats: true,
+    showModeButtons: false,
+    showInlineInteract: false,
+    showDebug: false,
+    allowEdit: true,
+    allowClone: true,
+    allowDelete: true,
+    fallbackImage: '/images/bot.webp',
   },
-})
+)
 
-// Stores
+const emit = defineEmits<{
+  select: [id: number]
+  'select-character': [id: number]
+  edit: [id: number]
+  clone: [id: number]
+  delete: [id: number]
+  chat: [id: number]
+  adventure: [id: number]
+}>()
+
 const characterStore = useCharacterStore()
 const userStore = useUserStore()
 const artStore = useArtStore()
 
-// State
-const artImage = ref(null)
-const selectedMode = ref(null) // 'chat' or 'adventure'
-const showRawDetails = ref(false) // Toggle raw character object display
+const artImage = ref<ArtImage | null>(null)
+const activeMode = ref<CharacterMode | null>(null)
 
-// Computed properties
-const canDelete = computed(
-  () => userStore.isAdmin || userStore.userId === character.userId,
-)
-const isSelected = computed(
-  () => characterStore.selectedCharacter?.id === character.id,
-)
-const displayName = computed(() =>
-  character.name
-    ? `${character.name} the ${character.honorific || ''}`.trim()
-    : 'Unnamed Hero',
-)
-const computedCharacterImage = computed(() => {
-  if (artImage.value) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
-  }
-  if (character.imagePath) {
-    return character.imagePath
-  }
-  return '/images/bot.webp'
+const statIndexes = [1, 2, 3, 4, 5, 6]
+
+const activeSelected = computed(() => {
+  return (
+    props.selected ||
+    props.isSelected ||
+    characterStore.selectedCharacter?.id === props.character.id
+  )
 })
 
-// Methods
-const toggleMode = (mode) => {
-  selectedMode.value = selectedMode.value === mode ? null : mode
-}
-const toggleRawDetails = () => {
-  showRawDetails.value = !showRawDetails.value
-}
-const deleteCharacter = () => characterStore.deleteCharacter(character.id)
+const canDelete = computed(() => {
+  return (
+    props.allowDelete &&
+    (userStore.isAdmin || userStore.userId === props.character.userId)
+  )
+})
 
-// On Mounted
+const displayName = computed(() => {
+  if (!props.character.name) return 'Unnamed Hero'
+
+  return `${props.character.name} ${
+    props.character.honorific ? `the ${props.character.honorific}` : ''
+  }`.trim()
+})
+
+const computedCharacterImage = computed(() => {
+  if (artImage.value?.imageData && artImage.value?.fileType) {
+    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+  }
+
+  return props.character.imagePath || props.fallbackImage
+})
+
+function statName(index: number) {
+  const key = `statName${index}` as keyof Character
+  const value = props.character[key]
+
+  return typeof value === 'string' && value.trim() ? value : `Stat ${index}`
+}
+
+function statValue(index: number) {
+  const key = `statValue${index}` as keyof Character
+  const value = props.character[key]
+
+  return typeof value === 'number' ? value : 0
+}
+
+async function selectCharacter() {
+  await characterStore.selectCharacter(props.character.id)
+  emit('select', props.character.id)
+  emit('select-character', props.character.id)
+}
+
+async function deleteCharacter() {
+  const result = await characterStore.deleteCharacter(props.character.id)
+
+  if (result.success) {
+    emit('delete', props.character.id)
+  }
+}
+
+function toggleMode(mode: CharacterMode) {
+  activeMode.value = activeMode.value === mode ? null : mode
+
+  if (activeMode.value === 'chat') {
+    emit('chat', props.character.id)
+  }
+
+  if (activeMode.value === 'adventure') {
+    emit('adventure', props.character.id)
+  }
+}
+
 onMounted(async () => {
-  if (character.artImageId) {
-    artImage.value = await artStore.getArtImageById(character.artImageId)
+  if (!props.character.artImageId || !props.showImage) return
+
+  try {
+    artImage.value = await artStore.getArtImageById(props.character.artImageId)
+  } catch (error) {
+    console.error('Failed to load character art image:', error)
   }
 })
 </script>

@@ -281,6 +281,51 @@ export const useBotStore = defineStore('botStore', () => {
     persist()
   }
 
+async function generateFields(fieldsToUpgrade: string[]) {
+  loading.value = true
+
+  try {
+    clearError()
+
+    const response = await performFetch<Partial<Bot>>('/api/bot/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        bot: botForm.value,
+        fieldsToUpgrade,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    if (response.success && response.data) {
+      setBotForm(response.data)
+
+      return {
+        success: true,
+        message: `Updated ${fieldsToUpgrade.length} bot field${
+          fieldsToUpgrade.length === 1 ? '' : 's'
+        }.`,
+        data: response.data,
+      }
+    }
+
+    throw new Error(response.message || 'Failed to generate bot fields')
+  } catch (error: unknown) {
+    handleError(error, 'generating bot fields')
+    setLastError(error, 'Failed to generate bot fields')
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to generate bot fields',
+      data: null,
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
   function removeBotLocally(id: number): void {
     bots.value = bots.value.filter((bot: Bot) => bot.id !== id)
 
@@ -902,6 +947,7 @@ export const useBotStore = defineStore('botStore', () => {
     updateBot,
     addBot,
     addBots,
+    generateFields,
   }
 })
 

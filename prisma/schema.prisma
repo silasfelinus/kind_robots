@@ -1007,7 +1007,6 @@ enum ReactionCategory {
   RESOURCE
   REWARD
   TAG
-  TITLE
 }
 
 enum ResourceType {

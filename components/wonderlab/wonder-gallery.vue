@@ -135,11 +135,16 @@
     </main>
   </section>
 </template>
-
 <script setup lang="ts">
-// /components/content/wonderlab/wonder-manager.vue
+// /components/wonderlab/wonder-gallery.vue
 import { computed } from 'vue'
-import { useNavStore, type WonderDashboardTab } from '@/stores/navStore'
+import { useNavStore } from '@/stores/navStore'
+
+type WonderDashboardTab =
+  | 'memory-test'
+  | 'rebel-button'
+  | 'wonder-lab'
+  | 'screen-fx'
 
 type WonderManagerSection = {
   key: WonderDashboardTab
@@ -150,9 +155,19 @@ type WonderManagerSection = {
 
 const navStore = useNavStore()
 
-const activeSection = computed({
-  get: () => navStore.wonderDashboardTab,
-  set: (tab: WonderDashboardTab) => navStore.setWonderDashboardTab(tab),
+const activeSection = computed<WonderDashboardTab>({
+  get: () => {
+    const tab = navStore.getDashboardTab('wonder')
+
+    if (isWonderDashboardTab(tab)) {
+      return tab
+    }
+
+    return 'memory-test'
+  },
+  set: (tab: WonderDashboardTab) => {
+    navStore.setDashboardTab('wonder', tab)
+  },
 })
 
 const sections: WonderManagerSection[] = [
@@ -182,11 +197,16 @@ const sections: WonderManagerSection[] = [
   },
 ]
 
-const activeLabel = computed(
-  () =>
+const activeLabel = computed(() => {
+  return (
     sections.find((section) => section.key === activeSection.value)?.label ??
-    'Memory',
-)
+    'Memory'
+  )
+})
+
+function isWonderDashboardTab(value: string): value is WonderDashboardTab {
+  return sections.some((section) => section.key === value)
+}
 
 function sectionButtonClass(tab: WonderDashboardTab) {
   return activeSection.value === tab

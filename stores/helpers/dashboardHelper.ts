@@ -72,62 +72,275 @@ export const dashboardConfigs = {
     ],
   },
 
-character: {
-  key: 'character',
-  label: 'Character',
-  defaultTab: 'overview',
-  tabs: [
-    {
-      key: 'overview',
-      label: 'Overview',
-      icon: 'kind-icon:sparkles',
-      title: 'Character Overview',
-      summary: 'Pair a character with scenarios, rewards, dreams, and chat.',
-    },
-    {
-      key: 'characters',
-      label: 'Characters',
-      icon: 'kind-icon:person',
-      title: 'Character Gallery',
-      summary: 'Select, add, edit, clone, or delete characters.',
-    },
-    {
-      key: 'scenarios',
-      label: 'Scenarios',
-      icon: 'kind-icon:map',
-      title: 'Scenario Pairing',
-      summary: 'Choose a setting for character interactions.',
-    },
-    {
-      key: 'rewards',
-      label: 'Rewards',
-      icon: 'kind-icon:gift',
-      title: 'Reward Pairing',
-      summary: 'Choose powers, items, or plot grenades.',
-    },
-    {
-      key: 'dreams',
-      label: 'Dreams',
-      icon: 'kind-icon:moon',
-      title: 'Dream Pairing',
-      summary: 'Use characters inside collaborative dream sessions.',
-    },
-    {
-      key: 'servers',
-      label: 'Servers',
-      icon: 'kind-icon:server',
-      title: 'Character Servers',
-      summary: 'Choose text and art engines.',
-    },
-    {
-      key: 'interact',
-      label: 'Interact',
-      icon: 'kind-icon:chat',
-      title: 'Character Interact',
-      summary: 'Chat, adventure, or generate prompts with the selected character.',
-    },
-  ],
-},
+  art: {
+    key: 'art',
+    label: 'Art',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:dashboard',
+        title: 'Art Overview',
+        summary:
+          'Generate art, browse collections, choose models, and inspect selected images.',
+      },
+      {
+        key: 'generate',
+        label: 'Generate',
+        icon: 'kind-icon:sparkles',
+        title: 'Generate Art',
+        summary:
+          'Build prompts and create new images through the active art server.',
+      },
+      {
+        key: 'gallery',
+        label: 'Gallery',
+        icon: 'kind-icon:image',
+        title: 'Art Gallery',
+        summary: 'Browse, select, upload, collect, and inspect generated art.',
+      },
+      {
+        key: 'collections',
+        label: 'Collections',
+        icon: 'kind-icon:folder',
+        title: 'Art Collections',
+        summary: 'Organize art into reusable collections.',
+      },
+      {
+        key: 'checkpoints',
+        label: 'Models',
+        icon: 'kind-icon:server',
+        title: 'Checkpoints',
+        summary:
+          'Choose checkpoints, samplers, and verify active backend models.',
+      },
+      {
+        key: 'servers',
+        label: 'Servers',
+        icon: 'kind-icon:server',
+        title: 'Art Servers',
+        summary: 'Manage image generation servers.',
+      },
+      {
+        key: 'selected',
+        label: 'Selected',
+        icon: 'kind-icon:check',
+        title: 'Selected Art',
+        summary: 'Inspect the currently selected art record and image.',
+      },
+    ],
+  },
+
+  bot: {
+    key: 'bot',
+    label: 'Bots',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:dashboard',
+        title: 'Bot Overview',
+        summary: 'Browse bots, choose text engines, and start conversations.',
+      },
+      {
+        key: 'bots',
+        label: 'Bots',
+        icon: 'kind-icon:robot',
+        title: 'Bot Gallery',
+        summary: 'Select, add, edit, clone, delete, or launch bots.',
+      },
+      {
+        key: 'interact',
+        label: 'Interact',
+        icon: 'kind-icon:chat',
+        title: 'Bot Interact',
+        summary: 'Chat with the selected bot.',
+      },
+      {
+        key: 'servers',
+        label: 'Servers',
+        icon: 'kind-icon:server',
+        title: 'Text Servers',
+        summary: 'Manage text engines for bot conversations.',
+      },
+      {
+        key: 'forge',
+        label: 'Forge',
+        icon: 'kind-icon:sparkles',
+        title: 'Bot Forge',
+        summary: 'Create or edit bots.',
+      },
+    ],
+  },
+
+  theme: {
+    key: 'theme',
+    label: 'Theme',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:dashboard',
+        title: 'Theme Overview',
+        summary: 'Preview, choose, and manage app themes.',
+      },
+      {
+        key: 'gallery',
+        label: 'Gallery',
+        icon: 'kind-icon:palette',
+        title: 'Theme Gallery',
+        summary: 'Browse and activate themes.',
+      },
+      {
+        key: 'custom',
+        label: 'Custom',
+        icon: 'kind-icon:wrench',
+        title: 'Custom Theme',
+        summary: 'Edit custom theme values.',
+      },
+    ],
+  },
+
+  brainstorm: {
+    key: 'brainstorm',
+    label: 'Brainstorm',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:dashboard',
+        title: 'Brainstorm Overview',
+        summary: 'Work with pitches, prompts, and generated ideas.',
+      },
+      {
+        key: 'pitches',
+        label: 'Pitches',
+        icon: 'kind-icon:idea',
+        title: 'Pitch Gallery',
+        summary: 'Browse, select, add, edit, and delete big-picture ideas.',
+      },
+      {
+        key: 'prompts',
+        label: 'Prompts',
+        icon: 'kind-icon:prompt',
+        title: 'Prompt Gallery',
+        summary: 'Browse reusable text prompts.',
+      },
+      {
+        key: 'interact',
+        label: 'Interact',
+        icon: 'kind-icon:brain',
+        title: 'Brainstorm Interact',
+        summary:
+          'Generate, accept, edit, reject, save, or overwrite brainstorms.',
+      },
+      {
+        key: 'add-pitch',
+        label: 'Add Pitch',
+        icon: 'kind-icon:plus',
+        title: 'Add Pitch',
+        summary: 'Create a new big-picture idea.',
+      },
+      {
+        key: 'add-prompt',
+        label: 'Add Prompt',
+        icon: 'kind-icon:quote',
+        title: 'Add Prompt',
+        summary: 'Create a new prompt string.',
+      },
+    ],
+  },
+
+  giftshop: {
+    key: 'giftshop',
+    label: 'Giftshop',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:dashboard',
+        title: 'Giftshop Overview',
+        summary: 'Manage giftshop items, swag ideas, and storefront assets.',
+      },
+      {
+        key: 'products',
+        label: 'Products',
+        icon: 'kind-icon:gift',
+        title: 'Products',
+        summary: 'Browse and manage giftshop products.',
+      },
+      {
+        key: 'collections',
+        label: 'Collections',
+        icon: 'kind-icon:folder',
+        title: 'Giftshop Collections',
+        summary: 'Group products and art assets.',
+      },
+    ],
+  },
+
+  character: {
+    key: 'character',
+    label: 'Character',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:sparkles',
+        title: 'Character Overview',
+        summary: 'Pair a character with scenarios, rewards, dreams, and chat.',
+      },
+      {
+        key: 'characters',
+        label: 'Characters',
+        icon: 'kind-icon:person',
+        title: 'Character Gallery',
+        summary: 'Select, add, edit, clone, or delete characters.',
+      },
+      {
+        key: 'scenarios',
+        label: 'Scenarios',
+        icon: 'kind-icon:map',
+        title: 'Scenario Pairing',
+        summary: 'Choose a setting for character interactions.',
+      },
+      {
+        key: 'rewards',
+        label: 'Rewards',
+        icon: 'kind-icon:gift',
+        title: 'Reward Pairing',
+        summary: 'Choose powers, items, or plot grenades.',
+      },
+      {
+        key: 'dreams',
+        label: 'Dreams',
+        icon: 'kind-icon:moon',
+        title: 'Dream Pairing',
+        summary: 'Use characters inside collaborative dream sessions.',
+      },
+      {
+        key: 'servers',
+        label: 'Servers',
+        icon: 'kind-icon:server',
+        title: 'Character Servers',
+        summary: 'Choose text and art engines.',
+      },
+      {
+        key: 'interact',
+        label: 'Interact',
+        icon: 'kind-icon:chat',
+        title: 'Character Interact',
+        summary:
+          'Chat, adventure, or generate prompts with the selected character.',
+      },
+    ],
+  },
 
   dream: {
     key: 'dream',
@@ -250,8 +463,8 @@ character: {
         title: 'Effects',
       },
       {
-        key: 'kind',
-        label: 'Kind',
+        key: 'bot',
+        label: 'Bot',
         icon: 'kind-icon:robot',
         title: 'Kind Robots',
       },
@@ -302,6 +515,18 @@ character: {
         label: 'Dream',
         icon: 'kind-icon:sparkles',
         title: 'Dream',
+      },
+      {
+        key: 'character',
+        label: 'Character',
+        icon: 'kind-icon:person',
+        title: 'Character',
+      },
+      {
+        key: 'reward',
+        label: 'Reward',
+        icon: 'kind-icon:gift',
+        title: 'Reward',
       },
     ],
   },
@@ -467,6 +692,44 @@ character: {
 } as const satisfies Record<string, DashboardConfig>
 
 export type DashboardKey = keyof typeof dashboardConfigs
+
+export type FooterKey = (typeof dashboardConfigs.footer.tabs)[number]['key']
+
+export const footerKeys = dashboardConfigs.footer.tabs.map((tab) => {
+  return tab.key
+}) as FooterKey[]
+
+export const fallbackFooterKey: FooterKey = dashboardConfigs.footer.defaultTab
+
+export const footerRouteMap = {
+  fx: '/butterflies',
+  bot: '/bots',
+  art: '/addart',
+  story: '/stories',
+  theme: '/themes',
+  user: '/dashboard',
+  lab: '/wonderlab',
+  brainstorm: '/brainstorm',
+  giftshop: '/giftshop',
+  dream: '/dreams',
+  character: '/characters',
+  reward: '/rewards',
+} as const satisfies Record<FooterKey, string>
+
+export const footerDashboardMap = {
+  fx: 'footer',
+  bot: 'bot',
+  art: 'art',
+  story: 'scenario',
+  theme: 'theme',
+  user: 'user',
+  lab: 'wonder',
+  brainstorm: 'brainstorm',
+  giftshop: 'giftshop',
+  dream: 'dream',
+  character: 'character',
+  reward: 'reward',
+} as const satisfies Record<FooterKey, DashboardKey>
 
 export function isDashboardKey(value: string): value is DashboardKey {
   return value in dashboardConfigs

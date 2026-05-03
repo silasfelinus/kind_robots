@@ -181,13 +181,19 @@
     </template>
   </div>
 </template>
-
 <script setup lang="ts">
 // /components/wonderlab/lab-footer.vue
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { useNavStore, type WonderDashboardTab } from '@/stores/navStore'
+import { useNavStore } from '@/stores/navStore'
 import { useComponentStore, type KindComponent } from '@/stores/componentStore'
+
+type WonderDashboardTab =
+  | 'memory-test'
+  | 'memory-dungeon'
+  | 'rebel-button'
+  | 'wonder-lab'
+  | 'screen-fx'
 
 type WonderFooterLink = {
   label: string
@@ -205,7 +211,6 @@ const componentStore = useComponentStore()
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
 const isPriority = computed(() => footerState.value === 'priority')
-const activeTab = computed(() => navStore.wonderDashboardTab)
 
 const footerLinks: WonderFooterLink[] = [
   {
@@ -251,10 +256,21 @@ const footerLinks: WonderFooterLink[] = [
   },
 ]
 
-const activeLink = computed(
-  () =>
-    footerLinks.find((link) => link.key === activeTab.value) ?? footerLinks[0],
-)
+const activeTab = computed<WonderDashboardTab>(() => {
+  const tab = navStore.getDashboardTab('wonder')
+
+  if (isWonderDashboardTab(tab)) {
+    return tab
+  }
+
+  return 'memory-test'
+})
+
+const activeLink = computed(() => {
+  return (
+    footerLinks.find((link) => link.key === activeTab.value) ?? footerLinks[0]
+  )
+})
 
 const activeLabel = computed(() => activeLink.value?.label ?? 'Memory')
 const activeDescription = computed(() => activeLink.value?.description ?? '')
@@ -265,19 +281,26 @@ const folderNames = computed<string[]>(() => {
 
   componentStore.components.forEach((component: KindComponent) => {
     const name = component.folderName?.trim()
-    if (name) folders.add(name)
+
+    if (name) {
+      folders.add(name)
+    }
   })
 
   return Array.from(folders).sort()
 })
 
+function isWonderDashboardTab(value: string): value is WonderDashboardTab {
+  return footerLinks.some((link) => link.key === value)
+}
+
 function selectWonderTab(tab: WonderDashboardTab) {
-  navStore.setWonderDashboardTab(tab)
+  navStore.setDashboardTab('wonder', tab)
 }
 
 function selectFolder(folder: string | null) {
   navStore.setWonderLabFolder(folder)
-  navStore.setWonderDashboardTab('wonder-lab')
+  navStore.setDashboardTab('wonder', 'wonder-lab')
 }
 
 function activeButtonClass(tab: WonderDashboardTab) {

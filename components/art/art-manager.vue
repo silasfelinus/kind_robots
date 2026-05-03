@@ -40,9 +40,7 @@
               <header
                 class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center"
               >
-                <h2 class="text-xl font-bold text-primary">
-                  Prompt Lab
-                </h2>
+                <h2 class="text-xl font-bold text-primary">Prompt Lab</h2>
 
                 <p class="mt-1 text-sm text-base-content/70">
                   Build a prompt, pick a model, and commit pixel alchemy.
@@ -61,9 +59,7 @@
                 {{ generationMessage }}
               </div>
 
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100 p-4"
-              >
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
                 <label class="form-control">
                   <span class="label">
                     <span class="label-text font-bold">Prompt</span>
@@ -80,7 +76,9 @@
                 <div
                   class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
                 >
-                  <div class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/65">
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/65"
+                  >
                     <p>
                       <span class="font-bold">Model:</span>
                       {{ selectedCheckpointLabel }}
@@ -171,12 +169,11 @@
             <header
               class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center"
             >
-              <h2 class="text-2xl font-bold text-primary">
-                Generate Art
-              </h2>
+              <h2 class="text-2xl font-bold text-primary">Generate Art</h2>
 
               <p class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70">
-                Write a prompt, use randomizer pieces, then generate through the active art server.
+                Write a prompt, use randomizer pieces, then generate through the
+                active art server.
               </p>
             </header>
 
@@ -192,9 +189,7 @@
               {{ generationMessage }}
             </div>
 
-            <div
-              class="rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <label class="form-control">
                 <span class="label">
                   <span class="label-text font-bold">Prompt</span>
@@ -208,7 +203,9 @@
                 />
               </label>
 
-              <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div
+                class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4"
+              >
                 <label class="form-control">
                   <span class="label">
                     <span class="label-text font-bold">Steps</span>
@@ -358,12 +355,8 @@
             :show-select-button="false"
           />
 
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
-            <h2 class="text-xl font-bold text-primary">
-              Selected Art
-            </h2>
+          <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+            <h2 class="text-xl font-bold text-primary">Selected Art</h2>
 
             <div class="mt-4 grid gap-3">
               <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -371,7 +364,9 @@
                   Prompt
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/80">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/80"
+                >
                   {{ artStore.currentArt.promptString }}
                 </p>
               </div>
@@ -384,7 +379,9 @@
                   Negative Prompt
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/80">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/80"
+                >
                   {{ artStore.currentArt.negativePrompt }}
                 </p>
               </div>
@@ -443,7 +440,8 @@
           <p class="mt-2 text-lg font-bold">No art selected.</p>
 
           <p class="mt-1 text-sm">
-            Select something from the gallery first. The pixels demand attention.
+            Select something from the gallery first. The pixels demand
+            attention.
           </p>
         </div>
       </section>
@@ -498,12 +496,10 @@ const activeArtServerLabel = computed(() => {
 const selectedCheckpointLabel = computed(() => {
   return (
     checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.label ||
     checkpointStore.selectedCheckpoint?.name ||
     'No checkpoint selected'
   )
 })
-
 const managerSummary = computed(() => {
   const artCount = artStore.art.length
   const collectionCount = collectionStore.collections.length
@@ -517,8 +513,8 @@ const managerSummary = computed(() => {
 const canGenerate = computed(() => {
   return Boolean(
     !isGenerating.value &&
-      promptStore.promptField?.trim() &&
-      serverStore.activeArtServer,
+    promptStore.promptField?.trim() &&
+    serverStore.activeArtServer,
   )
 })
 
@@ -541,8 +537,6 @@ async function loadManagerData(force = false) {
         force,
         fetchRemote: true,
         hydrateImages: false,
-        initializeServerStore: false,
-        initializeCollections: true,
       }),
       checkpointStore.initialize(),
       collectionStore.fetchCollections?.(),
@@ -577,10 +571,8 @@ function useActiveServer() {
     return
   }
 
-  artStore.setArtForm({
-    serverId: server.id,
-    serverName: server.label || server.title,
-  })
+  artStore.artForm.serverId = server.id
+  artStore.artForm.serverName = server.label || server.title
 
   generationTone.value = 'success'
   generationMessage.value = `Using ${server.label || server.title}.`
@@ -614,11 +606,9 @@ async function generateArt() {
       serverId: activeServer.id,
       serverName: activeServer.label || activeServer.title,
       checkpoint:
-        checkpointStore.selectedCheckpoint?.name ||
-        artStore.artForm.checkpoint,
+        checkpointStore.selectedCheckpoint?.name || artStore.artForm.checkpoint,
       sampler:
-        checkpointStore.selectedSampler?.name ||
-        artStore.artForm.sampler,
+        checkpointStore.selectedSampler?.name || artStore.artForm.sampler,
       designer: artStore.artForm.designer,
       userId: artStore.artForm.userId,
       pitch: artStore.artForm.pitch,

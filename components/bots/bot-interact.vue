@@ -6,9 +6,7 @@
     <header
       class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
     >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">
-        Bot Interact
-      </h1>
+      <h1 class="text-2xl font-bold text-primary md:text-3xl">Bot Interact</h1>
 
       <p
         class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
@@ -353,9 +351,7 @@
           class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
         >
           <div class="mb-3 flex items-center justify-between gap-2">
-            <h2 class="text-lg font-bold text-base-content">
-              Prompt Preview
-            </h2>
+            <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
 
             <button
               class="btn btn-xs btn-ghost rounded-xl"
@@ -367,7 +363,10 @@
             </button>
           </div>
 
-          <pre class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70">{{ promptPreview }}</pre>
+          <pre
+            class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+            >{{ promptPreview }}</pre
+          >
         </section>
       </aside>
     </section>
@@ -388,7 +387,9 @@ type SessionChat = {
   botResponse?: string | null
 }
 
-type ChatRuntimeInput = Parameters<ReturnType<typeof useChatStore>['addChat']>[0]
+type ChatRuntimeInput = Parameters<
+  ReturnType<typeof useChatStore>['addChat']
+>[0]
 
 const botStore = useBotStore()
 const chatStore = useChatStore()
@@ -540,9 +541,6 @@ async function sendMessage() {
       recipientId: bot.id,
       characterId: null,
       serverId: serverStore.activeTextServer?.id ?? null,
-      temperature: temperature.value,
-      model: modelName.value || undefined,
-      maxTokens: maxTokens.value,
     }
 
     const newChat = await chatStore.addChat(payload)

@@ -62,9 +62,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm">
-          Private
-        </span>
+        <span v-else class="badge badge-warning badge-sm"> Private </span>
       </div>
     </div>
 
@@ -113,7 +111,9 @@
           :key="`stat-${index}`"
           class="rounded-xl border border-base-300 bg-base-200 p-2 text-center"
         >
-          <div class="truncate text-[10px] font-bold uppercase text-base-content/60">
+          <div
+            class="truncate text-[10px] font-bold uppercase text-base-content/60"
+          >
             {{ statName(index) }}
           </div>
 
@@ -126,7 +126,9 @@
       <div v-if="showModeButtons" class="grid grid-cols-2 gap-2 pt-1">
         <button
           class="btn btn-sm rounded-xl"
-          :class="activeMode === 'chat' ? 'btn-primary text-white' : 'btn-outline'"
+          :class="
+            activeMode === 'chat' ? 'btn-primary text-white' : 'btn-outline'
+          "
           type="button"
           @click.stop="toggleMode('chat')"
         >
@@ -136,11 +138,7 @@
 
         <button
           class="btn btn-sm rounded-xl"
-          :class="
-            activeMode === 'adventure'
-              ? 'btn-secondary'
-              : 'btn-outline'
-          "
+          :class="activeMode === 'adventure' ? 'btn-secondary' : 'btn-outline'"
           type="button"
           @click.stop="toggleMode('adventure')"
         >
@@ -172,7 +170,9 @@
           Debug
         </summary>
 
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(character, null, 2) }}</pre>
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(character, null, 2)
+        }}</pre>
       </details>
     </div>
   </article>
@@ -319,7 +319,8 @@ onMounted(async () => {
   if (!props.character.artImageId || !props.showImage) return
 
   try {
-    artImage.value = await artStore.getArtImageById(props.character.artImageId)
+    artImage.value =
+      (await artStore.getArtImageById(props.character.artImageId)) ?? null
   } catch (error) {
     console.error('Failed to load character art image:', error)
   }

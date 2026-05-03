@@ -82,9 +82,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm">
-          Private
-        </span>
+        <span v-else class="badge badge-warning badge-sm"> Private </span>
 
         <span v-if="collection.isMature" class="badge badge-error badge-sm">
           Mature
@@ -195,7 +193,9 @@
           Debug
         </summary>
 
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(collection, null, 2) }}</pre>
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(collection, null, 2)
+        }}</pre>
       </details>
     </div>
   </article>
@@ -314,9 +314,7 @@ const previewImage = computed(() => {
   if (isHiddenMature.value) return ''
 
   return (
-    previewArt.value?.imagePath ||
-    previewArt.value?.path ||
-    props.fallbackImage
+    previewArt.value?.imagePath || previewArt.value?.path || props.fallbackImage
   )
 })
 
@@ -335,27 +333,17 @@ const updatedLabel = computed(() => {
 async function selectCollection() {
   if (isHiddenMature.value) return
 
-  if (typeof collectionStore.selectCollection === 'function') {
-    await collectionStore.selectCollection(props.collection.id)
-    return
-  }
-
-  collectionStore.currentCollection = props.collection
+  collectionStore.setCurrentCollection(props.collection.id)
+  collectionStore.setSelectedCollectionIds([props.collection.id])
 }
 
 async function deleteCollection() {
   if (!canEdit.value) return
 
-  if (typeof collectionStore.deleteCollection === 'function') {
-    const result = await collectionStore.deleteCollection(props.collection.id)
+  const result = await collectionStore.deleteCollectionById(props.collection.id)
 
-    if (result) {
-      emit('delete', props.collection.id)
-    }
-
-    return
+  if (result) {
+    emit('delete', props.collection.id)
   }
-
-  emit('delete', props.collection.id)
 }
 </script>

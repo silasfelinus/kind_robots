@@ -53,7 +53,10 @@
       </div>
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span v-if="isActive && showActiveBadge" class="badge badge-primary badge-sm">
+        <span
+          v-if="isActive && showActiveBadge"
+          class="badge badge-primary badge-sm"
+        >
           Active
         </span>
 
@@ -92,19 +95,23 @@
       </p>
 
       <div v-if="showMeta" class="flex flex-wrap justify-center gap-2">
-        <span v-if="checkpoint.type" class="badge badge-outline badge-sm">
-          {{ checkpoint.type }}
+        <span v-if="checkpoint.localPath" class="badge badge-outline badge-sm">
+          Local
         </span>
 
-        <span v-if="checkpoint.category" class="badge badge-ghost badge-sm">
-          {{ checkpoint.category }}
+        <span v-if="checkpoint.artImageId" class="badge badge-ghost badge-sm">
+          Preview
+        </span>
+
+        <span v-if="checkpoint.userId" class="badge badge-primary badge-sm">
+          User
         </span>
 
         <span
-          v-if="checkpoint.isPublic"
-          class="badge badge-success badge-sm"
+          v-if="checkpoint.generation"
+          class="badge badge-secondary badge-sm"
         >
-          Public
+          {{ checkpoint.generation }}
         </span>
       </div>
 
@@ -130,7 +137,9 @@
         Debug
       </summary>
 
-      <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(checkpoint, null, 2) }}</pre>
+      <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+        JSON.stringify(checkpoint, null, 2)
+      }}</pre>
     </details>
   </article>
 </template>
@@ -143,7 +152,7 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const props = withDefaults(
   defineProps<{
-    checkpoint: Resource
+    checkpoint: CheckpointResource
     art?: Art | null
     showMature?: boolean
     cacheBuster?: number
@@ -186,7 +195,7 @@ const checkpointStore = useCheckpointStore()
 const isActive = computed(() => {
   return Boolean(
     props.checkpoint.name &&
-      checkpointStore.currentApiModel === props.checkpoint.name,
+    checkpointStore.currentApiModel === props.checkpoint.name,
   )
 })
 
@@ -199,14 +208,15 @@ const checkpointLabel = computed(() => {
 
   return (
     props.checkpoint.customLabel ||
-    props.checkpoint.label ||
     props.checkpoint.name ||
     'Unnamed Checkpoint'
   )
 })
 
 const canSelect = computed(() => {
-  return Boolean(props.allowSelect && props.checkpoint.name && !isHiddenMature.value)
+  return Boolean(
+    props.allowSelect && props.checkpoint.name && !isHiddenMature.value,
+  )
 })
 
 const imageSource = computed(() => {

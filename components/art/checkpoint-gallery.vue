@@ -156,7 +156,9 @@
       v-if="showStatus"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs text-base-content/70"
     >
-      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div
+        class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+      >
         <div class="min-w-0">
           <span class="font-semibold">Active Model:</span>
 
@@ -208,6 +210,17 @@ import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+
+type CheckpointResource = Partial<Resource> & {
+  id?: number
+  name?: string | null
+  customLabel?: string | null
+  description?: string | null
+  localPath?: string | null
+  MediaPath?: string | null
+  generation?: string | null
+  isMature?: boolean | null
+}
 
 type CheckpointGalleryVariant = 'dashboard' | 'row' | 'compact'
 
@@ -294,11 +307,11 @@ const showMature = computed({
   },
 })
 
-const baseCheckpoints = computed<Resource[]>(() => {
-  return checkpointStore.visibleCheckpoints ?? []
+const baseCheckpoints = computed<CheckpointResource[]>(() => {
+  return (checkpointStore.visibleCheckpoints ?? []) as CheckpointResource[]
 })
 
-const visibleCheckpoints = computed<Resource[]>(() => {
+const visibleCheckpoints = computed<CheckpointResource[]>(() => {
   let checkpoints = baseCheckpoints.value
 
   if (!showMature.value) {
@@ -312,11 +325,10 @@ const visibleCheckpoints = computed<Resource[]>(() => {
       const haystack = [
         checkpoint.name,
         checkpoint.customLabel,
-        checkpoint.label,
         checkpoint.description,
         checkpoint.localPath,
-        checkpoint.category,
-        checkpoint.type,
+        checkpoint.MediaPath,
+        checkpoint.generation,
       ]
         .filter(Boolean)
         .join(' ')
@@ -329,7 +341,7 @@ const visibleCheckpoints = computed<Resource[]>(() => {
   return checkpoints
 })
 
-const displayedCheckpoints = computed<Resource[]>(() => {
+const displayedCheckpoints = computed<CheckpointResource[]>(() => {
   const selected = checkpointStore.selectedCheckpoint?.name
 
   if (!isExpanded.value && selected) {
@@ -341,7 +353,7 @@ const displayedCheckpoints = computed<Resource[]>(() => {
   return visibleCheckpoints.value
 })
 
-const compactCheckpoint = computed<Resource | null>(() => {
+const compactCheckpoint = computed<CheckpointResource | null>(() => {
   if (isExpanded.value) return null
 
   const selected = checkpointStore.selectedCheckpoint?.name
@@ -373,7 +385,6 @@ const activeModelLabel = computed(() => {
 const summary = computed(() => {
   const selected =
     checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.label ||
     checkpointStore.selectedCheckpoint?.name
 
   if (selected) {
@@ -444,8 +455,6 @@ async function hydrateCheckpointImages() {
   await artStore.initialize({
     fetchRemote: true,
     hydrateImages: false,
-    initializeServerStore: false,
-    initializeCollections: false,
   })
 
   const allArt = artStore.art ?? []

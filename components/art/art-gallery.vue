@@ -159,9 +159,7 @@
       class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
     >
       <div class="mb-3 flex items-center justify-between gap-2">
-        <h3 class="text-sm font-bold text-base-content">
-          Upload Art Image
-        </h3>
+        <h3 class="text-sm font-bold text-base-content">Upload Art Image</h3>
 
         <button
           class="btn btn-ghost btn-xs rounded-xl"
@@ -217,7 +215,9 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(220px,320px)_minmax(0,1fr)]">
+      <div
+        class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(220px,320px)_minmax(0,1fr)]"
+      >
         <art-card
           :art="artStore.currentArt"
           :art-image="artStore.currentArtImage"
@@ -313,7 +313,8 @@
           <p class="text-lg font-bold">No art found.</p>
 
           <p class="mt-1 text-sm">
-            Either the gallery is empty, or the filters are wearing a fake mustache.
+            Either the gallery is empty, or the filters are wearing a fake
+            mustache.
           </p>
         </div>
 
@@ -385,9 +386,7 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <span>
-          Page {{ artStore.currentPage }}
-        </span>
+        <span> Page {{ artStore.currentPage }} </span>
 
         <span v-if="artStore.totalArtCount">
           Total {{ artStore.totalArtCount }}
@@ -406,8 +405,26 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
 
+type DashboardKey =
+  | 'footer'
+  | 'scenario'
+  | 'character'
+  | 'reward'
+  | 'user'
+  | 'dream'
+  | 'wonder'
+  | 'server'
+
+const artDashboardKey: DashboardKey = 'server'
+
 type ArtGalleryVariant = 'dashboard' | 'row' | 'dropdown'
-type ArtScope = 'visible' | 'mine' | 'public' | 'generated' | 'collection' | 'all'
+type ArtScope =
+  | 'visible'
+  | 'mine'
+  | 'public'
+  | 'generated'
+  | 'collection'
+  | 'all'
 type MatureFilter = 'allowed' | 'safe' | 'mature'
 
 const props = withDefaults(
@@ -490,7 +507,9 @@ const uploadMessage = ref('')
 const uploadTone = ref<'success' | 'error'>('success')
 
 const isCompact = computed(() => {
-  return props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  return (
+    props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  )
 })
 
 const layoutClass = computed(() => {
@@ -629,8 +648,6 @@ async function refreshArt(force = false) {
       force,
       fetchRemote: true,
       hydrateImages: false,
-      initializeServerStore: false,
-      initializeCollections: false,
     })
 
     if (!artStore.art.length || force) {
@@ -664,13 +681,13 @@ function clearSelectedArt() {
 }
 
 function openGenerator() {
-  navStore.setDashboardTab('art', 'generate')
+  navStore.setDashboardTab(artDashboardKey, 'generate')
   void router.push('/art')
 }
 
 function startEditingArt(id: number) {
   void artStore.selectArt(id)
-  navStore.setDashboardTab('art', 'edit')
+  navStore.setDashboardTab(artDashboardKey, 'edit')
 }
 
 function handleArtDeleted(id: number) {
@@ -726,14 +743,10 @@ async function addSelectedArtToCollection() {
 
   if (!art || !collection) return
 
-  if (typeof collectionStore.addArtToCollection === 'function') {
-    await collectionStore.addArtToCollection(collection.id, art.id)
-    return
-  }
+  await collectionStore.addArtToCollection(art)
 
-  if (typeof collectionStore.addArtToLocalCollection === 'function') {
-    collectionStore.addArtToLocalCollection(collection, art)
-  }
+  uploadTone.value = 'success'
+  uploadMessage.value = `Added art #${art.id} to ${collection.label || 'collection'}.`
 }
 </script>
 

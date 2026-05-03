@@ -17,7 +17,7 @@
           </p>
         </div>
 
-        <span class="badge badge-ghost shrink-0">
+        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
           {{ visibleCollections.length }}
         </span>
       </div>
@@ -62,19 +62,20 @@
           :disabled="isLoading"
           @click="refreshCollections"
         >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <span
+            v-if="isLoading"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           Refresh
         </button>
       </div>
 
-      <div
-        v-if="showToolbar"
-        class="grid grid-cols-2 gap-2 sm:grid-cols-4"
-      >
+      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <button
+          v-if="allowAdd"
           class="btn btn-primary btn-sm rounded-xl"
           type="button"
-          :disabled="!allowAdd"
           @click="startAddingCollection"
         >
           <Icon name="kind-icon:plus" class="h-4 w-4" />
@@ -82,10 +83,11 @@
         </button>
 
         <button
+          v-if="allowEdit"
           class="btn btn-secondary btn-sm rounded-xl"
           type="button"
           :disabled="!activeCollection || !canEditCollection(activeCollection)"
-          @click="startEditingCollection"
+          @click="startEditingCollection()"
         >
           <Icon name="kind-icon:pencil" class="h-4 w-4" />
           Edit
@@ -223,13 +225,10 @@
         v-if="isLoading"
         class="flex h-full items-center justify-center py-12"
       >
-        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
-      <div
-        v-else-if="selectedCollections.length"
-        class="flex flex-col gap-4"
-      >
+      <div v-else-if="selectedCollections.length" class="flex flex-col gap-4">
         <article
           v-for="collection in selectedCollections"
           :key="collection.id"
@@ -240,7 +239,10 @@
           >
             <div class="min-w-0 flex-1">
               <div
-                v-if="editingTitle === collection.id && canEditCollection(collection)"
+                v-if="
+                  editingTitle === collection.id &&
+                  canEditCollection(collection)
+                "
                 class="flex flex-col gap-2 sm:flex-row sm:items-center"
               >
                 <input
@@ -427,6 +429,7 @@
               <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
 
               <p class="mt-2 text-lg font-bold">No art in this collection.</p>
+
               <p class="mt-1 text-sm">
                 The gallery goblin found only vibes and lint.
               </p>
@@ -435,10 +438,7 @@
         </article>
       </div>
 
-      <div
-        v-else
-        class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4"
-      >
+      <div v-else :class="layoutClass">
         <collection-card
           v-for="collection in visibleCollections"
           :key="collection.id"
@@ -464,11 +464,13 @@ import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
 
+type CollectionGalleryVariant = 'dashboard' | 'row'
 type CollectionScope = 'visible' | 'mine' | 'public' | 'all'
 type MatureFilter = 'allowed' | 'safe' | 'mature'
 
 const props = withDefaults(
   defineProps<{
+    variant?: CollectionGalleryVariant
     title?: string
     subtitle?: string
     compact?: boolean
@@ -482,6 +484,7 @@ const props = withDefaults(
     autoLoad?: boolean
   }>(),
   {
+    variant: 'dashboard',
     title: 'Collections',
     subtitle: 'Browse art collections.',
     compact: false,
@@ -519,10 +522,16 @@ const collectionForm = reactive<Partial<ArtCollection>>({
   isMature: false,
 })
 
-const isCompact = computed(() => props.compact)
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row'
+})
+
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'collection-row' : 'collection-grid'
+})
 
 const showMature = computed(() => {
-  return userStore.showMature && matureFilter.value !== 'safe'
+  return Boolean(userStore.showMature && matureFilter.value !== 'safe')
 })
 
 const selectedCollectionIds = computed<number[]>(() => {
@@ -871,3 +880,23 @@ function startEditingArt(id: number) {
   void artStore.selectArt(id)
 }
 </script>
+
+<style scoped>
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.collection-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.collection-row > * {
+  min-width: min(220px, 85vw);
+  max-width: 340px;
+}
+</style>

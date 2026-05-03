@@ -1,16 +1,21 @@
 // /stores/artStore.ts
 import { defineStore } from 'pinia'
-import { reactive, toRefs, ref, computed } from 'vue'
+import { computed, reactive, ref, toRefs } from 'vue'
 import type {
   Art,
-  Reaction,
   ArtImage,
-  Tag,
+  Reaction,
   Server,
+  Tag,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
-import { usePromptStore } from './promptStore'
-import { useUserStore } from './userStore'
+import { usePromptStore } from '@/stores/promptStore'
+import { useUserStore } from '@/stores/userStore'
+import { useCollectionStore } from '@/stores/collectionStore'
+import { useCheckpointStore } from '@/stores/checkpointStore'
+import { useRandomStore } from '@/stores/randomStore'
+import { useServerStore } from '@/stores/serverStore'
+import { artListPresets } from '@/stores/seeds/artList'
 import {
   type GenerateArtData,
   getArtImagesByIds,
@@ -22,19 +27,49 @@ import {
   updateArtImageId,
 } from '@/stores/helpers/artHelper'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
-import { useCollectionStore } from './collectionStore'
-import { useCheckpointStore } from './checkpointStore'
-import { artListPresets } from '@/stores/seeds/artList'
-import { useRandomStore } from './randomStore'
-import { useServerStore } from './serverStore'
 
-interface ApiResponse<T> {
+type ApiResponse<T> = {
   success: boolean
   data?: T
   message?: string
 }
 
-interface ArtStoreState {
+type ArtInitializeOptions = {
+  force?: boolean
+  fetchRemote?: boolean
+  hydrateImages?: boolean
+  initializeServerStore?: boolean
+  initializeCollections?: boolean
+}
+
+type ArtGenerationMode = 'browser' | 'backend'
+
+type CreateArtInput = {
+  promptString: string
+  path: string | null
+  seed: number | null
+  steps: number | null
+  galleryId: number | null
+  promptId: number | null
+  pitchId: number | null
+  userId: number | null
+  designer: string | null
+  artImageId: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  negativePrompt?: string | null
+  imagePath?: string | null
+  genres?: string | null
+}
+
+type ArtStoreState = {
   art: Art[]
   artImages: ArtImage[]
   tags: Tag[]
@@ -56,12 +91,6 @@ interface ArtStoreState {
   generatedArt: Art[]
   artForm: GenerateArtData
   artListSelections: Record<string, string[]>
-}
-
-type ArtInitializeOptions = {
-  force?: boolean
-  fetchRemote?: boolean
-  hydrateImages?: boolean
 }
 
 const isClient = typeof window !== 'undefined'
@@ -93,7 +122,7 @@ function safeParseArtImages(raw: string | null): ArtImage[] {
 
   try {
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
+    return Array.isArray(parsed) ? (parsed as ArtImage[]) : []
   } catch {
     return []
   }
@@ -104,6 +133,18 @@ function limitByNewestId<T extends { id: number }>(
   limit: number,
 ): T[] {
   return [...items].sort((a, b) => b.id - a.id).slice(0, limit)
+}
+
+function sortNewestArt(a: Art, b: Art): number {
+  return b.id - a.id
+}
+
+function sortNewestArtImages(a: ArtImage, b: ArtImage): number {
+  return b.id - a.id
+}
+
+function isValidId(value: unknown): value is number {
+  return Number.isInteger(value) && Number(value) > 0
 }
 
 export const useArtStore = defineStore('artStore', () => {
@@ -150,8 +191,8 @@ export const useArtStore = defineStore('artStore', () => {
     },
   })
 
-  const userStore = useUserStore()
   const promptStore = usePromptStore()
+  const userStore = useUserStore()
   const collectionStore = useCollectionStore()
   const randomStore = useRandomStore()
   const serverStore = useServerStore()
@@ -168,13 +209,31 @@ export const useArtStore = defineStore('artStore', () => {
   const hasCachedArt = computed(() => state.art.length > 0)
   const hasCachedImages = computed(() => state.artImages.length > 0)
 
+  const currentImagePath = computed(() => {
+    if (state.currentArtImage) {
+      return `data:image/${state.currentArtImage.fileType};base64,${state.currentArtImage.imageData}`
+    }
+
+    return state.currentArt?.imagePath || state.currentArt?.path || ''
+  })
+
+  const generatedArtCount = computed(() => state.generatedArt.length)
+
+  const artById = computed(() => {
+    return new Map(state.art.map((art) => [art.id, art]))
+  })
+
+  const imageById = computed(() => {
+    return new Map(state.artImages.map((image) => [image.id, image]))
+  })
+
   const getPromptString = computed<string>(() => {
     const baseSelections = Object.entries(state.artListSelections)
       .filter(
-        ([key]: [string, string[]]) =>
+        ([key]) =>
           !key.startsWith('__') && !randomStore.supportedKeys.includes(key),
       )
-      .flatMap(([, values]: [string, string[]]) => values)
+      .flatMap(([, values]) => values)
 
     const prettySelections = state.artListSelections.__pretty__ || []
     const randomSelections = Object.values(
@@ -188,7 +247,7 @@ export const useArtStore = defineStore('artStore', () => {
       ...randomSelections,
       typedPrompt,
     ]
-      .filter((value: string) => Boolean(value))
+      .filter(Boolean)
       .join(', ')
   })
 
@@ -219,16 +278,15 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
-    const storedArt = safeGetLocalStorage(artStorageKey)
-    state.art = parseStoredArt(storedArt || '')
+    state.art = parseStoredArt(safeGetLocalStorage(artStorageKey) || '').sort(
+      sortNewestArt,
+    )
 
-    if (options.hydrateImages === false) {
-      return
-    }
+    if (options.hydrateImages === false) return
 
     state.artImages = safeParseArtImages(
       safeGetLocalStorage(artImagesStorageKey),
-    )
+    ).sort(sortNewestArtImages)
   }
 
   function mergeUniqueArt(existing: Art[], incoming: Art[]): Art[] {
@@ -242,7 +300,7 @@ export const useArtStore = defineStore('artStore', () => {
       map.set(entry.id, entry)
     }
 
-    return Array.from(map.values()).sort((a, b) => b.id - a.id)
+    return Array.from(map.values()).sort(sortNewestArt)
   }
 
   function mergeUniqueArtImages(
@@ -259,7 +317,7 @@ export const useArtStore = defineStore('artStore', () => {
       map.set(image.id, image)
     }
 
-    return Array.from(map.values()).sort((a, b) => b.id - a.id)
+    return Array.from(map.values()).sort(sortNewestArtImages)
   }
 
   function setArtList(art: Art[]): void {
@@ -274,29 +332,74 @@ export const useArtStore = defineStore('artStore', () => {
 
   function addOrUpdateArtImages(images: ArtImage[]): void {
     if (!images.length) return
+
     state.artImages = mergeUniqueArtImages(state.artImages, images)
     persistArtImages()
+  }
+
+  function setArtForm(updates: Partial<GenerateArtData>): void {
+    state.artForm = {
+      ...state.artForm,
+      ...updates,
+    }
+  }
+
+  function resetArtForm(overrides: Partial<GenerateArtData> = {}): void {
+    state.artForm = {
+      promptString: '',
+      negativePrompt: '',
+      pitch: '',
+      userId: userStore.userId || userStore.user?.id || 10,
+      galleryId: null,
+      checkpoint: '',
+      sampler: '',
+      steps: 25,
+      designer: userStore.username || userStore.user?.username || '',
+      cfg: 7,
+      cfgHalf: false,
+      isMature: false,
+      isPublic: true,
+      seed: null,
+      promptId: null,
+      pitchId: null,
+      serverId: serverStore.activeArtServer?.id ?? null,
+      serverName:
+        serverStore.activeArtServer?.label ||
+        serverStore.activeArtServer?.title ||
+        null,
+      ...overrides,
+    }
   }
 
   function updateArtListSelection(id: string, selections: string[]): void {
     state.artListSelections[id] = selections
   }
 
+  function clearArtListSelections(): void {
+    state.artListSelections = {}
+  }
+
   function getArtListAddonPrompt(): string {
     return Object.entries(state.artListSelections)
-      .flatMap(([key, values]: [string, string[]]) =>
+      .flatMap(([key, values]) =>
         key === '__pretty__'
           ? values
           : values.map((value: string) => value.trim()),
       )
-      .filter((value: string) => Boolean(value))
+      .filter(Boolean)
       .join(', ')
   }
 
   async function initialize(options: ArtInitializeOptions = {}): Promise<void> {
-    if (state.isInitialized && !options.force) return
-    if (initializePromise.value && !options.force)
+    const shouldFetchRemote = Boolean(options.fetchRemote)
+    const shouldInitializeServers = options.initializeServerStore !== false
+    const shouldInitializeCollections = Boolean(options.initializeCollections)
+
+    if (state.isInitialized && !options.force && !shouldFetchRemote) return
+
+    if (initializePromise.value && !options.force) {
       return initializePromise.value
+    }
 
     initializePromise.value = (async () => {
       state.loading = true
@@ -306,12 +409,27 @@ export const useArtStore = defineStore('artStore', () => {
         clearError()
         hydrateFromLocalStorage({ hydrateImages: options.hydrateImages })
 
-        if (options.fetchRemote) {
-          await fetchAllArt(Boolean(options.force))
+        if (shouldInitializeServers) {
+          await serverStore.initialize({
+            fetchRemote: shouldFetchRemote,
+            force: Boolean(options.force),
+          })
+        }
+
+        if (shouldInitializeCollections) {
+          await ensureCollectionsReady()
+        }
+
+        if (shouldFetchRemote) {
+          await fetchArtPage(state.currentPage, state.pageSize, Boolean(options.force))
+        }
+
+        if (!state.artForm.userId) {
+          resetArtForm(state.artForm)
         }
 
         state.isInitialized = true
-      } catch (error: unknown) {
+      } catch (error) {
         handleError(error, 'initializing art store')
         setError(error, 'Failed to initialize art store')
         state.isInitialized = false
@@ -326,17 +444,16 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function fetchAllArt(force = false): Promise<Art[]> {
-    if (!force && state.art.length) {
-      return state.art
-    }
+    if (!force && state.art.length) return state.art
 
     if (fetchAllArtPromise.value && !force) {
       return fetchAllArtPromise.value
     }
 
     fetchAllArtPromise.value = (async () => {
+      state.loading = true
+
       try {
-        state.loading = true
         clearError()
 
         const response = await performFetch<Art[]>('/api/art')
@@ -347,7 +464,7 @@ export const useArtStore = defineStore('artStore', () => {
 
         setArtList(response.data)
         return state.art
-      } catch (error: unknown) {
+      } catch (error) {
         handleError(error, 'fetching all art')
         setError(error, 'Failed to fetch art.')
         return state.art
@@ -372,8 +489,9 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     fetchArtPagePromise.value[key] = (async () => {
+      state.loading = true
+
       try {
-        state.loading = true
         clearError()
 
         const response = await performFetch<{
@@ -392,7 +510,7 @@ export const useArtStore = defineStore('artStore', () => {
         persistArt()
 
         return response.data.art
-      } catch (error: unknown) {
+      } catch (error) {
         handleError(error, 'fetching art page')
         setError(error, 'Failed to fetch art page.')
         return []
@@ -409,35 +527,35 @@ export const useArtStore = defineStore('artStore', () => {
     ids: number[],
     chunkSize = 20,
   ): Promise<void> {
-    const uniqueIds = [...new Set(ids)].filter(
-      (id: number) =>
-        Number.isInteger(id) &&
-        id > 0 &&
-        !state.artImages.some((image: ArtImage) => image.id === id),
-    )
+    const uniqueIds = [...new Set(ids)].filter((id) => {
+      return (
+        isValidId(id) &&
+        !state.artImages.some((image) => image.id === id)
+      )
+    })
 
     if (!uniqueIds.length) return
 
     const chunks = Array.from(
       { length: Math.ceil(uniqueIds.length / chunkSize) },
-      (_: unknown, index: number) =>
-        uniqueIds.slice(index * chunkSize, (index + 1) * chunkSize),
+      (_, index) => uniqueIds.slice(index * chunkSize, (index + 1) * chunkSize),
     )
 
     for (const chunk of chunks) {
       try {
         const images = await getArtImagesByIds(chunk)
+
         if (images?.length) {
           addOrUpdateArtImages(images)
         }
-      } catch (error: unknown) {
+      } catch (error) {
         handleError(error, 'loading art images in chunks')
       }
     }
   }
 
   async function selectArt(artId: number): Promise<void> {
-    const found = state.art.find((art: Art) => art.id === artId)
+    const found = state.art.find((art) => art.id === artId)
 
     if (!found) {
       handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
@@ -455,8 +573,14 @@ export const useArtStore = defineStore('artStore', () => {
     state.currentArtImage = image || null
   }
 
+  function deselectArt(): void {
+    state.currentArt = null
+    state.currentArtImage = null
+    setHoverArt(null)
+  }
+
   async function getArtImageById(id: number): Promise<ArtImage | undefined> {
-    const cached = state.artImages.find((image: ArtImage) => image.id === id)
+    const cached = imageById.value.get(id)
     if (cached) return cached
 
     const existingRequest = artImageRequestMap.value[id]
@@ -474,17 +598,23 @@ export const useArtStore = defineStore('artStore', () => {
         }
 
         throw new Error(response.message || `Failed to fetch art image ${id}.`)
-      } catch (error: unknown) {
+      } catch (error) {
         handleError(error, 'fetching single art image')
         setError(error, `Failed to fetch art image ${id}.`)
+        return undefined
       } finally {
         delete artImageRequestMap.value[id]
       }
-
-      return undefined
     })()
 
     return artImageRequestMap.value[id]
+  }
+
+  function getArtImageByArtId(
+    artId: number,
+    images: ArtImage[] = state.artImages,
+  ): ArtImage | undefined {
+    return images.find((image) => image.artId === artId)
   }
 
   function calculateCfg(cfg: number, cfgHalf: boolean): number {
@@ -494,23 +624,21 @@ export const useArtStore = defineStore('artStore', () => {
   function getArtGenerationEndpointPath(server: Server): string {
     const endpointPath = server.endpointPath || '/sdapi/v1/txt2img'
 
-    if (server.serverType === 'A1111') {
-      if (endpointPath.endsWith('/sdapi/v1/txt2img')) {
-        return endpointPath
-      }
+    if (server.serverType !== 'A1111') return endpointPath
 
-      if (endpointPath.endsWith('/sdapi/v1')) {
-        return `${endpointPath}/txt2img`
-      }
-
-      if (endpointPath.endsWith('/sdapi')) {
-        return `${endpointPath}/v1/txt2img`
-      }
-
-      return '/sdapi/v1/txt2img'
+    if (endpointPath.endsWith('/sdapi/v1/txt2img')) {
+      return endpointPath
     }
 
-    return endpointPath
+    if (endpointPath.endsWith('/sdapi/v1')) {
+      return `${endpointPath}/txt2img`
+    }
+
+    if (endpointPath.endsWith('/sdapi')) {
+      return `${endpointPath}/v1/txt2img`
+    }
+
+    return '/sdapi/v1/txt2img'
   }
 
   function getClientServerHeaders(server: Server): HeadersInit {
@@ -534,6 +662,43 @@ export const useArtStore = defineStore('artStore', () => {
     return headers
   }
 
+  function getSelectedArtServer(data: GenerateArtData): Server {
+    const selectedServer =
+      typeof data.serverId === 'number'
+        ? serverStore.getServerById(data.serverId)
+        : serverStore.activeArtServer
+
+    if (!selectedServer) {
+      throw new Error('No active art server selected.')
+    }
+
+    return selectedServer
+  }
+
+  function getArtGenerationMode(server: Server): ArtGenerationMode {
+    if (!server.isActive) {
+      throw new Error(`Server "${server.title}" is not active.`)
+    }
+
+    if (server.serverType !== 'A1111') {
+      throw new Error(
+        `Server "${server.title}" is ${server.serverType}. This generator currently supports A1111 only.`,
+      )
+    }
+
+    if (!server.supportsTxt2Img) {
+      throw new Error(`Server "${server.title}" does not support txt2img.`)
+    }
+
+    const shouldUseBrowser =
+      server.allowBrowserRequests &&
+      (server.requiresClientSideCheck ||
+        server.isPrivateNetwork ||
+        server.accessMode === 'LOCAL')
+
+    return shouldUseBrowser ? 'browser' : 'backend'
+  }
+
   async function generateImageFromBrowserServer(
     server: Server,
     form: GenerateArtData,
@@ -545,9 +710,7 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     if (!server.allowBrowserRequests) {
-      throw new Error(
-        `Server "${server.title}" does not allow browser requests.`,
-      )
+      throw new Error(`Server "${server.title}" does not allow browser requests.`)
     }
 
     const response = await serverStore.requestServer(
@@ -576,6 +739,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     if (!response.ok) {
       const message = await response.text()
+
       throw new Error(
         `Browser image generation failed: ${response.status} ${response.statusText}${message ? ` - ${message}` : ''}`,
       )
@@ -590,216 +754,6 @@ export const useArtStore = defineStore('artStore', () => {
     return data.images[0]
   }
 
-  function getArtImageByArtId(
-    artId: number,
-    images?: ArtImage[],
-  ): ArtImage | undefined {
-    const pool = images ?? state.artImages
-    return pool.find((image: ArtImage) => image.artId === artId)
-  }
-
-  async function createArt(artData: {
-    promptString: string
-    path: string
-    seed: number | null
-    steps: number | null
-    galleryId: number | null
-    promptId: number | null
-    pitchId: number | null
-    userId: number | null
-    designer: string | null
-    artImageId: number | null
-    serverId?: number | null
-    serverName?: string | null
-  }): Promise<Art> {
-    try {
-      clearError()
-
-      const response = await performFetch<Art>('/api/art/', {
-        method: 'POST',
-        body: JSON.stringify(artData),
-      })
-
-      if (response.success && response.data) {
-        addOrUpdateArt(response.data)
-        return response.data
-      }
-
-      throw new Error(response.message || 'Failed to create art.')
-    } catch (error: unknown) {
-      handleError(error, 'creating art')
-      setError(error, 'Failed to create art.')
-      throw error
-    }
-  }
-
-  async function deleteArt(id: number): Promise<void> {
-    try {
-      clearError()
-
-      const response = await performFetch(`/api/art/${id}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete art.')
-      }
-
-      state.art = state.art.filter((art: Art) => art.id !== id)
-
-      if (state.currentArt?.id === id) {
-        state.currentArt = null
-        state.currentArtImage = null
-      }
-
-      persistArt()
-    } catch (error: unknown) {
-      handleError(error, 'deleting art')
-      setError(error, 'Failed to delete art.')
-    }
-  }
-
-  async function uploadImage(
-    formData: FormData,
-  ): Promise<{ success: boolean; message: string }> {
-    try {
-      clearError()
-
-      const response = await performFetch<ArtImage>('/api/art/upload', {
-        method: 'POST',
-        body: formData,
-        // No Content-Type header — browser sets it automatically with the correct
-        // multipart boundary when body is FormData. Setting it manually breaks parsing.
-      })
-
-      if (response.success && response.data) {
-        addOrUpdateArtImages([response.data])
-        return {
-          success: true,
-          message: 'Image uploaded successfully',
-        }
-      }
-
-      return {
-        success: false,
-        message: response.message || 'Upload failed',
-      }
-    } catch (error: unknown) {
-      handleError(error, 'uploading image')
-      setError(error, 'Upload failed.')
-      return {
-        success: false,
-        message: 'Upload failed',
-      }
-    }
-  }
-
-  async function deleteArtImage(artImageId: number): Promise<void> {
-    try {
-      clearError()
-
-      const response = await performFetch(`/api/art/image/${artImageId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete the art image.')
-      }
-
-      state.artImages = removeImageById(state.artImages, artImageId)
-
-      if (state.currentArtImage?.id === artImageId) {
-        state.currentArtImage = null
-      }
-
-      persistArtImages()
-    } catch (error: unknown) {
-      handleError(error, 'deleting art image')
-      setError(error, 'Failed to delete art image.')
-      throw error
-    }
-  }
-
-  async function ensureCollectionsReady(): Promise<void> {
-    if (collectionStore.collections?.length) return
-    await collectionStore.fetchCollections?.()
-  }
-
-  async function generateImageFromBackendServer(form: GenerateArtData) {
-    return await performFetch<Art>('/api/art/generate', {
-      method: 'POST',
-      body: JSON.stringify(form),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-  }
-
-  async function fetchSelectedArtServer(
-    data: GenerateArtData,
-  ): Promise<Server> {
-    const query = new URLSearchParams()
-
-    if (data.serverId) {
-      query.set('id', String(data.serverId))
-    }
-
-    if (data.serverName) {
-      query.set('name', data.serverName)
-    }
-
-    const url = query.toString()
-      ? `/api/server/resolve?${query.toString()}`
-      : '/api/server/resolve?capability=art'
-
-    const response = await performFetch<Server>(url)
-
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to resolve art server.')
-    }
-
-    return response.data
-  }
-
-  type ArtGenerationMode = 'browser' | 'backend'
-
-  function getArtGenerationMode(server: Server): ArtGenerationMode {
-    if (!server.isActive) {
-      throw new Error(`Server "${server.title}" is not active.`)
-    }
-
-    if (server.serverType !== 'A1111') {
-      throw new Error(
-        `Server "${server.title}" is ${server.serverType}. This generator currently supports A1111 only.`,
-      )
-    }
-
-    if (!server.supportsTxt2Img) {
-      throw new Error(`Server "${server.title}" does not support txt2img.`)
-    }
-
-    const shouldUseBrowser =
-      server.allowBrowserRequests &&
-      (server.requiresClientSideCheck ||
-        server.isPrivateNetwork ||
-        server.accessMode === 'LOCAL')
-
-    return shouldUseBrowser ? 'browser' : 'backend'
-  }
-
-  function getSelectedArtServer(data: GenerateArtData): Server {
-    const selectedServer =
-      typeof data.serverId === 'number'
-        ? serverStore.getServerById(data.serverId)
-        : serverStore.activeArtServer
-
-    if (!selectedServer) {
-      throw new Error('No active art server selected.')
-    }
-
-    return selectedServer
-  }
-
   async function saveBrowserGeneratedArt(
     data: GenerateArtData & { imageBase64: string },
   ): Promise<Art> {
@@ -808,6 +762,7 @@ export const useArtStore = defineStore('artStore', () => {
       {
         method: 'POST',
         body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
       },
       3,
       120_000,
@@ -828,6 +783,7 @@ export const useArtStore = defineStore('artStore', () => {
       {
         method: 'POST',
         body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
       },
       3,
       120_000,
@@ -840,15 +796,56 @@ export const useArtStore = defineStore('artStore', () => {
     return response.data
   }
 
-  async function generateArt(
-    artData?: GenerateArtData,
-  ): Promise<ApiResponse<Art>> {
-    state.loading = true
+  async function ensureCollectionsReady(): Promise<void> {
+    if (collectionStore.collections?.length) return
+    await collectionStore.fetchCollections?.()
+  }
 
+  async function addArtToCollection(collectionId: number, artId: number) {
+    return await performFetch(`/api/art/collection/${collectionId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ artIds: [artId] }),
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  async function addGeneratedArtToCollections(
+    art: Art,
+    userId: number,
+  ): Promise<void> {
+    await ensureCollectionsReady()
+
+    const generatedCollection =
+      await collectionStore.getOrCreateGeneratedArtCollection(userId)
+
+    const activeCollection = collectionStore.currentCollection
+
+    const alreadyInGenerated = generatedCollection.art.some(
+      (existingArt: Art) => existingArt.id === art.id,
+    )
+
+    if (!alreadyInGenerated) {
+      await addArtToCollection(generatedCollection.id, art.id)
+    }
+
+    if (activeCollection && activeCollection.id !== generatedCollection.id) {
+      await addArtToCollection(activeCollection.id, art.id)
+    }
+
+    if (isClient) {
+      safeSetLocalStorage(
+        'collections',
+        JSON.stringify(collectionStore.collections),
+      )
+    }
+  }
+
+  function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {
     const checkpointStore = useCheckpointStore()
     const userId = artData?.userId || userStore.userId || 10
 
     const basePrompt =
+      artData?.promptString ||
       getPromptString.value ||
       promptStore.promptField ||
       getArtListAddonPrompt()
@@ -857,7 +854,7 @@ export const useArtStore = defineStore('artStore', () => {
       .processPromptPlaceholders(basePrompt.trim())
       .replace(/\./g, ',')
 
-    const data: GenerateArtData = {
+    return {
       promptString,
       negativePrompt:
         artData?.negativePrompt ??
@@ -892,75 +889,63 @@ export const useArtStore = defineStore('artStore', () => {
       serverId: artData?.serverId ?? state.artForm.serverId ?? null,
       serverName: artData?.serverName ?? state.artForm.serverName ?? null,
     }
+  }
 
-    if (!promptStore.validatePromptString(data.promptString)) {
-      state.loading = false
-      return {
-        success: false,
-        message: 'Invalid prompt',
-      }
-    }
+  async function generateArt(
+    artData?: GenerateArtData,
+  ): Promise<ApiResponse<Art>> {
+    state.loading = true
 
     try {
       clearError()
 
-      const server = await fetchSelectedArtServer(data)
+      const data = buildGenerateArtData(artData)
+
+      if (!promptStore.validatePromptString(data.promptString)) {
+        return {
+          success: false,
+          message: 'Invalid prompt',
+        }
+      }
+
+      await serverStore.initialize({
+        fetchRemote: true,
+      })
+
+      const server = getSelectedArtServer(data)
       const generationMode = getArtGenerationMode(server)
+
+      const dataWithServer: GenerateArtData = {
+        ...data,
+        serverId: server.id,
+        serverName: server.label || server.title,
+      }
 
       let art: Art
 
       if (generationMode === 'browser') {
-        const imageBase64 = await generateImageFromBrowserServer(server, data)
+        const imageBase64 = await generateImageFromBrowserServer(
+          server,
+          dataWithServer,
+        )
 
         art = await saveBrowserGeneratedArt({
-          ...data,
+          ...dataWithServer,
           imageBase64,
-          serverId: server.id,
-          serverName: server.title,
         })
       } else {
-        art = await generateBackendArt({
-          ...data,
-          serverId: server.id,
-          serverName: server.title,
-        })
+        art = await generateBackendArt(dataWithServer)
       }
 
-      await ensureCollectionsReady()
-
-      const generatedCollection =
-        await collectionStore.getOrCreateGeneratedArtCollection(userId)
-
-      const activeCollection = collectionStore.currentCollection
-
-      const alreadyInGenerated = generatedCollection.art.some(
-        (existingArt: Art) => existingArt.id === art.id,
-      )
-
-      if (!alreadyInGenerated) {
-        await performFetch(`/api/art/collection/${generatedCollection.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ artIds: [art.id] }),
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
-
-      if (activeCollection && activeCollection.id !== generatedCollection.id) {
-        await performFetch(`/api/art/collection/${activeCollection.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ artIds: [art.id] }),
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
+      await addGeneratedArtToCollections(art, dataWithServer.userId || 10)
 
       addOrUpdateArt(art)
+      state.generatedArt = mergeUniqueArt(state.generatedArt, [art])
       state.currentArt = art
 
-      if (isClient) {
-        safeSetLocalStorage(
-          'collections',
-          JSON.stringify(collectionStore.collections),
-        )
+      if (art.artImageId) {
+        const image = await getArtImageById(art.artImageId)
+        state.currentArtImage = image || null
       }
 
       return {
@@ -968,7 +953,7 @@ export const useArtStore = defineStore('artStore', () => {
         data: art,
         message: 'Art created and added to collections',
       }
-    } catch (error: unknown) {
+    } catch (error) {
       handleError(error, 'generating art')
       setError(error, 'Failed to generate art.')
 
@@ -981,47 +966,187 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+  async function createArt(artData: CreateArtInput): Promise<Art> {
+    try {
+      clearError()
+
+      const response = await performFetch<Art>('/api/art/', {
+        method: 'POST',
+        body: JSON.stringify(artData),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (response.success && response.data) {
+        addOrUpdateArt(response.data)
+        return response.data
+      }
+
+      throw new Error(response.message || 'Failed to create art.')
+    } catch (error) {
+      handleError(error, 'creating art')
+      setError(error, 'Failed to create art.')
+      throw error
+    }
+  }
+
+  async function deleteArt(id: number): Promise<boolean> {
+    try {
+      clearError()
+
+      const response = await performFetch(`/api/art/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete art.')
+      }
+
+      state.art = state.art.filter((art) => art.id !== id)
+      state.generatedArt = state.generatedArt.filter((art) => art.id !== id)
+
+      if (state.currentArt?.id === id) {
+        deselectArt()
+      }
+
+      persistArt()
+      return true
+    } catch (error) {
+      handleError(error, 'deleting art')
+      setError(error, 'Failed to delete art.')
+      return false
+    }
+  }
+
+  async function uploadImage(
+    formData: FormData,
+  ): Promise<{ success: boolean; message: string; data?: ArtImage }> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>('/api/art/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.success && response.data) {
+        addOrUpdateArtImages([response.data])
+
+        return {
+          success: true,
+          message: 'Image uploaded successfully',
+          data: response.data,
+        }
+      }
+
+      return {
+        success: false,
+        message: response.message || 'Upload failed',
+      }
+    } catch (error) {
+      handleError(error, 'uploading image')
+      setError(error, 'Upload failed.')
+
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Upload failed',
+      }
+    }
+  }
+
+  async function deleteArtImage(artImageId: number): Promise<boolean> {
+    try {
+      clearError()
+
+      const response = await performFetch(`/api/art/image/${artImageId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete the art image.')
+      }
+
+      state.artImages = removeImageById(state.artImages, artImageId)
+
+      if (state.currentArtImage?.id === artImageId) {
+        state.currentArtImage = null
+      }
+
+      persistArtImages()
+      return true
+    } catch (error) {
+      handleError(error, 'deleting art image')
+      setError(error, 'Failed to delete art image.')
+      return false
+    }
+  }
+
   function resetInitialization(): void {
     state.isInitialized = false
     initializing.value = false
     initializePromise.value = null
     fetchAllArtPromise.value = null
     fetchArtPagePromise.value = {}
+    artImageRequestMap.value = {}
     state.error = ''
   }
 
   return {
     ...toRefs(state),
+
+    hoverArt,
     initializing,
     initializePromise,
+    fetchAllArtPromise,
+    fetchArtPagePromise,
+    artImageRequestMap,
+
     hasCachedArt,
     hasCachedImages,
+    currentImagePath,
+    generatedArtCount,
+    artById,
+    imageById,
+    getPromptString,
+    getNegativePromptString,
+
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
+
     fetchAllArt,
     fetchArtPage,
+    loadArtImagesInChunks,
+
     selectArt,
+    deselectArt,
+    setHoverArt,
+
+    setArtForm,
+    resetArtForm,
+    updateArtListSelection,
+    clearArtListSelections,
+    getArtListAddonPrompt,
+
     generateArt,
-    getArtImagesByIds,
+    generateImageFromBrowserServer,
+    createArt,
     deleteArt,
-    deleteArtImage,
+
     uploadImage,
+    deleteArtImage,
+    addOrUpdateArt,
+    addOrUpdateArtImages,
+    setArtList,
+
+    getArtImagesByIds,
+    getArtImageById,
+    getArtImageByArtId,
+    getCachedArtImageById,
+    getOrFetchArtImageById,
     updateArtImageId,
     updateArtImageWithArtId,
-    getCachedArtImageById,
-    getArtImageById,
-    getOrFetchArtImageById,
-    createArt,
-    getArtImageByArtId,
-    updateArtListSelection,
+
     artListPresets,
-    getPromptString,
-    getNegativePromptString,
-    loadArtImagesInChunks,
-    hoverArt,
-    setHoverArt,
-    generateImageFromBrowserServer,
   }
 })
 

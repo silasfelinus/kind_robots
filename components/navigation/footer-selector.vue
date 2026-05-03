@@ -20,6 +20,7 @@ import BrainstormFooter from '@/components/pitches/brainstorm-footer.vue'
 import GiftshopFooter from '@/components/giftshop/giftshop-footer.vue'
 import DreamFooter from '@/components/dreams/dream-footer.vue'
 import RewardFooter from '@/components/rewards/reward-footer.vue'
+import CharacterFooter from '@/components/characters/character-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
@@ -40,6 +41,7 @@ const footerComponentMap: Record<FooterName, Component> = {
   giftshop: GiftshopFooter,
   dream: DreamFooter,
   reward: RewardFooter,
+  character: CharacterFooter
 }
 
 function isFooterName(value: unknown): value is FooterName {

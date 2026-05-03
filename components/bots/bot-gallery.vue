@@ -139,7 +139,11 @@
         </button>
       </div>
 
-      <add-bot :mode="formMode" @saved="handleBotSaved" @cancel="closeBotForm" />
+      <add-bot
+        :mode="formMode"
+        @saved="handleBotSaved"
+        @cancel="closeBotForm"
+      />
     </section>
 
     <section class="min-h-0 flex-1 overflow-auto">
@@ -208,7 +212,7 @@
           :show-actions="showCardActions"
           :show-description="showDescriptions"
           :show-meta="showMeta"
-          :show-server="showServer"
+          :show-personality="showPersonality"
           :show-launch-button="showLaunchButton"
           :show-debug="showDebug"
           :allow-edit="allowEdit"
@@ -231,7 +235,6 @@ import type { Bot } from '~/prisma/generated/prisma/client'
 import { useRouter } from 'vue-router'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
-import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type BotScope = 'visible' | 'mine' | 'public' | 'ready' | 'all'
@@ -248,7 +251,7 @@ const props = withDefaults(
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
-    showServer?: boolean
+    showPersonality?: boolean
     showLaunchButton?: boolean
     showDebug?: boolean
     allowAdd?: boolean
@@ -269,7 +272,7 @@ const props = withDefaults(
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
-    showServer: true,
+    showPersonality: false,
     showLaunchButton: true,
     showDebug: false,
     allowAdd: true,
@@ -285,7 +288,6 @@ const props = withDefaults(
 const router = useRouter()
 const botStore = useBotStore()
 const navStore = useNavStore()
-const userStore = useUserStore()
 
 const scope = ref<BotScope>('visible')
 const constructionFilter = ref<ConstructionFilter>('all')
@@ -294,18 +296,17 @@ const isLoading = ref(false)
 const showBotForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
-const isCompact = computed(
-  () =>
-    props.compact || props.variant === 'row' || props.variant === 'dropdown',
-)
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || props.variant === 'dropdown'
+})
 
-const formTitle = computed(() =>
-  formMode.value === 'edit' ? 'Edit Bot' : 'Add Bot',
-)
+const formTitle = computed(() => {
+  return formMode.value === 'edit' ? 'Edit Bot' : 'Add Bot'
+})
 
-const layoutClass = computed(() =>
-  props.variant === 'row' ? 'bot-row' : 'bot-grid',
-)
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'bot-row' : 'bot-grid'
+})
 
 const baseBots = computed<Bot[]>(() => {
   if (scope.value === 'mine') return botStore.ownedBots
@@ -341,7 +342,9 @@ const filteredBots = computed<Bot[]>(() => {
         bot.theme,
         bot.modules,
         bot.designer,
-        bot.serverName,
+        bot.prompt,
+        bot.botIntro,
+        bot.userIntro,
       ]
         .filter(Boolean)
         .join(' ')
@@ -367,7 +370,7 @@ async function refreshBots(force = false) {
     await botStore.initialize({
       force,
       fetchRemote: true,
-      initializeServerStore: true,
+      initializeServerStore: false,
       createBlankForm: true,
     })
   } finally {

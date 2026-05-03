@@ -10,7 +10,9 @@
         Bot Interact
       </h1>
 
-      <p class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base">
+      <p
+        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
+      >
         Chat with the selected bot, use starter prompts, and stream responses
         through the active text server.
       </p>
@@ -31,7 +33,9 @@
     <section
       class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
     >
-      <div class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+      <div
+        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      >
         <div class="shrink-0 border-b border-base-300 p-4">
           <div
             v-if="botStore.currentBot"
@@ -72,7 +76,7 @@
               <button
                 class="btn btn-sm btn-ghost rounded-xl"
                 type="button"
-                @click="botStore.deselectBot()"
+                @click="clearBot"
               >
                 Clear Bot
               </button>
@@ -246,7 +250,7 @@
               </h2>
 
               <p class="text-sm text-base-content/60">
-                Local options for this chat session.
+                Runtime options for this chat session.
               </p>
             </div>
 
@@ -271,7 +275,9 @@
                 class="range range-primary range-sm"
               />
 
-              <div class="mt-1 flex justify-between text-xs text-base-content/45">
+              <div
+                class="mt-1 flex justify-between text-xs text-base-content/45"
+              >
                 <span>precise</span>
                 <span>balanced</span>
                 <span>wild</span>
@@ -303,6 +309,22 @@
                 step="128"
               />
             </label>
+
+            <div
+              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm"
+            >
+              <p class="text-xs font-bold uppercase text-base-content/50">
+                Active Text Server
+              </p>
+
+              <p class="mt-1 font-semibold text-base-content/80">
+                {{ activeServerName }}
+              </p>
+
+              <p class="mt-1 text-xs text-base-content/50">
+                Servers are selected at runtime. Bots stay portable.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -366,6 +388,8 @@ type SessionChat = {
   botResponse?: string | null
 }
 
+type ChatRuntimeInput = Parameters<ReturnType<typeof useChatStore>['addChat']>[0]
+
 const botStore = useBotStore()
 const chatStore = useChatStore()
 const promptStore = usePromptStore()
@@ -400,7 +424,6 @@ const activeServerName = computed(() => {
   return (
     serverStore.activeTextServer?.label ||
     serverStore.activeTextServer?.title ||
-    botStore.currentBot?.serverName ||
     'No text server selected'
   )
 })
@@ -445,6 +468,7 @@ const promptPreview = computed(() => {
     bot.personality ? `Personality: ${bot.personality}` : '',
     bot.prompt ? `System Prompt: ${bot.prompt}` : '',
     bot.botIntro ? `Bot Intro: ${bot.botIntro}` : '',
+    `Text Server: ${activeServerName.value}`,
     message.value.trim() ? `User Message: ${message.value.trim()}` : '',
   ]
     .filter(Boolean)
@@ -468,6 +492,11 @@ function newChat() {
   sessionChatIds.value = []
   message.value = ''
   statusMessage.value = ''
+}
+
+function clearBot() {
+  botStore.deselectBot()
+  newChat()
 }
 
 function usePrompt(prompt: string) {
@@ -502,7 +531,7 @@ async function sendMessage() {
   promptStore.currentPrompt = content
 
   try {
-    const newChat = await chatStore.addChat({
+    const payload: ChatRuntimeInput = {
       botId: bot.id,
       content,
       isPublic: false,
@@ -510,11 +539,13 @@ async function sendMessage() {
       type: 'ToBot',
       recipientId: bot.id,
       characterId: null,
-      serverId: bot.serverId ?? serverStore.activeTextServer?.id ?? null,
+      serverId: serverStore.activeTextServer?.id ?? null,
       temperature: temperature.value,
       model: modelName.value || undefined,
       maxTokens: maxTokens.value,
-    } as Parameters<typeof chatStore.addChat>[0])
+    }
+
+    const newChat = await chatStore.addChat(payload)
 
     if (!newChat?.id) {
       throw new Error('Failed to create chat.')
@@ -553,7 +584,7 @@ onMounted(async () => {
   await Promise.all([
     botStore.initialize({
       fetchRemote: true,
-      initializeServerStore: true,
+      initializeServerStore: false,
       createBlankForm: true,
     }),
     chatStore.initialize(),

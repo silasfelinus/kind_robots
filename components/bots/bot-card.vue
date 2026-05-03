@@ -14,7 +14,7 @@
     >
       <button
         v-if="allowEdit"
-        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Bot"
         @click.stop="emit('edit', bot.id)"
@@ -24,7 +24,7 @@
 
       <button
         v-if="allowClone"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow hover:bg-secondary hover:text-secondary-content"
+        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Bot"
         @click.stop="emit('clone', bot.id)"
@@ -34,7 +34,7 @@
 
       <button
         v-if="canDelete"
-        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Bot"
         @click.stop="deleteBot"
@@ -66,10 +66,7 @@
           Private
         </span>
 
-        <span
-          v-if="bot.underConstruction"
-          class="badge badge-error badge-sm"
-        >
+        <span v-if="bot.underConstruction" class="badge badge-error badge-sm">
           Building
         </span>
       </div>
@@ -119,15 +116,15 @@
       </div>
 
       <div
-        v-if="showServer"
+        v-if="showPersonality && bot.personality"
         class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
       >
         <p class="text-xs font-bold uppercase text-base-content/50">
-          Text Server
+          Personality
         </p>
 
-        <p class="mt-1 truncate font-semibold text-base-content/80">
-          {{ bot.serverName || 'No server selected' }}
+        <p class="mt-1 line-clamp-4 text-base-content/70">
+          {{ bot.personality }}
         </p>
       </div>
 
@@ -194,7 +191,7 @@ const props = withDefaults(
     showActions?: boolean
     showDescription?: boolean
     showMeta?: boolean
-    showServer?: boolean
+    showPersonality?: boolean
     showPromptPreview?: boolean
     showLaunchButton?: boolean
     showDebug?: boolean
@@ -210,7 +207,7 @@ const props = withDefaults(
     showActions: true,
     showDescription: true,
     showMeta: true,
-    showServer: true,
+    showPersonality: false,
     showPromptPreview: false,
     showLaunchButton: true,
     showDebug: false,

@@ -453,14 +453,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
@@ -485,6 +478,18 @@ const randomStore = useRandomStore()
 const serverStore = useServerStore()
 
 const footerOffsetKey = 'art'
+
+type DashboardKey =
+  | 'footer'
+  | 'scenario'
+  | 'character'
+  | 'reward'
+  | 'user'
+  | 'dream'
+  | 'wonder'
+  | 'server'
+
+const artDashboardKey: DashboardKey = 'server'
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
@@ -514,18 +519,16 @@ const activeArtServerLabel = computed(() => {
 const selectedCheckpointLabel = computed(() => {
   return (
     checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.label ||
     checkpointStore.selectedCheckpoint?.name ||
     'No checkpoint'
   )
 })
-
 const canGenerate = computed(() => {
   return Boolean(
     !isGenerating.value &&
-      !artStore.loading &&
-      promptStore.promptField?.trim() &&
-      serverStore.activeArtServer,
+    !artStore.loading &&
+    promptStore.promptField?.trim() &&
+    serverStore.activeArtServer,
   )
 })
 
@@ -599,7 +602,7 @@ function resetFooter() {
 }
 
 async function openArtWorkshop() {
-  navStore.setDashboardTab('art', 'overview')
+  navStore.setDashboardTab(artDashboardKey, 'overview')
   await router.push('/art')
 }
 
@@ -670,11 +673,9 @@ async function generateArt() {
       serverId: activeServer.id,
       serverName: activeServer.label || activeServer.title,
       checkpoint:
-        checkpointStore.selectedCheckpoint?.name ||
-        artStore.artForm.checkpoint,
+        checkpointStore.selectedCheckpoint?.name || artStore.artForm.checkpoint,
       sampler:
-        checkpointStore.selectedSampler?.name ||
-        artStore.artForm.sampler,
+        checkpointStore.selectedSampler?.name || artStore.artForm.sampler,
       designer: artStore.artForm.designer,
       userId: artStore.artForm.userId,
       pitch: artStore.artForm.pitch,
@@ -686,7 +687,7 @@ async function generateArt() {
 
     setStatus(result.message || 'Art generated.')
     await milestoneStore.rewardMilestone(11)
-    navStore.setDashboardTab('art', 'selected')
+    navStore.setDashboardTab(artDashboardKey, 'selected')
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Generation failed.'
@@ -708,8 +709,6 @@ onMounted(async () => {
     artStore.initialize({
       fetchRemote: false,
       hydrateImages: false,
-      initializeServerStore: false,
-      initializeCollections: false,
     }),
     checkpointStore.initialize(),
   ])

@@ -145,13 +145,20 @@ import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
+import {
+  fallbackFooterKey,
+  footerDashboardMap,
+  footerKeys,
+  footerRouteMap,
+  type FooterKey,
+} from '@/stores/helpers/dashboardHelper'
 
 const route = useRoute()
 const router = useRouter()
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
 
-type FooterName = (typeof displayStore.footerComponentNames)[number]
+type FooterName = FooterKey
 
 type BottomControl = {
   key: string
@@ -162,20 +169,7 @@ type BottomControl = {
   action: () => void
 }
 
-const footerOptions = [...displayStore.footerComponentNames] as FooterName[]
-
-const footerRouteMap: Record<FooterName, string> = {
-  fx: '/butterflies',
-  kind: '/bots',
-  art: '/addart',
-  story: '/stories',
-  theme: '/themes',
-  user: '/dashboard',
-  lab: '/wonderlab',
-  brainstorm: '/brainstorm',
-  giftshop: '/giftshop',
-  dream: '/dreams',
-}
+const footerOptions = [...footerKeys]
 
 const footerToggleIcon = computed(() => {
   return displayStore.footerStage === 'priority'
@@ -236,15 +230,26 @@ const bottomControls = computed<BottomControl[]>(() => [
 ])
 
 function getWrappedFooter(step: -1 | 1): FooterName {
-  const current = displayStore.footerComponent
+  const current = normalizeFooterName(displayStore.footerComponent)
   const index = footerOptions.indexOf(current)
   const next = (index + step + footerOptions.length) % footerOptions.length
-  return footerOptions[next] ?? 'kind'
+
+  return footerOptions[next] ?? fallbackFooterKey
+}
+
+function normalizeFooterName(value: string): FooterName {
+  if (value === 'kind') return 'bot'
+
+  return footerOptions.includes(value as FooterName)
+    ? (value as FooterName)
+    : fallbackFooterKey
 }
 
 function setFooter(name: FooterName) {
   displayStore.setFooterComponent(name)
-  navStore.setFooterDashboardTab(name)
+
+  const dashboardKey = footerDashboardMap[name]
+  navStore.setDashboardTab(dashboardKey, 'overview')
 
   const routePath = footerRouteMap[name]
 

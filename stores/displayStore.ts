@@ -11,26 +11,19 @@ import type {
   SmartState,
 } from './helpers/displayHelper'
 import { setCustomVh } from './helpers/displayHelper'
+import {
+  fallbackFooterKey,
+  footerKeys,
+  type FooterKey,
+} from '@/stores/helpers/dashboardHelper'
 
 export type ViewportSize = 'small' | 'medium' | 'large' | 'extraLarge'
 type FullscreenState = 'nuxt' | 'fullscreen'
 type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
 type LogicalSide = 'left' | 'right'
-const footerComponentNames = [
-  'fx',
-  'kind',
-  'art',
-  'story',
-  'theme',
-  'user',
-  'lab',
-  'brainstorm',
-  'giftshop',
-  'dream',
-  'reward',
-  'character',
-] as const
+
+const footerComponentNames = footerKeys
 
 type FooterComponentName = (typeof footerComponentNames)[number]
 type PromptOffsetOwner = FooterComponentName | ''
@@ -71,7 +64,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const resizeTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
-  const footerComponent = ref<FooterComponentName>('fx')
+  const footerComponent = ref<FooterKey>(fallbackFooterKey)
   const promptOffset = ref(0)
   const promptOffsetOwner = ref<PromptOffsetOwner>('')
 
@@ -140,6 +133,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return effectiveFooterHeight.value + sectionPaddingSize.value
   })
 
+  function normalizeFooterComponent(value: string | null): FooterKey {
+    if (value === 'kind') return 'bot'
+
+    return footerKeys.includes(value as FooterKey)
+      ? (value as FooterKey)
+      : fallbackFooterKey
+  }
+
   const mainPanelHeight = computed(() => {
     return 100 - mainPanelTopOffset.value - contentBottomOffset.value
   })
@@ -149,12 +150,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     if (value === 'compact') return 'compact'
     if (value === 'priority') return 'priority'
     return 'open'
-  }
-
-  function normalizeFooterComponent(value: string): FooterComponentName {
-    return footerComponentNames.includes(value as FooterComponentName)
-      ? (value as FooterComponentName)
-      : 'kind'
   }
 
   function normalizeFooterState(value: DisplayState): FooterStage {

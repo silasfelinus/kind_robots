@@ -154,7 +154,10 @@
 import { computed } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
-import { useNavStore, type UserDashboardTab } from '@/stores/navStore'
+import { useNavStore } from '@/stores/navStore'
+import { dashboardConfigs } from '@/stores/helpers/dashboardHelper'
+
+type UserDashboardTab = (typeof dashboardConfigs.user.tabs)[number]['key']
 
 type UserFooterLink = {
   label: string
@@ -250,17 +253,17 @@ const footerLinks: UserFooterLink[] = [
 ]
 
 function selectUserTab(tab: UserDashboardTab) {
-  navStore.setUserDashboardTab(tab)
+  navStore.setDashboardTab('user', tab)
 }
 
 function activeButtonClass(tab: UserDashboardTab) {
-  return navStore.userDashboardTab === tab
+  return navStore.getDashboardTab('user') === tab
     ? 'btn-primary scale-105'
     : 'btn-ghost bg-base-100'
 }
 
 function cardButtonClass(tab: UserDashboardTab) {
-  return navStore.userDashboardTab === tab
+  return navStore.getDashboardTab('user') === tab
     ? 'border-primary bg-primary/10 text-primary shadow-sm'
     : 'border-base-300 text-base-content'
 }

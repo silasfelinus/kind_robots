@@ -6,11 +6,11 @@
     <header
       class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
     >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">
-        Art Interact
-      </h1>
+      <h1 class="text-2xl font-bold text-primary md:text-3xl">Art Interact</h1>
 
-      <p class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base">
+      <p
+        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
+      >
         Build prompts, tune generation settings, choose model context, and send
         art requests through the active art server.
       </p>
@@ -264,14 +264,10 @@
               </label>
             </div>
 
-            <div
-              class="rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <div class="mb-3 flex items-center justify-between gap-2">
                 <div>
-                  <h3 class="font-bold text-base-content">
-                    Randomizer
-                  </h3>
+                  <h3 class="font-bold text-base-content">Randomizer</h3>
 
                   <p class="text-sm text-base-content/60">
                     Use list fragments and surprise controls to feed the prompt.
@@ -285,9 +281,7 @@
         </div>
 
         <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
-          <div
-            class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto]"
-          >
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
             <div
               class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/65"
             >
@@ -328,9 +322,7 @@
         <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <div class="mb-3 flex items-center justify-between gap-2">
             <div>
-              <h2 class="text-lg font-bold text-base-content">
-                Model Context
-              </h2>
+              <h2 class="text-lg font-bold text-base-content">Model Context</h2>
 
               <p class="text-sm text-base-content/60">
                 Active engine and checkpoint.
@@ -346,7 +338,9 @@
                 Art Server
               </p>
 
-              <p class="mt-1 truncate text-sm font-semibold text-base-content/80">
+              <p
+                class="mt-1 truncate text-sm font-semibold text-base-content/80"
+              >
                 {{ activeArtServerLabel }}
               </p>
             </div>
@@ -356,7 +350,9 @@
                 Checkpoint
               </p>
 
-              <p class="mt-1 truncate text-sm font-semibold text-base-content/80">
+              <p
+                class="mt-1 truncate text-sm font-semibold text-base-content/80"
+              >
                 {{ selectedCheckpointLabel }}
               </p>
             </div>
@@ -366,7 +362,9 @@
                 Sampler
               </p>
 
-              <p class="mt-1 truncate text-sm font-semibold text-base-content/80">
+              <p
+                class="mt-1 truncate text-sm font-semibold text-base-content/80"
+              >
                 {{ selectedSamplerLabel }}
               </p>
             </div>
@@ -374,7 +372,7 @@
             <button
               class="btn btn-sm btn-outline rounded-xl"
               type="button"
-              @click="navStore.setDashboardTab('art', 'checkpoints')"
+              @click="navStore.setDashboardTab(artDashboardKey, 'checkpoints')"
             >
               Change Model
             </button>
@@ -382,9 +380,7 @@
         </section>
 
         <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="text-lg font-bold text-base-content">
-            Collection Target
-          </h2>
+          <h2 class="text-lg font-bold text-base-content">Collection Target</h2>
 
           <p class="mt-1 text-sm text-base-content/60">
             New art is added to generated art and, when selected, the active
@@ -410,9 +406,7 @@
           class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
         >
           <div class="mb-3 flex items-center justify-between gap-2">
-            <h2 class="text-lg font-bold text-base-content">
-              Prompt Preview
-            </h2>
+            <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
 
             <button
               class="btn btn-xs btn-ghost rounded-xl"
@@ -424,7 +418,10 @@
             </button>
           </div>
 
-          <pre class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70">{{ promptPreview || 'No prompt yet.' }}</pre>
+          <pre
+            class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+            >{{ promptPreview || 'No prompt yet.' }}</pre
+          >
         </section>
 
         <section
@@ -474,6 +471,18 @@ const promptStore = usePromptStore()
 const randomStore = useRandomStore()
 const serverStore = useServerStore()
 
+type DashboardKey =
+  | 'footer'
+  | 'scenario'
+  | 'character'
+  | 'reward'
+  | 'user'
+  | 'dream'
+  | 'wonder'
+  | 'server'
+
+const artDashboardKey: DashboardKey = 'server'
+
 const isGenerating = ref(false)
 const makePretty = ref(false)
 const useNegative = ref(false)
@@ -495,7 +504,6 @@ const activeArtServerLabel = computed(() => {
 const selectedCheckpointLabel = computed(() => {
   return (
     checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.label ||
     checkpointStore.selectedCheckpoint?.name ||
     'No checkpoint selected'
   )
@@ -527,9 +535,9 @@ const seedModel = computed({
 const canGenerate = computed(() => {
   return Boolean(
     !isGenerating.value &&
-      !artStore.loading &&
-      promptStore.promptField?.trim() &&
-      serverStore.activeArtServer,
+    !artStore.loading &&
+    promptStore.promptField?.trim() &&
+    serverStore.activeArtServer,
   )
 })
 
@@ -654,8 +662,7 @@ async function generateArt() {
       serverId: activeServer.id,
       serverName: activeServer.label || activeServer.title,
       checkpoint:
-        checkpointStore.selectedCheckpoint?.name ||
-        artStore.artForm.checkpoint,
+        checkpointStore.selectedCheckpoint?.name || artStore.artForm.checkpoint,
       sampler:
         checkpointStore.selectedSampler?.name || artStore.artForm.sampler,
       designer: artStore.artForm.designer,
@@ -669,7 +676,7 @@ async function generateArt() {
 
     setStatus(result.message || 'Art generated.')
     await milestoneStore.rewardMilestone(11)
-    navStore.setDashboardTab('art', 'selected')
+    navStore.setDashboardTab(artDashboardKey, 'selected')
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Generation failed.'
@@ -690,8 +697,6 @@ onMounted(async () => {
     artStore.initialize({
       fetchRemote: false,
       hydrateImages: false,
-      initializeServerStore: false,
-      initializeCollections: false,
     }),
     checkpointStore.initialize(),
     collectionStore.fetchCollections?.(),

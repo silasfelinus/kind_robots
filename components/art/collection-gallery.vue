@@ -62,10 +62,7 @@
           :disabled="isLoading"
           @click="refreshCollections"
         >
-          <span
-            v-if="isLoading"
-            class="loading loading-spinner loading-xs"
-          />
+          <span v-if="isLoading" class="loading loading-spinner loading-xs" />
           <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           Refresh
         </button>
@@ -274,7 +271,7 @@
                 :class="canEditCollection(collection) ? 'cursor-pointer' : ''"
                 @click="
                   canEditCollection(collection) &&
-                    (editingTitle = collection.id)
+                  (editingTitle = collection.id)
                 "
               >
                 {{ collection.label || 'Untitled Collection' }}
@@ -539,7 +536,9 @@ const selectedCollectionIds = computed<number[]>(() => {
 })
 
 const activeCollection = computed<ArtCollection | null>(() => {
-  return collectionStore.currentCollection || selectedCollections.value[0] || null
+  return (
+    collectionStore.currentCollection || selectedCollections.value[0] || null
+  )
 })
 
 const selectedCollections = computed<ArtCollection[]>(() => {
@@ -697,13 +696,11 @@ function selectUnassignedCollection() {
   selectCollection(-1)
 }
 
-function selectCollection(id: number) {
-  if (typeof collectionStore.selectCollection === 'function') {
-    void collectionStore.selectCollection(id)
-    return
-  }
+async function selectCollection() {
+  if (isHiddenMature.value) return
 
-  collectionStore.selectedCollectionIds = [id]
+  collectionStore.setCurrentCollection(props.collection.id)
+  collectionStore.toggleSelectedCollectionId(props.collection.id)
 }
 
 function removeCollection(id: number) {

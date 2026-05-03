@@ -10,7 +10,7 @@
         <div
           class="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-accent bg-accent/10"
         >
-          <icon name="kind-icon:sparkles" class="h-9 w-9 text-accent" />
+          <Icon name="kind-icon:sparkles" class="h-9 w-9 text-accent" />
         </div>
 
         <div class="min-w-0">
@@ -30,11 +30,13 @@
           :class="sectionButtonClass(section.key)"
           @click="activeSection = section.key"
         >
-          <icon :name="section.icon" class="h-5 w-5 shrink-0" />
+          <Icon :name="section.icon" class="h-5 w-5 shrink-0" />
+
           <span class="min-w-0">
             <span class="block truncate text-sm font-black">
               {{ section.label }}
             </span>
+
             <span class="hidden truncate text-xs text-base-content/55 xl:block">
               {{ section.description }}
             </span>
@@ -43,7 +45,9 @@
       </div>
 
       <div class="flex items-center justify-end">
-        <span class="badge badge-accent">{{ activeLabel }}</span>
+        <span class="badge badge-accent">
+          {{ activeLabel }}
+        </span>
       </div>
     </header>
 
@@ -56,14 +60,22 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/wonderlab/lab-manager.vue
 import { computed, type Component } from 'vue'
-import { useNavStore, type WonderDashboardTab } from '@/stores/navStore'
+import { useNavStore } from '@/stores/navStore'
 
 import MemoryTest from '@/components/wonderlab/memory-test.vue'
 import MemoryDungeon from '@/components/weird/memory-dungeon.vue'
 import WonderLab from '@/components/wonderlab/wonder-lab.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
 import RebelButton from '@/components/weird/rebel-button.vue'
+
+type WonderDashboardTab =
+  | 'memory-test'
+  | 'memory-dungeon'
+  | 'rebel-button'
+  | 'wonder-lab'
+  | 'screen-fx'
 
 type WonderManagerSection = {
   key: WonderDashboardTab
@@ -73,11 +85,6 @@ type WonderManagerSection = {
 }
 
 const navStore = useNavStore()
-
-const activeSection = computed({
-  get: () => navStore.wonderDashboardTab,
-  set: (tab: WonderDashboardTab) => navStore.setWonderDashboardTab(tab),
-})
 
 const sections: WonderManagerSection[] = [
   {
@@ -115,20 +122,40 @@ const sections: WonderManagerSection[] = [
 const componentMap: Record<WonderDashboardTab, Component> = {
   'memory-test': MemoryTest,
   'memory-dungeon': MemoryDungeon,
+  'rebel-button': RebelButton,
   'wonder-lab': WonderLab,
   'screen-fx': ScreenFx,
-  'rebel-button': RebelButton,
 }
 
-const activeComponent = computed(
-  () => componentMap[activeSection.value] ?? MemoryTest,
-)
+const activeSection = computed<WonderDashboardTab>({
+  get: () => {
+    const tab = navStore.getDashboardTab('wonder')
 
-const activeLabel = computed(
-  () =>
+    if (isWonderDashboardTab(tab)) {
+      return tab
+    }
+
+    return 'memory-test'
+  },
+  set: (tab: WonderDashboardTab) => {
+    navStore.setDashboardTab('wonder', tab)
+  },
+})
+
+const activeComponent = computed(() => {
+  return componentMap[activeSection.value] ?? MemoryTest
+})
+
+const activeLabel = computed(() => {
+  return (
     sections.find((section) => section.key === activeSection.value)?.label ??
-    'Memory',
-)
+    'Memory'
+  )
+})
+
+function isWonderDashboardTab(value: string): value is WonderDashboardTab {
+  return sections.some((section) => section.key === value)
+}
 
 function sectionButtonClass(tab: WonderDashboardTab) {
   return activeSection.value === tab

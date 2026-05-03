@@ -1180,12 +1180,6 @@ export const useServerStore = defineStore('serverStore', () => {
     syncToLocalStorage()
   }
 
-  function deselectServer(): void {
-    selectedServer.value = null
-    serverForm.value = {}
-    syncToLocalStorage()
-  }
-
   function createNewServer(serverType: ServerType = 'ART'): void {
     const isArtLike = serverType === 'ART' || serverType === 'A1111'
     const isTextLike =
@@ -1557,6 +1551,145 @@ export const useServerStore = defineStore('serverStore', () => {
     lastError.value = null
   }
 
+  function toServerForm(server: Server): ServerForm {
+    return {
+      ...server,
+    }
+  }
+
+  function createDefaultServerForm(): ServerForm {
+    return {
+      title: '',
+      label: '',
+      description: '',
+      category: '',
+      serverType: 'TEXT',
+      baseUrl: '',
+      endpointPath: '',
+      healthPath: '/health',
+      userId: userStore.user?.id ?? null,
+      isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isActive: true,
+      isEditable: true,
+
+      accessMode: 'LOCAL',
+      requiresClientSideCheck: false,
+      isPrivateNetwork: false,
+      allowBrowserRequests: true,
+
+      requiresApiKey: false,
+      apiKeyName: '',
+      apiKey: '',
+
+      useOidc: false,
+      oidcProvider: '',
+
+      supportsTxt2Img: false,
+      supportsImg2Img: false,
+      supportsChat: true,
+      supportsComfyWorkflow: false,
+      supportsCheckpointOverride: false,
+      supportsSampler: false,
+      supportsNegativePrompt: false,
+      supportsSeed: false,
+      supportsSteps: false,
+      supportsVideo: false,
+
+      apiLink: '',
+      model: '',
+      designer: userStore.user?.username ?? '',
+      version: '',
+      notes: '',
+      sortOrder: 0,
+      lastCheckedAt: null,
+      lastStatus: null,
+    }
+  }
+
+  function startAddingServer(overrides: ServerForm = {}): void {
+    selectedServer.value = null
+
+    serverForm.value = {
+      ...createDefaultServerForm(),
+      ...overrides,
+    }
+
+    syncToLocalStorage()
+  }
+
+  async function startEditingServer(id?: number): Promise<Server | null> {
+    const serverId = id ?? selectedServer.value?.id
+
+    if (!serverId) {
+      serverForm.value = createDefaultServerForm()
+      syncToLocalStorage()
+      return null
+    }
+
+    const server = getServerById(serverId) ?? (await fetchServerById(serverId))
+
+    if (!server) {
+      setStoreError(
+        ErrorType.STORE_ERROR,
+        `Server ${serverId} was not found.`,
+        'startEditingServer',
+      )
+
+      return null
+    }
+
+    selectedServer.value = server
+    serverForm.value = toServerForm(server)
+
+    syncToLocalStorage()
+
+    return server
+  }
+
+  function startCloningServer(
+    id: number,
+    overrides: ServerForm = {},
+  ): Server | null {
+    const source = getServerById(id)
+
+    if (!source) {
+      setStoreError(
+        ErrorType.STORE_ERROR,
+        `Server ${id} was not found.`,
+        'startCloningServer',
+      )
+
+      return null
+    }
+
+    selectedServer.value = source
+
+    serverForm.value = {
+      ...toServerForm(source),
+      ...overrides,
+      id: undefined,
+      title: `${source.title} Custom`,
+      label: source.label ? `${source.label} Custom` : `${source.title} Custom`,
+      userId: userStore.user?.id ?? null,
+      isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isEditable: true,
+    }
+
+    syncToLocalStorage()
+
+    return source
+  }
+
+  function deselectServer(): void {
+    selectedServer.value = null
+    serverForm.value = {}
+    syncToLocalStorage()
+  }
+
   return {
     servers,
     selectedServer,
@@ -1632,6 +1765,11 @@ export const useServerStore = defineStore('serverStore', () => {
 
     cloneServerPayload,
     saveServerAsUserCopy,
+    startAddingServer,
+    startEditingServer,
+    toServerForm,
+    createDefaultServerForm,
+    startCloningServer,
   }
 })
 

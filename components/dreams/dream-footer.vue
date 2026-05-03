@@ -7,289 +7,177 @@
   >
     <template v-if="isCompact">
       <div
-        class="flex h-full min-h-0 w-full items-stretch gap-2 overflow-hidden"
+        class="grid h-full min-h-0 w-full grid-cols-[auto_minmax(0,1fr)_auto_auto] items-stretch gap-2 overflow-hidden"
       >
         <section
-          class="flex h-full w-44 shrink-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-2"
+          class="flex h-full min-w-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-2"
         >
           <Icon name="kind-icon:moon" class="h-7 w-7 shrink-0 text-primary" />
-          <div class="min-w-0 flex-1">
+
+          <div class="hidden min-w-0 sm:block">
             <div class="truncate text-sm font-bold">
-              {{ dreamStore.selectedDream?.title || 'Dreams' }}
+              {{ selectedDreamTitle }}
             </div>
+
             <div class="truncate text-xs text-base-content/50">
               {{ dreamStore.dreams.length }} loaded
             </div>
           </div>
         </section>
 
-        <section
-          class="flex h-full min-w-0 flex-1 items-stretch gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 px-2 py-2"
+        <textarea
+          ref="dreamMeasureRef"
+          v-model="quickMessage"
+          class="textarea textarea-bordered h-full min-h-0 min-w-0 resize-none overflow-y-auto rounded-2xl bg-base-100 px-3 py-2 text-sm leading-snug"
+          placeholder="Nudge the dream..."
+          :disabled="!dreamStore.selectedDream"
+          @input="queuePromptOffsetRefresh"
+          @keydown.enter.exact.prevent="sendQuickMessage"
+        />
+
+        <button
+          type="button"
+          class="btn btn-sm btn-primary h-full shrink-0 rounded-2xl text-white"
+          :disabled="
+            dreamStore.isSaving ||
+            !dreamStore.selectedDream ||
+            !quickMessage.trim()
+          "
+          @click="sendQuickMessage"
         >
-          <select
-            v-model.number="selectedDreamId"
-            class="select select-bordered select-sm h-full min-h-0 w-48 shrink-0 rounded-2xl"
-            @change="selectDream"
-          >
-            <option :value="0">Choose dream</option>
-            <option
-              v-for="dream in dreamStore.dreams"
-              :key="dream.id"
-              :value="dream.id"
-            >
-              {{ dream.title || `Dream ${dream.id}` }}
-            </option>
-          </select>
+          Send
+        </button>
 
-          <textarea
-            ref="dreamMeasureRef"
-            v-model="quickMessage"
-            class="textarea textarea-bordered h-full min-h-0 min-w-0 flex-1 resize-none overflow-y-auto bg-base-100 px-3 py-2 text-sm leading-snug"
-            placeholder="Nudge the dream..."
-            :disabled="!dreamStore.selectedDream"
-            @input="queuePromptOffsetRefresh"
-          />
-
-          <button
-            type="button"
-            class="btn btn-sm btn-primary h-full shrink-0 text-white"
-            :disabled="
-              dreamStore.isSaving ||
-              !dreamStore.selectedDream ||
-              !quickMessage.trim()
-            "
-            @click="sendQuickMessage"
-          >
-            Send
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-sm btn-secondary h-full shrink-0"
-            @click="newRandomDream"
-          >
-            New
-          </button>
-        </section>
+        <button
+          type="button"
+          class="btn btn-sm btn-secondary h-full shrink-0 rounded-2xl"
+          @click="openDreams"
+        >
+          Open
+        </button>
       </div>
     </template>
 
     <template v-else-if="isOpen">
       <div
-        class="grid h-full min-h-0 w-full grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[16rem_minmax(0,1fr)]"
+        class="grid h-full min-h-0 w-full grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]"
       >
         <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <div
-            class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
-          >
-            <span class="text-sm font-semibold">Dreams</span>
-            <span class="badge badge-outline text-xs">
-              {{ dreamStore.dreams.length }}
-            </span>
-          </div>
+          <div class="mb-3 flex shrink-0 items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm font-bold text-base-content">Dream</h2>
 
-          <div class="min-h-0 flex-1 overflow-y-auto p-2">
+              <p class="text-xs text-base-content/50">
+                Select the shared room.
+              </p>
+            </div>
+
             <button
-              v-for="dream in dreamStore.dreams"
-              :key="`open-${dream.id}`"
               type="button"
-              class="mb-1.5 flex w-full items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition"
-              :class="
-                dreamStore.selectedDream?.id === dream.id
-                  ? 'border-primary bg-primary/10'
-                  : 'border-transparent hover:bg-base-200'
-              "
-              @click="selectDreamById(dream.id)"
+              class="btn btn-xs btn-primary rounded-xl text-white"
+              @click="openDreams"
             >
-              <div
-                class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-200"
-              >
-                <img
-                  v-if="dream.Art?.imagePath"
-                  :src="dream.Art.imagePath"
-                  :alt="dream.title || 'Dream'"
-                  class="h-full w-full object-cover"
-                />
-                <Icon
-                  v-else
-                  name="kind-icon:moon"
-                  class="h-6 w-6 text-primary"
-                />
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-sm font-semibold">
-                  {{ dream.title || `Dream ${dream.id}` }}
-                </div>
-                <div class="truncate text-xs text-base-content/55">
-                  {{ dream.currentVibe || 'No vibe yet.' }}
-                </div>
-              </div>
+              Open
             </button>
           </div>
+
+          <dream-gallery
+            variant="dropdown"
+            title="Dream"
+            subtitle="Choose a dream."
+            :show-images="false"
+            :show-controls="false"
+            :show-toolbar="false"
+            :show-card-actions="false"
+            :show-open-button="false"
+            :auto-load="false"
+          />
+
+          <div class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+            <p class="text-xs font-bold uppercase text-base-content/50">
+              Selected
+            </p>
+
+            <p class="mt-1 truncate text-sm font-bold text-primary">
+              {{ selectedDreamTitle }}
+            </p>
+
+            <p class="mt-1 line-clamp-3 text-xs text-base-content/60">
+              {{ selectedDreamVibe }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-secondary mt-3 rounded-2xl"
+            @click="newRandomDream"
+          >
+            <Icon name="kind-icon:dice" class="h-4 w-4" />
+            Seed New Dream
+          </button>
         </section>
 
         <section
           class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3 overflow-hidden"
         >
           <div
-            class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2.5"
+            class="grid shrink-0 grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 lg:grid-cols-[minmax(0,1fr)_auto]"
           >
-            <template v-if="dreamStore.selectedDream">
-              <div
-                class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-              >
-                <img
-                  v-if="dreamStore.selectedDream.Art?.imagePath"
-                  :src="dreamStore.selectedDream.Art.imagePath"
-                  :alt="dreamStore.selectedDream.title || 'Dream'"
-                  class="h-full w-full object-cover"
-                />
-                <Icon
-                  v-else
-                  name="kind-icon:moon"
-                  class="h-8 w-8 text-primary"
-                />
-              </div>
+            <textarea
+              ref="dreamMeasureRef"
+              v-model="quickMessage"
+              class="textarea textarea-bordered min-h-24 resize-none rounded-2xl bg-base-200 text-sm leading-relaxed"
+              placeholder="Add a fox, change the lighting, follow the last image, make it stranger..."
+              :disabled="!dreamStore.selectedDream"
+              @input="queuePromptOffsetRefresh"
+              @keydown.enter.exact.prevent="sendQuickMessage"
+            />
 
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-base font-bold">
-                  {{ dreamStore.selectedDream.title || 'Untitled Dream' }}
-                </div>
-                <div class="line-clamp-2 text-xs text-base-content/65">
-                  {{
-                    dreamStore.selectedDream.currentVibe || 'Ready to drift.'
-                  }}
-                </div>
-              </div>
+            <div class="grid grid-cols-3 gap-2 lg:w-40 lg:grid-cols-1">
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost rounded-2xl"
+                @click="fillRandomMessage"
+              >
+                Random
+              </button>
 
               <button
                 type="button"
-                class="btn btn-xs btn-ghost shrink-0"
-                @click="clearDream"
+                class="btn btn-sm btn-ghost rounded-2xl"
+                @click="clearMessage"
               >
                 Clear
               </button>
-            </template>
 
-            <p v-else class="text-sm text-base-content/40">
-              Select a dream or create a new one.
-            </p>
+              <button
+                type="button"
+                class="btn btn-sm btn-primary rounded-2xl text-white"
+                :disabled="
+                  dreamStore.isSaving ||
+                  !dreamStore.selectedDream ||
+                  !quickMessage.trim()
+                "
+                @click="sendQuickMessage"
+              >
+                Send
+              </button>
+            </div>
           </div>
 
           <div
-            class="grid min-h-0 grid-cols-1 gap-3 overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)]"
+            class="min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
           >
-            <section
-              class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-            >
-              <div
-                class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
-              >
-                <span class="text-sm font-semibold">Dream Nudge</span>
-
-                <div class="flex gap-1.5">
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-ghost"
-                    @click="fillRandomMessage"
-                  >
-                    Random
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-ghost"
-                    @click="clearMessage"
-                  >
-                    Clear
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-primary text-white"
-                    :disabled="
-                      dreamStore.isSaving ||
-                      !dreamStore.selectedDream ||
-                      !quickMessage.trim()
-                    "
-                    @click="sendQuickMessage"
-                  >
-                    Send
-                  </button>
-                </div>
-              </div>
-
-              <textarea
-                ref="dreamMeasureRef"
-                v-model="quickMessage"
-                class="textarea min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 px-3 py-2.5 text-sm leading-relaxed"
-                placeholder="Add a fox, change the room, follow the image..."
-                :disabled="!dreamStore.selectedDream"
-                @input="queuePromptOffsetRefresh"
-              />
-            </section>
-
-            <section
-              class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-            >
-              <div
-                class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
-              >
-                <span class="text-sm font-semibold">New Dream</span>
-
-                <button
-                  type="button"
-                  class="btn btn-xs btn-secondary"
-                  @click="newRandomDream"
-                >
-                  Seed
-                </button>
-              </div>
-
-              <div
-                class="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-y-auto p-3"
-              >
-                <input
-                  v-model="dreamStore.dreamForm.title"
-                  class="input input-bordered input-sm rounded-2xl"
-                  placeholder="Dream title"
-                />
-
-                <textarea
-                  v-model="dreamStore.dreamForm.currentVibe"
-                  class="textarea textarea-bordered min-h-20 resize-none rounded-2xl text-sm"
-                  placeholder="Current vibe"
-                />
-
-                <label
-                  class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-                >
-                  <span class="label-text font-semibold"
-                    >Create collection</span
-                  >
-                  <input
-                    v-model="dreamStore.dreamForm.createCollection"
-                    type="checkbox"
-                    class="toggle toggle-primary"
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary text-white"
-                  :disabled="
-                    dreamStore.isSaving ||
-                    !dreamStore.dreamForm.currentVibe?.trim()
-                  "
-                  @click="dreamStore.saveDream"
-                >
-                  {{ dreamStore.isSaving ? 'Saving...' : 'Save Dream' }}
-                </button>
-              </div>
-            </section>
+            <dream-list
+              title="Recent Dream History"
+              subtitle="Latest nudges, model replies, and image events."
+              :show-header="true"
+              :compact="true"
+              :limit="8"
+              :auto-load="false"
+            />
           </div>
         </section>
       </div>
@@ -297,69 +185,40 @@
 
     <template v-else>
       <div
-        class="grid h-full min-h-0 w-full grid-cols-[minmax(15rem,21rem)_minmax(0,1fr)_minmax(16rem,22rem)] gap-3 overflow-hidden"
+        class="grid h-full min-h-0 w-full grid-cols-[minmax(16rem,24rem)_minmax(0,1fr)_minmax(18rem,26rem)] gap-3 overflow-hidden"
       >
         <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <div
-            class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-3"
-          >
+          <div class="mb-3 flex shrink-0 items-center justify-between gap-2">
             <div>
-              <div class="text-sm font-bold">Dreams</div>
-              <div class="text-xs text-base-content/50">
-                {{ dreamStore.dreams.length }} available
-              </div>
+              <h2 class="text-sm font-bold text-base-content">Dreams</h2>
+
+              <p class="text-xs text-base-content/50">Pick the active room.</p>
             </div>
 
             <button
               type="button"
-              class="btn btn-xs btn-primary text-white"
+              class="btn btn-xs btn-secondary rounded-xl"
               @click="newRandomDream"
             >
               New
             </button>
           </div>
 
-          <div class="min-h-0 flex-1 overflow-y-auto p-2">
-            <button
-              v-for="dream in dreamStore.dreams"
-              :key="`priority-${dream.id}`"
-              type="button"
-              class="mb-2 flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition"
-              :class="
-                dreamStore.selectedDream?.id === dream.id
-                  ? 'border-primary bg-primary/10'
-                  : 'border-base-300 bg-base-200/60 hover:bg-base-200'
-              "
-              @click="selectDreamById(dream.id)"
-            >
-              <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-              >
-                <img
-                  v-if="dream.Art?.imagePath"
-                  :src="dream.Art.imagePath"
-                  :alt="dream.title || 'Dream'"
-                  class="h-full w-full object-cover"
-                />
-                <Icon
-                  v-else
-                  name="kind-icon:moon"
-                  class="h-7 w-7 text-primary"
-                />
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-sm font-bold">
-                  {{ dream.title || `Dream ${dream.id}` }}
-                </div>
-                <div class="line-clamp-2 text-xs text-base-content/55">
-                  {{ dream.currentVibe || 'No vibe yet.' }}
-                </div>
-              </div>
-            </button>
-          </div>
+          <dream-gallery
+            variant="row"
+            title="Dreams"
+            subtitle="Choose a shared dream."
+            :show-images="true"
+            :show-controls="false"
+            :show-toolbar="false"
+            :show-card-actions="true"
+            :show-open-button="false"
+            :show-stats="false"
+            :compact="true"
+            :auto-load="false"
+          />
         </section>
 
         <section
@@ -369,244 +228,131 @@
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <div class="truncate text-lg font-bold">
-                  {{ dreamStore.selectedDream?.title || 'Dream Cockpit' }}
+                  {{ selectedDreamTitle }}
                 </div>
+
                 <div class="line-clamp-2 text-sm text-base-content/60">
-                  {{
-                    dreamStore.selectedDream?.currentVibe ||
-                    'Choose or seed a dream to begin.'
-                  }}
+                  {{ selectedDreamVibe }}
                 </div>
               </div>
 
-              <div class="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  class="btn btn-xs btn-ghost"
-                  @click="fillRandomMessage"
-                >
-                  Random Nudge
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-xs btn-error text-white"
-                  :disabled="!dreamStore.selectedDream?.id"
-                  @click="deleteSelectedDream"
-                >
-                  Delete
-                </button>
-              </div>
+              <button
+                type="button"
+                class="btn btn-xs btn-primary shrink-0 rounded-xl text-white"
+                @click="openDreams"
+              >
+                Open Manager
+              </button>
             </div>
           </div>
 
-          <div
-            class="grid min-h-0 grid-cols-1 gap-3 overflow-hidden p-3 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]"
-          >
-            <section
-              class="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-            >
-              <div class="min-h-0 overflow-y-auto p-3">
-                <div
-                  v-if="dreamStore.dreamChats.length"
-                  class="flex flex-col gap-2"
-                >
-                  <article
-                    v-for="chat in dreamStore.dreamChats"
-                    :key="chat.id"
-                    class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                  >
-                    <div class="mb-1 flex items-center justify-between gap-2">
-                      <div class="truncate text-xs font-bold text-primary">
-                        {{ chat.sender || 'Dreamer' }}
-                      </div>
-                      <div class="shrink-0 text-[10px] text-base-content/40">
-                        #{{ chat.id }}
-                      </div>
-                    </div>
-
-                    <p
-                      class="line-clamp-4 text-sm leading-relaxed text-base-content/75"
-                    >
-                      {{ chat.content }}
-                    </p>
-                  </article>
-                </div>
-
-                <p v-else class="text-sm text-base-content/45">
-                  No messages yet. The dream is awkwardly standing near the
-                  punch bowl.
-                </p>
-              </div>
-
-              <div class="border-t border-base-300 bg-base-100 p-2">
-                <div class="flex gap-2">
-                  <textarea
-                    ref="dreamMeasureRef"
-                    v-model="quickMessage"
-                    class="textarea textarea-bordered min-h-12 flex-1 resize-none rounded-2xl text-sm"
-                    placeholder="Steer the dream..."
-                    :disabled="!dreamStore.selectedDream"
-                    @input="queuePromptOffsetRefresh"
-                  />
-
-                  <button
-                    type="button"
-                    class="btn btn-primary min-h-12 shrink-0 text-white"
-                    :disabled="
-                      dreamStore.isSaving ||
-                      !dreamStore.selectedDream ||
-                      !quickMessage.trim()
-                    "
-                    @click="sendQuickMessage"
-                  >
-                    Send
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            <section class="flex min-h-0 flex-col gap-3 overflow-hidden">
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-                <div
-                  class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
-                >
-                  Current Prompt
-                </div>
-
-                <textarea
-                  v-model="dreamStore.dreamForm.currentPrompt"
-                  class="textarea textarea-bordered min-h-24 w-full resize-none rounded-2xl text-sm"
-                  placeholder="Prompt for the next model action"
-                />
-
-                <button
-                  type="button"
-                  class="btn btn-sm btn-secondary mt-2 w-full"
-                  :disabled="!dreamStore.selectedDream?.id"
-                  @click="saveCurrentPrompt"
-                >
-                  Save Prompt
-                </button>
-              </div>
-
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-                <div
-                  class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
-                >
-                  Current Vibe
-                </div>
-
-                <textarea
-                  v-model="dreamStore.dreamForm.currentVibe"
-                  class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl text-sm"
-                  placeholder="The current shared dream state"
-                />
-
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary mt-2 w-full text-white"
-                  :disabled="
-                    dreamStore.isSaving ||
-                    !dreamStore.dreamForm.currentVibe?.trim()
-                  "
-                  @click="saveDreamForm"
-                >
-                  {{ dreamStore.isSaving ? 'Saving...' : 'Save Dream' }}
-                </button>
-              </div>
-            </section>
+          <div class="min-h-0 overflow-y-auto bg-base-200 p-3">
+            <dream-list
+              title="Dream History"
+              :show-header="false"
+              :compact="true"
+              :limit="12"
+              :auto-load="false"
+            />
           </div>
 
-          <div
-            class="flex shrink-0 items-center justify-between gap-3 border-t border-base-300 bg-base-200/60 px-4 py-3"
-          >
-            <p class="min-w-0 truncate text-sm text-base-content/60">
-              {{ dreamStatus }}
-            </p>
+          <div class="border-t border-base-300 bg-base-100 p-2">
+            <div class="flex gap-2">
+              <textarea
+                ref="dreamMeasureRef"
+                v-model="quickMessage"
+                class="textarea textarea-bordered min-h-12 flex-1 resize-none rounded-2xl text-sm"
+                placeholder="Steer the dream..."
+                :disabled="!dreamStore.selectedDream"
+                @input="queuePromptOffsetRefresh"
+                @keydown.enter.exact.prevent="sendQuickMessage"
+              />
 
-            <button
-              type="button"
-              class="btn btn-sm btn-ghost"
-              @click="goToDreams"
-            >
-              Open Manager
-            </button>
+              <button
+                type="button"
+                class="btn btn-primary min-h-12 shrink-0 rounded-2xl text-white"
+                :disabled="
+                  dreamStore.isSaving ||
+                  !dreamStore.selectedDream ||
+                  !quickMessage.trim()
+                "
+                @click="sendQuickMessage"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </section>
 
         <section
-          class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+          class="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <div class="border-b border-base-300 px-4 py-3">
-            <div class="text-sm font-bold">Seed a Dream</div>
-            <div class="text-xs text-base-content/50">
-              Randomizer plus quick creation
-            </div>
+          <div>
+            <h2 class="text-sm font-bold text-base-content">Quick Seed</h2>
+
+            <p class="text-xs text-base-content/50">
+              Start a fresh collaborative dream.
+            </p>
           </div>
 
-          <div class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <div
-                class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
-              >
-                Random Seed
-              </div>
-
-              <p class="text-sm leading-relaxed text-base-content/70">
-                {{ previewSeed }}
-              </p>
-
-              <div class="mt-3 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-ghost"
-                  @click="refreshSeed"
-                >
-                  Reroll
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-sm btn-secondary"
-                  @click="applySeed"
-                >
-                  Use Seed
-                </button>
-              </div>
-            </div>
-
-            <label class="form-control">
-              <span class="label-text font-semibold">Title</span>
-              <input
-                v-model="dreamStore.dreamForm.title"
-                class="input input-bordered rounded-2xl"
-                placeholder="Dream title"
-              />
-            </label>
-
-            <label
-              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-            >
-              <span class="label-text font-semibold">Public</span>
-              <input
-                v-model="dreamStore.dreamForm.isPublic"
-                type="checkbox"
-                class="toggle toggle-success"
-              />
-            </label>
-
-            <label
-              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-            >
-              <span class="label-text font-semibold">Create Collection</span>
-              <input
-                v-model="dreamStore.dreamForm.createCollection"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
-            </label>
+          <div
+            class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <p class="text-sm leading-relaxed text-base-content/70">
+              {{ previewSeed }}
+            </p>
           </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost rounded-2xl"
+              @click="refreshSeed"
+            >
+              Reroll
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-secondary rounded-2xl"
+              @click="applySeed"
+            >
+              Use Seed
+            </button>
+          </div>
+
+          <label class="form-control">
+            <span class="label-text text-xs font-semibold">Title</span>
+
+            <input
+              v-model="dreamStore.dreamForm.title"
+              class="input input-bordered input-sm rounded-2xl"
+              placeholder="Dream title"
+            />
+          </label>
+
+          <label
+            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+          >
+            <span class="label-text font-semibold">Create Collection</span>
+
+            <input
+              v-model="dreamStore.dreamForm.createCollection"
+              type="checkbox"
+              class="toggle toggle-primary"
+            />
+          </label>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-primary rounded-2xl text-white"
+            :disabled="
+              dreamStore.isSaving || !dreamStore.dreamForm.currentVibe?.trim()
+            "
+            @click="saveDreamForm"
+          >
+            {{ dreamStore.isSaving ? 'Saving...' : 'Save Dream' }}
+          </button>
         </section>
       </div>
     </template>
@@ -614,60 +360,37 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/dream-footer.vue
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useNavStore } from '@/stores/navStore'
 
 const router = useRouter()
 const displayStore = useDisplayStore()
 const dreamStore = useDreamStore()
+const navStore = useNavStore()
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
 const isOpen = computed(() => footerState.value === 'open')
 
-const selectedDreamId = ref(0)
 const quickMessage = ref('')
 const previewSeed = ref('')
-
 const dreamMeasureRef = ref<HTMLTextAreaElement | null>(null)
+
 let dreamResizeObserver: ResizeObserver | null = null
 
-const dreamStatus = computed(() => {
-  if (dreamStore.loading) return 'Loading dreams...'
-  if (dreamStore.chatsLoading) return 'Loading dream history...'
-  if (dreamStore.isSaving) return 'Saving dream...'
-  if (dreamStore.isDeleting) return 'Deleting dream...'
-  if (dreamStore.selectedDream?.id) {
-    return `Selected dream #${dreamStore.selectedDream.id}`
-  }
-  return 'Select, seed, or create a dream.'
-})
+const selectedDreamTitle = computed(
+  () => dreamStore.selectedDream?.title || 'Dreams',
+)
 
-async function selectDream() {
-  if (!selectedDreamId.value) {
-    clearDream()
-    return
-  }
-
-  await selectDreamById(selectedDreamId.value)
-}
-
-async function selectDreamById(id: number) {
-  selectedDreamId.value = id
-  await dreamStore.selectDreamById(id)
-  await dreamStore.fetchDreamChats(id)
-  queuePromptOffsetRefresh()
-}
-
-function clearDream() {
-  selectedDreamId.value = 0
-  dreamStore.deselectDream()
-  quickMessage.value = ''
-  queuePromptOffsetRefresh()
-}
+const selectedDreamVibe = computed(
+  () =>
+    dreamStore.selectedDream?.currentVibe ||
+    dreamStore.dreamForm.currentVibe ||
+    'Select, seed, or create a dream.',
+)
 
 function refreshSeed() {
   previewSeed.value = dreamStore.randomDream()
@@ -682,8 +405,10 @@ function applySeed() {
 
 function newRandomDream() {
   const seed = dreamStore.randomDream()
+
   previewSeed.value = seed
-  dreamStore.createNewDream({
+
+  dreamStore.startAddingDream({
     title: '',
     currentVibe: seed,
     currentPrompt: seed,
@@ -691,7 +416,7 @@ function newRandomDream() {
     isPublic: true,
     isMature: false,
   })
-  selectedDreamId.value = 0
+
   quickMessage.value = ''
   queuePromptOffsetRefresh()
 }
@@ -724,35 +449,15 @@ async function saveDreamForm() {
   const result = await dreamStore.saveDream()
 
   if (result.success && result.data?.id) {
-    selectedDreamId.value = result.data.id
+    await dreamStore.selectDreamById(result.data.id)
     await dreamStore.fetchDreamChats(result.data.id)
   }
 
   queuePromptOffsetRefresh()
 }
 
-async function saveCurrentPrompt() {
-  if (!dreamStore.selectedDream?.id) return
-
-  await dreamStore.setCurrentPrompt(dreamStore.dreamForm.currentPrompt || '')
-  queuePromptOffsetRefresh()
-}
-
-async function deleteSelectedDream() {
-  if (!dreamStore.selectedDream?.id) return
-
-  const id = dreamStore.selectedDream.id
-  const result = await dreamStore.deleteDream(id)
-
-  if (result.success) {
-    selectedDreamId.value = 0
-    quickMessage.value = ''
-  }
-
-  queuePromptOffsetRefresh()
-}
-
-async function goToDreams() {
+async function openDreams() {
+  navStore.setDashboardTab('dream', 'overview')
   await router.push('/dreams')
 }
 
@@ -773,6 +478,7 @@ function refreshPromptOffset() {
   }
 
   const el = dreamMeasureRef.value
+
   if (!el) {
     displayStore.clearPromptOffset('dream')
     return
@@ -807,14 +513,13 @@ watch(
 )
 
 onMounted(async () => {
-  await dreamStore.initialize()
+  await Promise.all([dreamStore.initialize(), navStore.initialize()])
 
   if (!previewSeed.value) {
     refreshSeed()
   }
 
   if (dreamStore.selectedDream?.id) {
-    selectedDreamId.value = dreamStore.selectedDream.id
     await dreamStore.fetchDreamChats(dreamStore.selectedDream.id)
   }
 

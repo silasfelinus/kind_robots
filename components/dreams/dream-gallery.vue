@@ -1,300 +1,504 @@
 <!-- /components/content/dream/dream-gallery.vue -->
 <template>
-  <section class="container mx-auto flex w-full flex-col gap-4 p-4">
+  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
     <header
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
-      <div class="min-w-0">
-        <h1 class="text-3xl font-black text-primary">Dream Gallery</h1>
-        <p class="mt-1 text-sm text-base-content/70">
-          Browse, select, edit, and continue shared dreams.
-        </p>
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="truncate text-lg font-bold text-base-content">
+            {{ title }}
+          </h2>
+
+          <p
+            v-if="dreamStore.selectedDream"
+            class="truncate text-sm text-base-content/70"
+          >
+            Selected:
+            <span class="font-semibold text-primary">
+              {{
+                dreamStore.selectedDream.title ||
+                `Dream ${dreamStore.selectedDream.id}`
+              }}
+            </span>
+          </p>
+
+          <p v-else class="text-sm text-base-content/60">
+            {{ subtitle }}
+          </p>
+        </div>
+
+        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
+          {{ filteredDreams.length }}
+        </span>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-sm btn-secondary rounded-2xl"
-          @click="openCreateDream"
+      <div
+        v-if="showControls"
+        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+      >
+        <select
+          v-model="scope"
+          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+          aria-label="Filter dreams by scope"
+          @change="refreshDreams()"
         >
-          <Icon name="kind-icon:moon" class="h-5 w-5" />
-          New Dream
+          <option value="all">All visible</option>
+          <option value="mine">My dreams</option>
+          <option value="public">Public only</option>
+          <option value="active">Active only</option>
+        </select>
+
+        <label
+          class="label cursor-pointer justify-between gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+        >
+          <span class="label-text text-sm font-semibold">Mature</span>
+          <input
+            v-model="includeMature"
+            type="checkbox"
+            class="toggle toggle-warning toggle-sm"
+            @change="refreshDreams()"
+          />
+        </label>
+
+        <label
+          class="label cursor-pointer justify-between gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-2"
+        >
+          <span class="label-text text-sm font-semibold">Inactive</span>
+          <input
+            v-model="showInactive"
+            type="checkbox"
+            class="toggle toggle-primary toggle-sm"
+            @change="refreshDreams()"
+          />
+        </label>
+
+        <input
+          v-model="searchQuery"
+          type="search"
+          aria-label="Search dreams"
+          placeholder="Search dreams..."
+          class="input input-bordered input-sm w-full bg-base-100"
+        />
+      </div>
+
+      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="startAddingDream"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add
         </button>
 
         <button
+          v-if="allowEdit"
+          class="btn btn-secondary btn-sm rounded-xl"
           type="button"
-          class="btn btn-sm btn-ghost rounded-2xl"
-          @click="
-            dreamStore.fetchDreams({ userOnly, includeMature, showInactive })
-          "
+          :disabled="!dreamStore.selectedDream"
+          @click="startEditingDream"
         >
-          <Icon name="kind-icon:refresh" class="h-5 w-5" />
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          Edit
+        </button>
+
+        <button
+          v-if="allowClone"
+          class="btn btn-accent btn-sm rounded-xl"
+          type="button"
+          :disabled="!dreamStore.selectedDream"
+          @click="cloneSelectedDream"
+        >
+          <Icon name="kind-icon:copy" class="h-4 w-4" />
+          Clone
+        </button>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="!dreamStore.selectedDream"
+          @click="clearSelectedDream"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Clear
+        </button>
+
+        <button
+          v-if="allowRefresh"
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="isLoading"
+          @click="refreshDreams(true)"
+        >
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
           Refresh
         </button>
       </div>
     </header>
 
     <section
-      class="grid grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 md:grid-cols-[1fr_auto_auto_auto]"
+      v-if="showDreamForm"
+      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
     >
-      <input
-        v-model="search"
-        class="input input-bordered rounded-2xl"
-        placeholder="Search dreams..."
-      />
+      <div class="mb-3 flex items-center justify-between gap-2">
+        <h3 class="text-sm font-bold text-base-content">
+          {{ formTitle }}
+        </h3>
 
-      <select v-model="scope" class="select select-bordered rounded-2xl">
-        <option value="all">All visible</option>
-        <option value="mine">My dreams</option>
-        <option value="public">Public only</option>
-      </select>
-
-      <label
-        class="label cursor-pointer justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 px-3"
-      >
-        <span class="label-text font-semibold">Mature</span>
-        <input
-          v-model="includeMature"
-          type="checkbox"
-          class="toggle toggle-warning"
-          @change="refreshDreams"
-        />
-      </label>
-
-      <label
-        class="label cursor-pointer justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 px-3"
-      >
-        <span class="label-text font-semibold">Inactive</span>
-        <input
-          v-model="showInactive"
-          type="checkbox"
-          class="toggle toggle-primary"
-          @change="refreshDreams"
-        />
-      </label>
-    </section>
-
-    <div
-      v-if="dreamStore.loading"
-      class="flex min-h-40 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
-    >
-      <span class="loading loading-ring loading-lg text-primary" />
-    </div>
-
-    <div
-      v-else-if="filteredDreams.length === 0"
-      class="rounded-2xl border border-base-300 bg-base-100 p-8 text-center"
-    >
-      <Icon name="kind-icon:moon" class="mx-auto h-14 w-14 text-primary" />
-      <h2 class="mt-3 text-xl font-black">No dreams found</h2>
-      <p class="mt-1 text-sm text-base-content/60">
-        Either the gallery is empty or the filters are being dramatic.
-      </p>
-    </div>
-
-    <div
-      v-else
-      class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4"
-    >
-      <article
-        v-for="dream in filteredDreams"
-        :key="dream.id"
-        class="group flex min-h-72 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-md transition hover:-translate-y-0.5 hover:shadow-xl"
-      >
         <button
+          class="btn btn-ghost btn-xs rounded-xl"
           type="button"
-          class="relative h-36 w-full overflow-hidden bg-base-300 text-left"
-          @click="selectDream(dream.id)"
+          @click="closeDreamForm"
         >
-          <img
-            v-if="dream.Art?.imagePath"
-            :src="dream.Art.imagePath"
-            :alt="dream.title || 'Dream'"
-            class="h-full w-full object-cover transition group-hover:scale-105"
-          />
-          <div
-            v-else
-            class="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/20 via-secondary/20 to-accent/20"
-          >
-            <Icon name="kind-icon:moon" class="h-16 w-16 text-primary" />
-          </div>
-
-          <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-            <span
-              class="badge badge-sm"
-              :class="dream.isPublic ? 'badge-success' : 'badge-warning'"
-            >
-              {{ dream.isPublic ? 'Public' : 'Private' }}
-            </span>
-
-            <span v-if="dream.isMature" class="badge badge-sm badge-error">
-              Mature
-            </span>
-          </div>
+          <Icon name="kind-icon:x" class="h-4 w-4" />
         </button>
-
-        <div class="flex min-h-0 flex-1 flex-col gap-3 p-4">
-          <div class="min-w-0">
-            <h2 class="truncate text-lg font-black">
-              {{ dream.title || `Dream ${dream.id}` }}
-            </h2>
-            <p
-              class="mt-1 line-clamp-3 text-sm leading-relaxed text-base-content/65"
-            >
-              {{ dream.currentVibe || 'No vibe recorded.' }}
-            </p>
-          </div>
-
-          <div class="mt-auto grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="rounded-2xl bg-base-200 p-2">
-              <div class="font-black">
-                {{ dream._count?.Chats ?? dream.Chats?.length ?? 0 }}
-              </div>
-              <div class="text-base-content/50">Chats</div>
-            </div>
-
-            <div class="rounded-2xl bg-base-200 p-2">
-              <div class="font-black">
-                {{ dream._count?.Reactions ?? dream.Reactions?.length ?? 0 }}
-              </div>
-              <div class="text-base-content/50">Reacts</div>
-            </div>
-
-            <div class="rounded-2xl bg-base-200 p-2">
-              <div class="font-black">
-                {{ dream.ArtCollection?.art?.length ?? 0 }}
-              </div>
-              <div class="text-base-content/50">Art</div>
-            </div>
-          </div>
-
-          <div class="flex gap-2">
-            <button
-              type="button"
-              class="btn btn-xs btn-primary flex-1 rounded-2xl text-white"
-              @click="selectDream(dream.id)"
-            >
-              Open
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-xs btn-secondary flex-1 rounded-2xl"
-              @click="openEditDream(dream.id)"
-            >
-              Edit
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-xs btn-error rounded-2xl text-white"
-              @click="deleteDream(dream.id)"
-            >
-              <Icon name="kind-icon:trash" class="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <dialog ref="editDialog" class="modal">
-      <div class="modal-box max-w-4xl bg-transparent p-0 shadow-none">
-        <EditDreamPanel @close="closeEditModal" />
       </div>
 
-      <form method="dialog" class="modal-backdrop">
-        <button type="button" @click="closeEditModal">close</button>
-      </form>
-    </dialog>
-  </section>
+      <add-dream :mode="formMode" @saved="handleDreamSaved" />
+    </section>
+
+    <section class="min-h-0 flex-1 overflow-auto">
+      <div
+        v-if="isLoading || dreamStore.loading"
+        class="flex h-full items-center justify-center py-12"
+      >
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+
+      <div
+        v-else-if="dreamStore.error"
+        class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
+      >
+        <p class="text-lg font-bold">
+          {{ dreamStore.error }}
+        </p>
+      </div>
+
+      <div
+        v-else-if="filteredDreams.length === 0"
+        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
+      >
+        <Icon name="kind-icon:moon" class="h-12 w-12 text-primary" />
+
+        <div>
+          <p class="text-lg font-bold">No dreams found.</p>
+          <p class="mt-1 text-sm">
+            The dream shelf is empty, or the filters are being theatrical.
+          </p>
+        </div>
+
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="startAddingDream"
+        >
+          Add a dream
+        </button>
+      </div>
+
+      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
+        <select
+          class="select select-bordered w-full bg-base-100"
+          :value="dreamStore.selectedDream?.id ?? ''"
+          aria-label="Select dream"
+          @change="selectDreamFromEvent"
+        >
+          <option value="">Choose a dream</option>
+
+          <option
+            v-for="dream in filteredDreams"
+            :key="dream.id"
+            :value="dream.id"
+          >
+            {{ dream.title || `Dream ${dream.id}` }}
+          </option>
+        </select>
+      </div>
+
+      <div v-else :class="layoutClass">
+        <dream-card
+          v-for="dream in filteredDreams"
+          :key="dream.id"
+          :dream="dream"
+          :selected="dreamStore.selectedDream?.id === dream.id"
+          :compact="isCompact"
+          :show-image="showImages"
+          :show-actions="showCardActions"
+          :show-description="showDescriptions"
+          :show-meta="showMeta"
+          :show-stats="showStats"
+          :show-open-button="showOpenButton"
+          :show-debug="showDebug"
+          :allow-edit="allowEdit"
+          :allow-clone="allowClone"
+          :allow-delete="allowDelete"
+          @select="selectDream"
+          @edit="startEditingDreamById"
+          @clone="cloneDreamById"
+          @delete="handleDreamDeleted"
+        />
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
-// /components/content/dream/dream-gallery.vue
 import { computed, onMounted, ref } from 'vue'
+import type { DreamWithRelations } from '@/stores/dreamStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useUserStore } from '@/stores/userStore'
-import EditDreamPanel from '@/components/dreams/edit-dream.vue'
+
+type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
+type DreamScope = 'all' | 'mine' | 'public' | 'active'
+
+const props = withDefaults(
+  defineProps<{
+    variant?: GalleryVariant
+    title?: string
+    subtitle?: string
+    showImages?: boolean
+    showControls?: boolean
+    showToolbar?: boolean
+    showCardActions?: boolean
+    showDescriptions?: boolean
+    showMeta?: boolean
+    showStats?: boolean
+    showOpenButton?: boolean
+    showDebug?: boolean
+    allowAdd?: boolean
+    allowEdit?: boolean
+    allowClone?: boolean
+    allowDelete?: boolean
+    allowRefresh?: boolean
+    compact?: boolean
+    autoLoad?: boolean
+  }>(),
+  {
+    variant: 'dashboard',
+    title: 'Dreams',
+    subtitle: 'Browse, select, edit, and continue shared dreams.',
+    showImages: true,
+    showControls: true,
+    showToolbar: true,
+    showCardActions: true,
+    showDescriptions: true,
+    showMeta: true,
+    showStats: true,
+    showOpenButton: true,
+    showDebug: false,
+    allowAdd: true,
+    allowEdit: true,
+    allowClone: true,
+    allowDelete: true,
+    allowRefresh: true,
+    compact: false,
+    autoLoad: true,
+  },
+)
 
 const dreamStore = useDreamStore()
 const userStore = useUserStore()
 
-const search = ref('')
-const scope = ref<'all' | 'mine' | 'public'>('all')
+const scope = ref<DreamScope>('all')
 const includeMature = ref(false)
 const showInactive = ref(false)
-const editDialog = ref<HTMLDialogElement | null>(null)
+const searchQuery = ref('')
+const isLoading = ref(false)
+const showDreamForm = ref(false)
+const formMode = ref<'add' | 'edit'>('add')
 
-async function openEditDream(id: number) {
-  await dreamStore.selectDreamById(id)
-  editDialog.value?.showModal()
-}
+const title = computed(() => props.title)
+const subtitle = computed(() => props.subtitle)
+const showImages = computed(() => props.showImages)
+const showCardActions = computed(() => props.showCardActions)
+const showDescriptions = computed(() => props.showDescriptions)
+const showMeta = computed(() => props.showMeta)
+const showStats = computed(() => props.showStats)
+const showOpenButton = computed(() => props.showOpenButton)
+const showDebug = computed(() => props.showDebug)
+const allowEdit = computed(() => props.allowEdit)
+const allowClone = computed(() => props.allowClone)
+const allowDelete = computed(() => props.allowDelete)
 
-const userOnly = computed(() => scope.value === 'mine')
+const isCompact = computed(
+  () =>
+    props.compact || props.variant === 'row' || props.variant === 'dropdown',
+)
 
-const filteredDreams = computed(() => {
-  const query = search.value.trim().toLowerCase()
+const formTitle = computed(() =>
+  formMode.value === 'edit' ? 'Edit Dream' : 'Add Dream',
+)
 
-  return dreamStore.dreams.filter((dream) => {
-    if (scope.value === 'mine' && dream.userId !== userStore.userId)
-      return false
-    if (scope.value === 'public' && !dream.isPublic) return false
-    if (!includeMature.value && dream.isMature) return false
-    if (!showInactive.value && !dream.isActive) return false
+const layoutClass = computed(() =>
+  props.variant === 'row' ? 'dream-row' : 'dream-grid',
+)
 
-    if (!query) return true
+const filteredDreams = computed<DreamWithRelations[]>(() => {
+  let dreams = dreamStore.dreams
 
-    const haystack = [
-      dream.title,
-      dream.description,
-      dream.currentVibe,
-      dream.currentPrompt,
-      dream.slug,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
+  if (scope.value === 'mine') {
+    dreams = dreams.filter((dream) => dream.userId === userStore.userId)
+  }
 
-    return haystack.includes(query)
-  })
+  if (scope.value === 'public') {
+    dreams = dreams.filter((dream) => dream.isPublic)
+  }
+
+  if (scope.value === 'active') {
+    dreams = dreams.filter((dream) => dream.isActive)
+  }
+
+  if (!includeMature.value) {
+    dreams = dreams.filter((dream) => !dream.isMature)
+  }
+
+  if (!showInactive.value) {
+    dreams = dreams.filter((dream) => dream.isActive)
+  }
+
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.trim().toLowerCase()
+
+    dreams = dreams.filter((dream) => {
+      const haystack = [
+        dream.title,
+        dream.slug,
+        dream.description,
+        dream.currentVibe,
+        dream.currentPrompt,
+        dream.User?.username,
+        dream.Scenario?.title,
+        dream.Pitch?.title,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return haystack.includes(query)
+    })
+  }
+
+  return dreams
 })
 
-async function refreshDreams() {
-  await dreamStore.fetchDreams({
-    userOnly: userOnly.value,
-    includeMature: includeMature.value,
-    showInactive: showInactive.value,
-  })
-}
+onMounted(async () => {
+  if (props.autoLoad) {
+    await refreshDreams()
+  }
+})
 
-function openCreateDream() {
-  dreamStore.createNewDream()
-  editDialog.value?.showModal()
+async function refreshDreams(force = false) {
+  isLoading.value = true
+
+  try {
+    await dreamStore.initialize(force)
+
+    await dreamStore.fetchDreams({
+      userOnly: scope.value === 'mine',
+      includeMature: includeMature.value,
+      showInactive: showInactive.value,
+    })
+  } finally {
+    isLoading.value = false
+  }
 }
 
 async function selectDream(id: number) {
   await dreamStore.selectDreamById(id)
 }
 
-async function editDream(id: number) {
-  await dreamStore.selectDreamById(id)
-  editDialog.value?.showModal()
+function selectDreamFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+  const id = Number(target.value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    clearSelectedDream()
+    return
+  }
+
+  void selectDream(id)
 }
 
-function closeEditModal() {
-  editDialog.value?.close()
+function startAddingDream() {
+  dreamStore.startAddingDream()
+  formMode.value = 'add'
+  showDreamForm.value = true
 }
 
-async function deleteDream(id: number) {
-  const result = await dreamStore.deleteDream(id)
+async function startEditingDream() {
+  const id = dreamStore.selectedDream?.id
 
-  if (result.success) {
-    await refreshDreams()
+  if (!id) return
+
+  await startEditingDreamById(id)
+}
+
+async function startEditingDreamById(id: number) {
+  const dream = await dreamStore.startEditingDream(id)
+
+  if (!dream) return
+
+  formMode.value = 'edit'
+  showDreamForm.value = true
+}
+
+function cloneSelectedDream() {
+  const id = dreamStore.selectedDream?.id
+
+  if (!id) return
+
+  cloneDreamById(id)
+}
+
+function cloneDreamById(id: number) {
+  const dream = dreamStore.startCloningDream(id)
+
+  if (!dream) return
+
+  formMode.value = 'add'
+  showDreamForm.value = true
+}
+
+function clearSelectedDream() {
+  dreamStore.deselectDream()
+  showDreamForm.value = false
+}
+
+function closeDreamForm() {
+  showDreamForm.value = false
+}
+
+async function handleDreamSaved() {
+  showDreamForm.value = false
+  await refreshDreams(true)
+}
+
+function handleDreamDeleted(id: number) {
+  if (dreamStore.selectedDream?.id === id) {
+    dreamStore.deselectDream()
   }
 }
-
-onMounted(async () => {
-  await dreamStore.initialize()
-  await refreshDreams()
-})
 </script>
+
+<style scoped>
+.dream-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.dream-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.dream-row > * {
+  min-width: min(260px, 85vw);
+  max-width: 380px;
+}
+</style>

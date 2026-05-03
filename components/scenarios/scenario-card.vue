@@ -9,7 +9,7 @@
     @click="selectScenario"
   >
     <div
-      v-if="showActions && selected"
+      v-if="showActions && (selected || compact)"
       class="absolute right-2 top-2 z-20 flex items-center gap-2"
     >
       <button
@@ -115,7 +115,7 @@
     >
       <button
         v-for="(intro, index) in introChoices"
-        :key="index"
+        :key="`${intro}-${index}`"
         class="btn btn-secondary h-auto min-h-16 w-full whitespace-normal rounded-xl px-4 py-3 text-left leading-relaxed"
         type="button"
         @click.stop="setCurrentChoice(intro)"
@@ -195,7 +195,7 @@ const computedScenarioImage = computed(() =>
     : props.scenario.imagePath || '/images/scenarios/space.webp',
 )
 
-const introChoices = computed(() => {
+const introChoices = computed<string[]>(() => {
   const raw = props.scenario.intros
 
   if (!raw) return []
@@ -236,7 +236,7 @@ async function deleteScenario() {
 }
 
 function setCurrentChoice(choice: string) {
-  scenarioStore.currentChoice = choice
+  scenarioStore.setCurrentChoice(choice)
   emit('choice', choice)
 }
 

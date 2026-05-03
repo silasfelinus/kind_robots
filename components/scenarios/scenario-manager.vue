@@ -21,7 +21,7 @@
               title="Scenarios"
               subtitle="Pick the playground."
               :show-controls="false"
-              :show-toolbar="true"
+              :show-toolbar="false"
               :show-images="true"
               :show-inspirations="false"
               :compact="true"
@@ -34,7 +34,7 @@
               title="Characters"
               subtitle="Choose the cast."
               :show-controls="false"
-              :show-toolbar="true"
+              :show-toolbar="false"
               :show-images="true"
               :compact="true"
             />
@@ -46,7 +46,7 @@
               title="Rewards"
               subtitle="Pick the plot grenade."
               :show-controls="false"
-              :show-toolbar="true"
+              :show-toolbar="false"
               :show-images="true"
               :compact="true"
             />

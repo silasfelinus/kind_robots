@@ -1,624 +1,462 @@
 <!-- /components/server/server-gallery.vue -->
 <template>
-  <section
-    :class="[
-      'flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100',
-      mode === 'text' ? 'ring-1 ring-info/10' : 'ring-1 ring-accent/10',
-    ]"
-  >
-    <div
-      class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"
+  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
-      <div class="flex min-w-0 items-center gap-2.5">
-        <Icon
-          :name="mode === 'text' ? 'kind-icon:chat' : 'kind-icon:art'"
-          :class="[
-            'h-5 w-5 shrink-0',
-            mode === 'text' ? 'text-info' : 'text-accent',
-          ]"
-        />
-        <div>
-          <h2 class="text-sm font-black">
-            {{ mode === 'text' ? 'Text Servers' : 'Image Servers' }}
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="truncate text-lg font-bold text-base-content">
+            {{ title }}
           </h2>
-          <p class="text-[10px] opacity-50">
-            {{
-              mode === 'text'
-                ? 'Chat · Bots · Language models'
-                : 'Art · ComfyUI · Stable Diffusion'
-            }}
-          </p>
-        </div>
-      </div>
 
-      <div class="flex items-center gap-2">
-        <button
-          v-if="visibleServers.length > 0"
-          type="button"
-          class="btn btn-ghost btn-xs gap-1 rounded-lg opacity-60 hover:opacity-100"
-          :disabled="testingAll"
-          :title="`Test all ${visibleServers.length} visible servers`"
-          @click="testAll"
-        >
-          <span v-if="testingAll" class="loading loading-spinner loading-xs" />
-          <Icon v-else name="kind-icon:activity" class="h-3 w-3" />
-          <span class="hidden sm:inline">Test All</span>
-        </button>
-
-        <div
-          class="flex flex-col items-end gap-0.5 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
-        >
-          <span
-            class="text-[9px] font-black uppercase tracking-widest opacity-40"
-          >
-            Active
-          </span>
-          <span
-            class="max-w-48 truncate text-[11px] font-bold"
-            :title="activeServer?.title ?? 'Kind Robots Default'"
-          >
-            {{ activeServer?.title ?? 'Kind Robots Default' }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-if="fetchFailed"
-      class="flex shrink-0 items-start gap-3 border-b border-error/30 bg-error/8 px-4 py-3"
-    >
-      <Icon
-        name="kind-icon:alert-triangle"
-        class="mt-0.5 h-4 w-4 shrink-0 text-error"
-      />
-      <div class="min-w-0 flex-1">
-        <p class="text-xs font-black text-error">Server fetch failed</p>
-        <p class="mt-0.5 text-[11px] opacity-70">
-          {{ latestError ?? 'Could not load servers from the API.' }}
-        </p>
-      </div>
-      <button
-        type="button"
-        class="btn btn-error btn-xs shrink-0 rounded-lg"
-        @click="serverStore.fetchAllServers(true)"
-      >
-        Retry
-      </button>
-    </div>
-
-    <div
-      class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-base-300"
-    >
-      <button
-        type="button"
-        :class="[
-          'flex w-full shrink-0 items-center gap-3 rounded-xl border p-3 text-left',
-          'transition-all duration-150 hover:-translate-y-px',
-          !activeServerId
-            ? 'border-primary bg-primary/10'
-            : 'border-base-300 bg-base-200/80 hover:border-primary/30',
-        ]"
-        @click="selectDefault"
-      >
-        <div
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-base-100"
-        >
-          <Icon name="kind-icon:robot" class="h-5 w-5 text-primary" />
-        </div>
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-1.5">
-            <span class="text-sm font-black">Kind Robots Default</span>
-            <span v-if="!activeServerId" class="badge badge-primary badge-xs">
-              Selected
+          <p v-if="activeServer" class="truncate text-sm text-base-content/70">
+            Active:
+            <span class="font-semibold text-primary">
+              {{ activeServer.label || activeServer.title }}
             </span>
-          </div>
-          <p class="mt-0.5 text-xs opacity-60">
-            Use whichever {{ mode }} server Kind Robots currently recommends.
+          </p>
+
+          <p v-else class="text-sm text-base-content/60">
+            {{ subtitle }}
           </p>
         </div>
-      </button>
 
-      <template v-if="isLoadingFresh">
-        <div
-          v-for="i in 3"
-          :key="`skel-${i}`"
-          class="flex animate-pulse flex-col gap-2 rounded-xl border border-base-300 bg-base-200 p-3"
-        >
-          <div class="flex items-start gap-2.5">
-            <div class="h-8 w-8 shrink-0 rounded-lg bg-base-100" />
-            <div class="flex-1 space-y-1.5">
-              <div class="h-3 w-3/5 rounded bg-base-100" />
-              <div class="h-2 w-2/5 rounded bg-base-100" />
-            </div>
-          </div>
-          <div class="h-6 rounded-lg bg-base-100" />
-          <div class="flex gap-1">
-            <div class="h-3 w-12 rounded bg-base-100" />
-            <div class="h-3 w-10 rounded bg-base-100" />
-          </div>
-        </div>
-      </template>
-
-      <gallery-section-header
-        label="My Servers"
-        icon="kind-icon:user"
-        :count="filteredMine.length"
-      >
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs ml-auto gap-1 rounded-lg text-primary"
-          @click="emit('open-add', defaultNewType)"
-        >
-          <Icon name="kind-icon:plus" class="h-3 w-3" />
-          New
-        </button>
-      </gallery-section-header>
-
-      <template v-if="filteredMine.length">
-        <server-card
-          v-for="server in filteredMine"
-          :key="`mine-${server.id}`"
-          :server="server"
-          :active="activeServerId === server.id"
-          :expanded="expandedCardId === server.id"
-          :health-result="serverStore.healthResults[server.id]?.data ?? null"
-          :hidden="isServerHidden(server.id)"
-          owned
-          @select="selectServer(server.id)"
-          @edit="beginEdit(server)"
-          @test="serverStore.testServerHealth(server.id)"
-          @hide="hideServer(server.id)"
-          @restore="restoreServer(server.id)"
-          @update:expanded="handleExpanded(server.id, $event)"
-        />
-      </template>
+        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
+          {{ filteredServers.length }}
+        </span>
+      </div>
 
       <div
-        v-else-if="!isLoadingFresh"
-        class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-base-300 bg-base-200/50 p-4 text-center"
+        v-if="showControls"
+        class="flex flex-col gap-2 lg:flex-row lg:items-center"
       >
-        <p class="text-xs opacity-50">
-          {{
-            searchQuery
-              ? `No personal servers match "${searchQuery}"`
-              : `No personal ${mode} servers yet.`
-          }}
+        <select
+          v-model="selectedType"
+          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+          aria-label="Filter servers by type"
+        >
+          <option value="all">All types</option>
+          <option value="ART">ART</option>
+          <option value="A1111">A1111</option>
+          <option value="COMFY">COMFY</option>
+          <option value="TEXT">TEXT</option>
+          <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
+          <option value="OTHER">OTHER</option>
+        </select>
+
+        <select
+          v-model="selectedScope"
+          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+          aria-label="Filter servers by scope"
+        >
+          <option value="visible">Visible active</option>
+          <option value="owned">Mine</option>
+          <option value="official">Official</option>
+          <option value="public">Public</option>
+          <option value="hidden">Hidden</option>
+          <option value="all">All loaded</option>
+        </select>
+
+        <input
+          v-model="searchQuery"
+          type="search"
+          aria-label="Search servers"
+          placeholder="Search servers..."
+          class="input input-bordered input-sm w-full bg-base-100"
+        />
+      </div>
+
+      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="startAddingServer"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add
+        </button>
+
+        <button
+          v-if="allowEdit"
+          class="btn btn-secondary btn-sm rounded-xl"
+          type="button"
+          :disabled="!serverStore.selectedServer"
+          @click="startEditingSelectedServer"
+        >
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          Edit
+        </button>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="!serverStore.selectedServer"
+          @click="clearSelectedServer"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Clear
+        </button>
+
+        <button
+          v-if="allowRefresh"
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="isLoading"
+          @click="refreshServers(true)"
+        >
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <section
+      v-if="showServerForm"
+      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+    >
+      <add-server @saved="handleServerSaved" @close="closeServerForm" />
+    </section>
+
+    <section class="min-h-0 flex-1 overflow-auto">
+      <div
+        v-if="isLoading"
+        class="flex h-full items-center justify-center py-12"
+      >
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+
+      <div
+        v-else-if="serverStore.lastError"
+        class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
+      >
+        <p class="text-lg font-bold">
+          {{ serverStore.lastError }}
         </p>
-        <div v-if="!searchQuery" class="flex flex-wrap justify-center gap-1.5">
-          <button
-            v-for="preset in quickAddPresets"
-            :key="preset.type"
-            type="button"
-            class="btn btn-outline btn-xs rounded-lg"
-            @click="emit('open-add', preset.type)"
-          >
-            {{ preset.label }}
-          </button>
-        </div>
       </div>
 
-      <div class="w-full">
-        <details class="dropdown dropdown-end w-full">
-          <summary
-            class="btn btn-outline btn-sm w-full justify-between rounded-xl border-base-300 bg-base-200/70"
-          >
-            <span class="flex min-w-0 items-center gap-2">
-              <Icon name="kind-icon:plus" class="h-4 w-4 shrink-0" />
-              <span class="truncate">Add from public servers</span>
-            </span>
-            <span class="flex items-center gap-2">
-              <span class="badge badge-xs badge-neutral">
-                {{ filteredPublic.length }}
-              </span>
-              <Icon name="kind-icon:chevron-down" class="h-4 w-4" />
-            </span>
-          </summary>
+      <div
+        v-else-if="filteredServers.length === 0"
+        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
+      >
+        <Icon name="kind-icon:server" class="h-10 w-10" />
+        <p class="text-lg font-bold">No servers found.</p>
 
-          <div
-            class="dropdown-content z-20 mt-2 flex max-h-72 w-full flex-col gap-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
-          >
-            <p
-              v-if="!filteredPublic.length"
-              class="rounded-xl border border-dashed border-base-300 p-3 text-center text-xs opacity-50"
-            >
-              {{
-                searchQuery
-                  ? `No public servers match "${searchQuery}"`
-                  : 'No public servers available.'
-              }}
-            </p>
-
-            <button
-              v-for="server in filteredPublic"
-              :key="`public-option-${server.id}`"
-              type="button"
-              :class="[
-                'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-base-200',
-                activeServerId === server.id ? 'bg-primary/10' : '',
-                isServerHidden(server.id) ? 'opacity-45' : 'opacity-75',
-              ]"
-              @click="beginEdit(server)"
-            >
-              <div
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-base-200"
-              >
-                <Icon :name="serverIcon(server)" class="h-4 w-4 opacity-70" />
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <div class="flex min-w-0 items-center gap-1.5">
-                  <span class="truncate text-xs font-black">
-                    {{ server.label || server.title }}
-                  </span>
-                  <span
-                    v-if="activeServerId === server.id"
-                    class="badge badge-primary badge-xs"
-                  >
-                    Active
-                  </span>
-                </div>
-                <p class="truncate text-[10px] opacity-50">
-                  {{ server.description || server.baseUrl }}
-                </p>
-                <div class="mt-1 flex flex-wrap gap-1">
-                  <span
-                    :class="[
-                      'badge badge-xs',
-                      accessModeBadgeClass(server.accessMode),
-                    ]"
-                  >
-                    {{ accessModeLabel(server.accessMode) }}
-                  </span>
-                  <span
-                    v-if="server.requiresClientSideCheck"
-                    class="badge badge-xs badge-info"
-                  >
-                    Browser test
-                  </span>
-                  <span
-                    v-if="server.isPrivateNetwork"
-                    class="badge badge-xs badge-success"
-                  >
-                    Private
-                  </span>
-                </div>
-              </div>
-
-              <span class="badge badge-xs badge-neutral shrink-0 opacity-70">
-                {{ server.serverType }}
-              </span>
-            </button>
-          </div>
-        </details>
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="startAddingServer"
+        >
+          Add a server
+        </button>
       </div>
-    </div>
-  </section>
+
+      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
+        <select
+          class="select select-bordered w-full bg-base-100"
+          :value="activeServer?.id ?? ''"
+          aria-label="Select server"
+          @change="selectServerFromEvent"
+        >
+          <option value="">
+            {{ dropdownPlaceholder }}
+          </option>
+
+          <option
+            v-for="server in filteredServers"
+            :key="server.id"
+            :value="server.id"
+          >
+            [{{ server.serverType }}] {{ server.label || server.title }}
+          </option>
+        </select>
+      </div>
+
+      <div v-else :class="layoutClass">
+        <server-card
+          v-for="server in filteredServers"
+          :key="server.id"
+          :server="server"
+          :selected="isSelected(server.id)"
+          :compact="isCompact"
+          :show-actions="showCardActions"
+          :show-description="showDescriptions"
+          :show-meta="showMeta"
+          :show-use-buttons="showUseButtons"
+          :allow-edit="allowEdit"
+          :allow-delete="allowDelete"
+          :allow-test="allowTest"
+          @select="selectServerById"
+          @edit="startEditingServerById"
+          @delete="handleServerDeleted"
+          @test="handleServerTested"
+          @use-art="setActiveArtServer"
+          @use-text="setActiveTextServer"
+        />
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineComponent, h, resolveComponent } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import type { Server, ServerType } from '~/prisma/generated/prisma/client'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
-import { useErrorStore } from '@/stores/errorStore'
-import type {
-  Server,
-  ServerAccessMode,
-  ServerType,
-} from '~/prisma/generated/prisma/client'
 
-const props = defineProps<{
-  mode: 'text' | 'image'
-  searchQuery?: string
-}>()
+type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
+type ServerGalleryMode = 'art' | 'text' | 'all'
+type ServerScope =
+  | 'visible'
+  | 'owned'
+  | 'official'
+  | 'public'
+  | 'hidden'
+  | 'all'
 
-const emit = defineEmits<{
-  (e: 'open-add', serverType: ServerType): void
-  (e: 'open-edit'): void
-}>()
+const props = withDefaults(
+  defineProps<{
+    mode?: ServerGalleryMode
+    variant?: GalleryVariant
+    title?: string
+    subtitle?: string
+    showControls?: boolean
+    showToolbar?: boolean
+    showCardActions?: boolean
+    showDescriptions?: boolean
+    showMeta?: boolean
+    showUseButtons?: boolean
+    allowAdd?: boolean
+    allowEdit?: boolean
+    allowDelete?: boolean
+    allowTest?: boolean
+    allowRefresh?: boolean
+    compact?: boolean
+    autoLoad?: boolean
+  }>(),
+  {
+    mode: 'all',
+    variant: 'dashboard',
+    title: 'Servers',
+    subtitle: 'Pick a server.',
+    showControls: true,
+    showToolbar: true,
+    showCardActions: true,
+    showDescriptions: true,
+    showMeta: true,
+    showUseButtons: true,
+    allowAdd: true,
+    allowEdit: true,
+    allowDelete: true,
+    allowTest: true,
+    allowRefresh: true,
+    compact: false,
+    autoLoad: true,
+  },
+)
 
 const serverStore = useServerStore()
 const userStore = useUserStore()
-const errorStore = useErrorStore()
-const myUserId = computed(() => userStore.user?.id)
 
-const expandedCardId = ref<number | null>(null)
-const testingAll = ref(false)
+const selectedType = ref<ServerType | 'all'>('all')
+const selectedScope = ref<ServerScope>('visible')
+const searchQuery = ref('')
+const isLoading = ref(false)
+const showServerForm = ref(false)
 
-const isLoadingFresh = computed(
-  () => serverStore.loading && serverStore.servers.length === 0,
-)
+const activeServer = computed(() => {
+  if (props.mode === 'art') return serverStore.activeArtServer
+  if (props.mode === 'text') return serverStore.activeTextServer
+  return serverStore.selectedServer
+})
 
-const fetchFailed = computed(
+const isCompact = computed(
   () =>
-    !serverStore.loading && serverStore.isInitialized && !!errorStore.message,
+    props.compact || props.variant === 'row' || props.variant === 'dropdown',
 )
 
-const latestError = computed(() => errorStore.message ?? null)
+const layoutClass = computed(() =>
+  props.variant === 'row' ? 'server-row' : 'server-grid',
+)
 
-const modeServers = computed<Server[]>(() => {
+const dropdownPlaceholder = computed(() => {
+  if (props.mode === 'art') return 'Use default art server'
+  if (props.mode === 'text') return 'Use default text server'
+  return 'Choose a server'
+})
+
+const baseServers = computed<Server[]>(() => {
+  if (props.mode === 'art') return serverStore.artServers
   if (props.mode === 'text') return serverStore.textServers
 
-  const seen = new Set<number>()
+  if (selectedScope.value === 'owned') return serverStore.ownedServers
+  if (selectedScope.value === 'official') return serverStore.officialServers
+  if (selectedScope.value === 'public') return serverStore.publicServers
+  if (selectedScope.value === 'hidden') return serverStore.hiddenServers
+  if (selectedScope.value === 'all') return serverStore.servers
 
-  return [...serverStore.artServers, ...serverStore.comfyServers].filter(
-    (server: Server) => {
-      if (seen.has(server.id)) return false
-      seen.add(server.id)
-      return true
-    },
-  )
+  return serverStore.visibleActiveServers
 })
 
-const publicServers = computed<Server[]>(() =>
-  modeServers.value.filter(
-    (server: Server) =>
-      (server.isOfficial ||
-        server.isPublic ||
-        server.category === 'official') &&
-      server.userId !== myUserId.value &&
-      shouldShowServer(server.id),
-  ),
-)
+const filteredServers = computed(() => {
+  let servers = baseServers.value
 
-const myServers = computed<Server[]>(() =>
-  modeServers.value.filter(
-    (server: Server) =>
-      server.userId === myUserId.value &&
-      !server.isOfficial &&
-      server.category !== 'official' &&
-      shouldShowServer(server.id),
-  ),
-)
-
-const q = computed(() => (props.searchQuery ?? '').trim().toLowerCase())
-
-function matches(server: Server): boolean {
-  if (!q.value) return true
-
-  return Boolean(
-    server.title?.toLowerCase().includes(q.value) ||
-    server.label?.toLowerCase().includes(q.value) ||
-    server.baseUrl?.toLowerCase().includes(q.value) ||
-    server.description?.toLowerCase().includes(q.value) ||
-    server.accessMode?.toLowerCase().includes(q.value) ||
-    server.oidcProvider?.toLowerCase().includes(q.value),
-  )
-}
-
-const filteredPublic = computed<Server[]>(() =>
-  publicServers.value.filter(matches),
-)
-
-const filteredMine = computed<Server[]>(() => myServers.value.filter(matches))
-
-const visibleServers = computed<Server[]>(() => [
-  ...filteredMine.value,
-  ...filteredPublic.value,
-])
-
-const activeServerId = computed(() =>
-  props.mode === 'text'
-    ? serverStore.activeTextServerId
-    : serverStore.activeArtServerId,
-)
-
-const activeServer = computed(() =>
-  props.mode === 'text'
-    ? serverStore.activeTextServer
-    : serverStore.activeArtServer,
-)
-
-const defaultNewType = computed<ServerType>(() =>
-  props.mode === 'text' ? 'TEXT' : 'ART',
-)
-
-const quickAddPresets = computed<Array<{ type: ServerType; label: string }>>(
-  () =>
-    props.mode === 'text'
-      ? [
-          { type: 'TEXT', label: 'Custom' },
-          { type: 'OPENAI_COMPATIBLE', label: 'OpenAI Compatible' },
-        ]
-      : [
-          { type: 'COMFY', label: 'ComfyUI' },
-          { type: 'A1111', label: 'A1111 / Forge' },
-          { type: 'ART', label: 'Custom' },
-        ],
-)
-
-function setExpanded(id: number, value: boolean) {
-  expandedCardId.value = value ? id : null
-}
-
-function handleExpanded(id: number, value: boolean) {
-  setExpanded(id, value)
-}
-
-function selectDefault() {
-  if (props.mode === 'text') serverStore.setActiveTextServer(null)
-  else serverStore.setActiveArtServer(null)
-}
-
-function selectServer(id: number) {
-  if (props.mode === 'text') serverStore.setActiveTextServer(id)
-  else serverStore.setActiveArtServer(id)
-}
-
-function beginEdit(server: Server) {
-  const isOwner = server.userId === myUserId.value
-  const shouldClone = !isOwner || server.isPublic || server.isOfficial
-
-  if (shouldClone) {
-    serverStore.serverForm = {
-      ...server,
-      id: undefined,
-      userId: myUserId.value ?? undefined,
-      title: `${server.title} (My Copy)`,
-      label: server.label ? `${server.label} (My Copy)` : 'My Server',
-      isPublic: false,
-      isOfficial: false,
-      isDefault: false,
-      isEditable: true,
-      apiKey: null,
-      accessMode: server.accessMode ?? 'LOCAL',
-      requiresClientSideCheck: server.requiresClientSideCheck ?? false,
-      isPrivateNetwork: server.isPrivateNetwork ?? false,
-      allowBrowserRequests: server.allowBrowserRequests ?? true,
-      useOidc: server.useOidc ?? false,
-      oidcProvider: server.oidcProvider ?? null,
-    }
-  } else {
-    serverStore.selectServer(server.id)
+  if (selectedType.value !== 'all') {
+    servers = servers.filter(
+      (server) => server.serverType === selectedType.value,
+    )
   }
 
-  emit('open-edit')
-}
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.trim().toLowerCase()
 
-async function testAll() {
-  if (testingAll.value) return
+    servers = servers.filter((server) => {
+      return (
+        (server.title || '').toLowerCase().includes(query) ||
+        (server.label || '').toLowerCase().includes(query) ||
+        (server.description || '').toLowerCase().includes(query) ||
+        (server.baseUrl || '').toLowerCase().includes(query) ||
+        (server.category || '').toLowerCase().includes(query) ||
+        (server.serverType || '').toLowerCase().includes(query)
+      )
+    })
+  }
 
-  testingAll.value = true
+  return servers
+})
+
+onMounted(async () => {
+  if (props.autoLoad) {
+    await refreshServers()
+  }
+})
+
+async function refreshServers(force = false) {
+  isLoading.value = true
 
   try {
-    await Promise.allSettled(
-      visibleServers.value.map((server: Server) =>
-        serverStore.testServerHealth(server.id),
-      ),
-    )
+    await serverStore.initialize({
+      force,
+      fetchRemote: true,
+    })
   } finally {
-    testingAll.value = false
+    isLoading.value = false
   }
 }
 
-function isServerHidden(id: number): boolean {
-  const store = serverStore as typeof serverStore & {
-    isServerHidden?: (id: number) => boolean
+function isSelected(id: number) {
+  if (props.mode === 'art') return serverStore.activeArtServer?.id === id
+  if (props.mode === 'text') return serverStore.activeTextServer?.id === id
+  return serverStore.selectedServer?.id === id
+}
+
+async function selectServerById(id: number) {
+  await serverStore.selectServer(id)
+
+  if (props.mode === 'art') {
+    await serverStore.setActiveArtServer(id)
   }
 
-  return store.isServerHidden?.(id) ?? false
+  if (props.mode === 'text') {
+    await serverStore.setActiveTextServer(id)
+  }
 }
 
-function shouldShowServer(id: number): boolean {
-  const store = serverStore as typeof serverStore & {
-    showHiddenServers?: boolean
+function selectServerFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+  const id = Number(target.value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    if (props.mode === 'art') void serverStore.setActiveArtServer(null)
+    if (props.mode === 'text') void serverStore.setActiveTextServer(null)
+    if (props.mode === 'all') serverStore.deselectServer()
+    return
   }
 
-  return Boolean(store.showHiddenServers) || !isServerHidden(id)
+  void selectServerById(id)
 }
 
-function hideServer(id: number) {
-  const store = serverStore as typeof serverStore & {
-    hideServer?: (id: number) => void
+function startAddingServer() {
+  serverStore.startAddingServer({
+    serverType: props.mode === 'text' ? 'OPENAI_COMPATIBLE' : 'COMFY',
+    category: props.mode === 'text' ? 'text' : 'image',
+    endpointPath: props.mode === 'text' ? '/v1/chat/completions' : '/prompt',
+    healthPath: props.mode === 'text' ? '/v1/models' : '/system_stats',
+    supportsChat: props.mode === 'text',
+    supportsTxt2Img: props.mode === 'art',
+    supportsImg2Img: props.mode === 'art',
+    supportsComfyWorkflow: props.mode === 'art',
+    supportsCheckpointOverride: props.mode === 'art',
+  })
+
+  showServerForm.value = true
+}
+
+async function startEditingServerById(id: number) {
+  const server = await serverStore.startEditingServer(id)
+
+  if (!server) return
+
+  showServerForm.value = true
+}
+
+function startEditingSelectedServer() {
+  const id = serverStore.selectedServer?.id ?? activeServer.value?.id
+
+  if (!id) return
+
+  startEditingServerById(id)
+}
+
+function clearSelectedServer() {
+  serverStore.deselectServer()
+  showServerForm.value = false
+}
+
+function closeServerForm() {
+  showServerForm.value = false
+}
+
+async function handleServerSaved() {
+  showServerForm.value = false
+  await refreshServers(true)
+}
+
+function handleServerDeleted(id: number) {
+  if (serverStore.selectedServer?.id === id) {
+    serverStore.deselectServer()
   }
-
-  store.hideServer?.(id)
 }
 
-function restoreServer(id: number) {
-  const store = serverStore as typeof serverStore & {
-    unhideServer?: (id: number) => void
-  }
+function handleServerTested() {}
 
-  store.unhideServer?.(id)
+async function setActiveArtServer(id: number) {
+  await serverStore.setActiveArtServer(id)
 }
 
-function accessModeLabel(mode?: ServerAccessMode | null): string {
-  const labels: Record<ServerAccessMode, string> = {
-    LOCAL: 'Local',
-    TAILSCALE: 'Tailscale',
-    PUBLIC_PROTECTED: 'Protected',
-    PUBLIC_API_KEY: 'API Key',
-    PUBLIC_OIDC: 'OIDC',
-    PUBLIC_UNPROTECTED: 'Unprotected',
-  }
-
-  return mode ? labels[mode] : 'Local'
+async function setActiveTextServer(id: number) {
+  await serverStore.setActiveTextServer(id)
 }
-
-function accessModeBadgeClass(mode?: ServerAccessMode | null): string {
-  if (mode === 'TAILSCALE') return 'badge-success'
-  if (mode === 'LOCAL') return 'badge-info'
-  if (mode === 'PUBLIC_OIDC') return 'badge-secondary'
-  if (mode === 'PUBLIC_API_KEY') return 'badge-warning'
-  if (mode === 'PUBLIC_PROTECTED') return 'badge-warning'
-  if (mode === 'PUBLIC_UNPROTECTED') return 'badge-error'
-  return 'badge-neutral'
-}
-
-function serverIcon(server: Server): string {
-  if (server.accessMode === 'TAILSCALE') return 'kind-icon:shield'
-  if (server.useOidc || server.accessMode === 'PUBLIC_OIDC')
-    return 'kind-icon:user-check'
-  if (server.requiresApiKey || server.accessMode === 'PUBLIC_API_KEY')
-    return 'kind-icon:key'
-  if (server.serverType === 'COMFY') return 'kind-icon:node'
-  if (server.serverType === 'A1111') return 'kind-icon:art'
-  if (server.supportsChat) return 'kind-icon:chat'
-  return 'kind-icon:server'
-}
-
-const GallerySectionHeader = defineComponent({
-  name: 'GallerySectionHeader',
-  props: {
-    label: { type: String, required: true },
-    icon: { type: String, required: true },
-    count: { type: Number, required: true },
-  },
-  setup(sectionProps, { slots }) {
-    return () =>
-      h(
-        'div',
-        { class: 'flex items-center gap-1.5 border-t border-base-300 pt-2' },
-        [
-          h(resolveComponent('Icon'), {
-            name: sectionProps.icon,
-            class: 'h-3 w-3 opacity-40',
-          }),
-          h(
-            'span',
-            {
-              class:
-                'text-[10px] font-black uppercase tracking-widest opacity-40',
-            },
-            sectionProps.label,
-          ),
-          sectionProps.count > 0
-            ? h(
-                'span',
-                { class: 'badge badge-xs badge-neutral ml-0.5' },
-                String(sectionProps.count),
-              )
-            : null,
-          slots.default?.(),
-        ],
-      )
-  },
-})
 </script>
 
 <style scoped>
-.scrollbar-thin {
-  scrollbar-width: thin;
+.server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 1rem;
 }
 
-.scrollbar-track-transparent {
-  scrollbar-color: transparent transparent;
+.server-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
 }
 
-.scrollbar-thumb-base-300 {
-  scrollbar-color: oklch(var(--b3)) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  border-radius: 9999px;
-  background: oklch(var(--b3));
+.server-row > * {
+  min-width: min(280px, 85vw);
+  max-width: 380px;
 }
 </style>

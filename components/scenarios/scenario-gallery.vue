@@ -121,8 +121,7 @@
         </button>
       </div>
 
-      <add-scenario v-if="formMode === 'add'" @saved="handleScenarioSaved" />
-      <edit-scenario v-else @saved="handleScenarioSaved" />
+      <add-scenario :mode="formMode" @saved="handleScenarioSaved" />
     </section>
 
     <section class="min-h-0 flex-1 overflow-auto">
@@ -263,6 +262,66 @@ const errorMessage = ref('')
 const showScenarioForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
+function startAddingScenario() {
+  scenarioStore.deselectScenario()
+  scenarioStore.scenarioForm = {
+    title: '',
+    description: '',
+    locations: '',
+    genres: '',
+    inspirations: '',
+    intros: [],
+    artPrompt: '',
+    imagePath: null,
+    artImageId: null,
+  }
+
+  formMode.value = 'add'
+  showScenarioForm.value = true
+}
+
+async function startEditingScenarioById(id: number) {
+  const scenario =
+    scenarioStore.scenarios.find((entry) => entry.id === id) ??
+    (await scenarioStore.fetchScenarioById(id))
+
+  if (!scenario) return
+
+  await scenarioStore.selectScenario(id)
+  scenarioStore.scenarioForm = scenarioStore.toScenarioForm(scenario)
+
+  formMode.value = 'edit'
+  showScenarioForm.value = true
+}
+
+function cloneScenarioById(id: number) {
+  const scenario = scenarioStore.scenarios.find((entry) => entry.id === id)
+
+  if (!scenario) return
+
+  scenarioStore.deselectScenario()
+
+  scenarioStore.scenarioForm = {
+    ...scenarioStore.toScenarioForm(scenario),
+    id: undefined,
+    title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
+  }
+
+  formMode.value = 'add'
+  showScenarioForm.value = true
+}
+
+function clearSelectedScenario() {
+  scenarioStore.deselectScenario()
+  showScenarioForm.value = false
+}
+
+function handleScenarioDeleted(id: number) {
+  if (scenarioStore.selectedScenario?.id === id) {
+    scenarioStore.deselectScenario()
+  }
+}
+
 const variant = computed(() => props.variant)
 const title = computed(() => props.title)
 const subtitle = computed(() => props.subtitle)
@@ -353,52 +412,12 @@ function selectScenarioFromEvent(event: Event) {
   void selectScenario(id)
 }
 
-function startAddingScenario() {
-  scenarioStore.scenarioForm = {}
-  formMode.value = 'add'
-  showScenarioForm.value = true
-}
-
 function startEditingScenario() {
   const id = scenarioStore.selectedScenario?.id
 
   if (!id) return
 
   startEditingScenarioById(id)
-}
-
-async function startEditingScenarioById(id: number) {
-  const scenario =
-    scenarioStore.scenarios.find((entry) => entry.id === id) ??
-    (await scenarioStore.fetchScenarioById(id))
-
-  if (!scenario) return
-
-  scenarioStore.scenarioForm = scenarioStore.toScenarioForm(scenario)
-  await scenarioStore.selectScenario(id)
-
-  formMode.value = 'edit'
-  showScenarioForm.value = true
-}
-
-function cloneScenarioById(id: number) {
-  const scenario = scenarioStore.scenarios.find((entry) => entry.id === id)
-
-  if (!scenario) return
-
-  scenarioStore.scenarioForm = {
-    ...scenarioStore.toScenarioForm(scenario),
-    id: undefined,
-    title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
-  }
-
-  formMode.value = 'add'
-  showScenarioForm.value = true
-}
-
-function clearSelectedScenario() {
-  scenarioStore.deselectScenario()
-  showScenarioForm.value = false
 }
 
 function closeScenarioForm() {
@@ -408,12 +427,6 @@ function closeScenarioForm() {
 async function handleScenarioSaved() {
   showScenarioForm.value = false
   await refreshScenarios(true)
-}
-
-function handleScenarioDeleted(id: number) {
-  if (scenarioStore.selectedScenario?.id === id) {
-    scenarioStore.deselectScenario()
-  }
 }
 
 function handleScenarioChoice(choice: string) {

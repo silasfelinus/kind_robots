@@ -864,6 +864,123 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
+  function toDreamForm(dream: DreamWithRelations): DreamForm {
+    return {
+      id: dream.id,
+      title: dream.title,
+      slug: dream.slug ?? null,
+      description: dream.description ?? null,
+      currentVibe: dream.currentVibe,
+      currentPrompt: dream.currentPrompt ?? dream.currentVibe,
+      userId: dream.userId,
+      pitchId: dream.pitchId ?? null,
+      artId: dream.artId ?? null,
+      artImageId: dream.artImageId ?? null,
+      textServerId: dream.textServerId ?? null,
+      artServerId: dream.artServerId ?? null,
+      artCollectionId: dream.artCollectionId ?? null,
+      galleryId: dream.galleryId ?? null,
+      scenarioId: dream.scenarioId ?? null,
+      isPublic: dream.isPublic,
+      isMature: dream.isMature,
+      isActive: dream.isActive,
+      createCollection: false,
+      tagIds: dream.Tags?.map((tag) => tag.id) ?? [],
+    }
+  }
+
+  function createDefaultDreamForm(overrides: DreamForm = {}): DreamForm {
+    const currentVibe = overrides.currentVibe ?? fallbackDreamVibe()
+
+    return {
+      title: overrides.title ?? '',
+      slug: overrides.slug ?? null,
+      description: overrides.description ?? null,
+      currentVibe,
+      currentPrompt: overrides.currentPrompt ?? currentVibe,
+      userId: currentUserId.value,
+      pitchId: overrides.pitchId ?? null,
+      artId: overrides.artId ?? null,
+      artImageId: overrides.artImageId ?? null,
+      textServerId:
+        overrides.textServerId ?? userStore.user?.preferredTextServerId ?? null,
+      artServerId:
+        overrides.artServerId ?? userStore.user?.preferredArtServerId ?? null,
+      artCollectionId: overrides.artCollectionId ?? null,
+      galleryId: overrides.galleryId ?? null,
+      scenarioId: overrides.scenarioId ?? null,
+      isPublic: overrides.isPublic ?? true,
+      isMature: overrides.isMature ?? false,
+      isActive: overrides.isActive ?? true,
+      createCollection: overrides.createCollection ?? true,
+      tagIds: overrides.tagIds ?? [],
+      addArtToCollection: overrides.addArtToCollection ?? true,
+    }
+  }
+
+  function startAddingDream(overrides: DreamForm = {}) {
+    selectedDream.value = null
+    dreamForm.value = createDefaultDreamForm(overrides)
+    dreamChats.value = []
+    chatForm.value = {}
+    syncToLocalStorage()
+  }
+
+  async function startEditingDream(
+    id?: number,
+  ): Promise<DreamWithRelations | null> {
+    const dreamId = normalizeId(id ?? selectedDream.value?.id)
+
+    if (!dreamId) {
+      startAddingDream()
+      return null
+    }
+
+    const dream =
+      dreams.value.find((entry) => entry.id === dreamId) ??
+      (await fetchDreamById(dreamId, false))
+
+    if (!dream) {
+      setError(`Dream ${dreamId} was not found.`)
+      return null
+    }
+
+    selectedDream.value = dream
+    dreamForm.value = toDreamForm(dream)
+    dreamChats.value = dream.Chats ?? []
+    syncToLocalStorage()
+
+    return dream
+  }
+
+  function startCloningDream(id: number, overrides: DreamForm = {}) {
+    const source = dreams.value.find((dream) => dream.id === id)
+
+    if (!source) {
+      setError(`Dream ${id} was not found.`)
+      return null
+    }
+
+    selectedDream.value = null
+
+    dreamForm.value = {
+      ...toDreamForm(source),
+      ...overrides,
+      id: undefined,
+      slug: null,
+      title: `Copy of ${source.title || 'Untitled Dream'}`,
+      userId: currentUserId.value,
+      isPublic: overrides.isPublic ?? false,
+      createCollection: overrides.createCollection ?? true,
+    }
+
+    dreamChats.value = []
+    chatForm.value = {}
+    syncToLocalStorage()
+
+    return source
+  }
+
   return {
     dreamSeeds,
     dreams,
@@ -916,6 +1033,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
     setCurrentVibe,
     syncToLocalStorage,
     loadFromLocalStorage,
+    toDreamForm,
+    createDefaultDreamForm,
+    startAddingDream,
+    startEditingDream,
+    startCloningDream,
   }
 })
 

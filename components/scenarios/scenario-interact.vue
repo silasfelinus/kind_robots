@@ -13,8 +13,8 @@
       <p
         class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
       >
-        Choose a scenario, character, reward, and opening choice. Then launch
-        the weird little narrative machine.
+        Choose a scenario, character, optional reward, and opening choice. Then
+        launch the weird little narrative machine.
       </p>
     </header>
 
@@ -48,7 +48,7 @@
           title="Scenario"
           subtitle="Choose where the trouble starts."
           :show-controls="false"
-          :show-toolbar="true"
+          :show-toolbar="false"
           :show-images="true"
           :show-inspirations="false"
           :show-choices="true"
@@ -73,7 +73,7 @@
           title="Character"
           subtitle="Choose the hero, goblin, detective, or doomed intern."
           :show-controls="false"
-          :show-toolbar="true"
+          :show-toolbar="false"
           :show-images="true"
           :compact="true"
         />
@@ -85,7 +85,7 @@
         <div class="mb-3 flex items-center justify-between gap-2">
           <div>
             <h2 class="text-lg font-bold text-base-content">Reward</h2>
-            <p class="text-xs text-base-content/60">Pick the plot grenade.</p>
+            <p class="text-xs text-base-content/60">Optional plot grenade.</p>
           </div>
 
           <Icon name="kind-icon:gift" class="h-6 w-6 text-accent" />
@@ -96,7 +96,7 @@
           title="Reward"
           subtitle="Choose a power, artifact, or suspiciously useful trinket."
           :show-controls="false"
-          :show-toolbar="true"
+          :show-toolbar="false"
           :show-images="true"
           :compact="true"
         />
@@ -169,6 +169,15 @@
             >
               Power: {{ rewardStore.selectedReward.power || 'Mysterious' }}
             </p>
+
+            <button
+              v-if="rewardStore.selectedReward"
+              class="btn btn-ghost btn-xs mt-2 rounded-xl"
+              type="button"
+              @click="rewardStore.deselectReward()"
+            >
+              Clear reward
+            </button>
           </div>
 
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -249,7 +258,9 @@
               "
               class="h-5 w-5"
               :class="
-                rewardStore.selectedReward ? 'text-success' : 'text-error'
+                rewardStore.selectedReward
+                  ? 'text-success'
+                  : 'text-base-content/40'
               "
             />
           </div>
@@ -267,6 +278,16 @@
           />
           <Icon v-else name="kind-icon:play" class="h-5 w-5" />
           Start Story
+        </button>
+
+        <button
+          class="btn btn-primary rounded-2xl"
+          type="button"
+          :disabled="!storyPromptPreview"
+          @click="copyPrompt"
+        >
+          <Icon name="kind-icon:copy" class="h-5 w-5" />
+          Copy Prompt
         </button>
 
         <button
@@ -360,12 +381,13 @@ const selectedChoiceTitle = computed(
 const canStartStory = computed(
   () =>
     Boolean(scenarioStore.selectedScenario) &&
-    Boolean(characterStore.selectedCharacter) &&
-    Boolean(rewardStore.selectedReward),
+    Boolean(characterStore.selectedCharacter),
 )
 
 const storyPromptPreview = computed(() => {
-  if (!scenarioStore.selectedScenario) return ''
+  if (!scenarioStore.selectedScenario || !characterStore.selectedCharacter) {
+    return ''
+  }
 
   return buildStoryPrompt()
 })
@@ -375,7 +397,7 @@ function buildStoryPrompt() {
   const character = characterStore.selectedCharacter
   const reward = rewardStore.selectedReward
 
-  if (!scenario || !character || !reward) return ''
+  if (!scenario || !character) return ''
 
   const direction = customDirection.value.trim()
 
@@ -389,8 +411,8 @@ function buildStoryPrompt() {
       character.class || 'Unknown class'
     }, ${character.personality || 'unknown personality'}`,
     `Opening choice: ${scenarioStore.currentChoice || 'None selected'}`,
-    `Reward at stake: ${reward.text}`,
-    `Reward power: ${reward.power || 'Unknown'}`,
+    reward ? `Reward at stake: ${reward.text}` : '',
+    reward ? `Reward power: ${reward.power || 'Unknown'}` : '',
     direction ? `Player direction: ${direction}` : '',
     '',
     'Generate the next scene as an interactive branching narrative. Include vivid sensory detail, meaningful consequences, and 3-5 clear follow-up options. Let the player continue with a skill check, inventory item, reward use, or custom prompt.',
@@ -399,11 +421,20 @@ function buildStoryPrompt() {
     .join('\n')
 }
 
+async function copyPrompt() {
+  if (!storyPromptPreview.value) return
+
+  await navigator.clipboard.writeText(storyPromptPreview.value)
+
+  statusTone.value = 'info'
+  statusMessage.value = 'Story prompt copied.'
+}
+
 async function startStory() {
   if (!canStartStory.value) {
     statusTone.value = 'error'
     statusMessage.value =
-      'Pick a scenario, character, and reward before launching the story goblin.'
+      'Pick a scenario and character before launching the story goblin.'
     return
   }
 
@@ -467,7 +498,7 @@ function stopStory() {
 function clearSelections() {
   scenarioStore.deselectScenario()
   characterStore.deselectCharacter()
-  rewardStore.deselectReward?.()
+  rewardStore.deselectReward()
   scenarioStore.setCurrentChoice('')
   customDirection.value = ''
   storyRunning.value = false

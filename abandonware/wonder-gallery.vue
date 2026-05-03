@@ -50,7 +50,7 @@
       class="mt-3 min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
     >
       <section
-        v-if="activeSection === 'memory-test'"
+        v-if="activeSection === 'memory-dungeon'"
         class="grid h-full min-h-0 grid-cols-1 gap-3 overflow-hidden p-3 xl:grid-cols-[20rem_minmax(0,1fr)]"
       >
         <aside class="grid min-h-0 gap-3 overflow-y-auto">
@@ -141,7 +141,7 @@ import { computed } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
 type WonderDashboardTab =
-  | 'memory-test'
+  | 'memory-dungeon'
   | 'rebel-button'
   | 'wonder-lab'
   | 'screen-fx'
@@ -163,7 +163,7 @@ const activeSection = computed<WonderDashboardTab>({
       return tab
     }
 
-    return 'memory-test'
+    return 'memory-dungeon'
   },
   set: (tab: WonderDashboardTab) => {
     navStore.setDashboardTab('wonder', tab)
@@ -172,7 +172,7 @@ const activeSection = computed<WonderDashboardTab>({
 
 const sections: WonderManagerSection[] = [
   {
-    key: 'memory-test',
+    key: 'memory-dungeon',
     label: 'Memory',
     icon: 'kind-icon:brain',
     description: 'Match cards and chase records',

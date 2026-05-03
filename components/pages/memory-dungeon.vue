@@ -1,4 +1,4 @@
-<!-- /components/content/story/memory-test.vue -->
+<!-- /components/content/story/memory-dungeon.vue -->
 <template>
   <div class="flex flex-col h-screen bg-base-200 select-none overflow-hidden">
     <!-- ─── Header ─── -->

@@ -7,7 +7,7 @@
     </div>
 
     <!-- Scrollable Selected View Component -->
-    <div class="flex-grow mt-16 overflow-y-auto">
+    <div class="grow mt-16 overflow-y-auto">
       <SelectedView />
     </div>
   </div>

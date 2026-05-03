@@ -411,15 +411,8 @@ export const dashboardConfigs = {
   wonder: {
     key: 'wonder',
     label: 'WonderLab',
-    defaultTab: 'memory-test',
+    defaultTab: 'memory-dungeon',
     tabs: [
-      {
-        key: 'memory-test',
-        label: 'Memory',
-        icon: 'kind-icon:question',
-        title: 'Memory Test',
-        summary: 'Play the classic art memory challenge.',
-      },
       {
         key: 'memory-dungeon',
         label: 'Dungeon',

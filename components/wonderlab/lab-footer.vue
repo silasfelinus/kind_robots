@@ -189,7 +189,6 @@ import { useNavStore } from '@/stores/navStore'
 import { useComponentStore, type KindComponent } from '@/stores/componentStore'
 
 type WonderDashboardTab =
-  | 'memory-test'
   | 'memory-dungeon'
   | 'rebel-button'
   | 'wonder-lab'
@@ -213,14 +212,6 @@ const isCompact = computed(() => footerState.value === 'compact')
 const isPriority = computed(() => footerState.value === 'priority')
 
 const footerLinks: WonderFooterLink[] = [
-  {
-    label: 'Memory',
-    shortLabel: 'Memory',
-    key: 'memory-test',
-    icon: 'kind-icon:brain',
-    description: 'The matching game gets the spotlight first.',
-    toolText: 'Leaderboard, new game setup, and shiny score-chasing nonsense.',
-  },
   {
     label: 'Memory Dungeon',
     shortLabel: 'Dungeon',
@@ -263,7 +254,7 @@ const activeTab = computed<WonderDashboardTab>(() => {
     return tab
   }
 
-  return 'memory-test'
+  return 'memory-dungeon'
 })
 
 const activeLink = computed(() => {

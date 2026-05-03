@@ -1,8 +1,9 @@
 // /stores/pitchStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { Pitch, Art } from '~/prisma/generated/prisma/client'
+import { computed, ref } from 'vue'
+import type { Art, Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useUserStore } from './userStore'
+import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
 import {
   randomEntry as helperRandomEntry,
@@ -19,21 +20,32 @@ import {
 
 export type CreationSource = 'HUMAN' | 'AI' | 'UNKNOWN' | 'HYBRID' | 'UPLOAD'
 
-export type { Pitch }
+export interface PitchForm extends Partial<Pitch> {
+  promptIds?: number[]
+}
 
 type PitchInitializeOptions = {
   force?: boolean
   fetchRemote?: boolean
+  createBlankForm?: boolean
+}
+
+type PitchMutationResult = {
+  success: boolean
+  data?: Pitch
+  message: string
 }
 
 const isClient = typeof window !== 'undefined'
 
 const storageKeys = {
   pitches: 'pitches',
+  pitchForm: 'pitchForm',
   selectedPitches: 'selectedPitches',
   selectedPitchType: 'selectedPitchType',
-  galleryArt: 'galleryArt',
+  selectedPitch: 'selectedPitch',
   selectedTitle: 'selectedTitle',
+  galleryArt: 'galleryArt',
   newestPitches: 'newestPitches',
   numberOfRequests: 'numberOfRequests',
   temperature: 'temperature',
@@ -108,8 +120,36 @@ function sortPitches(a: Pitch, b: Pitch): number {
   return b.id - a.id
 }
 
+function defaultPitchForm(userId?: number | null, username?: string): PitchForm {
+  return {
+    title: '',
+    pitch: '',
+    designer: username || 'Kind Designer',
+    flavorText: '',
+    PitchType: PitchType.ARTPITCH,
+    creationSource: 'HUMAN',
+    isMature: false,
+    isPublic: true,
+    userId: userId || 10,
+    imagePrompt: '',
+    description: '',
+    examples: '',
+    icon: 'kind-icon:idea',
+    artImageId: null,
+    promptIds: [],
+  } as PitchForm
+}
+
+function normalizePitchForm(input: Partial<PitchForm>): PitchForm {
+  return {
+    ...input,
+    PitchType: parsePitchType(input.PitchType as unknown as string),
+  } as PitchForm
+}
+
 export const usePitchStore = defineStore('pitchStore', () => {
   const pitches = ref<Pitch[]>([])
+  const pitchForm = ref<PitchForm>({})
   const selectedPitches = ref<Pitch[]>([])
   const selectedPitchType = ref<PitchType | null>(null)
   const selectedPitch = ref<Pitch | null>(null)
@@ -119,6 +159,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const galleryArt = ref<Record<number, Art[]>>({})
 
   const loading = ref(false)
+  const isSaving = ref(false)
+  const isGeneratingFields = ref(false)
   const isInitialized = ref(false)
   const isInitializing = ref(false)
   const hasLoaded = ref(false)
@@ -127,11 +169,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<Pitch[]> | null>(null)
   const fetchArtForPitchPromises = ref<Record<number, Promise<Art[]>>>({})
-  const createPitchPromise = ref<Promise<{
-    success: boolean
-    data?: Pitch
-    message?: string
-  }> | null>(null)
+  const createPitchPromise = ref<Promise<PitchMutationResult> | null>(null)
+  const updatePitchPromise = ref<Record<number, Promise<PitchMutationResult>>>(
+    {},
+  )
 
   const numberOfRequests = ref(10)
   const temperature = ref(0.9)
@@ -142,7 +183,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const pitchTypes = Object.values(PitchType)
   const userStore = useUserStore()
 
-  const selectedPitchId = computed(() => selectedPitch.value?.id)
+  const selectedPitchId = computed(() => selectedPitch.value?.id ?? null)
 
   const titles = computed(() =>
     filterPitchesByType(PitchType.TITLE, pitches.value),
@@ -162,6 +203,20 @@ export const usePitchStore = defineStore('pitchStore', () => {
     filterPublicPitches(pitches.value, userStore.userId),
   )
 
+  const ownedPitches = computed(() =>
+    pitches.value.filter((pitch) => pitch.userId === userStore.userId),
+  )
+
+  const visiblePitches = computed(() =>
+    pitches.value.filter((pitch) => {
+      if (!pitch.isMature || userStore.showMature) {
+        return pitch.isPublic || pitch.userId === userStore.userId || userStore.isAdmin
+      }
+
+      return false
+    }),
+  )
+
   const selectedTitlePitches = computed(() => {
     const title = selectedTitle.value?.title
     if (!title) return []
@@ -169,9 +224,21 @@ export const usePitchStore = defineStore('pitchStore', () => {
     return pitches.value.filter((pitch) => pitch.title === title)
   })
 
+  const selectedPitchPrompts = computed(() => {
+    const pitch = selectedPitch.value as (Pitch & { Prompts?: Prompt[] }) | null
+    return pitch?.Prompts || []
+  })
+
   const newestPitchesDisplay = computed(() =>
     newestPitches.value.map((pitch) => ({ ...pitch, isNewest: true })),
   )
+
+  const hasUnsavedChanges = computed(() => {
+    return (
+      JSON.stringify(selectedPitch.value ?? {}) !==
+      JSON.stringify(pitchForm.value ?? {})
+    )
+  })
 
   function setLastError(error: unknown, fallback: string): void {
     lastError.value = error instanceof Error ? error.message : fallback
@@ -183,6 +250,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
   function saveStateToLocalStorage() {
     safeSetLocalStorage(storageKeys.pitches, JSON.stringify(pitches.value))
+    safeSetLocalStorage(storageKeys.pitchForm, JSON.stringify(pitchForm.value))
     safeSetLocalStorage(
       storageKeys.selectedPitches,
       JSON.stringify(selectedPitches.value),
@@ -190,6 +258,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
     safeSetLocalStorage(
       storageKeys.selectedPitchType,
       JSON.stringify(selectedPitchType.value),
+    )
+    safeSetLocalStorage(
+      storageKeys.selectedPitch,
+      JSON.stringify(selectedPitch.value),
     )
     safeSetLocalStorage(
       storageKeys.galleryArt,
@@ -220,6 +292,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
       .map(normalizePitch)
       .sort(sortPitches)
 
+    pitchForm.value = normalizePitchForm(
+      safeParseObject<PitchForm>(safeGetLocalStorage(storageKeys.pitchForm), {}),
+    )
+
     selectedPitches.value = safeParseArray<Pitch>(
       safeGetLocalStorage(storageKeys.selectedPitches),
     ).map(normalizePitch)
@@ -229,6 +305,15 @@ export const usePitchStore = defineStore('pitchStore', () => {
       storedType && storedType !== 'null'
         ? parsePitchType(JSON.parse(storedType) as string)
         : null
+
+    selectedPitch.value = safeParseObject<Pitch | null>(
+      safeGetLocalStorage(storageKeys.selectedPitch),
+      null,
+    )
+
+    if (selectedPitch.value) {
+      selectedPitch.value = normalizePitch(selectedPitch.value)
+    }
 
     galleryArt.value = safeParseObject<Record<number, Art[]>>(
       safeGetLocalStorage(storageKeys.galleryArt),
@@ -294,6 +379,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
       entry.id === normalized.id ? normalized : entry,
     )
 
+    newestPitches.value = newestPitches.value.map((entry) =>
+      entry.id === normalized.id ? normalized : entry,
+    )
+
     saveStateToLocalStorage()
 
     return normalized
@@ -307,6 +396,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
     if (selectedPitch.value?.id === pitchId) {
       selectedPitch.value = null
+      pitchForm.value = {}
     }
 
     if (selectedTitle.value?.id === pitchId) {
@@ -322,17 +412,91 @@ export const usePitchStore = defineStore('pitchStore', () => {
     saveStateToLocalStorage()
   }
 
+  function setPitchForm(updates: Partial<PitchForm>) {
+    pitchForm.value = normalizePitchForm({
+      ...pitchForm.value,
+      ...updates,
+    })
+    saveStateToLocalStorage()
+  }
+
+  function createBlankPitchForm() {
+    pitchForm.value = defaultPitchForm(userStore.userId, userStore.username)
+    saveStateToLocalStorage()
+  }
+
+  function startAddingPitch() {
+    selectedPitch.value = null
+    selectedPitches.value = []
+    createBlankPitchForm()
+  }
+
+  async function startEditingPitch(pitchId?: number): Promise<Pitch | null> {
+    const id = pitchId ?? selectedPitch.value?.id
+
+    if (!id) return null
+
+    const pitch = pitches.value.find((entry) => entry.id === id)
+
+    if (!pitch) {
+      const fetched = await fetchPitchById(id)
+      if (!fetched) return null
+
+      selectedPitch.value = fetched
+      selectedPitches.value = [fetched]
+      pitchForm.value = normalizePitchForm(fetched as PitchForm)
+      saveStateToLocalStorage()
+      return fetched
+    }
+
+    selectedPitch.value = pitch
+    selectedPitches.value = [pitch]
+    pitchForm.value = normalizePitchForm(pitch as PitchForm)
+    saveStateToLocalStorage()
+
+    return pitch
+  }
+
+  async function startCloningPitch(pitchId: number): Promise<PitchForm | null> {
+    const pitch = pitches.value.find((entry) => entry.id === pitchId)
+
+    if (!pitch) return null
+
+    selectedPitch.value = null
+    selectedPitches.value = []
+
+    pitchForm.value = normalizePitchForm({
+      ...pitch,
+      id: undefined,
+      title: pitch.title ? `${pitch.title} Remix` : 'Pitch Remix',
+      creationSource: 'HYBRID',
+      userId: userStore.userId || 10,
+      designer: userStore.username || pitch.designer || 'Kind Designer',
+    })
+
+    saveStateToLocalStorage()
+
+    return pitchForm.value
+  }
+
+  function deselectPitch() {
+    selectedPitch.value = null
+    selectedPitches.value = []
+    pitchForm.value = {}
+    saveStateToLocalStorage()
+  }
+
+  function setSelectedPitchType(pitchType: PitchType | null) {
+    selectedPitchType.value = pitchType
+    saveStateToLocalStorage()
+  }
+
   function getPitchesBySelectedType(): Pitch[] {
     if (!selectedPitchType.value) return pitches.value
 
     return pitches.value.filter(
       (pitch) => pitch.PitchType === selectedPitchType.value,
     )
-  }
-
-  function setSelectedPitchType(pitchType: PitchType | null) {
-    selectedPitchType.value = pitchType
-    saveStateToLocalStorage()
   }
 
   async function initialize(
@@ -352,6 +516,13 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
         if (options.fetchRemote) {
           await fetchPitches(Boolean(options.force))
+        }
+
+        if (
+          options.createBlankForm !== false &&
+          Object.keys(pitchForm.value).length === 0
+        ) {
+          createBlankPitchForm()
         }
 
         isInitialized.value = true
@@ -403,6 +574,27 @@ export const usePitchStore = defineStore('pitchStore', () => {
     return fetchPromise.value
   }
 
+  async function fetchPitchById(pitchId: number): Promise<Pitch | null> {
+    const cached = pitches.value.find((pitch) => pitch.id === pitchId)
+    if (cached) return cached
+
+    try {
+      clearError()
+
+      const res = await performFetch<Pitch>(`/api/pitches/${pitchId}`)
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to fetch pitch')
+      }
+
+      return upsertPitch(res.data)
+    } catch (error) {
+      handleError(error, 'fetching pitch by id')
+      setLastError(error, 'Failed to fetch pitch')
+      return null
+    }
+  }
+
   async function fetchArtForPitch(pitchId: number): Promise<Art[]> {
     if (galleryArt.value[pitchId]) return galleryArt.value[pitchId]
 
@@ -435,7 +627,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
     return fetchArtForPitchPromises.value[pitchId]
   }
 
-  async function createPitch(payload: Partial<Pitch>) {
+  async function createPitch(
+    payload: Partial<Pitch>,
+  ): Promise<PitchMutationResult> {
     if (createPitchPromise.value) {
       return createPitchPromise.value
     }
@@ -454,12 +648,26 @@ export const usePitchStore = defineStore('pitchStore', () => {
         }
 
         const created = upsertPitch(res.data)
+        selectedPitch.value = created
+        selectedPitches.value = [created]
+        pitchForm.value = normalizePitchForm(created as PitchForm)
+        newestPitches.value = [created]
 
-        return { success: true, data: created }
+        saveStateToLocalStorage()
+
+        return {
+          success: true,
+          data: created,
+          message: 'Pitch created',
+        }
       } catch (error) {
         handleError(error, 'creating pitch')
         setLastError(error, 'Error creating pitch')
-        return { success: false, message: 'Error creating pitch' }
+        return {
+          success: false,
+          message:
+            error instanceof Error ? error.message : 'Error creating pitch',
+        }
       } finally {
         createPitchPromise.value = null
       }
@@ -468,31 +676,83 @@ export const usePitchStore = defineStore('pitchStore', () => {
     return createPitchPromise.value
   }
 
-  function addTitle({
-    title,
-    PitchType: pitchType,
-    pitch,
-  }: {
-    title: string
-    PitchType: PitchType
-    pitch?: string
-  }) {
-    return createPitch({
-      title,
-      PitchType: pitchType,
-      pitch: pitchType === PitchType.TITLE ? title : pitch,
-    })
-  }
-
-  async function updatePitchExamples(pitchId: number, examplesArray: string[]) {
-    const updatedExamples = joinExamples(examplesArray)
-    const result = await updatePitch(pitchId, { examples: updatedExamples })
-
-    if (result.success) {
-      saveStateToLocalStorage()
+  async function updatePitch(
+    pitchId: number,
+    updates: Partial<Pitch>,
+  ): Promise<PitchMutationResult> {
+    if (updatePitchPromise.value[pitchId]) {
+      return updatePitchPromise.value[pitchId]
     }
 
-    return result
+    updatePitchPromise.value[pitchId] = (async () => {
+      try {
+        clearError()
+
+        const res = await performFetch<Pitch>(`/api/pitches/${pitchId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updates),
+        })
+
+        if (res.success && res.data) {
+          const updated = upsertPitch(res.data)
+          selectedPitch.value = updated
+          selectedPitches.value = [updated]
+          pitchForm.value = normalizePitchForm(updated as PitchForm)
+
+          saveStateToLocalStorage()
+
+          return {
+            success: true,
+            data: updated,
+            message: 'Pitch updated successfully',
+          }
+        }
+
+        throw new Error(res.message || 'Update failed')
+      } catch (error) {
+        handleError(error, 'updating pitch')
+        setLastError(error, 'Error updating pitch')
+
+        return {
+          success: false,
+          message:
+            error instanceof Error ? error.message : 'Error updating pitch',
+        }
+      } finally {
+        delete updatePitchPromise.value[pitchId]
+      }
+    })()
+
+    return updatePitchPromise.value[pitchId]
+  }
+
+  async function savePitch(): Promise<PitchMutationResult> {
+    isSaving.value = true
+
+    try {
+      clearError()
+
+      const payload: Partial<Pitch> = {
+        ...pitchForm.value,
+        PitchType: parsePitchType(pitchForm.value.PitchType as unknown as string),
+        pitch:
+          pitchForm.value.pitch?.trim() ||
+          pitchForm.value.title?.trim() ||
+          'Untitled pitch',
+        title: pitchForm.value.title?.trim() || null,
+        userId: pitchForm.value.userId || userStore.userId || 10,
+        designer:
+          pitchForm.value.designer || userStore.username || 'Kind Designer',
+      }
+
+      if (typeof pitchForm.value.id === 'number') {
+        return await updatePitch(pitchForm.value.id, payload)
+      }
+
+      return await createPitch(payload)
+    } finally {
+      isSaving.value = false
+    }
   }
 
   async function deletePitch(pitchId: number) {
@@ -522,42 +782,141 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
       return {
         success: false,
-        message: 'Error deleting pitch',
+        message: error instanceof Error ? error.message : 'Error deleting pitch',
       }
     }
   }
 
-  async function updatePitch(pitchId: number, updates: Partial<Pitch>) {
+  async function deletePitchById(pitchId: number) {
+    return await deletePitch(pitchId)
+  }
+
+  async function addPromptToPitch(promptId: number, pitchId?: number) {
+    const targetPitchId = pitchId ?? selectedPitch.value?.id
+
+    if (!targetPitchId) {
+      return {
+        success: false,
+        message: 'No pitch selected',
+      }
+    }
+
     try {
       clearError()
 
-      const res = await performFetch<Pitch>(`/api/pitches/${pitchId}`, {
+      const res = await performFetch<Prompt>(`/api/prompts/${promptId}`, {
         method: 'PATCH',
-        body: JSON.stringify(updates),
+        body: JSON.stringify({ pitchId: targetPitchId }),
       })
 
-      if (res.success && res.data) {
-        upsertPitch(res.data)
-
-        return {
-          success: true,
-          message: 'Pitch updated successfully',
-        }
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to attach prompt')
       }
 
+      const promptStore = usePromptStore()
+      promptStore.upsertPrompt?.(res.data)
+
+      await fetchPitches(true)
+
       return {
-        success: false,
-        message: res.message || 'Update failed',
+        success: true,
+        message: 'Prompt added to pitch',
       }
     } catch (error) {
-      handleError(error, 'updating pitch')
-      setLastError(error, 'Error updating pitch')
+      handleError(error, 'adding prompt to pitch')
+      setLastError(error, 'Failed to add prompt to pitch')
 
       return {
         success: false,
-        message: 'Error updating pitch',
+        message:
+          error instanceof Error ? error.message : 'Failed to add prompt to pitch',
       }
     }
+  }
+
+  async function removePromptFromPitch(promptId: number) {
+    try {
+      clearError()
+
+      const res = await performFetch<Prompt>(`/api/prompts/${promptId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ pitchId: null }),
+      })
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to detach prompt')
+      }
+
+      const promptStore = usePromptStore()
+      promptStore.upsertPrompt?.(res.data)
+
+      await fetchPitches(true)
+
+      return {
+        success: true,
+        message: 'Prompt removed from pitch',
+      }
+    } catch (error) {
+      handleError(error, 'removing prompt from pitch')
+      setLastError(error, 'Failed to remove prompt from pitch')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to remove prompt from pitch',
+      }
+    }
+  }
+
+  async function promotePromptToPitch(promptId: number) {
+    const promptStore = usePromptStore()
+    const prompt = await promptStore.fetchPromptById(promptId)
+
+    if (!prompt) {
+      return {
+        success: false,
+        message: 'Prompt not found',
+      }
+    }
+
+    return await createPitch({
+      title: prompt.prompt.slice(0, 80),
+      pitch: prompt.prompt,
+      description: prompt.prompt.slice(0, 256),
+      PitchType: PitchType.ARTPITCH,
+      creationSource: 'HYBRID',
+      userId: prompt.userId || userStore.userId || 10,
+      designer: userStore.username || 'Kind Designer',
+    })
+  }
+
+  function addTitle({
+    title,
+    PitchType: pitchType,
+    pitch,
+  }: {
+    title: string
+    PitchType: PitchType
+    pitch?: string
+  }) {
+    return createPitch({
+      title,
+      PitchType: pitchType,
+      pitch: pitchType === PitchType.TITLE ? title : pitch,
+    })
+  }
+
+  async function updatePitchExamples(pitchId: number, examplesArray: string[]) {
+    const updatedExamples = joinExamples(examplesArray)
+    const result = await updatePitch(pitchId, { examples: updatedExamples })
+
+    if (result.success) {
+      saveStateToLocalStorage()
+    }
+
+    return result
   }
 
   function normalizeBrainstormResponse(value: unknown): string {
@@ -594,10 +953,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
   }
 
   async function fetchBrainstormPitches() {
-    if (!selectedTitle.value) {
+    if (!selectedTitle.value && !selectedPitch.value) {
       return {
         success: false,
-        message: 'No selected title',
+        message: 'No selected pitch or title',
       }
     }
 
@@ -613,16 +972,20 @@ export const usePitchStore = defineStore('pitchStore', () => {
     try {
       clearError()
 
-      const activeTitle = selectedTitle.value
+      const activePitch = selectedTitle.value || selectedPitch.value
+
+      if (!activePitch) {
+        throw new Error('No selected pitch')
+      }
 
       const examples = extractExamples(exampleString.value).map((example) => ({
-        title: activeTitle.title || 'Example',
+        title: activePitch.title || 'Example',
         pitch: example,
       }))
 
       const content = buildBrainstormPrompt(
-        activeTitle.title || '',
-        activeTitle.description || '',
+        activePitch.title || activePitch.pitch || '',
+        activePitch.description || '',
         numberOfRequests.value,
         exampleString.value,
       )
@@ -630,9 +993,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
       const res = await performFetch<unknown>('/api/botcafe/brainstorm', {
         method: 'POST',
         body: JSON.stringify({
-          title: activeTitle.title || '',
-          description: activeTitle.description || '',
-          instructions: activeTitle.description || '',
+          title: activePitch.title || activePitch.pitch || '',
+          description: activePitch.description || '',
+          instructions: activePitch.description || '',
           examples,
           n: numberOfRequests.value,
           content,
@@ -664,7 +1027,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
       return {
         success: false,
-        message: 'Error generating brainstorm',
+        message:
+          error instanceof Error ? error.message : 'Error generating brainstorm',
       }
     } finally {
       loading.value = false
@@ -672,7 +1036,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   }
 
   async function fetchTitleStormPitches() {
-    if (!selectedTitle.value) return
+    if (!selectedTitle.value && !selectedPitch.value) return
     if (loading.value) return
 
     loading.value = true
@@ -680,11 +1044,13 @@ export const usePitchStore = defineStore('pitchStore', () => {
     try {
       clearError()
 
-      const activeTitle = selectedTitle.value
+      const activePitch = selectedTitle.value || selectedPitch.value
+
+      if (!activePitch) return
 
       const content = buildTitleStormPrompt(
-        activeTitle.title || '',
-        activeTitle.description || '',
+        activePitch.title || activePitch.pitch || '',
+        activePitch.description || '',
         numberOfRequests.value,
         exampleString.value,
       )
@@ -705,11 +1071,11 @@ export const usePitchStore = defineStore('pitchStore', () => {
         apiResponse.value = res.data || 'No response'
 
         const created = await createPitch({
-          title: activeTitle.title,
-          description: activeTitle.description,
+          title: activePitch.title,
+          description: activePitch.description,
           examples: res.data,
           PitchType: PitchType.BRAINSTORM,
-          pitch: res.data,
+          pitch: res.data || 'Untitled brainstorm',
         })
 
         if (created.success && created.data) {
@@ -725,12 +1091,53 @@ export const usePitchStore = defineStore('pitchStore', () => {
     }
   }
 
+  async function generateFields(fieldsToUpgrade: string[]) {
+    isGeneratingFields.value = true
+
+    try {
+      clearError()
+
+      const res = await performFetch<Partial<Pitch>>('/api/pitches/generate', {
+        method: 'POST',
+        body: JSON.stringify({
+          pitch: pitchForm.value,
+          fieldsToUpgrade,
+        }),
+      })
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to generate pitch fields')
+      }
+
+      setPitchForm(res.data as Partial<PitchForm>)
+
+      return {
+        success: true,
+        message: 'Pitch fields generated',
+      }
+    } catch (error) {
+      handleError(error, 'generating pitch fields')
+      setLastError(error, 'Failed to generate pitch fields')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to generate pitch fields',
+      }
+    } finally {
+      isGeneratingFields.value = false
+    }
+  }
+
   function setSelectedPitch(pitchId: number) {
     const pitch = pitches.value.find((item) => item.id === pitchId)
 
     if (pitch) {
       selectedPitch.value = pitch
       selectedPitches.value = [pitch]
+      pitchForm.value = normalizePitchForm(pitch as PitchForm)
       saveStateToLocalStorage()
     }
   }
@@ -743,12 +1150,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   }
 
   function selectPitch(pitchId: number) {
-    const found = pitches.value.find((pitch) => pitch.id === pitchId)
-
-    if (found) {
-      selectedPitch.value = found
-      saveStateToLocalStorage()
-    }
+    setSelectedPitch(pitchId)
   }
 
   function randomEntry(pitchName: string): string {
@@ -770,11 +1172,13 @@ export const usePitchStore = defineStore('pitchStore', () => {
     fetchPromise.value = null
     fetchArtForPitchPromises.value = {}
     createPitchPromise.value = null
+    updatePitchPromise.value = {}
     lastError.value = null
   }
 
   return {
     pitches,
+    pitchForm,
     selectedPitches,
     selectedPitchType,
     selectedPitch,
@@ -783,6 +1187,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
     galleryArt,
 
     loading,
+    isSaving,
+    isGeneratingFields,
     isInitialized,
     isInitializing,
     hasLoaded,
@@ -791,6 +1197,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
     fetchPromise,
     fetchArtForPitchPromises,
     createPitchPromise,
+    updatePitchPromise,
 
     numberOfRequests,
     temperature,
@@ -805,16 +1212,30 @@ export const usePitchStore = defineStore('pitchStore', () => {
     randomListPitches,
     pitchesByTitle,
     publicPitches,
+    ownedPitches,
+    visiblePitches,
     selectedTitlePitches,
+    selectedPitchPrompts,
     newestPitchesDisplay,
+    hasUnsavedChanges,
 
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
     fetchPitches,
+    fetchPitchById,
     createPitch,
     updatePitch,
+    savePitch,
     fetchArtForPitch,
+
+    setPitchForm,
+    createBlankPitchForm,
+    startAddingPitch,
+    startEditingPitch,
+    startCloningPitch,
+    deselectPitch,
+
     fetchBrainstormPitches,
     fetchTitleStormPitches,
     setSelectedPitch,
@@ -824,12 +1245,20 @@ export const usePitchStore = defineStore('pitchStore', () => {
     randomEntry,
     clearLocalStorage,
     deletePitch,
+    deletePitchById,
     setSelectedPitchType,
     addTitle,
     updatePitchExamples,
     getPitchesBySelectedType,
     saveStateToLocalStorage,
+
+    addPromptToPitch,
+    removePromptFromPitch,
+    promotePromptToPitch,
+    generateFields,
+    upsertPitch,
   }
 })
 
 export { PitchType }
+export type { Pitch }

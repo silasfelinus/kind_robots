@@ -362,7 +362,7 @@
               <textarea
                 v-model="botStore.botForm.userIntro"
                 class="textarea textarea-bordered min-h-36 w-full bg-base-200"
-                placeholder="Suggested first user prompt..."
+                placeholder="Suggested first user prompt. Separate quick prompts with |"
                 :disabled="isKept('userIntro')"
               />
             </label>
@@ -383,77 +383,16 @@
       </section>
 
       <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-        <div
-          class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <h2 class="text-xl font-bold text-base-content">
-              Server and Publishing
-            </h2>
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-base-content">Publishing</h2>
 
-            <p class="text-sm text-base-content/70">
-              Choose a text engine and visibility settings.
-            </p>
-          </div>
-
-          <button
-            class="btn btn-sm btn-secondary rounded-xl"
-            type="button"
-            @click="botStore.applyActiveTextServer()"
-          >
-            Use Active Text Server
-          </button>
+          <p class="text-sm text-base-content/70">
+            Control visibility and construction status. The text engine is
+            chosen at chat time.
+          </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <label class="form-control md:col-span-2">
-            <span class="label">
-              <span class="label-text font-bold">Text Server</span>
-            </span>
-
-            <select
-              v-model.number="serverIdModel"
-              class="select select-bordered w-full bg-base-200"
-            >
-              <option :value="null">No server selected</option>
-              <option
-                v-for="server in serverStore.textServers"
-                :key="server.id"
-                :value="server.id"
-              >
-                {{ server.label || server.title }}
-              </option>
-            </select>
-          </label>
-
-          <label class="form-control">
-            <span class="label">
-              <span class="label-text font-bold">Training Path</span>
-            </span>
-
-            <input
-              v-model="botStore.botForm.trainingPath"
-              type="text"
-              class="input input-bordered w-full bg-base-200"
-              placeholder="/training/bots/dotti.json"
-            />
-          </label>
-
-          <label class="form-control">
-            <span class="label">
-              <span class="label-text font-bold">Server Name</span>
-            </span>
-
-            <input
-              v-model="botStore.botForm.serverName"
-              type="text"
-              class="input input-bordered w-full bg-base-200"
-              disabled
-            />
-          </label>
-        </div>
-
-        <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label
             class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
           >
@@ -559,7 +498,6 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useBotStore, type BotForm } from '@/stores/botStore'
 import { useGalleryStore } from '@/stores/galleryStore'
-import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
 type BotFieldKey = keyof BotForm & string
@@ -580,7 +518,6 @@ const emit = defineEmits<{
 
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
-const serverStore = useServerStore()
 const userStore = useUserStore()
 
 const keepField = reactive<Record<string, boolean>>({})
@@ -596,7 +533,7 @@ const title = computed(() => (mode.value === 'edit' ? 'Edit Bot' : 'Create Bot')
 
 const subtitle = computed(() =>
   mode.value === 'edit'
-    ? 'Tune the bot’s prompt, personality, avatar, and text engine.'
+    ? 'Tune the bot’s prompt, personality, avatar, and portable behavior.'
     : 'Build a fresh bot with a clear job, voice, and tiny spark of nonsense.',
 )
 
@@ -622,13 +559,6 @@ const avatarImageModel = computed({
   get: () => botStore.botForm.avatarImage || '',
   set: (value: string) => {
     botStore.setCurrentImagePath(value)
-  },
-})
-
-const serverIdModel = computed({
-  get: () => botStore.botForm.serverId ?? null,
-  set: (value: number | null) => {
-    botStore.setBotServer(value)
   },
 })
 
@@ -712,13 +642,10 @@ onMounted(async () => {
   await Promise.all([
     botStore.initialize({
       fetchRemote: true,
-      initializeServerStore: true,
+      initializeServerStore: false,
       createBlankForm: true,
     }),
     galleryStore.initialize(),
-    serverStore.initialize({
-      fetchRemote: true,
-    }),
   ])
 
   prepareForm()
@@ -785,7 +712,7 @@ function seedBot() {
       'Hello. I have arrived with tiny tools and large opinions.',
     userIntro:
       botStore.botForm.userIntro ||
-      'Help me turn this idea into something useful.',
+      'Help me turn this idea into something useful.|Make this clearer.|Give me three weird options.',
     tagline: botStore.botForm.tagline || 'Debugging reality, politely.',
   })
 

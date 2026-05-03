@@ -382,7 +382,7 @@ const botStore = useBotStore()
 const displayStore = useDisplayStore()
 const navStore = useNavStore()
 
-const footerOffsetKey = 'kind'
+const footerOffsetKey = 'bot'
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')

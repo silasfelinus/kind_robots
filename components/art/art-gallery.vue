@@ -404,18 +404,9 @@ import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
+import type { DashboardKey } from '@/stores/helpers/dashboardHelper'
 
-type DashboardKey =
-  | 'footer'
-  | 'scenario'
-  | 'character'
-  | 'reward'
-  | 'user'
-  | 'dream'
-  | 'wonder'
-  | 'server'
-
-const artDashboardKey: DashboardKey = 'server'
+const artDashboardKey: DashboardKey = 'art'
 
 type ArtGalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type ArtScope =
@@ -743,7 +734,11 @@ async function addSelectedArtToCollection() {
 
   if (!art || !collection) return
 
-  await collectionStore.addArtToCollection(art)
+  await collectionStore.addArtToCollection({
+    artId: art.id,
+    collectionId: collection.id,
+    label: collection.label || undefined,
+  })
 
   uploadTone.value = 'success'
   uploadMessage.value = `Added art #${art.id} to ${collection.label || 'collection'}.`

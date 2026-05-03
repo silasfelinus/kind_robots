@@ -150,6 +150,19 @@ import type { Art } from '~/prisma/generated/prisma/client'
 import type { Resource } from '@/stores/resourceStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 
+type CheckpointResource = Partial<Resource> & {
+  id?: number
+  name?: string | null
+  customLabel?: string | null
+  description?: string | null
+  localPath?: string | null
+  MediaPath?: string | null
+  generation?: string | null
+  isMature?: boolean | null
+  artImageId?: number | null
+  userId?: number | null
+}
+
 const props = withDefaults(
   defineProps<{
     checkpoint: CheckpointResource

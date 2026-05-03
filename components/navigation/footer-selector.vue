@@ -16,7 +16,7 @@ import StoryFooter from '~/components/weird/story-footer.vue'
 import ThemeFooter from '~/components/wonderlab/theme-footer.vue'
 import UserFooter from '@/components/user/user-footer.vue'
 import LabFooter from '@/components/wonderlab/lab-footer.vue'
-import BrainstormFooter from '@/components/pitches/brainstorm-footer.vue'
+import BrainstormFooter from '@/components/brainstorm/brainstorm-footer.vue'
 import GiftshopFooter from '@/components/giftshop/giftshop-footer.vue'
 import DreamFooter from '@/components/dreams/dream-footer.vue'
 import RewardFooter from '@/components/rewards/reward-footer.vue'
@@ -31,7 +31,7 @@ const footerOptions = [...displayStore.footerComponentNames] as FooterName[]
 
 const footerComponentMap: Record<FooterName, Component> = {
   fx: ButterflyFooter,
-  kind: BotFooter,
+  bot: BotFooter,
   art: ArtFooter,
   story: StoryFooter,
   theme: ThemeFooter,
@@ -41,7 +41,7 @@ const footerComponentMap: Record<FooterName, Component> = {
   giftshop: GiftshopFooter,
   dream: DreamFooter,
   reward: RewardFooter,
-  character: CharacterFooter
+  character: CharacterFooter,
 }
 
 function isFooterName(value: unknown): value is FooterName {
@@ -51,7 +51,7 @@ function isFooterName(value: unknown): value is FooterName {
 }
 
 function normalizeFooterName(value: unknown): FooterName {
-  return isFooterName(value) ? value : 'kind'
+  return isFooterName(value) ? value : 'bot'
 }
 
 const activeFooter = computed<FooterName>(() => {

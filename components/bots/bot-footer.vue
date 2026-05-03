@@ -2,106 +2,65 @@
 <template>
   <div
     v-if="footerState !== 'hidden'"
-    class="flex h-full w-full min-h-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 shadow-inner"
+    class="flex h-full min-h-0 w-full overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 shadow-inner"
     :class="isCompact ? 'px-2 py-2' : 'p-2 md:p-3'"
   >
     <template v-if="isCompact">
       <div
-        class="flex h-full w-full min-h-0 items-stretch gap-2 overflow-hidden"
+        class="grid h-full min-h-0 w-full grid-cols-[auto_minmax(0,1fr)_auto_auto] items-stretch gap-2 overflow-hidden"
       >
         <section
-          class="flex h-full w-36 shrink-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+          class="flex h-full min-w-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-2"
         >
-          <div
-            class="shrink-0 border-b border-base-300 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-base-content/50"
-          >
-            Bots
-          </div>
-          <div class="min-h-0 flex-1 overflow-y-auto">
-            <button
-              v-for="bot in bots"
-              :key="`compact-${bot.id}`"
-              type="button"
-              class="flex w-full items-center gap-2 px-2 py-1.5 text-left transition hover:bg-base-200"
-              :class="
-                botStore.currentBot?.id === bot.id
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-base-content'
-              "
-              @click="selectBot(bot.id)"
-            >
-              <img
-                :src="bot.avatarImage || '/images/bot.webp'"
-                :alt="bot.name || 'Bot'"
-                class="h-7 w-7 shrink-0 rounded-lg border border-base-300 object-cover"
-              />
-              <span class="truncate text-xs font-semibold">
-                {{ bot.name || 'Unnamed' }}
-              </span>
-            </button>
-          </div>
-        </section>
-
-        <section
-          class="flex h-full w-44 shrink-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-        >
-          <div
-            class="shrink-0 border-b border-base-300 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-base-content/50"
-          >
-            Selected
-          </div>
-          <div class="flex min-h-0 flex-1 items-center gap-2 px-2">
-            <template v-if="botStore.currentBot">
-              <img
-                :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
-                :alt="botStore.currentBot.name || 'Bot'"
-                class="h-10 w-10 shrink-0 rounded-xl border border-base-300 object-cover"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-sm font-bold">
-                  {{ botStore.currentBot.name || 'Unnamed' }}
-                </div>
-                <div class="truncate text-xs text-base-content/55">
-                  {{ botStore.currentBot.description || 'Ready.' }}
-                </div>
-              </div>
-              <button
-                type="button"
-                class="btn btn-xs btn-ghost shrink-0"
-                @click="clearSelectedBot"
-              >
-                ✕
-              </button>
-            </template>
-            <p v-else class="px-1 text-xs text-base-content/40">Pick a bot →</p>
-          </div>
-        </section>
-
-        <section
-          class="flex h-full min-w-0 flex-1 items-stretch gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 px-2 py-2"
-        >
-          <textarea
-            ref="messageMeasureRef"
-            v-model="launchMessage"
-            class="textarea textarea-bordered h-full min-h-0 w-full resize-none overflow-y-auto bg-base-100 px-3 py-2 text-sm leading-snug"
-            placeholder="Give your bot a first line…"
-            :disabled="!botStore.currentBot"
+          <img
+            :src="selectedBotImage"
+            :alt="selectedBotName"
+            class="h-9 w-9 shrink-0 rounded-xl border border-base-300 object-cover"
           />
-          <button
-            type="button"
-            class="btn btn-sm btn-primary h-full shrink-0 px-4 text-white"
-            :disabled="!botStore.currentBot || !launchMessage.trim()"
-            @click="launchBot"
-          >
-            Send
-          </button>
+
+          <div class="hidden min-w-0 sm:block">
+            <div class="truncate text-sm font-bold">
+              {{ selectedBotName }}
+            </div>
+
+            <div class="truncate text-xs text-base-content/50">
+              {{ botCountLabel }}
+            </div>
+          </div>
         </section>
+
+        <textarea
+          ref="messageMeasureRef"
+          v-model="launchMessage"
+          class="textarea textarea-bordered h-full min-h-0 min-w-0 resize-none overflow-y-auto rounded-2xl bg-base-100 px-3 py-2 text-sm leading-snug"
+          placeholder="Give your bot a first line..."
+          :disabled="!botStore.currentBot"
+          @input="queuePromptOffsetRefresh"
+          @keydown.enter.exact.prevent="launchBot"
+        />
+
+        <button
+          type="button"
+          class="btn btn-sm btn-primary h-full shrink-0 rounded-2xl text-white"
+          :disabled="!canLaunch"
+          @click="launchBot"
+        >
+          Send
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-sm btn-secondary h-full shrink-0 rounded-2xl"
+          @click="openBots"
+        >
+          Open
+        </button>
       </div>
     </template>
 
     <template v-else-if="isOpen">
       <div
-        class="grid h-full w-full min-h-0 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[14rem_minmax(0,1fr)]"
+        class="grid h-full min-h-0 w-full grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]"
       >
         <section
           class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
@@ -109,18 +68,28 @@
           <div
             class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
           >
-            <span class="text-sm font-semibold">Bots</span>
-            <span class="badge badge-outline text-xs">{{ bots.length }}</span>
+            <div>
+              <h2 class="text-sm font-bold text-base-content">Bots</h2>
+
+              <p class="text-xs text-base-content/50">
+                Pick your assistant goblin.
+              </p>
+            </div>
+
+            <span class="badge badge-outline text-xs">
+              {{ botStore.visibleBots.length }}
+            </span>
           </div>
+
           <div class="min-h-0 flex-1 overflow-y-auto p-2">
             <button
-              v-for="bot in bots"
+              v-for="bot in botStore.visibleBots"
               :key="`open-${bot.id}`"
               type="button"
               class="mb-1.5 flex w-full items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition"
               :class="
                 botStore.currentBot?.id === bot.id
-                  ? 'border-primary bg-primary/10'
+                  ? 'border-primary bg-primary/10 text-primary'
                   : 'border-transparent hover:bg-base-200'
               "
               @click="selectBot(bot.id)"
@@ -130,12 +99,14 @@
                 :alt="bot.name || 'Bot'"
                 class="h-9 w-9 shrink-0 rounded-xl border border-base-300 object-cover"
               />
+
               <div class="min-w-0 flex-1">
                 <div class="truncate text-sm font-semibold">
                   {{ bot.name || 'Unnamed Bot' }}
                 </div>
+
                 <div class="truncate text-xs text-base-content/55">
-                  {{ bot.description || '—' }}
+                  {{ bot.description || bot.subtitle || 'Ready.' }}
                 </div>
               </div>
             </button>
@@ -150,87 +121,97 @@
           >
             <template v-if="botStore.currentBot">
               <img
-                :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
-                :alt="botStore.currentBot.name || 'Bot'"
+                :src="selectedBotImage"
+                :alt="selectedBotName"
                 class="h-14 w-14 shrink-0 rounded-2xl border border-base-300 object-cover"
               />
+
               <div class="min-w-0 flex-1">
                 <div class="truncate text-base font-bold">
-                  {{ botStore.currentBot.name || 'Unnamed Bot' }}
+                  {{ selectedBotName }}
                 </div>
+
                 <div class="line-clamp-2 text-xs text-base-content/65">
-                  {{ botStore.currentBot.description || 'A bot of mystery.' }}
+                  {{ selectedBotSummary }}
                 </div>
               </div>
+
               <button
                 type="button"
-                class="btn btn-xs btn-ghost shrink-0"
+                class="btn btn-xs btn-ghost shrink-0 rounded-xl"
                 @click="clearSelectedBot"
               >
                 Clear
               </button>
             </template>
+
             <p v-else class="text-sm text-base-content/40">
               Select a bot from the list.
             </p>
           </div>
 
-          <div
+          <section
             class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
           >
             <div
               class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3 py-2"
             >
               <span class="text-sm font-semibold">Opening Message</span>
+
               <div class="flex gap-1.5">
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost"
+                  class="btn btn-xs btn-ghost rounded-xl"
                   @click="fillStarter"
                 >
                   Starter
                 </button>
+
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost"
+                  class="btn btn-xs btn-ghost rounded-xl"
                   @click="fillWeirdStarter"
                 >
                   Weird
                 </button>
+
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost"
+                  class="btn btn-xs btn-ghost rounded-xl"
                   @click="resetFooter"
                 >
                   Clear
                 </button>
+
                 <button
                   type="button"
-                  class="btn btn-xs btn-primary text-white"
-                  :disabled="!botStore.currentBot || !launchMessage.trim()"
+                  class="btn btn-xs btn-primary rounded-xl text-white"
+                  :disabled="!canLaunch"
                   @click="launchBot"
                 >
-                  Open in Bots
+                  Open
                 </button>
               </div>
             </div>
+
             <textarea
               ref="messageMeasureRef"
               v-model="launchMessage"
               class="textarea min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 px-3 py-2.5 text-sm leading-relaxed"
-              placeholder="Type the first message to hand off to /bots…"
+              placeholder="Type the first message to hand off to /bots..."
               :disabled="!botStore.currentBot"
+              @input="queuePromptOffsetRefresh"
+              @keydown.enter.exact.prevent="launchBot"
             />
-          </div>
+          </section>
         </section>
       </div>
     </template>
 
     <template v-else>
       <div
-        class="grid h-full w-full min-h-0 grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] gap-3 overflow-hidden"
+        class="grid h-full min-h-0 w-full grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] gap-3 overflow-hidden"
       >
-        <!-- LEFT: Bot Carousel -->
         <section class="min-h-0 overflow-hidden">
           <bot-carousel
             title="Bot Carousel"
@@ -244,23 +225,21 @@
           />
         </section>
 
-        <!-- RIGHT: Bot Info + Composer -->
         <section
           class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
         >
-          <!-- Bot Info -->
           <div class="border-b border-base-300 px-4 py-3">
             <template v-if="botStore.currentBot">
               <div class="flex items-start gap-3">
                 <img
-                  :src="botStore.currentBot.avatarImage || '/images/bot.webp'"
-                  :alt="botStore.currentBot.name || 'Bot'"
+                  :src="selectedBotImage"
+                  :alt="selectedBotName"
                   class="h-20 w-20 shrink-0 rounded-2xl border border-base-300 object-cover"
                 />
 
                 <div class="min-w-0 flex-1">
                   <div class="truncate text-lg font-bold">
-                    {{ botStore.currentBot.name || 'Unnamed Bot' }}
+                    {{ selectedBotName }}
                   </div>
 
                   <div
@@ -270,12 +249,18 @@
                     {{ botStore.currentBot.subtitle }}
                   </div>
 
-                  <div
-                    class="mt-1 text-sm leading-relaxed text-base-content/70"
-                  >
-                    {{ botStore.currentBot.description || 'A bot of mystery.' }}
+                  <div class="mt-1 line-clamp-3 text-sm leading-relaxed text-base-content/70">
+                    {{ selectedBotSummary }}
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  class="btn btn-xs btn-ghost rounded-xl"
+                  @click="clearSelectedBot"
+                >
+                  Clear
+                </button>
               </div>
 
               <div
@@ -287,6 +272,7 @@
                 >
                   Personality
                 </div>
+
                 {{ botStore.currentBot.personality }}
               </div>
             </template>
@@ -296,7 +282,6 @@
             </div>
           </div>
 
-          <!-- Composer -->
           <div class="flex min-h-0 flex-col overflow-hidden">
             <div
               class="flex shrink-0 items-center justify-between gap-2 border-b border-base-300 px-4 py-2"
@@ -306,7 +291,7 @@
               <div class="flex items-center gap-1.5">
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost"
+                  class="btn btn-xs btn-ghost rounded-xl"
                   @click="fillStarter"
                 >
                   Starter
@@ -314,7 +299,7 @@
 
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost"
+                  class="btn btn-xs btn-ghost rounded-xl"
                   @click="fillWeirdStarter"
                 >
                   Weird
@@ -322,7 +307,7 @@
 
                 <button
                   type="button"
-                  class="btn btn-xs btn-ghost"
+                  class="btn btn-xs btn-ghost rounded-xl"
                   @click="resetFooter"
                 >
                   Clear
@@ -334,12 +319,13 @@
               ref="messageMeasureRef"
               v-model="launchMessage"
               class="textarea min-h-0 flex-1 resize-none overflow-y-auto bg-base-100 px-4 py-3 text-sm leading-relaxed"
-              placeholder="Type the first message to hand off to /bots…"
+              placeholder="Type the first message to hand off to /bots..."
               :disabled="!botStore.currentBot"
+              @input="queuePromptOffsetRefresh"
+              @keydown.enter.exact.prevent="launchBot"
             />
           </div>
 
-          <!-- Footer Actions -->
           <div class="border-t border-base-300 bg-base-200/60 px-4 py-3">
             <div class="flex items-end justify-between gap-3">
               <div class="min-w-0 flex-1">
@@ -363,8 +349,8 @@
 
               <button
                 type="button"
-                class="btn btn-sm btn-primary shrink-0 text-white"
-                :disabled="!botStore.currentBot || !launchMessage.trim()"
+                class="btn btn-sm btn-primary shrink-0 rounded-2xl text-white"
+                :disabled="!canLaunch"
                 @click="launchBot"
               >
                 Open in Bots
@@ -378,30 +364,22 @@
 </template>
 
 <script setup lang="ts">
-// /components/navigation/bot-footer.vue
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBotStore } from '@/stores/botStore'
 import { useDisplayStore } from '@/stores/displayStore'
-
-type BotLike = {
-  id: number
-  name?: string | null
-  description?: string | null
-  subtitle?: string | null
-  personality?: string | null
-  avatarImage?: string | null
-}
+import { useNavStore } from '@/stores/navStore'
 
 const router = useRouter()
 const botStore = useBotStore()
 const displayStore = useDisplayStore()
+const navStore = useNavStore()
+
+const footerOffsetKey = 'kind'
 
 const footerState = computed(() => displayStore.footerState)
 const isCompact = computed(() => footerState.value === 'compact')
 const isOpen = computed(() => footerState.value === 'open')
-
-const bots = computed<BotLike[]>(() => botStore.bots as BotLike[])
 
 const launchMessage = computed({
   get: () => botStore.pendingLaunchMessage,
@@ -411,6 +389,33 @@ const launchMessage = computed({
 const messageMeasureRef = ref<HTMLTextAreaElement | null>(null)
 let messageResizeObserver: ResizeObserver | null = null
 
+const selectedBotName = computed(() => {
+  return botStore.currentBot?.name || 'Bots'
+})
+
+const selectedBotImage = computed(() => {
+  return botStore.currentBot?.avatarImage || '/images/bot.webp'
+})
+
+const selectedBotSummary = computed(() => {
+  return (
+    botStore.currentBot?.description ||
+    botStore.currentBot?.subtitle ||
+    botStore.currentBot?.tagline ||
+    'A bot of mystery. Suspiciously helpful.'
+  )
+})
+
+const botCountLabel = computed(() => {
+  const count = botStore.visibleBots.length
+
+  return `${count} bot${count === 1 ? '' : 's'} loaded`
+})
+
+const canLaunch = computed(() => {
+  return Boolean(botStore.currentBot && launchMessage.value.trim())
+})
+
 async function selectBot(botId: number) {
   await botStore.selectBot(botId)
   queuePromptOffsetRefresh()
@@ -418,32 +423,26 @@ async function selectBot(botId: number) {
 
 function clearSelectedBot() {
   botStore.deselectBot()
-  displayStore.clearPromptOffset('kind')
+  displayStore.clearPromptOffset(footerOffsetKey)
 }
 
 function fillStarter() {
-  if (botStore.currentBot?.name) {
-    botStore.setPendingLaunchMessage(
-      `Hey ${botStore.currentBot.name}, I want your help with something.`,
-    )
-    queuePromptOffsetRefresh()
-    return
-  }
-  botStore.setPendingLaunchMessage('Hey bot, I want your help with something.')
+  const name = botStore.currentBot?.name || 'bot'
+
+  botStore.setPendingLaunchMessage(
+    `Hey ${name}, I want your help with something.`,
+  )
+
   queuePromptOffsetRefresh()
 }
 
 function fillWeirdStarter() {
-  if (botStore.currentBot?.name) {
-    botStore.setPendingLaunchMessage(
-      `Hey ${botStore.currentBot.name}, let's make something strange, clever, and unexpectedly excellent.`,
-    )
-    queuePromptOffsetRefresh()
-    return
-  }
+  const name = botStore.currentBot?.name || 'bot'
+
   botStore.setPendingLaunchMessage(
-    "Let's make something strange, clever, and unexpectedly excellent.",
+    `Hey ${name}, let's make something strange, clever, and unexpectedly excellent.`,
   )
+
   queuePromptOffsetRefresh()
 }
 
@@ -452,26 +451,42 @@ function resetFooter() {
   queuePromptOffsetRefresh()
 }
 
+async function openBots() {
+  navStore.setDashboardTab('bot', 'overview')
+  await router.push('/bots')
+}
+
+async function launchBot() {
+  if (!canLaunch.value) return
+
+  await openBots()
+}
+
 function refreshPromptOffset() {
-  if (displayStore.footerComponent !== 'kind') {
-    displayStore.clearPromptOffset('kind')
+  if (displayStore.footerComponent !== footerOffsetKey) {
+    displayStore.clearPromptOffset(footerOffsetKey)
     return
   }
+
   if (footerState.value === 'hidden') {
-    displayStore.clearPromptOffset('kind')
+    displayStore.clearPromptOffset(footerOffsetKey)
     return
   }
+
   if (footerState.value === 'priority') {
-    displayStore.clearPromptOffset('kind')
+    displayStore.clearPromptOffset(footerOffsetKey)
     return
   }
+
   const el = messageMeasureRef.value
+
   if (!el || !botStore.currentBot) {
-    displayStore.clearPromptOffset('kind')
+    displayStore.clearPromptOffset(footerOffsetKey)
     return
   }
+
   displayStore.refreshPromptOffset(
-    'kind',
+    footerOffsetKey,
     el.scrollHeight,
     el.clientHeight,
     footerState.value === 'compact' ? 1.5 : 2.5,
@@ -496,13 +511,16 @@ watch(
   },
 )
 
-async function launchBot() {
-  if (!botStore.currentBot || !botStore.pendingLaunchMessage.trim()) return
-  await router.push('/bots')
-}
-
 onMounted(async () => {
-  await botStore.initialize()
+  await Promise.all([
+    botStore.initialize({
+      fetchRemote: true,
+      initializeServerStore: true,
+      createBlankForm: true,
+    }),
+    navStore.initialize(),
+  ])
+
   queuePromptOffsetRefresh()
 
   messageResizeObserver = new ResizeObserver(() => {
@@ -517,6 +535,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   messageResizeObserver?.disconnect()
   messageResizeObserver = null
-  displayStore.clearPromptOffset('kind')
+  displayStore.clearPromptOffset(footerOffsetKey)
 })
 </script>

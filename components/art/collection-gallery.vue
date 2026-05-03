@@ -673,7 +673,6 @@ async function refreshCollections() {
       artStore.initialize({
         fetchRemote: true,
         hydrateImages: false,
-        initializeCollections: false,
       }),
       collectionStore.fetchCollections?.(),
     ])
@@ -696,11 +695,15 @@ function selectUnassignedCollection() {
   selectCollection(-1)
 }
 
-async function selectCollection() {
-  if (isHiddenMature.value) return
+function selectCollection(id: number) {
+  collectionStore.setSelectedCollectionIds([id])
 
-  collectionStore.setCurrentCollection(props.collection.id)
-  collectionStore.toggleSelectedCollectionId(props.collection.id)
+  if (id === -1) {
+    collectionStore.currentCollection = unassignedCollection.value
+    return
+  }
+
+  collectionStore.setCurrentCollection(id)
 }
 
 function removeCollection(id: number) {
@@ -788,19 +791,25 @@ async function saveCollectionForm() {
 }
 
 async function createNewCollection() {
-  if (typeof collectionStore.createCollection === 'function') {
-    await collectionStore.createCollection({
-      label: collectionForm.label || 'Untitled Collection',
-      description: collectionForm.description || '',
-      isPublic: Boolean(collectionForm.isPublic),
-      isMature: Boolean(collectionForm.isMature),
-      userId: userStore.userId || 10,
-      username: userStore.username || 'Kind Guest',
-    })
-    return
-  }
+  const label = collectionForm.label?.trim() || 'Untitled Collection'
+  const userId = userStore.userId || 10
 
-  throw new Error('collectionStore.createCollection is not available.')
+  const created = await collectionStore.createCollection(
+    label,
+    userId,
+    Boolean(collectionForm.isPublic),
+    Boolean(collectionForm.isMature),
+  )
+
+  if (
+    created?.id &&
+    collectionForm.description?.trim() &&
+    typeof collectionStore.updateCollection === 'function'
+  ) {
+    await collectionStore.updateCollection(created.id, {
+      description: collectionForm.description.trim(),
+    })
+  }
 }
 
 async function saveExistingCollection(id: number) {

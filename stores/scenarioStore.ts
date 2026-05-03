@@ -19,6 +19,10 @@ const selectedScenarioStorageKey = 'selectedScenario'
 const currentChoiceStorageKey = 'currentChoice'
 const storyHistoryStorageKey = 'storyHistory'
 
+export interface ScenarioForm extends Omit<Partial<Scenario>, 'intros'> {
+  intros?: string[] | string
+}
+
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
 
@@ -59,6 +63,84 @@ function safeParseObject<T>(raw: string | null): T | null {
   }
 }
 
+function normalizeIntrosForForm(raw: unknown): string[] {
+  if (!raw) return []
+
+  if (Array.isArray(raw)) {
+    return raw.filter((entry): entry is string => typeof entry === 'string')
+  }
+
+  if (typeof raw !== 'string') return []
+
+  try {
+    const parsed = JSON.parse(raw)
+
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
+        (entry): entry is string => typeof entry === 'string',
+      )
+    }
+
+    return []
+  } catch {
+    return raw
+      .split('\n')
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+  }
+}
+
+function normalizeIntrosForSave(raw: unknown): string {
+  if (!raw) return '[]'
+
+  if (Array.isArray(raw)) {
+    return JSON.stringify(
+      raw.map((entry) => String(entry).trim()).filter(Boolean),
+    )
+  }
+
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim()
+
+    if (!trimmed) return '[]'
+
+    try {
+      const parsed = JSON.parse(trimmed)
+
+      if (Array.isArray(parsed)) {
+        return JSON.stringify(
+          parsed.map((entry) => String(entry).trim()).filter(Boolean),
+        )
+      }
+
+      return JSON.stringify([trimmed])
+    } catch {
+      return JSON.stringify(
+        trimmed
+          .split('\n')
+          .map((entry) => entry.trim())
+          .filter(Boolean),
+      )
+    }
+  }
+
+  return '[]'
+}
+
+function toScenarioForm(scenario: Scenario): ScenarioForm {
+  return {
+    ...scenario,
+    intros: normalizeIntrosForForm(scenario.intros),
+  }
+}
+
+function toScenarioPayload(form: ScenarioForm): Partial<Scenario> {
+  return {
+    ...form,
+    intros: normalizeIntrosForSave(form.intros),
+  }
+}
+
 function sortScenarios(a: Scenario, b: Scenario): number {
   if (a.id < 0 && b.id > 0) return -1
   if (a.id > 0 && b.id < 0) return 1
@@ -72,7 +154,7 @@ function sortScenarios(a: Scenario, b: Scenario): number {
 export const useScenarioStore = defineStore('scenarioStore', () => {
   const scenarios = ref<Scenario[]>([])
   const selectedScenario = ref<Scenario | null>(null)
-  const scenarioForm = ref<Partial<Scenario>>({})
+  const scenarioForm = ref<ScenarioForm>({})
   const isSaving = ref(false)
   const isInitialized = ref(false)
   const isInitializing = ref(false)
@@ -137,7 +219,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     ).sort(sortScenarios)
 
     scenarioForm.value =
-      safeParseObject<Partial<Scenario>>(
+      safeParseObject<ScenarioForm>(
         safeGetLocalStorage(scenarioFormStorageKey),
       ) ?? {}
 
@@ -171,7 +253,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
     if (selectedScenario.value?.id === scenario.id) {
       selectedScenario.value = scenario
-      scenarioForm.value = { ...scenario }
+      scenarioForm.value = toScenarioForm(scenario)
     }
 
     syncToLocalStorage()
@@ -276,7 +358,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
     if (scenario) {
       selectedScenario.value = scenario
-      scenarioForm.value = { ...scenario }
+      scenarioForm.value = toScenarioForm(scenario)
       syncToLocalStorage()
       return scenario
     }
@@ -286,7 +368,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
       if (fetched) {
         selectedScenario.value = fetched
-        scenarioForm.value = { ...fetched }
+        scenarioForm.value = toScenarioForm(fetched)
         syncToLocalStorage()
         return fetched
       }
@@ -311,7 +393,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     try {
       clearError()
 
-      const data = { ...scenarioForm.value }
+      const data = toScenarioPayload(scenarioForm.value)
 
       if (data.id && data.id > 0) {
         return await updateScenario(data.id, data)
@@ -327,13 +409,15 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     }
   }
 
-  async function createScenario(scenario: Partial<Scenario>) {
+  async function createScenario(scenario: ScenarioForm | Partial<Scenario>) {
     try {
       clearError()
 
+      const payload = toScenarioPayload(scenario as ScenarioForm)
+
       const res = await performFetch<Scenario>('/api/scenarios', {
         method: 'POST',
-        body: JSON.stringify(scenario),
+        body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
       })
 
@@ -343,7 +427,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
       upsertScenario(res.data)
       selectedScenario.value = res.data
-      scenarioForm.value = { ...res.data }
+      scenarioForm.value = toScenarioForm(res.data)
       syncToLocalStorage()
 
       return res.data
@@ -354,10 +438,15 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     }
   }
 
-  async function updateScenario(id: number, updates: Partial<Scenario>) {
+  async function updateScenario(
+    id: number,
+    updates: ScenarioForm | Partial<Scenario>,
+  ) {
+    const payload = toScenarioPayload(updates as ScenarioForm)
+
     if (id < 0) {
       return await createScenario({
-        ...updates,
+        ...payload,
         id: undefined,
       })
     }
@@ -367,7 +456,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
       const res = await performFetch<Scenario>(`/api/scenarios/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify(updates),
+        body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
       })
 
@@ -377,7 +466,7 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
 
       upsertScenario(res.data)
       selectedScenario.value = res.data
-      scenarioForm.value = { ...res.data }
+      scenarioForm.value = toScenarioForm(res.data)
       syncToLocalStorage()
 
       return res.data
@@ -518,6 +607,10 @@ export const useScenarioStore = defineStore('scenarioStore', () => {
     clearStoryHistory,
     applySeedScenarios,
     buildSeedScenarios,
+    normalizeIntrosForForm,
+    normalizeIntrosForSave,
+    toScenarioForm,
+    toScenarioPayload,
   }
 })
 

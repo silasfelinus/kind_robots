@@ -15,4 +15,4 @@ amitip: 'Some are poetic. Some are cursed. Some are sentient!'
 sort: gallery
 navComponent: 'mode-nav'
 ---
-:reward-gallery
+:reward-manager

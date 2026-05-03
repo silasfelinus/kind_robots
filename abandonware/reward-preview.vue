@@ -7,7 +7,7 @@
       <!-- Header Section -->
       <div class="flex items-center gap-6">
         <!-- Reward Image or Icon -->
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
           <img
             v-if="computedImage"
             :src="computedImage"
@@ -28,7 +28,7 @@
         </div>
 
         <!-- Reward Info -->
-        <div class="flex-grow">
+        <div class="grow">
           <h2 class="text-xl font-bold text-gray-800">Magic Item</h2>
           <p class="mt-2 text-sm">
             <span class="font-bold">Text:</span>

@@ -315,7 +315,9 @@ const showPromptForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
 const isCompact = computed(() => {
-  return props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  return (
+    props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  )
 })
 
 const formTitle = computed(() => {
@@ -538,8 +540,4 @@ function handlePromptDeleted(id: number) {
   min-width: min(280px, 85vw);
   max-width: 380px;
 }
-<<<<<<< HEAD:components/brainstorm/prompt-gallery.vue
 </style>
-=======
-</style>
->>>>>>> 91f616574b58b46ad7aff49741afe0cb44323572:components/prompts/prompt-gallery.vue

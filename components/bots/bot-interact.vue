@@ -442,6 +442,57 @@ const parsedUserPrompts = computed(() => {
     }))
 })
 
+type BotCafeMessage = {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+const systemPrompt = computed(() => {
+  const bot = botStore.currentBot
+
+  if (!bot) return 'You are a helpful assistant.'
+
+  return [
+    bot.prompt || '',
+    bot.personality ? `Personality: ${bot.personality}` : '',
+    bot.botIntro ? `Bot introduction: ${bot.botIntro}` : '',
+    bot.description ? `Bot description: ${bot.description}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+    .trim()
+})
+
+const fullSessionMessages = computed<BotCafeMessage[]>(() => {
+  return sessionChats.value.flatMap((chat) => {
+    const messages: BotCafeMessage[] = [
+      {
+        role: 'user',
+        content: chat.content,
+      },
+    ]
+
+    if (chat.botResponse) {
+      messages.push({
+        role: 'assistant',
+        content: chat.botResponse,
+      })
+    }
+
+    return messages
+  })
+})
+
+function buildMessagesForBotResponse(): BotCafeMessage[] {
+  return [
+    {
+      role: 'system',
+      content: systemPrompt.value || 'You are a helpful assistant.',
+    },
+    ...fullSessionMessages.value,
+  ]
+}
+
 const sessionChats = computed<SessionChat[]>(() => {
   return chatStore.chats.filter((chat) =>
     sessionChatIds.value.includes(chat.id),
@@ -556,6 +607,8 @@ async function sendMessage() {
     scrollToBottom()
 
     if (typeof chatStore.streamResponse === 'function') {
+      const messages = buildMessagesForBotResponse()
+
       await chatStore.streamResponse(newChat.id, {
         model:
           modelName.value ||
@@ -564,9 +617,9 @@ async function sendMessage() {
         temperature: temperature.value,
         maxTokens: maxTokens.value,
         serverId: serverStore.activeTextServer?.id ?? null,
+        messages,
       })
     }
-
     await nextTick()
     scrollToBottom()
   } catch (error) {

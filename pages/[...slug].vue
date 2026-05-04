@@ -37,6 +37,15 @@ import { useNavStore } from '@/stores/navStore'
 type PageLayoutName = 'default'
 type ContentPage = ContentType
 
+type DisplayStoreWithFooter = ReturnType<typeof useDisplayStore> & {
+  footer?: string | null
+  footerState?: string | null
+  selectedFooter?: string | null
+  setFooter?: (footer: string) => void
+  setFooterState?: (footer: string) => void
+  setSelectedFooter?: (footer: string) => void
+}
+
 const route = useRoute()
 const router = useRouter()
 
@@ -55,9 +64,75 @@ function normalizePage(page: unknown): ContentPage {
   return page as ContentPage
 }
 
+function getContentPath(): string {
+  return route.path
+}
+
+function applyFooterFromContent(footer?: string | null): void {
+  const normalizedFooter = (footer ?? '').trim()
+
+  if (!normalizedFooter) return
+
+  const store = displayStore as DisplayStoreWithFooter
+
+  if (typeof store.setFooter === 'function') {
+    store.setFooter(normalizedFooter)
+    return
+  }
+
+  if (typeof store.setFooterState === 'function') {
+    store.setFooterState(normalizedFooter)
+    return
+  }
+
+  if (typeof store.setSelectedFooter === 'function') {
+    store.setSelectedFooter(normalizedFooter)
+    return
+  }
+
+  if ('footer' in store) {
+    store.footer = normalizedFooter
+    return
+  }
+
+  if ('footerState' in store) {
+    store.footerState = normalizedFooter
+    return
+  }
+
+  if ('selectedFooter' in store) {
+    store.selectedFooter = normalizedFooter
+  }
+}
+
+function applyPageSettings(page: ContentPage): void {
+  if (page.dashboard) {
+    navStore.setDashboardTabFromContent(page.dashboard)
+  }
+
+  if (page.footer) {
+    applyFooterFromContent(page.footer)
+  }
+}
+
+async function loadPage(path: string): Promise<void> {
+  const data = await queryCollection('content').path(path).first()
+
+  if (!data) {
+    await router.push('/error')
+    return
+  }
+
+  const normalizedPage = normalizePage(data)
+
+  pageStore.setPage(normalizedPage)
+  navStore.recordVisit(path)
+  applyPageSettings(normalizedPage)
+}
+
 const { data: pageData } = await useAsyncData(
-  () => route.fullPath,
-  () => queryCollection('content').path(route.fullPath).first(),
+  () => getContentPath(),
+  () => queryCollection('content').path(getContentPath()).first(),
 )
 
 if (!pageData.value) {
@@ -66,23 +141,16 @@ if (!pageData.value) {
 
 if (pageData.value) {
   const normalizedPage = normalizePage(pageData.value)
+
   pageStore.setPage(normalizedPage)
-  navStore.recordVisit(route.fullPath)
+  navStore.recordVisit(getContentPath())
+  applyPageSettings(normalizedPage)
 }
 
 watch(
-  () => route.fullPath,
+  () => route.path,
   async (newPath) => {
-    const data = await queryCollection('content').path(newPath).first()
-
-    if (!data) {
-      await router.push('/error')
-      return
-    }
-
-    const normalizedPage = normalizePage(data)
-    pageStore.setPage(normalizedPage)
-    navStore.recordVisit(newPath)
+    await loadPage(newPath)
   },
 )
 
@@ -112,13 +180,13 @@ onMounted(async () => {
   if (promptId) promptStore.selectPrompt(Number(promptId))
 
   if (queryToken && !userStore.user) {
-    console.log('[slug] Token in query and no user — calling initialize()')
+    console.log('[slug] Token in query and no user, calling initialize()')
     await userStore.initialize(queryToken as string)
-    console.log('[slug] initialize() done — isLoggedIn:', userStore.isLoggedIn)
+    console.log('[slug] initialize() done, isLoggedIn:', userStore.isLoggedIn)
   }
 
   if (!userStore.user && queryToken) {
-    console.warn('[slug] Still no user after initialize — redirecting to login')
+    console.warn('[slug] Still no user after initialize, redirecting to login')
     await router.push('/login')
   }
 })

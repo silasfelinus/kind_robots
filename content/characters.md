@@ -14,5 +14,7 @@ dottitip: 'Characters give your bots depth and direction.'
 amitip: 'One of mine insists on being addressed as “Captain Marshmallow.”'
 sort: gallery
 navComponent: 'mode-nav'
+dashboard: 'characters'
+footer: 'character-footer'
 ---
 :character-gallery

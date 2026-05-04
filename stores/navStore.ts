@@ -307,6 +307,20 @@ export const useNavStore = defineStore('navStore', () => {
     syncToLocalStorage()
   }
 
+  function setDashboardTabFromContent(tabKey?: string | null): string | null {
+    const normalizedTabKey = (tabKey ?? '').trim()
+
+    if (!normalizedTabKey) return null
+
+    for (const dashboardKey of Object.keys(dashboardConfigs) as DashboardKey[]) {
+      if (isDashboardTabKey(dashboardKey, normalizedTabKey)) {
+        return setDashboardTab(dashboardKey, normalizedTabKey)
+      }
+    }
+
+    return null
+  }
+
   function isFavorite(link?: string | null): boolean {
     const normalized = (link ?? '').trim()
 
@@ -473,5 +487,6 @@ export const useNavStore = defineStore('navStore', () => {
     clearRouteHistory,
 
     setWonderLabFolder,
+setDashboardTabFromContent,
   }
 })

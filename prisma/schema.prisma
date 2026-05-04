@@ -727,7 +727,7 @@ model Server {
 
   requiresApiKey             Boolean            @default(false)
   apiKeyName                 String?
-  apiKey                     String?
+  apiKey                     String?            @db.Text
 
   useOidc                    Boolean            @default(false)
   oidcProvider               String?

@@ -14,6 +14,8 @@ amitip: 'Excellent. Nothing improves cognitive training like treasure chests and
 category: games
 sort: highlight
 navComponent: 'art-nav'
+dashboard: 'dungeon'
+footer: 'lab-footer'
 ---
 
 :memory-dungeon

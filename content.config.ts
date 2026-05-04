@@ -15,6 +15,8 @@ const contentSchema = z.object({
   amitip: z.string().optional(),
   sort: z.string().optional(),
   navComponent: z.string().optional(),
+  dashboard: z.string().optional(),
+  footer: z.string().optional(),
   model: z.string().optional(),
   theme: z.string().optional(),
   room: z.string().optional(),

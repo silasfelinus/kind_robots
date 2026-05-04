@@ -92,16 +92,27 @@ export async function getBotById(id: number): Promise<Bot | null> {
 }
 
 export async function botImage(bot: Bot): Promise<string> {
-  if (!bot.artImageId) return '/images/bot.webp'
+  const fallbackImage = bot.avatarImage || '/images/bot.webp'
+
+  if (!bot.artImageId) return fallbackImage
 
   const artStore = useArtStore()
 
   try {
     const artImage = await artStore.getArtImageById(bot.artImageId)
-    return artImage?.imageData || '/images/bot.webp'
+
+    if (!artImage?.imageData) return fallbackImage
+
+    if (artImage.imageData.startsWith('data:image/')) {
+      return artImage.imageData
+    }
+
+    const fileType = artImage.fileType || 'webp'
+
+    return `data:image/${fileType};base64,${artImage.imageData}`
   } catch (error: unknown) {
     console.error('Error fetching art image:', error)
-    return '/images/bot.webp'
+    return fallbackImage
   }
 }
 

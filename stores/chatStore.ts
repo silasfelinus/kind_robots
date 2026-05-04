@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useUserStore } from './userStore'
 import { ErrorType } from './errorStore'
-import { handleError } from './utils'
+import { performFetch, handleError } from './utils'
 import type { Chat } from '~/prisma/generated/prisma/client'
 import {
   buildNewChat,
@@ -17,6 +17,29 @@ import {
 } from '@/stores/helpers/chatHelper'
 
 const isClient = typeof window !== 'undefined'
+
+type BotCafeMessage = {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+type BotCafeResponse = {
+  success?: boolean
+  message?: string
+  content?: string
+  data?: unknown
+  id?: string
+  choices?: Array<{
+    message?: {
+      role?: string
+      content?: string | null
+    }
+    delta?: {
+      content?: string | null
+    }
+    finish_reason?: string | null
+  }>
+}
 
 export const useChatStore = defineStore('chatStore', () => {
   const chats = ref<Chat[]>([])
@@ -52,6 +75,103 @@ export const useChatStore = defineStore('chatStore', () => {
       return chat.userId !== uid
     })
   })
+
+  function extractBotText(payload: BotCafeResponse): string {
+    if (typeof payload.content === 'string' && payload.content.trim()) {
+      return payload.content
+    }
+
+    const data = payload.data as BotCafeResponse | undefined
+
+    const directChoice = payload.choices?.[0]?.message?.content
+    if (directChoice) return directChoice
+
+    const wrappedChoice = data?.choices?.[0]?.message?.content
+    if (wrappedChoice) return wrappedChoice
+
+    if (typeof payload.message === 'string' && payload.message.trim()) {
+      return payload.message
+    }
+
+    if (
+      payload.data &&
+      typeof payload.data === 'object' &&
+      'content' in payload.data &&
+      typeof payload.data.content === 'string'
+    ) {
+      return payload.data.content
+    }
+
+    throw new Error('Bot response returned, but no assistant text was found.')
+  }
+
+  type BotCafeResponseData = {
+    content: string
+    raw?: unknown
+  }
+
+  type StreamResponseOptions = {
+    model?: string
+    temperature?: number
+    maxTokens?: number
+    serverId?: number | null
+  }
+
+  async function streamResponse(
+    chatId: number,
+    options: StreamResponseOptions = {},
+  ): Promise<string> {
+    const chat = chats.value.find((entry) => entry.id === chatId)
+
+    if (!chat) {
+      throw new Error(`Chat ${chatId} was not found.`)
+    }
+
+    try {
+      const response = await performFetch<BotCafeResponseData>(
+        '/api/botcafe/chat',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            model: options.model || 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'user',
+                content: chat.content,
+              },
+            ],
+            temperature: options.temperature ?? 0.7,
+            maxTokens: options.maxTokens ?? 2048,
+            stream: false,
+            serverId: options.serverId ?? null,
+            chatId,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        1,
+        120_000,
+      )
+
+      if (!response.success || !response.data?.content) {
+        throw new Error(response.message || 'Bot response failed.')
+      }
+
+      updateChat(chatId, {
+        botResponse: response.data.content,
+      })
+
+      return response.data.content
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Bot response failed.'
+
+      updateChat(chatId, {
+        botResponse: `⚠️ ${message}`,
+      })
+
+      throw error
+    }
+  }
 
   function refreshUnreadMessages(): void {
     const currentUserId = userStore.user?.id
@@ -138,12 +258,6 @@ export const useChatStore = defineStore('chatStore', () => {
       refreshUnreadMessages()
       saveToLocalStorage()
     }
-  }
-
-  async function streamResponse(chatId: number): Promise<void> {
-    await streamChatResponse(chatId, (chunk) =>
-      appendBotResponse(chatId, chunk),
-    )
   }
 
   function appendBotResponse(chatId: number, botResponse: string): void {

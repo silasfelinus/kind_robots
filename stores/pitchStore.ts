@@ -18,7 +18,7 @@ import {
   PitchType,
 } from './helpers/pitchHelper'
 
-export type CreationSource = 'HUMAN' | 'AI' | 'UNKNOWN' | 'HYBRID' | 'UPLOAD'
+type CreationSource = 'HUMAN' | 'AI' | 'UNKNOWN' | 'HYBRID' | 'UPLOAD'
 
 export interface PitchForm extends Partial<Pitch> {
   promptIds?: number[]
@@ -120,7 +120,10 @@ function sortPitches(a: Pitch, b: Pitch): number {
   return b.id - a.id
 }
 
-function defaultPitchForm(userId?: number | null, username?: string): PitchForm {
+function defaultPitchForm(
+  userId?: number | null,
+  username?: string,
+): PitchForm {
   return {
     title: '',
     pitch: '',
@@ -210,7 +213,11 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const visiblePitches = computed(() =>
     pitches.value.filter((pitch) => {
       if (!pitch.isMature || userStore.showMature) {
-        return pitch.isPublic || pitch.userId === userStore.userId || userStore.isAdmin
+        return (
+          pitch.isPublic ||
+          pitch.userId === userStore.userId ||
+          userStore.isAdmin
+        )
       }
 
       return false
@@ -293,7 +300,10 @@ export const usePitchStore = defineStore('pitchStore', () => {
       .sort(sortPitches)
 
     pitchForm.value = normalizePitchForm(
-      safeParseObject<PitchForm>(safeGetLocalStorage(storageKeys.pitchForm), {}),
+      safeParseObject<PitchForm>(
+        safeGetLocalStorage(storageKeys.pitchForm),
+        {},
+      ),
     )
 
     selectedPitches.value = safeParseArray<Pitch>(
@@ -734,7 +744,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
       const payload: Partial<Pitch> = {
         ...pitchForm.value,
-        PitchType: parsePitchType(pitchForm.value.PitchType as unknown as string),
+        PitchType: parsePitchType(
+          pitchForm.value.PitchType as unknown as string,
+        ),
         pitch:
           pitchForm.value.pitch?.trim() ||
           pitchForm.value.title?.trim() ||
@@ -782,7 +794,8 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Error deleting pitch',
+        message:
+          error instanceof Error ? error.message : 'Error deleting pitch',
       }
     }
   }
@@ -829,7 +842,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
       return {
         success: false,
         message:
-          error instanceof Error ? error.message : 'Failed to add prompt to pitch',
+          error instanceof Error
+            ? error.message
+            : 'Failed to add prompt to pitch',
       }
     }
   }
@@ -1028,7 +1043,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
       return {
         success: false,
         message:
-          error instanceof Error ? error.message : 'Error generating brainstorm',
+          error instanceof Error
+            ? error.message
+            : 'Error generating brainstorm',
       }
     } finally {
       loading.value = false

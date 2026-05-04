@@ -31,13 +31,10 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import {
-  usePitchStore,
-  type Pitch,
-  PitchType,
-  type CreationSource,
-} from '~/stores/pitchStore'
+import { usePitchStore, type Pitch, PitchType } from '~/stores/pitchStore'
 import { useUserStore } from '~/stores/userStore'
+
+import { type CreationSource } from '~/stores/promptStore'
 
 // Initialize user store to access `userId`
 const userStore = useUserStore()

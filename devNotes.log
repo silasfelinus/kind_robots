@@ -1,0 +1,73 @@
+4/21/2025 Dev Notes
+
+Establishing relatively solid front end.
+
+[Bug] mirrored container on mobile devices.
+
+gaudiness in splash tutorial, a more conscious wallpaper selection would do wonders.
+
+icons are uneven, first four are smaller than last. The icons are unevenly focused on different displays, but there has  been significant work done to make them play better/
+
+The header subtitle and title should now be conditionally displayed depending on whether the splash tutorial/sidebar is open. There may be bugs as it rolls out. it is being tested now.
+
+
+MAny pages still lack design and have questionable redundancies. There is an overall lack of focus, perhaps due to my own inability to target a use case or market for this project beyond my own learning of design and programming fundamentals.
+
+layout for splash image is uneven. large monitor currently showing incomplete labels for links and an incomplete chat exchange.
+
+dashboard is  uneven, repeats milestones unecessarily. profile shares a column with a username in a rounded border, wtf
+
+cannot scroll on dashboard
+
+5/23/25
+
+Significant front end progresss. Just reverted from last night's edits due to a mysterious router bug where no pages were displayed. That said, front end is more or less navigable through all sized 
+devices, phones, wide-screen, etc. The next step is fixing major operating bugs before getting holistic and tying the site together. In no particular orders the following are priorities:
+
+working bots section
+working scenarios/stories
+working wonderlab reactions
+working custom themes
+build forum
+build image editor
+fix brainstorm formatting
+build resonance/brainstorms
+build out art modeling
+add maturity toggle
+integrate stripe to accept payments for credits/subscription
+build credit token system front end
+integrate milestones
+add other animation icons
+
+
+
+4/13/2026
+Returning to the project after a few months (maybe closer to six).   Currently working on bug hunting and migrating to a compatible combination of tailwind and daisy. upgraded to postcss tailwind 4. added Server model architecture to allow a server agnostic front end, and finally have an excuse to invite more users as we would no longer be constrained by my home server setup.  This will hopefully lead to a front end redesign focusing on the new options. Future "for fun" goal is to upgrade the memory game to allow art generated with the modeler, and deepen the gameplay. For now, having the site morph into something with a consistent focus is the primary over-arching goal.
+
+5/4/2026
+I'd say that the last dev notes started my process of daily working on this project again, and while I haven't been keeping dev notes, I feel quiote productive. I've done a complete overhaul of the component/Model system, making a streamlined front end that follows the same pattern for all primary models. Every front end piece is model-manager, model-gallery, add-model, model-footer, and model-interact. I've trimmed a LOT of extra components, and, possibly coincidence, dropped average build time from 3:30 minutes to 2:50. Rebuilt the memory game with a dungeon theme. reorganized all front end bits )app.vue, page [...slug].vue, and layouts/default.vue for better division of label. And finally broke the butterflies from from their frankensteined component and into the store for database supported unique butterflies and smarter pathing. Redesigned the front end layout for a modular sidebars, footer, and header, with a finally pleasing arrangement of front end buttons that don't interfere with the rest of the page. built out the Server model and connected to allow  the user to switch between art and text modelers (still work in progress). Built out the Dream model for multiplayer text and image chat rooms. Still in development, but the inspiration for the major model redesign. Re-connected stable diffusion and comfy servers, though this weekend's taks will probably involve completing those connections. Rebuilt brainstorm and got working text based feedback. Got themes to work whether showing daisy ui themes or user created ones.
+
+All in all I feel very accomplished and productive. The front end doesn't look like ass, and the future roadmap feels doable with some serious accomplishments ahead as long as I stick with it.
+
+To dos:
+finish connecting art modellers
+clear all cypress errors related to said modellers
+
+Bots Interact
+Rewards Interact
+Stories Interact
+Brainstorm Interact/Layout
+Themes (layout)
+wonderlab (reactions)/Layout
+Art interact
+Art Editor interact
+Art Collections interact
+Dreams interact
+Characters interact
+giftshop interact
+Milestones earn
+
+consistent footer sizing and layouts
+lower header toggle when closed into footer bar
+fix display goblins when changing orientation on tablets
+fix bot display only showing fallback

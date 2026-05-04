@@ -14,5 +14,7 @@ dottitip: 'Scenarios show how our choices shape reality.'
 amitip: 'Unless the vending machine wins again. Then we try another scenario.'
 sort: gallery
 navComponent: 'mode-nav'
+dashboard: 'scenarios'
+footer: 'scenario-footer'
 ---
 :scenario-gallery

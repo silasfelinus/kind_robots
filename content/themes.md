@@ -15,6 +15,8 @@ amitip: What can I say, we're all about giving people choices!
 layout: 'default'
 theme: retro
 navComponent: 'dashboard-nav'
+dashboard: 'themes'
+footer: 'theme-footer'
 ---
 :theme-manager
 

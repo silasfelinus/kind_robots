@@ -17,4 +17,4 @@ navComponent: 'mode-nav'
 dashboard: 'characters'
 footer: 'character-footer'
 ---
-:character-gallery
+:character-manager

@@ -274,7 +274,7 @@ const menuItems = [
 ] as const
 
 const directoryLinks = [
-  { to: '/artgallery', label: 'Art' },
+  { to: '/art', label: 'Art' },
   { to: '/bots', label: 'Bots' },
   { to: '/brainstorm', label: 'Brainstorm' },
   { to: '/stories', label: 'Stories' },

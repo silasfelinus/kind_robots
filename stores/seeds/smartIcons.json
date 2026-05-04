@@ -48,7 +48,7 @@
     "designer": "content-seeder",
     "icon": "kind-icon:easel",
     "label": "Private Art Gallery",
-    "link": "/artgallery",
+    "link": "/art",
     "component": "art-nav",
     "isPublic": true,
     "description": "This is a collection of user art. It will hopefully springboard into a more fully-featured editor and image playground",

@@ -151,7 +151,7 @@
               />
 
               <art-gallery
-                v-else-if="gallery.key === 'galleries'"
+                v-else-if="gallery.key === 'art'"
                 title="Art Gallery"
                 subtitle="Browse generated art and image records."
                 :compact="true"
@@ -227,14 +227,14 @@ const galleries = [
   {
     key: 'collections',
     name: 'Collections',
-    page: 'artgallery',
+    page: 'collections',
     icon: 'kind-icon:folder',
     description: 'Browse art grouped into named collections',
   },
   {
-    key: 'galleries',
+    key: 'art',
     name: 'Art',
-    page: 'galleries',
+    page: 'art',
     icon: 'kind-icon:image',
     description: 'Browse the AI art that inspired Kind Robots',
   },

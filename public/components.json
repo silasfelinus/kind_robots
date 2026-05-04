@@ -120,11 +120,7 @@
   },
   {
     "folderName": "dominions",
-    "components": [
-      "add-dominion",
-      "dominion-gallery",
-      "edit-dominion"
-    ]
+    "components": ["add-dominion", "dominion-gallery", "edit-dominion"]
   },
   {
     "folderName": "gallery",
@@ -157,7 +153,7 @@
     "components": [
       "cart-display",
       "credit-purchase",
-      "giftshop-browser",
+      "giftshop-manager",
       "giftshop-footer",
       "print-swag",
       "shopping-cart",

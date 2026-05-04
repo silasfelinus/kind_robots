@@ -19,4 +19,4 @@ dashboard: 'user'
 footer: 'user-footer'
 ---
 
-:user-dashboard
+:user-manager

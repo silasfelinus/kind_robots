@@ -2,7 +2,7 @@
 <template>
   <div class="Icon-link-container">
     <NuxtLink
-      to="/artgallery"
+      to="/art"
       :class="[
         'flex',
         'items-center',
@@ -27,9 +27,7 @@ import { computed } from 'vue'
 import { useContentStore } from '../../stores/contentStore'
 
 const contentStore = useContentStore()
-const isCurrentPage = computed(
-  () => contentStore.currentPage?._path === '/artgallery',
-)
+const isCurrentPage = computed(() => contentStore.currentPage?._path === '/art')
 </script>
 
 <style scoped>

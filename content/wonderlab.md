@@ -17,6 +17,8 @@ amitip: "Don't worry about them breaking anything, it was probably broken before
 layout: 'default'
 navComponent: 'lab-nav'
 theme: winter
+dashboard: 'lab'
+footer: 'lab-footer'
 ---
 
 :lab-manager

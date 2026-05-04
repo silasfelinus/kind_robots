@@ -15,5 +15,7 @@ amitip: 'Especially when it’s butterflies dancing on laser moons.'
 sort: highlight
 navComponent: 'art-nav'
 showFooter: true
+dashboard: 'art'
+footer: 'art-footer'
 ---
 :art-manager

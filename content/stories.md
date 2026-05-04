@@ -14,6 +14,8 @@ dottitip: AMI, is the simulation room ready? We've handed visitors a box of stor
 amitip: Perfect! Nothing fuels creativity like vague instructions and existential confusion. Let's see what they do with it!
 layout: 'default'
 navComponent: 'prompt-nav'
+dashboard: 'stories'
+footer: 'scenario-footer'
 ---
 
 :story-creator

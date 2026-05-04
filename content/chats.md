@@ -14,5 +14,7 @@ dottitip: 'Sometimes, the conversation becomes the content.'
 amitip: 'Especially when someone accidentally proposes to a toaster.'
 sort: gallery
 navComponent: 'mode-nav'
+dashboard: 'chats'
+footer: 'user-footer'
 ---
 :chat-gallery

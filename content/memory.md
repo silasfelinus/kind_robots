@@ -1,19 +1,21 @@
 ---
-title: 'Memory'
+title: 'Memory Dungeon'
 room: 'Memory Room'
-subtitle: Match, Recall, Repeat!
-description: A card match game where art meets serendipity! With 17 AI-generated galleries, every round is a fresh visual adventure—test your memory and discover something new with every match!
-image: 'acrocats/acrocats-24.webp'
+subtitle: Match, Survive, Loot!
+description: A roguelite memory card game where AI art becomes a tiny dungeon crawl. Match pairs, survive with limited lives, chase challenge targets, trigger surprise awards, clear levels, and claim creative rewards from the prompt and art modeller.
+image: 'background/dungeon.png'
 gallery: 'memoryland'
-tags: ['games', 'art', 'AI']
-icon: kind-icon:question
+tags: ['games', 'art', 'AI', 'memory', 'dungeon']
+icon: kind-icon:brain
 layout: 'default'
-tooltip: "AI-generated art + memory challenge = endless surprises!"
-dottitip: "AMI, I built a memory game! Simple card matching, but with art from our ArtBots—so every game is unique."
-amitip: "Brilliant! Pattern recognition and AI art appreciation? Finally, a game that exercises both memory and taste!"
+tooltip: 'A memory game with lives, levels, powerups, surprise loot, and weird dungeon flavor.'
+dottitip: 'AMI, I upgraded the memory game into a dungeon crawler. There are lives, levels, rewards, and probably goblins.'
+amitip: 'Excellent. Nothing improves cognitive training like treasure chests and suspiciously judgmental rectangles.'
 category: games
 sort: highlight
 navComponent: 'art-nav'
+dashboard: 'dungeon'
+footer: 'lab-footer'
 ---
 
 :memory-dungeon

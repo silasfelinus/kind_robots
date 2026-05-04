@@ -18,4 +18,4 @@ dashboard: 'scenarios'
 footer: 'scenario-footer'
 ---
 
-:story-creator
+:scenario-manager

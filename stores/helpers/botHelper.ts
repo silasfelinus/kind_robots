@@ -17,7 +17,7 @@ export async function updateBot(
   try {
     const payload: BotPayload = {
       ...botForm,
-      avatarImage,
+      ...(avatarImage ? { avatarImage } : {}),
     }
 
     const response = await performFetch<Bot>(`/api/bot/id/${id}`, {

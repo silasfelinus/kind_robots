@@ -1,95 +1,60 @@
-<!-- /components/content/art/image-upload.vue -->
+<!-- /components/art/image-upload.vue -->
 <template>
-  <div>
+  <section
+    class="flex w-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
+  >
     <input
+      ref="fileInput"
       type="file"
       accept="image/png, image/jpeg, image/webp"
-      class="mb-4"
-      @change="uploadImage"
+      class="hidden"
+      @change="handleUpload"
     />
 
-    <div v-if="isUploading">Uploading image...</div>
+    <button
+      type="button"
+      class="btn btn-primary rounded-2xl"
+      :disabled="imageUploadStore.isUploading"
+      @click="fileInput?.click()"
+    >
+      <Icon :name="icon" class="h-5 w-5" />
+      <span>{{ buttonLabel }}</span>
+    </button>
 
-    <div v-if="newArt && newArtImage" class="mt-6">
-      <art-card :art="newArt" :art-image="newArtImage" />
-    </div>
-  </div>
+    <p v-if="imageUploadStore.message" class="text-sm text-success">
+      {{ imageUploadStore.message }}
+    </p>
+
+    <p v-if="imageUploadStore.error" class="text-sm text-error">
+      {{ imageUploadStore.error }}
+    </p>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useArtStore } from '@/stores/artStore'
-import { useUserStore } from '@/stores/userStore'
+import { computed, ref } from 'vue'
+import { useUploadStore } from '@/stores/uploadStore'
 
-const artStore = useArtStore()
-const userStore = useUserStore()
+const imageUploadStore = useUploadStore()
+const fileInput = ref<HTMLInputElement | null>(null)
 
-const userId = computed(() => userStore.user?.id)
-const username = computed(() => userStore.user?.username)
+const icon = computed(
+  () => imageUploadStore.activeTarget?.icon ?? 'kind-icon:camera',
+)
+const buttonLabel = computed(
+  () => imageUploadStore.activeTarget?.buttonLabel ?? 'Upload image',
+)
 
-const newArt = ref<(typeof artStore.art)[0] | undefined>(undefined)
-const newArtImage = ref<(typeof artStore.artImages)[0] | undefined>(undefined)
-const isUploading = ref(false)
-
-const allowedFileTypes = ['image/png', 'image/jpeg', 'image/webp']
-
-async function uploadImage(event: Event) {
+async function handleUpload(event: Event) {
   const input = event.target as HTMLInputElement
-  const uploadedFile = input?.files?.[0]
+  const file = input.files?.[0]
 
-  if (!uploadedFile) return
+  if (!file) return
 
-  if (!allowedFileTypes.includes(uploadedFile.type)) {
-    console.error(
-      'Unsupported file type. Please upload a PNG, JPEG, or WebP image.',
-    )
-    return
-  }
+  await imageUploadStore.uploadForActiveTarget(file)
 
-  const formData = new FormData()
-  formData.append('image', uploadedFile)
-
-  isUploading.value = true
-
-  try {
-    await artStore.uploadImage(formData)
-
-    const lastImage = artStore.artImages[artStore.artImages.length - 1] ?? null
-
-    if (!lastImage) {
-      console.error('No image returned from upload')
-      return
-    }
-
-    newArtImage.value = lastImage
-
-    const newArtData = {
-      promptString: '[ArtImage]',
-      path: '[ArtImage]',
-      seed: null,
-      steps: null,
-      galleryId: 21,
-      promptId: null,
-      pitchId: null,
-      userId: userId.value ?? 10,
-      designer: username.value ?? 'Kind Guest',
-      artImageId: lastImage.id,
-    }
-
-    const createdArt = await artStore.createArt(newArtData)
-
-    if (!createdArt) {
-      console.error('Failed to create art')
-      return
-    }
-
-    newArt.value = createdArt
-
-    await artStore.updateArtImageWithArtId(lastImage.id, createdArt.id)
-  } catch (error) {
-    console.error('Error uploading image or creating art:', error)
-  } finally {
-    isUploading.value = false
+  if (fileInput.value) {
+    fileInput.value.value = ''
   }
 }
 </script>

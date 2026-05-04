@@ -85,14 +85,14 @@ model ArtImage {
   Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
   Pitch       Pitch?     @relation(fields: [pitchId], references: [id])
   Prompt      Prompt?    @relation(fields: [promptId], references: [id])
-  Reaction    Reaction?  @relation(fields: [reactionId], references: [id])
   Resource    Resource?  @relation(fields: [resourceId], references: [id])
   Reward      Reward?    @relation(fields: [rewardId], references: [id])
   Tag         Tag?       @relation(fields: [tagId], references: [id])
   User        User?      @relation(fields: [userId], references: [id])
   Butterflies Butterfly[]
   Scenarios   Scenario[]
-  Dreams              Dream[]
+  Dreams      Dream[]
+  Reactions Reaction[]
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
@@ -112,6 +112,7 @@ model ArtCollection {
   art         Art[]     @relation("ArtToArtCollection")
   Dreams       Dream[]
   Butterflies Butterfly[]
+  Reactions Reaction[]
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
@@ -214,6 +215,7 @@ Bot             Bot?           @relation(fields: [botId], references: [id])
 Character       Character?     @relation(fields: [characterId], references: [id])
 Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
 Prompt          Prompt?        @relation(fields: [promptId], references: [id])
+Reactions       Reaction[]
 Reward          Reward?        @relation(fields: [rewardId], references: [id])
 Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
 Tag             Tag?           @relation(fields: [tagId], references: [id])
@@ -297,6 +299,7 @@ model Character {
   ArtImage       ArtImage?
   User           User       @relation(fields: [userId], references: [id])
   Chats          Chat[]
+  Reactions Reaction[]
   Rewards        Reward[]   @relation("CharacterToReward")
   Scenarios      Scenario[] @relation("CharacterToScenario")
   Butterflies Butterfly[]
@@ -556,54 +559,71 @@ model Prompt {
   @@index([userId], map: "Prompt_userId_fkey")
 }
 
-/// a reaction is created by a user interacting with another object represented in this database. It should be inclusive.
 model Reaction {
   id               Int              @id @unique @default(autoincrement())
   createdAt        DateTime         @default(now())
   updatedAt        DateTime?        @default(now()) @updatedAt
   comment          String?          @db.Text
   userId           Int
-  artId            Int?
-  pitchId          Int?
-  componentId      Int?
   reactionType     ReactionType
   reactionCategory ReactionCategory @default(ART)
   rating           Int              @default(0)
+
+  artId            Int?
   artImageId       Int?
+  artCollectionId  Int?
   botId            Int?
+  butterflyId      Int?
+  characterId      Int?
+  chatId           Int?
+  componentId      Int?
+  dreamId          Int?
   galleryId        Int?
+  pitchId          Int?
   promptId         Int?
   resourceId       Int?
   rewardId         Int?
+  scenarioId       Int?
   tagId            Int?
-  chatId           Int?
-  dreamId           Int?
-  ArtImage         ArtImage?
+  themeId          Int?
+
   Art              Art?             @relation(fields: [artId], references: [id])
+  ArtImage         ArtImage?        @relation(fields: [artImageId], references: [id])
+  ArtCollection    ArtCollection?   @relation(fields: [artCollectionId], references: [id])
   Bot              Bot?             @relation(fields: [botId], references: [id])
+  Butterfly        Butterfly?       @relation(fields: [butterflyId], references: [id])
+  Character        Character?       @relation(fields: [characterId], references: [id])
   Chat             Chat?            @relation(fields: [chatId], references: [id])
   Component        Component?       @relation(fields: [componentId], references: [id])
-  Dream            Dream?             @relation(fields: [dreamId], references: [id])
+  Dream            Dream?           @relation(fields: [dreamId], references: [id])
   Gallery          Gallery?         @relation(fields: [galleryId], references: [id])
   Pitch            Pitch?           @relation(fields: [pitchId], references: [id])
   Prompt           Prompt?          @relation(fields: [promptId], references: [id])
   Resource         Resource?        @relation(fields: [resourceId], references: [id])
   Reward           Reward?          @relation(fields: [rewardId], references: [id])
+  Scenario         Scenario?        @relation(fields: [scenarioId], references: [id])
   Tag              Tag?             @relation(fields: [tagId], references: [id])
+  Theme            Theme?           @relation(fields: [themeId], references: [id])
   User             User             @relation(fields: [userId], references: [id])
 
-  @@index([artId], map: "Reaction_artId_fkey")
-  @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([userId], map: "Reaction_userId_fkey")
+  @@index([artId], map: "Reaction_artId_fkey")
+  @@index([artImageId], map: "Reaction_artImageId_fkey")
+  @@index([artCollectionId], map: "Reaction_artCollectionId_fkey")
+  @@index([botId], map: "Reaction_botId_fkey")
+  @@index([butterflyId], map: "Reaction_butterflyId_fkey")
+  @@index([characterId], map: "Reaction_characterId_fkey")
+  @@index([chatId], map: "Reaction_chatId_fkey")
   @@index([componentId], map: "Reaction_componentId_fkey")
   @@index([dreamId], map: "Reaction_dreamId_fkey")
-  @@index([botId], map: "Reaction_botId_fkey")
-  @@index([chatId], map: "Reaction_chatId_fkey")
   @@index([galleryId], map: "Reaction_galleryId_fkey")
+  @@index([pitchId], map: "Reaction_pitchId_fkey")
   @@index([promptId], map: "Reaction_promptId_fkey")
   @@index([resourceId], map: "Reaction_resourceId_fkey")
   @@index([rewardId], map: "Reaction_rewardId_fkey")
+  @@index([scenarioId], map: "Reaction_scenarioId_fkey")
   @@index([tagId], map: "Reaction_tagId_fkey")
+  @@index([themeId], map: "Reaction_themeId_fkey")
 }
 
 /// This should also be used if a user wants to add a custom art or text generator beyond those servives offered by kind robots. We are intended to be a philanthropic service, so if users use our frameworks without taxing our servers, that is ideal. That said, we aim to be agnostic while encouraging ethical use. In the next year I hope to offer services hosted through solar power locally, and that may change how we encourage services. At the moment, the environmental impact of AI is a valid criticism and I hope the benefits end up being a net gain for the world, as our particular endeavor hopes to be.
@@ -675,6 +695,7 @@ model Scenario {
   Characters   Character[] @relation("CharacterToScenario")
   Butterflies Butterfly[]
   Dreams      Dream[]
+  Reactions Reaction[]
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")
@@ -770,6 +791,7 @@ model SmartIcon {
   modelType   String?   @db.VarChar(255)
   User        User?     @relation(fields: [userId], references: [id])
 
+
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 
@@ -809,6 +831,7 @@ model Theme {
   colorScheme String   @default("light")
   prefersDark Boolean  @default(false)
   user        User?    @relation(fields: [userId], references: [id])
+  Reactions Reaction[]
 
   @@index([userId], map: "Theme_userId_fkey")
 }
@@ -947,13 +970,16 @@ enum ReactionType {
 enum ReactionCategory {
   ART
   ART_IMAGE
-  PITCH
-  COMPONENT
-  CHAT_EXCHANGE
-  DREAM
+  ART_COLLECTION
   BOT
+  BUTTERFLY
+  CHARACTER
+  CHAT_EXCHANGE
+  COMPONENT
+  DREAM
   GALLERY
   MESSAGE
+  PITCH
   POST
   PROMPT
   RESOURCE
@@ -961,7 +987,6 @@ enum ReactionCategory {
   SCENARIO
   TAG
   THEME
-
 }
 
 enum ResourceType {

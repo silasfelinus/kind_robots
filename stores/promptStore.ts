@@ -142,9 +142,9 @@ export const usePromptStore = defineStore('promptStore', () => {
   )
   const fetchArtByPromptIdPromises = ref<Record<number, Promise<Art[]>>>({})
   const createPromptPromise = ref<Promise<PromptMutationResult> | null>(null)
-  const updatePromptPromises = ref<Record<number, Promise<PromptMutationResult>>>(
-    {},
-  )
+  const updatePromptPromises = ref<
+    Record<number, Promise<PromptMutationResult>>
+  >({})
 
   const streamedText = ref('')
   const isStreaming = ref(false)
@@ -206,7 +206,10 @@ export const usePromptStore = defineStore('promptStore', () => {
     )
     safeSetLocalStorage(storageKeys.currentPrompt, currentPrompt.value)
     safeSetLocalStorage(storageKeys.prompts, JSON.stringify(prompts.value))
-    safeSetLocalStorage(storageKeys.promptForm, JSON.stringify(promptForm.value))
+    safeSetLocalStorage(
+      storageKeys.promptForm,
+      JSON.stringify(promptForm.value),
+    )
     safeSetLocalStorage(
       storageKeys.selectedPrompt,
       JSON.stringify(selectedPrompt.value),
@@ -328,7 +331,9 @@ export const usePromptStore = defineStore('promptStore', () => {
     return prompt
   }
 
-  async function startCloningPrompt(promptId: number): Promise<PromptForm | null> {
+  async function startCloningPrompt(
+    promptId: number,
+  ): Promise<PromptForm | null> {
     const prompt = await fetchPromptById(promptId)
 
     if (!prompt) return null
@@ -575,10 +580,13 @@ export const usePromptStore = defineStore('promptStore', () => {
       try {
         clearError()
 
-        const response = await performFetch<Prompt>(`/api/prompts/${promptId}`, {
-          method: 'PATCH',
-          body: JSON.stringify(updates),
-        })
+        const response = await performFetch<Prompt>(
+          `/api/prompts/${promptId}`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify(updates),
+          },
+        )
 
         if (!response.success || !response.data) {
           throw new Error(response.message || 'Failed to update prompt')
@@ -678,7 +686,9 @@ export const usePromptStore = defineStore('promptStore', () => {
     }
   }
 
-  async function deletePromptById(promptId: number): Promise<PromptMutationResult> {
+  async function deletePromptById(
+    promptId: number,
+  ): Promise<PromptMutationResult> {
     const deleted = await deletePrompt(promptId)
 
     return {
@@ -820,7 +830,7 @@ export const usePromptStore = defineStore('promptStore', () => {
     const { usePitchStore, PitchType } = await import('./pitchStore')
     const pitchStore = usePitchStore()
 
-    return await pitchStore.createPitch({
+    const result = await pitchStore.createPitch({
       title: prompt.prompt.slice(0, 80),
       pitch: prompt.prompt,
       description: prompt.prompt.slice(0, 256),
@@ -828,6 +838,12 @@ export const usePromptStore = defineStore('promptStore', () => {
       creationSource: 'HYBRID',
       userId: prompt.userId ?? userStore.userId ?? 10,
     })
+
+    if (result.success && result.data?.id) {
+      await attachToPitch(prompt.id, result.data.id)
+    }
+
+    return result
   }
 
   async function generateVariation(promptId?: number) {

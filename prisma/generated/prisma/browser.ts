@@ -71,11 +71,6 @@ export type Chat = Prisma.ChatModel
  */
 export type Component = Prisma.ComponentModel
 /**
- * Model Dominion
- * this is a novelty dominion card generator, allowing the creation and sharing of custom cards for the excellent Dominion card game system.
- */
-export type Dominion = Prisma.DominionModel
-/**
  * Model Dream
  * 
  */
@@ -112,7 +107,7 @@ export type Pitch = Prisma.PitchModel
 export type Prompt = Prisma.PromptModel
 /**
  * Model Reaction
- * a reaction is created by a user interacting with another object represented in this database. It should be inclusive.
+ * 
  */
 export type Reaction = Prisma.ReactionModel
 /**
@@ -142,7 +137,7 @@ export type Server = Prisma.ServerModel
 export type SmartIcon = Prisma.SmartIconModel
 /**
  * Model Tag
- * tags are used to sort Pitches, Reactions, Dominions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
+ * tags are used to sort Pitches, Reactions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
  */
 export type Tag = Prisma.TagModel
 /**

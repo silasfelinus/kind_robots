@@ -131,14 +131,18 @@ export const useBotStore = defineStore('botStore', () => {
 
   const totalBots = computed<number>(() => bots.value.length)
 
-  const selectedBotId = computed<number | null>(() => currentBot.value?.id ?? null)
+  const selectedBotId = computed<number | null>(
+    () => currentBot.value?.id ?? null,
+  )
 
   const selectedBot = computed(() => currentBot.value)
 
   const error = computed(() => lastError.value)
 
   const hasUnsavedChanges = computed<boolean>(() => {
-    return JSON.stringify(currentBot.value ?? {}) !== JSON.stringify(botForm.value)
+    return (
+      JSON.stringify(currentBot.value ?? {}) !== JSON.stringify(botForm.value)
+    )
   })
 
   const ownedBots = computed<Bot[]>(() => {
@@ -159,7 +163,11 @@ export const useBotStore = defineStore('botStore', () => {
     const userStore = useUserStore()
 
     return bots.value.filter((bot) => {
-      return Boolean(bot.isPublic) || bot.userId === userStore.userId || userStore.isAdmin
+      return (
+        Boolean(bot.isPublic) ||
+        bot.userId === userStore.userId ||
+        userStore.isAdmin
+      )
     })
   })
 
@@ -177,7 +185,10 @@ export const useBotStore = defineStore('botStore', () => {
     safeSetLocalStorage(currentImagePathStorageKey, currentImagePath.value)
 
     if (currentBot.value) {
-      safeSetLocalStorage(currentBotStorageKey, JSON.stringify(currentBot.value))
+      safeSetLocalStorage(
+        currentBotStorageKey,
+        JSON.stringify(currentBot.value),
+      )
     } else {
       safeRemoveLocalStorage(currentBotStorageKey)
     }
@@ -281,50 +292,50 @@ export const useBotStore = defineStore('botStore', () => {
     persist()
   }
 
-async function generateFields(fieldsToUpgrade: string[]) {
-  loading.value = true
+  async function generateFields(fieldsToUpgrade: string[]) {
+    loading.value = true
 
-  try {
-    clearError()
+    try {
+      clearError()
 
-    const response = await performFetch<Partial<Bot>>('/api/bot/generate', {
-      method: 'POST',
-      body: JSON.stringify({
-        bot: botForm.value,
-        fieldsToUpgrade,
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    })
+      const response = await performFetch<Partial<Bot>>('/api/bot/generate', {
+        method: 'POST',
+        body: JSON.stringify({
+          bot: botForm.value,
+          fieldsToUpgrade,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      })
 
-    if (response.success && response.data) {
-      setBotForm(response.data)
+      if (response.success && response.data) {
+        setBotForm(response.data)
+
+        return {
+          success: true,
+          message: `Updated ${fieldsToUpgrade.length} bot field${
+            fieldsToUpgrade.length === 1 ? '' : 's'
+          }.`,
+          data: response.data,
+        }
+      }
+
+      throw new Error(response.message || 'Failed to generate bot fields')
+    } catch (error: unknown) {
+      handleError(error, 'generating bot fields')
+      setLastError(error, 'Failed to generate bot fields')
 
       return {
-        success: true,
-        message: `Updated ${fieldsToUpgrade.length} bot field${
-          fieldsToUpgrade.length === 1 ? '' : 's'
-        }.`,
-        data: response.data,
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to generate bot fields',
+        data: null,
       }
+    } finally {
+      loading.value = false
     }
-
-    throw new Error(response.message || 'Failed to generate bot fields')
-  } catch (error: unknown) {
-    handleError(error, 'generating bot fields')
-    setLastError(error, 'Failed to generate bot fields')
-
-    return {
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : 'Failed to generate bot fields',
-      data: null,
-    }
-  } finally {
-    loading.value = false
   }
-}
 
   function removeBotLocally(id: number): void {
     bots.value = bots.value.filter((bot: Bot) => bot.id !== id)
@@ -355,7 +366,9 @@ async function generateFields(fieldsToUpgrade: string[]) {
     persist()
   }
 
-  async function startEditingBot(input?: number | string | Bot): Promise<Bot | null> {
+  async function startEditingBot(
+    input?: number | string | Bot,
+  ): Promise<Bot | null> {
     const botId = normalizeBotId(input ?? currentBot.value)
 
     if (!botId) {
@@ -368,7 +381,10 @@ async function generateFields(fieldsToUpgrade: string[]) {
       (await loadBotById(botId))
 
     if (!bot) {
-      setLastError(new Error(`Bot ${botId} was not found.`), 'Bot was not found')
+      setLastError(
+        new Error(`Bot ${botId} was not found.`),
+        'Bot was not found',
+      )
       return null
     }
 
@@ -394,7 +410,10 @@ async function generateFields(fieldsToUpgrade: string[]) {
       (await loadBotById(botId))
 
     if (!source) {
-      setLastError(new Error(`Bot ${botId} was not found.`), 'Bot was not found')
+      setLastError(
+        new Error(`Bot ${botId} was not found.`),
+        'Bot was not found',
+      )
       return null
     }
 
@@ -411,7 +430,8 @@ async function generateFields(fieldsToUpgrade: string[]) {
       canDelete: true,
       underConstruction: source.underConstruction ?? false,
     })
-    currentImagePath.value = botForm.value.avatarImage || source.avatarImage || ''
+    currentImagePath.value =
+      botForm.value.avatarImage || source.avatarImage || ''
     pendingLaunchMessage.value = ''
     persist()
 
@@ -671,7 +691,8 @@ async function generateFields(fieldsToUpgrade: string[]) {
 
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to delete bot',
+        message:
+          error instanceof Error ? error.message : 'Failed to delete bot',
       }
     } finally {
       loading.value = false

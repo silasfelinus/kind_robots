@@ -23,39 +23,64 @@ export const reactionTypes: ReactionTypeEnum[] = [
 export const reactionCategories: ReactionCategoryEnum[] = [
   'ART',
   'ART_IMAGE',
-  'PITCH',
-  'COMPONENT',
-  'CHAT_EXCHANGE',
-  'DREAM',
+  'ART_COLLECTION',
   'BOT',
+  'BUTTERFLY',
+  'CHARACTER',
+  'CHAT_EXCHANGE',
+  'COMPONENT',
+  'DREAM',
   'GALLERY',
   'MESSAGE',
+  'PITCH',
   'POST',
   'PROMPT',
   'RESOURCE',
   'REWARD',
   'SCENARIO',
   'TAG',
+  'THEME',
 ]
-
-type ReactionFetchKey = `art:${number}` | `component:${number}`
 
 export type ReactionTargetType =
   | 'art'
   | 'artImage'
+  | 'artCollection'
   | 'bot'
+  | 'butterfly'
+  | 'character'
   | 'chat'
   | 'component'
   | 'dream'
   | 'gallery'
-  | 'message'
   | 'pitch'
-  | 'post'
   | 'prompt'
   | 'resource'
   | 'reward'
   | 'scenario'
   | 'tag'
+  | 'theme'
+
+type ReactionFetchKey = `${ReactionTargetType}:${number}`
+
+type ReactionTargetIdKey =
+  | 'artId'
+  | 'artImageId'
+  | 'artCollectionId'
+  | 'botId'
+  | 'butterflyId'
+  | 'characterId'
+  | 'chatId'
+  | 'componentId'
+  | 'dreamId'
+  | 'galleryId'
+  | 'pitchId'
+  | 'promptId'
+  | 'resourceId'
+  | 'rewardId'
+  | 'scenarioId'
+  | 'tagId'
+  | 'themeId'
 
 type AddReactionPayload = {
   userId: number
@@ -65,25 +90,98 @@ type AddReactionPayload = {
   reactionCategory?: ReactionCategoryEnum
   artId?: number | null
   artImageId?: number | null
-  pitchId?: number | null
-  componentId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
+  artCollectionId?: number | null
   botId?: number | null
+  butterflyId?: number | null
+  characterId?: number | null
+  chatId?: number | null
+  componentId?: number | null
+  dreamId?: number | null
   galleryId?: number | null
-  messageId?: number | null
-  postId?: number | null
+  pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  scenario: number | null
+  scenarioId?: number | null
   tagId?: number | null
+  themeId?: number | null
 }
 
 type UpdateReactionPayload = {
   reactionType?: ReactionTypeEnum
   rating?: number
   comment?: string
+}
+
+const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> = {
+  art: 'artId',
+  artImage: 'artImageId',
+  artCollection: 'artCollectionId',
+  bot: 'botId',
+  butterfly: 'butterflyId',
+  character: 'characterId',
+  chat: 'chatId',
+  component: 'componentId',
+  dream: 'dreamId',
+  gallery: 'galleryId',
+  pitch: 'pitchId',
+  prompt: 'promptId',
+  resource: 'resourceId',
+  reward: 'rewardId',
+  scenario: 'scenarioId',
+  tag: 'tagId',
+  theme: 'themeId',
+}
+
+export function getReactionTargetPayload(
+  targetType: ReactionTargetType,
+  targetId: number,
+): Partial<AddReactionPayload> {
+  return {
+    [targetIdKeyMap[targetType]]: targetId,
+  }
+}
+
+function getReactionTargetId(
+  reaction: Reaction,
+  targetType: ReactionTargetType,
+): number | null {
+  const key = targetIdKeyMap[targetType]
+  const value = reaction[key]
+
+  return typeof value === 'number' ? value : null
+}
+
+function hasReactionTarget(
+  reaction: Reaction,
+  targetType: ReactionTargetType,
+  targetId: number,
+): boolean {
+  return getReactionTargetId(reaction, targetType) === targetId
+}
+
+function getPayloadTargets(payload: AddReactionPayload): ReactionFetchKey[] {
+  return Object.entries(targetIdKeyMap)
+    .map(([targetType, idKey]) => {
+      const value = payload[idKey]
+
+      return typeof value === 'number'
+        ? (`${targetType as ReactionTargetType}:${value}` as ReactionFetchKey)
+        : null
+    })
+    .filter((key): key is ReactionFetchKey => Boolean(key))
+}
+
+function getReactionTargets(reaction: Reaction): ReactionFetchKey[] {
+  return Object.entries(targetIdKeyMap)
+    .map(([targetType, idKey]) => {
+      const value = reaction[idKey]
+
+      return typeof value === 'number'
+        ? (`${targetType as ReactionTargetType}:${value}` as ReactionFetchKey)
+        : null
+    })
+    .filter((key): key is ReactionFetchKey => Boolean(key))
 }
 
 export const useReactionStore = defineStore('reactionStore', () => {
@@ -97,34 +195,50 @@ export const useReactionStore = defineStore('reactionStore', () => {
   const fetchPromises = ref<Record<string, Promise<Reaction[]>>>({})
   const loadedKeys = ref<Set<string>>(new Set())
 
+  const getReactionsByTarget = computed(() => {
+    return (targetType: ReactionTargetType, targetId: number) => {
+      return reactions.value.filter((reaction) => {
+        return hasReactionTarget(reaction, targetType, targetId)
+      })
+    }
+  })
+
+  const getUserReactionForTarget = computed(() => {
+    return (
+      targetType: ReactionTargetType,
+      targetId: number,
+      userId: number,
+    ) => {
+      return reactions.value.find((reaction) => {
+        return (
+          reaction.userId === userId &&
+          hasReactionTarget(reaction, targetType, targetId)
+        )
+      })
+    }
+  })
+
   const getReactionsByComponentId = computed(() => (componentId: number) => {
-    return reactions.value.filter(
-      (reaction) => reaction.componentId === componentId,
-    )
+    return getReactionsByTarget.value('component', componentId)
   })
 
   const getReactionsByArtId = computed(() => (artId: number) => {
-    return reactions.value.filter((reaction) => reaction.artId === artId)
+    return getReactionsByTarget.value('art', artId)
   })
 
-  const getUserReactionForComponent = computed(
-    () => (componentId: number, userId: number) => {
-      return reactions.value.find(
-        (reaction) =>
-          reaction.componentId === componentId && reaction.userId === userId,
-      )
-    },
-  )
+  const getUserReactionForComponent = computed(() => {
+    return (componentId: number, userId: number) => {
+      return getUserReactionForTarget.value('component', componentId, userId)
+    }
+  })
 
-  const getUserReactionForArt = computed(
-    () => (artId: number, userId: number) => {
-      return reactions.value.find(
-        (reaction) => reaction.artId === artId && reaction.userId === userId,
-      )
-    },
-  )
+  const getUserReactionForArt = computed(() => {
+    return (artId: number, userId: number) => {
+      return getUserReactionForTarget.value('art', artId, userId)
+    }
+  })
 
-  function getKey(type: 'art' | 'component', id: number): ReactionFetchKey {
+  function getKey(type: ReactionTargetType, id: number): ReactionFetchKey {
     return `${type}:${id}`
   }
 
@@ -157,9 +271,26 @@ export const useReactionStore = defineStore('reactionStore', () => {
   }
 
   function removeReactionLocally(reactionId: number) {
-    reactions.value = reactions.value.filter(
-      (reaction) => reaction.id !== reactionId,
-    )
+    reactions.value = reactions.value.filter((reaction) => {
+      return reaction.id !== reactionId
+    })
+  }
+
+  function invalidateKey(key: ReactionFetchKey) {
+    loadedKeys.value.delete(key)
+    delete fetchPromises.value[key]
+  }
+
+  function invalidateReactionTargets(reaction: Reaction) {
+    for (const key of getReactionTargets(reaction)) {
+      invalidateKey(key)
+    }
+  }
+
+  function invalidatePayloadTargets(payload: AddReactionPayload) {
+    for (const key of getPayloadTargets(payload)) {
+      invalidateKey(key)
+    }
   }
 
   async function initialize(force = false): Promise<void> {
@@ -184,14 +315,15 @@ export const useReactionStore = defineStore('reactionStore', () => {
     return initializePromise.value
   }
 
-  async function fetchReactionsByArtId(
-    artId: number,
+  async function fetchReactionsByTarget(
+    targetType: ReactionTargetType,
+    targetId: number,
     force = false,
   ): Promise<Reaction[]> {
-    const key = getKey('art', artId)
+    const key = getKey(targetType, targetId)
 
     if (!force && loadedKeys.value.has(key)) {
-      return getReactionsByArtId.value(artId)
+      return getReactionsByTarget.value(targetType, targetId)
     }
 
     if (fetchPromises.value[key] && !force) {
@@ -205,22 +337,22 @@ export const useReactionStore = defineStore('reactionStore', () => {
         clearError()
 
         const res = await performFetch<Reaction[]>(
-          `/api/reactions/art/${artId}`,
+          `/api/reactions/${targetType}/${targetId}`,
         )
 
         if (!res.success) {
-          throw new Error(res.message || 'Failed to fetch art reactions')
+          throw new Error(res.message || 'Failed to fetch reactions')
         }
 
         const incoming = res.data || []
         mergeReactions(incoming)
         loadedKeys.value.add(key)
 
-        return getReactionsByArtId.value(artId)
+        return getReactionsByTarget.value(targetType, targetId)
       } catch (error) {
-        handleError(error, 'fetching reactions by art ID')
-        setLastError(error, 'Failed to fetch art reactions')
-        return getReactionsByArtId.value(artId)
+        handleError(error, `fetching reactions for ${targetType}`)
+        setLastError(error, 'Failed to fetch reactions')
+        return getReactionsByTarget.value(targetType, targetId)
       } finally {
         setLoading(key, false)
         delete fetchPromises.value[key]
@@ -230,50 +362,18 @@ export const useReactionStore = defineStore('reactionStore', () => {
     return fetchPromises.value[key]
   }
 
+  async function fetchReactionsByArtId(
+    artId: number,
+    force = false,
+  ): Promise<Reaction[]> {
+    return fetchReactionsByTarget('art', artId, force)
+  }
+
   async function fetchReactionsByComponentId(
     componentId: number,
     force = false,
   ): Promise<Reaction[]> {
-    const key = getKey('component', componentId)
-
-    if (!force && loadedKeys.value.has(key)) {
-      return getReactionsByComponentId.value(componentId)
-    }
-
-    if (fetchPromises.value[key] && !force) {
-      return fetchPromises.value[key]
-    }
-
-    fetchPromises.value[key] = (async () => {
-      setLoading(key, true)
-
-      try {
-        clearError()
-
-        const res = await performFetch<Reaction[]>(
-          `/api/reactions/component/${componentId}`,
-        )
-
-        if (!res.success) {
-          throw new Error(res.message || 'Failed to fetch component reactions')
-        }
-
-        const incoming = res.data || []
-        mergeReactions(incoming)
-        loadedKeys.value.add(key)
-
-        return getReactionsByComponentId.value(componentId)
-      } catch (error) {
-        handleError(error, 'fetching reactions by component ID')
-        setLastError(error, 'Failed to fetch component reactions')
-        return getReactionsByComponentId.value(componentId)
-      } finally {
-        setLoading(key, false)
-        delete fetchPromises.value[key]
-      }
-    })()
-
-    return fetchPromises.value[key]
+    return fetchReactionsByTarget('component', componentId, force)
   }
 
   async function addReaction(payload: AddReactionPayload) {
@@ -290,14 +390,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
       }
 
       upsertReaction(res.data)
-
-      if (payload.artId) {
-        loadedKeys.value.delete(getKey('art', payload.artId))
-      }
-
-      if (payload.componentId) {
-        loadedKeys.value.delete(getKey('component', payload.componentId))
-      }
+      invalidatePayloadTargets(payload)
+      invalidateReactionTargets(res.data)
 
       return res.data
     } catch (error) {
@@ -311,6 +405,10 @@ export const useReactionStore = defineStore('reactionStore', () => {
     reactionId: number,
     updates: UpdateReactionPayload,
   ) {
+    const existing = reactions.value.find((reaction) => {
+      return reaction.id === reactionId
+    })
+
     try {
       clearError()
 
@@ -323,7 +421,13 @@ export const useReactionStore = defineStore('reactionStore', () => {
         throw new Error(res.message || 'Failed to update reaction')
       }
 
+      if (existing) {
+        invalidateReactionTargets(existing)
+      }
+
       upsertReaction(res.data)
+      invalidateReactionTargets(res.data)
+
       return res.data
     } catch (error) {
       handleError(error, 'updating reaction')
@@ -333,9 +437,9 @@ export const useReactionStore = defineStore('reactionStore', () => {
   }
 
   async function deleteReaction(reactionId: number) {
-    const existing = reactions.value.find(
-      (reaction) => reaction.id === reactionId,
-    )
+    const existing = reactions.value.find((reaction) => {
+      return reaction.id === reactionId
+    })
 
     try {
       clearError()
@@ -350,12 +454,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
 
       removeReactionLocally(reactionId)
 
-      if (existing?.artId) {
-        loadedKeys.value.delete(getKey('art', existing.artId))
-      }
-
-      if (existing?.componentId) {
-        loadedKeys.value.delete(getKey('component', existing.componentId))
+      if (existing) {
+        invalidateReactionTargets(existing)
       }
 
       return true
@@ -366,21 +466,14 @@ export const useReactionStore = defineStore('reactionStore', () => {
     }
   }
 
-  function resetReactionsForKey(type: 'art' | 'component', id: number) {
+  function resetReactionsForKey(type: ReactionTargetType, id: number) {
     const key = getKey(type, id)
     loadedKeys.value.delete(key)
     delete fetchPromises.value[key]
 
-    if (type === 'art') {
-      reactions.value = reactions.value.filter(
-        (reaction) => reaction.artId !== id,
-      )
-      return
-    }
-
-    reactions.value = reactions.value.filter(
-      (reaction) => reaction.componentId !== id,
-    )
+    reactions.value = reactions.value.filter((reaction) => {
+      return !hasReactionTarget(reaction, type, id)
+    })
   }
 
   function resetInitialization() {
@@ -406,6 +499,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
     reactionTypes,
     reactionCategories,
 
+    getReactionsByTarget,
+    getUserReactionForTarget,
     getReactionsByComponentId,
     getReactionsByArtId,
     getUserReactionForComponent,
@@ -414,6 +509,7 @@ export const useReactionStore = defineStore('reactionStore', () => {
     initialize,
     resetInitialization,
     resetReactionsForKey,
+    fetchReactionsByTarget,
     fetchReactionsByArtId,
     fetchReactionsByComponentId,
     addReaction,

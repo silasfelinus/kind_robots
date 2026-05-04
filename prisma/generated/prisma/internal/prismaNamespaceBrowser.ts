@@ -60,7 +60,6 @@ export const ModelName = {
   Character: 'Character',
   Chat: 'Chat',
   Component: 'Component',
-  Dominion: 'Dominion',
   Dream: 'Dream',
   Gallery: 'Gallery',
   Log: 'Log',
@@ -345,44 +344,6 @@ export const ComponentScalarFieldEnum = {
 export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
 
 
-export const DominionScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  title: 'title',
-  slug: 'slug',
-  description: 'description',
-  italics: 'italics',
-  color: 'color',
-  designer: 'designer',
-  userId: 'userId',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  artId: 'artId',
-  artImageId: 'artImageId',
-  types: 'types',
-  keywords: 'keywords',
-  cardAdd: 'cardAdd',
-  actionAdd: 'actionAdd',
-  buyAdd: 'buyAdd',
-  coinAdd: 'coinAdd',
-  victoryAdd: 'victoryAdd',
-  isDuration: 'isDuration',
-  durationJSON: 'durationJSON',
-  priceCoins: 'priceCoins',
-  priceDebt: 'priceDebt',
-  pricePotion: 'pricePotion',
-  effects: 'effects',
-  setupText: 'setupText',
-  notes: 'notes',
-  setId: 'setId',
-  version: 'version',
-  icon: 'icon'
-} as const
-
-export type DominionScalarFieldEnum = (typeof DominionScalarFieldEnum)[keyof typeof DominionScalarFieldEnum]
-
-
 export const DreamScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -518,21 +479,26 @@ export const ReactionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   comment: 'comment',
   userId: 'userId',
-  artId: 'artId',
-  pitchId: 'pitchId',
-  componentId: 'componentId',
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
   rating: 'rating',
+  artId: 'artId',
   artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
   botId: 'botId',
+  butterflyId: 'butterflyId',
+  characterId: 'characterId',
+  chatId: 'chatId',
+  componentId: 'componentId',
+  dreamId: 'dreamId',
   galleryId: 'galleryId',
+  pitchId: 'pitchId',
   promptId: 'promptId',
   resourceId: 'resourceId',
   rewardId: 'rewardId',
+  scenarioId: 'scenarioId',
   tagId: 'tagId',
-  chatId: 'chatId',
-  dreamId: 'dreamId'
+  themeId: 'themeId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -944,26 +910,6 @@ export const ComponentOrderByRelevanceFieldEnum = {
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
-
-
-export const DominionOrderByRelevanceFieldEnum = {
-  title: 'title',
-  slug: 'slug',
-  description: 'description',
-  italics: 'italics',
-  color: 'color',
-  designer: 'designer',
-  types: 'types',
-  keywords: 'keywords',
-  durationJSON: 'durationJSON',
-  effects: 'effects',
-  setupText: 'setupText',
-  notes: 'notes',
-  setId: 'setId',
-  icon: 'icon'
-} as const
-
-export type DominionOrderByRelevanceFieldEnum = (typeof DominionOrderByRelevanceFieldEnum)[keyof typeof DominionOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {

@@ -180,10 +180,11 @@
 import { computed, ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import {
-  reactionTypes,
+  getReactionTargetPayload,
   type ReactionCategoryEnum,
   type ReactionTargetType,
   type ReactionTypeEnum,
+  reactionTypes,
   useReactionStore,
 } from '@/stores/reactionStore'
 
@@ -287,19 +288,21 @@ function getTargetIdPayload() {
   const idKeyMap: Record<ReactionTargetType, string> = {
     art: 'artId',
     artImage: 'artImageId',
+    artCollection: 'artCollectionId',
     bot: 'botId',
+    butterfly: 'butterflyId',
+    character: 'characterId',
     chat: 'chatId',
     component: 'componentId',
     dream: 'dreamId',
     gallery: 'galleryId',
-    message: 'messageId',
     pitch: 'pitchId',
-    post: 'postId',
     prompt: 'promptId',
     resource: 'resourceId',
     reward: 'rewardId',
     scenario: 'scenarioId',
     tag: 'tagId',
+    theme: 'themeId',
   }
 
   return {
@@ -326,7 +329,7 @@ async function submitReaction() {
 
   try {
     await reactionStore.addReaction({
-      ...getTargetIdPayload(),
+      ...getReactionTargetPayload(props.targetType, props.targetId),
       userId: userStore.user.id,
       rating: rating.value,
       reactionType: selectedReactionType.value,

@@ -106,10 +106,12 @@
               </h2>
 
               <p class="text-sm text-base-content/60">
-                Attach optional source elements. The dream cockpit can refine
-                these later.
+                Attach optional source elements, including an uploaded source
+                image. The dream cockpit can refine these later.
               </p>
             </div>
+
+            <image-upload class="mb-4" />
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <label class="form-control">
@@ -312,6 +314,13 @@
                   'No vibe yet. The dream is still wearing pajamas.'
                 }}
               </p>
+
+              <p
+                v-if="dreamStore.dreamForm.artImageId"
+                class="mt-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs text-base-content/60"
+              >
+                Linked ArtImage #{{ dreamStore.dreamForm.artImageId }}
+              </p>
             </div>
           </section>
 
@@ -351,6 +360,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useUploadStore } from '@/stores/uploadStore'
 
 const props = withDefaults(
   defineProps<{
@@ -366,6 +376,7 @@ const emit = defineEmits<{
 }>()
 
 const dreamStore = useDreamStore()
+const uploadStore = useUploadStore()
 
 const message = ref('')
 const messageType = ref<'success' | 'warning'>('success')
@@ -397,18 +408,27 @@ const canSave = computed(() =>
 onMounted(async () => {
   await dreamStore.initialize()
 
-  prepareForm()
+  await prepareForm()
   refreshSeed()
+  configureDreamImageUpload()
 })
 
 watch(
   () => props.mode,
-  () => {
-    prepareForm()
+  async () => {
+    await prepareForm()
+    configureDreamImageUpload()
   },
 )
 
-function prepareForm() {
+watch(
+  () => dreamStore.selectedDream?.id,
+  () => {
+    configureDreamImageUpload()
+  },
+)
+
+async function prepareForm() {
   message.value = ''
 
   if (mode.value === 'edit') {
@@ -421,14 +441,58 @@ function prepareForm() {
   }
 }
 
+function configureDreamImageUpload() {
+  uploadStore.setTarget({
+    model: 'Dream',
+    modelId: dreamStore.selectedDream?.id ?? dreamStore.dreamForm.id ?? null,
+    galleryName: 'dreamUploads',
+    collectionLabel: 'dreams',
+    promptString:
+      dreamStore.dreamForm.currentPrompt ||
+      dreamStore.dreamForm.currentVibe ||
+      '[DreamImage]',
+    path: '[DreamImage]',
+    buttonLabel: 'Upload dream image',
+    icon: 'kind-icon:moon',
+    showPreview: false,
+    applyImage: async ({ artImageId, artId }) => {
+      dreamStore.setDreamForm({
+        artImageId,
+        artId,
+      })
+
+      if (mode.value === 'edit' && dreamStore.selectedDream?.id) {
+        const result = await dreamStore.saveDream()
+
+        if (!result.success) {
+          messageType.value = 'warning'
+          message.value =
+            result.message || 'Image uploaded, but dream update failed.'
+          return
+        }
+
+        messageType.value = 'success'
+        message.value = 'Dream image updated.'
+        emit('saved')
+        return
+      }
+
+      messageType.value = 'success'
+      message.value = 'Dream image added to form.'
+    },
+  })
+}
+
 function resetForm() {
   if (mode.value === 'edit') {
     resetFromSelected()
+    configureDreamImageUpload()
     return
   }
 
   dreamStore.startAddingDream()
   refreshSeed()
+  configureDreamImageUpload()
 }
 
 function resetFromSelected() {
@@ -446,6 +510,8 @@ function applySeed() {
     currentVibe: previewSeed.value,
     currentPrompt: previewSeed.value,
   })
+
+  configureDreamImageUpload()
 }
 
 function seedRandomDream() {
@@ -461,6 +527,7 @@ function seedRandomDream() {
   })
 
   previewSeed.value = seed
+  configureDreamImageUpload()
 }
 
 async function handleSubmit() {

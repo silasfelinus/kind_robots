@@ -153,7 +153,7 @@
               <h2 class="text-xl font-bold text-base-content">Avatar</h2>
 
               <p class="text-sm text-base-content/70">
-                Use a URL/path or borrow a gallery image.
+                Use a URL/path, upload an image, or borrow a gallery image.
               </p>
             </div>
 
@@ -165,6 +165,8 @@
             alt="Bot avatar"
             class="h-72 w-full rounded-2xl border border-base-300 bg-base-300 object-cover"
           />
+
+          <image-upload class="mt-4" />
 
           <div class="mt-4 flex flex-col gap-3">
             <label class="form-control">
@@ -499,6 +501,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useBotStore, type BotForm } from '@/stores/botStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useUserStore } from '@/stores/userStore'
+import { useUploadStore } from '@/stores/uploadStore'
 
 type BotFieldKey = keyof BotForm & string
 
@@ -519,6 +522,7 @@ const emit = defineEmits<{
 const botStore = useBotStore()
 const galleryStore = useGalleryStore()
 const userStore = useUserStore()
+const uploadStore = useUploadStore()
 
 const keepField = reactive<Record<string, boolean>>({})
 const useGenerated = reactive<Record<string, boolean>>({})
@@ -529,7 +533,48 @@ const statusTone = ref<'success' | 'error'>('success')
 
 const mode = computed(() => props.mode)
 
-const title = computed(() => (mode.value === 'edit' ? 'Edit Bot' : 'Create Bot'))
+const title = computed(() =>
+  mode.value === 'edit' ? 'Edit Bot' : 'Create Bot',
+)
+
+function configureBotImageUpload() {
+  uploadStore.setTarget({
+    model: 'Bot',
+    modelId: botStore.currentBot?.id ?? botStore.botForm.id ?? null,
+    galleryName: 'botUploads',
+    collectionLabel: 'bots',
+    promptString: '[BotImage]',
+    path: '[BotImage]',
+    buttonLabel: 'Upload bot avatar',
+    icon: 'kind-icon:robot',
+    showPreview: false,
+    applyImage: async ({ artImageId, imageData }) => {
+      botStore.setBotForm({ artImageId })
+
+      if (imageData) {
+        botStore.setCurrentImagePath(imageData)
+      }
+
+      if (mode.value === 'edit' && botStore.currentBot?.id) {
+        const updated = await botStore.updateCurrentBot()
+
+        if (!updated) {
+          statusTone.value = 'error'
+          statusMessage.value =
+            botStore.lastError || 'Image uploaded, but bot update failed.'
+          return
+        }
+
+        statusTone.value = 'success'
+        statusMessage.value = 'Bot avatar updated.'
+        return
+      }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Bot avatar added to form.'
+    },
+  })
+}
 
 const subtitle = computed(() =>
   mode.value === 'edit'
@@ -648,21 +693,30 @@ onMounted(async () => {
     galleryStore.initialize(),
   ])
 
-  prepareForm()
+  await prepareForm()
+  configureBotImageUpload()
 })
 
 watch(
-  () => props.mode,
+  () => botStore.currentBot?.id,
   () => {
-    prepareForm()
+    configureBotImageUpload()
   },
 )
 
-function prepareForm() {
+watch(
+  () => props.mode,
+  async () => {
+    await prepareForm()
+    configureBotImageUpload()
+  },
+)
+
+async function prepareForm() {
   statusMessage.value = ''
 
   if (mode.value === 'edit') {
-    void resetFromSelected()
+    await resetFromSelected()
     return
   }
 

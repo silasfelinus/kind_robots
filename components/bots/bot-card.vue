@@ -1,39 +1,40 @@
 <!-- /components/content/bots/bot-card.vue -->
 <template>
-  <article
-    :class="[
-      'relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectBot"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="bot.id"
+    target-type="bot"
+    reaction-category="BOT"
+    :target-title="botTitle"
+    @select="selectBot"
   >
-    <div
-      v-if="showActions && (activeSelected || compact)"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit"
+        v-if="
+          showActions && allowEdit && canEdit && (activeSelected || compact)
+        "
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Bot"
-        @click.stop="emit('edit', bot.id)"
+        @click.stop="startEditing"
       >
         <Icon name="kind-icon:pencil" class="h-4 w-4" />
       </button>
 
       <button
-        v-if="allowClone"
+        v-if="showActions && allowClone && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Bot"
-        @click.stop="emit('clone', bot.id)"
+        @click.stop="startCloning"
       >
         <Icon name="kind-icon:copy" class="h-4 w-4" />
       </button>
 
       <button
-        v-if="canDelete"
+        v-if="showActions && canDelete && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Bot"
@@ -41,7 +42,7 @@
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       v-if="showImage"
@@ -51,24 +52,38 @@
       ]"
     >
       <img
-        :src="botImage"
-        :alt="bot.name || 'Bot avatar'"
-        class="h-full w-full object-cover transition-transform hover:scale-105"
+        :src="resolvedBotImage"
+        :alt="botTitle"
+        class="h-full w-full object-cover transition-transform group-hover:scale-105"
         loading="lazy"
       />
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span v-if="bot.isPublic" class="badge badge-success badge-sm">
-          Public
-        </span>
-
-        <span v-else class="badge badge-warning badge-sm">
-          Private
+        <span
+          class="badge badge-sm"
+          :class="bot.isPublic ? 'badge-success' : 'badge-warning'"
+        >
+          {{ bot.isPublic ? 'Public' : 'Private' }}
         </span>
 
         <span v-if="bot.underConstruction" class="badge badge-error badge-sm">
           Building
         </span>
+
+        <span v-if="bot.BotType" class="badge badge-primary badge-sm">
+          {{ bot.BotType }}
+        </span>
+
+        <span v-if="activeSelected" class="badge badge-accent badge-sm">
+          Selected
+        </span>
+      </div>
+
+      <div
+        v-if="activeSelected"
+        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+      >
+        <Icon name="kind-icon:check" class="h-4 w-4" />
       </div>
     </div>
 
@@ -79,8 +94,9 @@
             'font-black leading-tight text-base-content',
             compact ? 'line-clamp-1 text-base' : 'text-xl',
           ]"
+          :title="botTitle"
         >
-          {{ bot.name || 'Unnamed Bot' }}
+          {{ botTitle }}
         </h2>
 
         <p
@@ -113,6 +129,14 @@
         <span v-if="bot.designer" class="badge badge-primary badge-sm">
           {{ bot.designer }}
         </span>
+
+        <span v-if="bot.userId" class="badge badge-secondary badge-sm">
+          User {{ bot.userId }}
+        </span>
+
+        <span v-if="bot.serverName" class="badge badge-info badge-sm">
+          {{ bot.serverName }}
+        </span>
       </div>
 
       <div
@@ -132,9 +156,7 @@
         v-if="showPromptPreview && bot.prompt"
         class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
       >
-        <p class="text-xs font-bold uppercase text-base-content/50">
-          Prompt
-        </p>
+        <p class="text-xs font-bold uppercase text-base-content/50">Prompt</p>
 
         <p class="mt-1 line-clamp-4 text-base-content/70">
           {{ bot.prompt }}
@@ -161,6 +183,18 @@
         </button>
       </div>
 
+      <div
+        v-if="statusMessage"
+        class="rounded-2xl border p-3 text-sm"
+        :class="
+          statusTone === 'error'
+            ? 'border-error/40 bg-error/10 text-error'
+            : 'border-success/40 bg-success/10 text-success'
+        "
+      >
+        {{ statusMessage }}
+      </div>
+
       <details
         v-if="showDebug"
         class="rounded-2xl border border-base-300 bg-base-100 p-2"
@@ -170,14 +204,16 @@
           Debug
         </summary>
 
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(bot, null, 2) }}</pre>
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(bot, null, 2)
+        }}</pre>
       </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { useBotStore } from '@/stores/botStore'
 import { useUserStore } from '@/stores/userStore'
@@ -194,6 +230,7 @@ const props = withDefaults(
     showPersonality?: boolean
     showPromptPreview?: boolean
     showLaunchButton?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowClone?: boolean
@@ -210,6 +247,7 @@ const props = withDefaults(
     showPersonality: false,
     showPromptPreview: false,
     showLaunchButton: true,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowClone: true,
@@ -218,47 +256,117 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{
-  select: [id: number]
-  edit: [id: number]
-  clone: [id: number]
-  delete: [id: number]
-  launch: [id: number]
-}>()
-
 const botStore = useBotStore()
 const userStore = useUserStore()
+
+const statusMessage = ref('')
+const statusTone = ref<'success' | 'error'>('success')
+const loadedBotImage = ref('')
 
 const activeSelected = computed(() => {
   return props.selected || botStore.currentBot?.id === props.bot.id
 })
 
-const botImage = computed(() => {
-  return props.bot.avatarImage || props.fallbackImage
+const botTitle = computed(() => {
+  return props.bot.name || 'Unnamed Bot'
+})
+
+const resolvedBotImage = computed(() => {
+  return loadedBotImage.value || props.bot.avatarImage || props.fallbackImage
+})
+
+const canEdit = computed(() => {
+  return userStore.isAdmin || props.bot.userId === userStore.userId
 })
 
 const canDelete = computed(() => {
   if (!props.allowDelete) return false
   if (props.bot.canDelete === false) return false
 
-  return userStore.isAdmin || props.bot.userId === userStore.userId
+  return canEdit.value
 })
 
+function setStatus(message: string, tone: 'success' | 'error' = 'success') {
+  statusMessage.value = message
+  statusTone.value = tone
+}
+
+async function loadBotImage() {
+  loadedBotImage.value = ''
+
+  if (!props.showImage) return
+
+  try {
+    loadedBotImage.value = await botStore.getBotImage(props.bot.id)
+  } catch {
+    loadedBotImage.value = props.bot.avatarImage || props.fallbackImage
+  }
+}
+
 async function selectBot() {
-  await botStore.selectBot(props.bot.id)
-  emit('select', props.bot.id)
+  const selected = await botStore.selectBot(props.bot.id)
+
+  if (!selected) {
+    setStatus('Bot could not be selected.', 'error')
+  }
+}
+
+async function startEditing() {
+  const bot = await botStore.startEditingBot(props.bot.id)
+
+  if (!bot) {
+    setStatus('Bot could not be loaded for editing.', 'error')
+    return
+  }
+
+  setStatus('Bot loaded for editing.')
+}
+
+async function startCloning() {
+  const bot = await botStore.startCloningBot(props.bot.id)
+
+  if (!bot) {
+    setStatus('Bot could not be cloned.', 'error')
+    return
+  }
+
+  setStatus('Bot cloned into the form.')
 }
 
 async function deleteBot() {
   const result = await botStore.deleteBotById(props.bot.id)
 
   if (result.success) {
-    emit('delete', props.bot.id)
+    setStatus(result.message || 'Bot deleted.')
+    return
   }
+
+  setStatus(result.message || 'Failed to delete bot.', 'error')
 }
 
 async function launchBot() {
-  await botStore.selectBot(props.bot.id)
-  emit('launch', props.bot.id)
+  const selected = await botStore.selectBot(props.bot.id)
+
+  if (!selected) {
+    setStatus('Bot could not be launched.', 'error')
+    return
+  }
+
+  botStore.setPendingLaunchMessage(
+    `Ready to chat with ${selected.name || 'this bot'}.`,
+  )
+
+  setStatus('Bot selected for chat.')
 }
+
+onMounted(async () => {
+  await loadBotImage()
+})
+
+watch(
+  () => [props.bot.id, props.bot.avatarImage, props.showImage],
+  async () => {
+    await loadBotImage()
+  },
+)
 </script>

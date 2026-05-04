@@ -26,10 +26,10 @@
           :key="tab.key"
           class="btn btn-sm rounded-xl"
           type="button"
-          :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
+          :class="normalizedActiveTab === tab.key ? 'btn-primary' : 'btn-ghost'"
           @click="emit('set-tab', tab.key)"
         >
-          <Icon :name="tab.icon" class="h-4 w-4" />
+          <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4" />
           {{ tab.label }}
         </button>
       </nav>
@@ -78,7 +78,10 @@
         </button>
       </div>
 
-      <slot :active-tab="activeTab" :active-tab-config="activeTabConfig" />
+      <slot
+        :active-tab="normalizedActiveTab"
+        :active-tab-config="activeTabConfig"
+      />
     </main>
   </div>
 </template>
@@ -86,6 +89,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
+
+const fallbackIcon = 'kind-icon:sparkles'
 
 const props = withDefaults(
   defineProps<{
@@ -121,22 +126,32 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
+const fallbackTab = computed<DashboardTabConfig>(() => {
+  const key = props.activeTab || props.tabs[0]?.key || 'overview'
+  const label = props.activeTab || props.tabs[0]?.label || 'Overview'
+
+  return {
+    key,
+    label,
+    icon: fallbackIcon,
+    title: label,
+    summary: '',
+  }
+})
+
 const activeTabConfig = computed<DashboardTabConfig>(() => {
   return (
     props.tabs.find((tab) => tab.key === props.activeTab) ??
-    props.tabs[0] ?? {
-      key: props.activeTab || 'overview',
-      label: props.activeTab || 'Overview',
-      icon: 'kind-icon:sparkles',
-      title: props.activeTab || 'Overview',
-      summary: '',
-    }
+    props.tabs[0] ??
+    fallbackTab.value
   )
 })
 
-const activeTitle = computed(
-  () => activeTabConfig.value.title || activeTabConfig.value.label,
-)
+const normalizedActiveTab = computed(() => activeTabConfig.value.key)
+
+const activeTitle = computed(() => {
+  return activeTabConfig.value.title || activeTabConfig.value.label
+})
 
 const activeSummary = computed(() => activeTabConfig.value.summary || '')
 </script>

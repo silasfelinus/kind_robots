@@ -115,6 +115,7 @@ export const useChatStore = defineStore('chatStore', () => {
     temperature?: number
     maxTokens?: number
     serverId?: number | null
+    messages?: BotCafeMessage[]
   }
 
   async function streamResponse(
@@ -127,25 +128,39 @@ export const useChatStore = defineStore('chatStore', () => {
       throw new Error(`Chat ${chatId} was not found.`)
     }
 
+    const messages: BotCafeMessage[] = options.messages?.length
+      ? options.messages
+      : [
+          {
+            role: 'user',
+            content: chat.content,
+          },
+        ]
+
     try {
+      console.log('[bot-interact] sending memory chain', {
+        count: messages.length,
+        roles: messages.map((message) => message.role),
+        preview: messages.map((message) => ({
+          role: message.role,
+          content: message.content.slice(0, 80),
+        })),
+      })
       const response = await performFetch<BotCafeResponseData>(
         '/api/botcafe/chat',
         {
           method: 'POST',
+
           body: JSON.stringify({
             model: options.model || 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'user',
-                content: chat.content,
-              },
-            ],
+            messages,
             temperature: options.temperature ?? 0.7,
             maxTokens: options.maxTokens ?? 2048,
             stream: false,
             serverId: options.serverId ?? null,
             chatId,
           }),
+
           headers: { 'Content-Type': 'application/json' },
         },
         1,

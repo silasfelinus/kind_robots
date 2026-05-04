@@ -12,8 +12,8 @@
     @set-tab="setTab"
     @refresh="refreshManagerData"
   >
-    <template #default="{ activeTab: currentTab }">
-      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
+    <template #default>
+      <section v-if="activeTab === 'overview'" class="flex flex-col gap-4">
         <div
           class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"
         >
@@ -51,18 +51,18 @@
       </section>
 
       <bot-gallery
-        v-else-if="currentTab === 'bots'"
+        v-else-if="activeTab === 'bots'"
         variant="dashboard"
         title="Bot Gallery"
         subtitle="Select, add, edit, clone, delete, or launch bots."
       />
 
-      <bot-interact v-else-if="currentTab === 'interact'" />
+      <bot-interact v-else-if="activeTab === 'interact'" />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <server-manager v-else-if="activeTab === 'servers'" />
 
       <section
-        v-else-if="currentTab === 'forge'"
+        v-else-if="activeTab === 'forge'"
         class="rounded-2xl border border-base-300 bg-base-200 p-3"
       >
         <add-bot
@@ -76,7 +76,7 @@
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
-        Unknown bot tab: {{ currentTab }}
+        Unknown bot tab: {{ activeTab }}
       </div>
     </template>
   </dashboard-shell>

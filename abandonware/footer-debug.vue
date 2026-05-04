@@ -1,7 +1,7 @@
 <!-- /components/content/utils/footer-debug.vue -->
 <template>
   <div
-    class="fixed bottom-4 left-4 z-[1000] bg-black bg-opacity-80 text-white text-xs p-3 rounded-lg shadow-lg pointer-events-none font-mono space-y-1"
+    class="fixed bottom-4 left-4 z-1000 bg-black bg-opacity-80 text-white text-xs p-3 rounded-lg shadow-lg pointer-events-none font-mono space-y-1"
   >
     <div><span class="font-bold">🦶 footerState:</span> {{ footerState }}</div>
     <div class="font-bold">🧮 footerStyle:</div>

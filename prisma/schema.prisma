@@ -680,22 +680,24 @@ model Scenario {
   id           Int         @id @default(autoincrement())
   createdAt    DateTime    @default(now())
   updatedAt    DateTime?   @default(now()) @updatedAt
+
   title        String
-  description  String
-  intros       String
+  description  String      @db.Text
+  intros       String      @db.Text
   userId       Int
   artImageId   Int?
   imagePath    String?
-  locations    String?
-  artPrompt    String?
+  locations    String?     @db.Text
+  artPrompt    String?     @db.Text
   genres       String?
-  inspirations String?
+  inspirations String?     @db.Text
+
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
   User         User        @relation(fields: [userId], references: [id])
   Characters   Character[] @relation("CharacterToScenario")
-  Butterflies Butterfly[]
-  Dreams      Dream[]
-  Reactions Reaction[]
+  Butterflies  Butterfly[]
+  Dreams       Dream[]
+  Reactions    Reaction[]
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")

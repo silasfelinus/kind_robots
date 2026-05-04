@@ -19,4 +19,4 @@ dashboard: 'giftshop'
 footer: 'giftshop-footer'
 ---
 
-:giftshop-browser
+:giftshop-manager

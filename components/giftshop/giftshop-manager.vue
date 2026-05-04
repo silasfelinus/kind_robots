@@ -1,4 +1,4 @@
-<!-- /components/content/shop/giftshop-browser.vue -->
+<!-- /components/content/shop/giftshop-manager.vue -->
 <template>
   <div class="space-y-6">
     <h2 class="text-2xl font-bold text-center">🎁 Welcome to the Gift Shop</h2>
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/shop/giftshop-browser.vue
+// /components/content/shop/giftshop-manager.vue
 import { reactive, ref } from 'vue'
 import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
 import { useCartStore } from '@/stores/cartStore'

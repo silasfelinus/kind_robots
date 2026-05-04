@@ -18,4 +18,4 @@ dashboard: 'dreams'
 footer: 'dream-footer'
 ---
 
-:dream-gallery
+:dream-manager

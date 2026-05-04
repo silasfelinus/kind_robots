@@ -15,7 +15,7 @@ const artCards: LinkItem[] = [
   },
   {
     title: 'Gallery',
-    path: '/artgallery',
+    path: '/art',
     icon: 'kind-icon:gallery',
     description: 'Browse your past artwork and saved creations.',
   },

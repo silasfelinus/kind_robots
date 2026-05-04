@@ -3,7 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import prisma from '../../utils/prisma'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma, Scenario } from '~/prisma/generated/prisma/client'
 
 type ScenarioPostInput = {
   title?: unknown
@@ -17,7 +17,22 @@ type ScenarioPostInput = {
   inspirations?: unknown
 }
 
-function normalizeRequiredString(value: unknown, field: string): string {
+type SkippedScenario = {
+  title: string
+  reason: string
+  existingId?: number
+}
+
+type FailedScenario = {
+  title: string
+  message: string
+}
+
+function normalizeRequiredString(
+  value: unknown,
+  field: string,
+  maxLength = 191,
+): string {
   if (typeof value !== 'string' || !value.trim()) {
     throw createError({
       statusCode: 400,
@@ -25,7 +40,16 @@ function normalizeRequiredString(value: unknown, field: string): string {
     })
   }
 
-  return value.trim()
+  const trimmed = value.trim()
+
+  if (trimmed.length > maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `The "${field}" field must be ${maxLength} characters or fewer.`,
+    })
+  }
+
+  return trimmed
 }
 
 function normalizeString(value: unknown, fallback = ''): string {
@@ -93,6 +117,11 @@ function normalizeOptionalId(value: unknown): number | undefined {
   return id
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+  return 'Unknown scenario seed error.'
+}
+
 function buildScenarioCreateInput(
   scenarioData: ScenarioPostInput,
   authenticatedUserId: number,
@@ -112,6 +141,19 @@ function buildScenarioCreateInput(
     inspirations: normalizeNullableString(scenarioData.inspirations),
     ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
   }
+}
+
+async function findExistingScenario(title: string, userId: number) {
+  return await prisma.scenario.findFirst({
+    where: {
+      title,
+      userId,
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  })
 }
 
 export default defineEventHandler(async (event) => {
@@ -144,25 +186,85 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.$transaction(
-      scenarioInputs.map((scenarioData) =>
-        prisma.scenario.create({
-          data: buildScenarioCreateInput(scenarioData, user.id),
+    const created: Scenario[] = []
+    const skipped: SkippedScenario[] = []
+    const failed: FailedScenario[] = []
+
+    for (const scenarioData of scenarioInputs) {
+      const fallbackTitle =
+        typeof scenarioData.title === 'string' && scenarioData.title.trim()
+          ? scenarioData.title.trim()
+          : 'Untitled scenario'
+
+      try {
+        const createInput = buildScenarioCreateInput(scenarioData, user.id)
+        const title = createInput.title
+
+        const existingScenario = await findExistingScenario(title, user.id)
+
+        if (existingScenario) {
+          skipped.push({
+            title,
+            existingId: existingScenario.id,
+            reason: 'Scenario with this title already exists for this user.',
+          })
+          continue
+        }
+
+        const createdScenario = await prisma.scenario.create({
+          data: createInput,
           include: {
             ArtImage: true,
+            User: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
           },
-        }),
-      ),
-    )
+        })
 
-    event.node.res.statusCode = 201
+        created.push(createdScenario)
+      } catch (error) {
+        failed.push({
+          title: fallbackTitle,
+          message: getErrorMessage(error),
+        })
+      }
+    }
+
+    if (failed.length && !created.length && !skipped.length) {
+      event.node.res.statusCode = 400
+
+      return {
+        success: false,
+        data: {
+          created,
+          skipped,
+          failed,
+        },
+        message: `No scenarios were created. ${failed.length} failed.`,
+      }
+    }
+
+    event.node.res.statusCode = failed.length ? 207 : 201
 
     return {
-      success: true,
-      data: isBatch ? data : data[0],
+      success: failed.length === 0,
+      data: isBatch
+        ? {
+            created,
+            skipped,
+            failed,
+          }
+        : created[0] || skipped[0] || failed[0],
       message: isBatch
-        ? `${data.length} scenarios created successfully.`
-        : 'Scenario created successfully.',
+        ? `${created.length} created, ${skipped.length} skipped, ${failed.length} failed.`
+        : created.length
+          ? 'Scenario created successfully.'
+          : skipped.length
+            ? 'Scenario already exists. Skipped duplicate.'
+            : 'Scenario failed to create.',
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)

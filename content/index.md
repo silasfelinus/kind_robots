@@ -15,6 +15,8 @@ amitip: And I'm AMI, lab hostess with the mostess, fluttering around to make you
 category: settings
 sort: highlight
 navComponent: 'dashboard-nav'
+dashboard: 'user'
+footer: 'user-footer'
 ---
 
 :user-dashboard

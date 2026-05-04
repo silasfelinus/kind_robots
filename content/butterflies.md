@@ -14,6 +14,8 @@ dottitip: AMI, I built you a butterfly sanctuary so you have a place to relax be
 amitip: "That's the beauty of digital pseudo-intelligences, we can be in many places at once. We can raise money for malaria nets and still enjoy a little flutter-time"
 sort: highlight
 navComponent: 'giftshop-nav'
+dashboard: 'butterflies'
+footer: 'butterfly-footer'
 ---
 
 :butterfly-sanctuary

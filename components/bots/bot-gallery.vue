@@ -232,7 +232,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
-import { useRouter } from 'vue-router'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 
@@ -285,7 +284,6 @@ const props = withDefaults(
   },
 )
 
-const router = useRouter()
 const botStore = useBotStore()
 const navStore = useNavStore()
 
@@ -297,7 +295,9 @@ const showBotForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
 const isCompact = computed(() => {
-  return props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  return (
+    props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  )
 })
 
 const formTitle = computed(() => {
@@ -457,7 +457,6 @@ function handleBotDeleted(id: number) {
 async function launchBotById(id: number) {
   await botStore.selectBot(id)
   navStore.setDashboardTab('bot', 'interact')
-  await router.push('/bots')
 }
 </script>
 

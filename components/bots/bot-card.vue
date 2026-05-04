@@ -1,221 +1,233 @@
 <!-- /components/content/bots/bot-card.vue -->
 <template>
-  <reactable-card
-    :selected="activeSelected"
-    :compact="compact"
-    :show-reaction="showReaction"
-    :target-id="bot.id"
-    target-type="bot"
-    reaction-category="BOT"
-    :target-title="botTitle"
-    @select="selectBot"
-  >
-    <template #actions>
-      <button
-        v-if="
-          showActions && allowEdit && canEdit && (activeSelected || compact)
-        "
-        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
-        type="button"
-        title="Edit Bot"
-        @click.stop="startEditing"
-      >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && allowClone && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
-        type="button"
-        title="Clone Bot"
-        @click.stop="startCloning"
-      >
-        <Icon name="kind-icon:copy" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && canDelete && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
-        type="button"
-        title="Delete Bot"
-        @click.stop="deleteBot"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-      </button>
-    </template>
-
-    <div
-      v-if="showImage"
-      :class="[
-        'relative overflow-hidden rounded-2xl border border-base-300 bg-base-300',
-        compact ? 'h-32 w-full' : 'h-44 w-full',
-      ]"
+  <div :data-theme="botTheme" class="h-full rounded-2xl">
+    <reactable-card
+      :selected="activeSelected"
+      :compact="compact"
+      :show-reaction="showReaction"
+      :target-id="bot.id"
+      target-type="bot"
+      reaction-category="BOT"
+      :target-title="botTitle"
+      @select="selectBot"
     >
-      <img
-        :src="resolvedBotImage"
-        :alt="botTitle"
-        class="h-full w-full object-cover transition-transform group-hover:scale-105"
-        loading="lazy"
-      />
-
-      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span
-          class="badge badge-sm"
-          :class="bot.isPublic ? 'badge-success' : 'badge-warning'"
-        >
-          {{ bot.isPublic ? 'Public' : 'Private' }}
-        </span>
-
-        <span v-if="bot.underConstruction" class="badge badge-error badge-sm">
-          Building
-        </span>
-
-        <span v-if="bot.BotType" class="badge badge-primary badge-sm">
-          {{ bot.BotType }}
-        </span>
-
-        <span v-if="activeSelected" class="badge badge-accent badge-sm">
-          Selected
-        </span>
-      </div>
-
-      <div
-        v-if="activeSelected"
-        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
-      >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
-      </div>
-    </div>
-
-    <div class="flex min-w-0 flex-1 flex-col gap-2">
-      <div class="min-w-0">
-        <h2
-          :class="[
-            'font-black leading-tight text-base-content',
-            compact ? 'line-clamp-1 text-base' : 'text-xl',
-          ]"
-          :title="botTitle"
-        >
-          {{ botTitle }}
-        </h2>
-
-        <p
-          v-if="bot.subtitle"
-          class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/55"
-        >
-          {{ bot.subtitle }}
-        </p>
-
-        <p
-          v-if="showDescription"
-          :class="[
-            'mt-1 text-base-content/70',
-            compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-sm',
-          ]"
-        >
-          {{ bot.description || bot.personality || 'No bot description yet.' }}
-        </p>
-      </div>
-
-      <div v-if="showMeta" class="flex flex-wrap gap-2">
-        <span v-if="bot.BotType" class="badge badge-outline badge-sm">
-          {{ bot.BotType }}
-        </span>
-
-        <span v-if="bot.theme" class="badge badge-ghost badge-sm">
-          {{ bot.theme }}
-        </span>
-
-        <span v-if="bot.designer" class="badge badge-primary badge-sm">
-          {{ bot.designer }}
-        </span>
-
-        <span v-if="bot.userId" class="badge badge-secondary badge-sm">
-          User {{ bot.userId }}
-        </span>
-
-        <span v-if="bot.serverName" class="badge badge-info badge-sm">
-          {{ bot.serverName }}
-        </span>
-      </div>
-
-      <div
-        v-if="showPersonality && bot.personality"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
-      >
-        <p class="text-xs font-bold uppercase text-base-content/50">
-          Personality
-        </p>
-
-        <p class="mt-1 line-clamp-4 text-base-content/70">
-          {{ bot.personality }}
-        </p>
-      </div>
-
-      <div
-        v-if="showPromptPreview && bot.prompt"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
-      >
-        <p class="text-xs font-bold uppercase text-base-content/50">Prompt</p>
-
-        <p class="mt-1 line-clamp-4 text-base-content/70">
-          {{ bot.prompt }}
-        </p>
-      </div>
-
-      <div v-if="showLaunchButton" class="mt-auto grid grid-cols-2 gap-2 pt-1">
+      <template #actions>
         <button
-          class="btn btn-sm btn-primary rounded-xl text-white"
+          v-if="
+            showActions && allowEdit && canEdit && (activeSelected || compact)
+          "
+          class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
           type="button"
-          @click.stop="launchBot"
+          title="Edit Bot"
+          @click.stop="startEditing"
         >
-          <Icon name="kind-icon:message" class="h-4 w-4" />
-          Chat
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
         </button>
 
         <button
-          class="btn btn-sm btn-outline rounded-xl"
+          v-if="showActions && allowClone && (activeSelected || compact)"
+          class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
           type="button"
-          @click.stop="selectBot"
+          title="Clone Bot"
+          @click.stop="startCloning"
+        >
+          <Icon name="kind-icon:copy" class="h-4 w-4" />
+        </button>
+
+        <button
+          v-if="showActions && canDelete && (activeSelected || compact)"
+          class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
+          type="button"
+          title="Delete Bot"
+          @click.stop="deleteBot"
+        >
+          <Icon name="kind-icon:trash" class="h-4 w-4" />
+        </button>
+      </template>
+
+      <div
+        v-if="showImage"
+        :class="[
+          'relative overflow-hidden rounded-2xl border border-base-300 bg-base-300',
+          compact ? 'h-32 w-full' : 'h-44 w-full',
+        ]"
+      >
+        <img
+          :src="resolvedBotImage"
+          :alt="botTitle"
+          class="h-full w-full object-cover transition-transform group-hover:scale-105"
+          loading="lazy"
+        />
+
+        <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+          <span
+            class="badge badge-sm"
+            :class="bot.isPublic ? 'badge-success' : 'badge-warning'"
+          >
+            {{ bot.isPublic ? 'Public' : 'Private' }}
+          </span>
+
+          <span v-if="bot.underConstruction" class="badge badge-error badge-sm">
+            Building
+          </span>
+
+          <span v-if="bot.BotType" class="badge badge-primary badge-sm">
+            {{ bot.BotType }}
+          </span>
+
+          <span v-if="activeSelected" class="badge badge-accent badge-sm">
+            Selected
+          </span>
+        </div>
+
+        <div
+          v-if="activeSelected"
+          class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
         >
           <Icon name="kind-icon:check" class="h-4 w-4" />
-          Select
-        </button>
+        </div>
       </div>
 
-      <div
-        v-if="statusMessage"
-        class="rounded-2xl border p-3 text-sm"
-        :class="
-          statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
-      >
-        {{ statusMessage }}
+      <div class="flex min-w-0 flex-1 flex-col gap-2">
+        <div class="min-w-0">
+          <h2
+            :class="[
+              'font-black leading-tight text-base-content',
+              compact ? 'line-clamp-1 text-base' : 'text-xl',
+            ]"
+            :title="botTitle"
+          >
+            {{ botTitle }}
+          </h2>
+
+          <p
+            v-if="bot.subtitle"
+            class="mt-1 line-clamp-1 text-sm font-semibold italic text-base-content/55"
+          >
+            {{ bot.subtitle }}
+          </p>
+
+          <p
+            v-if="showDescription"
+            :class="[
+              'mt-1 text-base-content/70',
+              compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-sm',
+            ]"
+          >
+            {{
+              bot.description || bot.personality || 'No bot description yet.'
+            }}
+          </p>
+        </div>
+
+        <div v-if="showMeta" class="flex flex-wrap gap-2">
+          <span v-if="bot.BotType" class="badge badge-outline badge-sm">
+            {{ bot.BotType }}
+          </span>
+
+          <span v-if="bot.theme" class="badge badge-ghost badge-sm">
+            {{ bot.theme }}
+          </span>
+
+          <span v-if="bot.designer" class="badge badge-primary badge-sm">
+            {{ bot.designer }}
+          </span>
+
+          <span v-if="bot.userId" class="badge badge-secondary badge-sm">
+            User {{ bot.userId }}
+          </span>
+
+          <span v-if="bot.serverName" class="badge badge-info badge-sm">
+            {{ bot.serverName }}
+          </span>
+        </div>
+
+        <div
+          v-if="showPersonality && bot.personality"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+        >
+          <p class="text-xs font-bold uppercase text-base-content/50">
+            Personality
+          </p>
+
+          <p class="mt-1 line-clamp-4 text-base-content/70">
+            {{ bot.personality }}
+          </p>
+        </div>
+
+        <div
+          v-if="showPromptPreview && bot.prompt"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+        >
+          <p class="text-xs font-bold uppercase text-base-content/50">Prompt</p>
+
+          <p class="mt-1 line-clamp-4 text-base-content/70">
+            {{ bot.prompt }}
+          </p>
+        </div>
+
+        <div
+          v-if="showLaunchButton"
+          class="mt-auto grid grid-cols-2 gap-2 pt-1"
+        >
+          <button
+            class="btn btn-sm btn-primary rounded-xl text-primary-content"
+            type="button"
+            @click.stop="launchBot"
+          >
+            <Icon name="kind-icon:message" class="h-4 w-4" />
+            Chat
+          </button>
+
+          <button
+            class="btn btn-sm btn-outline rounded-xl"
+            type="button"
+            @click.stop="selectBot"
+          >
+            <Icon name="kind-icon:check" class="h-4 w-4" />
+            Select
+          </button>
+        </div>
+
+        <div
+          v-if="statusMessage"
+          class="rounded-2xl border p-3 text-sm"
+          :class="
+            statusTone === 'error'
+              ? 'border-error/40 bg-error/10 text-error'
+              : 'border-success/40 bg-success/10 text-success'
+          "
+        >
+          {{ statusMessage }}
+        </div>
+
+        <details
+          v-if="showDebug"
+          class="rounded-2xl border border-base-300 bg-base-100 p-2"
+          @click.stop
+        >
+          <summary
+            class="cursor-pointer text-xs font-bold text-base-content/70"
+          >
+            Debug
+          </summary>
+
+          <pre
+            class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
+            >{{ JSON.stringify(bot, null, 2) }}</pre
+          >
+        </details>
       </div>
-
-      <details
-        v-if="showDebug"
-        class="rounded-2xl border border-base-300 bg-base-100 p-2"
-        @click.stop
-      >
-        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
-          Debug
-        </summary>
-
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-          JSON.stringify(bot, null, 2)
-        }}</pre>
-      </details>
-    </div>
-  </reactable-card>
+    </reactable-card>
+  </div>
 </template>
 
 <script setup lang="ts">
+// /components/content/bots/bot-card.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { useBotStore } from '@/stores/botStore'
+import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
@@ -256,7 +268,16 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  select: [id: number]
+  edit: [id: number]
+  clone: [id: number]
+  delete: [id: number]
+  launch: [id: number]
+}>()
+
 const botStore = useBotStore()
+const navStore = useNavStore()
 const userStore = useUserStore()
 
 const statusMessage = ref('')
@@ -271,8 +292,17 @@ const botTitle = computed(() => {
   return props.bot.name || 'Unnamed Bot'
 })
 
+const botTheme = computed(() => {
+  const theme = props.bot.theme?.trim()
+  return theme || undefined
+})
+
+const avatarFallback = computed(() => {
+  return props.bot.avatarImage?.trim() || props.fallbackImage
+})
+
 const resolvedBotImage = computed(() => {
-  return loadedBotImage.value || props.bot.avatarImage || props.fallbackImage
+  return loadedBotImage.value || avatarFallback.value
 })
 
 const canEdit = computed(() => {
@@ -296,10 +326,16 @@ async function loadBotImage() {
 
   if (!props.showImage) return
 
+  if (!props.bot.artImageId) {
+    loadedBotImage.value = avatarFallback.value
+    return
+  }
+
   try {
-    loadedBotImage.value = await botStore.getBotImage(props.bot.id)
+    const image = await botStore.getBotImage(props.bot.id)
+    loadedBotImage.value = image || avatarFallback.value
   } catch {
-    loadedBotImage.value = props.bot.avatarImage || props.fallbackImage
+    loadedBotImage.value = avatarFallback.value
   }
 }
 
@@ -308,7 +344,10 @@ async function selectBot() {
 
   if (!selected) {
     setStatus('Bot could not be selected.', 'error')
+    return
   }
+
+  emit('select', props.bot.id)
 }
 
 async function startEditing() {
@@ -319,6 +358,8 @@ async function startEditing() {
     return
   }
 
+  navStore.setDashboardTab('bot', 'forge')
+  emit('edit', props.bot.id)
   setStatus('Bot loaded for editing.')
 }
 
@@ -330,6 +371,7 @@ async function startCloning() {
     return
   }
 
+  emit('clone', props.bot.id)
   setStatus('Bot cloned into the form.')
 }
 
@@ -337,6 +379,7 @@ async function deleteBot() {
   const result = await botStore.deleteBotById(props.bot.id)
 
   if (result.success) {
+    emit('delete', props.bot.id)
     setStatus(result.message || 'Bot deleted.')
     return
   }
@@ -356,6 +399,8 @@ async function launchBot() {
     `Ready to chat with ${selected.name || 'this bot'}.`,
   )
 
+  navStore.setDashboardTab('bot', 'interact')
+  emit('launch', props.bot.id)
   setStatus('Bot selected for chat.')
 }
 
@@ -364,7 +409,12 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.bot.id, props.bot.avatarImage, props.showImage],
+  () => [
+    props.bot.id,
+    props.bot.artImageId,
+    props.bot.avatarImage,
+    props.showImage,
+  ],
   async () => {
     await loadBotImage()
   },

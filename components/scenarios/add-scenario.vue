@@ -164,10 +164,17 @@
             <img
               :src="resolvedActiveImage"
               alt="Scenario Image"
-              class="h-64 w-48 rounded-2xl object-cover"
+              class="h-64 w-48 rounded-2xl border border-base-300 bg-base-200 object-cover"
             />
 
-            <scenario-uploader @uploaded="handleUploadedArtImage" />
+            <image-upload class="w-full" />
+
+            <div
+              v-if="scenarioStore.scenarioForm.artImageId"
+              class="w-full rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs text-base-content/60"
+            >
+              Linked ArtImage #{{ scenarioStore.scenarioForm.artImageId }}
+            </div>
 
             <button
               class="btn btn-accent btn-sm w-full rounded-xl"
@@ -264,6 +271,7 @@ import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
@@ -283,6 +291,7 @@ const artStore = useArtStore()
 const choiceStore = useChoiceStore()
 const galleryStore = useGalleryStore()
 const scenarioStore = useScenarioStore()
+const uploadStore = useUploadStore()
 const userStore = useUserStore()
 
 const isGeneratingArt = ref(false)
@@ -291,6 +300,7 @@ const introTitle = ref('')
 const introPrompt = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
+const uploadedPreviewImage = ref<string | null>(null)
 
 const defaultPlaceholder = '/images/scenarios/space.webp'
 
@@ -318,22 +328,85 @@ const intros = computed<string[]>(() => {
   return scenarioStore.normalizeIntrosForForm(raw)
 })
 
-const resolvedActiveImage = computed(
-  () => scenarioStore.scenarioForm.imagePath || defaultPlaceholder,
-)
+const resolvedActiveImage = computed(() => {
+  return (
+    uploadedPreviewImage.value ||
+    scenarioStore.scenarioForm.imagePath ||
+    defaultPlaceholder
+  )
+})
 
-onMounted(() => {
-  prepareForm()
+onMounted(async () => {
+  await prepareForm()
+  configureScenarioImageUpload()
 })
 
 watch(
   () => props.mode,
-  () => {
-    prepareForm()
+  async () => {
+    await prepareForm()
+    configureScenarioImageUpload()
   },
 )
 
-function prepareForm() {
+watch(
+  () => scenarioStore.selectedScenario?.id,
+  () => {
+    configureScenarioImageUpload()
+  },
+)
+
+function configureScenarioImageUpload() {
+  uploadStore.setTarget({
+    model: 'Scenario',
+    modelId:
+      scenarioStore.selectedScenario?.id ??
+      scenarioStore.scenarioForm.id ??
+      null,
+    galleryName: 'scenarioUploads',
+    collectionLabel: 'scenarios',
+    promptString:
+      scenarioStore.scenarioForm.artPrompt ||
+      scenarioStore.scenarioForm.title ||
+      '[ScenarioImage]',
+    path: '[ScenarioImage]',
+    buttonLabel: 'Upload scenario art',
+    icon: 'kind-icon:story',
+    showPreview: false,
+    applyImage: async ({ artImageId, imageData }) => {
+      uploadedPreviewImage.value =
+        imageData ?? scenarioStore.scenarioForm.imagePath ?? null
+
+      scenarioStore.scenarioForm = {
+        ...scenarioStore.scenarioForm,
+        artImageId,
+        imagePath: uploadedPreviewImage.value,
+      }
+
+      if (mode.value === 'edit' && scenarioStore.selectedScenario?.id) {
+        const saved = await scenarioStore.saveScenario()
+
+        if (!saved) {
+          statusTone.value = 'error'
+          statusMessage.value =
+            scenarioStore.lastError ||
+            'Image uploaded, but scenario update failed.'
+          return
+        }
+
+        statusTone.value = 'success'
+        statusMessage.value = 'Scenario art updated.'
+        emit('saved')
+        return
+      }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Scenario art added to form.'
+    },
+  })
+}
+
+async function prepareForm() {
   if (mode.value === 'edit') {
     resetFromSelected()
     return
@@ -358,9 +431,11 @@ function resetForAdd() {
     userId: userStore.userId || 10,
   }
 
+  uploadedPreviewImage.value = null
   introTitle.value = ''
   introPrompt.value = ''
   statusMessage.value = ''
+  configureScenarioImageUpload()
 }
 
 function resetFromSelected() {
@@ -370,9 +445,11 @@ function resetFromSelected() {
     scenarioStore.selectedScenario,
   )
 
+  uploadedPreviewImage.value = null
   introTitle.value = ''
   introPrompt.value = ''
   statusMessage.value = ''
+  configureScenarioImageUpload()
 }
 
 function setIntros(nextIntros: string[]) {
@@ -403,25 +480,27 @@ function removeIntro(index: number) {
   setIntros(intros.value.filter((_, entryIndex) => entryIndex !== index))
 }
 
-function handleUploadedArtImage(id: number) {
-  scenarioStore.scenarioForm = {
-    ...scenarioStore.scenarioForm,
-    artImageId: id,
-    imagePath: null,
-  }
-}
-
 async function changeToRandomImage() {
   try {
     const randomImage = await galleryStore.changeToRandomImage()
 
     if (randomImage) {
+      uploadedPreviewImage.value = randomImage
+
       scenarioStore.scenarioForm = {
         ...scenarioStore.scenarioForm,
         imagePath: randomImage,
         artImageId: null,
       }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Random scenario image applied.'
+      configureScenarioImageUpload()
+      return
     }
+
+    statusTone.value = 'error'
+    statusMessage.value = 'No random image was available.'
   } catch (error) {
     console.error('Error picking random scenario image:', error)
     statusTone.value = 'error'
@@ -449,16 +528,26 @@ async function generateArtImage() {
     })
 
     if (response.success && response.data) {
+      uploadedPreviewImage.value = null
+
       scenarioStore.scenarioForm = {
         ...scenarioStore.scenarioForm,
         imagePath: null,
         artImageId: response.data.artImageId,
       }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Scenario art generated.'
+      configureScenarioImageUpload()
+      return
     }
+
+    throw new Error(response.message || 'Failed to generate scenario art.')
   } catch (error) {
     console.error('Error generating scenario art:', error)
     statusTone.value = 'error'
-    statusMessage.value = 'Error generating scenario art.'
+    statusMessage.value =
+      error instanceof Error ? error.message : 'Error generating scenario art.'
   } finally {
     isGeneratingArt.value = false
   }

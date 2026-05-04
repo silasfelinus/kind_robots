@@ -261,6 +261,7 @@ export type ThemeWhereInput = {
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  Reactions?: Prisma.ReactionListRelationFilter
 }
 
 export type ThemeOrderByWithRelationInput = {
@@ -275,6 +276,7 @@ export type ThemeOrderByWithRelationInput = {
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.ThemeOrderByRelevanceInput
 }
 
@@ -293,6 +295,7 @@ export type ThemeWhereUniqueInput = Prisma.AtLeast<{
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  Reactions?: Prisma.ReactionListRelationFilter
 }, "id" | "name">
 
 export type ThemeOrderByWithAggregationInput = {
@@ -339,6 +342,7 @@ export type ThemeCreateInput = {
   colorScheme?: string
   prefersDark?: boolean
   user?: Prisma.UserCreateNestedOneWithoutThemesInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutThemeInput
 }
 
 export type ThemeUncheckedCreateInput = {
@@ -352,6 +356,7 @@ export type ThemeUncheckedCreateInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutThemeInput
 }
 
 export type ThemeUpdateInput = {
@@ -364,6 +369,7 @@ export type ThemeUpdateInput = {
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneWithoutThemesNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutThemeNestedInput
 }
 
 export type ThemeUncheckedUpdateInput = {
@@ -377,6 +383,7 @@ export type ThemeUncheckedUpdateInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutThemeNestedInput
 }
 
 export type ThemeCreateManyInput = {
@@ -414,6 +421,11 @@ export type ThemeUncheckedUpdateManyInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type ThemeNullableScalarRelationFilter = {
+  is?: Prisma.ThemeWhereInput | null
+  isNot?: Prisma.ThemeWhereInput | null
 }
 
 export type ThemeOrderByRelevanceInput = {
@@ -481,6 +493,22 @@ export type ThemeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ThemeCreateNestedOneWithoutReactionsInput = {
+  create?: Prisma.XOR<Prisma.ThemeCreateWithoutReactionsInput, Prisma.ThemeUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.ThemeCreateOrConnectWithoutReactionsInput
+  connect?: Prisma.ThemeWhereUniqueInput
+}
+
+export type ThemeUpdateOneWithoutReactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ThemeCreateWithoutReactionsInput, Prisma.ThemeUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.ThemeCreateOrConnectWithoutReactionsInput
+  upsert?: Prisma.ThemeUpsertWithoutReactionsInput
+  disconnect?: Prisma.ThemeWhereInput | boolean
+  delete?: Prisma.ThemeWhereInput | boolean
+  connect?: Prisma.ThemeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ThemeUpdateToOneWithWhereWithoutReactionsInput, Prisma.ThemeUpdateWithoutReactionsInput>, Prisma.ThemeUncheckedUpdateWithoutReactionsInput>
+}
+
 export type ThemeCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.ThemeCreateWithoutUserInput, Prisma.ThemeUncheckedCreateWithoutUserInput> | Prisma.ThemeCreateWithoutUserInput[] | Prisma.ThemeUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.ThemeCreateOrConnectWithoutUserInput | Prisma.ThemeCreateOrConnectWithoutUserInput[]
@@ -523,6 +551,72 @@ export type ThemeUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ThemeScalarWhereInput | Prisma.ThemeScalarWhereInput[]
 }
 
+export type ThemeCreateWithoutReactionsInput = {
+  name: string
+  values: string
+  isPublic?: boolean
+  createdAt?: Date | string
+  tagline?: string | null
+  room?: string | null
+  colorScheme?: string
+  prefersDark?: boolean
+  user?: Prisma.UserCreateNestedOneWithoutThemesInput
+}
+
+export type ThemeUncheckedCreateWithoutReactionsInput = {
+  id?: number
+  name: string
+  values: string
+  userId?: number | null
+  isPublic?: boolean
+  createdAt?: Date | string
+  tagline?: string | null
+  room?: string | null
+  colorScheme?: string
+  prefersDark?: boolean
+}
+
+export type ThemeCreateOrConnectWithoutReactionsInput = {
+  where: Prisma.ThemeWhereUniqueInput
+  create: Prisma.XOR<Prisma.ThemeCreateWithoutReactionsInput, Prisma.ThemeUncheckedCreateWithoutReactionsInput>
+}
+
+export type ThemeUpsertWithoutReactionsInput = {
+  update: Prisma.XOR<Prisma.ThemeUpdateWithoutReactionsInput, Prisma.ThemeUncheckedUpdateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.ThemeCreateWithoutReactionsInput, Prisma.ThemeUncheckedCreateWithoutReactionsInput>
+  where?: Prisma.ThemeWhereInput
+}
+
+export type ThemeUpdateToOneWithWhereWithoutReactionsInput = {
+  where?: Prisma.ThemeWhereInput
+  data: Prisma.XOR<Prisma.ThemeUpdateWithoutReactionsInput, Prisma.ThemeUncheckedUpdateWithoutReactionsInput>
+}
+
+export type ThemeUpdateWithoutReactionsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  values?: Prisma.StringFieldUpdateOperationsInput | string
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
+  prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneWithoutThemesNestedInput
+}
+
+export type ThemeUncheckedUpdateWithoutReactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  values?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
+  prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
 export type ThemeCreateWithoutUserInput = {
   name: string
   values: string
@@ -532,6 +626,7 @@ export type ThemeCreateWithoutUserInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutThemeInput
 }
 
 export type ThemeUncheckedCreateWithoutUserInput = {
@@ -544,6 +639,7 @@ export type ThemeUncheckedCreateWithoutUserInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutThemeInput
 }
 
 export type ThemeCreateOrConnectWithoutUserInput = {
@@ -609,6 +705,7 @@ export type ThemeUpdateWithoutUserInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Reactions?: Prisma.ReactionUpdateManyWithoutThemeNestedInput
 }
 
 export type ThemeUncheckedUpdateWithoutUserInput = {
@@ -621,6 +718,7 @@ export type ThemeUncheckedUpdateWithoutUserInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutThemeNestedInput
 }
 
 export type ThemeUncheckedUpdateManyWithoutUserInput = {
@@ -636,6 +734,35 @@ export type ThemeUncheckedUpdateManyWithoutUserInput = {
 }
 
 
+/**
+ * Count Type ThemeCountOutputType
+ */
+
+export type ThemeCountOutputType = {
+  Reactions: number
+}
+
+export type ThemeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Reactions?: boolean | ThemeCountOutputTypeCountReactionsArgs
+}
+
+/**
+ * ThemeCountOutputType without action
+ */
+export type ThemeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThemeCountOutputType
+   */
+  select?: Prisma.ThemeCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ThemeCountOutputType without action
+ */
+export type ThemeCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReactionWhereInput
+}
+
 
 export type ThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -649,6 +776,8 @@ export type ThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   colorScheme?: boolean
   prefersDark?: boolean
   user?: boolean | Prisma.Theme$userArgs<ExtArgs>
+  Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
+  _count?: boolean | Prisma.ThemeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["theme"]>
 
 
@@ -669,12 +798,15 @@ export type ThemeSelectScalar = {
 export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark", ExtArgs["result"]["theme"]>
 export type ThemeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Theme$userArgs<ExtArgs>
+  Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
+  _count?: boolean | Prisma.ThemeCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ThemePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Theme"
   objects: {
     user: Prisma.$UserPayload<ExtArgs> | null
+    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1028,6 +1160,7 @@ readonly fields: ThemeFieldRefs;
 export interface Prisma__ThemeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.Theme$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Theme$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Reactions<T extends Prisma.Theme$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Theme$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1431,6 +1564,30 @@ export type Theme$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Theme.Reactions
+ */
+export type Theme$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reaction
+   */
+  select?: Prisma.ReactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reaction
+   */
+  omit?: Prisma.ReactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReactionInclude<ExtArgs> | null
+  where?: Prisma.ReactionWhereInput
+  orderBy?: Prisma.ReactionOrderByWithRelationInput | Prisma.ReactionOrderByWithRelationInput[]
+  cursor?: Prisma.ReactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
 }
 
 /**

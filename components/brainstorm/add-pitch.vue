@@ -172,10 +172,15 @@
             />
           </div>
 
+          <image-upload class="mt-4" />
+
           <div class="mt-4 flex flex-col gap-3">
             <label class="form-control">
               <span class="label">
-                <span class="label-text font-bold">Highlight Image</span>
+                <p class="text-sm text-base-content/70">
+                  Store a path, upload a highlight image, or write an image
+                  prompt.
+                </p>
               </span>
 
               <input
@@ -373,9 +378,7 @@
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="mb-3 text-xl font-bold text-base-content">
-            Publishing
-          </h2>
+          <h2 class="mb-3 text-xl font-bold text-base-content">Publishing</h2>
 
           <div class="grid gap-3">
             <label
@@ -502,6 +505,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { PitchType, usePitchStore, type PitchForm } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
+import { useUploadStore } from '@/stores/uploadStore'
 
 type PitchFieldKey = keyof PitchForm & string
 
@@ -521,6 +525,7 @@ const emit = defineEmits<{
 
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
+const uploadStore = useUploadStore()
 
 const keepField = reactive<Record<string, boolean>>({})
 const useGenerated = reactive<Record<string, boolean>>({})
@@ -590,6 +595,45 @@ const keepImageFields = computed({
   },
 })
 
+function configurePitchImageUpload() {
+  uploadStore.setTarget({
+    model: 'Pitch',
+    modelId: pitchStore.selectedPitch?.id ?? pitchStore.pitchForm.id ?? null,
+    galleryName: 'pitchUploads',
+    collectionLabel: 'pitches',
+    promptString: '[PitchImage]',
+    path: '[PitchImage]',
+    buttonLabel: 'Upload pitch image',
+    icon: 'kind-icon:image',
+    showPreview: false,
+    applyImage: async ({ artImageId, imageData }) => {
+      pitchStore.setPitchForm({
+        artImageId,
+        highlightImage: imageData ?? pitchStore.pitchForm.highlightImage ?? '',
+        creationSource: pitchStore.pitchForm.creationSource ?? 'UPLOAD',
+      })
+
+      if (mode.value === 'edit' && pitchStore.selectedPitch?.id) {
+        const result = await pitchStore.savePitch()
+
+        if (!result.success) {
+          statusTone.value = 'error'
+          statusMessage.value =
+            result.message || 'Image uploaded, but pitch update failed.'
+          return
+        }
+
+        statusTone.value = 'success'
+        statusMessage.value = 'Pitch image updated.'
+        return
+      }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Pitch image added to form.'
+    },
+  })
+}
+
 const aiFields: Array<{
   key: PitchFieldKey
   label: string
@@ -654,13 +698,22 @@ onMounted(async () => {
     createBlankForm: true,
   })
 
-  prepareForm()
+  await prepareForm()
+  configurePitchImageUpload()
 })
 
 watch(
   () => props.mode,
+  async () => {
+    await prepareForm()
+    configurePitchImageUpload()
+  },
+)
+
+watch(
+  () => pitchStore.selectedPitch?.id,
   () => {
-    prepareForm()
+    configurePitchImageUpload()
   },
 )
 
@@ -780,8 +833,7 @@ function seedPitch() {
       pitchStore.pitchForm.description ||
       'Use this as a seed concept for generating art prompts, product ideas, text assets, and strange little worldbuilding fragments.',
     flavorText:
-      pitchStore.pitchForm.flavorText ||
-      'Chromatic chaos, but make it useful.',
+      pitchStore.pitchForm.flavorText || 'Chromatic chaos, but make it useful.',
     imagePrompt:
       pitchStore.pitchForm.imagePrompt ||
       'a whimsical robot holding glowing paint jars, rainbow mist, cozy studio lighting',
@@ -820,7 +872,9 @@ async function generateSelectedFields() {
   } catch (error) {
     statusTone.value = 'error'
     statusMessage.value =
-      error instanceof Error ? error.message : 'Failed to generate pitch fields.'
+      error instanceof Error
+        ? error.message
+        : 'Failed to generate pitch fields.'
   } finally {
     isGeneratingFields.value = false
   }

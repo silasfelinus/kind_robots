@@ -36,19 +36,23 @@ export type ReactionType = (typeof ReactionType)[keyof typeof ReactionType]
 export const ReactionCategory = {
   ART: 'ART',
   ART_IMAGE: 'ART_IMAGE',
-  PITCH: 'PITCH',
-  COMPONENT: 'COMPONENT',
-  CHAT_EXCHANGE: 'CHAT_EXCHANGE',
-  DREAM: 'DREAM',
+  ART_COLLECTION: 'ART_COLLECTION',
   BOT: 'BOT',
+  BUTTERFLY: 'BUTTERFLY',
+  CHARACTER: 'CHARACTER',
+  CHAT_EXCHANGE: 'CHAT_EXCHANGE',
+  COMPONENT: 'COMPONENT',
+  DREAM: 'DREAM',
   GALLERY: 'GALLERY',
   MESSAGE: 'MESSAGE',
+  PITCH: 'PITCH',
   POST: 'POST',
   PROMPT: 'PROMPT',
   RESOURCE: 'RESOURCE',
   REWARD: 'REWARD',
+  SCENARIO: 'SCENARIO',
   TAG: 'TAG',
-  SCENARIO: 'SCENARIO'
+  THEME: 'THEME'
 } as const
 
 export type ReactionCategory = (typeof ReactionCategory)[keyof typeof ReactionCategory]

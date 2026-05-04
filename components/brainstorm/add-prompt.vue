@@ -21,7 +21,9 @@
     </div>
 
     <template v-else>
-      <section class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <section
+        class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <div
             class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
@@ -90,7 +92,8 @@
               <h2 class="text-xl font-bold text-base-content">Links</h2>
 
               <p class="text-sm text-base-content/70">
-                Optional model relationships. Tiny strings, big tentacles.
+                Optional model relationships, including an uploaded reference
+                image.
               </p>
             </div>
 
@@ -98,6 +101,8 @@
           </div>
 
           <div class="grid gap-3">
+            <image-upload />
+
             <label class="form-control">
               <span class="label">
                 <span class="label-text font-bold">Pitch</span>
@@ -276,7 +281,9 @@
           </label>
 
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <p class="text-xs font-bold uppercase tracking-wide text-base-content/50">
+            <p
+              class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+            >
               Current Prompt Field
             </p>
 
@@ -365,6 +372,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { Pitch } from '~/prisma/generated/prisma/client'
 import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore, type PromptForm } from '@/stores/promptStore'
+import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
 
 type PromptFieldKey = keyof PromptForm & string
@@ -385,6 +393,7 @@ const emit = defineEmits<{
 
 const promptStore = usePromptStore()
 const pitchStore = usePitchStore()
+const uploadStore = useUploadStore()
 const userStore = useUserStore()
 
 const keepField = reactive<Record<string, boolean>>({})
@@ -496,21 +505,30 @@ onMounted(async () => {
     }),
   ])
 
-  prepareForm()
+  await prepareForm()
+  configurePromptImageUpload()
 })
 
 watch(
   () => props.mode,
-  () => {
-    prepareForm()
+  async () => {
+    await prepareForm()
+    configurePromptImageUpload()
   },
 )
 
-function prepareForm() {
+watch(
+  () => promptStore.selectedPrompt?.id,
+  () => {
+    configurePromptImageUpload()
+  },
+)
+
+async function prepareForm() {
   statusMessage.value = ''
 
   if (mode.value === 'edit') {
-    void resetFromSelected()
+    await resetFromSelected()
     return
   }
 
@@ -519,6 +537,45 @@ function prepareForm() {
   if (!hasFormData) {
     resetForAdd()
   }
+}
+
+function configurePromptImageUpload() {
+  uploadStore.setTarget({
+    model: 'Prompt',
+    modelId:
+      promptStore.selectedPrompt?.id ?? promptStore.promptForm.id ?? null,
+    galleryName: 'promptUploads',
+    collectionLabel: 'prompts',
+    promptString: promptStore.promptForm.prompt || '[PromptImage]',
+    path: '[PromptImage]',
+    buttonLabel: 'Upload prompt image',
+    icon: 'kind-icon:image',
+    showPreview: false,
+    applyImage: async ({ artImageId }) => {
+      promptStore.setPromptForm({
+        artImageId,
+        creationSource: promptStore.promptForm.creationSource ?? 'UPLOAD',
+      })
+
+      if (mode.value === 'edit' && promptStore.selectedPrompt?.id) {
+        const result = await promptStore.savePrompt()
+
+        if (!result.success) {
+          statusTone.value = 'error'
+          statusMessage.value =
+            result.message || 'Image uploaded, but prompt update failed.'
+          return
+        }
+
+        statusTone.value = 'success'
+        statusMessage.value = 'Prompt image updated.'
+        return
+      }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Prompt image added to form.'
+    },
+  })
 }
 
 function resetForAdd() {

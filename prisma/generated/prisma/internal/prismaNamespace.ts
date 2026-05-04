@@ -393,7 +393,6 @@ export const ModelName = {
   Character: 'Character',
   Chat: 'Chat',
   Component: 'Component',
-  Dominion: 'Dominion',
   Dream: 'Dream',
   Gallery: 'Gallery',
   Log: 'Log',
@@ -430,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dominion" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
+    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1025,72 +1024,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ComponentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ComponentCountAggregateOutputType> | number
-        }
-      }
-    }
-    Dominion: {
-      payload: Prisma.$DominionPayload<ExtArgs>
-      fields: Prisma.DominionFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.DominionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.DominionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>
-        }
-        findFirst: {
-          args: Prisma.DominionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.DominionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>
-        }
-        findMany: {
-          args: Prisma.DominionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>[]
-        }
-        create: {
-          args: Prisma.DominionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>
-        }
-        createMany: {
-          args: Prisma.DominionCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.DominionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>
-        }
-        update: {
-          args: Prisma.DominionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>
-        }
-        deleteMany: {
-          args: Prisma.DominionDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.DominionUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.DominionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DominionPayload>
-        }
-        aggregate: {
-          args: Prisma.DominionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDominion>
-        }
-        groupBy: {
-          args: Prisma.DominionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DominionGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.DominionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DominionCountAggregateOutputType> | number
         }
       }
     }
@@ -2764,44 +2697,6 @@ export const ComponentScalarFieldEnum = {
 export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
 
 
-export const DominionScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  title: 'title',
-  slug: 'slug',
-  description: 'description',
-  italics: 'italics',
-  color: 'color',
-  designer: 'designer',
-  userId: 'userId',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  artId: 'artId',
-  artImageId: 'artImageId',
-  types: 'types',
-  keywords: 'keywords',
-  cardAdd: 'cardAdd',
-  actionAdd: 'actionAdd',
-  buyAdd: 'buyAdd',
-  coinAdd: 'coinAdd',
-  victoryAdd: 'victoryAdd',
-  isDuration: 'isDuration',
-  durationJSON: 'durationJSON',
-  priceCoins: 'priceCoins',
-  priceDebt: 'priceDebt',
-  pricePotion: 'pricePotion',
-  effects: 'effects',
-  setupText: 'setupText',
-  notes: 'notes',
-  setId: 'setId',
-  version: 'version',
-  icon: 'icon'
-} as const
-
-export type DominionScalarFieldEnum = (typeof DominionScalarFieldEnum)[keyof typeof DominionScalarFieldEnum]
-
-
 export const DreamScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2937,21 +2832,26 @@ export const ReactionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   comment: 'comment',
   userId: 'userId',
-  artId: 'artId',
-  pitchId: 'pitchId',
-  componentId: 'componentId',
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
   rating: 'rating',
+  artId: 'artId',
   artImageId: 'artImageId',
+  artCollectionId: 'artCollectionId',
   botId: 'botId',
+  butterflyId: 'butterflyId',
+  characterId: 'characterId',
+  chatId: 'chatId',
+  componentId: 'componentId',
+  dreamId: 'dreamId',
   galleryId: 'galleryId',
+  pitchId: 'pitchId',
   promptId: 'promptId',
   resourceId: 'resourceId',
   rewardId: 'rewardId',
+  scenarioId: 'scenarioId',
   tagId: 'tagId',
-  chatId: 'chatId',
-  dreamId: 'dreamId'
+  themeId: 'themeId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -3363,26 +3263,6 @@ export const ComponentOrderByRelevanceFieldEnum = {
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
-
-
-export const DominionOrderByRelevanceFieldEnum = {
-  title: 'title',
-  slug: 'slug',
-  description: 'description',
-  italics: 'italics',
-  color: 'color',
-  designer: 'designer',
-  types: 'types',
-  keywords: 'keywords',
-  durationJSON: 'durationJSON',
-  effects: 'effects',
-  setupText: 'setupText',
-  notes: 'notes',
-  setId: 'setId',
-  icon: 'icon'
-} as const
-
-export type DominionOrderByRelevanceFieldEnum = (typeof DominionOrderByRelevanceFieldEnum)[keyof typeof DominionOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {
@@ -3863,7 +3743,6 @@ export type GlobalOmitConfig = {
   character?: Prisma.CharacterOmit
   chat?: Prisma.ChatOmit
   component?: Prisma.ComponentOmit
-  dominion?: Prisma.DominionOmit
   dream?: Prisma.DreamOmit
   gallery?: Prisma.GalleryOmit
   log?: Prisma.LogOmit

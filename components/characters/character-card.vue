@@ -1,20 +1,19 @@
 <!-- /components/content/weird/character-card.vue -->
 <template>
-  <article
-    :class="[
-      'relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectCharacter"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="character.id"
+    target-type="character"
+    reaction-category="CHARACTER"
+    :target-title="displayName"
+    @select="selectCharacter"
   >
-    <div
-      v-if="showActions && (activeSelected || compact)"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit"
-        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        v-if="showActions && allowEdit && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Character"
         @click.stop="emit('edit', character.id)"
@@ -23,8 +22,8 @@
       </button>
 
       <button
-        v-if="allowClone"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow hover:bg-secondary hover:text-secondary-content"
+        v-if="showActions && allowClone && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Character"
         @click.stop="emit('clone', character.id)"
@@ -33,15 +32,15 @@
       </button>
 
       <button
-        v-if="canDelete"
-        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        v-if="showActions && canDelete && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Character"
         @click.stop="deleteCharacter"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       v-if="showImage"
@@ -52,8 +51,8 @@
     >
       <img
         :src="computedCharacterImage"
-        alt="Character Portrait"
-        class="h-full w-full object-cover transition-transform hover:scale-105"
+        :alt="displayName"
+        class="h-full w-full object-cover transition-transform group-hover:scale-105"
         loading="lazy"
       />
 
@@ -63,6 +62,17 @@
         </span>
 
         <span v-else class="badge badge-warning badge-sm"> Private </span>
+
+        <span v-if="activeSelected" class="badge badge-primary badge-sm">
+          Selected
+        </span>
+      </div>
+
+      <div
+        v-if="activeSelected"
+        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+      >
+        <Icon name="kind-icon:check" class="h-4 w-4" />
       </div>
     </div>
 
@@ -73,6 +83,7 @@
             'font-black leading-tight text-base-content',
             compact ? 'line-clamp-1 text-base' : 'text-xl',
           ]"
+          :title="displayName"
         >
           {{ displayName }}
         </h2>
@@ -100,11 +111,15 @@
         <span v-if="character.genre" class="badge badge-primary badge-sm">
           {{ character.genre }}
         </span>
+
+        <span v-if="character.userId" class="badge badge-secondary badge-sm">
+          User #{{ character.userId }}
+        </span>
       </div>
 
       <div
         v-if="showStats"
-        class="grid grid-cols-3 gap-2 rounded-2xl bg-base-300 p-2"
+        class="grid grid-cols-3 gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
       >
         <div
           v-for="index in statIndexes"
@@ -150,6 +165,7 @@
       <div
         v-if="activeMode === 'chat' && showInlineInteract"
         class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        @click.stop
       >
         <weird-chat :character="character" />
       </div>
@@ -157,6 +173,7 @@
       <div
         v-if="activeMode === 'adventure' && showInlineInteract"
         class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        @click.stop
       >
         <weird-card :character="character" />
       </div>
@@ -175,11 +192,11 @@
         }}</pre>
       </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -200,6 +217,7 @@ const props = withDefaults(
     showStats?: boolean
     showModeButtons?: boolean
     showInlineInteract?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowClone?: boolean
@@ -217,6 +235,7 @@ const props = withDefaults(
     showStats: true,
     showModeButtons: false,
     showInlineInteract: false,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowClone: true,
@@ -226,7 +245,6 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [id: number]
   'select-character': [id: number]
   edit: [id: number]
   clone: [id: number]
@@ -291,7 +309,6 @@ function statValue(index: number) {
 
 async function selectCharacter() {
   await characterStore.selectCharacter(props.character.id)
-  emit('select', props.character.id)
   emit('select-character', props.character.id)
 }
 
@@ -315,7 +332,9 @@ function toggleMode(mode: CharacterMode) {
   }
 }
 
-onMounted(async () => {
+async function loadCharacterImage() {
+  artImage.value = null
+
   if (!props.character.artImageId || !props.showImage) return
 
   try {
@@ -324,5 +343,16 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load character art image:', error)
   }
+}
+
+onMounted(async () => {
+  await loadCharacterImage()
 })
+
+watch(
+  () => [props.character.artImageId, props.showImage],
+  async () => {
+    await loadCharacterImage()
+  },
+)
 </script>

@@ -146,10 +146,17 @@
             <img
               :src="resolvedActiveImage"
               alt="Reward Image"
-              class="h-64 w-48 rounded-2xl object-cover"
+              class="h-64 w-48 rounded-2xl border border-base-300 bg-base-200 object-cover"
             />
 
-            <reward-uploader @uploaded="handleUploadedArtImage" />
+            <image-upload class="w-full" />
+
+            <div
+              v-if="rewardStore.rewardForm.artImageId"
+              class="w-full rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs text-base-content/60"
+            >
+              Linked ArtImage #{{ rewardStore.rewardForm.artImageId }}
+            </div>
           </div>
 
           <div class="flex flex-col gap-3">
@@ -235,6 +242,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
 import { useRewardStore } from '@/stores/rewardStore'
+import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
@@ -253,6 +261,7 @@ const emit = defineEmits<{
 const artStore = useArtStore()
 const choiceStore = useChoiceStore()
 const rewardStore = useRewardStore()
+const uploadStore = useUploadStore()
 const userStore = useUserStore()
 
 const isGeneratingArt = ref(false)
@@ -277,28 +286,85 @@ const saveLabel = computed(() =>
   mode.value === 'edit' ? 'Save Changes' : 'Save Reward',
 )
 
-const resolvedActiveImage = computed(
-  () => rewardStore.rewardForm.imagePath || defaultPlaceholder,
-)
+const resolvedActiveImage = computed(() => {
+  if (uploadStore.lastArtImage?.imageData) {
+    return uploadStore.lastArtImage.imageData
+  }
 
-onMounted(() => {
-  prepareForm()
+  return rewardStore.rewardForm.imagePath || defaultPlaceholder
+})
+
+onMounted(async () => {
+  await prepareForm()
+  configureRewardImageUpload()
 })
 
 watch(
   () => props.mode,
-  () => {
-    prepareForm()
+  async () => {
+    await prepareForm()
+    configureRewardImageUpload()
   },
 )
 
-function prepareForm() {
+watch(
+  () => rewardStore.selectedReward?.id,
+  () => {
+    configureRewardImageUpload()
+  },
+)
+
+async function prepareForm() {
   if (mode.value === 'edit') {
     resetFromSelected()
     return
   }
 
   resetForAdd()
+}
+
+function configureRewardImageUpload() {
+  uploadStore.setTarget({
+    model: 'Reward',
+    modelId:
+      rewardStore.selectedReward?.id ?? rewardStore.rewardForm.id ?? null,
+    galleryName: 'rewardUploads',
+    collectionLabel: 'rewards',
+    promptString:
+      rewardStore.rewardForm.imagePrompt ||
+      rewardStore.rewardForm.text ||
+      '[RewardImage]',
+    path: '[RewardImage]',
+    buttonLabel: 'Upload reward art',
+    icon: rewardStore.rewardForm.icon || 'kind-icon:gift',
+    showPreview: false,
+    applyImage: async ({ artImageId, imageData }) => {
+      rewardStore.rewardForm = {
+        ...rewardStore.rewardForm,
+        artImageId,
+        imagePath: imageData ?? rewardStore.rewardForm.imagePath ?? null,
+      }
+
+      if (mode.value === 'edit' && rewardStore.selectedReward?.id) {
+        const saved = await rewardStore.saveReward()
+
+        if (!saved) {
+          statusTone.value = 'error'
+          statusMessage.value =
+            rewardStore.error || 'Image uploaded, but reward update failed.'
+          return
+        }
+
+        statusTone.value = 'success'
+        statusMessage.value = 'Reward art updated.'
+        emit('saved')
+        return
+      }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Reward art added to form.'
+    },
+  })
 }
 
 function resetForAdd() {
@@ -320,6 +386,7 @@ function resetForAdd() {
   }
 
   statusMessage.value = ''
+  configureRewardImageUpload()
 }
 
 function resetFromSelected() {
@@ -327,14 +394,7 @@ function resetFromSelected() {
 
   rewardStore.rewardForm = rewardStore.toRewardForm(rewardStore.selectedReward)
   statusMessage.value = ''
-}
-
-function handleUploadedArtImage(id: number) {
-  rewardStore.rewardForm = {
-    ...rewardStore.rewardForm,
-    artImageId: id,
-    imagePath: null,
-  }
+  configureRewardImageUpload()
 }
 
 async function generateArtImage() {
@@ -362,11 +422,19 @@ async function generateArtImage() {
         imagePath: null,
         artImageId: response.data.artImageId,
       }
+
+      statusTone.value = 'success'
+      statusMessage.value = 'Reward art generated.'
+      configureRewardImageUpload()
+      return
     }
+
+    throw new Error(response.message || 'Failed to generate reward art.')
   } catch (error) {
     console.error('Error generating reward art:', error)
     statusTone.value = 'error'
-    statusMessage.value = 'Error generating reward art.'
+    statusMessage.value =
+      error instanceof Error ? error.message : 'Error generating reward art.'
   } finally {
     isGeneratingArt.value = false
   }

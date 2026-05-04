@@ -1,20 +1,21 @@
 <!-- /components/content/brainstorm/pitch-card.vue -->
 <template>
-  <article
-    :class="[
-      'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectPitch"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="pitch.id"
+    target-type="pitch"
+    reaction-category="PITCH"
+    :target-title="displayTitle"
+    @select="selectPitch"
   >
-    <div
-      v-if="showActions"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit && canEdit"
-        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        v-if="
+          showActions && allowEdit && canEdit && (activeSelected || compact)
+        "
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Pitch"
         @click.stop="startEditing"
@@ -23,8 +24,8 @@
       </button>
 
       <button
-        v-if="allowClone"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow hover:bg-secondary hover:text-secondary-content"
+        v-if="showActions && allowClone && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Pitch"
         @click.stop="startCloning"
@@ -33,15 +34,17 @@
       </button>
 
       <button
-        v-if="allowDelete && canDelete"
-        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        v-if="
+          showActions && allowDelete && canDelete && (activeSelected || compact)
+        "
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Pitch"
         @click.stop="deletePitch"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div
       v-if="showImage"
@@ -52,7 +55,7 @@
     >
       <img
         :src="pitchImage"
-        :alt="pitch.title || pitch.pitch || 'Pitch image'"
+        :alt="displayTitle"
         class="h-full w-full object-cover transition-transform group-hover:scale-105"
         loading="lazy"
       />
@@ -72,6 +75,17 @@
         <span class="badge badge-primary badge-sm">
           {{ pitch.PitchType || 'Pitch' }}
         </span>
+
+        <span v-if="activeSelected" class="badge badge-accent badge-sm">
+          Selected
+        </span>
+      </div>
+
+      <div
+        v-if="activeSelected"
+        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+      >
+        <Icon name="kind-icon:check" class="h-4 w-4" />
       </div>
     </div>
 
@@ -89,6 +103,7 @@
                 'font-black leading-tight text-base-content',
                 compact ? 'line-clamp-1 text-base' : 'line-clamp-2 text-xl',
               ]"
+              :title="displayTitle"
             >
               {{ displayTitle }}
             </h2>
@@ -226,6 +241,18 @@
         </button>
       </div>
 
+      <div
+        v-if="statusMessage"
+        class="rounded-2xl border p-3 text-sm"
+        :class="
+          statusTone === 'error'
+            ? 'border-error/40 bg-error/10 text-error'
+            : 'border-success/40 bg-success/10 text-success'
+        "
+      >
+        {{ statusMessage }}
+      </div>
+
       <details
         v-if="showDebug"
         class="rounded-2xl border border-base-300 bg-base-100 p-2"
@@ -235,17 +262,24 @@
           Debug
         </summary>
 
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{ JSON.stringify(pitch, null, 2) }}</pre>
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(pitch, null, 2)
+        }}</pre>
       </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import type { Art, ArtImage, Pitch, Prompt } from '~/prisma/generated/prisma/client'
+import type {
+  Art,
+  ArtImage,
+  Pitch,
+  Prompt,
+} from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -268,6 +302,7 @@ const props = withDefaults(
     showPrompts?: boolean
     showMeta?: boolean
     showLaunchButton?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowClone?: boolean
@@ -289,6 +324,7 @@ const props = withDefaults(
     showPrompts: true,
     showMeta: true,
     showLaunchButton: true,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowClone: true,
@@ -300,13 +336,6 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{
-  edit: [id: number]
-  clone: [id: number]
-  delete: [id: number]
-  brainstorm: [id: number]
-}>()
-
 const artStore = useArtStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
@@ -314,6 +343,8 @@ const userStore = useUserStore()
 
 const localArtImage = ref<ArtImage | null>(null)
 const isLoadingImage = ref(false)
+const statusMessage = ref('')
+const statusTone = ref<'success' | 'error'>('success')
 
 const activeSelected = computed(() => {
   return props.selected || pitchStore.selectedPitch?.id === props.pitch.id
@@ -336,7 +367,11 @@ const promptCount = computed(() => {
 })
 
 const artCount = computed(() => {
-  return props.pitch.Art?.length || pitchStore.galleryArt[props.pitch.id]?.length || 0
+  return (
+    props.pitch.Art?.length ||
+    pitchStore.galleryArt[props.pitch.id]?.length ||
+    0
+  )
 })
 
 const promptPreviews = computed(() => {
@@ -361,12 +396,13 @@ const pitchImage = computed(() => {
     return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
   }
 
-  return (
-    props.pitch.highlightImage ||
-    props.pitch.imagePrompt ||
-    props.fallbackImage
-  )
+  return props.pitch.highlightImage || props.fallbackImage
 })
+
+function setStatus(message: string, tone: 'success' | 'error' = 'success') {
+  statusMessage.value = message
+  statusTone.value = tone
+}
 
 async function loadPitchImage() {
   if (!props.pitch.artImageId) {
@@ -379,6 +415,8 @@ async function loadPitchImage() {
   try {
     const image = await artStore.getArtImageById(props.pitch.artImageId)
     localArtImage.value = image || null
+  } catch (error) {
+    console.error('Failed to load pitch image:', error)
   } finally {
     isLoadingImage.value = false
   }
@@ -387,39 +425,56 @@ async function loadPitchImage() {
 function selectPitch() {
   pitchStore.setSelectedPitch(props.pitch.id)
 
-  if (props.pitch.PitchType === 'TITLE') {
+  if (props.pitch.PitchType === PitchType.TITLE) {
     pitchStore.setSelectedTitle(props.pitch.id)
   }
 }
 
 async function startEditing() {
-  await pitchStore.startEditingPitch(props.pitch.id)
-  emit('edit', props.pitch.id)
+  const pitch = await pitchStore.startEditingPitch(props.pitch.id)
+
+  if (!pitch) {
+    setStatus('Pitch could not be loaded for editing.', 'error')
+    return
+  }
+
+  setStatus('Pitch loaded for editing.')
 }
 
 async function startCloning() {
-  await pitchStore.startCloningPitch(props.pitch.id)
-  emit('clone', props.pitch.id)
+  const form = await pitchStore.startCloningPitch(props.pitch.id)
+
+  if (!form) {
+    setStatus('Pitch could not be cloned.', 'error')
+    return
+  }
+
+  setStatus('Pitch cloned into the form.')
 }
 
 async function deletePitch() {
   const result = await pitchStore.deletePitchById(props.pitch.id)
 
   if (result.success) {
-    emit('delete', props.pitch.id)
+    setStatus(result.message || 'Pitch deleted.')
+    return
   }
+
+  setStatus(result.message || 'Failed to delete pitch.', 'error')
 }
 
 function useExample(example: string) {
   promptStore.promptField = example
   promptStore.currentPrompt = example
   promptStore.syncToLocalStorage()
+  setStatus('Example loaded as prompt.')
 }
 
 function usePrompt(prompt: string) {
   promptStore.promptField = prompt
   promptStore.currentPrompt = prompt
   promptStore.syncToLocalStorage()
+  setStatus('Prompt loaded.')
 }
 
 function useForPrompt() {
@@ -434,12 +489,20 @@ function useForPrompt() {
   promptStore.currentPrompt = prompt
   promptStore.syncToLocalStorage()
   selectPitch()
+  setStatus('Pitch loaded as prompt.')
 }
 
 async function generateFromPitch() {
   selectPitch()
-  await pitchStore.fetchBrainstormPitches()
-  emit('brainstorm', props.pitch.id)
+
+  const result = await pitchStore.fetchBrainstormPitches()
+
+  if (result.success) {
+    setStatus(result.message || 'Brainstorm generated.')
+    return
+  }
+
+  setStatus(result.message || 'Brainstorm failed.', 'error')
 }
 
 onMounted(async () => {

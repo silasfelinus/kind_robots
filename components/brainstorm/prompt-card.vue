@@ -1,20 +1,21 @@
 <!-- /components/content/brainstorm/prompt-card.vue -->
 <template>
-  <article
-    :class="[
-      'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
-      compact ? 'gap-2 p-3' : 'gap-4 p-4',
-      activeSelected ? 'border-primary bg-primary/10' : 'border-base-300',
-    ]"
-    @click="selectPrompt"
+  <reactable-card
+    :selected="activeSelected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="prompt.id"
+    target-type="prompt"
+    reaction-category="PROMPT"
+    :target-title="promptTitle"
+    @select="selectPrompt"
   >
-    <div
-      v-if="showActions"
-      class="absolute right-2 top-2 z-20 flex items-center gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
-    >
+    <template #actions>
       <button
-        v-if="allowEdit && canEdit"
-        class="rounded-full bg-base-100 p-2 text-primary shadow hover:bg-primary hover:text-primary-content"
+        v-if="
+          showActions && allowEdit && canEdit && (activeSelected || compact)
+        "
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Prompt"
         @click.stop="startEditing"
@@ -23,8 +24,8 @@
       </button>
 
       <button
-        v-if="allowClone"
-        class="rounded-full bg-base-100 p-2 text-secondary shadow hover:bg-secondary hover:text-secondary-content"
+        v-if="showActions && allowClone && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
         type="button"
         title="Clone Prompt"
         @click.stop="startCloning"
@@ -33,15 +34,17 @@
       </button>
 
       <button
-        v-if="allowDelete && canDelete"
-        class="rounded-full bg-base-100 p-2 text-error shadow hover:bg-error hover:text-error-content"
+        v-if="
+          showActions && allowDelete && canDelete && (activeSelected || compact)
+        "
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Prompt"
         @click.stop="deletePrompt"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
-    </div>
+    </template>
 
     <div class="flex min-w-0 flex-1 flex-col gap-3">
       <header class="min-w-0">
@@ -51,14 +54,15 @@
             class="mt-1 h-5 w-5 shrink-0 text-primary"
           />
 
-          <div class="min-w-0 flex-1 pr-24 md:pr-0">
+          <div class="min-w-0 flex-1">
             <h2
               :class="[
                 'font-black leading-tight text-base-content',
                 compact ? 'line-clamp-2 text-base' : 'line-clamp-3 text-xl',
               ]"
+              :title="promptTitle"
             >
-              {{ prompt.prompt || 'Untitled Prompt' }}
+              {{ promptTitle }}
             </h2>
 
             <p
@@ -104,6 +108,10 @@
 
         <span v-if="prompt.userId" class="badge badge-ghost badge-sm">
           User {{ prompt.userId }}
+        </span>
+
+        <span v-if="activeSelected" class="badge badge-success badge-sm">
+          Selected
         </span>
       </div>
 
@@ -176,6 +184,18 @@
         </button>
       </div>
 
+      <div
+        v-if="statusMessage"
+        class="rounded-2xl border p-3 text-sm"
+        :class="
+          statusTone === 'error'
+            ? 'border-error/40 bg-error/10 text-error'
+            : 'border-success/40 bg-success/10 text-success'
+        "
+      >
+        {{ statusMessage }}
+      </div>
+
       <details
         v-if="showDebug"
         class="rounded-2xl border border-base-300 bg-base-100 p-2"
@@ -190,11 +210,11 @@
         }}</pre>
       </details>
     </div>
-  </article>
+  </reactable-card>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useNavStore } from '@/stores/navStore'
 import { usePitchStore } from '@/stores/pitchStore'
@@ -216,6 +236,7 @@ const props = withDefaults(
     showPitch?: boolean
     showArtCount?: boolean
     showLaunchButton?: boolean
+    showReaction?: boolean
     showDebug?: boolean
     allowEdit?: boolean
     allowClone?: boolean
@@ -231,6 +252,7 @@ const props = withDefaults(
     showPitch: true,
     showArtCount: true,
     showLaunchButton: true,
+    showReaction: true,
     showDebug: false,
     allowEdit: true,
     allowClone: true,
@@ -239,20 +261,20 @@ const props = withDefaults(
   },
 )
 
-const emit = defineEmits<{
-  edit: [id: number]
-  clone: [id: number]
-  delete: [id: number]
-  promote: [id: number]
-}>()
-
 const navStore = useNavStore()
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore()
 const userStore = useUserStore()
 
+const statusMessage = ref('')
+const statusTone = ref<'success' | 'error'>('success')
+
 const activeSelected = computed(() => {
   return props.selected || promptStore.selectedPrompt?.id === props.prompt.id
+})
+
+const promptTitle = computed(() => {
+  return props.prompt.prompt || `Prompt #${props.prompt.id}`
 })
 
 const canEdit = computed(() => {
@@ -283,48 +305,65 @@ const linkedPitchLabel = computed(() => {
 })
 
 const artCount = computed(() => {
-  if (!props.prompt.id) return 0
-
   return promptStore.artByPromptId[props.prompt.id]?.length || 0
 })
+
+function setStatus(message: string, tone: 'success' | 'error' = 'success') {
+  statusMessage.value = message
+  statusTone.value = tone
+}
 
 async function selectPrompt() {
   await promptStore.selectPrompt(props.prompt.id)
 }
 
 async function startEditing() {
-  await promptStore.startEditingPrompt(props.prompt.id)
-  emit('edit', props.prompt.id)
+  const prompt = await promptStore.startEditingPrompt(props.prompt.id)
+
+  if (!prompt) {
+    setStatus('Prompt could not be loaded for editing.', 'error')
+    return
+  }
+
+  setStatus('Prompt loaded for editing.')
 }
 
 async function startCloning() {
-  await promptStore.startCloningPrompt(props.prompt.id)
-  emit('clone', props.prompt.id)
+  const form = await promptStore.startCloningPrompt(props.prompt.id)
+
+  if (!form) {
+    setStatus('Prompt could not be cloned.', 'error')
+    return
+  }
+
+  setStatus('Prompt cloned into the form.')
 }
 
 async function deletePrompt() {
   const result = await promptStore.deletePromptById(props.prompt.id)
 
   if (result.success) {
-    emit('delete', props.prompt.id)
+    setStatus(result.message || 'Prompt deleted.')
+    return
   }
+
+  setStatus(result.message || 'Failed to delete prompt.', 'error')
 }
 
 function usePromptNow() {
-  promptStore.promptField = props.prompt.prompt || ''
-  promptStore.currentPrompt = props.prompt.prompt || ''
-  promptStore.syncToLocalStorage()
-  void selectPrompt()
+  promptStore.usePrompt(props.prompt)
+  setStatus('Prompt loaded.')
 }
 
 async function promotePrompt() {
-  await promptStore.selectPrompt(props.prompt.id)
-
   const result = await promptStore.promoteToPitch(props.prompt.id)
 
   if (result.success) {
     navStore.setDashboardTab('brainstorm', 'pitches')
-    emit('promote', props.prompt.id)
+    setStatus(result.message || 'Prompt promoted to pitch.')
+    return
   }
+
+  setStatus(result.message || 'Failed to promote prompt.', 'error')
 }
 </script>

@@ -556,7 +556,15 @@ async function sendMessage() {
     scrollToBottom()
 
     if (typeof chatStore.streamResponse === 'function') {
-      await chatStore.streamResponse(newChat.id)
+      await chatStore.streamResponse(newChat.id, {
+        model:
+          modelName.value ||
+          serverStore.activeTextServer?.model ||
+          'gpt-4o-mini',
+        temperature: temperature.value,
+        maxTokens: maxTokens.value,
+        serverId: serverStore.activeTextServer?.id ?? null,
+      })
     }
 
     await nextTick()

@@ -13,6 +13,8 @@ dottitip: 'A good server page is like a switchboard for chaos.'
 amitip: 'I like a dropdown full of possibilities and only mild danger.'
 sort: highlight
 navComponent: 'server-nav'
+dashboard: 'servers'
+footer: 'server-footer'
 ---
 
 :server-manager

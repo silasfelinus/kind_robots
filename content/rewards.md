@@ -14,5 +14,7 @@ dottitip: 'Rewards here aren’t static trophies. They’re story catalysts.'
 amitip: 'Some are poetic. Some are cursed. Some are sentient!'
 sort: gallery
 navComponent: 'mode-nav'
+dashboard: 'rewards'
+footer: 'reward-footer'
 ---
 :reward-manager

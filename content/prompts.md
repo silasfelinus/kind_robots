@@ -14,6 +14,8 @@ dottitip: "What's the secret to a perfect prompt, AMI?"
 amitip: 'Keep it short and let the AI do the heavy lifting!'
 sort: highlight
 navComponent: 'prompt-nav'
+dashboard: 'prompts'
+footer: 'brainstorm-footer'
 ---
 
 :prompt-factory

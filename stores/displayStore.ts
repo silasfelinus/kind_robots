@@ -414,14 +414,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return Math.max(0, 100 - headerLeftInset.value - headerRightInset.value)
   })
 
+  // After
   const footerLeftInset = computed(() => {
-    return sectionPaddingSize.value
+    const padding = sectionPaddingSize.value
+    return leftSidebarPriority.value
+      ? padding + sidebarLeftWidth.value
+      : padding
   })
 
   const footerRightInset = computed(() => {
-    return sectionPaddingSize.value
+    const padding = sectionPaddingSize.value
+    return rightSidebarPriority.value
+      ? padding + sidebarRightWidth.value
+      : padding
   })
-
   const footerWidth = computed(() => {
     return Math.max(0, 100 - footerLeftInset.value - footerRightInset.value)
   })

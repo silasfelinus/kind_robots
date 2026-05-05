@@ -1,5 +1,5 @@
 // /server/api/dreams/chats/index.get.ts
-import { defineEventHandler, getQuery } from 'h3'
+import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
@@ -18,15 +18,16 @@ function normalizePositiveInt(value: unknown): number | null {
   return parsedValue
 }
 
-function handledError(event: any, error: unknown, fallbackStatusCode = 500) {
-  const handled = errorHandler(error)
-  const statusCode = handled.statusCode || fallbackStatusCode
-
-  event.node.res.statusCode = statusCode
+function fail(
+  event: Parameters<typeof setResponseStatus>[0],
+  statusCode: number,
+  message: string,
+) {
+  setResponseStatus(event, statusCode)
 
   return {
     success: false,
-    message: handled.message || 'Request failed.',
+    message,
     data: null,
     statusCode,
   }
@@ -39,13 +40,10 @@ export default defineEventHandler(async (event) => {
     const limit = normalizePositiveInt(query.limit)
 
     if (!dreamId) {
-      return handledError(
+      return fail(
         event,
-        {
-          message: 'Invalid Dream ID. It must be a positive integer.',
-          statusCode: 400,
-        },
         400,
+        'Invalid Dream ID. It must be a positive integer.',
       )
     }
 
@@ -60,14 +58,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!dream) {
-      return handledError(
-        event,
-        {
-          message: `Dream with ID ${dreamId} not found.`,
-          statusCode: 404,
-        },
-        404,
-      )
+      return fail(event, 404, `Dream with ID ${dreamId} not found.`)
     }
 
     const validation = await validateApiKey(event)
@@ -82,14 +73,10 @@ export default defineEventHandler(async (event) => {
       requesterRole === 'ADMIN'
 
     if (!canViewDream) {
-      return handledError(
+      return fail(
         event,
-        {
-          message:
-            'You do not have permission to view this Dream chat history.',
-          statusCode: 403,
-        },
         403,
+        'You do not have permission to view this Dream chat history.',
       )
     }
 
@@ -103,7 +90,7 @@ export default defineEventHandler(async (event) => {
       take: limit ?? undefined,
     })
 
-    event.node.res.statusCode = 200
+    setResponseStatus(event, 200)
 
     return {
       success: true,
@@ -112,6 +99,16 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error) {
-    return handledError(event, error)
+    const handled = errorHandler(error)
+    const statusCode = handled.statusCode || 500
+
+    setResponseStatus(event, statusCode)
+
+    return {
+      success: false,
+      message: handled.message || 'Failed to fetch Dream chat history.',
+      data: null,
+      statusCode,
+    }
   }
 })

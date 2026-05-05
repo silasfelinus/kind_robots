@@ -1,212 +1,177 @@
 // /server/api/dreams/chats/index.post.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import { defineEventHandler, getQuery, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
-import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
+import { ChatType } from '~/prisma/generated/prisma/client'
 
-type DreamChatCreateBody = {
-  dreamId?: number | null
-  type?: ChatType
-  sender?: string
-  recipient?: string | null
-  content?: string
-  title?: string | null
-  isPublic?: boolean
-  isFavorite?: boolean
-  previousEntryId?: number | null
-  originId?: number | null
-  botId?: number | null
-  recipientId?: number | null
-  artImageId?: number | null
-  promptId?: number | null
-  botName?: string | null
-  channel?: string | null
-  botResponse?: string | null
-  characterId?: number | null
-  isRead?: boolean
-  isMature?: boolean
-  serverId?: number | null
-  serverName?: string | null
-  updateDream?: boolean
-  currentVibe?: string
-  currentPrompt?: string | null
-  artId?: number | null
-  addArtToCollection?: boolean
+type DreamChatPostInput = {
+  type?: unknown
+  sender?: unknown
+  content?: unknown
+  botResponse?: unknown
+  userId?: unknown
+  dreamId?: unknown
+  updateDream?: unknown
+  currentVibe?: unknown
+  currentPrompt?: unknown
+  isPublic?: unknown
+  isMature?: unknown
 }
 
-function normalizeNullableId(value: unknown): number | null | undefined {
-  if (value === null) return null
-  if (value === undefined || value === '') return undefined
+function normalizePositiveInt(value: unknown): number | null {
+  const rawValue = Array.isArray(value) ? value[0] : value
+  const parsedValue =
+    typeof rawValue === 'string' || typeof rawValue === 'number'
+      ? Number(rawValue)
+      : NaN
 
-  const parsed = Number(value)
-  if (!Number.isInteger(parsed) || parsed <= 0) return undefined
-
-  return parsed
-}
-
-function requirePositiveId(value: unknown, label: string): number {
-  const parsed = Number(value)
-
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw createError({
-      statusCode: 400,
-      message: `Invalid ${label}. It must be a positive integer.`,
-    })
+  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+    return null
   }
 
-  return parsed
+  return parsedValue
+}
+
+function normalizeOptionalString(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const trimmedValue = value.trim()
+
+  return trimmedValue.length ? trimmedValue : undefined
+}
+
+function normalizeRequiredString(value: unknown, field: string): string {
+  const normalizedValue = normalizeOptionalString(value)
+
+  if (!normalizedValue) {
+    throw {
+      success: false,
+      message: `${field} is required.`,
+      statusCode: 400,
+    }
+  }
+
+  return normalizedValue
+}
+
+function normalizeBoolean(value: unknown, fallback: boolean): boolean {
+  if (typeof value === 'boolean') {
+    return value
+  }
+
+  return fallback
+}
+
+function normalizeChatType(value: unknown): ChatType {
+  if (typeof value === 'string') {
+    const match = Object.values(ChatType).find((chatType) => chatType === value)
+
+    if (match) {
+      return match
+    }
+  }
+
+  return ChatType.Dream
 }
 
 export default defineEventHandler(async (event) => {
-  let dreamId = 0
-
   try {
-    const { isValid, user } = await validateApiKey(event)
+    const validation = await validateApiKey(event)
 
-    if (!isValid || !user) {
-      throw createError({
+    if (!validation.isValid || !validation.user?.id) {
+      return errorHandler({
+        message: 'Invalid authentication token.',
         statusCode: 401,
-        message: 'Invalid or expired token.',
       })
     }
 
-    const body = await readBody<DreamChatCreateBody>(event)
-    dreamId = requirePositiveId(body.dreamId, 'Dream ID')
+    const body = await readBody<DreamChatPostInput>(event)
+    const query = getQuery(event)
+
+    const dreamId =
+      normalizePositiveInt(query.dreamId) ?? normalizePositiveInt(body.dreamId)
+
+    if (!dreamId) {
+      return errorHandler({
+        message: 'Invalid Dream ID. It must be a positive integer.',
+        statusCode: 400,
+      })
+    }
 
     const dream = await prisma.dream.findUnique({
       where: { id: dreamId },
-    })
-
-    if (!dream) {
-      throw createError({
-        statusCode: 404,
-        message: `Dream with ID ${dreamId} not found.`,
-      })
-    }
-
-    if (!dream.isPublic && dream.userId !== user.id && user.Role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        message: 'You are not authorized to post to this dream.',
-      })
-    }
-
-    const content = body.content?.trim()
-    if (!content) {
-      throw createError({
-        statusCode: 400,
-        message: 'The "content" field is required.',
-      })
-    }
-
-    const userRecord = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { username: true },
-    })
-
-    const sender =
-      body.sender?.trim() || userRecord?.username || `User ${user.id}`
-
-    const chatInput: Prisma.ChatUncheckedCreateInput = {
-      type: body.type ?? 'Dream',
-      sender,
-      recipient: body.recipient ?? null,
-      content,
-      title: body.title ?? null,
-      isPublic: body.isPublic ?? dream.isPublic,
-      isFavorite: body.isFavorite ?? false,
-      previousEntryId: normalizeNullableId(body.previousEntryId),
-      originId: normalizeNullableId(body.originId),
-      userId: user.id,
-      botId: normalizeNullableId(body.botId),
-      recipientId: normalizeNullableId(body.recipientId),
-      artImageId: normalizeNullableId(body.artImageId),
-      promptId: normalizeNullableId(body.promptId),
-      botName: body.botName ?? null,
-      channel: body.channel ?? `dream-${dreamId}`,
-      botResponse: body.botResponse ?? null,
-      characterId: normalizeNullableId(body.characterId),
-      isRead: body.isRead ?? false,
-      isMature: body.isMature ?? dream.isMature,
-      dreamId,
-      serverId: normalizeNullableId(body.serverId),
-      serverName: body.serverName ?? null,
-    }
-
-    const data = await prisma.chat.create({
-      data: chatInput,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            avatarImage: true,
-          },
-        },
-        Prompt: true,
-        ArtImage: {
-          select: {
-            id: true,
-            fileName: true,
-            fileType: true,
-            createdAt: true,
-            updatedAt: true,
-            userId: true,
-            artId: true,
-            galleryId: true,
-          },
-        },
-        Reactions: true,
+      select: {
+        id: true,
+        userId: true,
+        isPublic: true,
+        isMature: true,
       },
     })
 
-    const artId = normalizeNullableId(body.artId)
-    const artImageId = normalizeNullableId(body.artImageId)
-
-    if (body.updateDream) {
-      await prisma.dream.update({
-        where: { id: dreamId },
-        data: {
-          ...(body.currentVibe !== undefined
-            ? { currentVibe: body.currentVibe }
-            : {}),
-          ...(body.currentPrompt !== undefined
-            ? { currentPrompt: body.currentPrompt }
-            : {}),
-          ...(artId !== undefined ? { artId } : {}),
-          ...(artImageId !== undefined ? { artImageId } : {}),
-        },
+    if (!dream) {
+      return errorHandler({
+        message: `Dream with ID ${dreamId} not found.`,
+        statusCode: 404,
       })
     }
 
-    if (body.addArtToCollection && dream.artCollectionId && artId) {
-      await prisma.artCollection.update({
-        where: { id: dream.artCollectionId },
+    if (dream.userId !== validation.user.id) {
+      return errorHandler({
+        message: 'You do not have permission to add chats to this Dream.',
+        statusCode: 403,
+      })
+    }
+
+    const content = normalizeRequiredString(body.content, 'content')
+    const type = normalizeChatType(body.type)
+    const sender = normalizeOptionalString(body.sender) ?? 'Dream'
+    const botResponse = normalizeOptionalString(body.botResponse)
+    const userId = normalizePositiveInt(body.userId) ?? validation.user.id
+    const isPublic = normalizeBoolean(body.isPublic, dream.isPublic)
+    const isMature = normalizeBoolean(body.isMature, dream.isMature)
+    const updateDream = normalizeBoolean(body.updateDream, false)
+    const currentVibe = normalizeOptionalString(body.currentVibe)
+    const currentPrompt = normalizeOptionalString(body.currentPrompt)
+
+    const result = await prisma.$transaction(async (tx) => {
+      const chat = await tx.chat.create({
         data: {
-          art: {
-            connect: { id: artId },
+          type,
+          sender,
+          content,
+          botResponse,
+          userId,
+          dreamId,
+          isPublic,
+          isMature,
+        },
+      })
+
+      if (updateDream) {
+        await tx.dream.update({
+          where: { id: dreamId },
+          data: {
+            ...(currentVibe ? { currentVibe } : {}),
+            ...(currentPrompt ? { currentPrompt } : {}),
+            isPublic,
+            isMature,
           },
-        },
-      })
-    }
+        })
+      }
 
-    event.node.res.statusCode = 201
+      return chat
+    })
+
     return {
       success: true,
-      message: 'Dream chat created successfully.',
-      data,
+      message: `Dream chat added to Dream ID ${dreamId} successfully.`,
+      data: result,
       statusCode: 201,
     }
   } catch (error) {
-    const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
-
-    return {
-      success: false,
-      message: handled.message || `Failed to create chat for Dream ${dreamId}.`,
-      data: null,
-      statusCode: event.node.res.statusCode,
-    }
+    return errorHandler(error)
   }
 })

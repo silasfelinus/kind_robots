@@ -1,33 +1,35 @@
 // /server/api/dreams/chats/index.get.ts
-import { defineEventHandler, createError, getQuery } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 
-function requirePositiveId(value: unknown, label: string): number {
-  const parsed = Number(value)
+function normalizePositiveInt(value: unknown): number | null {
+  const rawValue = Array.isArray(value) ? value[0] : value
+  const parsedValue =
+    typeof rawValue === 'string' || typeof rawValue === 'number'
+      ? Number(rawValue)
+      : NaN
 
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw createError({
-      statusCode: 400,
-      message: `Invalid ${label}. It must be a positive integer.`,
-    })
+  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+    return null
   }
 
-  return parsed
+  return parsedValue
 }
 
 export default defineEventHandler(async (event) => {
-  let dreamId = 0
-
   try {
     const query = getQuery(event)
-    dreamId = requirePositiveId(query.dreamId, 'Dream ID')
+    const dreamId = normalizePositiveInt(query.dreamId)
+    const limit = normalizePositiveInt(query.limit)
 
-    const limit = Math.min(Number(query.limit) || 100, 250)
-
-    const { isValid, user } = await validateApiKey(event)
-    const userId = isValid && user ? user.id : null
+    if (!dreamId) {
+      return errorHandler({
+        message: 'Invalid Dream ID. It must be a positive integer.',
+        statusCode: 400,
+      })
+    }
 
     const dream = await prisma.dream.findUnique({
       where: { id: dreamId },
@@ -40,69 +42,42 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!dream) {
-      throw createError({
-        statusCode: 404,
+      return errorHandler({
         message: `Dream with ID ${dreamId} not found.`,
+        statusCode: 404,
       })
     }
 
-    if (!dream.isPublic && dream.userId !== userId && user?.Role !== 'ADMIN') {
-      throw createError({
+    const validation = await validateApiKey(event)
+    const requesterId =
+      validation.isValid && validation.user?.id ? validation.user.id : null
+
+    const canViewDream = dream.isPublic || requesterId === dream.userId
+
+    if (!canViewDream) {
+      return errorHandler({
+        message: 'You do not have permission to view this Dream chat history.',
         statusCode: 403,
-        message: 'You are not authorized to view this dream chat.',
       })
     }
 
-    const data = await prisma.chat.findMany({
+    const chats = await prisma.chat.findMany({
       where: {
         dreamId,
-        ...(dream.isPublic ? { isPublic: true } : {}),
       },
-      orderBy: { createdAt: 'asc' },
-      take: limit,
-      include: {
-        User: {
-          select: {
-            id: true,
-            username: true,
-            avatarImage: true,
-          },
-        },
-        Bot: true,
-        Character: true,
-        Prompt: true,
-        ArtImage: {
-          select: {
-            id: true,
-            fileName: true,
-            fileType: true,
-            createdAt: true,
-            updatedAt: true,
-            userId: true,
-            artId: true,
-            galleryId: true,
-          },
-        },
-        Reactions: true,
+      orderBy: {
+        createdAt: 'asc',
       },
+      take: limit ?? undefined,
     })
 
-    event.node.res.statusCode = 200
     return {
       success: true,
-      message: 'Dream chat history fetched successfully.',
-      data,
+      message: `Dream chat history for Dream ID ${dreamId} retrieved successfully.`,
+      data: chats,
       statusCode: 200,
     }
   } catch (error) {
-    const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
-
-    return {
-      success: false,
-      message: handled.message || `Failed to fetch chats for Dream ${dreamId}.`,
-      data: null,
-      statusCode: event.node.res.statusCode,
-    }
+    return errorHandler(error)
   }
 })

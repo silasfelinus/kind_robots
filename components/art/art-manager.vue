@@ -19,17 +19,18 @@
         >
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <checkpoint-gallery
-              variant="compact"
+              variant="select"
               title="Model"
               subtitle="Choose the art model."
               :show-controls="false"
               :show-status="true"
               :show-sampler="true"
-              :show-images="true"
+              :show-images="false"
               :show-descriptions="false"
               :show-meta="false"
               :show-select-buttons="false"
               :compact="true"
+              :auto-load-art-images="false"
             />
           </div>
 
@@ -150,15 +151,17 @@
       >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
           <checkpoint-gallery
+            variant="select"
             title="Model and Sampler"
             subtitle="Pick the image engine."
-            :show-controls="true"
+            :show-controls="false"
             :show-status="true"
             :show-sampler="true"
-            :show-images="true"
-            :show-descriptions="true"
-            :show-meta="true"
+            :show-images="false"
+            :show-descriptions="false"
+            :show-meta="false"
             :show-select-buttons="false"
+            :auto-load-art-images="false"
           />
         </div>
 

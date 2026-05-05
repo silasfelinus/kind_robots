@@ -8,6 +8,93 @@ import type { Resource } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { useErrorStore, ErrorType } from './errorStore'
 
+type ApiResponse<T> = {
+  success: boolean
+  data?: T
+  message?: string
+}
+
+type ModelApiObjectResponse = {
+  model?: unknown
+  currentModel?: unknown
+  currentApiModel?: unknown
+  sd_model_checkpoint?: unknown
+  checkpoint?: unknown
+  data?: unknown
+  message?: unknown
+}
+
+type ModelApiResponse = string | ModelApiObjectResponse
+
+function safeText(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean')
+    return String(value)
+
+  return ''
+}
+
+function cleanName(value: unknown): string {
+  return safeText(value).trim()
+}
+
+function extractModelName(value: unknown): string {
+  if (typeof value === 'string') return value.trim()
+
+  if (typeof value !== 'object' || value === null) return ''
+
+  const record = value as ModelApiObjectResponse
+
+  const direct =
+    cleanName(record.model) ||
+    cleanName(record.currentModel) ||
+    cleanName(record.currentApiModel) ||
+    cleanName(record.sd_model_checkpoint) ||
+    cleanName(record.checkpoint)
+
+  if (direct) return direct
+
+  return extractModelName(record.data)
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return error
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const record = error as {
+      message?: unknown
+      statusMessage?: unknown
+      statusText?: unknown
+    }
+
+    return (
+      cleanName(record.message) ||
+      cleanName(record.statusMessage) ||
+      cleanName(record.statusText) ||
+      fallback
+    )
+  }
+
+  return fallback
+}
+
+function isSuccessNoise(message: unknown): boolean {
+  const cleaned = cleanName(message).toLowerCase()
+
+  return (
+    !cleaned ||
+    cleaned === 'request completed successfully' ||
+    cleaned === 'ok' ||
+    cleaned === 'success'
+  )
+}
+
 export const useCheckpointStore = defineStore('checkpointStore', () => {
   const userStore = useUserStore()
   const errorStore = useErrorStore()
@@ -23,21 +110,31 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   const selectedSampler = ref<Partial<Resource> | null>(null)
   const currentApiModel = ref<string | null>(null)
 
-  const visibleCheckpoints = computed(() =>
-    allCheckpoints.value.filter((resource) =>
-      userStore.showMature ? true : !(resource.isMature ?? false),
-    ),
-  )
+  const visibleCheckpoints = computed(() => {
+    return allCheckpoints.value.filter((resource) => {
+      return userStore.showMature ? true : !(resource.isMature ?? false)
+    })
+  })
 
-  const isValidSampler = (name: string) =>
-    allSamplers.value.some(
-      (sampler) => (sampler.name ?? '').trim() === name.trim(),
-    )
+  function isValidSampler(name: unknown) {
+    const target = cleanName(name)
 
-  const isValidCheckpoint = (name: string) =>
-    allCheckpoints.value.some(
-      (resource) => (resource.name ?? '').trim() === name.trim(),
-    )
+    if (!target) return false
+
+    return allSamplers.value.some((sampler) => {
+      return cleanName(sampler.name) === target
+    })
+  }
+
+  function isValidCheckpoint(name: unknown) {
+    const target = cleanName(name)
+
+    if (!target) return false
+
+    return allCheckpoints.value.some((resource) => {
+      return cleanName(resource.name) === target
+    })
+  }
 
   function initialize() {
     if (!selectedCheckpoint.value && visibleCheckpoints.value.length > 0) {
@@ -49,48 +146,76 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     }
   }
 
-  function selectCheckpointByName(name: string) {
-    const trimmed = name.trim()
-    selectedCheckpoint.value =
-      allCheckpoints.value.find(
-        (resource) => (resource.name ?? '').trim() === trimmed,
-      ) || null
+  function findCheckpointByName(name: unknown): Partial<Resource> | undefined {
+    const target = cleanName(name)
+
+    if (!target) return undefined
+
+    return allCheckpoints.value.find((resource) => {
+      return cleanName(resource.name) === target
+    })
   }
 
-  function selectSamplerByName(name: string) {
-    const trimmed = name.trim()
-    const found = allSamplers.value.find(
-      (sampler) => (sampler.name ?? '').trim() === trimmed,
-    )
+  function findSamplerByName(name: unknown): Partial<Resource> | undefined {
+    const target = cleanName(name)
+
+    if (!target) return undefined
+
+    return allSamplers.value.find((sampler) => {
+      return cleanName(sampler.name) === target
+    })
+  }
+
+  function selectCheckpointByName(name: unknown) {
+    const target = cleanName(name)
+
+    if (!target) {
+      selectedCheckpoint.value = null
+      return
+    }
+
+    selectedCheckpoint.value = findCheckpointByName(target) || null
+  }
+
+  function selectSamplerByName(name: unknown) {
+    const target = cleanName(name)
+
+    if (!target) {
+      selectedSampler.value = null
+      return
+    }
+
+    const found = findSamplerByName(target)
 
     if (!found) {
-      console.warn(`[❌ Sampler Not Found] "${name}"`)
+      console.warn(`[❌ Sampler Not Found] "${target}"`)
     }
 
     selectedSampler.value = found || null
   }
 
-  function findCheckpointByName(name: string): Partial<Resource> | undefined {
-    const trimmed = name.trim()
-    return allCheckpoints.value.find(
-      (resource) => (resource.name ?? '').trim() === trimmed,
-    )
-  }
-
   async function fetchCurrentModelFromApi(force = false) {
     if (!force && currentApiModel.value) return
-    if (fetchModelPromise.value) return fetchModelPromise.value
+
+    if (fetchModelPromise.value) {
+      return fetchModelPromise.value
+    }
 
     fetchModelPromise.value = (async () => {
       modelLoading.value = true
 
       try {
-        const res = await performFetch<string>('/api/art/sd/currentModel')
+        const res = await performFetch<ModelApiResponse>(
+          '/api/art/sd/currentModel',
+        )
 
-        if (res.success && res.data) {
-          currentApiModel.value = res.data
+        const modelName = extractModelName(res.data)
 
-          const matchingCheckpoint = findCheckpointByName(res.data)
+        if (res.success && modelName) {
+          currentApiModel.value = modelName
+
+          const matchingCheckpoint = findCheckpointByName(modelName)
+
           if (matchingCheckpoint) {
             selectedCheckpoint.value = matchingCheckpoint
           }
@@ -98,14 +223,20 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
           return
         }
 
-        errorStore.setError(
-          ErrorType.GENERAL_ERROR,
-          res.message || 'Model fetch failed.',
-        )
         currentApiModel.value = null
+
+        const message = isSuccessNoise(res.message)
+          ? 'Model fetch returned no model name.'
+          : cleanName(res.message)
+
+        errorStore.setError(ErrorType.GENERAL_ERROR, message)
       } catch (error) {
-        errorStore.setError(ErrorType.NETWORK_ERROR, error)
         currentApiModel.value = null
+
+        errorStore.setError(
+          ErrorType.NETWORK_ERROR,
+          getErrorMessage(error, 'Failed to fetch current model.'),
+        )
       } finally {
         modelLoading.value = false
         fetchModelPromise.value = null
@@ -115,30 +246,52 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     return fetchModelPromise.value
   }
 
-  async function setCurrentModelInApi(name: string) {
+  async function setCurrentModelInApi(
+    name: unknown,
+  ): Promise<ApiResponse<unknown>> {
+    const checkpointName = cleanName(name)
+
+    if (!checkpointName) {
+      const message = 'Cannot set model without a checkpoint name.'
+
+      errorStore.setError(ErrorType.GENERAL_ERROR, message)
+
+      return {
+        success: false,
+        message,
+      }
+    }
+
     modelUpdating.value = true
 
     try {
       const res = await performFetch('/api/art/sd/setModel', {
         method: 'POST',
-        body: JSON.stringify({ checkpoint: name }),
+        body: JSON.stringify({ checkpoint: checkpointName }),
         headers: { 'Content-Type': 'application/json' },
       })
 
       if (res.success) {
-        currentApiModel.value = name
-        selectCheckpointByName(name)
+        currentApiModel.value = checkpointName
+        selectCheckpointByName(checkpointName)
       } else {
-        errorStore.setError(
-          ErrorType.GENERAL_ERROR,
-          res.message || 'Failed to set current model.',
-        )
+        const message = isSuccessNoise(res.message)
+          ? 'Failed to set current model.'
+          : cleanName(res.message)
+
+        errorStore.setError(ErrorType.GENERAL_ERROR, message)
       }
 
       return res
     } catch (error) {
-      errorStore.setError(ErrorType.NETWORK_ERROR, error)
-      throw error
+      const message = getErrorMessage(error, 'Failed to set current model.')
+
+      errorStore.setError(ErrorType.NETWORK_ERROR, message)
+
+      return {
+        success: false,
+        message,
+      }
     } finally {
       modelUpdating.value = false
     }

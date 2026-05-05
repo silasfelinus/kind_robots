@@ -1,20 +1,37 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// cypress/e2e/bots.cy.js
+// cypress/e2e/api/bots.cy.ts
+
+type Bot = {
+  id: number
+  name: string
+  description?: string
+}
 
 describe('Bot Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/bots'
   const botUrl = 'https://kind-robots.vercel.app/api/bot'
-  const apiKey = Cypress.env('API_KEY')
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
 
+  let apiKey = ''
+  let userToken = ''
   let createdBotId: number
+
   const botName = `testbot-${Date.now()}`
+
+  before(() => {
+    cy.env(['API_KEY', 'USER_TOKEN']).then((env) => {
+      apiKey = String(env.API_KEY || '')
+      userToken = String(env.USER_TOKEN || '')
+
+      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
 
   it('should not allow creating a bot without an authorization token', () => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}`,
+      url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -29,16 +46,14 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include(
-        'Failed to create a new bot',
-      )
+      expect(response.body.message).to.include('Failed to create a new bot')
     })
   })
 
   it('should not allow creating a bot with an invalid authorization token', () => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}`,
+      url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
@@ -61,7 +76,7 @@ describe('Bot Management API Tests', () => {
   it('Create a New Bot with Valid Authentication', () => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}`,
+      url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
@@ -88,16 +103,20 @@ describe('Bot Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('data')
+
       createdBotId = response.body.data.id
     })
   })
 
   it('should not allow updating a bot without an authorization token', () => {
     const updateUrl = `${botUrl}/id/${createdBotId}`
+
     cy.request({
       method: 'PATCH',
       url: updateUrl,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
         description: 'Unauthorized update attempt',
       },
@@ -113,6 +132,7 @@ describe('Bot Management API Tests', () => {
 
   it('should not allow updating a bot with an invalid authorization token', () => {
     const updateUrl = `${botUrl}/id/${createdBotId}`
+
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -133,6 +153,7 @@ describe('Bot Management API Tests', () => {
 
   it('Update Bot with Valid Authentication', () => {
     const updateUrl = `${botUrl}/id/${createdBotId}`
+
     cy.request({
       method: 'PATCH',
       url: updateUrl,
@@ -169,7 +190,9 @@ describe('Bot Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('array')
+
       const bot = response.body.data.find((bot: Bot) => bot.id === createdBotId)
+
       expect(bot).to.include({
         id: createdBotId,
         name: botName,
@@ -182,7 +205,9 @@ describe('Bot Management API Tests', () => {
     cy.request({
       method: 'DELETE',
       url: `${botUrl}/id/${createdBotId}`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)

@@ -18,16 +18,27 @@ interface ComfyResponse {
 }
 
 describe('Comfy API Integration', () => {
-  const API_BASE = Cypress.env('API_BASE') ?? 'https://kind-robots.vercel.app'
-  const COMFY_TEST_SERVER_ID = Number(Cypress.env('COMFY_TEST_SERVER_ID') ?? 25)
-  const apiBase = `${API_BASE}/api/comfy`
-  const apiKey = Cypress.env('API_KEY')
+  let apiBase = 'https://kind-robots.vercel.app/api/comfy'
+  let comfyTestServerId = 25
+  let apiKey = ''
 
   before(() => {
-    expect(apiKey, 'Cypress.env("API_KEY")').to.be.a('string').and.not.be.empty
-    expect(API_BASE, 'API_BASE').to.be.a('string').and.not.be.empty
-    expect(COMFY_TEST_SERVER_ID, 'COMFY_TEST_SERVER_ID').to.be.a('number')
-    expect(COMFY_TEST_SERVER_ID, 'COMFY_TEST_SERVER_ID').to.be.greaterThan(0)
+    cy.env(['API_BASE', 'COMFY_TEST_SERVER_ID', 'API_KEY']).then((env) => {
+      const rawApiBase = String(
+        env.API_BASE || 'https://kind-robots.vercel.app',
+      )
+      const cleanApiBase = rawApiBase.replace(/\/+$/, '')
+      const parsedServerId = Number(env.COMFY_TEST_SERVER_ID ?? 25)
+
+      apiBase = `${cleanApiBase}/api/comfy`
+      comfyTestServerId = Number.isFinite(parsedServerId) ? parsedServerId : 25
+      apiKey = String(env.API_KEY || '')
+
+      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+      expect(cleanApiBase, 'API_BASE').to.be.a('string').and.not.be.empty
+      expect(comfyTestServerId, 'COMFY_TEST_SERVER_ID').to.be.a('number')
+      expect(comfyTestServerId, 'COMFY_TEST_SERVER_ID').to.be.greaterThan(0)
+    })
   })
 
   function pollPromptStatus(
@@ -59,6 +70,7 @@ describe('Comfy API Integration', () => {
 
           if (!done && keepWaiting) {
             elapsed += intervalMs
+
             return cy.wait(intervalMs).then(check)
           }
 
@@ -77,7 +89,7 @@ describe('Comfy API Integration', () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: {
-        serverId: COMFY_TEST_SERVER_ID,
+        serverId: comfyTestServerId,
         modelType: 'flux',
         inputType: 'text',
         outputType: 'image',
@@ -95,12 +107,13 @@ describe('Comfy API Integration', () => {
           body.success,
           `submit success — body: ${JSON.stringify(body)}`,
         ).to.eq(true)
+
         expect(body.promptId, 'promptId returned').to.be.a('string').and.not.be
           .empty
 
         const promptId = body.promptId as string
 
-        return pollPromptStatus(promptId, COMFY_TEST_SERVER_ID, 120000).then(
+        return pollPromptStatus(promptId, comfyTestServerId, 120000).then(
           (finalRes) => {
             cy.log('Comfy final response:', JSON.stringify(finalRes))
 
@@ -108,6 +121,7 @@ describe('Comfy API Integration', () => {
               finalRes.success,
               `final success — body: ${JSON.stringify(finalRes)}`,
             ).to.eq(true)
+
             expect(finalRes.status).to.be.oneOf(['done', 'cached'])
           },
         )
@@ -123,7 +137,7 @@ describe('Comfy API Integration', () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: {
-        serverId: COMFY_TEST_SERVER_ID,
+        serverId: comfyTestServerId,
         imageData:
           'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADjgGRzSVcrwAAAABJRU5ErkJggg==',
         wildcard_text: '__flux/lsd__',
@@ -139,12 +153,13 @@ describe('Comfy API Integration', () => {
           body.success,
           `submit success — body: ${JSON.stringify(body)}`,
         ).to.eq(true)
+
         expect(body.promptId, 'promptId returned').to.be.a('string').and.not.be
           .empty
 
         const promptId = body.promptId as string
 
-        return pollPromptStatus(promptId, COMFY_TEST_SERVER_ID, 120000).then(
+        return pollPromptStatus(promptId, comfyTestServerId, 120000).then(
           (finalRes) => {
             cy.log('Kontext final response:', JSON.stringify(finalRes))
 
@@ -152,6 +167,7 @@ describe('Comfy API Integration', () => {
               finalRes.success,
               `final success — body: ${JSON.stringify(finalRes)}`,
             ).to.eq(true)
+
             expect(finalRes.status).to.be.oneOf(['done', 'cached'])
           },
         )
@@ -161,7 +177,7 @@ describe('Comfy API Integration', () => {
   it('handles unknown promptId gracefully', () => {
     cy.request<ComfyResponse>({
       method: 'GET',
-      url: `${apiBase}/prompt/does-not-exist?serverId=${COMFY_TEST_SERVER_ID}`,
+      url: `${apiBase}/prompt/does-not-exist?serverId=${comfyTestServerId}`,
       failOnStatusCode: false,
       headers: {
         Authorization: `Bearer ${apiKey}`,

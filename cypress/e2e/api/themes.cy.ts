@@ -1,12 +1,20 @@
-// cypress/e2e/themes.cy.js
+// cypress/e2e/api/themes.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Theme Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/themes'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let themeId: number | undefined
   const uniqueThemeName = `TestTheme-${Date.now()}`
+
+  let userToken = ''
+  let themeId: number | undefined
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
 
   it('should create a new theme with valid authentication', () => {
     cy.request({
@@ -41,12 +49,16 @@ describe('Theme Management API Tests', () => {
       expect(res.body.theme.name).to.eq(uniqueThemeName)
       expect(res.body.theme.prefersDark).to.be.true
       expect(res.body.theme.colorScheme).to.eq('dark')
+
       themeId = res.body.theme.id
+
+      expect(themeId).to.be.a('number')
     })
   })
 
   it('should retrieve the created theme by ID', () => {
-    cy.wrap(themeId).should('exist')
+    expect(themeId).to.exist
+
     cy.request(`${baseUrl}/${themeId}`).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
@@ -67,7 +79,8 @@ describe('Theme Management API Tests', () => {
   })
 
   it('should update a theme’s name and public status with auth', () => {
-    cy.wrap(themeId).should('exist')
+    expect(themeId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${themeId}`,
@@ -88,7 +101,8 @@ describe('Theme Management API Tests', () => {
   })
 
   it('should update theme metadata with auth', () => {
-    cy.wrap(themeId).should('exist')
+    expect(themeId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${themeId}`,
@@ -109,6 +123,8 @@ describe('Theme Management API Tests', () => {
   })
 
   it('should not allow deleting a theme without authentication', () => {
+    expect(themeId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${themeId}`,
@@ -120,7 +136,26 @@ describe('Theme Management API Tests', () => {
     })
   })
 
+  it('should not allow deleting a theme with invalid authentication', () => {
+    expect(themeId).to.exist
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${themeId}`,
+      headers: {
+        Authorization: `Bearer ${invalidToken}`,
+      },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(401)
+      expect(res.body.success).to.be.false
+      expect(res.body.message).to.include('Invalid or expired token')
+    })
+  })
+
   it('should delete a theme with valid authentication', () => {
+    expect(themeId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${themeId}`,
@@ -131,6 +166,8 @@ describe('Theme Management API Tests', () => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
       expect(res.body.message).to.include('deleted')
+
+      themeId = undefined
     })
   })
 })

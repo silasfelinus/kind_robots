@@ -1,45 +1,63 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+
 describe('Art Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art'
-  const apiKey = Cypress.env('API_KEY')
-  let artId: number // Store art ID for further operations
-  let generatedPath
   const invalidToken = 'someInvalidTokenValue'
-  const userToken = Cypress.env('USER_TOKEN')
-  const LOLA_TEST_SERVER_ID = Number(Cypress.env('LOLA_TEST_SERVER_ID') ?? 24)
+
+  let apiKey = ''
+  let userToken = ''
+  let lolaTestServerId = 24
+  let artId: number
+  let generatedPath = ''
 
   before(() => {
-    cy.request({
-      method: 'POST',
-      url: `${baseUrl}/`,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        promptString: 'surreal, A beautiful pancake sunrise over the mountains',
-        steps: 10,
-        path: ' ',
-        seed: null,
-        galleryId: null,
-        promptId: null,
-        pitchId: null,
-        userId: 9,
-      },
-      failOnStatusCode: false,
-    }).then((response) => {
-      cy.log('API Response:', JSON.stringify(response.body))
+    cy.env(['API_KEY', 'USER_TOKEN', 'LOLA_TEST_SERVER_ID']).then((env) => {
+      apiKey = String(env.API_KEY || '')
+      userToken = String(env.USER_TOKEN || '')
 
-      expect(response.status).to.eq(201)
-      expect(response.body.success).to.be.true
-      expect(response.body.data).to.be.an('object').that.is.not.empty
+      const parsedValue = Number(env.LOLA_TEST_SERVER_ID ?? 24)
+      lolaTestServerId = Number.isFinite(parsedValue) ? parsedValue : 24
 
-      artId = response.body.data.id
-      generatedPath = response.body.data.path
-      if (!artId || !generatedPath) {
-        throw new Error('Failed to capture art ID or path from response')
-      }
+      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+      expect(lolaTestServerId, 'LOLA_TEST_SERVER_ID').to.be.a('number')
+    })
+
+    cy.then(() => {
+      cy.request({
+        method: 'POST',
+        url: `${baseUrl}/`,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: {
+          promptString:
+            'surreal, A beautiful pancake sunrise over the mountains',
+          steps: 10,
+          path: ' ',
+          seed: null,
+          galleryId: null,
+          promptId: null,
+          pitchId: null,
+          userId: 9,
+        },
+        failOnStatusCode: false,
+      }).then((response) => {
+        cy.log('API Response:', JSON.stringify(response.body))
+
+        expect(response.status).to.eq(201)
+        expect(response.body.success).to.be.true
+        expect(response.body.data).to.be.an('object').that.is.not.empty
+
+        artId = response.body.data.id
+        generatedPath = response.body.data.path
+
+        if (!artId || !generatedPath) {
+          throw new Error('Failed to capture art ID or path from response')
+        }
+      })
     })
   })
 
@@ -122,7 +140,7 @@ describe('Art Management API Tests', () => {
         promptId: null,
         pitchId: null,
         userId: 9,
-        serverId: LOLA_TEST_SERVER_ID,
+        serverId: lolaTestServerId,
         checkpoint: 'realcartoonPony_v1.safetensors',
         sampler: 'Euler',
         designer: 'silasfelinus',
@@ -137,7 +155,7 @@ describe('Art Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
-      expect(response.body.data.serverId).to.eq(LOLA_TEST_SERVER_ID)
+      expect(response.body.data.serverId).to.eq(lolaTestServerId)
 
       artId = response.body.data.id
     })

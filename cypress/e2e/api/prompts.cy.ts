@@ -1,13 +1,19 @@
-// cypress/e2e/prompts.cy.ts
+// cypress/e2e/api/prompts.cy.ts
 
 describe('Prompt Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/prompts'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let promptId: number | undefined // Define with undefined for clarity
   const uniquePrompt = `devil bunny ${Date.now()}`
 
-  // Step 1: Attempt to create a prompt with various authentication scenarios
+  let userToken = ''
+  let promptId: number | undefined
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
 
   it('should not allow creating a prompt without an authorization token', () => {
     cy.request({
@@ -65,18 +71,25 @@ describe('Prompt Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+
       promptId = response.body.data.id
+
+      expect(promptId).to.be.a('number')
     })
   })
 
-  // Step 2: Attempt to update prompt without authentication
   it('Attempt to Update Prompt without Authentication (expect failure)', () => {
-    cy.wrap(promptId).should('exist')
+    expect(promptId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${promptId}`,
-      headers: { 'Content-Type': 'application/json' },
-      body: { prompt: 'unauthorized bunny update' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        prompt: 'unauthorized bunny update',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -84,9 +97,9 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 3: Attempt to update prompt with invalid token
   it('Attempt to Update Prompt with Invalid Token (expect failure)', () => {
-    cy.wrap(promptId).should('exist')
+    expect(promptId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${promptId}`,
@@ -94,7 +107,9 @@ describe('Prompt Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
       },
-      body: { prompt: 'invalid token bunny update' },
+      body: {
+        prompt: 'invalid token bunny update',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -102,8 +117,9 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 4: Update prompt with valid authentication
   it('Update Prompt with Authentication', () => {
+    expect(promptId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${promptId}`,
@@ -111,7 +127,9 @@ describe('Prompt Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      body: { prompt: 'angel bunny' },
+      body: {
+        prompt: 'angel bunny',
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -119,9 +137,9 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 5: Retrieve prompt by ID
   it('Get Prompt by ID', () => {
-    cy.wrap(promptId).should('exist')
+    expect(promptId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${promptId}`,
@@ -136,7 +154,6 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 6: Retrieve all prompts
   it('Get All Prompts', () => {
     cy.request({
       method: 'GET',
@@ -154,13 +171,15 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 7: Attempt to delete prompt without authentication
   it('Attempt to Delete Prompt without Authentication (expect failure)', () => {
-    cy.wrap(promptId).should('exist')
+    expect(promptId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${promptId}`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -170,9 +189,9 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 8: Attempt to delete prompt with invalid token
   it('Attempt to Delete Prompt with Invalid Token (expect failure)', () => {
-    cy.wrap(promptId).should('exist')
+    expect(promptId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${promptId}`,
@@ -189,9 +208,9 @@ describe('Prompt Management API Tests', () => {
     })
   })
 
-  // Step 9: Delete prompt with valid authentication
   it('Delete Prompt with Authentication', () => {
-    cy.wrap(promptId).should('exist')
+    expect(promptId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${promptId}`,

@@ -1,51 +1,60 @@
 describe('Component Reactions API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
+  const userId = 9
+
+  let userToken = ''
   let componentId: number | undefined
   let reactionId: number | undefined
-  const userId: number = 9
 
   const createdComponents: number[] = []
   const createdReactions: number[] = []
 
-  // Helper function to assert and use IDs
   const assertDefined = <T>(value: T | undefined, name: string): T => {
     if (value === undefined) {
       throw new Error(`${name} is undefined. Test setup failed.`)
     }
+
     return value
   }
 
-  // Step 1: Create a new component before the tests
   before(() => {
-    cy.request({
-      method: 'POST',
-      url: `${baseUrl}/components`,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: {
-        folderName: 'test-folder',
-        componentName: `TestComponent_${Date.now()}`,
-        isWorking: true,
-        underConstruction: false,
-        isBroken: false,
-        title: 'Test Component',
-      },
-    }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      componentId = response.body.data.id
-      expect(componentId).to.be.a('number')
-      createdComponents.push(assertDefined(componentId, 'componentId'))
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+
+    cy.then(() => {
+      cy.request({
+        method: 'POST',
+        url: `${baseUrl}/components`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: {
+          folderName: 'test-folder',
+          componentName: `TestComponent_${Date.now()}`,
+          isWorking: true,
+          underConstruction: false,
+          isBroken: false,
+          title: 'Test Component',
+        },
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+        expect(response.body).to.have.property('success', true)
+
+        componentId = response.body.data.id
+
+        expect(componentId).to.be.a('number')
+
+        createdComponents.push(assertDefined(componentId, 'componentId'))
+      })
     })
   })
 
-  // Step 2: Attempt to create a reaction with various authentication scenarios
   it('should not allow creating a component reaction without an authorization token', () => {
-    cy.wrap(componentId).should('exist')
+    expect(componentId).to.exist
 
     cy.request({
       method: 'POST',
@@ -72,7 +81,7 @@ describe('Component Reactions API Tests', () => {
   })
 
   it('should not allow creating a component reaction with an invalid authorization token', () => {
-    cy.wrap(componentId).should('exist')
+    expect(componentId).to.exist
 
     cy.request({
       method: 'POST',
@@ -98,7 +107,7 @@ describe('Component Reactions API Tests', () => {
   })
 
   it('Create a New Component Reaction with Valid Authentication', () => {
-    cy.wrap(componentId).should('exist')
+    expect(componentId).to.exist
 
     cy.request({
       method: 'POST',
@@ -120,14 +129,17 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
+
       reactionId = response.body.data.id
+
       expect(reactionId).to.be.a('number')
+
+      createdReactions.push(assertDefined(reactionId, 'reactionId'))
     })
   })
 
-  // Step 3: Fetch all reactions for the component
   it("Get a Component's Reactions", () => {
-    cy.wrap(componentId).should('exist')
+    expect(componentId).to.exist
 
     cy.request({
       method: 'GET',
@@ -145,9 +157,8 @@ describe('Component Reactions API Tests', () => {
     })
   })
 
-  // Step 4: Fetch a reaction by ID
   it('Get Reaction by ID', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
     cy.request({
       method: 'GET',
@@ -159,7 +170,9 @@ describe('Component Reactions API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+
       const reaction = response.body.data
+
       expect(reaction.id).to.eq(reactionId)
       expect(reaction.componentId).to.eq(componentId)
       expect(reaction.userId).to.eq(userId)
@@ -168,11 +181,9 @@ describe('Component Reactions API Tests', () => {
     })
   })
 
-  // Step 5: Update the reaction
   it('Update an Existing Component Reaction with Valid and Invalid Authentication', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
-    // Attempt update without token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -186,11 +197,10 @@ describe('Component Reactions API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
     })
 
-    // Attempt update with invalid token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -205,11 +215,10 @@ describe('Component Reactions API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
     })
 
-    // Attempt update with valid token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -234,11 +243,9 @@ describe('Component Reactions API Tests', () => {
     })
   })
 
-  // Step 6: Delete the reaction
   it('Delete a Component Reaction with Valid and Invalid Authentication', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
-    // Attempt delete without token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -247,11 +254,10 @@ describe('Component Reactions API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
     })
 
-    // Attempt delete with invalid token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -261,11 +267,10 @@ describe('Component Reactions API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
     })
 
-    // Attempt delete with valid token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
@@ -279,13 +284,14 @@ describe('Component Reactions API Tests', () => {
       expect(response.body.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted.`,
       )
+
+      reactionId = undefined
+      createdReactions.length = 0
     })
   })
 
-  // Cleanup logic after the test suite
   after(() => {
-    // Delete created reactions
-    if (createdReactions.length > 0) {
+    cy.then(() => {
       createdReactions.forEach((id) => {
         cy.request({
           method: 'DELETE',
@@ -296,13 +302,10 @@ describe('Component Reactions API Tests', () => {
           },
           failOnStatusCode: false,
         }).then((response) => {
-          expect(response.status).to.be.oneOf([200, 404]) // 200 if deleted, 404 if already removed
+          expect(response.status).to.be.oneOf([200, 404])
         })
       })
-    }
 
-    // Delete created components
-    if (createdComponents.length > 0) {
       createdComponents.forEach((id) => {
         cy.request({
           method: 'DELETE',
@@ -313,9 +316,9 @@ describe('Component Reactions API Tests', () => {
           },
           failOnStatusCode: false,
         }).then((response) => {
-          expect(response.status).to.be.oneOf([200, 404]) // 200 if deleted, 404 if already removed
+          expect(response.status).to.be.oneOf([200, 404])
         })
       })
-    }
+    })
   })
 })

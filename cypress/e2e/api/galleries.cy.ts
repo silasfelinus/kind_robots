@@ -1,13 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// cypress/e2e/galleries.cy.js
+// cypress/e2e/api/galleries.cy.ts
 
 describe('Gallery Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/galleries'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let galleryId: number // Store gallery ID for further operations
 
-  // Step 1: Attempt to create a gallery with various authentication scenarios
+  let userToken = ''
+  let galleryId: number
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
+
   it('should not allow creating a gallery without an authorization token', () => {
     cy.request({
       method: 'POST',
@@ -87,12 +94,16 @@ describe('Gallery Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
-      galleryId = response.body.data.id // Capture the gallery ID for further tests
+
+      galleryId = response.body.data.id
+
+      expect(galleryId).to.be.a('number')
     })
   })
 
-  // Step 2: Retrieve the created gallery by ID
   it('Get Gallery by ID', () => {
+    expect(galleryId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/id/${galleryId}`,
@@ -107,7 +118,6 @@ describe('Gallery Management API Tests', () => {
     })
   })
 
-  // Step 3: Retrieve all galleries
   it('Get All Galleries', () => {
     cy.request({
       method: 'GET',
@@ -124,9 +134,9 @@ describe('Gallery Management API Tests', () => {
     })
   })
 
-  // Step 4: Update gallery details with and without authentication
   it('Update Gallery Details', () => {
-    // Attempt update without token (expect failure)
+    expect(galleryId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/id/${galleryId}`,
@@ -138,10 +148,9 @@ describe('Gallery Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
     })
 
-    // Attempt update with invalid token
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/id/${galleryId}`,
@@ -154,10 +163,9 @@ describe('Gallery Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
     })
 
-    // Attempt update with valid token (expect success)
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/id/${galleryId}`,
@@ -177,9 +185,9 @@ describe('Gallery Management API Tests', () => {
     })
   })
 
-  // Step 5: Delete the gallery with and without authentication
   it('Delete a Gallery', () => {
-    // Attempt delete without token (expect failure)
+    expect(galleryId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${galleryId}`,
@@ -188,10 +196,9 @@ describe('Gallery Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
     })
 
-    // Attempt delete with invalid token
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${galleryId}`,
@@ -201,10 +208,9 @@ describe('Gallery Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
     })
 
-    // Attempt delete with valid token (expect success)
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/id/${galleryId}`,

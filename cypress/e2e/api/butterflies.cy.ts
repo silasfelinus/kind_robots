@@ -5,20 +5,25 @@ describe('Butterfly API', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/butterflies'
   const recordsUrl = 'https://kind-robots.vercel.app/api/butterflies/records'
 
-  const userToken = Cypress.env('USER_TOKEN')
-  const adminToken = Cypress.env('ADMIN_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   const baseRarity = Math.floor(Math.random() * 1_000_000_000)
 
   const time = Date.now()
   const uniqueButterflyName = `Cypress-${Date.now()}-${Math.random()}`
 
+  let userToken = ''
+  let adminToken = ''
   let butterflyId: number | undefined
   let recordId: number | undefined
 
   before(() => {
-    expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
-    expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
+    cy.env(['USER_TOKEN', 'ADMIN_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      adminToken = String(env.ADMIN_TOKEN || '')
+
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+      expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
+    })
   })
 
   it('GET /butterflies — returns public list, no auth required', () => {
@@ -197,6 +202,7 @@ describe('Butterfly API', () => {
       expect(response.body.data.message).to.eq('updated by cypress test')
     })
   })
+
   it('POST /butterflies/records — handles missing auth without crashing', () => {
     expect(butterflyId).to.exist
 
@@ -226,6 +232,7 @@ describe('Butterfly API', () => {
       expect(response.body.success).to.be.false
     })
   })
+
   it('POST /butterflies/records — creates or accepts a catch record with user auth', () => {
     expect(butterflyId).to.exist
 
@@ -340,6 +347,7 @@ describe('Butterfly API', () => {
       cy.log(
         'No recordId returned by POST /butterfly-records, skipping delete assertion',
       )
+
       return
     }
 

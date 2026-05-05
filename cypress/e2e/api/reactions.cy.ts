@@ -1,14 +1,21 @@
-// cypress/e2e/reactions.cy.ts
+// cypress/e2e/api/reactions.cy.ts
 
 describe('Reaction Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
+  const userId = 9
+
+  let userToken = ''
   let artId: number | undefined
   let reactionId: number | undefined
-  const userId = 9 // Example user ID
 
-  // Step 1: Create a new art piece
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
+
   it('Create a New Art Piece', () => {
     cy.request({
       method: 'POST',
@@ -31,18 +38,22 @@ describe('Reaction Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.have.property('id')
+
       artId = response.body.data.id
+
+      expect(artId).to.be.a('number')
     })
   })
 
-  // Step 2: Attempt to create a reaction without an authorization token
   it('should not allow creating a reaction without an authorization token', () => {
-    cy.wrap(artId).should('exist')
+    expect(artId).to.exist
 
     cy.request({
       method: 'POST',
       url: `${baseUrl}/reactions`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
         userId,
         reactionType: 'LOVED',
@@ -61,7 +72,7 @@ describe('Reaction Management API Tests', () => {
   })
 
   it('should not allow creating a reaction with an invalid authorization token', () => {
-    cy.wrap(artId).should('exist')
+    expect(artId).to.exist
 
     cy.request({
       method: 'POST',
@@ -85,9 +96,8 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 3: Create a reaction with valid authentication
   it('Create a New Art Reaction with Authentication', () => {
-    cy.wrap(artId).should('exist')
+    expect(artId).to.exist
 
     cy.request({
       method: 'POST',
@@ -110,13 +120,15 @@ describe('Reaction Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.have.property('id')
+
       reactionId = response.body.data.id
+
+      expect(reactionId).to.be.a('number')
     })
   })
 
-  // Step 4: Edit the reaction with valid authentication
   it('Edit the Art Reaction with Authentication', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
     cy.request({
       method: 'PATCH',
@@ -140,14 +152,16 @@ describe('Reaction Management API Tests', () => {
       )
     })
   })
-  // Step 5: Attempt to delete reaction without authentication
+
   it('Attempt to Delete Reaction without Authentication (expect failure)', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/reactions/${reactionId}`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -156,9 +170,8 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 6: Attempt to delete reaction with invalid token
   it('Attempt to Delete Reaction with Invalid Token (expect failure)', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
     cy.request({
       method: 'DELETE',
@@ -175,9 +188,8 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  // Step 7: Delete reaction with valid authentication
   it('Delete the Art Reaction with Authentication', () => {
-    cy.wrap(reactionId).should('exist')
+    expect(reactionId).to.exist
 
     cy.request({
       method: 'DELETE',
@@ -193,12 +205,13 @@ describe('Reaction Management API Tests', () => {
       expect(response.body.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted`,
       )
+
+      reactionId = undefined
     })
   })
 
-  // Step 8: Delete the created art piece with valid authentication
   it('Delete the Created Art Piece with Authentication', () => {
-    cy.wrap(artId).should('exist')
+    expect(artId).to.exist
 
     cy.request({
       method: 'DELETE',
@@ -211,6 +224,8 @@ describe('Reaction Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body).to.have.property('message').that.is.a('string')
+
+      artId = undefined
     })
   })
 })

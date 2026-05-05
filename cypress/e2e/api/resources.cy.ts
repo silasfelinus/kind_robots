@@ -1,14 +1,21 @@
-// cypress/e2e/resources.cy.ts
+// cypress/e2e/api/resources.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Resource Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/resources'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let resourceId: number | undefined
   const uniqueResourceName = `Resource-${Date.now()}`
 
-  // Step 1: Attempt to create resource with missing and invalid tokens
+  let userToken = ''
+  let resourceId: number | undefined
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
+
   it('should not allow creating a resource without an authorization token', () => {
     cy.request({
       method: 'POST',
@@ -64,7 +71,6 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 2: Create a new resource with valid authentication
   it('Create a New Resource with Authentication', () => {
     cy.request({
       method: 'POST',
@@ -90,12 +96,16 @@ describe('Resource Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('object').that.is.not.empty
+
       resourceId = response.body.data.id
+
+      expect(resourceId).to.be.a('number')
     })
   })
 
-  // Step 3: Attempt to update resource without authentication
   it('Attempt to Update Resource without Authentication (expect failure)', () => {
+    expect(resourceId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${resourceId}`,
@@ -112,8 +122,9 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 4: Attempt to update resource with invalid token
   it('Attempt to Update Resource with Invalid Token (expect failure)', () => {
+    expect(resourceId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${resourceId}`,
@@ -131,9 +142,11 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 5: Update resource with valid authentication
   it('Update Resource with Authentication', () => {
+    expect(resourceId).to.exist
+
     const updatedResourceName = `Updated-${uniqueResourceName}`
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${resourceId}`,
@@ -152,8 +165,9 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 6: Retrieve resource by ID and validate the response
   it('Get Resource by ID', () => {
+    expect(resourceId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${resourceId}`,
@@ -169,7 +183,6 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 7: Retrieve all resources
   it('Get All Resources', () => {
     cy.request({
       method: 'GET',
@@ -187,8 +200,9 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 8: Attempt to delete resource without authentication
   it('Attempt to Delete Resource without Authentication (expect failure)', () => {
+    expect(resourceId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
@@ -204,8 +218,9 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 9: Attempt to delete resource with invalid token
   it('Attempt to Delete Resource with Invalid Token (expect failure)', () => {
+    expect(resourceId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
@@ -220,8 +235,9 @@ describe('Resource Management API Tests', () => {
     })
   })
 
-  // Step 10: Delete resource with valid authentication
   it('Delete Resource with Authentication', () => {
+    expect(resourceId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${resourceId}`,
@@ -235,6 +251,8 @@ describe('Resource Management API Tests', () => {
       expect(response.body.message).to.include(
         `Resource with ID ${resourceId} successfully deleted`,
       )
+
+      resourceId = undefined
     })
   })
 })

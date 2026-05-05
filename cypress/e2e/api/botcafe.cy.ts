@@ -1,19 +1,28 @@
 // cypress/e2e/api/botcafe.cy.ts
 
 describe('BotCafe API Tests', function () {
-  // Changed to a function declaration
-  before(function () {
-    // Changed to a function declaration
-    // Skip all tests in this describe block if DISABLE_EXTERNAL_TESTS is set
-    if (Cypress.env('DISABLE_EXTERNAL_TESTS')) {
-      this.skip()
-    }
-  })
-
   const chatUrl = 'https://kind-robots.vercel.app/api/botcafe/chat'
   const brainstormUrl = 'https://kind-robots.vercel.app/api/botcafe/brainstorm'
-  const apiKey = Cypress.env('API_KEY') // General API key for your app
-  const openaiApiKey = Cypress.env('OPENAI_API_KEY') // OpenAI API key for GPT models
+
+  let apiKey = ''
+  let openaiApiKey = ''
+
+  before(function () {
+    cy.env(['DISABLE_EXTERNAL_TESTS', 'API_KEY', 'OPENAI_API_KEY']).then(
+      (env) => {
+        if (env.DISABLE_EXTERNAL_TESTS) {
+          this.skip()
+        }
+
+        apiKey = String(env.API_KEY || '')
+        openaiApiKey = String(env.OPENAI_API_KEY || '')
+
+        expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+        expect(openaiApiKey, 'OPENAI_API_KEY').to.be.a('string').and.not.be
+          .empty
+      },
+    )
+  })
 
   context('BotCafe Chat and Brainstorm Tests', () => {
     it('Chat - Generate Haiku', () => {
@@ -36,9 +45,9 @@ describe('BotCafe API Tests', function () {
           ],
         },
       }).then((response) => {
-        console.log(response.body) // Log the response body to see its structure
+        cy.log('Chat response:', JSON.stringify(response.body))
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('id') // Adjust this based on the actual response structure
+        expect(response.body).to.have.property('id')
       })
     })
 
@@ -55,12 +64,17 @@ describe('BotCafe API Tests', function () {
         body: {
           model: 'gpt-4o-mini',
           n: 1,
-          messages: [{ role: 'user', content: 'another original brainstorm' }],
+          messages: [
+            {
+              role: 'user',
+              content: 'another original brainstorm',
+            },
+          ],
         },
       }).then((response) => {
-        console.log(response.body) // Log the response body to see its structure
+        cy.log('Brainstorm response:', JSON.stringify(response.body))
         expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('id') // Adjust this based on the actual response structure
+        expect(response.body).to.have.property('id')
       })
     })
   })

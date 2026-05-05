@@ -1,12 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-// cypress/e2e/components.cy.ts
+// cypress/e2e/api/components.cy.ts
 
 describe('Component Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/components'
-  const apiKey = Cypress.env('API_KEY')
-  let componentId: number
   const uniqueFolderName = `test-folder-${Date.now()}`
   const uniqueComponentName = `TestComponent-${Date.now()}`
+
+  let apiKey = ''
+  let componentId: number
+
+  before(() => {
+    cy.env(['API_KEY']).then((env) => {
+      apiKey = String(env.API_KEY || '')
+      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+    })
+  })
 
   it('Get All Folder Names', () => {
     cy.request({
@@ -44,7 +52,10 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+
       componentId = response.body.data.id
+
+      expect(componentId).to.be.a('number')
     })
   })
 
@@ -74,17 +85,22 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+
       const components = response.body.data as Array<{
         componentName: string
       }>
+
       const componentNames = components.map(
         (component) => component.componentName,
       )
+
       expect(componentNames).to.include(uniqueComponentName)
     })
   })
 
   it('Get Specific Component by ID', () => {
+    expect(componentId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${componentId}`,
@@ -94,7 +110,9 @@ describe('Component Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+
       const component = response.body.data
+
       expect(component.id).to.eq(componentId)
       expect(component.componentName).to.eq(uniqueComponentName)
       expect(component.folderName).to.eq(uniqueFolderName)
@@ -104,6 +122,8 @@ describe('Component Management API Tests', () => {
   })
 
   it('Update Component with Authentication', () => {
+    expect(componentId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${componentId}`,
@@ -119,9 +139,12 @@ describe('Component Management API Tests', () => {
       },
     }).then((response) => {
       cy.log(JSON.stringify(response.body))
+
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
+
       const updatedComponent = response.body.data
+
       expect(updatedComponent.isWorking).to.be.false
       expect(updatedComponent.underConstruction).to.be.true
       expect(updatedComponent.title).to.eq('Updated Test Component')
@@ -129,6 +152,8 @@ describe('Component Management API Tests', () => {
   })
 
   it('Delete Component with Authentication', () => {
+    expect(componentId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${componentId}`,

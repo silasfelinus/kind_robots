@@ -1,24 +1,33 @@
-// cypress/e2e/scenario.cy.ts
+// cypress/e2e/api/scenario.cy.ts
 
 describe('Scenario Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/scenarios'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let scenarioId: number | undefined
   const uniqueScenarioTitle = `Scenario-${Date.now()}`
 
-  // Step 1: Attempt to create a scenario without an authorization token
+  let userToken = ''
+  let scenarioId: number | undefined
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
+
   it('should not allow creating a scenario without an authorization token', () => {
     cy.request({
       method: 'POST',
       url: baseUrl,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: {
         title: uniqueScenarioTitle,
         description: 'A unique scenario description.',
         intros: 'Scenario intros content here.',
         locations: 'Scenario locations here.',
-        userId: 1, // Replace with valid user ID for tests
+        userId: 1,
       },
       failOnStatusCode: false,
     }).then((response) => {
@@ -27,7 +36,6 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  // Step 2: Attempt to create a scenario with an invalid authorization token
   it('should not allow creating a scenario with an invalid authorization token', () => {
     cy.request({
       method: 'POST',
@@ -50,7 +58,6 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  // Step 3: Create a new scenario with valid authentication
   it('should allow creating a scenario with valid authentication', () => {
     cy.request({
       method: 'POST',
@@ -70,13 +77,16 @@ describe('Scenario Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
+
       scenarioId = response.body.data.id
+
+      expect(scenarioId).to.be.a('number')
     })
   })
 
-  // Step 4: Retrieve the scenario by ID
   it('should retrieve a scenario by ID', () => {
-    cy.wrap(scenarioId).should('exist')
+    expect(scenarioId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${scenarioId}`,
@@ -91,11 +101,10 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  // Step 5: Retrieve all scenarios
   it('should retrieve all scenarios', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}`,
+      url: baseUrl,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
@@ -109,9 +118,11 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  // Step 6: Update the scenario with valid authentication
   it('should allow updating a scenario with valid authentication', () => {
+    expect(scenarioId).to.exist
+
     const updatedScenarioTitle = `Updated-${uniqueScenarioTitle}`
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${scenarioId}`,
@@ -119,7 +130,9 @@ describe('Scenario Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      body: { title: updatedScenarioTitle },
+      body: {
+        title: updatedScenarioTitle,
+      },
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
@@ -127,22 +140,24 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  // Step 7: Attempt to delete the scenario without authentication
   it('should not allow deleting a scenario without authentication', () => {
-    cy.wrap(scenarioId).should('exist')
+    expect(scenarioId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${scenarioId}`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
     })
   })
 
-  // Step 8: Attempt to delete the scenario with an invalid token
   it('should not allow deleting a scenario with an invalid token', () => {
-    cy.wrap(scenarioId).should('exist')
+    expect(scenarioId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${scenarioId}`,
@@ -156,9 +171,9 @@ describe('Scenario Management API Tests', () => {
     })
   })
 
-  // Step 9: Delete the scenario with valid authentication
   it('should allow deleting a scenario with valid authentication', () => {
-    cy.wrap(scenarioId).should('exist')
+    expect(scenarioId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${scenarioId}`,
@@ -172,6 +187,8 @@ describe('Scenario Management API Tests', () => {
       expect(response.body.message).to.include(
         `Scenario with ID ${scenarioId} successfully deleted`,
       )
+
+      scenarioId = undefined
     })
   })
 })

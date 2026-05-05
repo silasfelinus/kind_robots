@@ -1,11 +1,19 @@
-// cypress/e2e/milestones.cy.ts
+// cypress/e2e/api/milestones.cy.ts
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Milestone Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/milestones'
-  const apiKey = Cypress.env('API_KEY')
+
+  let apiKey = ''
   let milestoneId: number
+
+  before(() => {
+    cy.env(['API_KEY']).then((env) => {
+      apiKey = String(env.API_KEY || '')
+      expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
+    })
+  })
 
   it('Get All Milestones', () => {
     cy.request({
@@ -50,11 +58,16 @@ describe('Milestone Management API Tests', () => {
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('array').that.is.not.empty
+
       milestoneId = response.body.data[0].id
+
+      expect(milestoneId).to.be.a('number')
     })
   })
 
   it('Get Milestone by ID', () => {
+    expect(milestoneId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${milestoneId}`,
@@ -72,6 +85,8 @@ describe('Milestone Management API Tests', () => {
   })
 
   it('Update Milestone', () => {
+    expect(milestoneId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${milestoneId}`,
@@ -87,7 +102,6 @@ describe('Milestone Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
 
-      // Verify the update
       cy.request({
         method: 'GET',
         url: `${baseUrl}/${milestoneId}`,
@@ -95,17 +109,21 @@ describe('Milestone Management API Tests', () => {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body.success).to.be.true
-        expect(response.body.data.label).to.eq('Master Artist!')
-        expect(response.body.data.message).to.eq('You created a masterpiece!')
-        expect(response.body.data.karma).to.eq(20)
+      }).then((getResponse) => {
+        expect(getResponse.status).to.eq(200)
+        expect(getResponse.body.success).to.be.true
+        expect(getResponse.body.data.label).to.eq('Master Artist!')
+        expect(getResponse.body.data.message).to.eq(
+          'You created a masterpiece!',
+        )
+        expect(getResponse.body.data.karma).to.eq(20)
       })
     })
   })
 
   it('Delete Milestone', () => {
+    expect(milestoneId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${milestoneId}`,

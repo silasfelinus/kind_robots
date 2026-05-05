@@ -22,14 +22,15 @@ import DreamFooter from '@/components/dreams/dream-footer.vue'
 import RewardFooter from '@/components/rewards/reward-footer.vue'
 import CharacterFooter from '@/components/characters/character-footer.vue'
 import { useDisplayStore } from '@/stores/displayStore'
+import {
+  footerKeys,
+  fallbackFooterKey,
+  type FooterKey,
+} from '@/stores/helpers/dashboardHelper'
 
 const displayStore = useDisplayStore()
 
-type FooterName = (typeof displayStore.footerComponentNames)[number]
-
-const footerOptions = [...displayStore.footerComponentNames] as FooterName[]
-
-const footerComponentMap: Record<FooterName, Component> = {
+const footerComponentMap: Record<FooterKey, Component> = {
   fx: ButterflyFooter,
   bot: BotFooter,
   art: ArtFooter,
@@ -44,27 +45,24 @@ const footerComponentMap: Record<FooterName, Component> = {
   character: CharacterFooter,
 }
 
-function isFooterName(value: unknown): value is FooterName {
-  return (
-    typeof value === 'string' && footerOptions.includes(value as FooterName)
-  )
+function isFooterKey(value: unknown): value is FooterKey {
+  return typeof value === 'string' && footerKeys.includes(value as FooterKey)
 }
 
-function normalizeFooterName(value: unknown): FooterName {
-  return isFooterName(value) ? value : 'bot'
+function normalizeFooterKey(value: unknown): FooterKey {
+  return isFooterKey(value) ? value : fallbackFooterKey
 }
 
-const activeFooter = computed<FooterName>(() => {
-  return normalizeFooterName(displayStore.footerComponent)
+const activeFooter = computed<FooterKey>(() => {
+  return normalizeFooterKey(displayStore.footerComponent)
 })
 
 const activeComponent = computed<Component>(() => {
-  return footerComponentMap[activeFooter.value] ?? BotFooter
+  return footerComponentMap[activeFooter.value] ?? ButterflyFooter
 })
 
 watchEffect(() => {
-  const normalized = normalizeFooterName(displayStore.footerComponent)
-
+  const normalized = normalizeFooterKey(displayStore.footerComponent)
   if (displayStore.footerComponent !== normalized) {
     displayStore.setFooterComponent(normalized)
   }

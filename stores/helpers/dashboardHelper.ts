@@ -110,7 +110,7 @@ export const dashboardConfigs = {
       {
         key: 'checkpoints',
         label: 'Models',
-        icon: 'kind-icon:server',
+        icon: 'kind-icon:blueprint',
         title: 'Checkpoints',
         summary:
           'Choose checkpoints, samplers, and verify active backend models.',

@@ -1,5 +1,6 @@
 <!-- /components/content/screenfx/screen-fx.vue -->
 <template>
+  <!-- Active effect components (all must have pointer-events: none) -->
   <div class="effect-container">
     <component
       :is="activeComponent.component"
@@ -8,6 +9,20 @@
     />
   </div>
 
+  <!-- Floating escape button — visible whenever any effect is on -->
+  <Transition name="fade">
+    <button
+      v-if="activeCount > 0"
+      class="escape-btn"
+      title="Clear all effects"
+      @click="clearAll"
+    >
+      <Icon name="kind-icon:close" class="w-5 h-5" />
+      <span>clear fx</span>
+    </button>
+  </Transition>
+
+  <!-- Effect picker -->
   <div class="relative">
     <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 p-2">
       <div
@@ -59,12 +74,10 @@ type ComponentMapType = {
 }
 
 const componentsMap: ComponentMapType = {
-  // Original effects
   'bubble-effect': resolveComponent('LazyBubbleEffect'),
   'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
   'rain-effect': resolveComponent('LazyRainEffect'),
   'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
-  // New effects
   'starfield-effect': resolveComponent('LazyStarfieldEffect'),
   'matrix-rain': resolveComponent('LazyMatrixRain'),
   'firefly-effect': resolveComponent('LazyFireflyEffect'),
@@ -84,7 +97,6 @@ interface Effect {
 }
 
 const effects = ref<Effect[]>([
-  // --- Original ---
   {
     id: 'fizzy-bubbles',
     label: 'Fizzy Lifting',
@@ -117,7 +129,6 @@ const effects = ref<Effect[]>([
     reveal: 'Happy butterflies',
     isActive: false,
   },
-  // --- New ---
   {
     id: 'starfield-effect',
     label: 'Warp Drive',
@@ -178,9 +189,17 @@ const effects = ref<Effect[]>([
 
 const hoveredEffect = ref<string | null>(null)
 
+const activeCount = computed(
+  () => effects.value.filter((e) => e.isActive).length,
+)
+
 const toggleEffect = (effectId: string) => {
   const effect = effects.value.find((e) => e.id === effectId)
   if (effect) effect.isActive = !effect.isActive
+}
+
+const clearAll = () => {
+  effects.value.forEach((e) => (e.isActive = false))
 }
 
 const activeComponents = computed(() =>
@@ -194,6 +213,54 @@ const activeComponents = computed(() =>
 </script>
 
 <style scoped>
+.escape-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.1s;
+}
+
+.escape-btn:hover {
+  background: rgba(220, 50, 50, 0.75);
+  border-color: rgba(255, 100, 100, 0.5);
+  transform: scale(1.05);
+}
+
+.escape-btn:active {
+  transform: scale(0.97);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
 @keyframes glow {
   0%,
   100% {

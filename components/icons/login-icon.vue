@@ -13,12 +13,6 @@
       <user-avatar
         class="h-full max-h-full aspect-square shrink-0 rounded-full border border-primary/60 object-cover"
       />
-
-      <span
-        class="min-w-0 flex-1 truncate text-left text-[clamp(0.65rem,1vw,0.85rem)] font-black leading-none text-base-content"
-      >
-        {{ username }}
-      </span>
     </div>
 
     <div

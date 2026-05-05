@@ -75,4 +75,5 @@ fix bot display only showing fallback
 5/5/26
 Dropped the header toggle to the footer bar
 bot interact works and remembers history
-removed error messages from art manager
+removed error messages from art manager!!!!
+cleared butterfly lag on load

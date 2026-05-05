@@ -166,32 +166,25 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   function animateButterflies() {
     if (animationFrameId.value !== null) return
-
     animationPaused.value = false
 
     const animate = () => {
-      const next = butterflies.value.filter((butterfly) => {
+      // Iterate backwards so splice doesn't shift indices
+      for (let i = butterflies.value.length - 1; i >= 0; i--) {
+        const butterfly = butterflies.value[i]!
         updateButterflyPosition(butterfly)
 
-        const shouldRemove =
-          butterfly.isExiting && isOutsideRemovalBounds(butterfly)
-
-        if (shouldRemove) {
+        if (butterfly.isExiting && isOutsideRemovalBounds(butterfly)) {
           clearButterflyMotionState(butterfly.id)
+          butterflies.value.splice(i, 1)
+
+          if (selectedButterflyId.value === butterfly.id) {
+            selectedButterflyId.value =
+              butterflies.value.find((b) => !b.isExiting)?.id || ''
+          }
         }
-
-        return !shouldRemove
-      })
-
-      if (
-        selectedButterflyId.value &&
-        !next.some((butterfly) => butterfly.id === selectedButterflyId.value)
-      ) {
-        selectedButterflyId.value =
-          next.find((butterfly) => !butterfly.isExiting)?.id || ''
       }
 
-      butterflies.value = next
       animationFrameId.value = requestAnimationFrame(animate)
     }
 

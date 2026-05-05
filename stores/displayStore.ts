@@ -239,14 +239,25 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const headerHeight = computed(() => {
     if (state.headerState === 'hidden') return 0
 
-    const sizes: Record<ViewportSize, number> = {
-      small: 14,
-      medium: 13,
-      large: 12,
-      extraLarge: 13,
+    const sizes: Record<DisplayState, Record<ViewportSize, number>> = {
+      open: {
+        small: 14,
+        medium: 13,
+        large: 12,
+        extraLarge: 13,
+      },
+      compact: {
+        small: 8,
+        medium: 7,
+        large: 6,
+        extraLarge: 6,
+      },
+      hidden: { small: 0, medium: 0, large: 0, extraLarge: 0 },
+      priority: { small: 14, medium: 13, large: 12, extraLarge: 13 },
+      disabled: { small: 0, medium: 0, large: 0, extraLarge: 0 },
     }
 
-    return sizes[state.viewportSize]
+    return sizes[state.headerState]?.[state.viewportSize] ?? 0
   })
 
   const footerLayout: Record<FooterStage, Record<ViewportSize, number>> = {

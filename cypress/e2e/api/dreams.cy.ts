@@ -12,7 +12,6 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   const API_BASE = Cypress.env('API_BASE') ?? 'https://kind-robots.vercel.app'
   const dreamsUrl = `${API_BASE}/api/dreams`
 
-  const apiKey = Cypress.env('API_KEY')
   const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   const testUserId = 9
@@ -25,6 +24,12 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   const time = Date.now()
   const publicDreamTitle = `Dream-${time}`
   const privateDreamTitle = `Private-Dream-${time}`
+
+  const dreamChatsUrl = (dreamId: number, query = '') => {
+    const suffix = query ? `?${query}` : ''
+
+    return `${dreamsUrl}/${dreamId}/chats${suffix}`
+  }
 
   before(() => {
     expect(userToken, 'Cypress.env("USER_TOKEN")').to.be.a('string').and.not.be
@@ -354,7 +359,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: adds a Dream chat entry', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
@@ -364,9 +369,9 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
         content:
           'Add a silver fox made of moonlight and make the greenhouse warmer.',
         userId: testUserId,
+        dreamId: publicDreamId,
         isPublic: true,
         isMature: false,
-        dreamId: publicDreamId,
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
@@ -382,7 +387,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: adds a model response chat and updates Dream state', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
@@ -395,6 +400,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
         botResponse:
           'The dream warms. A silver fox curls beneath the lanterns, scattering moonlit sparks.',
         userId: testUserId,
+        dreamId: publicDreamId,
         updateDream: true,
         currentVibe:
           'A warm floating greenhouse market where a moonlit fox guides tiny robot philosophers.',
@@ -425,13 +431,14 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: rejects Dream chat without auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         'Content-Type': 'application/json',
       },
       body: {
         content: 'This should fail.',
         userId: testUserId,
+        dreamId: publicDreamId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -443,7 +450,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: rejects Dream chat with invalid auth', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${invalidToken}`,
         'Content-Type': 'application/json',
@@ -451,6 +458,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       body: {
         content: 'This should fail too.',
         userId: testUserId,
+        dreamId: publicDreamId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -462,7 +470,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('POST: rejects Dream chat without content', () => {
     cy.request<ApiResponse>({
       method: 'POST',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${userToken}`,
         'Content-Type': 'application/json',
@@ -470,6 +478,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       body: {
         type: 'Dream',
         userId: testUserId,
+        dreamId: publicDreamId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -482,7 +491,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('GET: fetch Dream chat history', () => {
     cy.request<ApiResponse<any[]>>({
       method: 'GET',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
@@ -499,7 +508,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('GET: fetch Dream chat history with limit', () => {
     cy.request<ApiResponse<any[]>>({
       method: 'GET',
-      url: `${dreamsUrl}/chats?dreamId=${publicDreamId}&limit=2`,
+      url: dreamChatsUrl(publicDreamId, 'limit=2'),
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
@@ -568,7 +577,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   it('GET: hard-deleted Dream chat history returns 404', () => {
     cy.request<ApiResponse>({
       method: 'GET',
-      url: `${dreamsUrl}/chats`,
+      url: dreamChatsUrl(publicDreamId),
       headers: {
         Authorization: `Bearer ${userToken}`,
       },

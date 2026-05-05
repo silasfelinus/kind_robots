@@ -1,6 +1,8 @@
 <!-- /components/content/rewards/reward-interact.vue -->
 <template>
-  <section class="flex w-full flex-col gap-4 rounded-2xl bg-base-200 p-4">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
+  >
     <header
       class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
     >
@@ -22,238 +24,377 @@
       :class="
         statusTone === 'error'
           ? 'border-error/40 bg-error/10 text-error'
-          : 'border-info/40 bg-info/10 text-info'
+          : 'border-success/40 bg-success/10 text-success'
       "
     >
       {{ statusMessage }}
     </div>
 
-    <!-- Selected Reward -->
-    <article
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+    <section
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)]"
     >
-      <h2 class="mb-2 text-lg font-bold text-base-content">The Item</h2>
-
       <div
-        v-if="rewardStore.selectedReward"
-        class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
+        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <p class="text-xl font-bold text-primary">
-          {{ rewardStore.selectedReward.text }}
-        </p>
-        <p class="mt-2 text-sm text-base-content/70">
-          {{ rewardStore.selectedReward.power }}
-        </p>
-        <p class="mt-2 text-xs text-base-content/50">
-          Collection: {{ rewardStore.selectedReward.collection }} · Rarity:
-          {{ rewardStore.selectedReward.rarity }}
-        </p>
-      </div>
+        <div class="shrink-0 border-b border-base-300 p-4">
+          <article>
+            <h2 class="mb-2 text-lg font-bold text-base-content">The Item</h2>
 
-      <div
-        v-else
-        class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
-      >
-        No reward selected. Go pick something from the Rewards tab.
-      </div>
-    </article>
+            <div
+              v-if="rewardStore.selectedReward"
+              class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
+            >
+              <p class="text-xl font-bold text-primary">
+                {{ rewardStore.selectedReward.text }}
+              </p>
 
-    <!-- Encounter Options -->
-    <section
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-    >
-      <h2 class="mb-3 text-lg font-bold text-base-content">The Encounter</h2>
+              <p class="mt-2 text-sm text-base-content/70">
+                {{ rewardStore.selectedReward.power }}
+              </p>
 
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">How do you find it?</span>
-          </span>
-          <select
-            v-model="encounterMode"
-            class="select select-bordered bg-base-200"
-          >
-            <option value="discover">You stumble across it unexpectedly</option>
-            <option value="use">You deliberately use the item</option>
-            <option value="temptation">
-              The item calls to you — you can't ignore it
-            </option>
-            <option value="consequence">
-              You already used it. Now deal with what happened.
-            </option>
-            <option value="custom">Custom scenario</option>
-          </select>
-        </label>
+              <p class="mt-2 text-xs text-base-content/50">
+                Collection: {{ rewardStore.selectedReward.collection }} ·
+                Rarity:
+                {{ rewardStore.selectedReward.rarity }}
+              </p>
+            </div>
 
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Tone</span>
-          </span>
-          <select v-model="tone" class="select select-bordered bg-base-200">
-            <option value="whimsical">Whimsical</option>
-            <option value="dramatic">Dramatic</option>
-            <option value="ominous">Ominous</option>
-            <option value="funny">Funny</option>
-            <option value="heroic">Heroic</option>
-            <option value="weird">Deeply weird</option>
-          </select>
-        </label>
-      </div>
-
-      <label class="form-control mt-4">
-        <span class="label">
-          <span class="label-text font-bold">What do you do?</span>
-          <span class="label-text-alt text-base-content/50">Optional</span>
-        </span>
-        <textarea
-          v-model="customDirection"
-          class="textarea textarea-bordered min-h-24 rounded-2xl bg-base-200"
-          placeholder="Describe your action, setting, or whatever context feels relevant..."
-        />
-      </label>
-    </section>
-
-    <!-- User Background (for LLM context) -->
-    <section
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-    >
-      <h2 class="mb-1 text-lg font-bold text-base-content">About You</h2>
-      <p class="mb-3 text-sm text-base-content/60">
-        Give the story engine some context about who's holding this thing. This
-        stays local to the prompt.
-      </p>
-
-      <label class="form-control">
-        <span class="label">
-          <span class="label-text font-bold">Your background</span>
-          <span class="label-text-alt text-base-content/50">Optional</span>
-        </span>
-        <textarea
-          v-model="userBackground"
-          class="textarea textarea-bordered min-h-24 rounded-2xl bg-base-200"
-          placeholder="A wandering cartographer with a bad knee and a knack for finding trouble. Currently lost somewhere between here and regret."
-        />
-      </label>
-    </section>
-
-    <!-- Optional Character Add-in -->
-    <section
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-    >
-      <button
-        class="flex w-full items-center justify-between text-left"
-        type="button"
-        @click="showCharacterPanel = !showCharacterPanel"
-      >
-        <div>
-          <h2 class="text-lg font-bold text-base-content">
-            Add a Character
-            <span class="badge badge-ghost badge-sm ml-2">Optional</span>
-          </h2>
-          <p class="mt-0.5 text-sm text-base-content/60">
-            Attach a character from your roster to anchor the story.
-          </p>
+            <div
+              v-else
+              class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
+            >
+              No reward selected. Go pick something from the Rewards tab.
+            </div>
+          </article>
         </div>
-        <Icon
-          :name="
-            showCharacterPanel
-              ? 'kind-icon:chevron-up'
-              : 'kind-icon:chevron-down'
-          "
-          class="h-5 w-5 shrink-0 text-base-content/50"
-        />
-      </button>
 
-      <div v-if="showCharacterPanel" class="mt-4">
-        <div
-          v-if="characterStore.selectedCharacter"
-          class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
-        >
-          <p class="font-bold text-secondary">{{ selectedCharacterTitle }}</p>
-          <p class="mt-1 text-sm text-base-content/70">
-            {{ characterStore.selectedCharacter.species || 'Unknown species' }}
-            /
-            {{ characterStore.selectedCharacter.class || 'Unknown class' }}
-          </p>
-          <button
-            class="btn btn-ghost btn-xs mt-2 rounded-xl"
-            type="button"
-            @click="characterStore.deselectCharacter?.()"
+        <div ref="storyLogRef" class="min-h-0 overflow-y-auto bg-base-200 p-4">
+          <div
+            v-if="sessionChats.length === 0"
+            class="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-center text-base-content/45"
           >
-            Remove character
+            <Icon name="kind-icon:magic" class="h-16 w-16 text-primary/60" />
+
+            <div>
+              <p class="text-lg font-bold">Start the encounter</p>
+              <p class="mt-1 text-sm">
+                Pick a reward, tune the premise, and unleash the narrative
+                gremlin.
+              </p>
+            </div>
+          </div>
+
+          <div v-else class="flex flex-col gap-4">
+            <article
+              v-for="chat in sessionChats"
+              :key="chat.id"
+              class="flex flex-col gap-3"
+            >
+              <div class="flex flex-row-reverse gap-3">
+                <div
+                  class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
+                >
+                  <p class="whitespace-pre-wrap">
+                    {{ chat.content }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex flex-row gap-3">
+                <div
+                  class="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-full border border-base-300 bg-base-100"
+                >
+                  <Icon
+                    name="kind-icon:reward"
+                    class="h-5 w-5 text-secondary"
+                  />
+                </div>
+
+                <div
+                  class="max-w-[85%] rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
+                >
+                  <span
+                    v-if="!chat.botResponse"
+                    class="flex items-center gap-1 py-1 text-base-content/60"
+                  >
+                    <span class="story-dot" />
+                    <span class="story-dot delay-150" />
+                    <span class="story-dot delay-300" />
+                  </span>
+
+                  <p v-else class="whitespace-pre-wrap text-base-content/80">
+                    {{ chat.botResponse }}
+                  </p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
+          <div class="mb-2 flex flex-wrap items-center gap-2">
+            <button
+              class="btn btn-xs btn-ghost rounded-xl"
+              type="button"
+              :disabled="isStarting"
+              @click="clearPromptOptions"
+            >
+              Reset Options
+            </button>
+
+            <button
+              class="btn btn-xs btn-ghost rounded-xl"
+              type="button"
+              :disabled="isStarting"
+              @click="newStory"
+            >
+              New Story
+            </button>
+
+            <button
+              class="btn btn-xs btn-ghost rounded-xl"
+              type="button"
+              :disabled="!rewardPromptPreview"
+              @click="copyPrompt"
+            >
+              Copy Prompt
+            </button>
+
+            <span class="ml-auto text-xs text-base-content/50">
+              {{ activeServerName }}
+            </span>
+          </div>
+
+          <button
+            class="btn btn-success min-h-14 w-full rounded-2xl"
+            type="button"
+            :disabled="!canStartStory"
+            @click="startRewardStory"
+          >
+            <span
+              v-if="isStarting"
+              class="loading loading-spinner loading-sm"
+            />
+            <Icon v-else name="kind-icon:play" class="h-5 w-5" />
+            Start Story
           </button>
         </div>
-
-        <div
-          v-else
-          class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
-        >
-          No character selected. Head to the Characters tab to pick one.
-        </div>
       </div>
-    </section>
 
-    <!-- Prompt Preview -->
-    <section
-      v-if="rewardPromptPreview"
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-    >
-      <details>
-        <summary class="cursor-pointer text-lg font-bold text-base-content">
-          Prompt Preview
-        </summary>
-        <pre
-          class="mt-3 whitespace-pre-wrap rounded-2xl bg-base-300 p-3 text-sm text-base-content/80"
-          >{{ rewardPromptPreview }}</pre
+      <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
+        <section
+          class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
-      </details>
+          <h2 class="mb-3 text-lg font-bold text-base-content">
+            The Encounter
+          </h2>
+
+          <div class="grid grid-cols-1 gap-4">
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text font-bold">How do you find it?</span>
+              </span>
+
+              <select
+                v-model="encounterMode"
+                class="select select-bordered bg-base-200"
+                :disabled="isStarting"
+              >
+                <option value="discover">
+                  You stumble across it unexpectedly
+                </option>
+                <option value="use">You deliberately use the item</option>
+                <option value="temptation">
+                  The item calls to you, and you can't ignore it
+                </option>
+                <option value="consequence">
+                  You already used it. Now deal with what happened.
+                </option>
+                <option value="custom">Custom scenario</option>
+              </select>
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text font-bold">Tone</span>
+              </span>
+
+              <select
+                v-model="tone"
+                class="select select-bordered bg-base-200"
+                :disabled="isStarting"
+              >
+                <option value="whimsical">Whimsical</option>
+                <option value="dramatic">Dramatic</option>
+                <option value="ominous">Ominous</option>
+                <option value="funny">Funny</option>
+                <option value="heroic">Heroic</option>
+                <option value="weird">Deeply weird</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="form-control mt-4">
+            <span class="label">
+              <span class="label-text font-bold">What do you do?</span>
+              <span class="label-text-alt text-base-content/50">Optional</span>
+            </span>
+
+            <textarea
+              v-model="customDirection"
+              class="textarea textarea-bordered min-h-24 rounded-2xl bg-base-200"
+              placeholder="Describe your action, setting, or whatever context feels relevant..."
+              :disabled="isStarting"
+            />
+          </label>
+        </section>
+
+        <section
+          class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+        >
+          <h2 class="mb-1 text-lg font-bold text-base-content">About You</h2>
+
+          <p class="mb-3 text-sm text-base-content/60">
+            Give the story engine some context about who's holding this thing.
+            This stays local to the prompt.
+          </p>
+
+          <label class="form-control">
+            <span class="label">
+              <span class="label-text font-bold">Your background</span>
+              <span class="label-text-alt text-base-content/50">Optional</span>
+            </span>
+
+            <textarea
+              v-model="userBackground"
+              class="textarea textarea-bordered min-h-24 rounded-2xl bg-base-200"
+              placeholder="A wandering cartographer with a bad knee and a knack for finding trouble. Currently lost somewhere between here and regret."
+              :disabled="isStarting"
+            />
+          </label>
+        </section>
+
+        <section
+          class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+        >
+          <button
+            class="flex w-full items-center justify-between text-left"
+            type="button"
+            @click="showCharacterPanel = !showCharacterPanel"
+          >
+            <div>
+              <h2 class="text-lg font-bold text-base-content">
+                Add a Character
+                <span class="badge badge-ghost badge-sm ml-2">Optional</span>
+              </h2>
+
+              <p class="mt-0.5 text-sm text-base-content/60">
+                Attach a character from your roster to anchor the story.
+              </p>
+            </div>
+
+            <Icon
+              :name="
+                showCharacterPanel
+                  ? 'kind-icon:chevron-up'
+                  : 'kind-icon:chevron-down'
+              "
+              class="h-5 w-5 shrink-0 text-base-content/50"
+            />
+          </button>
+
+          <div v-if="showCharacterPanel" class="mt-4">
+            <div
+              v-if="characterStore.selectedCharacter"
+              class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
+            >
+              <p class="font-bold text-secondary">
+                {{ selectedCharacterTitle }}
+              </p>
+
+              <p class="mt-1 text-sm text-base-content/70">
+                {{
+                  characterStore.selectedCharacter.species || 'Unknown species'
+                }}
+                /
+                {{ characterStore.selectedCharacter.class || 'Unknown class' }}
+              </p>
+
+              <button
+                class="btn btn-ghost btn-xs mt-2 rounded-xl"
+                type="button"
+                :disabled="isStarting"
+                @click="characterStore.deselectCharacter?.()"
+              >
+                Remove character
+              </button>
+            </div>
+
+            <div
+              v-else
+              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
+            >
+              No character selected. Head to the Characters tab to pick one.
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+        >
+          <div class="mb-3 flex items-center justify-between gap-2">
+            <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
+
+            <button
+              class="btn btn-xs btn-ghost rounded-xl"
+              type="button"
+              :disabled="!rewardPromptPreview"
+              @click="copyPrompt"
+            >
+              Copy
+            </button>
+          </div>
+
+          <pre
+            class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+            >{{ rewardPromptPreview }}</pre
+          >
+        </section>
+      </aside>
     </section>
-
-    <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-      <button
-        class="btn btn-ghost rounded-xl"
-        type="button"
-        @click="clearPromptOptions"
-      >
-        Reset
-      </button>
-
-      <button
-        class="btn btn-primary rounded-xl"
-        type="button"
-        :disabled="!rewardStore.selectedReward"
-        @click="copyPrompt"
-      >
-        <Icon name="kind-icon:copy" class="h-5 w-5" />
-        Copy Prompt
-      </button>
-
-      <button
-        class="btn btn-success rounded-xl"
-        type="button"
-        :disabled="!rewardStore.selectedReward || isStarting"
-        @click="startRewardStory"
-      >
-        <span v-if="isStarting" class="loading loading-spinner loading-sm" />
-        <Icon v-else name="kind-icon:play" class="h-5 w-5" />
-        Start Story
-      </button>
-    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChatStore } from '@/stores/chatStore'
 import { useRewardStore } from '@/stores/rewardStore'
+import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+
+type RewardSessionChat = {
+  id: number
+  content: string
+  botResponse?: string | null
+}
+
+type ChatRuntimeInput = Parameters<
+  ReturnType<typeof useChatStore>['addChat']
+>[0]
+
+type RewardStoryMessage = {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
 
 const rewardStore = useRewardStore()
 const characterStore = useCharacterStore()
 const chatStore = useChatStore()
+const serverStore = useServerStore()
 const userStore = useUserStore()
 
+const storyLogRef = ref<HTMLElement | null>(null)
 const encounterMode = ref<
   'discover' | 'use' | 'temptation' | 'consequence' | 'custom'
 >('discover')
@@ -262,21 +403,102 @@ const customDirection = ref('')
 const userBackground = ref(userStore.user?.bio ?? '')
 const showCharacterPanel = ref(false)
 const statusMessage = ref('')
-const statusTone = ref<'info' | 'error'>('info')
+const statusTone = ref<'success' | 'error'>('success')
 const isStarting = ref(false)
+const sessionChatIds = ref<number[]>([])
 
 const selectedCharacterTitle = computed(() => {
   const character = characterStore.selectedCharacter
+
   if (!character) return 'No character selected'
+
   return character.name
     ? `${character.name} the ${character.honorific || 'Unremarkable'}`.trim()
     : 'Unnamed character'
 })
 
+const activeServerName = computed(() => {
+  return (
+    serverStore.activeTextServer?.label ||
+    serverStore.activeTextServer?.title ||
+    'No text server selected'
+  )
+})
+
+const sessionChats = computed<RewardSessionChat[]>(() => {
+  return chatStore.chats.filter((chat) =>
+    sessionChatIds.value.includes(chat.id),
+  ) as RewardSessionChat[]
+})
+
+const isResponding = computed(() => {
+  return sessionChats.value.some((chat) => !chat.botResponse)
+})
+
+const canStartStory = computed(() => {
+  return Boolean(
+    rewardStore.selectedReward && !isStarting.value && !isResponding.value,
+  )
+})
+
 const rewardPromptPreview = computed(() => buildRewardPrompt())
+
+const systemPrompt = computed(() => {
+  return [
+    'You are a narrative game master for Kind Robots.',
+    'Write vivid, interactive story scenes centered on strange rewards, artifacts, boons, curses, or plot devices.',
+    'Keep the scene immersive and concrete.',
+    'End every response with exactly 3 follow-up choices: one cautious, one bold, and one weird.',
+    'Do not explain the prompt. Write the scene directly.',
+  ].join('\n')
+})
+
+const fullSessionMessages = computed<RewardStoryMessage[]>(() => {
+  return sessionChats.value.flatMap((chat) => {
+    const messages: RewardStoryMessage[] = [
+      {
+        role: 'user',
+        content: chat.content,
+      },
+    ]
+
+    if (chat.botResponse) {
+      messages.push({
+        role: 'assistant',
+        content: chat.botResponse,
+      })
+    }
+
+    return messages
+  })
+})
+
+function setStatus(messageText: string, tone: 'success' | 'error' = 'success') {
+  statusMessage.value = messageText
+  statusTone.value = tone
+}
+
+function scrollToBottom() {
+  const el = storyLogRef.value
+
+  if (!el) return
+
+  el.scrollTop = el.scrollHeight
+}
+
+function buildMessagesForRewardResponse(): RewardStoryMessage[] {
+  return [
+    {
+      role: 'system',
+      content: systemPrompt.value,
+    },
+    ...fullSessionMessages.value,
+  ]
+}
 
 function buildRewardPrompt() {
   const reward = rewardStore.selectedReward
+
   if (!reward) return ''
 
   const character = characterStore.selectedCharacter
@@ -300,22 +522,30 @@ function buildRewardPrompt() {
     'Write a scene where this item is discovered or used. Focus on what it feels like to hold it, what it does, and the immediate consequences. End with 3 follow-up choices: one cautious, one bold, and one weird.',
   ]
 
-  return lines.filter((l) => l !== null).join('\n')
+  return lines.filter((line) => line !== null).join('\n')
 }
 
 async function copyPrompt() {
   const prompt = rewardPromptPreview.value
+
   if (!prompt) return
+
   await navigator.clipboard.writeText(prompt)
-  statusTone.value = 'info'
-  statusMessage.value = 'Prompt copied.'
+  setStatus('Prompt copied.')
 }
 
 async function startRewardStory() {
   const reward = rewardStore.selectedReward
+
   if (!reward) {
-    statusTone.value = 'error'
-    statusMessage.value = 'Pick a reward before starting the story.'
+    setStatus('Pick a reward before starting the story.', 'error')
+    return
+  }
+
+  const content = buildRewardPrompt()
+
+  if (!content.trim()) {
+    setStatus('Could not build a reward prompt.', 'error')
     return
   }
 
@@ -324,32 +554,66 @@ async function startRewardStory() {
 
   try {
     const character = characterStore.selectedCharacter
-    const content = buildRewardPrompt()
     const senderName =
       character?.name ?? userStore.user?.username ?? 'Anonymous'
 
-    const chat = await chatStore.addChat({
+    const payload: ChatRuntimeInput = {
       content,
       type: 'Reward',
       sender: senderName,
-      userId: userStore.user?.id ?? character?.userId ?? reward.userId ?? 10,
+      userId:
+        userStore.userId ??
+        userStore.user?.id ??
+        character?.userId ??
+        reward.userId ??
+        10,
       characterId: character?.id ?? null,
       recipientId: null,
+      serverId: serverStore.activeTextServer?.id ?? null,
+      isPublic: false,
+    }
+
+    const newChat = await chatStore.addChat(payload)
+
+    if (!newChat?.id) {
+      throw new Error('Failed to create reward story chat.')
+    }
+
+    sessionChatIds.value.push(newChat.id)
+    chatStore.selectedChat = newChat
+
+    await nextTick()
+    scrollToBottom()
+
+    if (typeof chatStore.streamResponse !== 'function') {
+      throw new Error('chatStore.streamResponse is not available.')
+    }
+
+    await chatStore.streamResponse(newChat.id, {
+      model: serverStore.activeTextServer?.model || 'gpt-4o-mini',
+      temperature: 0.85,
+      maxTokens: 2048,
+      serverId: serverStore.activeTextServer?.id ?? null,
+      messages: buildMessagesForRewardResponse(),
     })
 
-    if (!chat) throw new Error('Failed to create reward story chat.')
-
-    chatStore.selectedChat = chat
-    statusTone.value = 'info'
-    statusMessage.value = 'Reward story started.'
+    await nextTick()
+    scrollToBottom()
+    setStatus('Reward story returned.')
   } catch (error) {
     console.error('Error starting reward story:', error)
-    statusTone.value = 'error'
-    statusMessage.value =
-      error instanceof Error ? error.message : 'Error starting reward story.'
+    setStatus(
+      error instanceof Error ? error.message : 'Error starting reward story.',
+      'error',
+    )
   } finally {
     isStarting.value = false
   }
+}
+
+function newStory() {
+  sessionChatIds.value = []
+  statusMessage.value = ''
 }
 
 function clearPromptOptions() {
@@ -359,4 +623,54 @@ function clearPromptOptions() {
   userBackground.value = userStore.user?.bio ?? ''
   statusMessage.value = ''
 }
+
+onMounted(async () => {
+  await Promise.all([
+    chatStore.initialize(),
+    serverStore.initialize({
+      fetchRemote: true,
+    }),
+  ])
+})
+
+watch(
+  () => sessionChats.value.map((chat) => chat.botResponse).join(''),
+  async () => {
+    await nextTick()
+    scrollToBottom()
+  },
+)
 </script>
+
+<style scoped>
+.story-dot {
+  display: inline-block;
+  height: 0.375rem;
+  width: 0.375rem;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: story-bounce 1s ease-in-out infinite;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+@keyframes story-bounce {
+  0%,
+  80%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.65);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>

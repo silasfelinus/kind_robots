@@ -1,4 +1,4 @@
-<!-- /components/content/rewards/reward-interact.vue -->
+border<!-- /components/content/rewards/reward-interact.vue -->
 <template>
   <section class="flex w-full flex-col gap-4 rounded-2xl bg-base-200 p-4">
     <header
@@ -281,9 +281,9 @@ async function startRewardStory() {
 
     const chat = await chatStore.addChat({
       content,
-      userId: character?.userId || reward.userId || 10,
-      type: 'Reward',
-      characterId: character?.id || null,
+      userId: character?.userId ?? reward.userId ?? 10,
+      type: 'reward',
+      characterId: character?.id ?? null,
       recipientId: null,
     })
 

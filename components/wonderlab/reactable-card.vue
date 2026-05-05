@@ -5,7 +5,7 @@
       'group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-base-200 transition-all hover:shadow-lg',
       compact ? 'gap-2 p-3' : 'gap-4 p-4',
       selected ? 'border-primary bg-primary/10' : 'border-base-300',
-      cardClass,
+      normalizedCardClass,
     ]"
     @click="handleSelect"
   >
@@ -31,7 +31,7 @@
 
     <Transition name="reaction-pop">
       <div
-        v-if="reactionOpen"
+        v-if="reactionOpen && canRenderReactionCard"
         class="absolute inset-x-2 top-14 z-40 max-h-[calc(100%-4rem)] overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
         @click.stop
       >
@@ -52,11 +52,10 @@
         </div>
 
         <reaction-card
-          v-if="targetId && targetType && reactionCategory"
-          :target-id="targetId"
-          :target-type="targetType"
-          :reaction-category="reactionCategory"
-          :target-title="targetTitle"
+          :target-id="normalizedTargetId"
+          :target-type="normalizedTargetType"
+          :reaction-category="normalizedReactionCategory"
+          :target-title="normalizedTargetTitle"
           compact
           @submitted="reactionOpen = false"
         />
@@ -66,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type {
   ReactionCategoryEnum,
   ReactionTargetType,
@@ -78,10 +77,10 @@ const props = withDefaults(
     compact?: boolean
     showReaction?: boolean
     targetId?: number | null
-    targetType?: ReactionTargetType
-    reactionCategory?: ReactionCategoryEnum
-    targetTitle?: string
-    cardClass?: string
+    targetType?: ReactionTargetType | string
+    reactionCategory?: ReactionCategoryEnum | string
+    targetTitle?: string | null
+    cardClass?: string | string[] | Record<string, boolean> | null
   }>(),
   {
     selected: false,
@@ -101,23 +100,65 @@ const emit = defineEmits<{
 
 const reactionOpen = ref(false)
 
-const showReactionButton = computed(() => {
+const normalizedTargetId = computed(() => {
+  const id = Number(props.targetId)
+
+  return Number.isInteger(id) && id > 0 ? id : 0
+})
+
+const normalizedTargetType = computed(() => {
+  return safeText(props.targetType).trim() as ReactionTargetType
+})
+
+const normalizedReactionCategory = computed(() => {
+  return safeText(props.reactionCategory).trim() as ReactionCategoryEnum
+})
+
+const normalizedTargetTitle = computed(() => {
+  return safeText(props.targetTitle).trim() || 'Untitled'
+})
+
+const normalizedCardClass = computed(() => {
+  return props.cardClass ?? ''
+})
+
+const canRenderReactionCard = computed(() => {
   return Boolean(
-    props.showReaction &&
-    props.selected &&
-    props.targetId &&
-    props.targetType &&
-    props.reactionCategory,
+    normalizedTargetId.value > 0 &&
+    normalizedTargetType.value &&
+    normalizedReactionCategory.value,
   )
 })
+
+const showReactionButton = computed(() => {
+  return Boolean(
+    props.showReaction && props.selected && canRenderReactionCard.value,
+  )
+})
+
+function safeText(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean')
+    return String(value)
+
+  return ''
+}
 
 function handleSelect() {
   emit('select')
 }
 
 function toggleReaction() {
+  if (!canRenderReactionCard.value) return
+
   reactionOpen.value = !reactionOpen.value
 }
+
+watch(canRenderReactionCard, (canRender) => {
+  if (!canRender) {
+    reactionOpen.value = false
+  }
+})
 </script>
 
 <style scoped>

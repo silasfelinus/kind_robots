@@ -27,7 +27,7 @@
         type="button"
         class="btn btn-sm rounded-2xl"
         :class="activeMode === tab.key ? 'btn-primary text-white' : 'btn-ghost'"
-        @click="activeMode = tab.key"
+        @click="setActiveMode(tab.key)"
       >
         <Icon :name="tab.icon" class="h-4 w-4" />
         {{ tab.label }}
@@ -171,12 +171,26 @@
               v-for="prompt in presetPrompts"
               :key="prompt"
               class="btn btn-outline btn-sm rounded-xl justify-start text-left"
+              :class="selectedPrompt === prompt ? 'btn-primary text-white' : ''"
               type="button"
               :disabled="!characterStore.selectedCharacter || isSendingChat"
-              @click="usePrompt(prompt)"
+              @click="selectPrompt(prompt)"
             >
               {{ prompt }}
             </button>
+          </div>
+
+          <div
+            v-if="selectedGettingToKnowYouQuestion"
+            class="mb-3 rounded-2xl border border-secondary/40 bg-secondary/10 p-3 text-sm"
+          >
+            <p class="text-xs font-bold uppercase text-secondary">
+              Selected getting-to-know-you prompt
+            </p>
+
+            <p class="mt-1 text-base-content/80">
+              {{ selectedGettingToKnowYouQuestion }}
+            </p>
           </div>
 
           <textarea
@@ -184,6 +198,7 @@
             class="textarea textarea-bordered min-h-32 w-full resize-none rounded-2xl bg-base-200"
             placeholder="Say something to the character..."
             :disabled="!characterStore.selectedCharacter || isSendingChat"
+            @input="syncSelectedPromptFromText"
             @keydown.enter.exact.prevent="sendCharacterChat"
           />
 
@@ -373,22 +388,57 @@
                 {{ selectedRewardTitle }}
               </p>
             </div>
+
+            <div
+              v-if="selectedPrompt"
+              class="rounded-2xl border border-primary/30 bg-primary/10 p-3"
+            >
+              <p class="text-xs font-bold uppercase text-primary">
+                Active Prompt
+              </p>
+
+              <p class="mt-1 text-sm text-base-content/80">
+                {{ selectedPrompt }}
+              </p>
+            </div>
           </div>
         </section>
 
         <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="mb-3 text-lg font-bold text-base-content">
-            Getting To Know You Questions
-          </h2>
+          <div class="mb-3 flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-lg font-bold text-base-content">
+                Getting To Know You Questions
+              </h2>
+
+              <p class="text-xs text-base-content/60">
+                Pick one to load it into chat.
+              </p>
+            </div>
+
+            <button
+              class="btn btn-ghost btn-xs rounded-xl"
+              type="button"
+              :disabled="!selectedGettingToKnowYouQuestion || isSendingChat"
+              @click="clearSelectedPrompt"
+            >
+              Clear
+            </button>
+          </div>
 
           <div class="flex max-h-80 flex-col gap-2 overflow-y-auto">
             <button
               v-for="question in gettingToKnowYouQuestions"
               :key="question"
-              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-left text-sm transition hover:border-primary hover:bg-primary hover:text-primary-content"
+              class="rounded-2xl border p-3 text-left text-sm transition"
+              :class="
+                selectedGettingToKnowYouQuestion === question
+                  ? 'border-secondary bg-secondary text-secondary-content shadow-md'
+                  : 'border-base-300 bg-base-200 hover:border-primary hover:bg-primary hover:text-primary-content'
+              "
               type="button"
               :disabled="!characterStore.selectedCharacter || isSendingChat"
-              @click="usePrompt(question)"
+              @click="selectGettingToKnowYouQuestion(question)"
             >
               {{ question }}
             </button>
@@ -412,6 +462,7 @@
     </section>
   </section>
 </template>
+
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
@@ -446,6 +497,8 @@ const chatMessages = ref<LocalChatMessage[]>([])
 const adventureDirection = ref('')
 const adventurePrompt = ref('')
 const promptText = ref('')
+const selectedPrompt = ref('')
+const selectedGettingToKnowYouQuestion = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const isSendingChat = ref(false)
@@ -528,14 +581,28 @@ function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusTone.value = tone
 }
 
+function setActiveMode(mode: CharacterInteractMode) {
+  activeMode.value = mode
+}
+
 function clearSelectedCharacter() {
   characterStore.deselectCharacter()
   clearChatMessages()
+  clearSelectedPrompt()
 }
 
 function clearChatMessages() {
   chatMessages.value = []
   statusMessage.value = ''
+}
+
+function clearSelectedPrompt() {
+  selectedPrompt.value = ''
+  selectedGettingToKnowYouQuestion.value = ''
+
+  if (!isSendingChat.value) {
+    chatMessage.value = ''
+  }
 }
 
 function createMessageId(role: ChatRole) {
@@ -547,22 +614,47 @@ function pickRandomPrompt(items: readonly string[], fallback: string): string {
   return items[index] ?? fallback
 }
 
-function usePrompt(prompt: string) {
+function selectPrompt(prompt: string) {
+  selectedPrompt.value = prompt
+  selectedGettingToKnowYouQuestion.value = ''
   chatMessage.value = prompt
+  activeMode.value = 'chat'
+  setStatus('Prompt loaded into chat.')
+}
+
+function selectGettingToKnowYouQuestion(question: string) {
+  selectedPrompt.value = question
+  selectedGettingToKnowYouQuestion.value = question
+  chatMessage.value = question
+  activeMode.value = 'chat'
+  setStatus('Getting-to-know-you question loaded into chat.')
+}
+
+function syncSelectedPromptFromText() {
+  const current = chatMessage.value.trim()
+
+  if (!current || current !== selectedPrompt.value) {
+    selectedPrompt.value = ''
+    selectedGettingToKnowYouQuestion.value = ''
+  }
 }
 
 function seedChatMessage() {
-  chatMessage.value = pickRandomPrompt(
+  const prompt = pickRandomPrompt(
     presetPrompts,
     'What do you notice first, and what do you absolutely refuse to admit?',
   )
+
+  selectPrompt(prompt)
 }
 
 function seedGettingToKnowYouQuestion() {
-  chatMessage.value = pickRandomPrompt(
+  const question = pickRandomPrompt(
     gettingToKnowYouQuestions,
     'What question are you hoping I do not ask next?',
   )
+
+  selectGettingToKnowYouQuestion(question)
 }
 
 function buildCharacterSystemPrompt(): string {
@@ -625,6 +717,8 @@ async function sendCharacterChat() {
   })
 
   chatMessage.value = ''
+  selectedPrompt.value = ''
+  selectedGettingToKnowYouQuestion.value = ''
 
   try {
     const chat = await chatStore.addChat({
@@ -634,6 +728,10 @@ async function sendCharacterChat() {
       characterId: character.id,
       recipientId: null,
     })
+
+    if (!chat?.id) {
+      throw new Error('Failed to create character chat.')
+    }
 
     chatStore.selectedChat = chat
 
@@ -683,6 +781,8 @@ function buildCharacterPrompt() {
     '',
     'Respond in character. Keep the voice vivid, specific, and interactive.',
   ].join('\n')
+
+  setStatus('Character prompt built.')
 }
 
 function buildAdventurePrompt() {
@@ -735,14 +835,22 @@ async function copyPrompt() {
 }
 
 function copyPromptToChat() {
-  chatMessage.value = promptText.value
+  const prompt = promptText.value.trim()
+
+  if (!prompt) return
+
+  selectedPrompt.value = prompt
+  selectedGettingToKnowYouQuestion.value = ''
+  chatMessage.value = prompt
   activeMode.value = 'chat'
+  setStatus('Prompt copied into chat.')
 }
 
 watch(
   () => characterStore.selectedCharacterId,
   () => {
     clearChatMessages()
+    clearSelectedPrompt()
     activeMode.value = 'chat'
   },
 )

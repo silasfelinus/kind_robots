@@ -9,12 +9,15 @@ interface ApiResponse<T = any> {
 }
 
 describe('Dream API Full CRUD + Chat History Tests', () => {
-  const API_BASE = Cypress.env('API_BASE') ?? 'https://kind-robots.vercel.app'
+  const API_BASE =
+    (Cypress.config('baseUrl') as string) ?? 'https://kind-robots.vercel.app'
+
   const dreamsUrl = `${API_BASE}/api/dreams`
 
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
   const testUserId = 9
+
+  let userToken: string
 
   let publicDreamId: number
   let privateDreamId: number
@@ -32,8 +35,11 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   }
 
   before(() => {
-    expect(userToken, 'Cypress.env("USER_TOKEN")').to.be.a('string').and.not.be
-      .empty
+    cy.env(['USER_TOKEN']).then((envs) => {
+      userToken = envs['USER_TOKEN']
+      expect(userToken, 'Cypress.env("USER_TOKEN")').to.be.a('string').and.not
+        .be.empty
+    })
   })
 
   it('POST: rejects Dream creation without auth', () => {

@@ -231,6 +231,7 @@
         </div>
 
         <article v-else class="flex flex-col gap-4">
+          <!-- Identity -->
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div
               class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
@@ -301,6 +302,93 @@
             </div>
           </section>
 
+          <!-- Live Preview -->
+          <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
+            <div class="mb-3 flex items-center justify-between gap-2">
+              <div>
+                <h3 class="text-lg font-black">Live Preview</h3>
+                <p class="text-sm text-base-content/60">
+                  {{ previewPath || 'Resolving component...' }}
+                </p>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  class="btn btn-xs btn-ghost rounded-xl"
+                  type="button"
+                  :class="previewExpanded ? 'btn-active' : ''"
+                  @click="previewExpanded = !previewExpanded"
+                >
+                  <Icon
+                    :name="
+                      previewExpanded
+                        ? 'kind-icon:minimize'
+                        : 'kind-icon:maximize'
+                    "
+                    class="h-3 w-3"
+                  />
+                  {{ previewExpanded ? 'Collapse' : 'Expand' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Not found -->
+            <div
+              v-if="previewNotFound"
+              class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-base-content/50"
+            >
+              <Icon name="kind-icon:sparkles" class="h-10 w-10 opacity-30" />
+              <p class="text-sm font-bold">No preview available</p>
+              <p class="text-xs">
+                Could not locate
+                <code class="rounded bg-base-200 px-1 py-0.5 text-xs">
+                  {{ selectedComponent.folderName }}/{{
+                    selectedComponent.componentName
+                  }}.vue
+                </code>
+              </p>
+            </div>
+
+            <!-- Error state -->
+            <div
+              v-else-if="previewError"
+              class="rounded-2xl border border-error/30 bg-error/5 p-4 text-sm text-error"
+            >
+              <p class="font-bold">Component threw an error during render:</p>
+              <pre
+                class="mt-2 overflow-x-auto whitespace-pre-wrap text-xs opacity-80"
+                >{{ previewError }}</pre
+              >
+            </div>
+
+            <!-- Live render -->
+            <div
+              v-else-if="dynamicComponent"
+              class="overflow-auto rounded-2xl border border-base-300 bg-base-100 p-4 transition-all"
+              :class="previewExpanded ? 'min-h-96' : 'max-h-96'"
+            >
+              <Suspense>
+                <component :is="dynamicComponent" />
+                <template #fallback>
+                  <div class="flex items-center justify-center py-8">
+                    <span
+                      class="loading loading-spinner loading-md text-accent"
+                    />
+                  </div>
+                </template>
+              </Suspense>
+            </div>
+
+            <!-- Resolving -->
+            <div
+              v-else
+              class="flex items-center justify-center rounded-2xl border border-base-300 bg-base-100 py-8"
+            >
+              <span class="loading loading-spinner loading-md text-accent" />
+            </div>
+          </section>
+
+          <!-- Notes and Status -->
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div
               class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
@@ -411,12 +499,23 @@
 
 <script setup lang="ts">
 // /components/content/wonderlab/lab-interact.vue
-import { computed, onMounted, ref } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  onErrorCaptured,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 import type { Component as PrismaComponent } from '~/prisma/generated/prisma/client'
 import { useComponentStore } from '@/stores/componentStore'
 import { useUserStore } from '@/stores/userStore'
 
 type ComponentStatusFilter = 'all' | 'working' | 'building' | 'broken'
+
+// Glob all .vue files under /components at build time so Vite can code-split them.
+// The keys look like: /components/pages/some-page.vue
+const allModules = import.meta.glob('@/components/**/*.vue')
 
 const componentStore = useComponentStore()
 const userStore = useUserStore()
@@ -429,12 +528,20 @@ const isSavingComponent = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 
+// Preview state
+const dynamicComponent = ref<ReturnType<typeof defineAsyncComponent> | null>(
+  null,
+)
+const previewNotFound = ref(false)
+const previewError = ref<string | null>(null)
+const previewExpanded = ref(false)
+const previewPath = ref<string | null>(null)
+
 const isAdmin = computed(() => userStore.isAdmin)
 
 const components = computed<PrismaComponent[]>(() => {
   const fromAll = componentStore.allComponents || []
   const fromMain = componentStore.components || []
-
   return fromAll.length ? fromAll : fromMain
 })
 
@@ -446,73 +553,100 @@ const selectedComponent = computed({
 })
 
 const componentCount = computed(() => components.value.length)
-
-const workingCount = computed(() => {
-  return components.value.filter((component) => component.isWorking).length
-})
-
-const buildingCount = computed(() => {
-  return components.value.filter((component) => component.underConstruction)
-    .length
-})
-
-const brokenCount = computed(() => {
-  return components.value.filter((component) => component.isBroken).length
-})
+const workingCount = computed(
+  () => components.value.filter((c) => c.isWorking).length,
+)
+const buildingCount = computed(
+  () => components.value.filter((c) => c.underConstruction).length,
+)
+const brokenCount = computed(
+  () => components.value.filter((c) => c.isBroken).length,
+)
 
 const folderNames = computed(() => {
   const folders = new Set<string>()
-
-  components.value.forEach((component) => {
-    if (component.folderName) {
-      folders.add(component.folderName)
-    }
+  components.value.forEach((c) => {
+    if (c.folderName) folders.add(c.folderName)
   })
-
   return Array.from(folders).sort()
 })
 
 const filteredComponents = computed(() => {
   let result = components.value
 
-  if (folderFilter.value) {
-    result = result.filter((component) => {
-      return component.folderName === folderFilter.value
-    })
-  }
+  if (folderFilter.value)
+    result = result.filter((c) => c.folderName === folderFilter.value)
 
-  if (statusFilter.value === 'working') {
-    result = result.filter((component) => component.isWorking)
-  }
-
-  if (statusFilter.value === 'building') {
-    result = result.filter((component) => component.underConstruction)
-  }
-
-  if (statusFilter.value === 'broken') {
-    result = result.filter((component) => component.isBroken)
-  }
+  if (statusFilter.value === 'working')
+    result = result.filter((c) => c.isWorking)
+  if (statusFilter.value === 'building')
+    result = result.filter((c) => c.underConstruction)
+  if (statusFilter.value === 'broken') result = result.filter((c) => c.isBroken)
 
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.trim().toLowerCase()
-
-    result = result.filter((component) => {
-      const haystack = [
-        component.componentName,
-        component.folderName,
-        component.title,
-        component.notes,
-      ]
+    result = result.filter((c) => {
+      const haystack = [c.componentName, c.folderName, c.title, c.notes]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
-
       return haystack.includes(query)
     })
   }
 
   return result
 })
+
+// --- Preview resolution ---
+
+function resolvePreview(component: PrismaComponent | null) {
+  dynamicComponent.value = null
+  previewNotFound.value = false
+  previewError.value = null
+  previewPath.value = null
+  previewExpanded.value = false
+
+  if (!component?.componentName || !component?.folderName) return
+
+  // Try several path patterns the store might use.
+  // Keys from import.meta.glob look like "/components/pages/foo.vue"
+  const name = component.componentName.replace(/\.vue$/, '')
+  const folder = component.folderName
+
+  const candidates = [
+    `/components/${folder}/${name}.vue`,
+    `/components/content/${folder}/${name}.vue`,
+    `/components/${name}.vue`,
+  ]
+
+  const matchedKey = candidates.find((c) => allModules[c])
+
+  if (!matchedKey) {
+    previewNotFound.value = true
+    return
+  }
+
+  previewPath.value = matchedKey
+  dynamicComponent.value = defineAsyncComponent({
+    loader: allModules[matchedKey] as () => Promise<{ default: unknown }>,
+    timeout: 8000,
+    onError(error, retry, fail) {
+      previewError.value =
+        error instanceof Error ? error.message : String(error)
+      fail()
+    },
+  })
+}
+
+watch(selectedComponent, resolvePreview, { immediate: true })
+
+// Catch render errors so the lab itself doesn't crash
+onErrorCaptured((err) => {
+  previewError.value = err instanceof Error ? err.message : String(err)
+  return false // don't propagate
+})
+
+// --- Actions ---
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message
@@ -532,25 +666,7 @@ async function refreshComponents() {
   statusMessage.value = ''
 
   try {
-    async function refreshComponents() {
-      isLoading.value = true
-      statusMessage.value = ''
-
-      try {
-        await componentStore.initialize()
-        setStatus('Components refreshed.')
-      } catch (error) {
-        setStatus(
-          error instanceof Error
-            ? error.message
-            : 'Failed to refresh components.',
-          'error',
-        )
-      } finally {
-        isLoading.value = false
-      }
-    }
-
+    await componentStore.initialize()
     setStatus('Components refreshed.')
   } catch (error) {
     setStatus(
@@ -573,7 +689,6 @@ async function saveSelectedComponent() {
       selectedComponent.value,
       'update',
     )
-
     setStatus('Component saved.')
   } catch (error) {
     setStatus(
@@ -587,7 +702,6 @@ async function saveSelectedComponent() {
 
 onMounted(async () => {
   if (components.value.length) return
-
   await refreshComponents()
 })
 </script>

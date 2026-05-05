@@ -160,6 +160,8 @@
         :show-select-button="false"
         :show-description="true"
         :show-meta="false"
+        :show-reaction="false"
+        :auto-load-art-image="false"
         image-height-class="h-24"
         @click="isExpanded = true"
       />
@@ -202,8 +204,9 @@
           :show-description="showDescriptions"
           :show-meta="showMeta"
           :show-select-button="showSelectButtons"
+          :show-reaction="false"
           :show-debug="showDebug"
-          :auto-load-art-image="autoLoadArtImages"
+          :auto-load-art-image="false"
         />
       </div>
     </section>
@@ -339,7 +342,7 @@ const props = withDefaults(
     showDebug: false,
     allowRefresh: true,
     autoLoad: true,
-    autoLoadArtImages: true,
+    autoLoadArtImages: false,
   },
 )
 

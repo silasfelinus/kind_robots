@@ -282,15 +282,41 @@ describe('User Management API Tests', () => {
     })
 
     it('Delete User by ID with Authentication', () => {
-      cy.request({
-        method: 'DELETE',
-        url: `${baseUrl}/${createdUserId}`,
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${createdUserApiKey}`,
-        },
-      }).then((response) => {
-        expect(response.status).to.eq(200)
+      const deleteUser = (
+        attempt = 1,
+      ): Cypress.Chainable<Cypress.Response<any>> => {
+        return cy
+          .request({
+            method: 'DELETE',
+            url: `${baseUrl}/${createdUserId}`,
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${createdUserApiKey}`,
+            },
+            failOnStatusCode: false,
+          })
+          .then((response) => {
+            const message = String(response.body?.message ?? '')
+
+            const isPoolTimeout =
+              response.status === 400 &&
+              /pool timeout|failed to retrieve a connection/i.test(message)
+
+            if (isPoolTimeout && attempt < 3) {
+              cy.wait(1000 * attempt)
+              return deleteUser(attempt + 1)
+            }
+
+            return cy.wrap(response)
+          })
+      }
+
+      deleteUser().then((response) => {
+        expect(
+          response.status,
+          `delete status: ${response.status} ${JSON.stringify(response.body)}`,
+        ).to.eq(200)
+
         expect(response.body).to.have.property('success', true)
         expect(response.body)
           .to.have.property('message')

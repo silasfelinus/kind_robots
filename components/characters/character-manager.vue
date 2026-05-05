@@ -103,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
@@ -180,6 +180,19 @@ async function loadManagerData(force = false) {
 async function refreshManagerData() {
   await loadManagerData(true)
 }
+
+watch(
+  () => characterStore.selectedCharacterId,
+  (characterId, previousCharacterId) => {
+    if (!characterId || characterId === previousCharacterId) return
+
+    const currentTab = navStore.getDashboardTab(dashboardKey)
+
+    if (currentTab !== 'interact') {
+      navStore.setDashboardTab(dashboardKey, 'interact')
+    }
+  },
+)
 
 onMounted(async () => {
   await loadManagerData()

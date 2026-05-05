@@ -61,7 +61,9 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm"> Private </span>
+        <span v-else class="badge badge-warning badge-sm">
+          Private
+        </span>
 
         <span v-if="activeSelected" class="badge badge-primary badge-sm">
           Selected
@@ -245,7 +247,6 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  'select-character': [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -309,7 +310,6 @@ function statValue(index: number) {
 
 async function selectCharacter() {
   await characterStore.selectCharacter(props.character.id)
-  emit('select-character', props.character.id)
 }
 
 async function deleteCharacter() {

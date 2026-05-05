@@ -19,4 +19,4 @@ dashboard: 'rebel'
 footer: 'lab-footer'
 ---
 
-:rebel-button
+:lab-manager

@@ -282,7 +282,7 @@ async function startRewardStory() {
     const chat = await chatStore.addChat({
       content,
       userId: character?.userId ?? reward.userId ?? 10,
-      type: 'reward',
+      type: 'Reward',
       characterId: character?.id ?? null,
       recipientId: null,
     })

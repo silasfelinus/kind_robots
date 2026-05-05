@@ -465,6 +465,7 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
 import { negativeList } from '@/stores/seeds/artList'
+import { type DashboardKey } from '@/stores/helpers/dashboardHelper'
 
 const router = useRouter()
 const artStore = useArtStore()
@@ -478,16 +479,6 @@ const randomStore = useRandomStore()
 const serverStore = useServerStore()
 
 const footerOffsetKey = 'art'
-
-type DashboardKey =
-  | 'footer'
-  | 'scenario'
-  | 'character'
-  | 'reward'
-  | 'user'
-  | 'dream'
-  | 'wonder'
-  | 'server'
 
 const artDashboardKey: DashboardKey = 'server'
 

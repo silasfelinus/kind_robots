@@ -238,20 +238,6 @@ export const dashboardConfigs = {
         summary:
           'Generate, accept, edit, reject, save, or overwrite brainstorms.',
       },
-      {
-        key: 'add-pitch',
-        label: 'Add Pitch',
-        icon: 'kind-icon:plus',
-        title: 'Add Pitch',
-        summary: 'Create a new big-picture idea.',
-      },
-      {
-        key: 'add-prompt',
-        label: 'Add Prompt',
-        icon: 'kind-icon:quote',
-        title: 'Add Prompt',
-        summary: 'Create a new prompt string.',
-      },
     ],
   },
 
@@ -697,7 +683,7 @@ export const fallbackFooterKey: FooterKey = dashboardConfigs.footer.defaultTab
 export const footerRouteMap = {
   fx: '/butterflies',
   bot: '/bots',
-  art: '/addart',
+  art: '/art',
   scenario: '/stories',
   theme: '/themes',
   user: '/dashboard',

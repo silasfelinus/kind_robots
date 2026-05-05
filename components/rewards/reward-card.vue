@@ -12,6 +12,16 @@
   >
     <template #actions>
       <button
+        v-if="showActions && (activeSelected || compact)"
+        class="rounded-full bg-base-100 p-2 text-success shadow transition hover:bg-success hover:text-success-content"
+        type="button"
+        title="Start Reward Story"
+        @click.stop="interactWithReward"
+      >
+        <Icon name="kind-icon:story" class="h-4 w-4" />
+      </button>
+
+      <button
         v-if="showActions && allowEdit && (activeSelected || compact)"
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
@@ -258,6 +268,10 @@ const rewardTitle = computed(() => {
 async function selectReward() {
   await rewardStore.selectReward(props.reward.id)
   emit('select', props.reward.id)
+}
+
+async function interactWithReward() {
+  await rewardStore.startRewardInteraction(props.reward.id)
 }
 
 async function deleteReward() {

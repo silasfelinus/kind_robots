@@ -77,3 +77,4 @@ Dropped the header toggle to the footer bar
 bot interact works and remembers history
 removed error messages from art manager!!!!
 cleared butterfly lag on load
+bug fixed full paththrough from footer select options

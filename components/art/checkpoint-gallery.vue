@@ -84,8 +84,8 @@
             <option
               v-for="checkpoint in visibleCheckpoints"
               :key="checkpoint.name || checkpoint.id"
-              :value="checkpoint.name || ''"
-              :disabled="!checkpoint.name"
+              :value="safeText(checkpoint.name).trim()"
+              :disabled="!safeText(checkpoint.name).trim()"
             >
               {{ getCheckpointLabel(checkpoint) }}
             </option>
@@ -107,7 +107,7 @@
             <option
               v-for="sampler in checkpointStore.allSamplers"
               :key="sampler.name"
-              :value="sampler.name"
+              :value="safeText(sampler.name).trim()"
             >
               {{ sampler.name }}
             </option>
@@ -153,7 +153,6 @@
     >
       <checkpoint-card
         :checkpoint="compactCheckpoint"
-        :art="getCheckpointArt(compactCheckpoint.name)"
         :show-mature="showMature"
         :cache-buster="cacheBuster"
         :compact="true"
@@ -161,7 +160,6 @@
         :show-description="true"
         :show-meta="false"
         :show-reaction="false"
-        :auto-load-art-image="false"
         image-height-class="h-24"
         @click="isExpanded = true"
       />
@@ -196,7 +194,6 @@
           v-for="checkpoint in visibleCheckpoints"
           :key="checkpoint.name || checkpoint.id"
           :checkpoint="checkpoint"
-          :art="getCheckpointArt(checkpoint.name)"
           :show-mature="showMature"
           :cache-buster="cacheBuster"
           :compact="isCompact"
@@ -206,7 +203,6 @@
           :show-select-button="showSelectButtons"
           :show-reaction="false"
           :show-debug="showDebug"
-          :auto-load-art-image="false"
         />
       </div>
     </section>
@@ -229,7 +225,7 @@
           <option
             v-for="sampler in checkpointStore.allSamplers"
             :key="sampler.name"
-            :value="sampler.name"
+            :value="safeText(sampler.name).trim()"
           >
             {{ sampler.name }}
           </option>
@@ -278,20 +274,25 @@
       </div>
 
       <div
-        v-if="errorStore.getError"
+        v-if="localError"
         class="mt-2 rounded-xl bg-warning/10 p-2 text-warning"
       >
-        {{ errorStore.getError }}
+        {{ localError }}
       </div>
     </footer>
+
+    <div
+      v-if="localError && isSelectMode"
+      class="rounded-2xl bg-warning/10 p-2 text-xs text-warning"
+    >
+      {{ localError }}
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Art } from '~/prisma/generated/prisma/client'
 import type { Resource } from '@/stores/resourceStore'
-import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
@@ -325,7 +326,6 @@ const props = withDefaults(
     showDebug?: boolean
     allowRefresh?: boolean
     autoLoad?: boolean
-    autoLoadArtImages?: boolean
   }>(),
   {
     variant: 'dashboard',
@@ -342,20 +342,18 @@ const props = withDefaults(
     showDebug: false,
     allowRefresh: true,
     autoLoad: true,
-    autoLoadArtImages: false,
   },
 )
 
-const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
 
-const checkpointImages = ref<Record<string, Art | null>>({})
 const isExpanded = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
 const cacheBuster = ref(Date.now())
+const localError = ref('')
 
 const isSelectMode = computed(() => props.variant === 'select')
 
@@ -368,7 +366,7 @@ const layoutClass = computed(() => {
 })
 
 const selectedCheckpointName = computed({
-  get: () => checkpointStore.selectedCheckpoint?.name ?? '',
+  get: () => safeText(checkpointStore.selectedCheckpoint?.name).trim(),
   set: (value: string) => {
     const name = safeText(value).trim()
 
@@ -379,7 +377,7 @@ const selectedCheckpointName = computed({
 })
 
 const selectedSamplerName = computed({
-  get: () => checkpointStore.selectedSampler?.name ?? '',
+  get: () => safeText(checkpointStore.selectedSampler?.name).trim(),
   set: (value: string) => {
     const name = safeText(value).trim()
 
@@ -399,7 +397,9 @@ const showMature = computed({
 })
 
 const baseCheckpoints = computed<CheckpointResource[]>(() => {
-  return (checkpointStore.visibleCheckpoints ?? []) as CheckpointResource[]
+  const checkpoints = checkpointStore.visibleCheckpoints
+
+  return Array.isArray(checkpoints) ? (checkpoints as CheckpointResource[]) : []
 })
 
 const visibleCheckpoints = computed<CheckpointResource[]>(() => {
@@ -421,7 +421,7 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
         checkpoint.MediaPath,
         checkpoint.generation,
       ]
-        .map((value) => safeText(value))
+        .map((value) => safeText(value).trim())
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -434,12 +434,12 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
 })
 
 const displayedCheckpoints = computed<CheckpointResource[]>(() => {
-  const selected = checkpointStore.selectedCheckpoint?.name
+  const selected = safeText(checkpointStore.selectedCheckpoint?.name).trim()
 
   if (!isExpanded.value && selected) {
     const match = checkpointStore.findCheckpointByName(selected)
 
-    return match ? [match] : []
+    return match ? [match as CheckpointResource] : []
   }
 
   return visibleCheckpoints.value
@@ -448,10 +448,13 @@ const displayedCheckpoints = computed<CheckpointResource[]>(() => {
 const compactCheckpoint = computed<CheckpointResource | null>(() => {
   if (isExpanded.value) return null
 
-  const selected = checkpointStore.selectedCheckpoint?.name
+  const selected = safeText(checkpointStore.selectedCheckpoint?.name).trim()
 
   if (selected) {
-    return checkpointStore.findCheckpointByName(selected) ?? null
+    return (
+      (checkpointStore.findCheckpointByName(selected) as CheckpointResource) ??
+      null
+    )
   }
 
   return displayedCheckpoints.value[0] ?? null
@@ -467,7 +470,7 @@ const selectedCheckpointLabel = computed(() => {
 
 const mismatchWarning = computed(() => {
   const selected = selectedCheckpointName.value
-  const current = checkpointStore.currentApiModel
+  const current = safeText(checkpointStore.currentApiModel).trim()
 
   return Boolean(selected && current && selected !== current)
 })
@@ -479,13 +482,13 @@ const activeModelLabel = computed(() => {
     return 'Hidden Model'
   }
 
-  return checkpointStore.currentApiModel || 'Loading...'
+  return safeText(checkpointStore.currentApiModel).trim() || 'Loading...'
 })
 
 const summary = computed(() => {
   const selected =
-    checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.name
+    safeText(checkpointStore.selectedCheckpoint?.customLabel).trim() ||
+    safeText(checkpointStore.selectedCheckpoint?.name).trim()
 
   if (selected) {
     return `Selected: ${selected}`
@@ -503,6 +506,38 @@ function safeText(value: unknown): string {
   return ''
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return error
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const possibleMessage =
+      'message' in error
+        ? safeText((error as { message?: unknown }).message)
+        : ''
+
+    if (possibleMessage.trim()) {
+      return possibleMessage
+    }
+
+    const possibleStatusMessage =
+      'statusMessage' in error
+        ? safeText((error as { statusMessage?: unknown }).statusMessage)
+        : ''
+
+    if (possibleStatusMessage.trim()) {
+      return possibleStatusMessage
+    }
+  }
+
+  return fallback
+}
+
 function getCheckpointLabel(checkpoint: CheckpointResource): string {
   if (checkpoint.isMature && !showMature.value) return 'Hidden Checkpoint'
 
@@ -517,31 +552,18 @@ function updateCacheBuster() {
   cacheBuster.value = Date.now()
 }
 
-function getCheckpointArt(name?: string | null): Art | null {
-  if (!name) return null
-
-  return checkpointImages.value[name] ?? null
-}
-
 async function refreshModel() {
   isLoading.value = true
+  localError.value = ''
 
   try {
     await checkpointStore.fetchCurrentModelFromApi()
     await hydrateSelectedCheckpoint()
-
-    if (!isSelectMode.value && props.autoLoadArtImages) {
-      await hydrateCheckpointImages()
-    }
-
     updateCacheBuster()
-    errorStore.clearError()
   } catch (error) {
-    const message =
-      error instanceof Error && error.message
-        ? error.message
-        : 'Could not reach art server'
+    const message = getErrorMessage(error, 'Could not reach art server')
 
+    localError.value = message
     errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {
     isLoading.value = false
@@ -549,20 +571,22 @@ async function refreshModel() {
 }
 
 async function hydrateSelectedCheckpoint() {
-  const currentName = checkpointStore.currentApiModel
+  const currentName = safeText(checkpointStore.currentApiModel).trim()
   const found = currentName
-    ? checkpointStore.findCheckpointByName(currentName)
+    ? (checkpointStore.findCheckpointByName(currentName) as CheckpointResource)
     : null
 
-  if (found?.name && (!found.isMature || showMature.value)) {
-    checkpointStore.selectCheckpointByName(found.name)
+  const foundName = safeText(found?.name).trim()
+
+  if (foundName && (!found?.isMature || showMature.value)) {
+    checkpointStore.selectCheckpointByName(foundName)
     return
   }
 
-  const fallback = visibleCheckpoints.value[0]
+  const fallbackName = safeText(visibleCheckpoints.value[0]?.name).trim()
 
-  if (fallback?.name) {
-    checkpointStore.selectCheckpointByName(fallback.name)
+  if (fallbackName) {
+    checkpointStore.selectCheckpointByName(fallbackName)
   }
 }
 
@@ -572,49 +596,20 @@ function hydrateSelectedSampler() {
   checkpointStore.selectSamplerByName('Euler a')
 }
 
-async function hydrateCheckpointImages() {
-  if (isSelectMode.value || !props.autoLoadArtImages) return
-
-  const userId = userStore.user?.id ?? userStore.userId ?? 10
-
-  await artStore.initialize({
-    fetchRemote: true,
-    hydrateImages: false,
-  })
-
-  const allArt = artStore.art ?? []
-
-  for (const checkpoint of baseCheckpoints.value) {
-    const localPath = checkpoint.localPath || checkpoint.name
-
-    if (!localPath || !checkpoint.name) continue
-
-    const matchingArt = allArt
-      .filter((art) => {
-        return (
-          art.checkpoint === localPath &&
-          (Boolean(art.isPublic) || art.userId === userId)
-        )
-      })
-      .sort((a, b) => {
-        const bDate = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime()
-        const aDate = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime()
-
-        return bDate - aDate
-      })
-
-    checkpointImages.value[checkpoint.name] = matchingArt[0] ?? null
-  }
-}
-
 onMounted(async () => {
   if (!props.autoLoad) return
 
   isLoading.value = true
+  localError.value = ''
 
   try {
     await refreshModel()
     hydrateSelectedSampler()
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to initialize checkpoints')
+
+    localError.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {
     isLoading.value = false
   }

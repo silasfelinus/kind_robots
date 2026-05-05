@@ -309,7 +309,10 @@ async function loadArtImage() {
 }
 
 async function selectArt() {
-  await artStore.selectArt(props.art.id)
+  await artStore.selectArtRecord(
+    props.art,
+    localArtImage.value || props.artImage || null,
+  )
 }
 
 async function deleteArt() {

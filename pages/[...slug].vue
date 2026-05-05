@@ -36,15 +36,15 @@ import { useNavStore } from '@/stores/navStore'
 
 type PageLayoutName = 'default'
 type ContentPage = ContentType
+type FooterState = 'compact' | 'open' | 'hidden' | 'priority' | 'disabled'
 
-type DisplayStoreWithFooter = ReturnType<typeof useDisplayStore> & {
-  footer?: string | null
-  footerState?: string | null
-  selectedFooter?: string | null
-  setFooter?: (footer: string) => void
-  setFooterState?: (footer: string) => void
-  setSelectedFooter?: (footer: string) => void
-}
+const footerStates = [
+  'compact',
+  'open',
+  'hidden',
+  'priority',
+  'disabled',
+] as const
 
 const route = useRoute()
 const router = useRouter()
@@ -68,41 +68,21 @@ function getContentPath(): string {
   return route.path
 }
 
+function isFooterState(value: string): value is FooterState {
+  return footerStates.includes(value as FooterState)
+}
+
 function applyFooterFromContent(footer?: string | null): void {
   const normalizedFooter = (footer ?? '').trim()
 
   if (!normalizedFooter) return
 
-  const store = displayStore as DisplayStoreWithFooter
-
-  if (typeof store.setFooter === 'function') {
-    store.setFooter(normalizedFooter)
+  if (!isFooterState(normalizedFooter)) {
+    console.warn(`[slug] Ignoring invalid footer state: ${normalizedFooter}`)
     return
   }
 
-  if (typeof store.setFooterState === 'function') {
-    store.setFooterState(normalizedFooter)
-    return
-  }
-
-  if (typeof store.setSelectedFooter === 'function') {
-    store.setSelectedFooter(normalizedFooter)
-    return
-  }
-
-  if ('footer' in store) {
-    store.footer = normalizedFooter
-    return
-  }
-
-  if ('footerState' in store) {
-    store.footerState = normalizedFooter
-    return
-  }
-
-  if ('selectedFooter' in store) {
-    store.selectedFooter = normalizedFooter
-  }
+  displayStore.footerState = normalizedFooter
 }
 
 function applyPageSettings(page: ContentPage): void {
@@ -169,9 +149,14 @@ onMounted(async () => {
     displayAction,
   } = route.query
 
-  if (displayMode) displayStore.displayMode = displayMode as displayModeState
-  if (displayAction)
+  if (displayMode) {
+    displayStore.displayMode = displayMode as displayModeState
+  }
+
+  if (displayAction) {
     displayStore.displayAction = displayAction as displayActionState
+  }
+
   if (botId) botStore.selectBot(Number(botId))
   if (characterId) characterStore.selectCharacter(Number(characterId))
   if (scenarioId) scenarioStore.selectScenario(Number(scenarioId))

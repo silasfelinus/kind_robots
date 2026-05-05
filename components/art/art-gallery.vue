@@ -637,7 +637,7 @@ async function refreshArt(force = false) {
   try {
     await artStore.initialize({
       force,
-      fetchRemote: true,
+      fetchRemote: false,
       hydrateImages: false,
     })
 

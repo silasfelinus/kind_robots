@@ -530,6 +530,44 @@ export const useArtStore = defineStore('artStore', () => {
     return fetchAllArtPromise.value
   }
 
+  function normalizeFetchedArtPage(response: ApiResponse<unknown>): {
+    art: Art[]
+    total?: number
+  } {
+    const payload = response.data
+
+    if (Array.isArray(payload)) {
+      return {
+        art: payload as Art[],
+        total: payload.length,
+      }
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      return {
+        art: [],
+      }
+    }
+
+    const data = payload as Record<string, unknown>
+
+    const candidates = [
+      data.art,
+      data.arts,
+      data.items,
+      data.results,
+      data.records,
+      data.images,
+    ]
+
+    const art = candidates.find((candidate) => Array.isArray(candidate))
+
+    return {
+      art: Array.isArray(art) ? (art as Art[]) : [],
+      total: typeof data.total === 'number' ? data.total : undefined,
+    }
+  }
+
   async function fetchArtPage(
     page = state.currentPage,
     pageSize = state.pageSize,
@@ -547,12 +585,17 @@ export const useArtStore = defineStore('artStore', () => {
       try {
         clearError()
 
-        const response = await performFetch<{
-          art: Art[]
-          total?: number
-        }>(`/api/art?page=${page}&pageSize=${pageSize}`)
+        const response = await performFetch<unknown>(
+          `/api/art?page=${page}&pageSize=${pageSize}`,
+        )
 
-        if (!response.success || !response.data?.art) {
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch art page.')
+        }
+
+        const normalized = normalizeFetchedArtPage(response)
+
+        if (!normalized.art.length) {
           const message =
             response.message &&
             response.message !== 'Request completed successfully'
@@ -564,13 +607,14 @@ export const useArtStore = defineStore('artStore', () => {
 
         state.currentPage = page
         state.pageSize = pageSize
-        state.totalArtCount = response.data.total ?? state.totalArtCount
-        state.art = mergeUniqueArt(state.art, response.data.art)
+        state.totalArtCount = normalized.total ?? state.totalArtCount
+        state.art = mergeUniqueArt(state.art, normalized.art)
         persistArt()
 
-        return response.data.art
+        return normalized.art
       } catch (error) {
         handleError(error, 'fetching art page')
+
         const message =
           error instanceof Error && error.message
             ? error.message

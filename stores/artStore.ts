@@ -390,6 +390,55 @@ export const useArtStore = defineStore('artStore', () => {
       .join(', ')
   }
 
+  async function selectArtRecord(
+    artRecord: Art,
+    artImageRecord: ArtImage | null = null,
+  ): Promise<ApiResponse<Art>> {
+    state.loading = true
+
+    try {
+      clearError()
+
+      state.currentArt = artRecord
+      state.currentArtImage = artImageRecord
+
+      addOrUpdateArt(artRecord)
+
+      if (!state.currentArtImage && artRecord.artImageId) {
+        const image = await getArtImageById(artRecord.artImageId)
+
+        if (image) {
+          state.currentArtImage = image
+        }
+      }
+
+      if (!state.currentArtImage && artRecord.id) {
+        const image = getArtImageByArtId(artRecord.id)
+
+        if (image) {
+          state.currentArtImage = image
+        }
+      }
+
+      return {
+        success: true,
+        message: `Selected Art #${artRecord.id}.`,
+        data: artRecord,
+      }
+    } catch (error) {
+      handleError(error, 'selecting art record')
+      setError(error, 'Failed to select art.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to select art.',
+      }
+    } finally {
+      state.loading = false
+    }
+  }
+
   async function initialize(options: ArtInitializeOptions = {}): Promise<void> {
     const shouldFetchRemote = Boolean(options.fetchRemote)
     const shouldInitializeServers = options.initializeServerStore !== false
@@ -421,7 +470,11 @@ export const useArtStore = defineStore('artStore', () => {
         }
 
         if (shouldFetchRemote) {
-          await fetchArtPage(state.currentPage, state.pageSize, Boolean(options.force))
+          await fetchArtPage(
+            state.currentPage,
+            state.pageSize,
+            Boolean(options.force),
+          )
         }
 
         if (!state.artForm.userId) {
@@ -528,10 +581,7 @@ export const useArtStore = defineStore('artStore', () => {
     chunkSize = 20,
   ): Promise<void> {
     const uniqueIds = [...new Set(ids)].filter((id) => {
-      return (
-        isValidId(id) &&
-        !state.artImages.some((image) => image.id === id)
-      )
+      return isValidId(id) && !state.artImages.some((image) => image.id === id)
     })
 
     if (!uniqueIds.length) return
@@ -554,23 +604,47 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function selectArt(artId: number): Promise<void> {
-    const found = state.art.find((art) => art.id === artId)
+  async function selectArt(id: number): Promise<ApiResponse<Art>> {
+    state.loading = true
 
-    if (!found) {
-      handleError(new Error(`Art with ID ${artId} not found`), 'selecting art')
-      return
+    try {
+      clearError()
+
+      const artId = Number(id)
+
+      if (!Number.isInteger(artId) || artId <= 0) {
+        throw new Error('Invalid Art ID.')
+      }
+
+      const localArt = state.art.find((entry: Art) => entry.id === artId)
+
+      if (localArt) {
+        return await selectArtRecord(localArt)
+      }
+
+      const result = await performFetch<Art>(`/api/art/${artId}`, {
+        method: 'GET',
+      })
+
+      if (!result.success || !result.data) {
+        throw new Error(result.message || `Art #${artId} was not found.`)
+      }
+
+      return await selectArtRecord(result.data)
+    } catch (error) {
+      handleError(error, 'selecting art')
+      setError(error, 'There was trouble finding art with that ID.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'There was trouble finding art with that ID.',
+      }
+    } finally {
+      state.loading = false
     }
-
-    state.currentArt = found
-
-    if (!found.artImageId) {
-      state.currentArtImage = null
-      return
-    }
-
-    const image = await getArtImageById(found.artImageId)
-    state.currentArtImage = image || null
   }
 
   function deselectArt(): void {
@@ -710,7 +784,9 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     if (!server.allowBrowserRequests) {
-      throw new Error(`Server "${server.title}" does not allow browser requests.`)
+      throw new Error(
+        `Server "${server.title}" does not allow browser requests.`,
+      )
     }
 
     const response = await serverStore.requestServer(
@@ -1147,6 +1223,7 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImageWithArtId,
 
     artListPresets,
+    selectArtRecord,
   }
 })
 

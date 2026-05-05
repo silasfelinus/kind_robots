@@ -1,74 +1,104 @@
 // /server/api/art/sd/currentModel.get.ts
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
+import prisma from '@/server/utils/prisma'
+import { errorHandler } from '@/server/utils/error'
 
 type SDOptionsResponse = {
-  sd_model_checkpoint?: unknown
+  sd_model_checkpoint?: string
 }
 
-function safeText(value: unknown): string {
-  if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean')
-    return String(value)
+function joinUrl(baseUrl: string, path: string) {
+  const cleanBase = baseUrl.replace(/\/+$/, '')
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
 
-  return ''
+  return `${cleanBase}${cleanPath}`
 }
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message.trim()) {
-    return error.message
+function buildServerHeaders(server: {
+  requiresApiKey?: boolean | null
+  apiKey?: string | null
+  apiKeyName?: string | null
+}) {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
   }
 
-  if (typeof error === 'object' && error !== null) {
-    const record = error as {
-      message?: unknown
-      statusCode?: unknown
-      statusMessage?: unknown
-      data?: unknown
+  const serverToken = process.env.KINDROBOTS_SERVER_TOKEN
+
+  if (serverToken) {
+    headers['X-Kindrobots-Server-Token'] = serverToken
+  }
+
+  if (server.requiresApiKey && server.apiKey && server.apiKeyName) {
+    const apiKeyName = server.apiKeyName.trim()
+
+    if (apiKeyName.toLowerCase() === 'authorization') {
+      headers.Authorization = server.apiKey.startsWith('Bearer ')
+        ? server.apiKey
+        : `Bearer ${server.apiKey}`
+    } else {
+      headers[apiKeyName] = server.apiKey
+    }
+  }
+
+  return headers
+}
+
+export default defineEventHandler(async (event) => {
+  try {
+    const query = getQuery(event)
+    const serverId = Number(query.serverId)
+
+    const server =
+      Number.isInteger(serverId) && serverId > 0
+        ? await prisma.server.findUnique({
+            where: { id: serverId },
+          })
+        : await prisma.server.findFirst({
+            where: {
+              serverType: 'A1111',
+              isActive: true,
+              isDefault: true,
+            },
+            orderBy: { id: 'asc' },
+          })
+
+    if (!server?.baseUrl) {
+      return {
+        success: false,
+        data: null,
+        message: 'No active A1111 server found.',
+      }
     }
 
-    const message =
-      safeText(record.message).trim() || safeText(record.statusMessage).trim()
+    const url = joinUrl(server.baseUrl, '/sdapi/v1/options')
 
-    if (message) return message
-  }
+    const res = await $fetch<SDOptionsResponse>(url, {
+      method: 'GET',
+      headers: buildServerHeaders(server),
+      timeout: 20_000,
+    })
 
-  return fallback
-}
+    const modelName = res.sd_model_checkpoint?.trim()
 
-export default defineEventHandler(async () => {
-  try {
-    const data = await $fetch<SDOptionsResponse>(
-      'https://lola.acrocatranch.com/sdapi/v1/options',
-      {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-        },
-      },
-    )
-
-    const model = safeText(data.sd_model_checkpoint).trim()
-
-    if (!model) {
-      throw createError({
-        statusCode: 502,
-        statusMessage:
-          'Stable Diffusion options response did not include sd_model_checkpoint.',
-      })
+    if (!modelName) {
+      return {
+        success: false,
+        data: null,
+        message: 'Model fetch returned no model name.',
+      }
     }
 
     return {
       success: true,
-      data: model,
+      data: modelName,
       message: 'Current model fetched.',
     }
   } catch (error) {
-    const message = getErrorMessage(error, 'Failed to fetch current model.')
-
-    return {
-      success: false,
-      data: null,
-      message,
-    }
+    return errorHandler({
+      error,
+      context: 'fetching current Stable Diffusion model',
+      defaultMessage: 'Failed to fetch current model.',
+    })
   }
 })

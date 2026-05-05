@@ -553,7 +553,13 @@ export const useArtStore = defineStore('artStore', () => {
         }>(`/api/art?page=${page}&pageSize=${pageSize}`)
 
         if (!response.success || !response.data?.art) {
-          throw new Error(response.message || 'Failed to fetch art page.')
+          const message =
+            response.message &&
+            response.message !== 'Request completed successfully'
+              ? response.message
+              : 'Failed to fetch art page. The API response did not include art data.'
+
+          throw new Error(message)
         }
 
         state.currentPage = page
@@ -565,7 +571,12 @@ export const useArtStore = defineStore('artStore', () => {
         return response.data.art
       } catch (error) {
         handleError(error, 'fetching art page')
-        setError(error, 'Failed to fetch art page.')
+        const message =
+          error instanceof Error && error.message
+            ? error.message
+            : 'Failed to fetch art page.'
+
+        setError(message, 'Failed to fetch art page.')
         return []
       } finally {
         state.loading = false

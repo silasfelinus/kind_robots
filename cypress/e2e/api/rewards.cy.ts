@@ -1,12 +1,19 @@
-// cypress/e2e/rewards.cy.ts
+// cypress/e2e/api/rewards.cy.ts
 
 describe('Reward Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/rewards'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let rewardId: number | undefined // Define with undefined for clarity
 
-  // Step 1: Attempt to create a reward without authentication
+  let userToken = ''
+  let rewardId: number | undefined
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
+
   it('should not allow creating a reward without an authorization token', () => {
     cy.request({
       method: 'POST',
@@ -32,7 +39,6 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  // Step 2: Attempt to create a reward with an invalid token
   it('should not allow creating a reward with an invalid authorization token', () => {
     cy.request({
       method: 'POST',
@@ -57,7 +63,6 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  // Step 3: Create a new reward with valid authentication
   it('Create a New Reward with Authentication', () => {
     cy.request({
       method: 'POST',
@@ -80,17 +85,25 @@ describe('Reward Management API Tests', () => {
       expect(response.body).to.have.property('success', true)
       expect(response.body.reward).to.be.an('object')
       expect(response.body.reward.label).to.eq('Test Label')
+
       rewardId = response.body.reward.id
+
+      expect(rewardId).to.be.a('number')
     })
   })
 
-  // Step 4: Attempt to update the reward without authentication
   it('Attempt to Update Reward without Authentication (expect failure)', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${rewardId}`,
-      headers: { 'Content-Type': 'application/json' },
-      body: { text: 'Unauthorized Update' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        text: 'Unauthorized Update',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
@@ -98,8 +111,9 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  // Step 5: Attempt to update the reward with an invalid token
   it('Attempt to Update Reward with Invalid Token (expect failure)', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${rewardId}`,
@@ -107,15 +121,19 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
       },
-      body: { text: 'Invalid Token Update Attempt' },
+      body: {
+        text: 'Invalid Token Update Attempt',
+      },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
-  // Step 6: Update the reward with valid authentication
+
   it('Update Reward with Authentication', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/${rewardId}`,
@@ -131,8 +149,6 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-
-      // Check that `data` is an object, not an array
       expect(response.body.data).to.be.an('object')
       expect(response.body.data.label).to.eq('Updated Test Label')
       expect(response.body.data.text).to.eq('Updated Test Reward Text')
@@ -140,8 +156,9 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  // Step 7: Retrieve the reward by ID and validate the response
   it('Get Reward by ID', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'GET',
       url: `${baseUrl}/${rewardId}`,
@@ -157,7 +174,6 @@ describe('Reward Management API Tests', () => {
     })
   })
 
-  // Step 8: Retrieve all rewards and validate
   it('Get All Rewards', () => {
     cy.request({
       method: 'GET',
@@ -169,31 +185,33 @@ describe('Reward Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-
-      // Check that `data` is an array and contains rewards
       expect(response.body.data)
         .to.be.an('array')
         .and.have.length.greaterThan(0)
     })
   })
 
-  // Step 9: Attempt to delete the reward without authentication
   it('Attempt to Delete Reward without Authentication (expect failure)', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized without token
+      expect(response.status).to.eq(401)
       expect(response.body.message).to.include(
         'Authorization token is required',
       )
     })
   })
 
-  // Step 10: Attempt to delete the reward with invalid token
   it('Attempt to Delete Reward with Invalid Token (expect failure)', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
@@ -203,13 +221,14 @@ describe('Reward Management API Tests', () => {
       },
       failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(401) // Unauthorized with invalid token
+      expect(response.status).to.eq(401)
       expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
-  // Step 11: Delete the reward with valid authentication
   it('Delete Reward with Authentication', () => {
+    expect(rewardId).to.exist
+
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/${rewardId}`,
@@ -217,13 +236,15 @@ describe('Reward Management API Tests', () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
-      timeout: 60000, // 60 seconds
+      timeout: 60000,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
       expect(response.body.message).to.include(
         `Reward with ID ${rewardId} successfully deleted`,
       )
+
+      rewardId = undefined
     })
   })
 })

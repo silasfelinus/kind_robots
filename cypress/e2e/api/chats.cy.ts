@@ -1,15 +1,22 @@
-// cypress/e2e/chats.cy.ts
+// cypress/e2e/api/chats.cy.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Chat API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/chats'
-  const userToken = Cypress.env('USER_TOKEN')
   const invalidToken = 'someInvalidTokenValue'
-  let chatId: number | null = null // Track the chat ID for retrieval, update, and deletion
   const userId = 9
   const botId = 1
 
-  // Helper function to make requests with optional token and body
+  let userToken = ''
+  let chatId: number | null = null
+
+  before(() => {
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
+    })
+  })
+
   const makeRequest = (
     method: string,
     url: string,
@@ -21,14 +28,13 @@ describe('Chat API Tests', () => {
       url,
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body,
       failOnStatusCode: false,
     })
   }
 
-  // === AUTHORIZATION TESTS ===
   it('should not allow creating a chat without an authorization token', () => {
     makeRequest('POST', baseUrl, null, {
       type: 'ToBot',
@@ -63,7 +69,6 @@ describe('Chat API Tests', () => {
     })
   })
 
-  // === CREATION TEST ===
   it('Create a new Chat with valid authentication', () => {
     cy.request({
       method: 'POST',
@@ -96,15 +101,14 @@ describe('Chat API Tests', () => {
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.be.an('object').that.is.not.empty
 
-      // Store chatId for other tests
       chatId = response.body.data.id
       expect(chatId).to.exist
     })
   })
 
-  // === RETRIEVAL TESTS ===
   it('Get Chat by ID', () => {
-    cy.wrap(chatId).should('not.be.null')
+    expect(chatId).to.not.eq(null)
+
     makeRequest('GET', `${baseUrl}/${chatId}`, userToken).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
@@ -146,9 +150,9 @@ describe('Chat API Tests', () => {
     )
   })
 
-  // === UPDATE TEST ===
   it('Update Chat with Valid Authentication', () => {
-    cy.wrap(chatId).should('not.be.null')
+    expect(chatId).to.not.eq(null)
+
     makeRequest('PATCH', `${baseUrl}/${chatId}`, userToken, {
       content: 'Hello again, AMI!',
       isFavorite: true,
@@ -159,9 +163,9 @@ describe('Chat API Tests', () => {
     })
   })
 
-  // === DELETION TESTS ===
   it('should not allow deleting a chat without an authorization token', () => {
-    cy.wrap(chatId).should('not.be.null')
+    expect(chatId).to.not.eq(null)
+
     makeRequest('DELETE', `${baseUrl}/${chatId}`, null).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('success', false)
@@ -170,7 +174,8 @@ describe('Chat API Tests', () => {
   })
 
   it('should not allow deleting a chat with an invalid authorization token', () => {
-    cy.wrap(chatId).should('not.be.null')
+    expect(chatId).to.not.eq(null)
+
     makeRequest('DELETE', `${baseUrl}/${chatId}`, invalidToken).then(
       (response) => {
         expect(response.status).to.eq(401)
@@ -181,7 +186,8 @@ describe('Chat API Tests', () => {
   })
 
   it('Delete Chat with Valid Authentication', () => {
-    cy.wrap(chatId).should('not.be.null')
+    expect(chatId).to.not.eq(null)
+
     makeRequest('DELETE', `${baseUrl}/${chatId}`, userToken).then(
       (response) => {
         expect(response.status).to.eq(200)

@@ -17,7 +17,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   const invalidToken = 'someInvalidTokenValue'
   const testUserId = 9
 
-  let userToken: string
+  let userToken = ''
 
   let publicDreamId: number
   let privateDreamId: number
@@ -39,10 +39,9 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   }
 
   before(() => {
-    cy.env(['USER_TOKEN']).then((envs) => {
-      userToken = envs['USER_TOKEN']
-      expect(userToken, 'Cypress.env("USER_TOKEN")').to.be.a('string').and.not
-        .be.empty
+    cy.env(['USER_TOKEN']).then((env) => {
+      userToken = String(env.USER_TOKEN || '')
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
     })
   })
 
@@ -203,6 +202,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       expect(res.body.data).to.be.an('array')
 
       const match = res.body.data?.find((dream) => dream.id === publicDreamId)
+
       expect(match).to.not.eq(undefined)
     })
   })
@@ -216,6 +216,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       expect(res.body.success).to.eq(true)
 
       const match = res.body.data?.find((dream) => dream.id === privateDreamId)
+
       expect(match).to.eq(undefined)
     })
   })
@@ -234,6 +235,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       const publicMatch = res.body.data?.find(
         (dream) => dream.id === publicDreamId,
       )
+
       const privateMatch = res.body.data?.find(
         (dream) => dream.id === privateDreamId,
       )
@@ -257,6 +259,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       const publicMatch = res.body.data?.find(
         (dream) => dream.id === publicDreamId,
       )
+
       const privateMatch = res.body.data?.find(
         (dream) => dream.id === privateDreamId,
       )
@@ -511,6 +514,7 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
       expect(res.body.data).to.be.an('array')
 
       const match = res.body.data?.find((chat) => chat.id === chatId)
+
       expect(match).to.not.eq(undefined)
     })
   })

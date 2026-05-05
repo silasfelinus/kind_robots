@@ -227,8 +227,6 @@
           :allow-edit="allowEdit"
           :allow-clone="allowClone"
           :allow-delete="allowDelete"
-          @select="selectCharacter"
-          @select-character="selectCharacter"
           @edit="startEditingCharacterById"
           @clone="cloneCharacterById"
           @delete="handleCharacterDeleted"
@@ -259,6 +257,7 @@ const props = withDefaults(
     showMeta?: boolean
     showStats?: boolean
     showDebug?: boolean
+    showModeButtons?: boolean
     allowAdd?: boolean
     allowEdit?: boolean
     allowClone?: boolean
@@ -279,6 +278,7 @@ const props = withDefaults(
     showMeta: true,
     showStats: true,
     showDebug: false,
+    showModeButtons: false,
     allowAdd: true,
     allowEdit: true,
     allowClone: true,
@@ -392,10 +392,6 @@ async function refreshCharacters(force = false) {
   }
 }
 
-async function selectCharacter(id: number) {
-  await characterStore.selectCharacter(id)
-}
-
 function selectCharacterFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
   const id = Number(target.value)
@@ -405,7 +401,7 @@ function selectCharacterFromEvent(event: Event) {
     return
   }
 
-  void selectCharacter(id)
+  void characterStore.selectCharacter(id)
 }
 
 function startAddingCharacter() {

@@ -450,6 +450,13 @@
         />
       </div>
     </section>
+
+    <div
+      v-if="localError"
+      class="shrink-0 rounded-2xl bg-warning/10 p-2 text-xs text-warning"
+    >
+      {{ localError }}
+    </div>
   </section>
 </template>
 
@@ -459,6 +466,7 @@ import type { Art } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 
 type CollectionGalleryVariant = 'dashboard' | 'row'
@@ -498,11 +506,13 @@ const props = withDefaults(
 
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
+const errorStore = useErrorStore()
 const userStore = useUserStore()
 
 const visibleCount = ref(50)
 const editingTitle = ref<number | null>(null)
 const isLoading = ref(false)
+const localError = ref('')
 const showCollectionForm = ref(false)
 const isSavingCollection = ref(false)
 const editingCollectionId = ref<number | null>(null)
@@ -659,6 +669,25 @@ const formTitle = computed(() => {
   return editingCollectionId.value ? 'Edit Collection' : 'Add Collection'
 })
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) return error.message
+  if (typeof error === 'string' && error.trim()) return error
+
+  if (typeof error === 'object' && error !== null) {
+    const rec = error as { message?: unknown; statusMessage?: unknown }
+    const msg =
+      typeof rec.message === 'string'
+        ? rec.message.trim()
+        : typeof rec.statusMessage === 'string'
+          ? rec.statusMessage.trim()
+          : ''
+
+    if (msg) return msg
+  }
+
+  return fallback
+}
+
 onMounted(async () => {
   if (props.autoLoad) {
     await refreshCollections()
@@ -667,6 +696,7 @@ onMounted(async () => {
 
 async function refreshCollections() {
   isLoading.value = true
+  localError.value = ''
 
   try {
     await Promise.all([
@@ -676,6 +706,11 @@ async function refreshCollections() {
       }),
       collectionStore.fetchCollections?.(),
     ])
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to load collections')
+
+    localError.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {
     isLoading.value = false
   }
@@ -782,9 +817,11 @@ async function saveCollectionForm() {
     await refreshCollections()
     closeCollectionForm()
   } catch (error) {
+    const message = getErrorMessage(error, 'Failed to save collection')
+
     formTone.value = 'error'
-    formMessage.value =
-      error instanceof Error ? error.message : 'Failed to save collection.'
+    formMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
   } finally {
     isSavingCollection.value = false
   }
@@ -834,23 +871,36 @@ async function saveExistingCollection(id: number) {
 async function saveCollectionLabel(collection: ArtCollection) {
   if (!canEditCollection(collection)) return
 
-  if (typeof collectionStore.updateCollectionLabel === 'function') {
-    await collectionStore.updateCollectionLabel(
-      collection.id,
-      collection.label || 'Untitled Collection',
-    )
-  }
+  try {
+    if (typeof collectionStore.updateCollectionLabel === 'function') {
+      await collectionStore.updateCollectionLabel(
+        collection.id,
+        collection.label || 'Untitled Collection',
+      )
+    }
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to save collection label')
 
-  editingTitle.value = null
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
+  } finally {
+    editingTitle.value = null
+  }
 }
 
 async function saveCollectionVisibility(collection: ArtCollection) {
   if (!canEditCollection(collection)) return
 
-  await collectionStore.updateCollectionFlags(collection.id, {
-    isPublic: collection.isPublic,
-    isMature: collection.isMature,
-  })
+  try {
+    await collectionStore.updateCollectionFlags(collection.id, {
+      isPublic: collection.isPublic,
+      isMature: collection.isMature,
+    })
+  } catch (error) {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      getErrorMessage(error, 'Failed to update collection visibility'),
+    )
+  }
 }
 
 function confirmRemoveAllArt(collection: ArtCollection) {

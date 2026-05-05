@@ -120,6 +120,24 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
+  function getStackedBottomControlStyle(
+    index: number,
+    section: 'top' | 'bottom',
+    total = bottomControlCount,
+  ): CSSProperties {
+    const baseStyle = getBottomControlStyle(index, total)
+    const gapRem = '0.25rem'
+
+    return {
+      ...baseStyle,
+      height: `calc((var(--vh) * ${bottomControlHeight.value} - ${gapRem}) / 2)`,
+      bottom:
+        section === 'top'
+          ? `calc(var(--vh) * ${bottomControlRowBottom.value} + ((var(--vh) * ${bottomControlHeight.value}) / 2) + (${gapRem} / 2))`
+          : `calc(var(--vh) * ${bottomControlRowBottom.value})`,
+    }
+  }
+
   const footerPanelHeight = computed(() => {
     if (!footerContentVisible.value) return 0
     return footerHeight.value + promptOffset.value
@@ -1135,6 +1153,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     bottomControlRowHeight,
     getBottomControlStyle,
     applyViewportSize,
+    getStackedBottomControlStyle,
   }
 })
 

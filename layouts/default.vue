@@ -7,19 +7,6 @@
       </slot>
     </header>
 
-    <div
-      v-if="displayStore.headerState === 'hidden'"
-      class="pointer-events-none fixed left-3 top-3 z-30"
-    >
-      <button
-        type="button"
-        class="pointer-events-auto rounded-full border border-base-300 bg-base-100/90 px-3 py-2 text-base-content shadow-lg backdrop-blur transition hover:scale-105 hover:bg-primary hover:text-primary-content active:scale-95"
-        @click="displayStore.toggleHeader('open')"
-      >
-        <Icon name="kind-icon:chevron-down" class="h-5 w-5" />
-      </button>
-    </div>
-
     <corner-panel
       v-if="displayStore.showCornerPanel"
       class="pointer-events-auto fixed"
@@ -117,13 +104,60 @@
           displayStore.getBottomControlStyle(index, bottomControls.length)
         "
       >
+        <div
+          v-if="control.key === 'footer-toggle'"
+          class="pointer-events-auto flex h-full w-full flex-col gap-1"
+        >
+          <button
+            :class="[
+              'group flex min-h-0 flex-1 items-center justify-center overflow-hidden border border-base-300/80 bg-base-100/95 text-base-content shadow-lg shadow-base-content/10 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-xl active:translate-y-0 active:scale-95',
+              control.roundedClass,
+              headerToggleButtonClass,
+            ]"
+            aria-label="Toggle header"
+            type="button"
+            @click="displayStore.toggleHeader()"
+          >
+            <span
+              class="flex h-full w-full items-center justify-center rounded-[inherit] bg-linear-to-b from-white/15 to-transparent"
+            >
+              <Icon
+                :name="headerToggleIcon"
+                class="h-4 w-4 transition-transform duration-200 group-hover:scale-110"
+              />
+            </span>
+          </button>
+
+          <button
+            :class="[
+              'group flex min-h-0 flex-1 items-center justify-center overflow-hidden border border-base-300/80 bg-base-100/95 text-base-content shadow-lg shadow-base-content/10 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-xl active:translate-y-0 active:scale-95',
+              control.roundedClass,
+              control.buttonClass,
+            ]"
+            :aria-label="control.label"
+            type="button"
+            @click="control.action"
+          >
+            <span
+              class="flex h-full w-full items-center justify-center rounded-[inherit] bg-linear-to-b from-white/15 to-transparent"
+            >
+              <Icon
+                :name="control.icon"
+                class="h-4 w-4 transition-transform duration-200 group-hover:scale-110"
+              />
+            </span>
+          </button>
+        </div>
+
         <button
+          v-else
           :class="[
             'pointer-events-auto group flex h-full w-full items-center justify-center overflow-hidden border border-base-300/80 bg-base-100/95 text-base-content shadow-lg shadow-base-content/10 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-xl active:translate-y-0 active:scale-95',
             control.roundedClass,
             control.buttonClass,
           ]"
           :aria-label="control.label"
+          type="button"
           @click="control.action"
         >
           <span
@@ -171,6 +205,18 @@ type BottomControl = {
 
 const footerOptions = [...footerKeys]
 
+const headerToggleIcon = computed(() => {
+  return displayStore.headerState === 'hidden'
+    ? 'kind-icon:chevron-down'
+    : 'kind-icon:chevron-up'
+})
+
+const headerToggleButtonClass = computed(() => {
+  return displayStore.headerState === 'hidden'
+    ? 'border-secondary/60 bg-secondary/15 text-secondary hover:bg-secondary hover:text-secondary-content'
+    : 'border-base-300/80 bg-base-100/95 text-base-content hover:bg-secondary hover:text-secondary-content'
+})
+
 const footerToggleIcon = computed(() => {
   return displayStore.footerStage === 'priority'
     ? 'kind-icon:chevron-down'
@@ -206,7 +252,7 @@ const bottomControls = computed<BottomControl[]>(() => [
     key: 'footer-toggle',
     label: 'Toggle footer',
     icon: footerToggleIcon.value,
-    roundedClass: 'rounded-full',
+    roundedClass: 'rounded-2xl',
     buttonClass:
       'border-primary/60 bg-primary/15 text-primary hover:bg-primary hover:text-primary-content',
     action: displayStore.toggleFooter,

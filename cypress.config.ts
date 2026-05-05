@@ -7,6 +7,8 @@ export default defineConfig({
 
   projectId: 'm98sgq',
 
+  allowCypressEnv: false,
+
   component: {
     devServer: {
       framework: 'vue',

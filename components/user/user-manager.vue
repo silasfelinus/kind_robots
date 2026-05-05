@@ -1,3 +1,117 @@
+<template>
+  <div class="flex flex-col gap-4 p-4">
+    <!-- Section Nav -->
+    <div class="flex flex-wrap gap-2">
+      <button
+        v-for="section in sections"
+        :key="section.key"
+        class="btn btn-sm gap-2"
+        :class="activeSection === section.key ? 'btn-primary' : 'btn-ghost'"
+        @click="activeSection = section.key"
+      >
+        <Icon :name="section.icon" class="size-4" />
+        {{ section.label }}
+      </button>
+    </div>
+
+    <!-- Dashboard -->
+    <div v-if="activeSection === 'dashboard'" class="flex flex-col gap-4">
+      <div class="card bg-base-200">
+        <div class="card-body gap-3">
+          <div class="flex items-center gap-3">
+            <user-avatar class="size-14" />
+            <div>
+              <h2 class="text-xl font-semibold">{{ username }}</h2>
+              <p class="text-sm text-base-content/60">{{ userStatus }}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div
+              v-for="stat in stats"
+              :key="stat.label"
+              class="stat bg-base-100 rounded-box p-3"
+            >
+              <div class="stat-title text-xs">{{ stat.label }}</div>
+              <div class="stat-value text-lg" :class="stat.className">
+                {{ stat.value }}
+              </div>
+            </div>
+          </div>
+
+          <div class="divider my-1" />
+
+          <ul class="space-y-2">
+            <li
+              v-for="detail in accountDetails"
+              :key="detail.label"
+              class="flex justify-between text-sm"
+            >
+              <span class="text-base-content/60">{{ detail.label }}</span>
+              <span class="font-medium">{{ detail.value }}</span>
+            </li>
+          </ul>
+
+          <div class="card-actions justify-end pt-2">
+            <button
+              class="btn btn-error btn-sm"
+              :disabled="isLoggingOut"
+              @click="logout"
+            >
+              <span
+                v-if="isLoggingOut"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:logout" class="size-4" />
+              {{ isLoggingOut ? 'Logging out…' : 'Log Out' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscription -->
+    <div v-else-if="activeSection === 'subscription'" class="card bg-base-200">
+      <div class="card-body">
+        <h3 class="card-title text-base">Subscription</h3>
+        <p class="text-sm text-base-content/60">
+          Plans, credits, and billing coming soon.
+        </p>
+      </div>
+    </div>
+
+    <!-- Milestones -->
+    <div v-else-if="activeSection === 'milestones'" class="card bg-base-200">
+      <div class="card-body">
+        <h3 class="card-title text-base">Milestones</h3>
+        <p class="text-sm text-base-content/60">
+          Achievements and progress tracking coming soon.
+        </p>
+      </div>
+    </div>
+
+    <!-- Servers -->
+    <div v-else-if="activeSection === 'servers'">
+      <server-manager />
+    </div>
+
+    <!-- Themes -->
+    <div v-else-if="activeSection === 'themes'">
+      <theme-gallery />
+    </div>
+
+    <!-- Chats -->
+    <div v-else-if="activeSection === 'chats'">
+      <chat-gallery />
+    </div>
+
+    <!-- Galleries -->
+    <div v-else-if="activeSection === 'galleries'">
+      <gallery-gallery />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 // /components/content/user/user-manager.vue
 import { computed, ref } from 'vue'

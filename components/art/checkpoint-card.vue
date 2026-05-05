@@ -3,8 +3,8 @@
   <reactable-card
     :selected="isActive"
     :compact="compact"
-    :show-reaction="showReaction"
-    :target-id="checkpoint.id ?? null"
+    :show-reaction="canReact"
+    :target-id="reactionTargetId"
     target-type="resource"
     reaction-category="RESOURCE"
     :target-title="checkpointLabel"
@@ -199,7 +199,7 @@ const props = withDefaults(
     showSelectButton: false,
     showActiveBadge: true,
     showMatureBadge: true,
-    showReaction: true,
+    showReaction: false,
     showDebug: false,
     allowSelect: true,
     autoLoadArtImage: true,
@@ -222,14 +222,14 @@ const isHiddenMature = computed(() => {
   return Boolean(props.checkpoint.isMature && !props.showMature)
 })
 
-const checkpointLabel = computed(() => {
-  if (isHiddenMature.value) return 'Hidden Checkpoint'
+const reactionTargetId = computed(() => {
+  const id = Number(props.checkpoint.id)
 
-  return (
-    props.checkpoint.customLabel ||
-    props.checkpoint.name ||
-    'Unnamed Checkpoint'
-  )
+  return Number.isInteger(id) && id > 0 ? id : 0
+})
+
+const canReact = computed(() => {
+  return Boolean(props.showReaction && reactionTargetId.value > 0)
 })
 
 const canSelect = computed(() => {
@@ -238,8 +238,28 @@ const canSelect = computed(() => {
   )
 })
 
+function safeText(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean')
+    return String(value)
+
+  return ''
+}
+
+const checkpointLabel = computed(() => {
+  if (isHiddenMature.value) return 'Hidden Checkpoint'
+
+  return (
+    safeText(props.checkpoint.customLabel).trim() ||
+    safeText(props.checkpoint.name).trim() ||
+    'Unnamed Checkpoint'
+  )
+})
+
 const imageSource = computed(() => {
-  const path = props.checkpoint.MediaPath || props.fallbackImage
+  const path =
+    safeText(props.checkpoint.MediaPath).trim() ||
+    safeText(props.fallbackImage).trim()
 
   if (!path) return ''
 

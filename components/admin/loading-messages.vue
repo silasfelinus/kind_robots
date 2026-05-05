@@ -181,8 +181,6 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   padding: 0.85rem 1.35rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(0, 0, 0, 0.85);
   color: #ffffff;
   font-size: clamp(1.1rem, 2vw, 2rem);

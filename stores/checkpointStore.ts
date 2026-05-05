@@ -194,56 +194,31 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     selectedSampler.value = found || null
   }
 
-  async function fetchCurrentModelFromApi(force = false) {
-    if (!force && currentApiModel.value) return
+  const serverStore = useServerStore()
 
-    if (fetchModelPromise.value) {
-      return fetchModelPromise.value
-    }
+  async function fetchCurrentModelFromApi() {
+    modelUpdating.value = true
 
-    fetchModelPromise.value = (async () => {
-      modelLoading.value = true
+    try {
+      const serverId = serverStore.activeArtServer?.id
+      const query = serverId ? `?serverId=${serverId}` : ''
 
-      try {
-        const res = await performFetch<ModelApiResponse>(
-          '/api/art/sd/currentModel',
-        )
+      const response = await performFetch<string>(
+        `/api/art/sd/currentModel${query}`,
+      )
 
-        const modelName = extractModelName(res.data)
-
-        if (res.success && modelName) {
-          currentApiModel.value = modelName
-
-          const matchingCheckpoint = findCheckpointByName(modelName)
-
-          if (matchingCheckpoint) {
-            selectedCheckpoint.value = matchingCheckpoint
-          }
-
-          return
-        }
-
-        currentApiModel.value = null
-
-        const message = isSuccessNoise(res.message)
-          ? 'Model fetch returned no model name.'
-          : cleanName(res.message)
-
-        errorStore.setError(ErrorType.GENERAL_ERROR, message)
-      } catch (error) {
-        currentApiModel.value = null
-
-        errorStore.setError(
-          ErrorType.NETWORK_ERROR,
-          getErrorMessage(error, 'Failed to fetch current model.'),
-        )
-      } finally {
-        modelLoading.value = false
-        fetchModelPromise.value = null
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to fetch current model.')
       }
-    })()
 
-    return fetchModelPromise.value
+      currentApiModel.value = response.data
+      return response.data
+    } catch (error) {
+      currentApiModel.value = ''
+      throw error
+    } finally {
+      modelUpdating.value = false
+    }
   }
 
   async function setCurrentModelInApi(

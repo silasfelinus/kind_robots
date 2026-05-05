@@ -554,17 +554,22 @@ function updateCacheBuster() {
 
 async function refreshModel() {
   isLoading.value = true
-  localError.value = ''
 
   try {
     await checkpointStore.fetchCurrentModelFromApi()
     await hydrateSelectedCheckpoint()
     updateCacheBuster()
+    errorStore.clearError()
   } catch (error) {
-    const message = getErrorMessage(error, 'Could not reach art server')
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : 'Could not reach art server model status.'
 
-    localError.value = message
-    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+    errorStore.setError(
+      ErrorType.NETWORK_ERROR,
+      `Model status unavailable: ${message}`,
+    )
   } finally {
     isLoading.value = false
   }

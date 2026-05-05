@@ -1,9 +1,8 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <template>
-  <div class="flex flex-col h-screen bg-base-200 select-none overflow-hidden">
-    <!-- ─── Header ─── -->
+  <div class="flex h-screen select-none flex-col overflow-hidden bg-base-200">
     <header
-      class="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3 bg-base-300 shadow-md z-10 shrink-0"
+      class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
     >
       <div>
         <h1 class="text-2xl font-black tracking-tight">🏰 Memory Dungeon</h1>
@@ -12,170 +11,184 @@
         </p>
       </div>
 
-      <!-- Lives -->
-      <div class="flex gap-1 text-xl" title="Lives remaining">
-        <span
-          v-for="i in MAX_LIVES"
-          :key="i"
-          class="transition-all duration-300"
-          :class="i <= lives ? '' : 'grayscale opacity-25'"
-          >❤️</span
-        >
+      <div class="flex flex-col items-center gap-1" title="Lives remaining">
+        <div class="flex gap-1 text-xl">
+          <span
+            v-for="i in maxLives"
+            :key="i"
+            class="transition-all duration-300"
+            :class="i <= lives ? '' : 'grayscale opacity-25'"
+          >
+            ❤️
+          </span>
+        </div>
+        <div class="text-xs text-base-content/50">
+          HP {{ lives }}/{{ maxLives }}
+        </div>
       </div>
 
-      <!-- Score + Controls -->
       <div class="flex flex-wrap items-center gap-2">
         <div class="text-right leading-none">
-          <div class="font-bold text-lg tabular-nums">
+          <div class="text-lg font-bold tabular-nums">
             {{ score.toLocaleString() }}
           </div>
-          <div class="text-gray-400 text-xs">
+          <div class="text-xs text-gray-400">
             Best: {{ highScore.toLocaleString() }}
           </div>
         </div>
+
         <select
           v-model="memoryStore.selectedDifficulty"
-          class="border border-base-content/20 rounded px-2 py-1 text-sm bg-base-100"
+          class="rounded border border-base-content/20 bg-base-100 px-2 py-1 text-sm"
+          :disabled="gameStarted && !gameOver"
         >
           <option
-            v-for="d in memoryStore.difficulties"
-            :key="d.label"
-            :value="d"
+            v-for="difficulty in memoryStore.difficulties"
+            :key="difficulty.label"
+            :value="difficulty"
           >
-            {{ d.label }}
+            {{ difficulty.label }}
           </option>
         </select>
+
         <button
+          class="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
+          type="button"
           @click="startGame"
-          class="px-3 py-1.5 rounded font-semibold text-sm text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition"
         >
           {{ gameStarted ? '↺ Restart' : '⚔️ Enter Dungeon' }}
         </button>
       </div>
     </header>
 
-    <!-- ─── Challenge Banner ─── -->
     <Transition name="slide-down">
       <div
         v-if="challenge.active"
-        class="flex items-center justify-between px-4 py-2 bg-yellow-500 text-black gap-3 z-10 shrink-0"
+        class="z-10 flex shrink-0 items-center justify-between gap-3 bg-yellow-500 px-4 py-2 text-black"
       >
         <div class="flex items-center gap-3">
           <img
             v-if="challenge.targetImagePath"
             :src="challenge.targetImagePath"
-            class="w-10 h-10 rounded object-cover border-2 border-black shadow"
+            class="h-10 w-10 rounded border-2 border-black object-cover shadow"
             alt="Challenge target"
           />
+
           <div>
             <span class="font-black">⚔️ CHALLENGE!</span>
-            <span class="ml-2 text-sm hidden sm:inline"
-              >Match this card for <strong>3×</strong> points!</span
-            >
+            <span class="ml-2 hidden text-sm sm:inline">
+              Match this card for <strong>3×</strong> points!
+            </span>
           </div>
         </div>
+
         <div
-          class="font-mono font-bold text-xl tabular-nums"
-          :class="challenge.timeLeft <= 5 ? 'text-red-800 animate-pulse' : ''"
+          class="font-mono text-xl font-bold tabular-nums"
+          :class="challenge.timeLeft <= 5 ? 'animate-pulse text-red-800' : ''"
         >
           {{ challenge.timeLeft }}s
         </div>
       </div>
     </Transition>
 
-    <!-- ─── Powerup Bar ─── -->
     <Transition name="fade">
       <div
         v-if="powerups.length > 0 || shieldActive"
-        class="flex items-center gap-2 px-4 py-1.5 bg-base-100 border-b border-base-content/10 shrink-0"
+        class="flex shrink-0 items-center gap-2 border-b border-base-content/10 bg-base-100 px-4 py-1.5"
       >
         <span class="text-xs text-gray-400">Powerups:</span>
+
         <div
           v-if="shieldActive"
-          class="px-2 py-0.5 rounded text-xs bg-blue-700 text-white font-medium opacity-80"
+          class="rounded bg-blue-700 px-2 py-0.5 text-xs font-medium text-white opacity-80"
         >
           🛡️ Shield Active
         </div>
+
         <button
-          v-for="pu in powerups"
-          :key="pu.id"
-          @click="usePowerup(pu)"
-          :title="pu.description"
-          class="px-2 py-0.5 rounded text-xs bg-purple-700 text-white hover:bg-purple-600 active:scale-95 transition font-medium"
+          v-for="powerup in powerups"
+          :key="powerup.id"
+          class="rounded bg-purple-700 px-2 py-0.5 text-xs font-medium text-white transition hover:bg-purple-600 active:scale-95"
+          type="button"
+          :title="powerup.description"
+          @click="usePowerup(powerup)"
         >
-          {{ pu.icon }} {{ pu.name }}
+          {{ powerup.icon }} {{ powerup.name }}
         </button>
       </div>
     </Transition>
 
-    <!-- ─── Award Toast ─── -->
     <Transition name="award-pop">
       <div
         v-if="award.visible"
-        class="fixed top-1/3 left-1/2 -translate-x-1/2 z-100 pointer-events-none bg-linear-to-br from-yellow-400 via-orange-400 to-red-400 text-black px-8 py-5 rounded-3xl shadow-2xl text-center min-w-55"
+        class="pointer-events-none fixed left-1/2 top-1/3 z-100 min-w-55 -translate-x-1/2 rounded-3xl bg-linear-to-br from-yellow-400 via-orange-400 to-red-400 px-8 py-5 text-center text-black shadow-2xl"
       >
-        <div class="text-5xl mb-1 drop-shadow">{{ award.icon }}</div>
-        <div class="font-black text-2xl leading-tight tracking-tight">
+        <div class="mb-1 text-5xl drop-shadow">{{ award.icon }}</div>
+        <div class="text-2xl font-black leading-tight tracking-tight">
           {{ award.title }}
         </div>
-        <div class="text-sm mt-1 font-medium opacity-80">
+        <div class="mt-1 text-sm font-medium opacity-80">
           {{ award.subtitle }}
         </div>
       </div>
     </Transition>
 
-    <!-- ─── Main Area ─── -->
-    <div class="flex flex-1 overflow-hidden min-h-0">
-      <!-- Game Board -->
-      <div class="flex-1 overflow-y-auto p-4 min-h-0">
-        <!-- Loading -->
+    <div class="flex min-h-0 flex-1 overflow-hidden">
+      <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div
           v-if="memoryStore.isLoading"
-          class="flex justify-center items-center h-full"
+          class="flex h-full items-center justify-center"
         >
           <div class="loader"></div>
         </div>
 
-        <!-- Splash / Not Started -->
         <div
           v-else-if="!gameStarted"
-          class="flex flex-col items-center justify-center h-full gap-6 text-center"
+          class="flex h-full flex-col items-center justify-center gap-6 text-center"
         >
           <div class="text-7xl">🏰</div>
+
           <h2 class="text-3xl font-black">The Memory Dungeon Awaits</h2>
-          <p class="text-gray-400 max-w-sm text-sm leading-relaxed">
+
+          <p class="max-w-sm text-sm leading-relaxed text-gray-400">
             Match pairs to score. Survive the Oracle's challenges for triple
-            points. Collect powerups. Descend ever deeper into pixelated
-            madness.
+            points. Collect powerups. Clear floors for random dungeon rewards.
           </p>
+
           <button
+            class="rounded-xl bg-blue-600 px-8 py-3 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700 active:scale-95"
+            type="button"
             @click="startGame"
-            class="px-8 py-3 rounded-xl text-white font-bold text-lg bg-blue-600 hover:bg-blue-700 transition shadow-lg active:scale-95"
           >
             ⚔️ Enter the Dungeon
           </button>
         </div>
 
-        <!-- Game Over -->
         <div
           v-else-if="gameOver"
-          class="flex flex-col items-center justify-center h-full gap-4 text-center"
+          class="flex h-full flex-col items-center justify-center gap-4 text-center"
         >
-          <div class="text-7xl animate-bounce">💀</div>
-          <h2 class="text-3xl font-black">Dungeon: 1 — You: 0</h2>
-          <p class="text-gray-400 italic max-w-xs text-sm">{{ deathFlavor }}</p>
-          <div class="font-bold text-xl">
+          <div class="animate-bounce text-7xl">💀</div>
+
+          <h2 class="text-3xl font-black">Dungeon: 1, You: 0</h2>
+
+          <p class="max-w-xs text-sm italic text-gray-400">
+            {{ deathFlavor }}
+          </p>
+
+          <div class="text-xl font-bold">
             Final Score: {{ score.toLocaleString() }}
           </div>
+
           <button
+            class="rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition hover:bg-red-700 active:scale-95"
+            type="button"
             @click="startGame"
-            class="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold transition active:scale-95"
           >
             🪦 Try Again, Brave Idiot
           </button>
         </div>
 
-        <!-- Cards -->
         <div
           v-else
           class="flex flex-wrap justify-center gap-3"
@@ -185,9 +198,9 @@
             v-for="card in memoryStore.galleryImages"
             :key="card.id"
             :class="[
-              'card-container relative rounded-xl overflow-hidden cursor-pointer transition-transform duration-200',
+              'card-container relative cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
               card.matched
-                ? 'card-matched opacity-40 pointer-events-none'
+                ? 'card-matched pointer-events-none opacity-40'
                 : 'hover:scale-105 active:scale-95',
               challenge.active &&
               !card.matched &&
@@ -200,7 +213,7 @@
                 ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
                 : '',
             ]"
-            :style="{ width: cardSize + 'px', height: cardSize + 'px' }"
+            :style="{ width: `${cardSize}px`, height: `${cardSize}px` }"
             @click="handleCardClick(card)"
           >
             <div
@@ -208,12 +221,13 @@
               :class="{ flipped: card.flipped || card.matched }"
             >
               <img
-                class="card-back absolute inset-0 w-full h-full object-cover"
+                class="card-back absolute inset-0 h-full w-full object-cover"
                 src="/images/kindtitle.webp"
                 alt="Card Back"
               />
+
               <img
-                class="card-front absolute inset-0 w-full h-full object-cover"
+                class="card-front absolute inset-0 h-full w-full object-cover"
                 :src="card.imagePath"
                 :alt="card.galleryName"
               />
@@ -222,16 +236,16 @@
         </div>
       </div>
 
-      <!-- ─── Dungeon Log Sidebar (desktop) ─── -->
       <aside
-        class="hidden lg:flex flex-col w-56 xl:w-64 bg-base-300 border-l border-base-content/10 overflow-hidden shrink-0"
+        class="hidden w-56 shrink-0 flex-col overflow-hidden border-l border-base-content/10 bg-base-300 lg:flex xl:w-64"
       >
         <div
-          class="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-base-content/10 shrink-0"
+          class="shrink-0 border-b border-base-content/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-400"
         >
           📜 Dungeon Log
         </div>
-        <div class="flex-1 overflow-y-auto p-2" ref="logPanel">
+
+        <div ref="logPanel" class="flex-1 overflow-y-auto p-2">
           <TransitionGroup
             name="log-entry"
             tag="div"
@@ -241,7 +255,7 @@
               v-for="entry in dungeonLog"
               :key="entry.id"
               :class="[
-                'text-xs px-2 py-1.5 rounded-lg leading-snug',
+                'rounded-lg px-2 py-1.5 text-xs leading-snug',
                 entry.type === 'match' ? 'bg-green-900/40 text-green-300' : '',
                 entry.type === 'mismatch' ? 'bg-red-900/40 text-red-300' : '',
                 entry.type === 'challenge'
@@ -260,49 +274,61 @@
       </aside>
     </div>
 
-    <!-- ─── Footer ─── -->
     <footer
-      class="flex items-center justify-between px-4 py-2 bg-base-300 border-t border-base-content/10 text-sm shrink-0"
+      class="flex shrink-0 items-center justify-between border-t border-base-content/10 bg-base-300 px-4 py-2 text-sm"
     >
-      <div class="flex gap-4">
-        <span
-          >🔥 Streak: <strong>{{ streak }}</strong></span
-        >
-        <span class="hidden sm:inline text-gray-400">|</span>
-        <span class="hidden sm:inline"
-          >Pairs: <strong>{{ matchedPairs }}/{{ totalPairs }}</strong></span
-        >
+      <div class="flex flex-wrap gap-4">
+        <span>
+          🔥 Streak: <strong>{{ streak }}</strong>
+        </span>
+
+        <span class="hidden text-gray-400 sm:inline">|</span>
+
+        <span class="hidden sm:inline">
+          Pairs: <strong>{{ matchedPairs }}/{{ totalPairs }}</strong>
+        </span>
+
+        <span v-if="levelPairModifier !== 0" class="hidden text-info sm:inline">
+          Next floor:
+          <strong>
+            {{ levelPairModifier > 0 ? '+' : '' }}{{ levelPairModifier }}
+            pairs
+          </strong>
+        </span>
       </div>
+
       <button
+        class="text-xs text-blue-400 underline transition hover:text-blue-300"
+        type="button"
         @click="isOpen = !isOpen"
-        class="text-blue-400 hover:text-blue-300 text-xs underline transition"
       >
         {{ isOpen ? '▲ Hide' : '▼ Show' }} Leaderboard
       </button>
     </footer>
 
-    <!-- ─── Leaderboard ─── -->
     <Transition name="fade-slide">
       <div
         v-if="isOpen"
-        class="bg-base-100 border-t border-base-content/10 max-h-44 overflow-y-auto px-4 py-3 shrink-0"
+        class="max-h-44 shrink-0 overflow-y-auto border-t border-base-content/10 bg-base-100 px-4 py-3"
       >
-        <h2 class="font-bold text-sm mb-2">🏆 Global Leaderboard</h2>
-        <table class="table-auto w-full text-xs">
+        <h2 class="mb-2 text-sm font-bold">🏆 Global Leaderboard</h2>
+
+        <table class="w-full table-auto text-xs">
           <thead>
-            <tr class="text-gray-400 border-b border-base-content/10 text-left">
+            <tr class="border-b border-base-content/10 text-left text-gray-400">
               <th class="py-1 pr-4">#</th>
               <th class="py-1 pr-4">Player</th>
               <th class="py-1 text-right">Record</th>
             </tr>
           </thead>
+
           <tbody>
             <tr
-              v-for="(user, i) in leaderboard"
+              v-for="(user, index) in leaderboard"
               :key="user.id"
-              class="border-b border-base-content/5 hover:bg-base-200 transition"
+              class="border-b border-base-content/5 transition hover:bg-base-200"
             >
-              <td class="py-1 pr-4 text-gray-400">{{ i + 1 }}</td>
+              <td class="py-1 pr-4 text-gray-400">{{ index + 1 }}</td>
               <td class="py-1 pr-4">{{ user.username }}</td>
               <td class="py-1 text-right font-mono">
                 {{ user.matchRecord ?? '—' }}
@@ -318,52 +344,75 @@
 <script setup lang="ts">
 import { useMemoryStore } from '@/stores/memoryStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue'
 
-// ── Stores ─────────────────────────────────────────────────────────────────
-const memoryStore = useMemoryStore()
-const milestoneStore = useMilestoneStore()
+import type { GalleryImage } from '@/stores/memoryStore'
 
-// ── Constants ───────────────────────────────────────────────────────────────
-const MAX_LIVES = 3
-const BASE_MATCH_SCORE = 10
-const STREAK_BONUS = 5 // extra pts per match in a streak
-const CHALLENGE_MULTIPLIER = 3
-const POWERUP_CHANCE = 0.3 // 30% chance to earn a powerup on match
-const CHALLENGE_EVERY_N = 4 // matches between challenges
+type DungeonCard = GalleryImage
+type PowerupType = 'lantern' | 'shield' | 'oracle'
 
-// ── UI State ────────────────────────────────────────────────────────────────
-const isOpen = ref(false)
-const logPanel = ref<HTMLElement | null>(null)
-
-// ── Game State ──────────────────────────────────────────────────────────────
-const lives = ref(MAX_LIVES)
-const score = ref(0)
-const highScore = ref(0)
-const level = ref(1)
-const streak = ref(0)
-const matchesSinceChallenge = ref(0)
-const gameStarted = ref(false)
-const gameOver = ref(false)
-const deathFlavor = ref('')
-const revealActive = ref(false)
-const oracleHighlight = ref('')
-const shieldActive = ref(false)
-
-let revealTimer: ReturnType<typeof setTimeout> | null = null
-let oracleTimer: ReturnType<typeof setTimeout> | null = null
-let justMatched = false // suppresses false mismatch triggers on match frames
-
-// ── Powerup Types ───────────────────────────────────────────────────────────
 interface Powerup {
   id: number
   name: string
   icon: string
   description: string
-  type: 'lantern' | 'shield' | 'oracle'
+  type: PowerupType
 }
-const powerups = ref<Powerup[]>([])
-let powerupIdCounter = 0
+
+type FloorRewardType =
+  | 'maxHp'
+  | 'heal'
+  | 'fullHeal'
+  | 'moreCards'
+  | 'lessCards'
+  | 'powerup'
+  | 'score'
+
+interface FloorReward {
+  type: FloorRewardType
+  icon: string
+  title: string
+  subtitle: string
+  weight: number
+  apply: () => void
+}
+
+interface LogEntry {
+  id: number
+  text: string
+  type: 'match' | 'mismatch' | 'challenge' | 'award' | 'system'
+}
+
+type ResetGamePayload = {
+  level?: number
+  pairModifier?: number
+}
+
+type MemoryStoreWithFlexibleReset = typeof memoryStore & {
+  resetGame: (payload?: ResetGamePayload) => void
+}
+
+const memoryStore = useMemoryStore()
+const milestoneStore = useMilestoneStore()
+
+const STARTING_MAX_LIVES = 3
+const MAX_POSSIBLE_LIVES = 8
+const MIN_LEVEL_PAIRS = 4
+const MAX_LEVEL_PAIRS = 18
+const BASE_MATCH_SCORE = 10
+const STREAK_BONUS = 5
+const CHALLENGE_MULTIPLIER = 3
+const POWERUP_CHANCE = 0.3
+const CHALLENGE_EVERY_N = 4
+const MAX_POWERUPS = 3
 
 const POWERUP_DEFS: Omit<Powerup, 'id'>[] = [
   {
@@ -386,98 +435,6 @@ const POWERUP_DEFS: Omit<Powerup, 'id'>[] = [
   },
 ]
 
-// ── Challenge ───────────────────────────────────────────────────────────────
-const challenge = reactive({
-  active: false,
-  targetName: '',
-  targetImagePath: '',
-  timeLeft: 15,
-  timer: null as ReturnType<typeof setInterval> | null,
-})
-
-// ── Award Toast ─────────────────────────────────────────────────────────────
-const award = reactive({
-  visible: false,
-  icon: '',
-  title: '',
-  subtitle: '',
-  timer: null as ReturnType<typeof setTimeout> | null,
-})
-
-// ── Dungeon Log ──────────────────────────────────────────────────────────────
-interface LogEntry {
-  id: number
-  text: string
-  type: 'match' | 'mismatch' | 'challenge' | 'award' | 'system'
-}
-const dungeonLog = ref<LogEntry[]>([])
-let logId = 0
-
-// ── Computed ─────────────────────────────────────────────────────────────────
-const cardSize = computed(() => memoryStore.cardSize)
-const leaderboard = computed(() => milestoneStore.highMatchScores)
-
-const matchedGalleryNames = computed(() => {
-  const seen = new Set<string>()
-  for (const c of memoryStore.galleryImages as any[]) {
-    if (c.matched) seen.add(c.galleryName)
-  }
-  return [...seen]
-})
-
-const matchedPairs = computed(() => matchedGalleryNames.value.length)
-const totalPairs = computed(
-  () => (memoryStore.galleryImages as any[]).length / 2,
-)
-
-const flippedUnmatchedCount = computed(
-  () =>
-    (memoryStore.galleryImages as any[]).filter((c) => c.flipped && !c.matched)
-      .length,
-)
-
-// ── Watchers ──────────────────────────────────────────────────────────────────
-let prevMatchedNames: string[] = []
-let prevFlippedCount = 0
-
-watch(matchedGalleryNames, (newVal) => {
-  if (newVal.length < prevMatchedNames.length) {
-    // Board was reset
-    prevMatchedNames = []
-    return
-  }
-  const newNames = newVal.filter((n) => !prevMatchedNames.includes(n))
-  if (newNames.length > 0) {
-    justMatched = true
-    newNames.forEach((n) => onMatch(n))
-    setTimeout(() => {
-      justMatched = false
-    }, 80)
-  }
-  prevMatchedNames = [...newVal]
-})
-
-watch(flippedUnmatchedCount, (newVal, oldVal) => {
-  if (
-    newVal === 0 &&
-    oldVal === 2 &&
-    !justMatched &&
-    gameStarted.value &&
-    !gameOver.value
-  ) {
-    onMismatch()
-  }
-  prevFlippedCount = newVal
-})
-
-watch(
-  () => memoryStore.gameWon,
-  (won) => {
-    if (won && gameStarted.value && !gameOver.value) onLevelComplete()
-  },
-)
-
-// ── Flavor Text Arrays ────────────────────────────────────────────────────────
 const MATCH_FLAVORS = [
   'Two relics resonate. The dungeon groans in defeat.',
   'MATCH! You taste glory and pixels in equal measure.',
@@ -554,70 +511,216 @@ const CHALLENGE_FAIL_FLAVORS = [
   'The challenge beacon fades. A goblin shrugs and refunds nothing.',
 ]
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)] as T
+const isOpen = ref(false)
+const logPanel = ref<HTMLElement | null>(null)
+
+const maxLives = ref(STARTING_MAX_LIVES)
+const lives = ref(STARTING_MAX_LIVES)
+const levelPairModifier = ref(0)
+const score = ref(0)
+const highScore = ref(0)
+const level = ref(1)
+const streak = ref(0)
+const matchesSinceChallenge = ref(0)
+const gameStarted = ref(false)
+const gameOver = ref(false)
+const levelTransitioning = ref(false)
+const deathFlavor = ref('')
+const revealActive = ref(false)
+const oracleHighlight = ref('')
+const shieldActive = ref(false)
+const powerups = ref<Powerup[]>([])
+const dungeonLog = ref<LogEntry[]>([])
+
+const challenge = reactive({
+  active: false,
+  targetName: '',
+  targetImagePath: '',
+  timeLeft: 15,
+  timer: null as ReturnType<typeof setInterval> | null,
+})
+
+const award = reactive({
+  visible: false,
+  icon: '',
+  title: '',
+  subtitle: '',
+  timer: null as ReturnType<typeof setTimeout> | null,
+})
+
+let revealTimer: ReturnType<typeof setTimeout> | null = null
+let oracleTimer: ReturnType<typeof setTimeout> | null = null
+let justMatched = false
+let powerupIdCounter = 0
+let logId = 0
+let prevMatchedNames: string[] = []
+let prevFlippedCount = 0
+
+const cardSize = computed(() => memoryStore.cardSize)
+const leaderboard = computed(() => milestoneStore.highMatchScores)
+
+const galleryCards = computed(() => memoryStore.galleryImages as DungeonCard[])
+
+const matchedGalleryNames = computed(() => {
+  const seen = new Set<string>()
+
+  for (const card of galleryCards.value) {
+    if (card.matched) seen.add(card.galleryName)
+  }
+
+  return [...seen]
+})
+
+const matchedPairs = computed(() => matchedGalleryNames.value.length)
+const totalPairs = computed(() => galleryCards.value.length / 2)
+
+const flippedUnmatchedCount = computed(
+  () =>
+    galleryCards.value.filter((card) => card.flipped && !card.matched).length,
+)
+
+watch(matchedGalleryNames, (newValue) => {
+  if (newValue.length < prevMatchedNames.length) {
+    prevMatchedNames = []
+    return
+  }
+
+  const newNames = newValue.filter((name) => !prevMatchedNames.includes(name))
+
+  if (newNames.length > 0) {
+    justMatched = true
+    newNames.forEach((name) => onMatch(name))
+
+    setTimeout(() => {
+      justMatched = false
+    }, 80)
+  }
+
+  prevMatchedNames = [...newValue]
+})
+
+watch(flippedUnmatchedCount, (newValue, oldValue) => {
+  if (
+    newValue === 0 &&
+    oldValue === 2 &&
+    !justMatched &&
+    gameStarted.value &&
+    !gameOver.value &&
+    !levelTransitioning.value
+  ) {
+    onMismatch()
+  }
+
+  prevFlippedCount = newValue
+})
+
+watch(
+  () => memoryStore.gameWon,
+  (won) => {
+    if (
+      won &&
+      gameStarted.value &&
+      !gameOver.value &&
+      !levelTransitioning.value
+    ) {
+      onLevelComplete()
+    }
+  },
+)
+
+function pick<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)] as T
 }
 
 function addLog(text: string, type: LogEntry['type'] = 'system') {
   dungeonLog.value.unshift({ id: logId++, text, type })
-  if (dungeonLog.value.length > 60) dungeonLog.value.pop()
+
+  if (dungeonLog.value.length > 60) {
+    dungeonLog.value.pop()
+  }
 }
 
 function showAward(icon: string, title: string, subtitle: string) {
   if (award.timer) clearTimeout(award.timer)
-  Object.assign(award, { visible: true, icon, title, subtitle })
+
+  Object.assign(award, {
+    visible: true,
+    icon,
+    title,
+    subtitle,
+  })
+
   addLog(`🏅 ${title} — ${subtitle}`, 'award')
+
   award.timer = setTimeout(() => {
     award.visible = false
   }, 2800)
 }
 
-// ── Core Game Logic ────────────────────────────────────────────────────────────
+function resetBoardForCurrentLevel() {
+  prevMatchedNames = []
+  prevFlippedCount = 0
+  justMatched = false
+  revealActive.value = false
+  oracleHighlight.value = ''
+
+  const flexibleMemoryStore = memoryStore as MemoryStoreWithFlexibleReset
+
+  flexibleMemoryStore.resetGame({
+    level: level.value,
+    pairModifier: levelPairModifier.value,
+  })
+}
+
 function startGame() {
-  lives.value = MAX_LIVES
+  maxLives.value = STARTING_MAX_LIVES
+  lives.value = STARTING_MAX_LIVES
+  levelPairModifier.value = 0
   score.value = 0
   level.value = 1
   streak.value = 0
   matchesSinceChallenge.value = 0
   gameOver.value = false
   gameStarted.value = true
+  levelTransitioning.value = false
   powerups.value = []
   shieldActive.value = false
   dungeonLog.value = []
-  prevMatchedNames = []
-  prevFlippedCount = 0
-  justMatched = false
-  revealActive.value = false
-  oracleHighlight.value = ''
+  deathFlavor.value = ''
   cancelChallenge()
+
   if (award.timer) clearTimeout(award.timer)
+  if (revealTimer) clearTimeout(revealTimer)
+  if (oracleTimer) clearTimeout(oracleTimer)
+
   award.visible = false
-  memoryStore.resetGame()
+  resetBoardForCurrentLevel()
+
   addLog(
     '⚔️ You descend into the Memory Dungeon. The air smells of forgotten images.',
     'system',
   )
   addLog(
-    '🗺️ Tip: Match pairs to score. Challenges award 3× points. Powerups drop on luck.',
+    '🗺️ Tip: Match pairs to score. Challenges award 3× points. Floor rewards are random.',
     'system',
   )
 }
 
-function handleCardClick(card: any) {
-  if (!gameStarted.value || gameOver.value || card.matched) return
+function handleCardClick(card: DungeonCard) {
+  if (!gameStarted.value || gameOver.value || levelTransitioning.value) return
+  if (card.matched) return
+
   memoryStore.handleGalleryClick(card)
 }
 
 function onMatch(matchedName: string) {
-  if (!gameStarted.value || gameOver.value) return
+  if (!gameStarted.value || gameOver.value || levelTransitioning.value) return
 
   streak.value++
   matchesSinceChallenge.value++
 
   let points = BASE_MATCH_SCORE + (streak.value - 1) * STREAK_BONUS
 
-  // Challenge resolution
   if (challenge.active && matchedName === challenge.targetName) {
     points *= CHALLENGE_MULTIPLIER
     cancelChallenge()
@@ -626,12 +729,14 @@ function onMatch(matchedName: string) {
   }
 
   score.value += points
-  if (score.value > highScore.value) highScore.value = score.value
+
+  if (score.value > highScore.value) {
+    highScore.value = score.value
+  }
 
   addLog(`${pick(MATCH_FLAVORS)} (+${points})`, 'match')
 
-  // Streak milestone awards
-  const STREAK_AWARDS = [
+  const streakAward = [
     {
       n: 3,
       icon: '🔥',
@@ -656,32 +761,32 @@ function onMatch(matchedName: string) {
       title: 'DUNGEON KING',
       sub: '12 in a row. The Oracle surrenders.',
     },
-  ]
-  const sa = STREAK_AWARDS.find((a) => a.n === streak.value)
-  if (sa) showAward(sa.icon, sa.title, sa.sub)
+  ].find((awardEntry) => awardEntry.n === streak.value)
 
-  // One-life clutch award (random so it doesn't spam)
+  if (streakAward) {
+    showAward(streakAward.icon, streakAward.title, streakAward.sub)
+  }
+
   if (lives.value === 1 && streak.value % 2 === 0) {
     showAward('💀', "DEATH'S DOOR", 'Matched with 1 life remaining. Chilling.')
   }
 
-  // Trigger new challenge if cooldown elapsed
   if (!challenge.active && matchesSinceChallenge.value >= CHALLENGE_EVERY_N) {
-    const unmatched = (memoryStore.galleryImages as any[]).filter(
-      (c) => !c.matched,
-    )
+    const unmatched = galleryCards.value.filter((card) => !card.matched)
+
     if (unmatched.length >= 4) {
       startChallenge()
       matchesSinceChallenge.value = 0
     }
   }
 
-  // Random powerup drop
-  if (Math.random() < POWERUP_CHANCE) grantPowerup()
+  if (Math.random() < POWERUP_CHANCE) {
+    grantPowerup()
+  }
 }
 
 function onMismatch() {
-  if (!gameStarted.value || gameOver.value) return
+  if (!gameStarted.value || gameOver.value || levelTransitioning.value) return
 
   streak.value = 0
 
@@ -695,8 +800,9 @@ function onMismatch() {
   }
 
   lives.value--
+
   addLog(
-    `${pick(MISMATCH_FLAVORS)} [♥ ${lives.value}/${MAX_LIVES}]`,
+    `${pick(MISMATCH_FLAVORS)} [♥ ${lives.value}/${maxLives.value}]`,
     'mismatch',
   )
 
@@ -706,57 +812,73 @@ function onMismatch() {
 }
 
 function triggerGameOver() {
+  if (gameOver.value) return
+
   gameOver.value = true
+  levelTransitioning.value = false
   cancelChallenge()
   deathFlavor.value = pick(DEATH_FLAVORS)
   addLog('💀 GAME OVER. The dungeon claims your score as a trophy.', 'system')
 }
 
 function onLevelComplete() {
-  const wasFlawless = lives.value === MAX_LIVES
-  const bonus = level.value * 50
+  levelTransitioning.value = true
+
+  const completedLevel = level.value
+  const wasFlawless = lives.value === maxLives.value
+  const bonus = completedLevel * 50
+
   score.value += bonus
-  if (score.value > highScore.value) highScore.value = score.value
+
+  if (score.value > highScore.value) {
+    highScore.value = score.value
+  }
+
   cancelChallenge()
   matchesSinceChallenge.value = 0
   oracleHighlight.value = ''
 
-  const msg = pick(LEVEL_FLAVORS).replace('{n}', String(level.value + 1))
-  addLog(`🎉 ${msg}`, 'system')
-  addLog(`✨ Level ${level.value} Bonus: +${bonus} pts`, 'system')
+  const message = pick(LEVEL_FLAVORS).replace('{n}', String(level.value + 1))
 
-  if (wasFlawless)
-    showAward('🧠', 'MIND PALACE', 'Flawless floor! The dungeon is appalled.')
+  addLog(`🎉 ${message}`, 'system')
+  addLog(`✨ Level ${completedLevel} Bonus: +${bonus} pts`, 'system')
 
-  level.value++
-  powerups.value = []
-  lives.value = MAX_LIVES // full restore between levels
+  if (wasFlawless) {
+    addLog('🧠 MIND PALACE — Flawless floor! The dungeon is appalled.', 'award')
+  }
 
-  // Small delay so player can see the board briefly before reset
+  grantFloorReward(wasFlawless)
+
   setTimeout(() => {
-    prevMatchedNames = []
-    prevFlippedCount = 0
-    justMatched = false
-    memoryStore.resetGame()
+    level.value++
+    streak.value = 0
+    levelTransitioning.value = false
+    resetBoardForCurrentLevel()
   }, 1400)
 }
 
-// ── Challenge ──────────────────────────────────────────────────────────────────
 function startChallenge() {
-  const unmatched = (memoryStore.galleryImages as any[]).filter(
-    (c) => !c.matched,
-  )
+  const unmatched = galleryCards.value.filter((card) => !card.matched)
+
   if (unmatched.length < 4) return
+
   const target = pick(unmatched)
+
   challenge.active = true
   challenge.targetName = target.galleryName
   challenge.targetImagePath = target.imagePath
   challenge.timeLeft = 15
+
   if (challenge.timer) clearInterval(challenge.timer)
+
   challenge.timer = setInterval(() => {
     challenge.timeLeft--
-    if (challenge.timeLeft <= 0) failChallenge()
+
+    if (challenge.timeLeft <= 0) {
+      failChallenge()
+    }
   }, 1000)
+
   addLog(pick(CHALLENGE_START_FLAVORS), 'challenge')
 }
 
@@ -765,6 +887,7 @@ function cancelChallenge() {
     clearInterval(challenge.timer)
     challenge.timer = null
   }
+
   challenge.active = false
 }
 
@@ -773,79 +896,241 @@ function failChallenge() {
   addLog(pick(CHALLENGE_FAIL_FLAVORS), 'challenge')
 }
 
-// ── Powerups ───────────────────────────────────────────────────────────────────
 function grantPowerup() {
-  if (powerups.value.length >= 3) return
-  const available = POWERUP_DEFS.filter((p) => {
-    if (
-      p.type === 'shield' &&
-      (shieldActive.value || powerups.value.some((pu) => pu.type === 'shield'))
-    )
+  if (powerups.value.length >= MAX_POWERUPS) return
+
+  const available = POWERUP_DEFS.filter((powerup) => {
+    const alreadyHasShield =
+      shieldActive.value ||
+      powerups.value.some((storedPowerup) => storedPowerup.type === 'shield')
+
+    if (powerup.type === 'shield' && alreadyHasShield) {
       return false
+    }
+
     return true
   })
+
   if (!available.length) return
-  const def = pick(available)
-  powerups.value.push({ ...def, id: powerupIdCounter++ })
+
+  const powerup = pick(available)
+
+  powerups.value.push({
+    ...powerup,
+    id: powerupIdCounter++,
+  })
+
   addLog(
-    `✨ Powerup dropped: ${def.icon} ${def.name} — ${def.description}`,
+    `✨ Powerup dropped: ${powerup.icon} ${powerup.name} — ${powerup.description}`,
     'system',
   )
 }
 
-function usePowerup(pu: Powerup) {
-  powerups.value = powerups.value.filter((p) => p.id !== pu.id)
+function getWeightedReward(rewards: FloorReward[]): FloorReward | null {
+  const available = rewards.filter((reward) => reward.weight > 0)
+  const totalWeight = available.reduce((sum, reward) => sum + reward.weight, 0)
 
-  if (pu.type === 'lantern') {
-    // CSS-driven reveal via .board-reveal class; no store mutation needed
+  if (!available.length || totalWeight <= 0) return null
+
+  let roll = Math.random() * totalWeight
+
+  for (const reward of available) {
+    roll -= reward.weight
+
+    if (roll <= 0) {
+      return reward
+    }
+  }
+
+  return available.at(-1) ?? null
+}
+
+function grantFloorReward(wasFlawless: boolean) {
+  const nextPairTotal = totalPairs.value + levelPairModifier.value
+  const canGainMaxHp = maxLives.value < MAX_POSSIBLE_LIVES
+  const canHeal = lives.value < maxLives.value
+  const canReduceCards = nextPairTotal > MIN_LEVEL_PAIRS
+  const canAddCards = nextPairTotal < MAX_LEVEL_PAIRS
+  const canGainPowerup = powerups.value.length < MAX_POWERUPS
+
+  const rewards: FloorReward[] = [
+    {
+      type: 'maxHp',
+      icon: '💖',
+      title: 'HEART CONTAINER',
+      subtitle: '+1 Max HP. Your organs file a thank-you note.',
+      weight: canGainMaxHp ? 16 : 0,
+      apply: () => {
+        maxLives.value++
+        lives.value = Math.min(lives.value + 1, maxLives.value)
+      },
+    },
+    {
+      type: 'heal',
+      icon: '❤️‍🔥',
+      title: 'FIELD MEDICINE',
+      subtitle: 'Heal 1 HP. Probably not sterile. Still useful.',
+      weight: canHeal ? 22 : 4,
+      apply: () => {
+        lives.value = Math.min(lives.value + 1, maxLives.value)
+      },
+    },
+    {
+      type: 'fullHeal',
+      icon: '✨',
+      title: 'RESTORATIVE NONSENSE',
+      subtitle: 'Fully healed. The dungeon hates wellness culture.',
+      weight: lives.value < maxLives.value - 1 ? 10 : 0,
+      apply: () => {
+        lives.value = maxLives.value
+      },
+    },
+    {
+      type: 'moreCards',
+      icon: '🃏',
+      title: 'DEEPER FLOOR',
+      subtitle: '+1 pair next level. More cards, more hubris.',
+      weight: canAddCards ? 14 : 0,
+      apply: () => {
+        levelPairModifier.value++
+      },
+    },
+    {
+      type: 'lessCards',
+      icon: '🍀',
+      title: 'MERCIFUL STAIRCASE',
+      subtitle: '-1 pair next level. Suspiciously kind.',
+      weight: canReduceCards ? 10 : 0,
+      apply: () => {
+        levelPairModifier.value--
+      },
+    },
+    {
+      type: 'powerup',
+      icon: '🎁',
+      title: 'DUNGEON LOOT',
+      subtitle: 'Gain a random powerup. Probably cursed. Enjoy.',
+      weight: canGainPowerup ? 18 : 0,
+      apply: () => {
+        grantPowerup()
+      },
+    },
+    {
+      type: 'score',
+      icon: '💰',
+      title: 'GOBLIN CASHBACK',
+      subtitle: `+${level.value * 75} points. Financially irresponsible.`,
+      weight: 12,
+      apply: () => {
+        score.value += level.value * 75
+      },
+    },
+  ]
+
+  if (wasFlawless && canGainMaxHp) {
+    rewards.push({
+      type: 'maxHp',
+      icon: '👑',
+      title: 'FLAWLESS HEART',
+      subtitle: '+1 Max HP for a perfect floor. Grossly competent.',
+      weight: 20,
+      apply: () => {
+        maxLives.value++
+        lives.value = maxLives.value
+      },
+    })
+  }
+
+  const reward = getWeightedReward(rewards)
+
+  if (!reward) return
+
+  reward.apply()
+
+  if (score.value > highScore.value) {
+    highScore.value = score.value
+  }
+
+  showAward(reward.icon, reward.title, reward.subtitle)
+  addLog(`🎲 Floor reward: ${reward.title} — ${reward.subtitle}`, 'award')
+}
+
+function usePowerup(powerup: Powerup) {
+  powerups.value = powerups.value.filter(
+    (storedPowerup) => storedPowerup.id !== powerup.id,
+  )
+
+  if (powerup.type === 'lantern') {
     revealActive.value = true
+
     addLog(
       '🔦 Lantern ignites! Cards revealed for 2 seconds. Memorize fast.',
       'system',
     )
+
     if (revealTimer) clearTimeout(revealTimer)
+
     revealTimer = setTimeout(() => {
       revealActive.value = false
     }, 2000)
-  } else if (pu.type === 'shield') {
+
+    return
+  }
+
+  if (powerup.type === 'shield') {
     shieldActive.value = true
+
     addLog(
       '🛡️ Shield raised! Your next mistake shall be forgiven. This time.',
       'system',
     )
-  } else if (pu.type === 'oracle') {
-    const unmatched = (memoryStore.galleryImages as any[]).filter(
-      (c) => !c.matched,
-    )
+
+    return
+  }
+
+  if (powerup.type === 'oracle') {
+    const unmatched = galleryCards.value.filter((card) => !card.matched)
     const nameCount = new Map<string, number>()
-    unmatched.forEach((c: any) =>
-      nameCount.set(c.galleryName, (nameCount.get(c.galleryName) ?? 0) + 1),
-    )
+
+    unmatched.forEach((card) => {
+      nameCount.set(
+        card.galleryName,
+        (nameCount.get(card.galleryName) ?? 0) + 1,
+      )
+    })
+
     const pairs = [...nameCount.entries()]
-      .filter(([, v]) => v >= 2)
-      .map(([k]) => k)
+      .filter(([, count]) => count >= 2)
+      .map(([name]) => name)
+
     if (!pairs.length) return
+
     oracleHighlight.value = pick(pairs)
+
     addLog(
       '👁️ The Oracle highlights a matching pair. Find the blue glow.',
       'system',
     )
+
     if (oracleTimer) clearTimeout(oracleTimer)
+
     oracleTimer = setTimeout(() => {
       oracleHighlight.value = ''
     }, 5000)
   }
 }
 
-// ── Lifecycle ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
   if (!milestoneStore.highMatchScores.length) {
     await milestoneStore.fetchHighMatchScores()
   }
+
+  await nextTick()
 })
 
 onUnmounted(() => {
   cancelChallenge()
+
   if (revealTimer) clearTimeout(revealTimer)
   if (oracleTimer) clearTimeout(oracleTimer)
   if (award.timer) clearTimeout(award.timer)
@@ -853,7 +1138,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* ── Card 3D Flip ── */
 .card-container {
   perspective: 900px;
 }
@@ -885,14 +1169,10 @@ onUnmounted(() => {
   transform: rotateY(180deg);
 }
 
-/* ── Lantern Reveal ──
-   Pure CSS: when .board-reveal is on the board container, unflipped cards
-   show their fronts without touching Pinia state.                          */
 .board-reveal .card-container:not(.card-matched) .card-inner:not(.flipped) {
   transform: rotateY(180deg);
 }
 
-/* ── Loader ── */
 .loader {
   width: 44px;
   height: 44px;
@@ -908,11 +1188,11 @@ onUnmounted(() => {
   }
 }
 
-/* ── Transitions ── */
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: all 0.25s ease;
 }
+
 .slide-down-enter-from,
 .slide-down-leave-to {
   transform: translateY(-100%);
@@ -923,6 +1203,7 @@ onUnmounted(() => {
 .fade-leave-active {
   transition: opacity 0.2s;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
@@ -932,40 +1213,42 @@ onUnmounted(() => {
 .fade-slide-leave-active {
   transition: all 0.3s ease;
 }
+
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-8px);
 }
 
-/* Award pop with spring */
 .award-pop-enter-active {
   transition: all 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .award-pop-leave-active {
   transition: all 0.22s ease-in;
 }
+
 .award-pop-enter-from,
 .award-pop-leave-to {
   opacity: 0;
   transform: translate(-50%, -18px) scale(0.6);
 }
+
 .award-pop-enter-to,
 .award-pop-leave-from {
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
 }
 
-/* Log entry slide-in */
 .log-entry-enter-active {
   transition: all 0.2s ease;
 }
+
 .log-entry-enter-from {
   opacity: 0;
   transform: translateX(-12px);
 }
 
-/* Matched card fade */
 .card-matched {
   transition: opacity 0.4s ease;
 }

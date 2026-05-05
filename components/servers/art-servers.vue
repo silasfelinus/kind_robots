@@ -357,6 +357,48 @@
           </label>
         </div>
 
+        <!-- Access toggles row -->
+        <div
+          class="grid grid-cols-1 gap-2 md:col-span-2 sm:grid-cols-2 lg:grid-cols-3 mt-1"
+        >
+          <label
+            class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3"
+          >
+            <span class="label-text text-xs font-bold"
+              >Allow Browser Requests</span
+            >
+            <input
+              v-model="form.allowBrowserRequests"
+              type="checkbox"
+              class="toggle toggle-success toggle-sm"
+            />
+          </label>
+
+          <label
+            class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3"
+          >
+            <span class="label-text text-xs font-bold">Private Network</span>
+            <input
+              v-model="form.isPrivateNetwork"
+              type="checkbox"
+              class="toggle toggle-warning toggle-sm"
+            />
+          </label>
+
+          <label class="form-control">
+            <span class="label-text text-xs font-bold">Access Mode</span>
+            <select
+              v-model="form.accessMode"
+              class="select select-bordered select-sm rounded-xl"
+            >
+              <option value="LOCAL">LOCAL</option>
+              <option value="PUBLIC_OIDC">PUBLIC_OIDC</option>
+              <option value="PUBLIC_PROTECTED">PUBLIC_PROTECTED</option>
+              <option value="PUBLIC_OPEN">PUBLIC_OPEN</option>
+            </select>
+          </label>
+        </div>
+
         <div
           v-if="message"
           class="alert md:col-span-2"
@@ -508,6 +550,9 @@ function openEditor() {
             : source.title,
         label: source.label,
         description: source.description,
+        allowBrowserRequests: source.allowBrowserRequests ?? true,
+        accessMode: source.accessMode,
+        isPrivateNetwork: source.isPrivateNetwork,
         category: source.category,
         serverType: source.serverType,
         baseUrl: source.baseUrl,
@@ -541,6 +586,7 @@ function blankForm(): Partial<Server> {
     description: '',
     category: 'image',
     serverType: 'COMFY',
+
     baseUrl: '',
     endpointPath: '/prompt',
     healthPath: '/history',
@@ -556,6 +602,9 @@ function blankForm(): Partial<Server> {
     supportsNegativePrompt: true,
     supportsSeed: true,
     supportsSteps: true,
+    allowBrowserRequests: true,
+    accessMode: 'LOCAL',
+    isPrivateNetwork: false,
     lastStatus: 'UNKNOWN',
   }
 }

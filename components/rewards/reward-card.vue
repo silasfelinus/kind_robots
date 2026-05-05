@@ -236,6 +236,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+  select: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()
@@ -255,7 +256,8 @@ const rewardTitle = computed(() => {
 })
 
 async function selectReward() {
-  rewardStore.selectReward(props.reward.id)
+  await rewardStore.selectReward(props.reward.id)
+  emit('select', props.reward.id)
 }
 
 async function deleteReward() {

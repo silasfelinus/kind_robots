@@ -156,7 +156,7 @@ border<!-- /components/content/rewards/reward-interact.vue -->
       </details>
     </section>
 
-    <footer class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+    <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
       <button
         class="btn btn-ghost rounded-xl"
         type="button"
@@ -185,7 +185,7 @@ border<!-- /components/content/rewards/reward-interact.vue -->
         <Icon v-else name="kind-icon:play" class="h-5 w-5" />
         Start Story
       </button>
-    </footer>
+    </div>
   </section>
 </template>
 

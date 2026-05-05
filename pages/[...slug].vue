@@ -35,7 +35,13 @@ import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 
 type PageLayoutName = 'default'
-type ContentPage = ContentType
+
+type ContentPage = ContentType & {
+  dashboard?: string | null
+  footer?: string | null
+  footerState?: string | null
+}
+
 type FooterState = 'compact' | 'open' | 'hidden' | 'priority' | 'disabled'
 
 const footerStates = [
@@ -72,17 +78,40 @@ function isFooterState(value: string): value is FooterState {
   return footerStates.includes(value as FooterState)
 }
 
-function applyFooterFromContent(footer?: string | null): void {
-  const normalizedFooter = (footer ?? '').trim()
+function normalizeFooterComponent(value?: string | null): string {
+  const normalized = (value ?? '').trim()
 
-  if (!normalizedFooter) return
+  if (!normalized) return ''
 
-  if (!isFooterState(normalizedFooter)) {
-    console.warn(`[slug] Ignoring invalid footer state: ${normalizedFooter}`)
+  if (normalized === 'kind') return 'bot'
+  if (normalized.endsWith('-footer')) {
+    return normalized.replace(/-footer$/, '')
+  }
+
+  return normalized
+}
+
+function applyFooterStateFromContent(footerState?: string | null): void {
+  const normalizedFooterState = (footerState ?? '').trim()
+
+  if (!normalizedFooterState) return
+
+  if (!isFooterState(normalizedFooterState)) {
+    console.warn(
+      `[slug] Ignoring invalid footer state: ${normalizedFooterState}`,
+    )
     return
   }
 
-  displayStore.footerState = normalizedFooter
+  displayStore.footerState = normalizedFooterState
+}
+
+function applyFooterComponentFromContent(footer?: string | null): void {
+  const normalizedFooter = normalizeFooterComponent(footer)
+
+  if (!normalizedFooter) return
+
+  displayStore.setFooterComponent(normalizedFooter)
 }
 
 function applyPageSettings(page: ContentPage): void {
@@ -91,8 +120,10 @@ function applyPageSettings(page: ContentPage): void {
   }
 
   if (page.footer) {
-    applyFooterFromContent(page.footer)
+    applyFooterComponentFromContent(page.footer)
   }
+
+  applyFooterStateFromContent(page.footerState ?? 'open')
 }
 
 async function loadPage(path: string): Promise<void> {

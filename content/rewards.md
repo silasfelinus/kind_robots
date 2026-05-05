@@ -16,5 +16,6 @@ sort: gallery
 navComponent: 'mode-nav'
 dashboard: 'rewards'
 footer: 'reward-footer'
+footerState: 'open'
 ---
 :reward-manager

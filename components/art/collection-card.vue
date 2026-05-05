@@ -71,7 +71,7 @@
       >
         <div class="flex flex-col items-center gap-2 text-base-content/45">
           <Icon
-            :name="isHiddenMature ? 'kind-icon:lock' : fallbackIcon"
+            :name="isHiddenMature ? 'kind-icon:lock' : normalizedFallbackIcon"
             class="h-12 w-12"
           />
 
@@ -133,8 +133,8 @@
           {{ artCountLabel }}
         </span>
 
-        <span v-if="collection.username" class="badge badge-primary badge-sm">
-          {{ collection.username }}
+        <span v-if="collectionUsername" class="badge badge-primary badge-sm">
+          {{ collectionUsername }}
         </span>
 
         <span v-if="collection.userId" class="badge badge-ghost badge-sm">
@@ -277,10 +277,17 @@ const canEdit = computed(() => {
   return userStore.isAdmin || props.collection.userId === userStore.userId
 })
 
+const collectionUsername = computed(() => {
+  return safeText(props.collection.username).trim()
+})
+
 const collectionLabel = computed(() => {
   if (isHiddenMature.value) return 'Hidden Collection'
 
-  return props.collection.label || `Collection #${props.collection.id}`
+  return (
+    safeText(props.collection.label).trim() ||
+    `Collection #${props.collection.id}`
+  )
 })
 
 const collectionDescription = computed(() => {
@@ -289,7 +296,7 @@ const collectionDescription = computed(() => {
   }
 
   return (
-    props.collection.description ||
+    safeText(props.collection.description).trim() ||
     'A curated bundle of generated art, suspicious pixels, and narrative fuel.'
   )
 })
@@ -320,8 +327,14 @@ const previewImage = computed(() => {
   if (isHiddenMature.value) return ''
 
   return (
-    previewArt.value?.imagePath || previewArt.value?.path || props.fallbackImage
+    safeText(previewArt.value?.imagePath).trim() ||
+    safeText(previewArt.value?.path).trim() ||
+    safeText(props.fallbackImage).trim()
   )
+})
+
+const normalizedFallbackIcon = computed(() => {
+  return safeText(props.fallbackIcon).trim() || 'kind-icon:gallery'
 })
 
 const updatedLabel = computed(() => {
@@ -335,6 +348,14 @@ const updatedLabel = computed(() => {
 
   return date.toLocaleDateString()
 })
+
+function safeText(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean')
+    return String(value)
+
+  return ''
+}
 
 async function selectCollection() {
   if (isHiddenMature.value) return

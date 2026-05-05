@@ -18,21 +18,8 @@
         imageHeightClass,
       ]"
     >
-      <art-card
-        v-if="art && !isHiddenMature"
-        :art="art"
-        :compact="true"
-        :show-actions="false"
-        :show-prompt="false"
-        :show-meta="false"
-        :show-select-button="false"
-        :show-reaction="false"
-        :auto-load-image="autoLoadArtImage"
-        class="h-full w-full rounded-none border-0 bg-transparent p-0"
-      />
-
       <img
-        v-else-if="imageSource && !isHiddenMature"
+        v-if="imageSource && !isHiddenMature"
         :src="imageSource"
         :alt="checkpointLabel"
         class="h-full w-full object-cover transition-transform group-hover:scale-105"
@@ -45,7 +32,7 @@
       >
         <div class="flex flex-col items-center gap-2 text-base-content/45">
           <Icon
-            :name="isHiddenMature ? 'kind-icon:lock' : fallbackIcon"
+            :name="isHiddenMature ? 'kind-icon:lock' : normalizedFallbackIcon"
             class="h-10 w-10"
           />
 
@@ -91,14 +78,14 @@
       </h3>
 
       <p
-        v-if="showDescription && checkpoint.description && !isHiddenMature"
+        v-if="showDescription && checkpointDescription && !isHiddenMature"
         class="line-clamp-2 text-xs text-base-content/60"
       >
-        {{ checkpoint.description }}
+        {{ checkpointDescription }}
       </p>
 
       <div v-if="showMeta" class="flex flex-wrap justify-center gap-2">
-        <span v-if="checkpoint.localPath" class="badge badge-outline badge-sm">
+        <span v-if="checkpointLocalPath" class="badge badge-outline badge-sm">
           Local
         </span>
 
@@ -111,10 +98,10 @@
         </span>
 
         <span
-          v-if="checkpoint.generation"
+          v-if="checkpointGeneration"
           class="badge badge-secondary badge-sm"
         >
-          {{ checkpoint.generation }}
+          {{ checkpointGeneration }}
         </span>
       </div>
 
@@ -148,9 +135,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/checkpoint-card.vue
 import { computed } from 'vue'
-import type { Art } from '~/prisma/generated/prisma/client'
 import type { Resource } from '@/stores/resourceStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 
@@ -170,7 +155,6 @@ type CheckpointResource = Partial<Resource> & {
 const props = withDefaults(
   defineProps<{
     checkpoint: CheckpointResource
-    art?: Art | null
     showMature?: boolean
     cacheBuster?: number
     compact?: boolean
@@ -183,13 +167,11 @@ const props = withDefaults(
     showReaction?: boolean
     showDebug?: boolean
     allowSelect?: boolean
-    autoLoadArtImage?: boolean
     fallbackImage?: string
     fallbackIcon?: string
     imageHeightClass?: string
   }>(),
   {
-    art: null,
     showMature: false,
     cacheBuster: 0,
     compact: false,
@@ -202,7 +184,6 @@ const props = withDefaults(
     showReaction: false,
     showDebug: false,
     allowSelect: true,
-    autoLoadArtImage: true,
     fallbackImage: '/images/backtree.webp',
     fallbackIcon: 'kind-icon:image',
     imageHeightClass: 'h-40',
@@ -211,10 +192,30 @@ const props = withDefaults(
 
 const checkpointStore = useCheckpointStore()
 
+const checkpointName = computed(() => {
+  return safeText(props.checkpoint.name).trim()
+})
+
+const checkpointDescription = computed(() => {
+  return safeText(props.checkpoint.description).trim()
+})
+
+const checkpointLocalPath = computed(() => {
+  return safeText(props.checkpoint.localPath).trim()
+})
+
+const checkpointGeneration = computed(() => {
+  return safeText(props.checkpoint.generation).trim()
+})
+
+const normalizedFallbackIcon = computed(() => {
+  return safeText(props.fallbackIcon).trim() || 'kind-icon:image'
+})
+
 const isActive = computed(() => {
   return Boolean(
-    props.checkpoint.name &&
-    checkpointStore.currentApiModel === props.checkpoint.name,
+    checkpointName.value &&
+    safeText(checkpointStore.currentApiModel).trim() === checkpointName.value,
   )
 })
 
@@ -234,8 +235,31 @@ const canReact = computed(() => {
 
 const canSelect = computed(() => {
   return Boolean(
-    props.allowSelect && props.checkpoint.name && !isHiddenMature.value,
+    props.allowSelect && checkpointName.value && !isHiddenMature.value,
   )
+})
+
+const checkpointLabel = computed(() => {
+  if (isHiddenMature.value) return 'Hidden Checkpoint'
+
+  return (
+    safeText(props.checkpoint.customLabel).trim() ||
+    checkpointName.value ||
+    'Unnamed Checkpoint'
+  )
+})
+
+const imageSource = computed(() => {
+  const path =
+    safeText(props.checkpoint.MediaPath).trim() ||
+    safeText(props.fallbackImage).trim()
+
+  if (!path || isHiddenMature.value) return ''
+
+  if (!props.cacheBuster) return path
+
+  const separator = path.includes('?') ? '&' : '?'
+  return `${path}${separator}t=${props.cacheBuster}`
 })
 
 function safeText(value: unknown): string {
@@ -246,32 +270,9 @@ function safeText(value: unknown): string {
   return ''
 }
 
-const checkpointLabel = computed(() => {
-  if (isHiddenMature.value) return 'Hidden Checkpoint'
-
-  return (
-    safeText(props.checkpoint.customLabel).trim() ||
-    safeText(props.checkpoint.name).trim() ||
-    'Unnamed Checkpoint'
-  )
-})
-
-const imageSource = computed(() => {
-  const path =
-    safeText(props.checkpoint.MediaPath).trim() ||
-    safeText(props.fallbackImage).trim()
-
-  if (!path) return ''
-
-  if (!props.cacheBuster) return path
-
-  const separator = path.includes('?') ? '&' : '?'
-  return `${path}${separator}t=${props.cacheBuster}`
-})
-
 function selectCheckpoint() {
-  if (!canSelect.value || !props.checkpoint.name) return
+  if (!canSelect.value) return
 
-  checkpointStore.selectCheckpointByName(props.checkpoint.name)
+  checkpointStore.selectCheckpointByName(checkpointName.value)
 }
 </script>

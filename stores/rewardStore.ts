@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import { useNavStore } from '@/stores/navStore'
 
 const isClient = typeof window !== 'undefined'
 
@@ -17,6 +18,7 @@ const rewardsStorageKey = 'rewards'
 const rewardFormStorageKey = 'rewardForm'
 const selectedRewardStorageKey = 'selectedReward'
 const startingRewardIdStorageKey = 'startingRewardId'
+const dashboardKey = 'reward' as const
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -402,6 +404,22 @@ export const useRewardStore = defineStore('rewardStore', () => {
     return await selectReward(id)
   }
 
+  async function startRewardInteraction(id: number) {
+    const reward = await selectReward(id)
+
+    if (!reward) {
+      return null
+    }
+
+    startingRewardId.value = id
+    syncToLocalStorage()
+
+    const navStore = useNavStore()
+    navStore.setDashboardTab(dashboardKey, 'interact')
+
+    return reward
+  }
+
   function deselectReward() {
     selectedReward.value = null
     rewardForm.value = {}
@@ -689,6 +707,7 @@ export const useRewardStore = defineStore('rewardStore', () => {
 
     selectReward,
     setRewardById,
+    startRewardInteraction,
     deselectReward,
     clearSelectedReward,
 

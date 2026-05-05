@@ -29,9 +29,13 @@ describe('Dream API Full CRUD + Chat History Tests', () => {
   const privateDreamTitle = `Private-Dream-${time}`
 
   const dreamChatsUrl = (dreamId: number, query = '') => {
-    const suffix = query ? `?${query}` : ''
+    const params = new URLSearchParams(query)
 
-    return `${dreamsUrl}/${dreamId}/chats${suffix}`
+    if (!params.has('dreamId')) {
+      params.set('dreamId', String(dreamId))
+    }
+
+    return `${dreamsUrl}/chats?${params.toString()}`
   }
 
   before(() => {

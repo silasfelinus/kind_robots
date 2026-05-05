@@ -71,3 +71,8 @@ consistent footer sizing and layouts
 lower header toggle when closed into footer bar
 fix display goblins when changing orientation on tablets
 fix bot display only showing fallback
+
+5/5/26
+Dropped the header toggle to the footer bar
+bot interact works and remembers history
+removed error messages from art manager

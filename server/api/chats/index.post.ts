@@ -14,6 +14,12 @@ const allowedChatTypes: ChatType[] = [
   'ToUser',
   'ToCharacter',
   'Weirdlandia',
+  'Dream',
+  'Reward',
+  'Story',
+  'Scenario',
+  'Character',
+  'Bot',
 ]
 
 function asNullableString(value: unknown): string | null {

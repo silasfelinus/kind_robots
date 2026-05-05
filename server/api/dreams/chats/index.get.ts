@@ -18,6 +18,20 @@ function normalizePositiveInt(value: unknown): number | null {
   return parsedValue
 }
 
+function handledError(event: any, error: unknown, fallbackStatusCode = 500) {
+  const handled = errorHandler(error)
+  const statusCode = handled.statusCode || fallbackStatusCode
+
+  event.node.res.statusCode = statusCode
+
+  return {
+    success: false,
+    message: handled.message || 'Request failed.',
+    data: null,
+    statusCode,
+  }
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
@@ -25,10 +39,14 @@ export default defineEventHandler(async (event) => {
     const limit = normalizePositiveInt(query.limit)
 
     if (!dreamId) {
-      return errorHandler({
-        message: 'Invalid Dream ID. It must be a positive integer.',
-        statusCode: 400,
-      })
+      return handledError(
+        event,
+        {
+          message: 'Invalid Dream ID. It must be a positive integer.',
+          statusCode: 400,
+        },
+        400,
+      )
     }
 
     const dream = await prisma.dream.findUnique({
@@ -42,23 +60,37 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!dream) {
-      return errorHandler({
-        message: `Dream with ID ${dreamId} not found.`,
-        statusCode: 404,
-      })
+      return handledError(
+        event,
+        {
+          message: `Dream with ID ${dreamId} not found.`,
+          statusCode: 404,
+        },
+        404,
+      )
     }
 
     const validation = await validateApiKey(event)
     const requesterId =
       validation.isValid && validation.user?.id ? validation.user.id : null
+    const requesterRole =
+      validation.isValid && validation.user?.Role ? validation.user.Role : null
 
-    const canViewDream = dream.isPublic || requesterId === dream.userId
+    const canViewDream =
+      dream.isPublic ||
+      requesterId === dream.userId ||
+      requesterRole === 'ADMIN'
 
     if (!canViewDream) {
-      return errorHandler({
-        message: 'You do not have permission to view this Dream chat history.',
-        statusCode: 403,
-      })
+      return handledError(
+        event,
+        {
+          message:
+            'You do not have permission to view this Dream chat history.',
+          statusCode: 403,
+        },
+        403,
+      )
     }
 
     const chats = await prisma.chat.findMany({
@@ -71,6 +103,8 @@ export default defineEventHandler(async (event) => {
       take: limit ?? undefined,
     })
 
+    event.node.res.statusCode = 200
+
     return {
       success: true,
       message: `Dream chat history for Dream ID ${dreamId} retrieved successfully.`,
@@ -78,6 +112,6 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
     }
   } catch (error) {
-    return errorHandler(error)
+    return handledError(event, error)
   }
 })

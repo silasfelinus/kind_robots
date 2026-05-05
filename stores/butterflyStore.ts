@@ -169,10 +169,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     animationPaused.value = false
 
     const animate = () => {
-      // Iterate backwards so splice doesn't shift indices
+      const now = Date.now()
       for (let i = butterflies.value.length - 1; i >= 0; i--) {
         const butterfly = butterflies.value[i]!
-        updateButterflyPosition(butterfly)
+        updateButterflyPosition(butterfly, now)
 
         if (butterfly.isExiting && isOutsideRemovalBounds(butterfly)) {
           clearButterflyMotionState(butterfly.id)

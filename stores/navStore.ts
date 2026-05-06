@@ -265,7 +265,7 @@ export const useNavStore = defineStore('navStore', () => {
         hydrateFromLocalStorage()
 
         if (!smartbarStore.isInitialized || force) {
-          await smartbarStore.initialize()
+          await smartbarStore.initialize({ force })
         }
 
         hydrateDashboardTabsFromLocalStorage()

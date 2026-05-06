@@ -172,74 +172,75 @@ export const useSmartbarStore = defineStore('smartbarStore', () => {
   }
 
   async function initialize(
-  options: SmartbarInitializeOptions = {},
-): Promise<void> {
-  if (isInitialized.value && !options.force && !options.refresh) return
-  if (initializePromise.value && !options.force && !options.refresh) {
+    options: SmartbarInitializeOptions = {},
+  ): Promise<void> {
+    if (isInitialized.value && !options.force && !options.refresh) return
+
+    if (initializePromise.value && !options.force && !options.refresh) {
+      return initializePromise.value
+    }
+
+    initializePromise.value = (async () => {
+      try {
+        loading.value = true
+        lastError.value = null
+
+        if (options.hydrate !== false) {
+          hydrateFromLocalStorage()
+        }
+
+        await fetchIcons(options.force === true || options.refresh === true)
+
+        isInitialized.value = true
+      } catch (error) {
+        isInitialized.value = false
+        handleError(error, 'initializing smartbar store')
+        setLastError(error, 'Failed to initialize smartbar store')
+      } finally {
+        loading.value = false
+        initializePromise.value = null
+      }
+    })()
+
     return initializePromise.value
   }
 
-  initializePromise.value = (async () => {
-    try {
-      loading.value = true
-      lastError.value = null
-
-      if (options.hydrate !== false) {
-        hydrateFromLocalStorage()
-      }
-
-      await fetchIcons(options.force || options.refresh !== false)
-
-      isInitialized.value = true
-    } catch (error) {
-      isInitialized.value = false
-      handleError(error, 'initializing smartbar store')
-      setLastError(error, 'Failed to initialize smartbar store')
-    } finally {
-      loading.value = false
-      initializePromise.value = null
-    }
-  })()
-
-  return initializePromise.value
-}
-
   async function fetchIcons(force = false): Promise<SmartIcon[]> {
-  if (fetchIconsPromise.value && !force) {
+    if (fetchIconsPromise.value && !force) {
+      return fetchIconsPromise.value
+    }
+
+    if (!force && icons.value.length) {
+      return icons.value
+    }
+
+    fetchIconsPromise.value = (async () => {
+      try {
+        loading.value = true
+        lastError.value = null
+
+        const res = await performFetch<SmartIcon[]>('/api/icons')
+
+        if (!res.success || !res.data) {
+          throw new Error(res.message || 'Failed to fetch icons')
+        }
+
+        icons.value = res.data
+        syncToLocalStorage()
+
+        return icons.value
+      } catch (error) {
+        handleError(error, 'fetching icons')
+        setLastError(error, 'Failed to fetch icons')
+        return icons.value
+      } finally {
+        loading.value = false
+        fetchIconsPromise.value = null
+      }
+    })()
+
     return fetchIconsPromise.value
   }
-
-  if (!force && icons.value.length) {
-    return icons.value
-  }
-
-  fetchIconsPromise.value = (async () => {
-    try {
-      loading.value = true
-      lastError.value = null
-
-      const res = await performFetch<SmartIcon[]>('/api/icons')
-
-      if (!res.success || !res.data) {
-        throw new Error(res.message || 'Failed to fetch icons')
-      }
-
-      icons.value = res.data
-      syncToLocalStorage()
-
-      return icons.value
-    } catch (error) {
-      handleError(error, 'fetching icons')
-      setLastError(error, 'Failed to fetch icons')
-      return icons.value
-    } finally {
-      loading.value = false
-      fetchIconsPromise.value = null
-    }
-  })()
-
-  return fetchIconsPromise.value
-} 
 
   async function fetchIconById(id: number): Promise<SmartIcon | null> {
     const existing = icons.value.find((icon) => icon.id === id)

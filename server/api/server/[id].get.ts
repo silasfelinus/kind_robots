@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     id = Number(event.context.params?.id)
+
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400,
@@ -33,13 +34,25 @@ export default defineEventHandler(async (event) => {
         endpointPath: true,
         healthPath: true,
         userId: true,
+
+        accessMode: true,
+        requiresClientSideCheck: true,
+        isPrivateNetwork: true,
+        allowBrowserRequests: true,
+
         isPublic: true,
         isOfficial: true,
         isDefault: true,
         isActive: true,
         isEditable: true,
+
         requiresApiKey: true,
         apiKeyName: true,
+        apiKey: true,
+
+        useOidc: true,
+        oidcProvider: true,
+
         supportsTxt2Img: true,
         supportsImg2Img: true,
         supportsChat: true,
@@ -50,6 +63,7 @@ export default defineEventHandler(async (event) => {
         supportsSeed: true,
         supportsSteps: true,
         supportsVideo: true,
+
         apiLink: true,
         model: true,
         designer: true,
@@ -58,7 +72,6 @@ export default defineEventHandler(async (event) => {
         sortOrder: true,
         lastCheckedAt: true,
         lastStatus: true,
-        apiKey: true,
       },
     })
 
@@ -86,6 +99,7 @@ export default defineEventHandler(async (event) => {
     }
 
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'Server fetched successfully.',
@@ -94,8 +108,11 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
+
     console.error('[server.id.get] Error:', handled)
+
     event.node.res.statusCode = handled.statusCode || 500
+
     return {
       success: false,
       message: handled.message || `Failed to fetch Server with ID ${id}.`,

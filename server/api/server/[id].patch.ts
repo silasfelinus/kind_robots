@@ -5,12 +5,34 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type {
   Prisma,
+  ServerAccessMode,
   ServerStatus,
   ServerType,
 } from '~/prisma/generated/prisma/client'
 
+const serverTypes = [
+  'ART',
+  'TEXT',
+  'COMFY',
+  'A1111',
+  'OPENAI_COMPATIBLE',
+  'OTHER',
+] as const
+
+const serverStatuses = ['ONLINE', 'OFFLINE', 'DEGRADED', 'UNKNOWN'] as const
+
+const serverAccessModes = [
+  'LOCAL',
+  'TAILSCALE',
+  'PUBLIC_PROTECTED',
+  'PUBLIC_API_KEY',
+  'PUBLIC_OIDC',
+  'PUBLIC_UNPROTECTED',
+] as const
+
 function normalizeUrl(value?: string | null): string | undefined {
   if (typeof value !== 'string') return undefined
+
   try {
     const url = new URL(value.trim())
     return url.origin + url.pathname.replace(/\/+$/, '')
@@ -25,11 +47,23 @@ function normalizeUrl(value?: string | null): string | undefined {
 function normalizePath(value?: string | null): string | null | undefined {
   if (value === null) return null
   if (typeof value !== 'string') return undefined
+
   const trimmed = value.trim()
+
   if (!trimmed) return null
+
   return trimmed.startsWith('/')
     ? trimmed.replace(/\/+$/, '')
     : `/${trimmed.replace(/\/+$/, '')}`
+}
+
+function normalizeOptionalString(value: unknown): string | null | undefined {
+  if (value === null) return null
+  if (typeof value !== 'string') return undefined
+
+  const trimmed = value.trim()
+
+  return trimmed || null
 }
 
 function validateEnumValue<T extends string>(
@@ -38,13 +72,130 @@ function validateEnumValue<T extends string>(
   label: string,
 ): T | undefined {
   if (!value) return undefined
+
   if (!allowed.includes(value as T)) {
     throw createError({
       statusCode: 400,
       message: `Invalid ${label}: "${value}".`,
     })
   }
+
   return value as T
+}
+
+function resolveAccessDefaults(
+  accessMode: ServerAccessMode,
+  body: Record<string, unknown>,
+) {
+  if (accessMode === 'TAILSCALE') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: true,
+      requiresClientSideCheck: true,
+      allowBrowserRequests: true,
+      useOidc: false,
+      requiresApiKey: false,
+      oidcProvider: null,
+    }
+  }
+
+  if (accessMode === 'LOCAL') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: true,
+      requiresClientSideCheck: true,
+      allowBrowserRequests: true,
+      useOidc: false,
+      requiresApiKey: false,
+      oidcProvider: null,
+    }
+  }
+
+  if (accessMode === 'PUBLIC_API_KEY') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: false,
+      requiresClientSideCheck: false,
+      allowBrowserRequests:
+        typeof body.allowBrowserRequests === 'boolean'
+          ? body.allowBrowserRequests
+          : false,
+      useOidc: false,
+      requiresApiKey: true,
+      oidcProvider: null,
+    }
+  }
+
+  if (accessMode === 'PUBLIC_OIDC') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: false,
+      requiresClientSideCheck: false,
+      allowBrowserRequests:
+        typeof body.allowBrowserRequests === 'boolean'
+          ? body.allowBrowserRequests
+          : false,
+      useOidc: true,
+      requiresApiKey:
+        typeof body.requiresApiKey === 'boolean' ? body.requiresApiKey : false,
+      oidcProvider: normalizeOptionalString(body.oidcProvider) || 'authelia',
+    }
+  }
+
+  if (accessMode === 'PUBLIC_PROTECTED') {
+    return {
+      isPublic: false,
+      isPrivateNetwork: false,
+      requiresClientSideCheck: false,
+      allowBrowserRequests:
+        typeof body.allowBrowserRequests === 'boolean'
+          ? body.allowBrowserRequests
+          : true,
+      useOidc: typeof body.useOidc === 'boolean' ? body.useOidc : false,
+      requiresApiKey:
+        typeof body.requiresApiKey === 'boolean' ? body.requiresApiKey : false,
+      oidcProvider: normalizeOptionalString(body.oidcProvider),
+    }
+  }
+
+  return {
+    isPublic: false,
+    isPrivateNetwork: false,
+    requiresClientSideCheck: false,
+    allowBrowserRequests:
+      typeof body.allowBrowserRequests === 'boolean'
+        ? body.allowBrowserRequests
+        : true,
+    useOidc: typeof body.useOidc === 'boolean' ? body.useOidc : false,
+    requiresApiKey:
+      typeof body.requiresApiKey === 'boolean' ? body.requiresApiKey : false,
+    oidcProvider: normalizeOptionalString(body.oidcProvider),
+  }
+}
+
+function validateUnsafePublicServer(entry: {
+  accessMode: ServerAccessMode
+  serverType: ServerType
+  isPublic: boolean
+  isPrivateNetwork: boolean
+}) {
+  if (
+    entry.accessMode !== 'PUBLIC_UNPROTECTED' ||
+    !entry.isPublic ||
+    entry.isPrivateNetwork
+  ) {
+    return
+  }
+
+  const riskyServerTypes: ServerType[] = ['COMFY', 'A1111', 'ART']
+
+  if (riskyServerTypes.includes(entry.serverType)) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'Public unprotected image servers are not allowed. Use Tailscale, a protected public URL, an API key, or OIDC.',
+    })
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -52,6 +203,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     id = Number(event.context.params?.id)
+
     if (isNaN(id) || id <= 0) {
       throw createError({
         statusCode: 400,
@@ -60,6 +212,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -79,6 +232,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isAdmin = user.Role === 'ADMIN'
+
     if (existingServer.userId !== user.id && !isAdmin) {
       throw createError({
         statusCode: 403,
@@ -87,6 +241,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<Record<string, unknown>>(event)
+
     if (!body || Object.keys(body).length === 0) {
       throw createError({
         statusCode: 400,
@@ -94,33 +249,27 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const serverTypes = [
-      'ART',
-      'TEXT',
-      'COMFY',
-      'A1111',
-      'OPENAI_COMPATIBLE',
-      'OTHER',
-    ] as const
-
-    const serverStatuses = ['ONLINE', 'OFFLINE', 'DEGRADED', 'UNKNOWN'] as const
-
     const data: Prisma.ServerUpdateInput = {}
 
     if (typeof body.title === 'string') data.title = body.title.trim()
-    if (typeof body.label === 'string' || body.label === null)
-      data.label = body.label as string | null
-    if (typeof body.description === 'string' || body.description === null)
-      data.description = body.description as string | null
-    if (typeof body.category === 'string' || body.category === null)
-      data.category = body.category as string | null
+    if (body.label !== undefined)
+      data.label = normalizeOptionalString(body.label)
+    if (body.description !== undefined)
+      data.description = normalizeOptionalString(body.description)
+    if (body.category !== undefined)
+      data.category = normalizeOptionalString(body.category)
 
-    if (typeof body.baseUrl === 'string')
+    if (typeof body.baseUrl === 'string') {
       data.baseUrl = normalizeUrl(body.baseUrl)
-    if (body.endpointPath !== undefined)
+    }
+
+    if (body.endpointPath !== undefined) {
       data.endpointPath = normalizePath(body.endpointPath as string | null)
-    if (body.healthPath !== undefined)
+    }
+
+    if (body.healthPath !== undefined) {
       data.healthPath = normalizePath(body.healthPath as string | null)
+    }
 
     if (body.serverType !== undefined) {
       data.serverType = validateEnumValue(
@@ -128,6 +277,54 @@ export default defineEventHandler(async (event) => {
         serverTypes,
         'serverType',
       ) as ServerType
+    }
+
+    if (body.accessMode !== undefined) {
+      const accessMode = validateEnumValue(
+        body.accessMode as string,
+        serverAccessModes,
+        'accessMode',
+      ) as ServerAccessMode
+
+      const accessDefaults = resolveAccessDefaults(accessMode, body)
+
+      data.accessMode = accessMode
+      data.isPrivateNetwork = accessDefaults.isPrivateNetwork
+      data.requiresClientSideCheck = accessDefaults.requiresClientSideCheck
+      data.allowBrowserRequests = accessDefaults.allowBrowserRequests
+      data.useOidc = accessDefaults.useOidc
+      data.requiresApiKey = accessDefaults.requiresApiKey
+      data.oidcProvider = accessDefaults.oidcProvider
+
+      if (isAdmin) {
+        data.isPublic = accessDefaults.isPublic
+      } else {
+        data.isPublic = false
+      }
+    } else {
+      if (typeof body.requiresClientSideCheck === 'boolean') {
+        data.requiresClientSideCheck = body.requiresClientSideCheck
+      }
+
+      if (typeof body.isPrivateNetwork === 'boolean') {
+        data.isPrivateNetwork = body.isPrivateNetwork
+      }
+
+      if (typeof body.allowBrowserRequests === 'boolean') {
+        data.allowBrowserRequests = body.allowBrowserRequests
+      }
+
+      if (typeof body.useOidc === 'boolean') {
+        data.useOidc = body.useOidc
+      }
+
+      if (body.oidcProvider !== undefined) {
+        data.oidcProvider = normalizeOptionalString(body.oidcProvider)
+      }
+
+      if (typeof body.requiresApiKey === 'boolean') {
+        data.requiresApiKey = body.requiresApiKey
+      }
     }
 
     if (body.lastStatus !== undefined) {
@@ -139,37 +336,74 @@ export default defineEventHandler(async (event) => {
     }
 
     if (typeof body.isActive === 'boolean') data.isActive = body.isActive
-    if (typeof body.requiresApiKey === 'boolean')
-      data.requiresApiKey = body.requiresApiKey
-    if (typeof body.apiKeyName === 'string' || body.apiKeyName === null)
-      data.apiKeyName = body.apiKeyName as string | null
+    if (body.apiKeyName !== undefined) {
+      data.apiKeyName = normalizeOptionalString(body.apiKeyName)
+    }
 
-    if (typeof body.supportsTxt2Img === 'boolean')
+    if (typeof body.supportsTxt2Img === 'boolean') {
       data.supportsTxt2Img = body.supportsTxt2Img
-    if (typeof body.supportsImg2Img === 'boolean')
-      data.supportsImg2Img = body.supportsImg2Img
-    if (typeof body.supportsChat === 'boolean')
-      data.supportsChat = body.supportsChat
-    if (typeof body.supportsComfyWorkflow === 'boolean')
-      data.supportsComfyWorkflow = body.supportsComfyWorkflow
-    if (typeof body.supportsCheckpointOverride === 'boolean')
-      data.supportsCheckpointOverride = body.supportsCheckpointOverride
-    if (typeof body.supportsSampler === 'boolean')
-      data.supportsSampler = body.supportsSampler
-    if (typeof body.supportsNegativePrompt === 'boolean')
-      data.supportsNegativePrompt = body.supportsNegativePrompt
-    if (typeof body.supportsSeed === 'boolean')
-      data.supportsSeed = body.supportsSeed
-    if (typeof body.supportsSteps === 'boolean')
-      data.supportsSteps = body.supportsSteps
+    }
 
-    if (typeof body.designer === 'string' || body.designer === null)
-      data.designer = body.designer as string | null
-    if (typeof body.version === 'string' || body.version === null)
-      data.version = body.version as string | null
-    if (typeof body.notes === 'string' || body.notes === null)
-      data.notes = body.notes as string | null
-    if (typeof body.sortOrder === 'number') data.sortOrder = body.sortOrder
+    if (typeof body.supportsImg2Img === 'boolean') {
+      data.supportsImg2Img = body.supportsImg2Img
+    }
+
+    if (typeof body.supportsChat === 'boolean') {
+      data.supportsChat = body.supportsChat
+    }
+
+    if (typeof body.supportsComfyWorkflow === 'boolean') {
+      data.supportsComfyWorkflow = body.supportsComfyWorkflow
+    }
+
+    if (typeof body.supportsCheckpointOverride === 'boolean') {
+      data.supportsCheckpointOverride = body.supportsCheckpointOverride
+    }
+
+    if (typeof body.supportsSampler === 'boolean') {
+      data.supportsSampler = body.supportsSampler
+    }
+
+    if (typeof body.supportsNegativePrompt === 'boolean') {
+      data.supportsNegativePrompt = body.supportsNegativePrompt
+    }
+
+    if (typeof body.supportsSeed === 'boolean') {
+      data.supportsSeed = body.supportsSeed
+    }
+
+    if (typeof body.supportsSteps === 'boolean') {
+      data.supportsSteps = body.supportsSteps
+    }
+
+    if (typeof body.supportsVideo === 'boolean') {
+      data.supportsVideo = body.supportsVideo
+    }
+
+    if (body.apiLink !== undefined) {
+      data.apiLink = normalizeOptionalString(body.apiLink)
+    }
+
+    if (body.model !== undefined) {
+      data.model = normalizeOptionalString(body.model)
+    }
+
+    if (body.designer !== undefined) {
+      data.designer = normalizeOptionalString(body.designer)
+    }
+
+    if (body.version !== undefined) {
+      data.version = normalizeOptionalString(body.version)
+    }
+
+    if (body.notes !== undefined) {
+      data.notes = normalizeOptionalString(body.notes)
+    }
+
+    if (typeof body.sortOrder === 'number') {
+      data.sortOrder = body.sortOrder
+    }
+
     if (
       body.lastCheckedAt instanceof Date ||
       typeof body.lastCheckedAt === 'string' ||
@@ -187,6 +421,30 @@ export default defineEventHandler(async (event) => {
       if (typeof body.isDefault === 'boolean') data.isDefault = body.isDefault
     }
 
+    const nextAccessMode =
+      (data.accessMode as ServerAccessMode | undefined) ||
+      existingServer.accessMode
+
+    const nextServerType =
+      (data.serverType as ServerType | undefined) || existingServer.serverType
+
+    const nextIsPublic =
+      typeof data.isPublic === 'boolean'
+        ? data.isPublic
+        : existingServer.isPublic
+
+    const nextIsPrivateNetwork =
+      typeof data.isPrivateNetwork === 'boolean'
+        ? data.isPrivateNetwork
+        : existingServer.isPrivateNetwork
+
+    validateUnsafePublicServer({
+      accessMode: nextAccessMode,
+      serverType: nextServerType,
+      isPublic: nextIsPublic,
+      isPrivateNetwork: nextIsPrivateNetwork,
+    })
+
     if ('title' in data && (!data.title || !String(data.title).trim())) {
       throw createError({
         statusCode: 400,
@@ -200,6 +458,7 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'Server updated successfully.',
@@ -208,7 +467,9 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handledError = errorHandler(error)
+
     event.node.res.statusCode = handledError.statusCode || 500
+
     return {
       success: false,
       message: handledError.message || `Failed to update Server with ID ${id}.`,

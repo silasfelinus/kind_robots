@@ -1300,8 +1300,8 @@ export const useServerStore = defineStore('serverStore', () => {
       sortOrder: 0,
       lastStatus: 'UNKNOWN',
       accessMode: 'LOCAL',
-      requiresClientSideCheck: false,
-      isPrivateNetwork: false,
+      requiresClientSideCheck: true,
+      isPrivateNetwork: true,
       allowBrowserRequests: true,
       useOidc: false,
     }
@@ -1321,17 +1321,66 @@ export const useServerStore = defineStore('serverStore', () => {
       return { success: false, message }
     }
 
+    const payload: Partial<Server> = {
+      title: serverForm.value.title,
+      label: serverForm.value.label,
+      description: serverForm.value.description,
+      category: serverForm.value.category,
+      serverType: serverForm.value.serverType,
+      baseUrl: serverForm.value.baseUrl,
+      endpointPath: serverForm.value.endpointPath,
+      healthPath: serverForm.value.healthPath,
+
+      accessMode: serverForm.value.accessMode,
+      requiresClientSideCheck: serverForm.value.requiresClientSideCheck,
+      isPrivateNetwork: serverForm.value.isPrivateNetwork,
+      allowBrowserRequests: serverForm.value.allowBrowserRequests,
+
+      isPublic: serverForm.value.isPublic,
+      isOfficial: serverForm.value.isOfficial,
+      isDefault: serverForm.value.isDefault,
+      isActive: serverForm.value.isActive,
+      isEditable: serverForm.value.isEditable,
+
+      requiresApiKey: serverForm.value.requiresApiKey,
+      apiKeyName: serverForm.value.apiKeyName,
+
+      useOidc: serverForm.value.useOidc,
+      oidcProvider: serverForm.value.oidcProvider,
+
+      supportsTxt2Img: serverForm.value.supportsTxt2Img,
+      supportsImg2Img: serverForm.value.supportsImg2Img,
+      supportsChat: serverForm.value.supportsChat,
+      supportsComfyWorkflow: serverForm.value.supportsComfyWorkflow,
+      supportsCheckpointOverride: serverForm.value.supportsCheckpointOverride,
+      supportsSampler: serverForm.value.supportsSampler,
+      supportsNegativePrompt: serverForm.value.supportsNegativePrompt,
+      supportsSeed: serverForm.value.supportsSeed,
+      supportsSteps: serverForm.value.supportsSteps,
+      supportsVideo: serverForm.value.supportsVideo,
+
+      apiLink: serverForm.value.apiLink,
+      model: serverForm.value.model,
+      designer: serverForm.value.designer,
+      version: serverForm.value.version,
+      notes: serverForm.value.notes,
+      sortOrder: serverForm.value.sortOrder,
+      lastCheckedAt: serverForm.value.lastCheckedAt,
+      lastStatus: serverForm.value.lastStatus,
+    }
+
     isSaving.value = true
 
     try {
       if (typeof serverForm.value.id === 'number') {
-        return await updateServer(serverForm.value.id, serverForm.value)
+        return await updateServer(serverForm.value.id, payload)
       }
 
-      return await addServer(serverForm.value)
+      return await addServer(payload)
     } catch (error) {
       handleError(error, 'saving server')
-      const message = (error as Error).message || 'Failed to save server.'
+      const message =
+        error instanceof Error ? error.message : 'Failed to save server.'
       setStoreError(ErrorType.STORE_ERROR, message, 'saveServer')
       return { success: false, message }
     } finally {
@@ -1720,8 +1769,8 @@ export const useServerStore = defineStore('serverStore', () => {
       isEditable: true,
 
       accessMode: 'LOCAL',
-      requiresClientSideCheck: false,
-      isPrivateNetwork: false,
+      requiresClientSideCheck: true,
+      isPrivateNetwork: true,
       allowBrowserRequests: true,
 
       requiresApiKey: false,

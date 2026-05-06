@@ -134,6 +134,10 @@ const componentsMap: ComponentMapType = {
   'kaleidoscope-effect': resolveComponent('LazyKaleidoscopeEffect'),
   'smudge-effect': resolveComponent('LazySmudgeEffect'),
   'pixel-explosion': resolveComponent('LazyPixelExplosion'),
+  'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
+  'pacbot-effect': resolveComponent('LazyPacbotEffect'),
+  'pocket-gremlin': resolveComponent('LazyPocketGremlin'),
+  'siege-engine': resolveComponent('LazySiegeEngine'),
 }
 
 // ─── Effect definitions ───────────────────────────────────────────────────────
@@ -372,6 +376,43 @@ const effects = ref<Effect[]>([
     color: '#db2777',
     isActive: false,
     blocksInput: true,
+  },
+  {
+    id: 'ascii-aquarium',
+    label: 'Aquarium',
+    reveal: 'Glub glub',
+    icon: 'kind-icon:fish',
+    tooltip: 'Click to feed · Move cursor to spook 🐠',
+    color: '#06b6d4',
+    isActive: false,
+  },
+  {
+    id: 'pacbot-effect',
+    label: 'Pac-Bot',
+    reveal: 'Nom nom nom',
+    icon: 'kind-icon:robot',
+    tooltip:
+      'Move to leave crumbs · Click for power · Dbl-click for crumb storm 🤖',
+    color: '#eab308',
+    isActive: false,
+  },
+  {
+    id: 'pocket-gremlin',
+    label: 'Gremlin',
+    reveal: 'beep?',
+    icon: 'kind-icon:ghost',
+    tooltip: 'Click it to pet it · Ignore it at your peril 👾',
+    color: '#a78bfa',
+    isActive: false,
+  },
+  {
+    id: 'siege-engine',
+    label: 'Siege Engine',
+    reveal: 'FIRE!!!',
+    icon: 'kind-icon:flame',
+    tooltip: 'Hold to charge · Release to launch 🪨',
+    color: '#b45309',
+    isActive: false,
   },
 ])
 

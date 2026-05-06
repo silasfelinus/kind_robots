@@ -3,12 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-export type AnimationLayerZone =
-  | 'header'
-  | 'left'
-  | 'center'
-  | 'right'
-  | 'footer'
+export type AnimationLayerZone = 'header' | 'left' | 'right' | 'footer'
 
 export type AnimationEffectId =
   | 'aurora-effect'
@@ -21,12 +16,25 @@ export type AnimationEffectId =
   | 'rain-effect'
   | 'snow-effect'
   | 'fizzy-bubbles'
+  | 'ripple-effect'
+  | 'floating-hearts'
   | 'plasma-effect'
   | 'pixel-rain'
   | 'matrix-rain'
   | 'glitch-effect'
   | 'kaleidoscope-effect'
   | 'toaster-effect'
+  | 'fireworks-effect'
+  | 'lightning-effect'
+  | 'fire-effect'
+  | 'nyan-trail'
+  | 'pixel-explosion'
+  | 'wandering-creatures'
+  | 'smudge-effect'
+  | 'ascii-aquarium'
+  | 'pacbot-effect'
+  | 'pocket-gremlin'
+  | 'siege-engine'
 
 export interface AnimationEffect {
   id: AnimationEffectId
@@ -50,15 +58,16 @@ interface AnimationStoreState {
   startedAt: number | null
 }
 
+// All false = layer is contained to main content only
 const defaultZones: Record<AnimationLayerZone, boolean> = {
   header: false,
   left: false,
-  center: true,
   right: false,
   footer: false,
 }
 
 const generationEffects: AnimationEffect[] = [
+  // ── Atmospheric ──────────────────────────────────────────────────────────
   {
     id: 'aurora-effect',
     label: 'Aurora',
@@ -89,6 +98,7 @@ const generationEffects: AnimationEffect[] = [
     icon: 'kind-icon:orbit',
     generationSafe: true,
   },
+  // ── Nature ───────────────────────────────────────────────────────────────
   {
     id: 'butterfly-animation',
     label: 'Butterfly Scouts',
@@ -114,9 +124,53 @@ const generationEffects: AnimationEffect[] = [
     generationSafe: true,
   },
   {
+    id: 'floating-hearts',
+    label: 'Love Bomb',
+    icon: 'kind-icon:heart',
+    generationSafe: true,
+  },
+  {
     id: 'fizzy-bubbles',
     label: 'Fizzy Lifting',
     icon: 'kind-icon:soda',
+    generationSafe: true,
+  },
+  {
+    id: 'ripple-effect',
+    label: 'Ripple',
+    icon: 'kind-icon:raindrop',
+    generationSafe: true,
+  },
+  // ── Energy ───────────────────────────────────────────────────────────────
+  {
+    id: 'fireworks-effect',
+    label: 'Fireworks',
+    icon: 'kind-icon:sparkle',
+    generationSafe: true,
+  },
+  {
+    id: 'lightning-effect',
+    label: 'Storm Caller',
+    icon: 'kind-icon:lightning',
+    generationSafe: true,
+  },
+  {
+    id: 'fire-effect',
+    label: 'Wildfire',
+    icon: 'kind-icon:flame',
+    generationSafe: true,
+  },
+  {
+    id: 'glitch-effect',
+    label: 'Glitch',
+    icon: 'kind-icon:lightning',
+    generationSafe: true,
+  },
+  // ── Creative ─────────────────────────────────────────────────────────────
+  {
+    id: 'kaleidoscope-effect',
+    label: 'Kaleidoscope',
+    icon: 'kind-icon:gem',
     generationSafe: true,
   },
   {
@@ -126,9 +180,9 @@ const generationEffects: AnimationEffect[] = [
     generationSafe: true,
   },
   {
-    id: 'pixel-rain',
-    label: 'Pixel Rain',
-    icon: 'kind-icon:pixel',
+    id: 'nyan-trail',
+    label: 'Nyan Trail',
+    icon: 'kind-icon:rainbow',
     generationSafe: true,
   },
   {
@@ -138,15 +192,22 @@ const generationEffects: AnimationEffect[] = [
     generationSafe: true,
   },
   {
-    id: 'glitch-effect',
-    label: 'Glitch',
-    icon: 'kind-icon:lightning',
+    id: 'pixel-rain',
+    label: 'Pixel Rain',
+    icon: 'kind-icon:pixel',
     generationSafe: true,
   },
   {
-    id: 'kaleidoscope-effect',
-    label: 'Kaleidoscope',
-    icon: 'kind-icon:gem',
+    id: 'pixel-explosion',
+    label: 'Pixel Smash',
+    icon: 'kind-icon:pixel',
+    generationSafe: true,
+  },
+  // ── Fun ──────────────────────────────────────────────────────────────────
+  {
+    id: 'wandering-creatures',
+    label: 'Creatures',
+    icon: 'kind-icon:butterfly',
     generationSafe: true,
   },
   {
@@ -155,12 +216,41 @@ const generationEffects: AnimationEffect[] = [
     icon: 'kind-icon:toast',
     generationSafe: true,
   },
+  // ── Interactive ───────────────────────────────────────────────────────────
+  {
+    id: 'smudge-effect',
+    label: 'Smudge',
+    icon: 'kind-icon:brush',
+    generationSafe: false,
+  },
+  {
+    id: 'ascii-aquarium',
+    label: 'Aquarium',
+    icon: 'kind-icon:fish',
+    generationSafe: false,
+  },
+  {
+    id: 'pacbot-effect',
+    label: 'Pac-Bot',
+    icon: 'kind-icon:robot',
+    generationSafe: false,
+  },
+  {
+    id: 'pocket-gremlin',
+    label: 'Gremlin',
+    icon: 'kind-icon:ghost',
+    generationSafe: false,
+  },
+  {
+    id: 'siege-engine',
+    label: 'Siege Engine',
+    icon: 'kind-icon:flame',
+    generationSafe: false,
+  },
 ]
 
 function pickRandomEffect(): AnimationEffectId {
-  const safeEffects = generationEffects.filter(
-    (effect) => effect.generationSafe,
-  )
+  const safeEffects = generationEffects.filter((e) => e.generationSafe)
   const index = Math.floor(Math.random() * safeEffects.length)
   return safeEffects[index]?.id || 'starfield-effect'
 }
@@ -188,30 +278,24 @@ export const useAnimationStore = defineStore('animationStore', () => {
 
   const effects = computed(() => generationEffects)
 
-  const activeEffect = computed(() => {
-    return (
-      effects.value.find((effect) => effect.id === state.activeEffectId) || null
-    )
-  })
+  const activeEffect = computed(
+    () => effects.value.find((e) => e.id === state.activeEffectId) || null,
+  )
 
   const layerStyle = computed(() => {
     const showLeft = getBoolean(display.showLeft, false)
     const showRight = getBoolean(display.showRight, false)
-
     const headerHeight = getNumber(
       display.headerHeight,
       getNumber(display.headerHeightPx, 0),
     )
-
     const footerHeight = getNumber(
       display.footerHeight,
       getNumber(display.footerHeightPx, 0),
     )
-
     const leftWidth = showLeft
       ? getNumber(display.leftWidth, getNumber(display.leftWidthPx, 0))
       : 0
-
     const rightWidth = showRight
       ? getNumber(display.rightWidth, getNumber(display.rightWidthPx, 0))
       : 0
@@ -223,10 +307,12 @@ export const useAnimationStore = defineStore('animationStore', () => {
       bottom: state.zones.footer
         ? '0px'
         : `var(--app-footer-height, ${footerHeight}px)`,
-      left: state.zones.left ? '0px' : `var(--app-left-width, ${leftWidth}px)`,
+      left: state.zones.left
+        ? '0px'
+        : `var(--app-left-width,   ${leftWidth}px)`,
       right: state.zones.right
         ? '0px'
-        : `var(--app-right-width, ${rightWidth}px)`,
+        : `var(--app-right-width,  ${rightWidth}px)`,
     }
   })
 
@@ -238,39 +324,20 @@ export const useAnimationStore = defineStore('animationStore', () => {
 
   function start(options: AnimationLayerOptions = {}): void {
     clearStopTimer()
-
     state.activeEffectId = options.effectId || pickRandomEffect()
     state.message =
       options.message || activeEffect.value?.label || 'Generating...'
-    state.zones = {
-      ...defaultZones,
-      ...options.zones,
-      center: options.zones?.center ?? true,
-    }
+    state.zones = { ...defaultZones, ...options.zones }
     state.startedAt = Date.now()
     state.isActive = true
 
     if (typeof options.durationMs === 'number' && options.durationMs > 0) {
-      stopTimer.value = setTimeout(() => {
-        stop()
-      }, options.durationMs)
+      stopTimer.value = setTimeout(() => stop(), options.durationMs)
     }
   }
 
   function startGeneration(options: AnimationLayerOptions = {}): void {
-    start({
-      message: 'Generating art...',
-      durationMs: null,
-      zones: {
-        header: false,
-        left: false,
-        center: true,
-        right: false,
-        footer: false,
-        ...options.zones,
-      },
-      ...options,
-    })
+    start({ message: 'Generating art...', durationMs: null, ...options })
   }
 
   function stop(): void {
@@ -282,10 +349,15 @@ export const useAnimationStore = defineStore('animationStore', () => {
   }
 
   function setZones(zones: Partial<Record<AnimationLayerZone, boolean>>): void {
-    state.zones = {
-      ...state.zones,
-      ...zones,
-    }
+    state.zones = { ...state.zones, ...zones }
+  }
+
+  function toggleZone(zone: AnimationLayerZone): void {
+    state.zones[zone] = !state.zones[zone]
+  }
+
+  function resetZones(): void {
+    state.zones = { ...defaultZones }
   }
 
   return {
@@ -297,5 +369,7 @@ export const useAnimationStore = defineStore('animationStore', () => {
     startGeneration,
     stop,
     setZones,
+    toggleZone,
+    resetZones,
   }
 })

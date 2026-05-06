@@ -641,10 +641,58 @@ async function copyUrl() {
   } catch {}
 }
 
+function cleanText(value: unknown) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function buildFallbackTitle() {
+  const label = cleanText(serverStore.serverForm.label)
+  const title = cleanText(serverStore.serverForm.title)
+  const baseUrl = cleanText(serverStore.serverForm.baseUrl)
+  const serverType = cleanText(serverStore.serverForm.serverType) || 'Server'
+
+  if (title) return title
+  if (label) return label
+
+  if (baseUrl) {
+    try {
+      const url = new URL(baseUrl)
+      return `${serverType} ${url.hostname}`
+    } catch {
+      return `${serverType} Server`
+    }
+  }
+
+  return `${serverType} Server`
+}
+
+function normalizeServerFormForSave() {
+  const title = buildFallbackTitle()
+  const label = cleanText(serverStore.serverForm.label) || title
+  const category =
+    cleanText(serverStore.serverForm.category) ||
+    (serverStore.serverForm.supportsChat ? 'text' : 'image')
+
+  serverStore.serverForm = {
+    ...serverStore.serverForm,
+    title,
+    label,
+    category,
+    baseUrl: cleanText(serverStore.serverForm.baseUrl),
+    endpointPath: cleanText(serverStore.serverForm.endpointPath) || '/',
+    healthPath: cleanText(serverStore.serverForm.healthPath) || '/',
+    apiKey: undefined,
+    apiKeyName: apiKeyName.value || serverStore.serverForm.apiKeyName || null,
+  }
+}
+
 async function ensurePrivateServer(): Promise<number | null> {
   if (!userStore.isLoggedIn) return null
-  if (serverStore.serverForm.id && !isCloning.value)
+  if (serverStore.serverForm.id && !isCloning.value) {
     return serverStore.serverForm.id
+  }
+
+  normalizeServerFormForSave()
 
   serverStore.serverForm = {
     ...serverStore.serverForm,
@@ -658,9 +706,13 @@ async function ensurePrivateServer(): Promise<number | null> {
     apiKeyName:
       apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   }
+
   const result = await serverStore.saveServer()
+
   if (!result.success || !result.data) return null
+
   serverStore.selectServer(result.data.id)
+
   return result.data.id
 }
 
@@ -688,14 +740,11 @@ async function clearKey() {
 
 async function handleSave() {
   applyAccessModePreset()
-
-  serverStore.serverForm = {
-    ...serverStore.serverForm,
-    apiKey: undefined,
-    apiKeyName: apiKeyName.value || serverStore.serverForm.apiKeyName || null,
-  }
+  applyServerTypePreset()
+  normalizeServerFormForSave()
 
   const result = await serverStore.saveServer()
+
   if (!result.success || !result.data) return
 
   if (apiKey.value.trim()) {
@@ -706,6 +755,7 @@ async function handleSave() {
     })
   }
 
+  apiKey.value = ''
   emit('saved')
 }
 

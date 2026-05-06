@@ -78,3 +78,10 @@ bot interact works and remembers history
 removed error messages from art manager!!!!
 cleared butterfly lag on load
 bug fixed full paththrough from footer select options
+
+5/6/2026
+Added 20+ new screen effects in wonderlab
+added a few more chat interactions: rewards, character, story, still troubleshooting
+added a wealth of new icons for the screen effects
+troubleshooted server galleries, refactored art-servers and text-servers to server-gallery
+still seeking a working handshake from vercel to a password or tailscale guarded art modeller

@@ -38,8 +38,8 @@ type PetMood =
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SIZE = 96 // canvas px
-const MARGIN = 20 // from screen edge
+const SIZE = 96
+const MARGIN = 20
 const PAD_X = MARGIN + SIZE / 2
 const PAD_Y = MARGIN + SIZE / 2
 
@@ -128,35 +128,46 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const dist = (ax: number, ay: number, bx: number, by: number) =>
   Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Reactive State ───────────────────────────────────────────────────────────
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const mood = ref<PetMood>('idle')
 const speech = ref<string | null>(null)
 
+// ── FIXED: petX/petY must be refs so stageStyle computed updates ──────────────
+const petX = ref(0)
+const petY = ref(0)
+
+// ─── Computed ─────────────────────────────────────────────────────────────────
+
+const stageStyle = computed(() => ({
+  transform: `translate(${petX.value - SIZE / 2}px, ${petY.value - SIZE / 2}px)`,
+}))
+
+const bubbleClass = computed(() => {
+  const belowMid = petY.value > window.innerHeight * 0.6
+  return belowMid ? 'bubble-above' : 'bubble-below'
+})
+
+// ─── Animation State (non-reactive, mutated in RAF loop) ──────────────────────
+
 let rafId: number | null = null
-
-// Position in screen space (center of canvas)
-let petX = 0
-let petY = 0
-
-// Animation state
 let frame = 0
 let blinkTimer = 0
 let isBlinking = false
 let bouncePhase = 0
 let wigglePhase = 0
-let lookX = 0 // eye target offset -1..1
+let lookX = 0
 let lookY = 0
 let energy = 1.0
 let affection = 0.5
-let lastActivity = 0 // frame of last interaction
+let lastActivity = 0
 let moodUntil = 0
 let speechUntil = 0
 let wanderTimer = 0
 let wanderTargetX = 0
 let wanderTargetY = 0
-let petScreenX = 0 // screen position of canvas center
+let petScreenX = 0
 let petScreenY = 0
 let mouseX = -999
 let mouseY = -999
@@ -164,19 +175,12 @@ let mouseSpeed = 0
 let lastMouseX = -999
 let lastMouseY = -999
 
-// ── Position style ────────────────────────────────────────────────────────────
+// ─── Internal position mirrors (raw numbers for perf) ────────────────────────
+// We lerp into these then write to refs once per frame
+let _petX = 0
+let _petY = 0
 
-const stageStyle = computed(() => ({
-  transform: `translate(${petX - SIZE / 2}px, ${petY - SIZE / 2}px)`,
-}))
-
-const bubbleClass = computed(() => {
-  // Place bubble above or below based on vertical position
-  const belowMid = petY > window.innerHeight * 0.6
-  return belowMid ? 'bubble-above' : 'bubble-below'
-})
-
-// ── Mood control ──────────────────────────────────────────────────────────────
+// ─── Mood / Speech helpers ────────────────────────────────────────────────────
 
 const setMood = (m: PetMood, duration = 180) => {
   mood.value = m
@@ -189,7 +193,7 @@ const say = (line?: string) => {
   speechUntil = frame + 180 + speech.value.length * 4
 }
 
-// ── Draw helpers ──────────────────────────────────────────────────────────────
+// ─── Draw ─────────────────────────────────────────────────────────────────────
 
 const drawGremlin = (ctx: CanvasRenderingContext2D) => {
   const cx = SIZE / 2
@@ -206,7 +210,6 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
     chaos: 290,
   }[m]
 
-  // Bounce offset
   const bounce =
     Math.sin(bouncePhase) * (m === 'chaos' ? 8 : m === 'happy' ? 5 : 2)
   const wiggle = Math.sin(wigglePhase) * (m === 'chaos' ? 6 : 1.5)
@@ -216,15 +219,13 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
   ctx.translate(cx + wiggle, cy + bounce)
   ctx.scale(scale, scale)
 
-  // ── Shadow ─────────────────────────────────────────────────────────────────
-
+  // Shadow
   ctx.beginPath()
   ctx.ellipse(0, 30, 18 * scale, 5, 0, 0, Math.PI * 2)
   ctx.fillStyle = 'rgba(0,0,0,0.18)'
   ctx.fill()
 
-  // ── Body ───────────────────────────────────────────────────────────────────
-
+  // Body
   const bodyGrad = ctx.createRadialGradient(-6, -8, 2, 0, 0, 24)
   bodyGrad.addColorStop(0, `hsl(${hue},80%,72%)`)
   bodyGrad.addColorStop(1, `hsl(${hue},70%,50%)`)
@@ -233,17 +234,14 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
   ctx.fillStyle = bodyGrad
   ctx.fill()
 
-  // Body panel line
   ctx.strokeStyle = `hsla(${hue},50%,40%,0.3)`
   ctx.lineWidth = 1
   ctx.beginPath()
   ctx.arc(0, 4, 10, Math.PI * 0.3, Math.PI * 0.9)
   ctx.stroke()
 
-  // ── Ears / antennae ────────────────────────────────────────────────────────
-
+  // Ears
   const earWiggle = Math.sin(bouncePhase * 1.3) * (m === 'startled' ? 12 : 3)
-  // Left ear
   ctx.strokeStyle = `hsl(${hue},65%,55%)`
   ctx.lineWidth = 2.5
   ctx.lineCap = 'round'
@@ -251,13 +249,10 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
   ctx.moveTo(-12, -18)
   ctx.quadraticCurveTo(-22 + earWiggle, -32, -18 + earWiggle, -38)
   ctx.stroke()
-  // Right ear
   ctx.beginPath()
   ctx.moveTo(12, -18)
   ctx.quadraticCurveTo(22 - earWiggle, -32, 18 - earWiggle, -38)
   ctx.stroke()
-
-  // Ear tips
   ctx.fillStyle = `hsl(${hue},80%,70%)`
   ctx.beginPath()
   ctx.arc(-18 + earWiggle, -38, 3.5, 0, Math.PI * 2)
@@ -266,8 +261,7 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
   ctx.arc(18 - earWiggle, -38, 3.5, 0, Math.PI * 2)
   ctx.fill()
 
-  // ── Eyes ───────────────────────────────────────────────────────────────────
-
+  // Eyes
   const eyeOffX = lookX * 2.5
   const eyeOffY = lookY * 2
 
@@ -276,7 +270,6 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
     const ey = -5 + eyeOffY
 
     if (m === 'sleepy') {
-      // Half-closed droopy eyes
       ctx.fillStyle = '#fff'
       ctx.beginPath()
       ctx.ellipse(ex, ey + 1, 5, 3, 0, 0, Math.PI * 2)
@@ -285,7 +278,6 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
       ctx.beginPath()
       ctx.ellipse(ex, ey + 2, 5, 2, 0, 0, Math.PI * 2)
       ctx.fill()
-      // Drooping eyelid
       ctx.fillStyle = `hsl(${hue},70%,55%)`
       ctx.beginPath()
       ctx.ellipse(ex, ey - 1, 5.5, 3.5, 0, Math.PI, Math.PI * 2)
@@ -298,19 +290,16 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
       ctx.lineTo(ex + 5, ey)
       ctx.stroke()
     } else {
-      // Normal eye white
       ctx.fillStyle = '#fff'
       ctx.beginPath()
       ctx.ellipse(ex, ey, 5, 5.5, 0, 0, Math.PI * 2)
       ctx.fill()
-      // Pupil
       ctx.fillStyle =
         m === 'chaos' ? `hsl(${(frame * 8) % 360},90%,55%)` : '#1a1a2e'
       const pupilSize = m === 'startled' ? 4 : m === 'curious' ? 3.5 : 3
       ctx.beginPath()
       ctx.arc(ex + eyeOffX * 0.3, ey + eyeOffY * 0.3, pupilSize, 0, Math.PI * 2)
       ctx.fill()
-      // Highlight
       ctx.fillStyle = 'rgba(255,255,255,0.8)'
       ctx.beginPath()
       ctx.arc(
@@ -321,7 +310,6 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
         Math.PI * 2,
       )
       ctx.fill()
-      // Star pupils in chaos mode
       if (m === 'chaos') {
         ctx.fillStyle = '#fff'
         ctx.font = '6px serif'
@@ -332,27 +320,22 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
     }
   }
 
-  // ── Mouth ──────────────────────────────────────────────────────────────────
-
+  // Mouth
   ctx.strokeStyle = `hsl(${hue},50%,35%)`
   ctx.lineWidth = 1.8
   ctx.lineCap = 'round'
   ctx.beginPath()
 
   if (m === 'happy' || m === 'chaos') {
-    // Big smile
     ctx.arc(0, 8, 8, Math.PI * 0.1, Math.PI * 0.9)
     ctx.stroke()
-    // Teeth
     ctx.fillStyle = '#fff'
     ctx.fillRect(-5, 8, 3, 3)
     ctx.fillRect(0, 8, 3, 3)
   } else if (m === 'dramatic') {
-    // Big frown
     ctx.arc(0, 16, 8, Math.PI * 1.1, Math.PI * 1.9)
     ctx.stroke()
   } else if (m === 'startled' || m === 'hungry') {
-    // Open O mouth
     ctx.beginPath()
     ctx.arc(0, 9, 5, 0, Math.PI * 2)
     ctx.strokeStyle = `hsl(${hue},50%,35%)`
@@ -360,20 +343,17 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
     ctx.fillStyle = `hsl(${hue},40%,30%)`
     ctx.fill()
   } else if (m === 'sleepy') {
-    // Flat/wavy sleepy mouth
     ctx.beginPath()
     ctx.moveTo(-5, 10)
     ctx.quadraticCurveTo(0, 12, 5, 10)
     ctx.stroke()
   } else {
-    // Neutral small smile
     ctx.beginPath()
     ctx.arc(0, 8, 5, Math.PI * 0.15, Math.PI * 0.85)
     ctx.stroke()
   }
 
-  // ── Sleepy ZZZs ────────────────────────────────────────────────────────────
-
+  // Sleepy ZZZs
   if (m === 'sleepy') {
     for (let z = 0; z < 3; z++) {
       const zProgress = (frame * 0.02 + z * 0.33) % 1
@@ -392,8 +372,7 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
     }
   }
 
-  // ── Chaos sparkles ─────────────────────────────────────────────────────────
-
+  // Chaos sparkles
   if (m === 'chaos') {
     for (let i = 0; i < 5; i++) {
       const a = (frame * 0.08 + i * 1.26) % (Math.PI * 2)
@@ -411,7 +390,13 @@ const drawGremlin = (ctx: CanvasRenderingContext2D) => {
   ctx.restore()
 }
 
-// ── Tick ──────────────────────────────────────────────────────────────────────
+// ─── Event handlers (stored so they can be removed on unmount) ────────────────
+
+let onPointerMove: (e: PointerEvent) => void
+let onClick: (e: MouseEvent) => void
+let onResize: () => void
+
+// ─── Lifecycle ────────────────────────────────────────────────────────────────
 
 onMounted(() => {
   const canvas = canvasRef.value
@@ -419,11 +404,13 @@ onMounted(() => {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  // Place pet in bottom-right initially
-  petX = window.innerWidth - PAD_X
-  petY = window.innerHeight - PAD_Y
-  wanderTargetX = petX
-  wanderTargetY = petY
+  // Initial position: bottom-right corner
+  _petX = window.innerWidth - PAD_X
+  _petY = window.innerHeight - PAD_Y
+  petX.value = _petX
+  petY.value = _petY
+  wanderTargetX = _petX
+  wanderTargetY = _petY
 
   const updateScreenPos = () => {
     const rect = canvas.getBoundingClientRect()
@@ -431,9 +418,7 @@ onMounted(() => {
     petScreenY = rect.top + SIZE / 2
   }
 
-  // ── Event listeners ─────────────────────────────────────────────────────────
-
-  const onPointerMove = (e: PointerEvent) => {
+  onPointerMove = (e: PointerEvent) => {
     const dx = e.clientX - lastMouseX
     const dy = e.clientY - lastMouseY
     mouseSpeed = Math.sqrt(dx * dx + dy * dy)
@@ -444,7 +429,6 @@ onMounted(() => {
 
     const distToPet = dist(mouseX, mouseY, petScreenX, petScreenY)
 
-    // Look toward cursor
     if (distToPet < 300) {
       const rawLX = (mouseX - petScreenX) / 60
       const rawLY = (mouseY - petScreenY) / 60
@@ -456,7 +440,6 @@ onMounted(() => {
       }
     }
 
-    // Fast cursor near pet = startled
     if (distToPet < 100 && mouseSpeed > 18 && mood.value !== 'startled') {
       setMood('startled', 90)
       say()
@@ -464,10 +447,9 @@ onMounted(() => {
     }
   }
 
-  const onClick = (e: MouseEvent) => {
+  onClick = (e: MouseEvent) => {
     const distToPet = dist(e.clientX, e.clientY, petScreenX, petScreenY)
     if (distToPet < 60) {
-      // Pet was clicked / patted
       affection = Math.min(1, affection + 0.2)
       energy = Math.min(1, energy + 0.1)
       setMood('happy', 200)
@@ -475,7 +457,6 @@ onMounted(() => {
       lastActivity = frame
       bouncePhase = 0
     } else {
-      // Click elsewhere — pet watches
       if (mood.value === 'sleepy' || mood.value === 'idle') {
         const angle = Math.atan2(e.clientY - petScreenY, e.clientX - petScreenX)
         lookX = Math.cos(angle) * 0.8
@@ -487,16 +468,16 @@ onMounted(() => {
     }
   }
 
-  const onResize = () => {
-    petX = Math.max(PAD_X, Math.min(window.innerWidth - PAD_X, petX))
-    petY = Math.max(PAD_Y, Math.min(window.innerHeight - PAD_Y, petY))
+  onResize = () => {
+    _petX = Math.max(PAD_X, Math.min(window.innerWidth - PAD_X, _petX))
+    _petY = Math.max(PAD_Y, Math.min(window.innerHeight - PAD_Y, _petY))
+    petX.value = _petX
+    petY.value = _petY
   }
 
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('click', onClick)
   window.addEventListener('resize', onResize)
-
-  // ── Main loop ────────────────────────────────────────────────────────────────
 
   const tick = () => {
     frame++
@@ -505,15 +486,12 @@ onMounted(() => {
 
     updateScreenPos()
 
-    // ── Phase advances ─────────────────────────────────────────────────────
-
     const moodNow = mood.value
     const speedMult = moodNow === 'chaos' ? 3 : moodNow === 'happy' ? 2 : 1
     bouncePhase += 0.06 * speedMult
     wigglePhase += 0.045 * speedMult
 
-    // ── Blink ──────────────────────────────────────────────────────────────
-
+    // Blink
     blinkTimer--
     if (blinkTimer <= 0) {
       isBlinking = true
@@ -523,22 +501,17 @@ onMounted(() => {
       blinkTimer = randInt(140, 300)
     }
 
-    // ── Idle drift ─────────────────────────────────────────────────────────
-
-    // Look drift back to center
+    // Look drift
     const distCursor = dist(mouseX, mouseY, petScreenX, petScreenY)
     if (distCursor > 280) {
       lookX = lerp(lookX, 0, 0.04)
       lookY = lerp(lookY, 0, 0.04)
     }
 
-    // ── Wander ─────────────────────────────────────────────────────────────
-
+    // Wander
     wanderTimer--
     if (wanderTimer <= 0) {
-      // Pick a new spot near the edges
       const side = randInt(0, 3)
-      const wanderR = 60
       const cx =
         side < 2
           ? side === 0
@@ -558,11 +531,14 @@ onMounted(() => {
 
     const wanderSpeed =
       moodNow === 'chaos' ? 1.8 : moodNow === 'dramatic' ? 0 : 0.4
-    petX = lerp(petX, wanderTargetX, 0.008 * wanderSpeed)
-    petY = lerp(petY, wanderTargetY, 0.008 * wanderSpeed)
 
-    // ── Mood decay ─────────────────────────────────────────────────────────
+    // ── FIXED: lerp into raw vars, then write to refs once per frame ──────────
+    _petX = lerp(_petX, wanderTargetX, 0.008 * wanderSpeed)
+    _petY = lerp(_petY, wanderTargetY, 0.008 * wanderSpeed)
+    petX.value = _petX
+    petY.value = _petY
 
+    // Mood decay
     if (frame > moodUntil) {
       const idleFrames = frame - lastActivity
 
@@ -583,21 +559,15 @@ onMounted(() => {
       }
     }
 
-    // ── Affection decay ────────────────────────────────────────────────────
-
     affection = Math.max(0, affection - 0.00005)
-
-    // ── Random idle speech ─────────────────────────────────────────────────
 
     if (frame > speechUntil) {
       speech.value = null
       if (Math.random() > 0.994) {
         say()
-        lastActivity = frame // speech counts as activity
+        lastActivity = frame
       }
     }
-
-    // ── Draw ───────────────────────────────────────────────────────────────
 
     ctx.clearRect(0, 0, SIZE, SIZE)
     drawGremlin(ctx)
@@ -606,13 +576,14 @@ onMounted(() => {
   }
 
   rafId = requestAnimationFrame(tick)
+})
 
-  onBeforeUnmount(() => {
-    if (rafId) cancelAnimationFrame(rafId)
-    window.removeEventListener('pointermove', onPointerMove)
-    window.removeEventListener('click', onClick)
-    window.removeEventListener('resize', onResize)
-  })
+// ── FIXED: onBeforeUnmount at top level of setup, not inside onMounted ────────
+onBeforeUnmount(() => {
+  if (rafId) cancelAnimationFrame(rafId)
+  if (onPointerMove) window.removeEventListener('pointermove', onPointerMove)
+  if (onClick) window.removeEventListener('click', onClick)
+  if (onResize) window.removeEventListener('resize', onResize)
 })
 </script>
 
@@ -633,8 +604,6 @@ onMounted(() => {
   pointer-events: none;
 }
 
-/* ── Mood pip ────────────────────────────────────────────────────────────────── */
-
 .mood-pip {
   position: absolute;
   bottom: 6px;
@@ -646,8 +615,6 @@ onMounted(() => {
   transition: background 0.4s ease;
   box-shadow: 0 0 4px currentColor;
 }
-
-/* ── Speech bubble ───────────────────────────────────────────────────────────── */
 
 .speech-bubble {
   position: absolute;
@@ -662,11 +629,10 @@ onMounted(() => {
   font-weight: 500;
   padding: 5px 10px;
   border-radius: 10px;
-  white-space: nowrap;
+  white-space: normal;
   pointer-events: none;
   z-index: 61;
   max-width: 200px;
-  white-space: normal;
   text-align: center;
   line-height: 1.4;
 }
@@ -679,7 +645,6 @@ onMounted(() => {
   top: calc(100% + 8px);
 }
 
-/* Bubble tail */
 .bubble-above::after {
   content: '';
   position: absolute;
@@ -699,8 +664,6 @@ onMounted(() => {
   border: 5px solid transparent;
   border-bottom-color: rgba(10, 10, 20, 0.88);
 }
-
-/* ── Transitions ─────────────────────────────────────────────────────────────── */
 
 .speech-enter-active {
   transition:

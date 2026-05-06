@@ -168,14 +168,133 @@
             {{ dropdownPlaceholder }}
           </option>
 
-          <option
-            v-for="server in filteredServers"
-            :key="server.id"
-            :value="server.id"
-          >
-            [{{ server.serverType }}] {{ server.label || server.title }}
-          </option>
+          <template v-if="mode === 'all'">
+            <optgroup v-if="artDisplayServers.length" label="Art Modelers">
+              <option
+                v-for="server in artDisplayServers"
+                :key="`art-${server.id}`"
+                :value="server.id"
+              >
+                [{{ server.serverType }}] {{ server.label || server.title }}
+              </option>
+            </optgroup>
+
+            <optgroup v-if="textDisplayServers.length" label="Text Modelers">
+              <option
+                v-for="server in textDisplayServers"
+                :key="`text-${server.id}`"
+                :value="server.id"
+              >
+                [{{ server.serverType }}] {{ server.label || server.title }}
+              </option>
+            </optgroup>
+          </template>
+
+          <template v-else>
+            <option
+              v-for="server in filteredServers"
+              :key="server.id"
+              :value="server.id"
+            >
+              [{{ server.serverType }}] {{ server.label || server.title }}
+            </option>
+          </template>
         </select>
+      </div>
+
+      <div v-else-if="mode === 'all'" class="flex flex-col gap-4">
+        <section
+          v-if="artDisplayServers.length"
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-2">
+              <Icon name="kind-icon:image" class="h-5 w-5 text-primary" />
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-black">Art Modelers</h3>
+                <p class="text-xs opacity-60">
+                  Image engines, Comfy workflows, A1111, and visual chaos
+                  factories.
+                </p>
+              </div>
+            </div>
+
+            <span class="badge badge-primary badge-sm shrink-0">
+              {{ artDisplayServers.length }}
+            </span>
+          </div>
+
+          <div :class="layoutClass">
+            <server-card
+              v-for="server in artDisplayServers"
+              :key="`art-card-${server.id}`"
+              :server="server"
+              :selected="isSelected(server.id)"
+              :compact="isCompact"
+              :show-actions="showCardActions"
+              :show-description="showDescriptions"
+              :show-meta="showMeta"
+              :show-use-buttons="showUseButtons"
+              :allow-edit="allowEdit"
+              :allow-delete="allowDelete"
+              :allow-test="allowTest"
+              @select="selectServerById"
+              @edit="startEditingServerById"
+              @delete="handleServerDeleted"
+              @test="handleServerTested"
+              @use-art="setActiveArtServer"
+              @use-text="setActiveTextServer"
+            />
+          </div>
+        </section>
+
+        <section
+          v-if="textDisplayServers.length"
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-2">
+              <Icon
+                name="kind-icon:message-circle"
+                class="h-5 w-5 text-secondary"
+              />
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-black">Text Modelers</h3>
+                <p class="text-xs opacity-60">
+                  Chat engines, OpenAI-compatible APIs, and suspiciously
+                  eloquent machines.
+                </p>
+              </div>
+            </div>
+
+            <span class="badge badge-secondary badge-sm shrink-0">
+              {{ textDisplayServers.length }}
+            </span>
+          </div>
+
+          <div :class="layoutClass">
+            <server-card
+              v-for="server in textDisplayServers"
+              :key="`text-card-${server.id}`"
+              :server="server"
+              :selected="isSelected(server.id)"
+              :compact="isCompact"
+              :show-actions="showCardActions"
+              :show-description="showDescriptions"
+              :show-meta="showMeta"
+              :show-use-buttons="showUseButtons"
+              :allow-edit="allowEdit"
+              :allow-delete="allowDelete"
+              :allow-test="allowTest"
+              @select="selectServerById"
+              @edit="startEditingServerById"
+              @delete="handleServerDeleted"
+              @test="handleServerTested"
+              @use-art="setActiveArtServer"
+              @use-text="setActiveTextServer"
+            />
+          </div>
+        </section>
       </div>
 
       <div v-else :class="layoutClass">
@@ -311,9 +430,7 @@ const dropdownPlaceholder = computed(() => {
 const ownedServersForMode = computed(() => {
   return serverStore.servers.filter((server) => {
     if (server.userId !== userStore.user?.id) return false
-    if (props.mode === 'art') return isArtCapable(server)
-    if (props.mode === 'text') return isTextCapable(server)
-    return true
+    return matchesMode(server)
   })
 })
 
@@ -325,11 +442,7 @@ const visibleServersForMode = computed(() => {
         ? serverStore.textServers
         : serverStore.visibleActiveServers
 
-  return servers.filter((server) => {
-    if (props.mode === 'art') return isArtCapable(server)
-    if (props.mode === 'text') return isTextCapable(server)
-    return isArtCapable(server) || isTextCapable(server)
-  })
+  return servers.filter(matchesMode)
 })
 
 const baseServers = computed<Server[]>(() => {
@@ -379,6 +492,16 @@ const filteredServers = computed(() => {
   }
 
   return servers
+})
+
+const artDisplayServers = computed(() => {
+  return filteredServers.value.filter(isArtCapable)
+})
+
+const textDisplayServers = computed(() => {
+  return filteredServers.value.filter((server) => {
+    return isTextCapable(server) && !isArtCapable(server)
+  })
 })
 
 onMounted(async () => {

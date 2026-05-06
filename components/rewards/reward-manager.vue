@@ -69,7 +69,7 @@
         :show-images="true"
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <server-gallery v-else-if="currentTab === 'servers'" />
 
       <reward-interact v-else-if="currentTab === 'interact'" />
 

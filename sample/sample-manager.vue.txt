@@ -49,7 +49,7 @@
         :show-toolbar="true"
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <server-gallery v-else-if="currentTab === 'servers'" />
 
       <sample-interact v-else-if="currentTab === 'interact'" />
 

@@ -92,7 +92,7 @@
 
     <!-- Servers -->
     <div v-else-if="activeSection === 'servers'">
-      <server-manager />
+      <server-gallery />
     </div>
 
     <!-- Themes -->

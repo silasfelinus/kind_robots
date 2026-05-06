@@ -598,7 +598,7 @@
       v-else
       class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
     >
-      <server-manager class="h-full w-full" />
+      <server-gallery class="h-full w-full" />
     </section>
   </section>
 </template>

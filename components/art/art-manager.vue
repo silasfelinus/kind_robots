@@ -337,7 +337,7 @@
         subtitle="Choose models, samplers, and verify the active backend model."
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <server-gallery v-else-if="currentTab === 'servers'" />
 
       <section
         v-else-if="currentTab === 'selected'"

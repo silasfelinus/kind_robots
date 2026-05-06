@@ -1,7 +1,7 @@
 <!-- /components/content/screenfx/screen-fx.vue -->
 <template>
   <!-- Active effect components (all must have pointer-events: none) -->
-  <div class="effect-container">
+  <div class="effect-container fixed inset-0 z-50 pointer-events-none">
     <component
       :is="activeComponent.component"
       v-for="activeComponent in activeComponents"
@@ -215,9 +215,9 @@ const activeComponents = computed(() =>
 <style scoped>
 .escape-btn {
   position: fixed;
-  bottom: 1.5rem;
+  top: 1.5rem;
   right: 1.5rem;
-  z-index: 9999;
+  z-index: 60;
   display: flex;
   align-items: center;
   gap: 6px;

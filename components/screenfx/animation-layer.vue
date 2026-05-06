@@ -1,0 +1,87 @@
+<!-- /components/content/animation/animation-layer.vue -->
+<template>
+  <Teleport to="body">
+    <Transition name="animation-layer-fade">
+      <section
+        v-if="animationStore.isActive && activeComponent"
+        class="pointer-events-none fixed z-83 overflow-hidden rounded-2xl border border-primary/20 bg-base-300/10 shadow-2xl backdrop-blur-[1px]"
+        :style="animationStore.layerStyle"
+        aria-live="polite"
+      >
+        <component :is="activeComponent" />
+
+        <div
+          class="pointer-events-none absolute bottom-4 left-1/2 z-84 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-base-300 bg-base-100/80 px-4 py-3 text-sm font-bold text-base-content shadow-xl backdrop-blur-md"
+        >
+          <span class="loading loading-spinner loading-sm text-primary" />
+          <Icon
+            :name="animationStore.activeEffect?.icon || 'kind-icon:sparkles'"
+            class="h-5 w-5 text-secondary"
+          />
+          <span>{{ animationStore.message || 'Generating art...' }}</span>
+        </div>
+      </section>
+    </Transition>
+  </Teleport>
+</template>
+
+<script setup lang="ts">
+// /components/content/animation/animation-layer.vue
+import { computed, resolveComponent } from 'vue'
+import {
+  useAnimationStore,
+  type AnimationEffectId,
+} from '@/stores/animationStore'
+
+type ComponentMap = Record<
+  AnimationEffectId,
+  ReturnType<typeof resolveComponent>
+>
+
+const animationStore = useAnimationStore()
+
+const componentsMap: ComponentMap = {
+  'aurora-effect': resolveComponent('LazyAuroraEffect'),
+  'starfield-effect': resolveComponent('LazyStarfieldEffect'),
+  'constellation-effect': resolveComponent('LazyConstellationEffect'),
+  'wishing-stars': resolveComponent('LazyWishingStars'),
+  'orbit-effect': resolveComponent('LazyOrbitEffect'),
+  'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
+  'firefly-effect': resolveComponent('LazyFireflyEffect'),
+  'rain-effect': resolveComponent('LazyRainEffect'),
+  'snow-effect': resolveComponent('LazySnowEffect'),
+  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
+  'plasma-effect': resolveComponent('LazyPlasmaEffect'),
+  'pixel-rain': resolveComponent('LazyPixelRain'),
+  'matrix-rain': resolveComponent('LazyMatrixRain'),
+  'glitch-effect': resolveComponent('LazyGlitchEffect'),
+  'kaleidoscope-effect': resolveComponent('LazyKaleidoscopeEffect'),
+  'toaster-effect': resolveComponent('LazyToasterEffect'),
+}
+
+const activeComponent = computed(() => {
+  const effectId = animationStore.activeEffectId
+  return effectId ? componentsMap[effectId] : null
+})
+</script>
+
+<style scoped>
+.animation-layer-fade-enter-active,
+.animation-layer-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.animation-layer-fade-enter-from,
+.animation-layer-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.985);
+}
+
+.animation-layer-fade-enter-to,
+.animation-layer-fade-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+</style>

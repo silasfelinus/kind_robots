@@ -1,7 +1,6 @@
 <!-- /components/content/screenfx/screen-fx.vue -->
 <template>
-  <!-- Active effect components (all must have pointer-events: none) -->
-  <div class="effect-container fixed inset-0 z-50 pointer-events-none">
+  <div class="pointer-events-none fixed inset-0 z-50">
     <component
       :is="activeComponent.component"
       v-for="activeComponent in activeComponents"
@@ -9,86 +8,68 @@
     />
   </div>
 
-  <!-- Floating escape button — visible whenever any effect is on -->
   <Transition name="fade">
     <button
       v-if="activeCount > 0"
       class="escape-btn"
       title="Clear all effects"
+      type="button"
       @click="clearAll"
     >
-      <Icon name="kind-icon:close" class="w-5 h-5" />
+      <Icon name="kind-icon:close" class="h-5 w-5" />
       <span>clear fx</span>
     </button>
   </Transition>
 
-  <!-- Effect picker -->
-  <div class="relative">
+  <section class="relative">
     <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 p-2">
       <div
         v-for="effect in effects"
         :key="effect.id"
         class="relative flex flex-col items-center gap-2"
       >
-        <!-- Tooltip -->
         <div
           v-if="hoveredEffect === effect.id"
-          class="absolute -top-10 left-1/2 -translate-x-1/2 bg-base-300 bg-opacity-90 text-base-content text-sm font-bold px-2 py-1 rounded-xl whitespace-nowrap pointer-events-none z-10"
+          class="pointer-events-none absolute -top-10 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-xl bg-base-300 bg-opacity-90 px-2 py-1 text-sm font-bold text-base-content"
         >
           {{ effect.tooltip }}
         </div>
 
-        <!-- Icon button -->
-        <div
-          class="flex items-center justify-center transition-transform transform hover:scale-125 cursor-pointer p-3 rounded-full hover:bg-accent"
+        <button
+          type="button"
+          class="flex cursor-pointer items-center justify-center rounded-full p-3 transition-transform hover:scale-125 hover:bg-accent"
           :class="{
             'bg-accent': effect.isActive,
             'bg-transparent': !effect.isActive,
           }"
           @click="toggleEffect(effect.id)"
-          @mouseover="hoveredEffect = effect.id"
-          @mouseout="hoveredEffect = null"
+          @mouseenter="hoveredEffect = effect.id"
+          @mouseleave="hoveredEffect = null"
+          @focus="hoveredEffect = effect.id"
+          @blur="hoveredEffect = null"
         >
           <Icon
             :name="effect.icon"
             :title="effect.label"
             :class="{ glow: effect.isActive }"
-            class="w-8 h-8 md:w-12 md:h-12 fill-current text-default"
+            class="h-8 w-8 fill-current text-default md:h-12 md:w-12"
           />
-        </div>
+        </button>
 
-        <!-- Label -->
         <div class="text-center text-sm text-default">
           {{ effect.isActive ? effect.reveal : effect.label }}
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, resolveComponent } from 'vue'
-
-type ComponentMapType = {
-  [key: string]: ReturnType<typeof resolveComponent>
-}
-
-const componentsMap: ComponentMapType = {
-  'bubble-effect': resolveComponent('LazyBubbleEffect'),
-  'fizzy-bubbles': resolveComponent('LazyFizzyBubbles'),
-  'rain-effect': resolveComponent('LazyRainEffect'),
-  'butterfly-animation': resolveComponent('LazyButterflyAnimation'),
-  'starfield-effect': resolveComponent('LazyStarfieldEffect'),
-  'matrix-rain': resolveComponent('LazyMatrixRain'),
-  'firefly-effect': resolveComponent('LazyFireflyEffect'),
-  'lightning-effect': resolveComponent('LazyLightningEffect'),
-  'snow-effect': resolveComponent('LazySnowEffect'),
-  'lava-lamp': resolveComponent('LazyLavaLamp'),
-  'toaster-effect': resolveComponent('LazyToasterEffect'),
-}
+import { computed, ref } from 'vue'
 
 interface Effect {
   id: string
+  component: string
   label: string
   icon: string
   tooltip: string
@@ -99,6 +80,7 @@ interface Effect {
 const effects = ref<Effect[]>([
   {
     id: 'fizzy-bubbles',
+    component: 'LazyFizzyBubbles',
     label: 'Fizzy Lifting',
     icon: 'kind-icon:soda',
     tooltip: 'Float away with fizzy bubbles 🍾',
@@ -107,6 +89,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'bubble-effect',
+    component: 'LazyBubbleEffect',
     label: 'Bubble Fiesta',
     icon: 'kind-icon:bubbles',
     tooltip: 'Rainbow clown bubbles 🌈',
@@ -115,6 +98,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'rain-effect',
+    component: 'LazyRainEffect',
     label: 'Rainmaker',
     icon: 'kind-icon:raindrop',
     tooltip: "Rain doesn't have to be sad 🌧️",
@@ -123,6 +107,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'butterfly-animation',
+    component: 'LazyButterflyAnimation',
     label: 'Butterfly Scouts',
     icon: 'kind-icon:butterfly',
     tooltip: 'Release AMI 🦋',
@@ -131,6 +116,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'starfield-effect',
+    component: 'LazyStarfieldEffect',
     label: 'Warp Drive',
     icon: 'kind-icon:star',
     tooltip: 'Punch it, Chewie ✨',
@@ -139,6 +125,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'matrix-rain',
+    component: 'LazyMatrixRain',
     label: 'Matrix Rain',
     icon: 'kind-icon:code',
     tooltip: 'Follow the white rabbit 🐇',
@@ -147,6 +134,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'firefly-effect',
+    component: 'LazyFireflyEffect',
     label: 'Fireflies',
     icon: 'kind-icon:sparkle',
     tooltip: 'Organic drift and warmth 🌿',
@@ -155,6 +143,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'lightning-effect',
+    component: 'LazyLightningEffect',
     label: 'Storm Caller',
     icon: 'kind-icon:lightning',
     tooltip: 'Periodic arc strikes ⚡',
@@ -163,6 +152,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'snow-effect',
+    component: 'LazySnowEffect',
     label: 'Snow Globe',
     icon: 'kind-icon:snowflake',
     tooltip: 'Soft particle drift ❄️',
@@ -171,6 +161,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'lava-lamp',
+    component: 'LazyLavaLamp',
     label: 'Lava Lamp',
     icon: 'kind-icon:flame',
     tooltip: 'Goo blobs merge and float 🫧',
@@ -179,6 +170,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'toaster-effect',
+    component: 'LazyToasterEffect',
     label: 'Flying Toasters',
     icon: 'kind-icon:toast',
     tooltip: 'After Dark tribute 🍞',
@@ -189,27 +181,32 @@ const effects = ref<Effect[]>([
 
 const hoveredEffect = ref<string | null>(null)
 
-const activeCount = computed(
-  () => effects.value.filter((e) => e.isActive).length,
-)
+const activeCount = computed(() => {
+  return effects.value.filter((effect) => effect.isActive).length
+})
 
-const toggleEffect = (effectId: string) => {
-  const effect = effects.value.find((e) => e.id === effectId)
-  if (effect) effect.isActive = !effect.isActive
+const activeComponents = computed(() => {
+  return effects.value
+    .filter((effect) => effect.isActive)
+    .map((effect) => ({
+      id: effect.id,
+      component: effect.component,
+    }))
+})
+
+function toggleEffect(effectId: string) {
+  const effect = effects.value.find((entry) => entry.id === effectId)
+
+  if (!effect) return
+
+  effect.isActive = !effect.isActive
 }
 
-const clearAll = () => {
-  effects.value.forEach((e) => (e.isActive = false))
+function clearAll() {
+  effects.value.forEach((effect) => {
+    effect.isActive = false
+  })
 }
-
-const activeComponents = computed(() =>
-  effects.value
-    .filter((e) => e.isActive)
-    .map((e) => ({
-      id: e.id,
-      component: componentsMap[e.id],
-    })),
-)
 </script>
 
 <style scoped>
@@ -266,6 +263,7 @@ const activeComponents = computed(() =>
   100% {
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
   }
+
   50% {
     box-shadow:
       0 0 16px rgba(255, 255, 255, 0.7),

@@ -116,6 +116,117 @@ export const useChatStore = defineStore('chatStore', () => {
     maxTokens?: number
     serverId?: number | null
     messages?: BotCafeMessage[]
+    stream?: boolean
+  }
+
+  function extractStreamToken(payload: unknown): string {
+    if (!payload || typeof payload !== 'object') return ''
+
+    const response = payload as BotCafeResponse
+
+    const directContent = response.content
+    if (typeof directContent === 'string') return directContent
+
+    const directMessage = response.message
+    if (typeof directMessage === 'string') return directMessage
+
+    const deltaContent = response.choices?.[0]?.delta?.content
+    if (typeof deltaContent === 'string') return deltaContent
+
+    const messageContent = response.choices?.[0]?.message?.content
+    if (typeof messageContent === 'string') return messageContent
+
+    const data = response.data as BotCafeResponse | undefined
+
+    const dataContent = data?.content
+    if (typeof dataContent === 'string') return dataContent
+
+    const dataMessage = data?.message
+    if (typeof dataMessage === 'string') return dataMessage
+
+    const dataDeltaContent = data?.choices?.[0]?.delta?.content
+    if (typeof dataDeltaContent === 'string') return dataDeltaContent
+
+    const dataMessageContent = data?.choices?.[0]?.message?.content
+    if (typeof dataMessageContent === 'string') return dataMessageContent
+
+    return ''
+  }
+
+  function parseStreamLine(line: string): string {
+    const trimmed = line.trim()
+
+    if (!trimmed || trimmed === '[DONE]' || trimmed.startsWith('event:')) {
+      return ''
+    }
+
+    const rawData = trimmed.startsWith('data:')
+      ? trimmed.replace(/^data:\s*/, '')
+      : trimmed
+
+    if (!rawData || rawData === '[DONE]') return ''
+
+    try {
+      return extractStreamToken(JSON.parse(rawData))
+    } catch {
+      return trimmed.startsWith('data:') ? '' : rawData
+    }
+  }
+
+  async function readJsonResponse(response: Response): Promise<string> {
+    const payload = (await response.json()) as BotCafeResponse
+
+    return extractBotText(payload)
+  }
+
+  async function readStreamingResponse(
+    response: Response,
+    onToken: (token: string) => void,
+  ): Promise<string> {
+    if (!response.body) {
+      return readJsonResponse(response)
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let fullText = ''
+    let pending = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+
+      if (done) break
+
+      pending += decoder.decode(value, { stream: true })
+
+      const lines = pending.split(/\r?\n/)
+      pending = lines.pop() ?? ''
+
+      for (const line of lines) {
+        const token = parseStreamLine(line)
+
+        if (!token) continue
+
+        fullText += token
+        onToken(token)
+      }
+    }
+
+    const finalText = decoder.decode()
+    if (finalText) {
+      pending += finalText
+    }
+
+    if (pending.trim()) {
+      const token = parseStreamLine(pending)
+
+      if (token) {
+        fullText += token
+        onToken(token)
+      }
+    }
+
+    return fullText
   }
 
   async function streamResponse(
@@ -137,45 +248,75 @@ export const useChatStore = defineStore('chatStore', () => {
           },
         ]
 
+    updateChat(chatId, {
+      botResponse: '',
+    })
+
     try {
-      console.log('[bot-interact] sending memory chain', {
-        count: messages.length,
-        roles: messages.map((message) => message.role),
-        preview: messages.map((message) => ({
-          role: message.role,
-          content: message.content.slice(0, 80),
-        })),
+      const response = await fetch('/api/botcafe/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: options.model || 'gpt-4o-mini',
+          messages,
+          temperature: options.temperature ?? 0.7,
+          maxTokens: options.maxTokens ?? 2048,
+          stream: options.stream ?? true,
+          serverId: options.serverId ?? null,
+          chatId,
+        }),
       })
-      const response = await performFetch<BotCafeResponseData>(
-        '/api/botcafe/chat',
-        {
-          method: 'POST',
 
-          body: JSON.stringify({
-            model: options.model || 'gpt-4o-mini',
-            messages,
-            temperature: options.temperature ?? 0.7,
-            maxTokens: options.maxTokens ?? 2048,
-            stream: false,
-            serverId: options.serverId ?? null,
-            chatId,
-          }),
+      if (!response.ok) {
+        let message = `Bot response failed with status ${response.status}.`
 
-          headers: { 'Content-Type': 'application/json' },
-        },
-        1,
-        120_000,
-      )
+        try {
+          const payload = (await response.json()) as BotCafeResponse
+          message = payload.message || message
+        } catch {
+          const text = await response.text()
+          message = text || message
+        }
 
-      if (!response.success || !response.data?.content) {
-        throw new Error(response.message || 'Bot response failed.')
+        throw new Error(message)
+      }
+
+      const contentType = response.headers.get('content-type') || ''
+      const shouldReadAsStream =
+        options.stream !== false &&
+        response.body &&
+        !contentType.includes('application/json')
+
+      const finalText = shouldReadAsStream
+        ? await readStreamingResponse(response, (token) => {
+            appendBotResponse(chatId, token)
+          })
+        : await readJsonResponse(response)
+
+      const cleanText = finalText.trim()
+
+      if (!cleanText) {
+        throw new Error(
+          'Bot response returned, but no assistant text was found.',
+        )
       }
 
       updateChat(chatId, {
-        botResponse: response.data.content,
+        botResponse: cleanText,
       })
 
-      return response.data.content
+      try {
+        await patchChat(chatId, {
+          botResponse: cleanText,
+        } as Partial<Chat>)
+      } catch (error) {
+        handleError(
+          ErrorType.NETWORK_ERROR,
+          `Response streamed locally but failed to save: ${error}`,
+        )
+      }
+
+      return cleanText
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Bot response failed.'

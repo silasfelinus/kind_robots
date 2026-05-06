@@ -86,7 +86,7 @@
 
           <div v-else class="flex flex-col gap-4">
             <article
-              v-for="chat in sessionChats"
+              v-for="(chat, index) in sessionChats"
               :key="chat.id"
               class="flex flex-col gap-3"
             >
@@ -95,7 +95,7 @@
                   class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
                 >
                   <p class="whitespace-pre-wrap">
-                    {{ chat.content }}
+                    {{ getPlayerDisplayText(chat, index) }}
                   </p>
                 </div>
               </div>
@@ -111,7 +111,7 @@
                 </div>
 
                 <div
-                  class="max-w-[85%] rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
+                  class="flex max-w-[90%] flex-col gap-3 rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
                 >
                   <span
                     v-if="!chat.botResponse"
@@ -122,9 +122,84 @@
                     <span class="story-dot delay-300" />
                   </span>
 
-                  <p v-else class="whitespace-pre-wrap text-base-content/80">
-                    {{ chat.botResponse }}
-                  </p>
+                  <template v-else>
+                    <p class="whitespace-pre-wrap text-base-content/80">
+                      {{ getStoryScene(chat.botResponse) }}
+                    </p>
+
+                    <div
+                      v-if="getStoryChoices(chat.botResponse).length"
+                      class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
+                    >
+                      <p
+                        class="text-xs font-bold uppercase tracking-wide text-base-content/50"
+                      >
+                        Select a path
+                      </p>
+
+                      <button
+                        v-for="choice in getStoryChoices(chat.botResponse)"
+                        :key="choice.key"
+                        class="btn btn-sm justify-start rounded-2xl text-left normal-case"
+                        :class="
+                          selectedPath === choice.text
+                            ? 'btn-secondary'
+                            : 'btn-outline'
+                        "
+                        type="button"
+                        :disabled="
+                          isStarting || !isLatestRespondedChat(chat.id)
+                        "
+                        @click="continueWithPath(choice.text)"
+                      >
+                        <span class="badge badge-ghost badge-sm">
+                          {{ choice.label }}
+                        </span>
+                        <span
+                          class="min-w-0 flex-1 whitespace-normal text-left"
+                        >
+                          {{ choice.text }}
+                        </span>
+                      </button>
+                    </div>
+
+                    <div
+                      v-if="isLatestRespondedChat(chat.id)"
+                      class="rounded-2xl border border-base-300 bg-base-200 p-3"
+                    >
+                      <label class="form-control">
+                        <span class="label py-1">
+                          <span
+                            class="label-text text-xs font-bold uppercase tracking-wide text-base-content/50"
+                          >
+                            Customize the next move
+                          </span>
+                        </span>
+
+                        <textarea
+                          v-model="customFollowup"
+                          class="textarea textarea-bordered min-h-20 rounded-2xl bg-base-100"
+                          placeholder="Take one of the paths, remix it, or do something wildly inadvisable..."
+                          :disabled="isStarting"
+                          @keydown.enter.exact.prevent="continueWithCustomPath"
+                        />
+                      </label>
+
+                      <button
+                        class="btn btn-accent mt-3 w-full rounded-2xl"
+                        type="button"
+                        :disabled="!canContinueCustom"
+                        @click="continueWithCustomPath"
+                      >
+                        <span
+                          v-if="isStarting"
+                          class="loading loading-spinner loading-sm"
+                        />
+                        <Icon v-else name="kind-icon:wand" class="h-5 w-5" />
+                        Continue Custom Path
+                      </button>
+                    </div>
+                  </template>
                 </div>
               </div>
             </article>
@@ -372,12 +447,7 @@ import { useChatStore } from '@/stores/chatStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
-
-type RewardSessionChat = {
-  id: number
-  content: string
-  botResponse?: string | null
-}
+import type { Chat } from '~/prisma/generated/prisma/client'
 
 type ChatRuntimeInput = Parameters<
   ReturnType<typeof useChatStore>['addChat']
@@ -386,6 +456,12 @@ type ChatRuntimeInput = Parameters<
 type RewardStoryMessage = {
   role: 'system' | 'user' | 'assistant'
   content: string
+}
+
+type ParsedChoice = {
+  key: string
+  label: string
+  text: string
 }
 
 const rewardStore = useRewardStore()
@@ -400,6 +476,8 @@ const encounterMode = ref<
 >('discover')
 const tone = ref('whimsical')
 const customDirection = ref('')
+const customFollowup = ref('')
+const selectedPath = ref('')
 const userBackground = ref(userStore.user?.bio ?? '')
 const showCharacterPanel = ref(false)
 const statusMessage = ref('')
@@ -425,10 +503,14 @@ const activeServerName = computed(() => {
   )
 })
 
-const sessionChats = computed<RewardSessionChat[]>(() => {
+const sessionChats = computed<Chat[]>(() => {
   return chatStore.chats.filter((chat) =>
     sessionChatIds.value.includes(chat.id),
-  ) as RewardSessionChat[]
+  )
+})
+
+const latestSessionChat = computed(() => {
+  return sessionChats.value.at(-1) ?? null
 })
 
 const isResponding = computed(() => {
@@ -441,14 +523,27 @@ const canStartStory = computed(() => {
   )
 })
 
+const canContinueCustom = computed(() => {
+  return Boolean(
+    latestSessionChat.value?.botResponse &&
+    customFollowup.value.trim() &&
+    !isStarting.value &&
+    !isResponding.value,
+  )
+})
+
 const rewardPromptPreview = computed(() => buildRewardPrompt())
 
 const systemPrompt = computed(() => {
   return [
     'You are a narrative game master for Kind Robots.',
     'Write vivid, interactive story scenes centered on strange rewards, artifacts, boons, curses, or plot devices.',
-    'Keep the scene immersive and concrete.',
-    'End every response with exactly 3 follow-up choices: one cautious, one bold, and one weird.',
+    'Keep the scene immersive, concrete, and readable.',
+    'End every response with exactly 3 numbered follow-up choices.',
+    'Choice 1 must be cautious.',
+    'Choice 2 must be bold.',
+    'Choice 3 must be weird.',
+    'Each choice must be on its own line and start with 1., 2., or 3.',
     'Do not explain the prompt. Write the scene directly.',
   ].join('\n')
 })
@@ -486,6 +581,74 @@ function scrollToBottom() {
   el.scrollTop = el.scrollHeight
 }
 
+function isLatestRespondedChat(chatId: number) {
+  return Boolean(
+    latestSessionChat.value?.id === chatId &&
+    latestSessionChat.value.botResponse,
+  )
+}
+
+function getStoryChoices(text: string | null | undefined): ParsedChoice[] {
+  if (!text) return []
+
+  const lines = text.split(/\r?\n/)
+  const choices: ParsedChoice[] = []
+
+  for (const line of lines) {
+    const match = line.match(/^\s*(1|2|3)[.)]\s+(.+?)\s*$/)
+
+    if (!match) continue
+
+    const choiceNumber = match[1]
+    const choiceText = match[2]?.trim()
+
+    if (choiceNumber !== '1' && choiceNumber !== '2' && choiceNumber !== '3') {
+      continue
+    }
+
+    if (!choiceText) continue
+
+    const label =
+      choiceNumber === '1'
+        ? 'Cautious'
+        : choiceNumber === '2'
+          ? 'Bold'
+          : 'Weird'
+
+    choices.push({
+      key: `${choiceNumber}-${choiceText}`,
+      label,
+      text: choiceText,
+    })
+  }
+
+  return choices.slice(-3)
+}
+
+function getStoryScene(text: string | null | undefined) {
+  if (!text) return ''
+
+  const lines = text.split(/\r?\n/)
+  const sceneLines = lines.filter((line) => {
+    return !/^\s*(1|2|3)[.)]\s+/.test(line)
+  })
+
+  return sceneLines.join('\n').trim()
+}
+
+function getPlayerDisplayText(chat: Chat, index: number) {
+  if (index === 0 && chat.content.includes('Item:')) {
+    const rewardName = rewardStore.selectedReward?.text ?? 'the reward'
+    return `Begin the story with ${rewardName}.`
+  }
+
+  if (chat.content.startsWith('Selected path:')) {
+    return chat.content.replace(/^Selected path:\s*/i, '').trim()
+  }
+
+  return chat.content
+}
+
 function buildMessagesForRewardResponse(): RewardStoryMessage[] {
   return [
     {
@@ -519,10 +682,29 @@ function buildRewardPrompt() {
     `Tone: ${tone.value}`,
     direction ? `Player direction: ${direction}` : null,
     '',
-    'Write a scene where this item is discovered or used. Focus on what it feels like to hold it, what it does, and the immediate consequences. End with 3 follow-up choices: one cautious, one bold, and one weird.',
+    'Write a scene where this item is discovered or used.',
+    'Focus on what it feels like to hold it, what it does, and the immediate consequences.',
+    'End with exactly 3 numbered choices.',
+    '1. A cautious path.',
+    '2. A bold path.',
+    '3. A weird path.',
   ]
 
-  return lines.filter((line) => line !== null).join('\n')
+  return lines.filter((line): line is string => Boolean(line)).join('\n')
+}
+
+function buildFollowupPrompt(path: string) {
+  return [
+    `Selected path: ${path}`,
+    '',
+    'Continue the story from the selected path.',
+    'Respect the previous scene and consequences.',
+    'Advance the narrative with fresh action, sensory detail, and a meaningful cost or discovery.',
+    'End with exactly 3 numbered choices.',
+    '1. A cautious path.',
+    '2. A bold path.',
+    '3. A weird path.',
+  ].join('\n')
 }
 
 async function copyPrompt() {
@@ -534,14 +716,66 @@ async function copyPrompt() {
   setStatus('Prompt copied.')
 }
 
-async function startRewardStory() {
+async function createRewardChat(content: string) {
   const reward = rewardStore.selectedReward
 
   if (!reward) {
-    setStatus('Pick a reward before starting the story.', 'error')
-    return
+    throw new Error('Pick a reward before starting the story.')
   }
 
+  const character = characterStore.selectedCharacter
+  const senderName = character?.name ?? userStore.user?.username ?? 'Anonymous'
+
+  const payload: ChatRuntimeInput = {
+    content,
+    type: 'Reward',
+    sender: senderName,
+    userId:
+      userStore.userId ??
+      userStore.user?.id ??
+      character?.userId ??
+      reward.userId ??
+      10,
+    characterId: character?.id ?? null,
+    recipientId: null,
+    serverId: serverStore.activeTextServer?.id ?? null,
+    isPublic: false,
+  }
+
+  const newChat = await chatStore.addChat(payload)
+
+  if (!newChat?.id) {
+    throw new Error('Failed to create reward story chat.')
+  }
+
+  sessionChatIds.value.push(newChat.id)
+  chatStore.selectedChat = newChat
+
+  await nextTick()
+  scrollToBottom()
+
+  return newChat
+}
+
+async function streamRewardChat(chatId: number) {
+  if (typeof chatStore.streamResponse !== 'function') {
+    throw new Error('chatStore.streamResponse is not available.')
+  }
+
+  await chatStore.streamResponse(chatId, {
+    model: serverStore.activeTextServer?.model || 'gpt-4o-mini',
+    temperature: 0.85,
+    maxTokens: 2048,
+    serverId: serverStore.activeTextServer?.id ?? null,
+    stream: true,
+    messages: buildMessagesForRewardResponse(),
+  })
+
+  await nextTick()
+  scrollToBottom()
+}
+
+async function startRewardStory() {
   const content = buildRewardPrompt()
 
   if (!content.trim()) {
@@ -551,54 +785,12 @@ async function startRewardStory() {
 
   isStarting.value = true
   statusMessage.value = ''
+  selectedPath.value = ''
+  customFollowup.value = ''
 
   try {
-    const character = characterStore.selectedCharacter
-    const senderName =
-      character?.name ?? userStore.user?.username ?? 'Anonymous'
-
-    const payload: ChatRuntimeInput = {
-      content,
-      type: 'Reward',
-      sender: senderName,
-      userId:
-        userStore.userId ??
-        userStore.user?.id ??
-        character?.userId ??
-        reward.userId ??
-        10,
-      characterId: character?.id ?? null,
-      recipientId: null,
-      serverId: serverStore.activeTextServer?.id ?? null,
-      isPublic: false,
-    }
-
-    const newChat = await chatStore.addChat(payload)
-
-    if (!newChat?.id) {
-      throw new Error('Failed to create reward story chat.')
-    }
-
-    sessionChatIds.value.push(newChat.id)
-    chatStore.selectedChat = newChat
-
-    await nextTick()
-    scrollToBottom()
-
-    if (typeof chatStore.streamResponse !== 'function') {
-      throw new Error('chatStore.streamResponse is not available.')
-    }
-
-    await chatStore.streamResponse(newChat.id, {
-      model: serverStore.activeTextServer?.model || 'gpt-4o-mini',
-      temperature: 0.85,
-      maxTokens: 2048,
-      serverId: serverStore.activeTextServer?.id ?? null,
-      messages: buildMessagesForRewardResponse(),
-    })
-
-    await nextTick()
-    scrollToBottom()
+    const newChat = await createRewardChat(content)
+    await streamRewardChat(newChat.id)
     setStatus('Reward story returned.')
   } catch (error) {
     console.error('Error starting reward story:', error)
@@ -611,8 +803,49 @@ async function startRewardStory() {
   }
 }
 
+async function continueWithPath(path: string) {
+  if (!path.trim() || isStarting.value) return
+
+  selectedPath.value = path
+  customFollowup.value = path
+
+  await continueRewardStory(path)
+}
+
+async function continueWithCustomPath() {
+  const path = customFollowup.value.trim()
+
+  if (!path || isStarting.value) return
+
+  selectedPath.value = path
+
+  await continueRewardStory(path)
+}
+
+async function continueRewardStory(path: string) {
+  isStarting.value = true
+  statusMessage.value = ''
+
+  try {
+    const newChat = await createRewardChat(buildFollowupPrompt(path))
+    customFollowup.value = ''
+    await streamRewardChat(newChat.id)
+    setStatus('Story continued.')
+  } catch (error) {
+    console.error('Error continuing reward story:', error)
+    setStatus(
+      error instanceof Error ? error.message : 'Error continuing reward story.',
+      'error',
+    )
+  } finally {
+    isStarting.value = false
+  }
+}
+
 function newStory() {
   sessionChatIds.value = []
+  selectedPath.value = ''
+  customFollowup.value = ''
   statusMessage.value = ''
 }
 
@@ -620,6 +853,8 @@ function clearPromptOptions() {
   encounterMode.value = 'discover'
   tone.value = 'whimsical'
   customDirection.value = ''
+  customFollowup.value = ''
+  selectedPath.value = ''
   userBackground.value = userStore.user?.bio ?? ''
   statusMessage.value = ''
 }

@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type {
   Server,
+  ServerAccessMode,
   ServerStatus,
   ServerType,
 } from '~/prisma/generated/prisma/client'
@@ -34,7 +35,7 @@ export interface ServerHealthResponse {
     latencyMs: number
     responseBody: unknown
     runLocation?: 'server' | 'browser'
-    accessMode?: string | null
+    accessMode?: ServerAccessMode | null
     requiresClientSideCheck?: boolean | null
     isPrivateNetwork?: boolean | null
     allowBrowserRequests?: boolean | null
@@ -56,7 +57,7 @@ interface ServerHealthHandoffData {
   id: number
   title: string
   healthUrl: string
-  accessMode?: string | null
+  accessMode?: ServerAccessMode | null
   requiresClientSideCheck?: boolean | null
   isPrivateNetwork?: boolean | null
   allowBrowserRequests?: boolean | null
@@ -443,43 +444,24 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   async function requestServer(
-    server: Server,
-    path: string,
+    serverInput: Server,
+    pathOverride?: string,
     options: RequestInit = {},
-  ): Promise<Response> {
-    if (!isClient) {
-      throw new Error('Server CORS requests can only run in the browser.')
-    }
-
-    if (!server.baseUrl) {
-      throw new Error(`Server "${server.title}" has no baseUrl configured.`)
-    }
+  ) {
+    const server = getHydratedServer(serverInput)
 
     if (!server.allowBrowserRequests) {
       throw new Error(
-        [
-          `Server "${server.title}" is not configured to allow browser requests.`,
-          `allowBrowserRequests=${String(server.allowBrowserRequests)}`,
-          `requiresClientSideCheck=${String(server.requiresClientSideCheck)}`,
-          `isPrivateNetwork=${String(server.isPrivateNetwork)}`,
-          `accessMode=${server.accessMode ?? 'null'}`,
-          `baseUrl=${server.baseUrl || 'missing'}`,
-          `healthPath=${server.healthPath || 'missing'}`,
-          `serverType=${server.serverType}`,
-          `id=${server.id}`,
-        ].join(' | '),
+        `Server "${server.title || server.label || server.id}" is not configured to allow browser requests. | allowBrowserRequests=${server.allowBrowserRequests} | requiresClientSideCheck=${server.requiresClientSideCheck} | isPrivateNetwork=${server.isPrivateNetwork} | accessMode=${server.accessMode} | baseUrl=${server.baseUrl} | healthPath=${server.healthPath} | serverType=${server.serverType} | id=${server.id}`,
       )
     }
 
-    const url = joinServerUrl(server.baseUrl, path)
-    const headers = buildCorsHeaders(options)
+    const baseUrl = String(server.baseUrl || '').replace(/\/$/, '')
+    const path = String(pathOverride || server.healthPath || '').startsWith('/')
+      ? String(pathOverride || server.healthPath || '')
+      : `/${String(pathOverride || server.healthPath || '')}`
 
-    return await fetch(url, {
-      ...options,
-      mode: 'cors',
-      credentials: shouldSendCredentials(server) ? 'include' : 'omit',
-      headers,
-    })
+    return await fetch(`${baseUrl}${path}`, options)
   }
 
   function upsertServer(server: Server): void {
@@ -1165,6 +1147,7 @@ export const useServerStore = defineStore('serverStore', () => {
     }
 
     healthResults.value[id] = result
+    patchServerFromHealthResponse(result)
     syncToLocalStorage()
 
     return result
@@ -1186,6 +1169,31 @@ export const useServerStore = defineStore('serverStore', () => {
         const statusCode = getResponseStatusCode(result)
 
         if (statusCode === 202 && isServerHealthHandoffData(result.data)) {
+          const handoffResult: ServerHealthResponse = {
+            success: true,
+            message:
+              result.message ||
+              'This server must be tested from the browser because it uses a private or Tailscale connection.',
+            data: {
+              id: result.data.id,
+              title: result.data.title,
+              healthUrl: result.data.healthUrl,
+              accessMode: result.data.accessMode,
+              requiresClientSideCheck: result.data.requiresClientSideCheck,
+              isPrivateNetwork: result.data.isPrivateNetwork,
+              allowBrowserRequests: result.data.allowBrowserRequests,
+              ok: false,
+              status: 202,
+              statusText: 'Browser health check required',
+              latencyMs: 0,
+              responseBody: null,
+              runLocation: 'browser',
+            },
+            statusCode,
+          }
+
+          patchServerFromHealthResponse(handoffResult)
+
           return await testServerHealthFromBrowser(id, result.data.healthUrl)
         }
 
@@ -1198,6 +1206,7 @@ export const useServerStore = defineStore('serverStore', () => {
           }
 
           healthResults.value[id] = healthResult
+          patchServerFromHealthResponse(healthResult)
           syncToLocalStorage()
 
           return healthResult
@@ -1230,7 +1239,6 @@ export const useServerStore = defineStore('serverStore', () => {
 
     return healthPromises.value[id]
   }
-
   function selectServer(id: number): void {
     const server = servers.value.find((item: Server): boolean => item.id === id)
 
@@ -1512,6 +1520,75 @@ export const useServerStore = defineStore('serverStore', () => {
     return servers.value.filter(
       (server: Server): boolean => server.serverType === serverType,
     )
+  }
+
+  function getHydratedServer(serverInput: Server): Server {
+    const storedServer = serverInput.id ? getServerById(serverInput.id) : null
+
+    return {
+      ...serverInput,
+      ...(storedServer ?? {}),
+      allowBrowserRequests:
+        storedServer?.allowBrowserRequests ?? serverInput.allowBrowserRequests,
+      requiresClientSideCheck:
+        storedServer?.requiresClientSideCheck ??
+        serverInput.requiresClientSideCheck,
+      isPrivateNetwork:
+        storedServer?.isPrivateNetwork ?? serverInput.isPrivateNetwork,
+      accessMode: storedServer?.accessMode ?? serverInput.accessMode,
+      baseUrl: storedServer?.baseUrl ?? serverInput.baseUrl,
+      healthPath: storedServer?.healthPath ?? serverInput.healthPath,
+      endpointPath: storedServer?.endpointPath ?? serverInput.endpointPath,
+      serverType: storedServer?.serverType ?? serverInput.serverType,
+    }
+  }
+
+  function patchServerFromHealthResponse(result: ServerHealthResponse): void {
+    const data = result.data
+
+    if (!data?.id) return
+
+    const index = servers.value.findIndex(
+      (server: Server): boolean => server.id === data.id,
+    )
+
+    if (index < 0) return
+
+    const currentServer = servers.value[index]
+
+    if (!currentServer) return
+
+    const nextStatus: ServerStatus = data.ok
+      ? 'ONLINE'
+      : data.runLocation === 'browser'
+        ? 'UNKNOWN'
+        : 'OFFLINE'
+
+    const patchedServer: Server = {
+      ...currentServer,
+      accessMode: data.accessMode ?? currentServer.accessMode,
+      requiresClientSideCheck:
+        data.requiresClientSideCheck ?? currentServer.requiresClientSideCheck,
+      isPrivateNetwork: data.isPrivateNetwork ?? currentServer.isPrivateNetwork,
+      allowBrowserRequests:
+        data.allowBrowserRequests ?? currentServer.allowBrowserRequests,
+      lastStatus: nextStatus,
+    }
+
+    servers.value.splice(index, 1, patchedServer)
+
+    if (selectedServer.value?.id === data.id) {
+      selectedServer.value = patchedServer
+    }
+
+    if (serverForm.value.id === data.id) {
+      serverForm.value = {
+        ...serverForm.value,
+        ...patchedServer,
+      }
+    }
+
+    syncToLocalStorage()
   }
 
   function getCompatibleServers(

@@ -1,23 +1,25 @@
 // /server/api/server/health/[id].get.ts
-import { defineEventHandler, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
+import { createError, defineEventHandler, getRouterParam } from 'h3'
+import prisma from './../../../utils/prisma'
+import { errorHandler } from './../../../utils/error'
+import {
+  buildServerHealthUrl,
+  canReadServer,
+  getOptionalAuthUser,
+  parseId,
+  readServerById,
+} from './../../../utils/serverApi'
 
-const HEALTH_TIMEOUT_MS = 8000
-
-function buildHealthUrl(baseUrl: string, healthPath?: string | null): string {
-  const normalizedBase = baseUrl.replace(/\/+$/, '')
-  const normalizedPath = healthPath
-    ? healthPath.startsWith('/')
-      ? healthPath
-      : `/${healthPath}`
-    : ''
-
-  return `${normalizedBase}${normalizedPath}`
+type HealthReport = {
+  ok: boolean
+  status: number
+  statusText: string
+  latencyMs: number
+  responseBody: unknown
+  message: string
 }
 
-async function parseHealthResponse(response: Response): Promise<unknown> {
+async function readHealthBody(response: Response): Promise<unknown> {
   const contentType = response.headers.get('content-type') || ''
 
   try {
@@ -25,91 +27,44 @@ async function parseHealthResponse(response: Response): Promise<unknown> {
       return await response.json()
     }
 
-    const text = await response.text()
-    return text.length > 1500 ? `${text.slice(0, 1500)}...` : text
+    return await response.text()
   } catch {
     return null
   }
 }
 
-function shouldUseClientSideHealthCheck(server: {
-  accessMode?: string | null
-  requiresClientSideCheck?: boolean | null
-  isPrivateNetwork?: boolean | null
-  allowBrowserRequests?: boolean | null
-}): boolean {
-  return Boolean(
-    server.requiresClientSideCheck ||
-    server.accessMode === 'TAILSCALE' ||
-    server.accessMode === 'LOCAL' ||
-    (server.isPrivateNetwork && server.allowBrowserRequests),
-  )
-}
-
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-
   try {
-    id = Number(event.context.params?.id)
+    const id = parseId(getRouterParam(event, 'id'))
+    const user = await getOptionalAuthUser(event)
+    const server = await readServerById(id)
 
-    if (!Number.isInteger(id) || id <= 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid Server ID. Must be a positive integer.',
-      })
-    }
-
-    const { isValid, user } = await validateApiKey(event)
-
-    const server = await prisma.server.findUnique({
-      where: { id },
-    })
-
-    if (!server) {
-      throw createError({
-        statusCode: 404,
-        message: `Server with ID ${id} not found.`,
-      })
-    }
-
-    const canView =
-      server.isPublic ||
-      (isValid && user && (user.Role === 'ADMIN' || server.userId === user.id))
-
-    if (!canView) {
+    if (!canReadServer(server, user)) {
       throw createError({
         statusCode: 403,
-        message: 'You do not have permission to test this Server.',
+        message: 'You do not have permission to test this server.',
       })
     }
 
-    const healthUrl = buildHealthUrl(server.baseUrl, server.healthPath)
+    const mustRunInBrowser =
+      server.requiresClientSideCheck ||
+      server.isPrivateNetwork ||
+      server.accessMode === 'LOCAL' ||
+      server.accessMode === 'TAILSCALE' ||
+      server.defaultTransport === 'BROWSER'
 
-    let parsedUrl: URL
+    const healthUrl = buildServerHealthUrl(
+      server,
+      mustRunInBrowser ? 'browser' : 'backend',
+    )
 
-    try {
-      parsedUrl = new URL(healthUrl)
-    } catch {
-      throw createError({
-        statusCode: 400,
-        message: `Invalid health URL: ${healthUrl}`,
-      })
-    }
-
-    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      throw createError({
-        statusCode: 400,
-        message: 'Health URL must use http or https.',
-      })
-    }
-
-    if (shouldUseClientSideHealthCheck(server)) {
+    if (mustRunInBrowser) {
       event.node.res.statusCode = 202
 
       return {
         success: true,
         message:
-          'This server must be tested from the browser because it uses a private or Tailscale connection.',
+          'This server must be tested from the browser because it uses a private, local, or Tailscale connection.',
         data: {
           id: server.id,
           title: server.title,
@@ -125,92 +80,66 @@ export default defineEventHandler(async (event) => {
     }
 
     const startedAt = Date.now()
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS)
 
-    let ok = false
-    let status = 0
-    let statusText = 'Unknown'
-    let responseBody: unknown = null
-    let failureReason: string | null = null
-
-    try {
-      const headers: HeadersInit = {
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      headers: {
         Accept: 'application/json, text/plain, */*',
-      }
+        'X-Kindrobots-Server-Token': process.env.ART_SERVER_PROXY_TOKEN ?? '',
+      },
+    })
 
-      if (server.requiresApiKey && server.apiKey && server.apiKeyName) {
-        headers[server.apiKeyName] = server.apiKey
-      }
+    const responseBody = await readHealthBody(response)
 
-      const response = await fetch(healthUrl, {
-        method: 'GET',
-        headers,
-        signal: controller.signal,
-      })
-
-      ok = response.ok
-      status = response.status
-      statusText = response.statusText || 'Unknown'
-      responseBody = await parseHealthResponse(response)
-
-      if (!ok) {
-        failureReason = `Health endpoint returned HTTP ${status}.`
-      }
-    } catch (fetchError) {
-      const message =
-        fetchError instanceof Error ? fetchError.message : 'Request failed'
-
-      statusText =
-        fetchError instanceof DOMException && fetchError.name === 'AbortError'
-          ? 'Request timed out'
-          : message
-
-      failureReason = statusText
-    } finally {
-      clearTimeout(timeout)
+    const report: HealthReport = {
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      latencyMs: Date.now() - startedAt,
+      responseBody,
+      message: response.ok
+        ? 'Server health check succeeded.'
+        : `Health endpoint returned HTTP ${response.status}.`,
     }
-
-    const latencyMs = Date.now() - startedAt
-    const lastStatus = ok ? 'ONLINE' : status > 0 ? 'DEGRADED' : 'OFFLINE'
 
     await prisma.server.update({
       where: { id },
       data: {
         lastCheckedAt: new Date(),
-        lastStatus,
+        lastStatus: response.ok ? 'ONLINE' : 'OFFLINE',
       },
     })
 
-    event.node.res.statusCode = ok ? 200 : 502
+    event.node.res.statusCode = response.ok ? 200 : 502
 
     return {
-      success: ok,
-      message: ok
-        ? 'Server health check succeeded.'
-        : failureReason || 'Server health check failed.',
+      success: response.ok,
+      message: report.message,
       data: {
         id: server.id,
         title: server.title,
         healthUrl,
-        ok,
-        status,
-        statusText,
-        latencyMs,
-        responseBody,
+        accessMode: server.accessMode,
+        requiresClientSideCheck: server.requiresClientSideCheck,
+        isPrivateNetwork: server.isPrivateNetwork,
+        allowBrowserRequests: server.allowBrowserRequests,
+        ok: report.ok,
+        status: report.status,
+        statusText: report.statusText,
+        latencyMs: report.latencyMs,
+        responseBody: report.responseBody,
         runLocation: 'server',
       },
-      statusCode: event.node.res.statusCode,
+      statusCode: response.ok ? 200 : 502,
     }
   } catch (error) {
-    const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
 
     return {
       success: false,
-      message: handled.message || `Failed to test Server with ID ${id}.`,
-      data: null,
-      statusCode: event.node.res.statusCode,
+      message: handledError.message || 'Failed to test server health.',
+      statusCode: handledError.statusCode || 500,
     }
   }
 })

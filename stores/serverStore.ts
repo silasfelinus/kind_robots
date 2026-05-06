@@ -456,7 +456,9 @@ export const useServerStore = defineStore('serverStore', () => {
       )
     }
 
-    const baseUrl = String(server.baseUrl || '').replace(/\/$/, '')
+    const baseUrl = String(
+      server.browserBaseUrl || server.baseUrl || '',
+    ).replace(/\/$/, '')
     const path = String(pathOverride || server.healthPath || '').startsWith('/')
       ? String(pathOverride || server.healthPath || '')
       : `/${String(pathOverride || server.healthPath || '')}`

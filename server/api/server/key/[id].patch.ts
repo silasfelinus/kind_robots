@@ -1,115 +1,93 @@
 // /server/api/server/key/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
-import { encryptSecret } from '@/server/utils/secretCrypto'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
+import prisma from './../../../utils/prisma'
+import { errorHandler } from './../../../utils/error'
+import {
+  canMutateServer,
+  parseId,
+  readServerById,
+  requireAuthUser,
+  safeServer,
+} from './../../../utils/serverApi'
 
-interface ServerKeyBody {
+type KeyPayload = {
   apiKey?: string | null
   apiKeyName?: string | null
   clearKey?: boolean
 }
 
+function cleanText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-
   try {
-    id = Number(event.context.params?.id)
+    const id = parseId(getRouterParam(event, 'id'))
+    const user = await requireAuthUser(event)
+    const server = await readServerById(id)
 
-    if (!id || Number.isNaN(id)) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid server ID.',
-      })
-    }
-
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const server = await prisma.server.findUnique({
-      where: { id },
-    })
-
-    if (!server) {
-      throw createError({
-        statusCode: 404,
-        message: 'Server not found.',
-      })
-    }
-
-    const isAdmin = user.Role === 'ADMIN'
-
-    if (server.userId !== user.id && !isAdmin) {
+    if (!canMutateServer(server, user)) {
       throw createError({
         statusCode: 403,
-        message: 'You do not have permission to update this server key.',
+        message: 'You do not have permission to update this server API key.',
       })
     }
 
-    const body = await readBody<ServerKeyBody>(event)
+    if (!server.isEditable && !user.isAdmin) {
+      throw createError({
+        statusCode: 403,
+        message: 'This server is not editable.',
+      })
+    }
+
+    const body = (await readBody(event)) as KeyPayload
+
+    const data: {
+      apiKey?: string | null
+      apiKeyName?: string | null
+      requiresApiKey?: boolean
+    } = {}
 
     if (body.clearKey) {
-      const updated = await prisma.server.update({
-        where: { id },
-        data: {
-          apiKey: null,
-          apiKeyName: body.apiKeyName ?? server.apiKeyName,
-          requiresApiKey: false,
-        },
-      })
+      data.apiKey = null
+      data.requiresApiKey = false
+    } else {
+      const apiKey = cleanText(body.apiKey)
 
-      return {
-        success: true,
-        message: 'Server API key cleared.',
-        data: {
-          ...updated,
-          apiKey: null,
-        },
-        statusCode: 200,
+      if (!apiKey) {
+        throw createError({
+          statusCode: 400,
+          message: 'API key is required unless clearKey is true.',
+        })
       }
+
+      data.apiKey = apiKey
+      data.requiresApiKey = true
     }
 
-    if (!body.apiKey || !body.apiKey.trim()) {
-      throw createError({
-        statusCode: 400,
-        message: 'API key is required.',
-      })
+    if ('apiKeyName' in body) {
+      data.apiKeyName = cleanText(body.apiKeyName) || 'API Key'
     }
 
-    const updated = await prisma.server.update({
+    const updatedServer = await prisma.server.update({
       where: { id },
-      data: {
-        apiKey: encryptSecret(body.apiKey.trim()),
-        apiKeyName: body.apiKeyName?.trim() || server.apiKeyName || 'API Key',
-        requiresApiKey: true,
-      },
+      data,
     })
 
     return {
       success: true,
-      message: 'Server API key saved.',
-      data: {
-        ...updated,
-        apiKey: 'CONFIGURED',
-      },
-      statusCode: 200,
+      message: body.clearKey
+        ? 'Server API key cleared.'
+        : 'Server API key updated.',
+      data: safeServer(updatedServer, user),
     }
   } catch (error) {
-    const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
 
     return {
       success: false,
-      message: handled.message || 'Failed to update server API key.',
-      data: null,
-      statusCode: event.node.res.statusCode,
+      message: handledError.message || 'Failed to update server API key.',
     }
   }
 })

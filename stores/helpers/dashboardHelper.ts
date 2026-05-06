@@ -423,7 +423,7 @@ export const dashboardConfigs = {
       {
         key: 'rebel-button',
         label: 'Rebel',
-        icon: 'kind-icon:rebel',
+        icon: 'kind-icon:button',
         title: 'Rebel Button',
         summary: 'Push the button. Regret is optional.',
       },

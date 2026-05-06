@@ -34,6 +34,7 @@
         </h2>
         <p class="mt-0.5 text-[11px] opacity-55">{{ subtitle }}</p>
       </div>
+
       <button
         type="button"
         class="btn btn-ghost btn-sm btn-circle shrink-0"
@@ -55,6 +56,63 @@
         >
           Quick Setup
         </legend>
+
+        <label v-if="!serverStore.serverForm.id" class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70">Blueprint</span>
+          <select
+            v-model="serverStore.selectedBlueprintServerId"
+            class="select select-bordered select-sm rounded-xl text-xs"
+            @change="selectBlueprint"
+          >
+            <option :value="null">Start from a new blank server</option>
+
+            <option
+              v-for="server in serverStore.blueprintServers"
+              :key="server.id"
+              :value="server.id"
+            >
+              [{{ server.serverType }}] {{ server.label || server.title }}
+            </option>
+          </select>
+        </label>
+
+        <div
+          v-if="selectedBlueprint"
+          class="rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-[11px]"
+        >
+          <div class="flex items-start gap-2">
+            <Icon
+              name="kind-icon:copy"
+              class="mt-0.5 h-3.5 w-3.5 shrink-0 text-info"
+            />
+            <div>
+              <p class="font-black">Using blueprint</p>
+              <p class="mt-0.5 opacity-70">
+                {{ selectedBlueprint.label || selectedBlueprint.title }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold opacity-70">Title</span>
+            <input
+              v-model="serverStore.serverForm.title"
+              class="input input-bordered input-sm rounded-xl text-xs"
+              placeholder="Lola Stable Diffusion"
+            />
+          </label>
+
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold opacity-70">Label</span>
+            <input
+              v-model="serverStore.serverForm.label"
+              class="input input-bordered input-sm rounded-xl text-xs"
+              placeholder="Lola A1111"
+            />
+          </label>
+        </div>
 
         <label class="flex flex-col gap-1">
           <span class="text-[11px] font-bold opacity-70">Connection Mode</span>
@@ -101,6 +159,7 @@
               class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
               :placeholder="baseUrlPlaceholder"
             />
+
             <button
               v-if="serverStore.serverForm.baseUrl"
               type="button"
@@ -116,23 +175,25 @@
           </div>
         </label>
 
-        <label class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">Endpoint Path</span>
-          <input
-            v-model="serverStore.serverForm.endpointPath"
-            class="input input-bordered input-sm rounded-xl font-mono text-xs"
-            placeholder="/v1/chat/completions"
-          />
-        </label>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold opacity-70">Endpoint Path</span>
+            <input
+              v-model="serverStore.serverForm.endpointPath"
+              class="input input-bordered input-sm rounded-xl font-mono text-xs"
+              placeholder="/v1/chat/completions"
+            />
+          </label>
 
-        <label class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">Health Path</span>
-          <input
-            v-model="serverStore.serverForm.healthPath"
-            class="input input-bordered input-sm rounded-xl font-mono text-xs"
-            :placeholder="healthPathPlaceholder"
-          />
-        </label>
+          <label class="flex flex-col gap-1">
+            <span class="text-[11px] font-bold opacity-70">Health Path</span>
+            <input
+              v-model="serverStore.serverForm.healthPath"
+              class="input input-bordered input-sm rounded-xl font-mono text-xs"
+              :placeholder="healthPathPlaceholder"
+            />
+          </label>
+        </div>
 
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <label
@@ -181,6 +242,7 @@
               {{ serverHasStoredKey ? '🔑 Stored' : 'Not set' }}
             </span>
           </div>
+
           <div class="flex gap-1.5">
             <input
               v-model="apiKey"
@@ -189,6 +251,7 @@
               placeholder="Leave blank to keep existing"
               class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
             />
+
             <button
               type="button"
               class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl"
@@ -201,11 +264,13 @@
               />
             </button>
           </div>
+
           <input
             v-model="apiKeyName"
             class="input input-bordered input-sm rounded-xl text-xs"
-            placeholder="Label: OpenAI, Groq, Stability…"
+            placeholder="Label: OpenAI, Groq, Stability..."
           />
+
           <div class="flex flex-wrap gap-1.5">
             <button
               type="button"
@@ -215,6 +280,7 @@
             >
               Save Key Only
             </button>
+
             <button
               type="button"
               class="btn btn-ghost btn-xs rounded-lg opacity-60"
@@ -244,22 +310,6 @@
         <div class="flex flex-col gap-3 p-4">
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label class="flex flex-col gap-1">
-              <span class="text-[11px] font-bold opacity-70">Title</span>
-              <input
-                v-model="serverStore.serverForm.title"
-                class="input input-bordered input-sm rounded-xl text-xs"
-              />
-            </label>
-
-            <label class="flex flex-col gap-1">
-              <span class="text-[11px] font-bold opacity-70">Label</span>
-              <input
-                v-model="serverStore.serverForm.label"
-                class="input input-bordered input-sm rounded-xl text-xs"
-              />
-            </label>
-
-            <label class="flex flex-col gap-1">
               <span class="text-[11px] font-bold opacity-70">Server Type</span>
               <select
                 v-model="serverStore.serverForm.serverType"
@@ -284,9 +334,9 @@
             </label>
 
             <label class="flex flex-col gap-1">
-              <span class="text-[11px] font-bold opacity-70"
-                >OIDC Provider</span
-              >
+              <span class="text-[11px] font-bold opacity-70">
+                OIDC Provider
+              </span>
               <input
                 v-model="serverStore.serverForm.oidcProvider"
                 class="input input-bordered input-sm rounded-xl text-xs"
@@ -340,6 +390,7 @@
         >
           Cancel
         </button>
+
         <button
           type="submit"
           class="btn btn-primary btn-sm flex-1 gap-1.5 rounded-xl"
@@ -448,6 +499,14 @@ const accessModeOptions: AccessModeOption[] = [
   },
 ]
 
+const selectedBlueprint = computed(() => {
+  const id = serverStore.selectedBlueprintServerId
+
+  if (!id) return null
+
+  return serverStore.getServerById(id)
+})
+
 const selectedAccessModeInfo = computed<AccessModeOption>(() => {
   return (
     accessModeOptions.find(
@@ -456,49 +515,59 @@ const selectedAccessModeInfo = computed<AccessModeOption>(() => {
   )
 })
 
-const serverHasStoredKey = computed(() =>
-  Boolean(serverStore.serverForm.apiKey),
-)
+const serverHasStoredKey = computed(() => {
+  return Boolean(serverStore.serverForm.apiKey)
+})
 
 const isCloning = computed(() => {
-  const id = serverStore.serverForm.id
-  if (!id) return false
-  const server = serverStore.getServerById(id)
-  if (!server) return false
-  return (
-    server.userId !== myUserId.value || !!server.isPublic || !!server.isOfficial
+  return Boolean(
+    !serverStore.serverForm.id && serverStore.selectedBlueprintServerId,
   )
 })
 
 const subtitle = computed(() => {
-  if (isCloning.value)
-    return 'Your edits create a private copy — original unchanged.'
-  if (serverStore.serverForm.id) return 'Adjust this server configuration.'
+  if (isCloning.value) {
+    return 'Your edits create a private copy. The blueprint stays unchanged.'
+  }
+
+  if (serverStore.serverForm.id) {
+    return 'Adjust this private server configuration.'
+  }
+
   return `New ${serverStore.serverForm.serverType ?? 'TEXT'} server.`
 })
 
 const baseUrlPlaceholder = computed(() => {
-  if (serverStore.serverForm.accessMode === 'TAILSCALE')
+  if (serverStore.serverForm.accessMode === 'TAILSCALE') {
     return 'https://ferngrotto.foxhound-chicken.ts.net:8443'
-  if (serverStore.serverForm.serverType === 'COMFY')
+  }
+
+  if (serverStore.serverForm.serverType === 'COMFY') {
     return 'http://127.0.0.1:8188'
-  if (serverStore.serverForm.serverType === 'A1111')
+  }
+
+  if (serverStore.serverForm.serverType === 'A1111') {
     return 'http://127.0.0.1:7860'
+  }
+
   return 'http://localhost:7860'
 })
 
 const healthPathPlaceholder = computed(() => {
   if (serverStore.serverForm.serverType === 'COMFY') return '/system_stats'
   if (serverStore.serverForm.serverType === 'A1111') return '/sdapi/v1/progress'
-  if (serverStore.serverForm.serverType === 'OPENAI_COMPATIBLE')
+
+  if (serverStore.serverForm.serverType === 'OPENAI_COMPATIBLE') {
     return '/v1/models'
+  }
+
   return '/health'
 })
 
 const capabilityToggles = [
   { key: 'supportsChat', label: 'Chat' },
-  { key: 'supportsTxt2Img', label: 'Txt → Img' },
-  { key: 'supportsImg2Img', label: 'Img → Img' },
+  { key: 'supportsTxt2Img', label: 'Txt to Img' },
+  { key: 'supportsImg2Img', label: 'Img to Img' },
   { key: 'supportsComfyWorkflow', label: 'Comfy Workflow' },
   { key: 'supportsCheckpointOverride', label: 'Checkpoint Override' },
   { key: 'supportsSampler', label: 'Sampler' },
@@ -590,10 +659,13 @@ function applyServerTypePreset() {
   if (serverType === 'COMFY') {
     serverStore.serverForm = {
       ...serverStore.serverForm,
+      endpointPath: serverStore.serverForm.endpointPath || '/prompt',
       healthPath: serverStore.serverForm.healthPath || '/system_stats',
+      category: serverStore.serverForm.category || 'image',
       supportsComfyWorkflow: true,
       supportsTxt2Img: true,
       supportsImg2Img: true,
+      supportsChat: false,
       supportsSeed: true,
       supportsSteps: true,
     }
@@ -603,14 +675,31 @@ function applyServerTypePreset() {
   if (serverType === 'A1111') {
     serverStore.serverForm = {
       ...serverStore.serverForm,
+      endpointPath: serverStore.serverForm.endpointPath || '/sdapi/v1/txt2img',
       healthPath: serverStore.serverForm.healthPath || '/sdapi/v1/progress',
+      category: serverStore.serverForm.category || 'image',
       supportsTxt2Img: true,
       supportsImg2Img: true,
+      supportsChat: false,
+      supportsComfyWorkflow: false,
       supportsNegativePrompt: true,
       supportsSeed: true,
       supportsSteps: true,
       supportsSampler: true,
       supportsCheckpointOverride: true,
+    }
+    return
+  }
+
+  if (serverType === 'ART') {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      endpointPath: serverStore.serverForm.endpointPath || '/generate',
+      healthPath: serverStore.serverForm.healthPath || '/health',
+      category: serverStore.serverForm.category || 'image',
+      supportsTxt2Img: true,
+      supportsImg2Img: true,
+      supportsChat: false,
     }
     return
   }
@@ -621,7 +710,26 @@ function applyServerTypePreset() {
       healthPath: serverStore.serverForm.healthPath || '/v1/models',
       endpointPath:
         serverStore.serverForm.endpointPath || '/v1/chat/completions',
+      category: serverStore.serverForm.category || 'text',
       supportsChat: true,
+      supportsTxt2Img: false,
+      supportsImg2Img: false,
+      supportsComfyWorkflow: false,
+    }
+    return
+  }
+
+  if (serverType === 'TEXT') {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      healthPath: serverStore.serverForm.healthPath || '/health',
+      endpointPath:
+        serverStore.serverForm.endpointPath || '/v1/chat/completions',
+      category: serverStore.serverForm.category || 'text',
+      supportsChat: true,
+      supportsTxt2Img: false,
+      supportsImg2Img: false,
+      supportsComfyWorkflow: false,
     }
   }
 }
@@ -630,6 +738,7 @@ async function copyUrl() {
   try {
     await navigator.clipboard.writeText(serverStore.serverForm.baseUrl ?? '')
     copiedUrl.value = true
+
     setTimeout(() => {
       copiedUrl.value = false
     }, 1500)
@@ -681,8 +790,17 @@ function normalizeServerFormForSave() {
   }
 }
 
+function selectBlueprint() {
+  serverStore.setBlueprintServer(serverStore.selectedBlueprintServerId)
+  apiKey.value = ''
+  apiKeyName.value = serverStore.serverForm.apiKeyName || ''
+  applyServerTypePreset()
+  applyAccessModePreset()
+}
+
 async function ensurePrivateServer(): Promise<number | null> {
   if (!userStore.isLoggedIn) return null
+
   if (serverStore.serverForm.id && !isCloning.value) {
     return serverStore.serverForm.id
   }
@@ -713,23 +831,29 @@ async function ensurePrivateServer(): Promise<number | null> {
 
 async function saveKeyOnly() {
   if (!apiKey.value.trim()) return
+
   const id = await ensurePrivateServer()
+
   if (!id) return
+
   await serverStore.updateServerApiKey(id, {
     apiKey: apiKey.value,
     apiKeyName:
       apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   })
+
   apiKey.value = ''
 }
 
 async function clearKey() {
   if (!serverStore.serverForm.id || isCloning.value) return
+
   await serverStore.updateServerApiKey(serverStore.serverForm.id, {
     clearKey: true,
     apiKeyName:
       apiKeyName.value || serverStore.serverForm.apiKeyName || 'API Key',
   })
+
   apiKey.value = ''
 }
 
@@ -737,6 +861,19 @@ async function handleSave() {
   applyAccessModePreset()
   applyServerTypePreset()
   normalizeServerFormForSave()
+
+  if (isCloning.value) {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      id: undefined,
+      userId: myUserId.value,
+      isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isEditable: true,
+      apiKey: undefined,
+    }
+  }
 
   const result = await serverStore.saveServer()
 
@@ -751,10 +888,13 @@ async function handleSave() {
   }
 
   apiKey.value = ''
+  serverStore.selectedBlueprintServerId = null
+
   await serverStore.initialize({
     force: true,
     fetchRemote: true,
   })
+
   serverStore.selectServer(result.data.id)
   serverStore.closeServerForm()
 }
@@ -762,7 +902,9 @@ async function handleSave() {
 watch(
   () => serverStore.serverForm.apiKeyName,
   (val) => {
-    if (!apiKeyName.value && val) apiKeyName.value = val
+    if (!apiKeyName.value && val) {
+      apiKeyName.value = val
+    }
   },
 )
 
@@ -774,37 +916,50 @@ watch(
 )
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') serverStore.closeServerForm()
+  if (e.key === 'Escape') {
+    serverStore.closeServerForm()
+  }
 }
 
 onMounted(() => {
   if (!serverStore.serverForm.accessMode) {
     serverStore.serverForm.accessMode = 'LOCAL'
   }
+
+  apiKeyName.value = serverStore.serverForm.apiKeyName || ''
+
   applyServerTypePreset()
   applyAccessModePreset()
+
   window.addEventListener('keydown', onKeydown)
 })
 
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>
 
 <style scoped>
 .scrollbar-thin {
   scrollbar-width: thin;
 }
+
 .scrollbar-track-transparent {
   scrollbar-color: transparent transparent;
 }
+
 .scrollbar-thumb-base-300 {
   scrollbar-color: oklch(var(--b3)) transparent;
 }
+
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background: oklch(var(--b3));

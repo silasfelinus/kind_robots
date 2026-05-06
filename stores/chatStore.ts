@@ -76,35 +76,6 @@ export const useChatStore = defineStore('chatStore', () => {
     })
   })
 
-  function extractBotText(payload: BotCafeResponse): string {
-    if (typeof payload.content === 'string' && payload.content.trim()) {
-      return payload.content
-    }
-
-    const data = payload.data as BotCafeResponse | undefined
-
-    const directChoice = payload.choices?.[0]?.message?.content
-    if (directChoice) return directChoice
-
-    const wrappedChoice = data?.choices?.[0]?.message?.content
-    if (wrappedChoice) return wrappedChoice
-
-    if (typeof payload.message === 'string' && payload.message.trim()) {
-      return payload.message
-    }
-
-    if (
-      payload.data &&
-      typeof payload.data === 'object' &&
-      'content' in payload.data &&
-      typeof payload.data.content === 'string'
-    ) {
-      return payload.data.content
-    }
-
-    throw new Error('Bot response returned, but no assistant text was found.')
-  }
-
   type BotCafeResponseData = {
     content: string
     raw?: unknown
@@ -119,36 +90,109 @@ export const useChatStore = defineStore('chatStore', () => {
     stream?: boolean
   }
 
+  function extractBotText(payload: BotCafeResponse): string {
+    if (typeof payload.content === 'string' && payload.content.trim()) {
+      return payload.content
+    }
+
+    const data = payload.data as BotCafeResponse | undefined
+
+    const directChoice = payload.choices?.[0]?.message?.content
+    if (directChoice?.trim()) return directChoice
+
+    const wrappedContent = data?.content
+    if (typeof wrappedContent === 'string' && wrappedContent.trim()) {
+      return wrappedContent
+    }
+
+    const wrappedChoice = data?.choices?.[0]?.message?.content
+    if (wrappedChoice?.trim()) return wrappedChoice
+
+    if (
+      payload.data &&
+      typeof payload.data === 'object' &&
+      'content' in payload.data &&
+      typeof payload.data.content === 'string' &&
+      payload.data.content.trim()
+    ) {
+      return payload.data.content
+    }
+
+    const wrappedMessage = data?.message
+    if (typeof wrappedMessage === 'string' && wrappedMessage.trim()) {
+      return wrappedMessage
+    }
+
+    if (typeof payload.message === 'string' && payload.message.trim()) {
+      const genericMessages = new Set([
+        'Bot response received.',
+        'Response received.',
+        'Success',
+        'OK',
+      ])
+
+      if (!genericMessages.has(payload.message.trim())) {
+        return payload.message
+      }
+    }
+
+    throw new Error('Bot response returned, but no assistant text was found.')
+  }
+
   function extractStreamToken(payload: unknown): string {
     if (!payload || typeof payload !== 'object') return ''
 
     const response = payload as BotCafeResponse
-
-    const directContent = response.content
-    if (typeof directContent === 'string') return directContent
-
-    const directMessage = response.message
-    if (typeof directMessage === 'string') return directMessage
-
-    const deltaContent = response.choices?.[0]?.delta?.content
-    if (typeof deltaContent === 'string') return deltaContent
-
-    const messageContent = response.choices?.[0]?.message?.content
-    if (typeof messageContent === 'string') return messageContent
-
     const data = response.data as BotCafeResponse | undefined
 
-    const dataContent = data?.content
-    if (typeof dataContent === 'string') return dataContent
+    const directContent = response.content
+    if (typeof directContent === 'string' && directContent.trim()) {
+      return directContent
+    }
 
-    const dataMessage = data?.message
-    if (typeof dataMessage === 'string') return dataMessage
+    const deltaContent = response.choices?.[0]?.delta?.content
+    if (typeof deltaContent === 'string' && deltaContent) {
+      return deltaContent
+    }
+
+    const messageContent = response.choices?.[0]?.message?.content
+    if (typeof messageContent === 'string' && messageContent.trim()) {
+      return messageContent
+    }
+
+    const dataContent = data?.content
+    if (typeof dataContent === 'string' && dataContent.trim()) {
+      return dataContent
+    }
 
     const dataDeltaContent = data?.choices?.[0]?.delta?.content
-    if (typeof dataDeltaContent === 'string') return dataDeltaContent
+    if (typeof dataDeltaContent === 'string' && dataDeltaContent) {
+      return dataDeltaContent
+    }
 
     const dataMessageContent = data?.choices?.[0]?.message?.content
-    if (typeof dataMessageContent === 'string') return dataMessageContent
+    if (typeof dataMessageContent === 'string' && dataMessageContent.trim()) {
+      return dataMessageContent
+    }
+
+    const dataMessage = data?.message
+    if (typeof dataMessage === 'string' && dataMessage.trim()) {
+      return dataMessage
+    }
+
+    const directMessage = response.message
+    if (typeof directMessage === 'string' && directMessage.trim()) {
+      const genericMessages = new Set([
+        'Bot response received.',
+        'Response received.',
+        'Success',
+        'OK',
+      ])
+
+      if (!genericMessages.has(directMessage.trim())) {
+        return directMessage
+      }
+    }
 
     return ''
   }

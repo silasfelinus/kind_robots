@@ -22,7 +22,7 @@
               title="Art Servers"
               subtitle="Pick an image engine."
               :show-controls="false"
-              :show-toolbar="false"
+              :show-toolbar="true"
               :compact="true"
             />
           </div>
@@ -34,7 +34,7 @@
               title="Text Servers"
               subtitle="Pick a chat engine."
               :show-controls="false"
-              :show-toolbar="false"
+              :show-toolbar="true"
               :compact="true"
             />
           </div>

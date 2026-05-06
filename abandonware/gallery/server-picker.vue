@@ -40,34 +40,58 @@
         <span
           class="picker-icon shrink-0 text-xs"
           :class="server.isActive ? 'text-success' : 'text-base-content/30'"
-        >●</span>
+          >●</span
+        >
 
         <span class="picker-label">
           <span class="picker-name">{{ server.label || server.title }}</span>
           <span class="picker-sub">
             {{ server.serverType }}
-            <span v-if="server.isOfficial" class="text-primary">· Official</span>
+            <span v-if="server.isOfficial" class="text-primary"
+              >· Official</span
+            >
           </span>
         </span>
 
         <!-- Art / Text toggle buttons side-by-side, compact -->
         <div class="flex gap-1 shrink-0">
           <button
-            v-if="server.supportsTxt2Img || server.serverType === 'ART' || server.serverType === 'A1111' || server.serverType === 'COMFY'"
+            v-if="
+              server.supportsTxt2Img ||
+              server.serverType === 'ART' ||
+              server.serverType === 'A1111' ||
+              server.serverType === 'COMFY'
+            "
             class="picker-action"
-            :class="serverStore.activeArtServerId === server.id ? 'btn-secondary' : 'btn-ghost'"
+            :class="
+              serverStore.activeArtServerId === server.id
+                ? 'btn-secondary'
+                : 'btn-ghost'
+            "
             :disabled="!server.isActive"
             title="Use for art"
             @click.stop="toggleArt(server)"
-          >🎨</button>
+          >
+            🎨
+          </button>
           <button
-            v-if="server.supportsChat || server.serverType === 'TEXT' || server.serverType === 'OPENAI_COMPATIBLE'"
+            v-if="
+              server.supportsChat ||
+              server.serverType === 'TEXT' ||
+              server.serverType === 'OPENAI_COMPATIBLE'
+            "
             class="picker-action"
-            :class="serverStore.activeTextServerId === server.id ? 'btn-accent' : 'btn-ghost'"
+            :class="
+              serverStore.activeTextServerId === server.id
+                ? 'btn-accent'
+                : 'btn-ghost'
+            "
             :disabled="!server.isActive"
             title="Use for text"
             @click.stop="toggleText(server)"
-          >💬</button>
+          >
+            💬
+          </button>
         </div>
       </li>
     </ul>
@@ -88,14 +112,15 @@ const filterType = ref('')
 const isLoading = ref(false)
 
 onMounted(async () => {
-  isLoading.value = true
-  try { await serverStore.initialize() } catch {}
-  finally { isLoading.value = false }
+  await serverStore.initialize({
+    fetchRemote: true,
+  })
 })
 
 const filtered = computed(() => {
   let list = servers.value as Server[]
-  if (filterType.value) list = list.filter((s) => s.serverType === filterType.value)
+  if (filterType.value)
+    list = list.filter((s) => s.serverType === filterType.value)
   const q = query.value.trim().toLowerCase()
   if (q)
     list = list.filter((s) =>
@@ -105,7 +130,10 @@ const filtered = computed(() => {
 })
 
 function isActiveServer(id: number) {
-  return serverStore.activeArtServerId === id || serverStore.activeTextServerId === id
+  return (
+    serverStore.activeArtServerId === id ||
+    serverStore.activeTextServerId === id
+  )
 }
 
 function toggleArt(server: Server) {

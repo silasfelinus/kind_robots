@@ -457,7 +457,17 @@ export const useServerStore = defineStore('serverStore', () => {
 
     if (!server.allowBrowserRequests) {
       throw new Error(
-        `Server "${server.title}" is not configured to allow browser requests.`,
+        [
+          `Server "${server.title}" is not configured to allow browser requests.`,
+          `allowBrowserRequests=${String(server.allowBrowserRequests)}`,
+          `requiresClientSideCheck=${String(server.requiresClientSideCheck)}`,
+          `isPrivateNetwork=${String(server.isPrivateNetwork)}`,
+          `accessMode=${server.accessMode ?? 'null'}`,
+          `baseUrl=${server.baseUrl || 'missing'}`,
+          `healthPath=${server.healthPath || 'missing'}`,
+          `serverType=${server.serverType}`,
+          `id=${server.id}`,
+        ].join(' | '),
       )
     }
 
@@ -561,9 +571,14 @@ export const useServerStore = defineStore('serverStore', () => {
   async function initialize(
     options: ServerInitializeOptions = {},
   ): Promise<void> {
-    if (isInitialized.value && !options.force) return
-    if (initializePromise.value && !options.force)
+    const wantsRemote = Boolean(options.fetchRemote)
+    const needsRemote = wantsRemote && !hasLoaded.value
+
+    if (isInitialized.value && !options.force && !needsRemote) return
+
+    if (initializePromise.value && !options.force) {
       return initializePromise.value
+    }
 
     initializePromise.value = (async () => {
       try {
@@ -573,11 +588,12 @@ export const useServerStore = defineStore('serverStore', () => {
         loadFromLocalStorage()
         applyPreferredServersFromUser()
 
-        if (options.fetchRemote) {
+        if (wantsRemote && (!hasLoaded.value || options.force)) {
           const fetchedServers = await fetchAllServers(Boolean(options.force))
           mergeServers(fetchedServers)
         }
 
+        applyPreferredServersFromUser()
         syncToLocalStorage()
         isInitialized.value = true
       } catch (error) {
@@ -1024,6 +1040,11 @@ export const useServerStore = defineStore('serverStore', () => {
     const startedAt = Date.now()
     const server = getServerById(id)
 
+    const healthPath =
+      server && healthUrl.startsWith(server.baseUrl)
+        ? healthUrl.slice(server.baseUrl.length) || server.healthPath || '/'
+        : server?.healthPath || '/'
+
     let report = {
       ok: false,
       status: 0,
@@ -1036,12 +1057,8 @@ export const useServerStore = defineStore('serverStore', () => {
 
     try {
       if (!server) {
-        throw new Error('Server not found.')
+        throw new Error(`Server ${id} not found in serverStore.`)
       }
-
-      const healthPath = healthUrl.startsWith(server.baseUrl)
-        ? healthUrl.slice(server.baseUrl.length) || server.healthPath || '/'
-        : server.healthPath || '/'
 
       const response = await requestServer(server, healthPath, {
         method: 'GET',
@@ -1063,13 +1080,45 @@ export const useServerStore = defineStore('serverStore', () => {
           : `Health endpoint returned HTTP ${response.status}.`,
       }
     } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Browser could not reach this server. Check CORS and server access.'
+
       report = {
         ...report,
         latencyMs: Date.now() - startedAt,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Browser could not reach this server. Check CORS and server access.',
+        message,
+        responseBody: {
+          error: message,
+          attemptedHealthUrl: healthUrl,
+          attemptedHealthPath: healthPath,
+          browserLocation: isClient ? window.location.origin : null,
+          server: server
+            ? {
+                id: server.id,
+                title: server.title,
+                label: server.label,
+                serverType: server.serverType,
+                baseUrl: server.baseUrl,
+                healthPath: server.healthPath,
+                endpointPath: server.endpointPath,
+                accessMode: server.accessMode,
+                allowBrowserRequests: server.allowBrowserRequests,
+                requiresClientSideCheck: server.requiresClientSideCheck,
+                isPrivateNetwork: server.isPrivateNetwork,
+                useOidc: server.useOidc,
+                oidcProvider: server.oidcProvider,
+                isActive: server.isActive,
+                isDefault: server.isDefault,
+                isOfficial: server.isOfficial,
+                isPublic: server.isPublic,
+                requiresApiKey: server.requiresApiKey,
+                apiKeyName: server.apiKeyName,
+                lastStatus: server.lastStatus,
+              }
+            : null,
+        },
       }
     }
 
@@ -1084,7 +1133,12 @@ export const useServerStore = defineStore('serverStore', () => {
       message: report.message,
       data: {
         id,
+        title: server?.title,
         healthUrl,
+        accessMode: server?.accessMode,
+        requiresClientSideCheck: server?.requiresClientSideCheck,
+        isPrivateNetwork: server?.isPrivateNetwork,
+        allowBrowserRequests: server?.allowBrowserRequests,
         ok: report.ok,
         status: report.status,
         statusText: report.statusText,

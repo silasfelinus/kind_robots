@@ -829,6 +829,20 @@ export const useServerStore = defineStore('serverStore', () => {
     }
   }
 
+  const isServerFormOpen = ref(false)
+
+  function openServerForm() {
+    isServerFormOpen.value = true
+  }
+
+  function closeServerForm() {
+    isServerFormOpen.value = false
+  }
+
+  function toggleServerForm() {
+    isServerFormOpen.value = !isServerFormOpen.value
+  }
+
   async function updateServerApiKey(
     id: number,
     payload: {
@@ -1824,6 +1838,10 @@ export const useServerStore = defineStore('serverStore', () => {
     toServerForm,
     createDefaultServerForm,
     startCloningServer,
+    isServerFormOpen,
+    openServerForm,
+    closeServerForm,
+    toggleServerForm,
   }
 })
 

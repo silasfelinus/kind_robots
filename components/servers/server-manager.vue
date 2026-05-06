@@ -14,31 +14,12 @@
   >
     <template #default="{ activeTab: currentTab }">
       <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <server-gallery
-              mode="art"
-              variant="row"
-              title="Art Servers"
-              subtitle="Pick an image engine."
-              :show-controls="false"
-              :show-toolbar="true"
-              :compact="true"
-            />
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <server-gallery
-              mode="text"
-              variant="row"
-              title="Text Servers"
-              subtitle="Pick a chat engine."
-              :show-controls="false"
-              :show-toolbar="true"
-              :compact="true"
-            />
-          </div>
-        </div>
+        <server-gallery
+          title="Servers"
+          subtitle="Browse, select, test, edit, and activate your available engines."
+          variant="dashboard"
+          mode="all"
+        />
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
           <server-interact />
@@ -50,7 +31,7 @@
         mode="art"
         variant="dashboard"
         title="Art Servers"
-        subtitle="Select, add, edit, test, or activate an image engine."
+        subtitle="Only image-capable engines."
       />
 
       <server-gallery
@@ -58,15 +39,14 @@
         mode="text"
         variant="dashboard"
         title="Text Servers"
-        subtitle="Select, add, edit, test, or activate a chat engine."
+        subtitle="Only chat-capable engines."
       />
 
       <server-gallery
         v-else-if="currentTab === 'all'"
-        mode="all"
         variant="dashboard"
         title="All Servers"
-        subtitle="Browse every visible server."
+        subtitle="Every visible server in one place."
       />
 
       <server-interact v-else-if="currentTab === 'interact'" />

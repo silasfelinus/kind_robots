@@ -37,7 +37,7 @@
       <button
         type="button"
         class="btn btn-ghost btn-sm btn-circle shrink-0"
-        @click="emit('close')"
+        @click="serverStore.closeServerForm()"
       >
         <Icon name="kind-icon:x" class="h-4 w-4" />
       </button>
@@ -336,7 +336,7 @@
         <button
           type="button"
           class="btn btn-ghost btn-sm flex-1 rounded-xl"
-          @click="emit('close')"
+          @click="serverStore.closeServerForm()"
         >
           Cancel
         </button>
@@ -371,11 +371,6 @@ import type {
   ServerAccessMode,
   ServerType,
 } from '~/prisma/generated/prisma/client'
-
-const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'saved'): void
-}>()
 
 const serverStore = useServerStore()
 const userStore = useUserStore()
@@ -756,7 +751,12 @@ async function handleSave() {
   }
 
   apiKey.value = ''
-  emit('saved')
+  await serverStore.initialize({
+    force: true,
+    fetchRemote: true,
+  })
+  serverStore.selectServer(result.data.id)
+  serverStore.closeServerForm()
 }
 
 watch(
@@ -774,7 +774,7 @@ watch(
 )
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') emit('close')
+  if (e.key === 'Escape') serverStore.closeServerForm()
 }
 
 onMounted(() => {

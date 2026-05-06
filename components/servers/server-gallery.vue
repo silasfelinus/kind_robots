@@ -7,7 +7,7 @@
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-bold text-base-content">
-            {{ title }}
+            {{ resolvedTitle }}
           </h2>
 
           <p v-if="activeServer" class="truncate text-sm text-base-content/70">
@@ -18,7 +18,7 @@
           </p>
 
           <p v-else class="text-sm text-base-content/60">
-            {{ subtitle }}
+            {{ resolvedSubtitle }}
           </p>
         </div>
 
@@ -82,7 +82,7 @@
           v-if="allowEdit"
           class="btn btn-secondary btn-sm rounded-xl"
           type="button"
-          :disabled="!serverStore.selectedServer"
+          :disabled="!editableServerId"
           @click="startEditingSelectedServer"
         >
           <Icon name="kind-icon:pencil" class="h-4 w-4" />
@@ -92,7 +92,7 @@
         <button
           class="btn btn-ghost btn-sm rounded-xl"
           type="button"
-          :disabled="!serverStore.selectedServer"
+          :disabled="!serverStore.selectedServer && !activeServer"
           @click="clearSelectedServer"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
@@ -113,10 +113,10 @@
     </header>
 
     <section
-      v-if="showServerForm"
+      v-if="serverStore.isServerFormOpen"
       class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
     >
-      <add-server @saved="handleServerSaved" @close="closeServerForm" />
+      <add-server />
     </section>
 
     <section class="min-h-0 flex-1 overflow-auto">
@@ -204,7 +204,6 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Server, ServerType } from '~/prisma/generated/prisma/client'
 import { useServerStore } from '@/stores/serverStore'
-import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type ServerGalleryMode = 'art' | 'text' | 'all'
@@ -239,8 +238,8 @@ const props = withDefaults(
   {
     mode: 'all',
     variant: 'dashboard',
-    title: 'Servers',
-    subtitle: 'Pick a server.',
+    title: '',
+    subtitle: '',
     showControls: true,
     showToolbar: true,
     showCardActions: true,
@@ -258,18 +257,36 @@ const props = withDefaults(
 )
 
 const serverStore = useServerStore()
-const userStore = useUserStore()
 
 const selectedType = ref<ServerType | 'all'>('all')
 const selectedScope = ref<ServerScope>('visible')
 const searchQuery = ref('')
 const isLoading = ref(false)
-const showServerForm = ref(false)
+
+const resolvedTitle = computed(() => {
+  if (props.title) return props.title
+  if (props.mode === 'art') return 'Art Servers'
+  if (props.mode === 'text') return 'Text Servers'
+  return 'Servers'
+})
+
+const resolvedSubtitle = computed(() => {
+  if (props.subtitle) return props.subtitle
+  if (props.mode === 'art')
+    return 'Select, add, edit, test, or activate an image engine.'
+  if (props.mode === 'text')
+    return 'Select, add, edit, test, or activate a chat engine.'
+  return 'Browse, select, test, edit, and activate your available engines.'
+})
 
 const activeServer = computed(() => {
   if (props.mode === 'art') return serverStore.activeArtServer
   if (props.mode === 'text') return serverStore.activeTextServer
   return serverStore.selectedServer
+})
+
+const editableServerId = computed(() => {
+  return serverStore.selectedServer?.id ?? activeServer.value?.id ?? null
 })
 
 const isCompact = computed(
@@ -297,7 +314,21 @@ const baseServers = computed<Server[]>(() => {
   if (selectedScope.value === 'hidden') return serverStore.hiddenServers
   if (selectedScope.value === 'all') return serverStore.servers
 
-  return serverStore.visibleActiveServers
+  return serverStore.servers.filter((server) => {
+    if (!server.isActive) return false
+
+    return (
+      server.serverType === 'ART' ||
+      server.serverType === 'A1111' ||
+      server.serverType === 'COMFY' ||
+      server.serverType === 'TEXT' ||
+      server.serverType === 'OPENAI_COMPATIBLE' ||
+      Boolean(server.supportsTxt2Img) ||
+      Boolean(server.supportsImg2Img) ||
+      Boolean(server.supportsComfyWorkflow) ||
+      Boolean(server.supportsChat)
+    )
+  })
 })
 
 const filteredServers = computed(() => {
@@ -349,7 +380,12 @@ async function refreshServers(force = false) {
 function isSelected(id: number) {
   if (props.mode === 'art') return serverStore.activeArtServer?.id === id
   if (props.mode === 'text') return serverStore.activeTextServer?.id === id
-  return serverStore.selectedServer?.id === id
+
+  return (
+    serverStore.selectedServer?.id === id ||
+    serverStore.activeArtServer?.id === id ||
+    serverStore.activeTextServer?.id === id
+  )
 }
 
 async function selectServerById(id: number) {
@@ -377,8 +413,31 @@ function selectServerFromEvent(event: Event) {
 
   void selectServerById(id)
 }
+
+function resolveNewServerMode(): 'art' | 'text' {
+  if (props.mode === 'art' || props.mode === 'text') return props.mode
+
+  if (
+    selectedType.value === 'TEXT' ||
+    selectedType.value === 'OPENAI_COMPATIBLE'
+  ) {
+    return 'text'
+  }
+
+  if (
+    selectedType.value === 'ART' ||
+    selectedType.value === 'A1111' ||
+    selectedType.value === 'COMFY'
+  ) {
+    return 'art'
+  }
+
+  return 'art'
+}
+
 function startAddingServer() {
-  const isTextMode = props.mode === 'text'
+  const mode = resolveNewServerMode()
+  const isTextMode = mode === 'text'
   const title = isTextMode ? 'New Text Server' : 'New Art Server'
   const serverType = isTextMode ? 'OPENAI_COMPATIBLE' : 'COMFY'
 
@@ -402,7 +461,7 @@ function startAddingServer() {
     supportsSteps: !isTextMode,
   })
 
-  showServerForm.value = true
+  serverStore.openServerForm()
 }
 
 async function startEditingServerById(id: number) {
@@ -410,34 +469,39 @@ async function startEditingServerById(id: number) {
 
   if (!server) return
 
-  showServerForm.value = true
+  serverStore.openServerForm()
 }
 
 function startEditingSelectedServer() {
-  const id = serverStore.selectedServer?.id ?? activeServer.value?.id
+  if (!editableServerId.value) return
 
-  if (!id) return
-
-  startEditingServerById(id)
+  void startEditingServerById(editableServerId.value)
 }
 
 function clearSelectedServer() {
+  if (props.mode === 'art') {
+    void serverStore.setActiveArtServer(null)
+  }
+
+  if (props.mode === 'text') {
+    void serverStore.setActiveTextServer(null)
+  }
+
   serverStore.deselectServer()
-  showServerForm.value = false
-}
-
-function closeServerForm() {
-  showServerForm.value = false
-}
-
-async function handleServerSaved() {
-  showServerForm.value = false
-  await refreshServers(true)
+  serverStore.closeServerForm()
 }
 
 function handleServerDeleted(id: number) {
   if (serverStore.selectedServer?.id === id) {
     serverStore.deselectServer()
+  }
+
+  if (serverStore.activeArtServer?.id === id) {
+    void serverStore.setActiveArtServer(null)
+  }
+
+  if (serverStore.activeTextServer?.id === id) {
+    void serverStore.setActiveTextServer(null)
   }
 }
 
@@ -445,10 +509,12 @@ function handleServerTested() {}
 
 async function setActiveArtServer(id: number) {
   await serverStore.setActiveArtServer(id)
+  await serverStore.selectServer(id)
 }
 
 async function setActiveTextServer(id: number) {
   await serverStore.setActiveTextServer(id)
+  await serverStore.selectServer(id)
 }
 </script>
 

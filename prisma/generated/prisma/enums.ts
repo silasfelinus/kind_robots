@@ -21,6 +21,26 @@ export const ServerAccessMode = {
 export type ServerAccessMode = (typeof ServerAccessMode)[keyof typeof ServerAccessMode]
 
 
+export const ServerGenerationEngine = {
+  A1111: 'A1111',
+  COMFY: 'COMFY',
+  FLUX: 'FLUX',
+  KONTEXT: 'KONTEXT',
+  OPENAI_IMAGE: 'OPENAI_IMAGE',
+  OTHER: 'OTHER'
+} as const
+
+export type ServerGenerationEngine = (typeof ServerGenerationEngine)[keyof typeof ServerGenerationEngine]
+
+
+export const ServerTransport = {
+  BROWSER: 'BROWSER',
+  BACKEND: 'BACKEND'
+} as const
+
+export type ServerTransport = (typeof ServerTransport)[keyof typeof ServerTransport]
+
+
 export const ReactionType = {
   LOVED: 'LOVED',
   CLAPPED: 'CLAPPED',

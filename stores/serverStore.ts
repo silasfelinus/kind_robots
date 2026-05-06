@@ -1262,48 +1262,88 @@ export const useServerStore = defineStore('serverStore', () => {
       serverType === 'TEXT' || serverType === 'OPENAI_COMPATIBLE'
     const isComfyLike = serverType === 'COMFY'
 
+    const generationEngine =
+      serverType === 'COMFY'
+        ? 'COMFY'
+        : serverType === 'A1111'
+          ? 'A1111'
+          : 'OTHER'
+
     serverForm.value = {
       title: '',
       label: '',
       description: '',
-      category: '',
+      category: isTextLike ? 'text' : 'image',
       serverType,
+      generationEngine,
+      defaultTransport: 'BROWSER',
+
       baseUrl: '',
+      browserBaseUrl: '',
+      backendBaseUrl: '',
       endpointPath: isComfyLike
         ? '/prompt'
         : isTextLike
           ? '/v1/chat/completions'
           : '/sdapi/v1/txt2img',
       healthPath: isComfyLike
-        ? '/history'
+        ? '/system_stats'
         : isTextLike
           ? '/health'
           : '/sdapi/v1/progress',
+
+      workflowPath: '',
+      workflowJson: null,
+      workflowVersion: '',
+
       isPublic: false,
       isOfficial: false,
       isDefault: false,
       isActive: true,
+      isEditable: true,
+
+      accessMode: 'LOCAL',
+      requiresClientSideCheck: true,
+      isPrivateNetwork: true,
+      allowBrowserRequests: true,
+
       requiresApiKey: false,
       apiKeyName: '',
-      supportsTxt2Img: isArtLike,
-      supportsImg2Img: isArtLike,
+      useOidc: false,
+      oidcProvider: '',
+
+      supportsTxt2Img: isArtLike || isComfyLike,
+      supportsImg2Img: isArtLike || isComfyLike,
+      supportsImageEdit: false,
+      supportsInpaint: false,
+      supportsOutpaint: false,
       supportsChat: isTextLike,
       supportsComfyWorkflow: isComfyLike,
+      supportsWorkflowUpload: isComfyLike,
+      supportsFlux: false,
+      supportsKontext: false,
       supportsCheckpointOverride: isArtLike,
       supportsSampler: isArtLike,
       supportsNegativePrompt: isArtLike,
-      supportsSeed: isArtLike,
-      supportsSteps: isArtLike,
+      supportsSeed: isArtLike || isComfyLike,
+      supportsSteps: isArtLike || isComfyLike,
+      supportsBatch: false,
+      supportsVideo: false,
+
+      defaultWidth: 512,
+      defaultHeight: 512,
+      defaultSteps: null,
+      defaultCfg: null,
+      defaultSampler: '',
+      defaultScheduler: '',
+
+      apiLink: '',
+      model: '',
       designer: userStore.user?.designerName || '',
       version: '',
       notes: '',
       sortOrder: 0,
       lastStatus: 'UNKNOWN',
-      accessMode: 'LOCAL',
-      requiresClientSideCheck: true,
-      isPrivateNetwork: true,
-      allowBrowserRequests: true,
-      useOidc: false,
     }
 
     selectedServer.value = null
@@ -1327,9 +1367,18 @@ export const useServerStore = defineStore('serverStore', () => {
       description: serverForm.value.description,
       category: serverForm.value.category,
       serverType: serverForm.value.serverType,
+      generationEngine: serverForm.value.generationEngine,
+      defaultTransport: serverForm.value.defaultTransport,
+
       baseUrl: serverForm.value.baseUrl,
+      browserBaseUrl: serverForm.value.browserBaseUrl,
+      backendBaseUrl: serverForm.value.backendBaseUrl,
       endpointPath: serverForm.value.endpointPath,
       healthPath: serverForm.value.healthPath,
+
+      workflowPath: serverForm.value.workflowPath,
+      workflowJson: serverForm.value.workflowJson,
+      workflowVersion: serverForm.value.workflowVersion,
 
       accessMode: serverForm.value.accessMode,
       requiresClientSideCheck: serverForm.value.requiresClientSideCheck,
@@ -1350,14 +1399,28 @@ export const useServerStore = defineStore('serverStore', () => {
 
       supportsTxt2Img: serverForm.value.supportsTxt2Img,
       supportsImg2Img: serverForm.value.supportsImg2Img,
+      supportsImageEdit: serverForm.value.supportsImageEdit,
+      supportsInpaint: serverForm.value.supportsInpaint,
+      supportsOutpaint: serverForm.value.supportsOutpaint,
       supportsChat: serverForm.value.supportsChat,
       supportsComfyWorkflow: serverForm.value.supportsComfyWorkflow,
+      supportsWorkflowUpload: serverForm.value.supportsWorkflowUpload,
+      supportsFlux: serverForm.value.supportsFlux,
+      supportsKontext: serverForm.value.supportsKontext,
       supportsCheckpointOverride: serverForm.value.supportsCheckpointOverride,
       supportsSampler: serverForm.value.supportsSampler,
       supportsNegativePrompt: serverForm.value.supportsNegativePrompt,
       supportsSeed: serverForm.value.supportsSeed,
       supportsSteps: serverForm.value.supportsSteps,
+      supportsBatch: serverForm.value.supportsBatch,
       supportsVideo: serverForm.value.supportsVideo,
+
+      defaultWidth: serverForm.value.defaultWidth,
+      defaultHeight: serverForm.value.defaultHeight,
+      defaultSteps: serverForm.value.defaultSteps,
+      defaultCfg: serverForm.value.defaultCfg,
+      defaultSampler: serverForm.value.defaultSampler,
+      defaultScheduler: serverForm.value.defaultScheduler,
 
       apiLink: serverForm.value.apiLink,
       model: serverForm.value.model,
@@ -1684,6 +1747,30 @@ export const useServerStore = defineStore('serverStore', () => {
           allowBrowserRequests: source.allowBrowserRequests,
           useOidc: source.useOidc,
           lastStatus: 'UNKNOWN' as ServerStatus,
+          generationEngine: source.generationEngine,
+          defaultTransport: source.defaultTransport,
+
+          browserBaseUrl: source.browserBaseUrl,
+          backendBaseUrl: source.backendBaseUrl,
+
+          workflowPath: source.workflowPath,
+          workflowJson: source.workflowJson,
+          workflowVersion: source.workflowVersion,
+
+          supportsImageEdit: source.supportsImageEdit,
+          supportsInpaint: source.supportsInpaint,
+          supportsOutpaint: source.supportsOutpaint,
+          supportsWorkflowUpload: source.supportsWorkflowUpload,
+          supportsFlux: source.supportsFlux,
+          supportsKontext: source.supportsKontext,
+          supportsBatch: source.supportsBatch,
+
+          defaultWidth: source.defaultWidth,
+          defaultHeight: source.defaultHeight,
+          defaultSteps: source.defaultSteps,
+          defaultCfg: source.defaultCfg,
+          defaultSampler: source.defaultSampler,
+          defaultScheduler: source.defaultScheduler,
         }
       : {}
 
@@ -1779,6 +1866,31 @@ export const useServerStore = defineStore('serverStore', () => {
 
       useOidc: false,
       oidcProvider: '',
+
+      generationEngine: 'A1111',
+      defaultTransport: 'BROWSER',
+
+      browserBaseUrl: '',
+      backendBaseUrl: '',
+
+      workflowPath: '',
+      workflowJson: null,
+      workflowVersion: '',
+
+      supportsImageEdit: false,
+      supportsInpaint: false,
+      supportsOutpaint: false,
+      supportsWorkflowUpload: false,
+      supportsFlux: false,
+      supportsKontext: false,
+      supportsBatch: false,
+
+      defaultWidth: 512,
+      defaultHeight: 512,
+      defaultSteps: null,
+      defaultCfg: null,
+      defaultSampler: '',
+      defaultScheduler: '',
 
       supportsTxt2Img: false,
       supportsImg2Img: false,

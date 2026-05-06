@@ -2935,6 +2935,17 @@ export const ServerScalarFieldEnum = {
   isDefault: 'isDefault',
   isActive: 'isActive',
   isEditable: 'isEditable',
+  browserBaseUrl: 'browserBaseUrl',
+  backendBaseUrl: 'backendBaseUrl',
+  workflowPath: 'workflowPath',
+  workflowJson: 'workflowJson',
+  workflowVersion: 'workflowVersion',
+  defaultWidth: 'defaultWidth',
+  defaultHeight: 'defaultHeight',
+  defaultSteps: 'defaultSteps',
+  defaultCfg: 'defaultCfg',
+  defaultSampler: 'defaultSampler',
+  defaultScheduler: 'defaultScheduler',
   accessMode: 'accessMode',
   requiresClientSideCheck: 'requiresClientSideCheck',
   isPrivateNetwork: 'isPrivateNetwork',
@@ -2954,6 +2965,13 @@ export const ServerScalarFieldEnum = {
   supportsSeed: 'supportsSeed',
   supportsSteps: 'supportsSteps',
   supportsVideo: 'supportsVideo',
+  supportsFlux: 'supportsFlux',
+  supportsKontext: 'supportsKontext',
+  supportsInpaint: 'supportsInpaint',
+  supportsOutpaint: 'supportsOutpaint',
+  supportsImageEdit: 'supportsImageEdit',
+  supportsWorkflowUpload: 'supportsWorkflowUpload',
+  supportsBatch: 'supportsBatch',
   apiLink: 'apiLink',
   model: 'model',
   designer: 'designer',
@@ -2961,7 +2979,9 @@ export const ServerScalarFieldEnum = {
   notes: 'notes',
   sortOrder: 'sortOrder',
   lastCheckedAt: 'lastCheckedAt',
-  lastStatus: 'lastStatus'
+  lastStatus: 'lastStatus',
+  generationEngine: 'generationEngine',
+  defaultTransport: 'defaultTransport'
 } as const
 
 export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
@@ -3388,6 +3408,23 @@ export const ScenarioOrderByRelevanceFieldEnum = {
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]
 
 
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
 export const ServerOrderByRelevanceFieldEnum = {
   title: 'title',
   label: 'label',
@@ -3396,6 +3433,12 @@ export const ServerOrderByRelevanceFieldEnum = {
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
+  browserBaseUrl: 'browserBaseUrl',
+  backendBaseUrl: 'backendBaseUrl',
+  workflowPath: 'workflowPath',
+  workflowVersion: 'workflowVersion',
+  defaultSampler: 'defaultSampler',
+  defaultScheduler: 'defaultScheduler',
   apiKeyName: 'apiKeyName',
   apiKey: 'apiKey',
   oidcProvider: 'oidcProvider',
@@ -3444,23 +3487,6 @@ export const ThemeOrderByRelevanceFieldEnum = {
 } as const
 
 export type ThemeOrderByRelevanceFieldEnum = (typeof ThemeOrderByRelevanceFieldEnum)[keyof typeof ThemeOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 export const UserOrderByRelevanceFieldEnum = {
@@ -3591,6 +3617,20 @@ export type EnumServerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'ServerAccessMode'
  */
 export type EnumServerAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerAccessMode'>
@@ -3605,23 +3645,23 @@ export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'ServerGenerationEngine'
+ */
+export type EnumServerGenerationEngineFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerGenerationEngine'>
+    
+
+
+/**
+ * Reference to a field of type 'ServerTransport'
+ */
+export type EnumServerTransportFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerTransport'>
+    
+
+
+/**
  * Reference to a field of type 'Role'
  */
 export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 /**

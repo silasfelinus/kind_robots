@@ -182,7 +182,7 @@ const smudge = (
 
     if (!smudgeTemp || smudgeTemp.width < sw || smudgeTemp.height < sh) {
       smudgeTemp = document.createElement('canvas')
-      smudgeTempCtx = smudgeTemp.getContext('2d')
+      smudgeTempCtx = smudgeTemp.getContext('2d', { willReadFrequently: true })
     }
     smudgeTemp.width = sw
     smudgeTemp.height = sh
@@ -237,7 +237,7 @@ const paint = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
 onMounted(() => {
   const canvas = canvasRef.value
   if (!canvas) return
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
   if (!ctx) return
 
   const resize = () => {

@@ -62,32 +62,39 @@ const navStore = useNavStore()
 const isLoading = ref(false)
 const managerError = ref<string | null>(null)
 
+const dashboardConfig = computed(() =>
+  navStore.getDashboardConfig(dashboardKey),
+)
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 
-const activeTab = computed(() => {
-  const tab = navStore.getDashboardTab(dashboardKey)
+const fallbackTab = computed(() => {
+  const defaultTab = dashboardConfig.value.defaultTab
 
-  return isWonderDashboardTab(tab) ? tab : 'wonder-lab'
+  return isWonderDashboardTab(defaultTab) ? defaultTab : 'memory-dungeon'
+})
+
+const activeTab = computed(() => {
+  const storedTab = navStore.getDashboardTab(dashboardKey)
+
+  return isWonderDashboardTab(storedTab) ? storedTab : fallbackTab.value
 })
 
 const managerSummary = computed(() => {
   const total = componentStore.allComponents?.length ?? 0
   const selected = componentStore.selectedComponent?.componentName || 'none'
+  const activeConfig = navStore.getDashboardActiveTabConfig(dashboardKey)
 
-  return `${total} components indexed. Selected component: ${selected}.`
+  return `${total} components indexed. Active lab: ${activeConfig.label}. Selected component: ${selected}.`
 })
 
 function isWonderDashboardTab(value: string): value is WonderDashboardTab {
-  return ['wonder-lab', 'memory-dungeon', 'rebel-button', 'screen-fx'].includes(
-    value,
-  )
+  return tabs.value.some((tab) => tab.key === value)
 }
 
 function setTab(tab: string) {
-  navStore.setDashboardTab(
-    dashboardKey,
-    isWonderDashboardTab(tab) ? tab : 'wonder-lab',
-  )
+  const nextTab = isWonderDashboardTab(tab) ? tab : fallbackTab.value
+
+  navStore.setDashboardTab(dashboardKey, nextTab)
 }
 
 async function refreshLab() {
@@ -109,10 +116,13 @@ onMounted(async () => {
   managerError.value = null
 
   try {
-    await Promise.all([navStore.initialize(), componentStore.initialize()])
+    await navStore.initialize()
+    await componentStore.initialize()
 
-    if (!isWonderDashboardTab(navStore.getDashboardTab(dashboardKey))) {
-      navStore.setDashboardTab(dashboardKey, 'wonder-lab')
+    const storedTab = navStore.getDashboardTab(dashboardKey)
+
+    if (!isWonderDashboardTab(storedTab)) {
+      navStore.setDashboardTab(dashboardKey, fallbackTab.value)
     }
   } catch (error) {
     managerError.value =

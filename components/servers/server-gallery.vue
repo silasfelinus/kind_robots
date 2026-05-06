@@ -377,18 +377,29 @@ function selectServerFromEvent(event: Event) {
 
   void selectServerById(id)
 }
-
 function startAddingServer() {
+  const isTextMode = props.mode === 'text'
+  const title = isTextMode ? 'New Text Server' : 'New Art Server'
+  const serverType = isTextMode ? 'OPENAI_COMPATIBLE' : 'COMFY'
+
   serverStore.startAddingServer({
-    serverType: props.mode === 'text' ? 'OPENAI_COMPATIBLE' : 'COMFY',
-    category: props.mode === 'text' ? 'text' : 'image',
-    endpointPath: props.mode === 'text' ? '/v1/chat/completions' : '/prompt',
-    healthPath: props.mode === 'text' ? '/v1/models' : '/system_stats',
-    supportsChat: props.mode === 'text',
-    supportsTxt2Img: props.mode === 'art',
-    supportsImg2Img: props.mode === 'art',
-    supportsComfyWorkflow: props.mode === 'art',
-    supportsCheckpointOverride: props.mode === 'art',
+    title,
+    label: title,
+    serverType,
+    category: isTextMode ? 'text' : 'image',
+    endpointPath: isTextMode ? '/v1/chat/completions' : '/prompt',
+    healthPath: isTextMode ? '/v1/models' : '/system_stats',
+    accessMode: isTextMode ? 'PUBLIC_API_KEY' : 'TAILSCALE',
+    isPrivateNetwork: !isTextMode,
+    requiresClientSideCheck: !isTextMode,
+    allowBrowserRequests: !isTextMode,
+    supportsChat: isTextMode,
+    supportsTxt2Img: !isTextMode,
+    supportsImg2Img: !isTextMode,
+    supportsComfyWorkflow: !isTextMode,
+    supportsCheckpointOverride: !isTextMode,
+    supportsSeed: !isTextMode,
+    supportsSteps: !isTextMode,
   })
 
   showServerForm.value = true

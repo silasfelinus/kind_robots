@@ -840,9 +840,11 @@ watch(
 )
 
 onMounted(async () => {
-  if (!serverStore.isInitialized) await serverStore.initialize()
-  checkpointStore.initialize()
+  await serverStore.initialize({
+    fetchRemote: true,
+  })
 
+  checkpointStore.initialize()
   selectedServerId.value = serverStore.activeArtServer?.id ?? null
 })
 </script>

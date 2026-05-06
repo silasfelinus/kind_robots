@@ -79,7 +79,9 @@ const emit = defineEmits<{
 const serverStore = useServerStore()
 
 onMounted(async () => {
-  await serverStore.initialize()
+  await serverStore.initialize({
+    fetchRemote: true,
+  })
 })
 
 const sourceServers = computed<Server[]>(() => {

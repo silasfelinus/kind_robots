@@ -2,16 +2,87 @@
 <template>
   <section class="flex w-full flex-col gap-4 rounded-2xl bg-base-200 p-4">
     <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
+      class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md lg:flex-row lg:items-center lg:justify-between lg:text-left"
     >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">Server Tools</h1>
+      <div class="min-w-0">
+        <h1 class="text-2xl font-bold text-primary md:text-3xl">
+          Server Tools
+        </h1>
 
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
+        <p
+          class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base lg:mx-0"
+        >
+          Inspect active art and text servers, ping them, and keep the engines
+          honest.
+        </p>
+      </div>
+
+      <div
+        class="flex flex-col gap-2 sm:flex-row sm:justify-center lg:justify-end"
       >
-        Inspect active art and text servers, ping them, and keep the engines
-        honest.
-      </p>
+        <details class="dropdown dropdown-end">
+          <summary class="btn btn-primary rounded-xl">
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            Server
+          </summary>
+
+          <ul
+            class="menu dropdown-content z-80 mt-2 w-72 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+          >
+            <li>
+              <button type="button" @click="startServerPreset('COMFY')">
+                <Icon name="kind-icon:palette" class="h-4 w-4" />
+                ComfyUI image server
+              </button>
+            </li>
+
+            <li>
+              <button type="button" @click="startServerPreset('A1111')">
+                <Icon name="kind-icon:image" class="h-4 w-4" />
+                A1111 image server
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                @click="startServerPreset('OPENAI_COMPATIBLE')"
+              >
+                <Icon name="kind-icon:chat" class="h-4 w-4" />
+                OpenAI-compatible text server
+              </button>
+            </li>
+
+            <li>
+              <button type="button" @click="startServerPreset('TEXT')">
+                <Icon name="kind-icon:bot" class="h-4 w-4" />
+                Generic text server
+              </button>
+            </li>
+
+            <li>
+              <button type="button" @click="startServerPreset('OTHER')">
+                <Icon name="kind-icon:server" class="h-4 w-4" />
+                Blank custom server
+              </button>
+            </li>
+          </ul>
+        </details>
+
+        <button
+          class="btn btn-ghost rounded-xl"
+          type="button"
+          :disabled="serverStore.loading || serverStore.isInitializing"
+          @click="loadServers(true)"
+        >
+          <span
+            v-if="serverStore.loading || serverStore.isInitializing"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+          Load DB
+        </button>
+      </div>
     </header>
 
     <section class="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -35,7 +106,9 @@
           title="Art Server"
           subtitle="Choose an art server."
           :show-controls="false"
-          :show-toolbar="false"
+          :show-toolbar="true"
+          :allow-delete="false"
+          :allow-test="true"
         />
       </article>
 
@@ -61,7 +134,9 @@
           title="Text Server"
           subtitle="Choose a text server."
           :show-controls="false"
-          :show-toolbar="false"
+          :show-toolbar="true"
+          :allow-delete="false"
+          :allow-test="true"
         />
       </article>
     </section>
@@ -88,14 +163,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
+import type { ServerType } from '~/prisma/generated/prisma/client'
 
 const serverStore = useServerStore()
 
 const showServerForm = ref(false)
 const healthMessage = ref('')
 const healthOk = ref(false)
+
+async function loadServers(force = false) {
+  await serverStore.initialize({
+    force,
+    fetchRemote: true,
+  })
+}
+
+function startServerPreset(serverType: ServerType) {
+  const isText = serverType === 'TEXT' || serverType === 'OPENAI_COMPATIBLE'
+  const isComfy = serverType === 'COMFY'
+  const isA1111 = serverType === 'A1111'
+  const isArt = isComfy || isA1111 || serverType === 'ART'
+
+  serverStore.startAddingServer({
+    title: '',
+    label: '',
+    description: '',
+    category: isText ? 'text' : isArt ? 'image' : 'custom',
+    serverType,
+    baseUrl: '',
+    endpointPath: isText
+      ? '/v1/chat/completions'
+      : isComfy
+        ? '/prompt'
+        : isA1111
+          ? '/sdapi/v1/txt2img'
+          : '',
+    healthPath: isText
+      ? '/v1/models'
+      : isComfy
+        ? '/system_stats'
+        : isA1111
+          ? '/sdapi/v1/progress'
+          : '',
+    isActive: true,
+    supportsChat: isText,
+    supportsTxt2Img: isArt,
+    supportsImg2Img: isArt,
+    supportsComfyWorkflow: isComfy,
+    supportsCheckpointOverride: isArt,
+    supportsSampler: isArt,
+    supportsNegativePrompt: isArt,
+    supportsSeed: isArt,
+    supportsSteps: isArt,
+    lastStatus: 'UNKNOWN',
+  })
+
+  showServerForm.value = true
+}
 
 async function editServer(id: number) {
   const server =
@@ -126,4 +252,8 @@ async function handleServerSaved() {
   showServerForm.value = false
   await serverStore.fetchAllServers(true)
 }
+
+onMounted(async () => {
+  await loadServers(false)
+})
 </script>

@@ -83,10 +83,7 @@ function validateEnumValue<T extends string>(
   return value as T
 }
 
-function resolveAccessDefaults(
-  accessMode: ServerAccessMode,
-  body: Record<string, unknown>,
-) {
+function getAccessModeDefaults(accessMode: ServerAccessMode) {
   if (accessMode === 'TAILSCALE') {
     return {
       isPublic: false,
@@ -95,7 +92,7 @@ function resolveAccessDefaults(
       allowBrowserRequests: true,
       useOidc: false,
       requiresApiKey: false,
-      oidcProvider: null,
+      oidcProvider: null as string | null,
     }
   }
 
@@ -107,7 +104,7 @@ function resolveAccessDefaults(
       allowBrowserRequests: true,
       useOidc: false,
       requiresApiKey: false,
-      oidcProvider: null,
+      oidcProvider: null as string | null,
     }
   }
 
@@ -116,13 +113,10 @@ function resolveAccessDefaults(
       isPublic: false,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests:
-        typeof body.allowBrowserRequests === 'boolean'
-          ? body.allowBrowserRequests
-          : false,
+      allowBrowserRequests: false,
       useOidc: false,
       requiresApiKey: true,
-      oidcProvider: null,
+      oidcProvider: null as string | null,
     }
   }
 
@@ -131,14 +125,10 @@ function resolveAccessDefaults(
       isPublic: false,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests:
-        typeof body.allowBrowserRequests === 'boolean'
-          ? body.allowBrowserRequests
-          : false,
+      allowBrowserRequests: false,
       useOidc: true,
-      requiresApiKey:
-        typeof body.requiresApiKey === 'boolean' ? body.requiresApiKey : false,
-      oidcProvider: normalizeOptionalString(body.oidcProvider) || 'authelia',
+      requiresApiKey: false,
+      oidcProvider: 'authelia',
     }
   }
 
@@ -147,14 +137,10 @@ function resolveAccessDefaults(
       isPublic: false,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests:
-        typeof body.allowBrowserRequests === 'boolean'
-          ? body.allowBrowserRequests
-          : true,
-      useOidc: typeof body.useOidc === 'boolean' ? body.useOidc : false,
-      requiresApiKey:
-        typeof body.requiresApiKey === 'boolean' ? body.requiresApiKey : false,
-      oidcProvider: normalizeOptionalString(body.oidcProvider),
+      allowBrowserRequests: false,
+      useOidc: false,
+      requiresApiKey: false,
+      oidcProvider: null as string | null,
     }
   }
 
@@ -162,15 +148,19 @@ function resolveAccessDefaults(
     isPublic: false,
     isPrivateNetwork: false,
     requiresClientSideCheck: false,
-    allowBrowserRequests:
-      typeof body.allowBrowserRequests === 'boolean'
-        ? body.allowBrowserRequests
-        : true,
-    useOidc: typeof body.useOidc === 'boolean' ? body.useOidc : false,
-    requiresApiKey:
-      typeof body.requiresApiKey === 'boolean' ? body.requiresApiKey : false,
-    oidcProvider: normalizeOptionalString(body.oidcProvider),
+    allowBrowserRequests: true,
+    useOidc: false,
+    requiresApiKey: false,
+    oidcProvider: null as string | null,
   }
+}
+
+function boolFromBody(
+  body: Record<string, unknown>,
+  key: string,
+  fallback: boolean,
+): boolean {
+  return typeof body[key] === 'boolean' ? Boolean(body[key]) : fallback
 }
 
 function validateUnsafePublicServer(entry: {
@@ -286,18 +276,42 @@ export default defineEventHandler(async (event) => {
         'accessMode',
       ) as ServerAccessMode
 
-      const accessDefaults = resolveAccessDefaults(accessMode, body)
+      const defaults = getAccessModeDefaults(accessMode)
 
       data.accessMode = accessMode
-      data.isPrivateNetwork = accessDefaults.isPrivateNetwork
-      data.requiresClientSideCheck = accessDefaults.requiresClientSideCheck
-      data.allowBrowserRequests = accessDefaults.allowBrowserRequests
-      data.useOidc = accessDefaults.useOidc
-      data.requiresApiKey = accessDefaults.requiresApiKey
-      data.oidcProvider = accessDefaults.oidcProvider
+      data.isPrivateNetwork = boolFromBody(
+        body,
+        'isPrivateNetwork',
+        defaults.isPrivateNetwork,
+      )
+      data.requiresClientSideCheck = boolFromBody(
+        body,
+        'requiresClientSideCheck',
+        defaults.requiresClientSideCheck,
+      )
+      data.allowBrowserRequests = boolFromBody(
+        body,
+        'allowBrowserRequests',
+        defaults.allowBrowserRequests,
+      )
+      data.useOidc = boolFromBody(body, 'useOidc', defaults.useOidc)
+      data.requiresApiKey = boolFromBody(
+        body,
+        'requiresApiKey',
+        defaults.requiresApiKey,
+      )
+
+      if (body.oidcProvider !== undefined) {
+        data.oidcProvider = normalizeOptionalString(body.oidcProvider)
+      } else if (accessMode === 'PUBLIC_OIDC') {
+        data.oidcProvider = existingServer.oidcProvider || defaults.oidcProvider
+      } else {
+        data.oidcProvider = defaults.oidcProvider
+      }
 
       if (isAdmin) {
-        data.isPublic = accessDefaults.isPublic
+        data.isPublic =
+          typeof body.isPublic === 'boolean' ? body.isPublic : defaults.isPublic
       } else {
         data.isPublic = false
       }
@@ -336,6 +350,8 @@ export default defineEventHandler(async (event) => {
     }
 
     if (typeof body.isActive === 'boolean') data.isActive = body.isActive
+    if (typeof body.isEditable === 'boolean') data.isEditable = body.isEditable
+
     if (body.apiKeyName !== undefined) {
       data.apiKeyName = normalizeOptionalString(body.apiKeyName)
     }

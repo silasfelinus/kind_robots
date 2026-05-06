@@ -1,25 +1,32 @@
 <!-- /components/content/screenfx/screen-fx.vue -->
 <template>
-  <div class="pointer-events-none fixed inset-0 z-60">
-    <component
-      :is="activeComponent.component"
-      v-for="activeComponent in activeComponents"
-      :key="activeComponent.id"
-    />
-  </div>
-
-  <Transition name="fade">
-    <button
+  <Teleport to="body">
+    <div
       v-if="activeCount > 0"
-      class="escape-btn"
-      title="Clear all effects"
-      type="button"
-      @click="clearAll"
+      class="pointer-events-none fixed inset-0 z-[60] h-dvh w-dvw overflow-hidden"
     >
-      <Icon name="kind-icon:close" class="h-5 w-5" />
-      <span>clear fx</span>
-    </button>
-  </Transition>
+      <div
+        v-for="activeComponent in activeComponents"
+        :key="activeComponent.id"
+        class="pointer-events-none absolute inset-0 h-full w-full"
+      >
+        <component :is="activeComponent.component" />
+      </div>
+    </div>
+
+    <Transition name="fade">
+      <button
+        v-if="activeCount > 0"
+        class="escape-btn"
+        title="Clear all effects"
+        type="button"
+        @click="clearAll"
+      >
+        <Icon name="kind-icon:close" class="h-5 w-5" />
+        <span>clear fx</span>
+      </button>
+    </Transition>
+  </Teleport>
 
   <section class="relative">
     <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 p-2">
@@ -65,11 +72,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, resolveComponent, type Component } from 'vue'
 
 interface Effect {
   id: string
-  component: string
+  component: Component
   label: string
   icon: string
   tooltip: string
@@ -77,10 +84,24 @@ interface Effect {
   isActive: boolean
 }
 
+const effectComponents = {
+  fizzyBubbles: resolveComponent('LazyFizzyBubbles') as Component,
+  bubbleEffect: resolveComponent('LazyBubbleEffect') as Component,
+  rainEffect: resolveComponent('LazyRainEffect') as Component,
+  butterflyAnimation: resolveComponent('LazyButterflyAnimation') as Component,
+  starfieldEffect: resolveComponent('LazyStarfieldEffect') as Component,
+  matrixRain: resolveComponent('LazyMatrixRain') as Component,
+  fireflyEffect: resolveComponent('LazyFireflyEffect') as Component,
+  lightningEffect: resolveComponent('LazyLightningEffect') as Component,
+  snowEffect: resolveComponent('LazySnowEffect') as Component,
+  lavaLamp: resolveComponent('LazyLavaLamp') as Component,
+  toasterEffect: resolveComponent('LazyToasterEffect') as Component,
+}
+
 const effects = ref<Effect[]>([
   {
     id: 'fizzy-bubbles',
-    component: 'LazyFizzyBubbles',
+    component: effectComponents.fizzyBubbles,
     label: 'Fizzy Lifting',
     icon: 'kind-icon:soda',
     tooltip: 'Float away with fizzy bubbles 🍾',
@@ -89,7 +110,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'bubble-effect',
-    component: 'LazyBubbleEffect',
+    component: effectComponents.bubbleEffect,
     label: 'Bubble Fiesta',
     icon: 'kind-icon:bubbles',
     tooltip: 'Rainbow clown bubbles 🌈',
@@ -98,7 +119,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'rain-effect',
-    component: 'LazyRainEffect',
+    component: effectComponents.rainEffect,
     label: 'Rainmaker',
     icon: 'kind-icon:raindrop',
     tooltip: "Rain doesn't have to be sad 🌧️",
@@ -107,7 +128,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'butterfly-animation',
-    component: 'LazyButterflyAnimation',
+    component: effectComponents.butterflyAnimation,
     label: 'Butterfly Scouts',
     icon: 'kind-icon:butterfly',
     tooltip: 'Release AMI 🦋',
@@ -116,7 +137,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'starfield-effect',
-    component: 'LazyStarfieldEffect',
+    component: effectComponents.starfieldEffect,
     label: 'Warp Drive',
     icon: 'kind-icon:star',
     tooltip: 'Punch it, Chewie ✨',
@@ -125,7 +146,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'matrix-rain',
-    component: 'LazyMatrixRain',
+    component: effectComponents.matrixRain,
     label: 'Matrix Rain',
     icon: 'kind-icon:code',
     tooltip: 'Follow the white rabbit 🐇',
@@ -134,7 +155,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'firefly-effect',
-    component: 'LazyFireflyEffect',
+    component: effectComponents.fireflyEffect,
     label: 'Fireflies',
     icon: 'kind-icon:sparkle',
     tooltip: 'Organic drift and warmth 🌿',
@@ -143,7 +164,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'lightning-effect',
-    component: 'LazyLightningEffect',
+    component: effectComponents.lightningEffect,
     label: 'Storm Caller',
     icon: 'kind-icon:lightning',
     tooltip: 'Periodic arc strikes ⚡',
@@ -152,7 +173,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'snow-effect',
-    component: 'LazySnowEffect',
+    component: effectComponents.snowEffect,
     label: 'Snow Globe',
     icon: 'kind-icon:snowflake',
     tooltip: 'Soft particle drift ❄️',
@@ -161,7 +182,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'lava-lamp',
-    component: 'LazyLavaLamp',
+    component: effectComponents.lavaLamp,
     label: 'Lava Lamp',
     icon: 'kind-icon:flame',
     tooltip: 'Goo blobs merge and float 🫧',
@@ -170,7 +191,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'toaster-effect',
-    component: 'LazyToasterEffect',
+    component: effectComponents.toasterEffect,
     label: 'Flying Toasters',
     icon: 'kind-icon:toast',
     tooltip: 'After Dark tribute 🍞',

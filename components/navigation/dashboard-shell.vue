@@ -1,9 +1,12 @@
 <!-- /components/content/navigation/dashboard-shell.vue -->
 <template>
   <div
-    class="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-4"
+    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-4"
   >
-    <header class="mb-4 flex shrink-0 flex-col gap-3">
+    <header
+      class="relative mb-4 flex shrink-0 flex-col gap-3"
+      :class="navZClass"
+    >
       <div class="min-w-0 text-center">
         <h1
           class="inline-block rounded-2xl bg-primary px-3 py-2 text-2xl font-bold text-primary-content md:text-3xl"
@@ -18,8 +21,8 @@
 
       <nav
         v-if="tabs.length"
-        class="grid grid-cols-2 gap-2 md:grid-cols-3"
-        :class="navGridClass"
+        class="relative grid grid-cols-2 gap-2 md:grid-cols-3"
+        :class="[navGridClass, navZClass]"
       >
         <button
           v-for="tab in tabs"
@@ -37,24 +40,24 @@
 
     <div
       v-if="loading"
-      class="mb-4 shrink-0 rounded-2xl border border-info/40 bg-info/10 p-4 text-info"
+      class="relative z-40 mb-4 shrink-0 rounded-2xl border border-info/40 bg-info/10 p-4 text-info"
     >
       {{ loadingMessage }}
     </div>
 
     <div
       v-if="error"
-      class="mb-4 shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+      class="relative z-40 mb-4 shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
     >
       {{ error }}
     </div>
 
     <main
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+      class="relative z-0 min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
     >
       <div
         v-if="showSectionHeader"
-        class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        class="relative z-10 mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
           <h2 class="text-xl font-bold text-base-content">
@@ -105,6 +108,7 @@ const props = withDefaults(
     refreshLabel?: string
     showSectionHeader?: boolean
     navGridClass?: string
+    navZClass?: string
   }>(),
   {
     title: 'Dashboard',
@@ -118,6 +122,7 @@ const props = withDefaults(
     refreshLabel: 'Refresh DB',
     showSectionHeader: true,
     navGridClass: 'xl:grid-cols-6',
+    navZClass: 'z-40',
   },
 )
 

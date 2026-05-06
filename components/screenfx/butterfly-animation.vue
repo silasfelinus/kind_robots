@@ -1,17 +1,21 @@
 <!-- /components/content/screenfx/butterfly-animation.vue -->
 <template>
-  <div class="loading-overlay z-50">
-    <!-- Multiple Butterflies with Animation Delay -->
-    <ami-butterfly v-for="i in butterflyCount" :key="i" />
+  <div
+    class="pointer-events-none fixed inset-0 z-50 h-dvh w-dvw overflow-hidden"
+  >
+    <ami-butterfly
+      v-for="i in butterflyCount"
+      :key="i"
+      class="pointer-events-none"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const butterflyCount = ref(20) // Number of butterflies to display
+const butterflyCount = ref(20)
 </script>
-
 <style scoped>
 .loading-overlay {
   position: fixed;

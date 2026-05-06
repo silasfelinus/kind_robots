@@ -12,12 +12,12 @@ import { performFetch, handleError } from '@/stores/utils'
 import { usePromptStore } from '@/stores/promptStore'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { useAnimationStore } from '@/stores/animationStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
 import { artListPresets } from '@/stores/seeds/artList'
 import {
-  type GenerateArtData,
   getArtImagesByIds,
   removeImageById,
   parseStoredArt,
@@ -42,8 +42,54 @@ type ArtInitializeOptions = {
   initializeCollections?: boolean
 }
 
-type ArtGenerationMode = 'browser' | 'backend'
+interface ArtGenerationRoute {
+  transport: ArtGenerationTransport
+  engine: ArtGenerationEngine
+}
+export type ArtGenerationEngine = 'a1111' | 'comfy' | 'flux' | 'kontext'
+export type ArtGenerationTransport = 'browser' | 'backend'
 
+export interface GenerateArtData {
+  promptString: string
+  negativePrompt?: string
+  pitch?: string
+  title?: string
+  collection?: string
+
+  userId?: number | null
+  galleryId?: number | null
+  promptId?: number | null
+  pitchId?: number | null
+
+  checkpoint?: string
+  sampler?: string
+  steps?: number
+  cfg?: number
+  cfgHalf?: boolean
+
+  designer?: string
+  seed?: number | null
+
+  isMature?: boolean
+  isPublic?: boolean
+
+  serverId?: number | null
+  serverName?: string | null
+
+  engine?: ArtGenerationEngine
+  transport?: ArtGenerationTransport
+  workflow?: Record<string, unknown> | null
+
+  width?: number | null
+  height?: number | null
+  guidance?: number | null
+  denoise?: number | null
+  strength?: number | null
+
+  sourceImageId?: number | null
+  sourceImageBase64?: string | null
+  maskImageBase64?: string | null
+}
 type CreateArtInput = {
   promptString: string
   path: string | null
@@ -188,6 +234,7 @@ export const useArtStore = defineStore('artStore', () => {
       pitchId: null,
       serverId: null,
       serverName: null,
+      engine: undefined,
     },
   })
 
@@ -196,6 +243,7 @@ export const useArtStore = defineStore('artStore', () => {
   const collectionStore = useCollectionStore()
   const randomStore = useRandomStore()
   const serverStore = useServerStore()
+  const animationStore = useAnimationStore()
 
   const hoverArt = ref<Art | null>(null)
   const initializing = ref(false)
@@ -351,6 +399,7 @@ export const useArtStore = defineStore('artStore', () => {
       pitch: '',
       userId: userStore.userId || userStore.user?.id || 10,
       galleryId: null,
+      engine: undefined,
       checkpoint: '',
       sampler: '',
       steps: 25,
@@ -804,28 +853,173 @@ export const useArtStore = defineStore('artStore', () => {
     return selectedServer
   }
 
-  function getArtGenerationMode(server: Server): ArtGenerationMode {
+  function getArtGenerationEngine(
+    server: Server,
+    data?: GenerateArtData,
+  ): ArtGenerationEngine {
+    if (data?.engine) {
+      return data.engine
+    }
+
+    if (server.generationEngine === 'FLUX') return 'flux'
+    if (server.generationEngine === 'KONTEXT') return 'kontext'
+    if (server.generationEngine === 'COMFY') return 'comfy'
+    if (server.generationEngine === 'A1111') return 'a1111'
+
+    if (server.serverType === 'COMFY' || server.supportsComfyWorkflow) {
+      return 'comfy'
+    }
+
+    if (server.serverType === 'A1111') {
+      return 'a1111'
+    }
+
+    throw new Error(
+      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Flux, and Kontext only.`,
+    )
+  }
+  function getArtGenerationTransport(
+    server: Server,
+    data?: GenerateArtData,
+  ): ArtGenerationTransport {
+    if (data?.transport) {
+      return data.transport
+    }
+
+    if (server.requiresClientSideCheck) {
+      return 'browser'
+    }
+
+    if (server.isPrivateNetwork) {
+      return 'browser'
+    }
+
+    if (server.accessMode === 'LOCAL') {
+      return 'browser'
+    }
+
+    if (server.allowBrowserRequests) {
+      return 'browser'
+    }
+
+    return 'backend'
+  }
+
+  function getArtGenerationRoute(
+    server: Server,
+    data?: GenerateArtData,
+  ): ArtGenerationRoute {
     if (!server.isActive) {
       throw new Error(`Server "${server.title}" is not active.`)
     }
 
-    if (server.serverType !== 'A1111') {
-      throw new Error(
-        `Server "${server.title}" is ${server.serverType}. This generator currently supports A1111 only.`,
-      )
-    }
+    const engine = getArtGenerationEngine(server, data)
+    const transport = getArtGenerationTransport(server, data)
 
-    if (!server.supportsTxt2Img) {
+    if (engine === 'a1111' && !server.supportsTxt2Img) {
       throw new Error(`Server "${server.title}" does not support txt2img.`)
     }
 
-    const shouldUseBrowser =
-      server.allowBrowserRequests &&
-      (server.requiresClientSideCheck ||
-        server.isPrivateNetwork ||
-        server.accessMode === 'LOCAL')
+    if (transport === 'browser' && !server.allowBrowserRequests) {
+      throw new Error(
+        `Server "${server.title}" does not allow browser requests. Switch this server to backend/proxy transport.`,
+      )
+    }
 
-    return shouldUseBrowser ? 'browser' : 'backend'
+    return {
+      engine,
+      transport,
+    }
+  }
+
+  async function generateBrowserArt(
+    server: Server,
+    data: GenerateArtData,
+    engine: ArtGenerationEngine,
+  ): Promise<Art> {
+    if (engine === 'a1111') {
+      const imageBase64 = await generateImageFromBrowserServer(server, data)
+
+      return await saveBrowserGeneratedArt({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    if (engine === 'comfy') {
+      const imageBase64 = await generateComfyImageFromBrowserServer(
+        server,
+        data,
+      )
+
+      return await saveBrowserGeneratedArt({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    if (engine === 'flux') {
+      const imageBase64 = await generateFluxImageFromBrowserServer(server, data)
+
+      return await saveBrowserGeneratedArt({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    if (engine === 'kontext') {
+      const imageBase64 = await generateKontextImageFromBrowserServer(
+        server,
+        data,
+      )
+
+      return await saveBrowserGeneratedArt({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    throw new Error(`Unsupported browser generation engine: ${engine}`)
+  }
+
+  async function generateComfyImageFromBrowserServer(
+    server: Server,
+    data: GenerateArtData,
+  ): Promise<string> {
+    throw new Error(
+      `Browser Comfy generation is not wired yet for "${server.title}".`,
+    )
+  }
+
+  async function generateFluxImageFromBrowserServer(
+    server: Server,
+    data: GenerateArtData,
+  ): Promise<string> {
+    throw new Error(
+      `Browser Flux generation is not wired yet for "${server.title}".`,
+    )
+  }
+
+  async function generateKontextImageFromBrowserServer(
+    server: Server,
+    data: GenerateArtData,
+  ): Promise<string> {
+    throw new Error(
+      `Browser Kontext generation is not wired yet for "${server.title}".`,
+    )
+  }
+
+  function getBackendArtGenerationEndpoint(
+    engine: ArtGenerationEngine,
+  ): string {
+    const endpoints: Record<ArtGenerationEngine, string> = {
+      a1111: '/api/art/generate',
+      comfy: '/api/art/comfy/generate',
+      flux: '/api/art/comfy/flux/generate',
+      kontext: '/api/art/comfy/kontext/generate',
+    }
+
+    return endpoints[engine]
   }
 
   async function generateImageFromBrowserServer(
@@ -908,16 +1102,21 @@ export const useArtStore = defineStore('artStore', () => {
     return response.data
   }
 
-  async function generateBackendArt(data: GenerateArtData): Promise<Art> {
+  async function generateBackendArt(
+    data: GenerateArtData,
+    engine: ArtGenerationEngine,
+  ): Promise<Art> {
+    const endpoint = getBackendArtGenerationEndpoint(engine)
+
     const response = await performFetch<Art>(
-      '/api/art/generate',
+      endpoint,
       {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' },
       },
       3,
-      120_000,
+      180_000,
     )
 
     if (!response.success || !response.data) {
@@ -938,6 +1137,82 @@ export const useArtStore = defineStore('artStore', () => {
       body: JSON.stringify({ artIds: [artId] }),
       headers: { 'Content-Type': 'application/json' },
     })
+  }
+
+  function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {
+    const checkpointStore = useCheckpointStore()
+    const userId =
+      artData?.userId || userStore.userId || userStore.user?.id || 10
+
+    const basePrompt =
+      artData?.promptString ||
+      getPromptString.value ||
+      promptStore.promptField ||
+      getArtListAddonPrompt()
+
+    const promptString = promptStore
+      .processPromptPlaceholders(basePrompt.trim())
+      .replace(/\./g, ',')
+
+    return {
+      promptString,
+      negativePrompt:
+        artData?.negativePrompt ??
+        state.artForm.negativePrompt ??
+        getNegativePromptString.value,
+      pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
+      userId,
+      galleryId: artData?.galleryId ?? state.artForm.galleryId ?? null,
+      checkpoint:
+        artData?.checkpoint ||
+        state.artForm.checkpoint ||
+        checkpointStore.selectedCheckpoint?.name ||
+        '',
+      sampler:
+        artData?.sampler ||
+        state.artForm.sampler ||
+        checkpointStore.selectedSampler?.name ||
+        '',
+      steps: artData?.steps ?? state.artForm.steps ?? 25,
+      designer:
+        artData?.designer ||
+        state.artForm.designer ||
+        userStore.username ||
+        userStore.user?.username ||
+        'Kind Designer',
+      cfg: artData?.cfg ?? state.artForm.cfg ?? 7,
+      cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf ?? false,
+      isMature: artData?.isMature ?? state.artForm.isMature ?? false,
+      isPublic: artData?.isPublic ?? state.artForm.isPublic ?? true,
+      seed: artData?.seed ?? state.artForm.seed ?? null,
+      promptId: artData?.promptId ?? state.artForm.promptId ?? null,
+      pitchId: artData?.pitchId ?? state.artForm.pitchId ?? null,
+      serverId:
+        artData?.serverId ??
+        state.artForm.serverId ??
+        serverStore.activeArtServer?.id ??
+        null,
+      serverName:
+        artData?.serverName ??
+        state.artForm.serverName ??
+        serverStore.activeArtServer?.label ??
+        serverStore.activeArtServer?.title ??
+        null,
+      engine: artData?.engine ?? state.artForm.engine ?? undefined,
+      transport: artData?.transport ?? state.artForm.transport ?? undefined,
+      workflow: artData?.workflow ?? state.artForm.workflow ?? null,
+      width: artData?.width ?? state.artForm.width ?? null,
+      height: artData?.height ?? state.artForm.height ?? null,
+      guidance: artData?.guidance ?? state.artForm.guidance ?? null,
+      denoise: artData?.denoise ?? state.artForm.denoise ?? null,
+      strength: artData?.strength ?? state.artForm.strength ?? null,
+      sourceImageId:
+        artData?.sourceImageId ?? state.artForm.sourceImageId ?? null,
+      sourceImageBase64:
+        artData?.sourceImageBase64 ?? state.artForm.sourceImageBase64 ?? null,
+      maskImageBase64:
+        artData?.maskImageBase64 ?? state.artForm.maskImageBase64 ?? null,
+    }
   }
 
   async function addGeneratedArtToCollections(
@@ -971,61 +1246,19 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {
-    const checkpointStore = useCheckpointStore()
-    const userId = artData?.userId || userStore.userId || 10
-
-    const basePrompt =
-      artData?.promptString ||
-      getPromptString.value ||
-      promptStore.promptField ||
-      getArtListAddonPrompt()
-
-    const promptString = promptStore
-      .processPromptPlaceholders(basePrompt.trim())
-      .replace(/\./g, ',')
-
-    return {
-      promptString,
-      negativePrompt:
-        artData?.negativePrompt ??
-        state.artForm.negativePrompt ??
-        getNegativePromptString.value,
-      pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
-      userId,
-      galleryId: artData?.galleryId ?? state.artForm.galleryId ?? null,
-      checkpoint:
-        artData?.checkpoint ||
-        state.artForm.checkpoint ||
-        checkpointStore.selectedCheckpoint?.name ||
-        'stable-diffusion-v1-4',
-      sampler:
-        artData?.sampler ||
-        state.artForm.sampler ||
-        checkpointStore.selectedSampler?.name ||
-        'k_lms',
-      steps: artData?.steps ?? state.artForm.steps,
-      designer:
-        artData?.designer ||
-        state.artForm.designer ||
-        userStore.username ||
-        'Kind Designer',
-      cfg: artData?.cfg ?? state.artForm.cfg,
-      cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf,
-      isMature: artData?.isMature ?? state.artForm.isMature,
-      isPublic: artData?.isPublic ?? state.artForm.isPublic,
-      seed: artData?.seed ?? state.artForm.seed ?? null,
-      promptId: artData?.promptId ?? state.artForm.promptId ?? null,
-      pitchId: artData?.pitchId ?? state.artForm.pitchId ?? null,
-      serverId: artData?.serverId ?? state.artForm.serverId ?? null,
-      serverName: artData?.serverName ?? state.artForm.serverName ?? null,
-    }
-  }
-
   async function generateArt(
     artData?: GenerateArtData,
   ): Promise<ApiResponse<Art>> {
     state.loading = true
+    animationStore.startGeneration({
+      zones: {
+        header: false,
+        left: false,
+        center: true,
+        right: false,
+        footer: false,
+      },
+    })
 
     try {
       clearError()
@@ -1044,30 +1277,23 @@ export const useArtStore = defineStore('artStore', () => {
       })
 
       const server = getSelectedArtServer(data)
-      const generationMode = getArtGenerationMode(server)
+      const route = getArtGenerationRoute(server, data)
 
       const dataWithServer: GenerateArtData = {
         ...data,
         serverId: server.id,
         serverName: server.label || server.title,
+        engine: route.engine,
+        transport: route.transport,
       }
 
       let art: Art
 
-      if (generationMode === 'browser') {
-        const imageBase64 = await generateImageFromBrowserServer(
-          server,
-          dataWithServer,
-        )
-
-        art = await saveBrowserGeneratedArt({
-          ...dataWithServer,
-          imageBase64,
-        })
+      if (route.transport === 'browser') {
+        art = await generateBrowserArt(server, dataWithServer, route.engine)
       } else {
-        art = await generateBackendArt(dataWithServer)
+        art = await generateBackendArt(dataWithServer, route.engine)
       }
-
       await addGeneratedArtToCollections(art, dataWithServer.userId || 10)
 
       addOrUpdateArt(art)
@@ -1094,6 +1320,7 @@ export const useArtStore = defineStore('artStore', () => {
       }
     } finally {
       state.loading = false
+      animationStore.stop()
     }
   }
 

@@ -721,6 +721,18 @@ model Server {
   isDefault                  Boolean            @default(false)
   isActive                   Boolean            @default(true)
   isEditable                 Boolean            @default(true)
+  browserBaseUrl            String?
+  backendBaseUrl            String?
+
+  workflowPath              String?
+  workflowJson              Json?
+  workflowVersion           String?
+  defaultWidth              Int     @default(512)
+  defaultHeight             Int     @default(512)
+  defaultSteps              Int?
+  defaultCfg                Float?
+  defaultSampler            String?
+  defaultScheduler          String?
 
   accessMode                 ServerAccessMode   @default(LOCAL)
   requiresClientSideCheck    Boolean            @default(false)
@@ -744,6 +756,13 @@ model Server {
   supportsSeed               Boolean            @default(false)
   supportsSteps              Boolean            @default(false)
   supportsVideo              Boolean            @default(false)
+  supportsFlux              Boolean @default(false)
+  supportsKontext           Boolean @default(false)
+  supportsInpaint           Boolean @default(false)
+  supportsOutpaint          Boolean @default(false)
+  supportsImageEdit         Boolean @default(false)
+  supportsWorkflowUpload    Boolean @default(false)
+  supportsBatch             Boolean @default(false)
 
   apiLink                    String?
   model                      String?
@@ -759,6 +778,9 @@ model Server {
   Chats                      Chat[]
   user                       User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  generationEngine          ServerGenerationEngine @default(A1111)
+  defaultTransport          ServerTransport        @default(BROWSER)
+
   @@index([serverType])
   @@index([isPublic])
   @@index([userId])
@@ -772,6 +794,20 @@ enum ServerAccessMode {
   PUBLIC_API_KEY
   PUBLIC_OIDC
   PUBLIC_UNPROTECTED
+}
+
+enum ServerGenerationEngine {
+  A1111
+  COMFY
+  FLUX
+  KONTEXT
+  OPENAI_IMAGE
+  OTHER
+}
+
+enum ServerTransport {
+  BROWSER
+  BACKEND
 }
 
 /// Smart Icons are used internally to generate the user's icon array. They can create custom icons that are links to pages or commands

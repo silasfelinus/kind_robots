@@ -6,34 +6,6 @@ import { performFetch, handleError } from '@/stores/utils'
 // Lazy store accessor to prevent circular imports
 const getArtStore = () => useArtStore()
 
-export interface GenerateArtData {
-  promptString: string
-  negativePrompt?: string
-  pitch?: string
-  title?: string
-  collection?: string
-
-  userId?: number | null
-  galleryId?: number | null
-  promptId?: number | null
-  pitchId?: number | null
-
-  checkpoint?: string
-  sampler?: string
-  steps?: number
-  cfg?: number
-  cfgHalf?: boolean
-
-  designer?: string
-  seed?: number | null
-
-  isMature?: boolean
-  isPublic?: boolean
-
-  serverId?: number | null
-  serverName?: string | null
-}
-
 export function parseStoredArt(value: string): Art[] {
   try {
     return JSON.parse(value) as Art[]

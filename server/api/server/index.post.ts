@@ -87,10 +87,7 @@ function validateEnumValue<T extends string>(
   return value as T
 }
 
-function resolveAccessDefaults(
-  accessMode: ServerAccessMode,
-  entry: ServerInput,
-) {
+function getAccessModeDefaults(accessMode: ServerAccessMode) {
   if (accessMode === 'TAILSCALE') {
     return {
       isPublic: false,
@@ -98,6 +95,7 @@ function resolveAccessDefaults(
       requiresClientSideCheck: true,
       allowBrowserRequests: true,
       useOidc: false,
+      requiresApiKey: false,
     }
   }
 
@@ -108,6 +106,7 @@ function resolveAccessDefaults(
       requiresClientSideCheck: true,
       allowBrowserRequests: true,
       useOidc: false,
+      requiresApiKey: false,
     }
   }
 
@@ -116,8 +115,9 @@ function resolveAccessDefaults(
       isPublic: false,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests: entry.allowBrowserRequests ?? false,
+      allowBrowserRequests: false,
       useOidc: false,
+      requiresApiKey: true,
     }
   }
 
@@ -126,8 +126,9 @@ function resolveAccessDefaults(
       isPublic: false,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests: entry.allowBrowserRequests ?? false,
+      allowBrowserRequests: false,
       useOidc: true,
+      requiresApiKey: false,
     }
   }
 
@@ -136,8 +137,9 @@ function resolveAccessDefaults(
       isPublic: false,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests: entry.allowBrowserRequests ?? true,
-      useOidc: entry.useOidc ?? false,
+      allowBrowserRequests: false,
+      useOidc: false,
+      requiresApiKey: false,
     }
   }
 
@@ -145,8 +147,9 @@ function resolveAccessDefaults(
     isPublic: false,
     isPrivateNetwork: false,
     requiresClientSideCheck: false,
-    allowBrowserRequests: entry.allowBrowserRequests ?? true,
-    useOidc: entry.useOidc ?? false,
+    allowBrowserRequests: true,
+    useOidc: false,
+    requiresApiKey: false,
   }
 }
 
@@ -222,10 +225,7 @@ function buildCreateInput(
       'lastStatus',
     ) || 'UNKNOWN'
 
-  const accessDefaults = resolveAccessDefaults(
-    accessMode as ServerAccessMode,
-    entry,
-  )
+  const accessDefaults = getAccessModeDefaults(accessMode)
 
   const requestedPublic = isAdmin ? (entry.isPublic ?? false) : false
   const isPublic =
@@ -237,8 +237,8 @@ function buildCreateInput(
     entry.isPrivateNetwork ?? accessDefaults.isPrivateNetwork
 
   validateUnsafePublicServer({
-    accessMode: accessMode as ServerAccessMode,
-    serverType: serverType as ServerType,
+    accessMode,
+    serverType,
     baseUrl,
     isPublic,
     isPrivateNetwork,
@@ -249,14 +249,14 @@ function buildCreateInput(
     label: normalizeOptionalString(entry.label),
     description: normalizeOptionalString(entry.description),
     category: normalizeOptionalString(entry.category),
-    serverType: serverType as ServerType,
+    serverType,
     baseUrl,
     endpointPath,
     healthPath,
 
     user: { connect: { id: userId } },
 
-    accessMode: accessMode as ServerAccessMode,
+    accessMode,
     requiresClientSideCheck:
       entry.requiresClientSideCheck ?? accessDefaults.requiresClientSideCheck,
     isPrivateNetwork,
@@ -269,7 +269,7 @@ function buildCreateInput(
     isActive: entry.isActive ?? true,
     isEditable: entry.isEditable ?? true,
 
-    requiresApiKey: entry.requiresApiKey ?? accessMode === 'PUBLIC_API_KEY',
+    requiresApiKey: entry.requiresApiKey ?? accessDefaults.requiresApiKey,
     apiKeyName: normalizeOptionalString(entry.apiKeyName),
 
     useOidc: entry.useOidc ?? accessDefaults.useOidc,
@@ -297,7 +297,7 @@ function buildCreateInput(
 
     sortOrder: typeof entry.sortOrder === 'number' ? entry.sortOrder : 0,
     lastCheckedAt: entry.lastCheckedAt || null,
-    lastStatus: lastStatus as ServerStatus,
+    lastStatus,
   }
 }
 

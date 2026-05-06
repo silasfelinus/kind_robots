@@ -195,40 +195,161 @@
           </label>
         </div>
 
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-2 lg:grid-cols-3">
           <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px] font-bold"
+            class="flex cursor-pointer flex-col gap-1 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px]"
           >
-            <input
-              v-model="serverStore.serverForm.requiresClientSideCheck"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Browser test
+            <span class="flex items-center gap-2 font-black">
+              <input
+                v-model="serverStore.serverForm.requiresClientSideCheck"
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-xs"
+              />
+              Health check from browser
+            </span>
+            <span class="pl-6 opacity-60">
+              Use this when Vercel cannot reach the server, but your browser
+              can.
+            </span>
           </label>
 
           <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px] font-bold"
+            class="flex cursor-pointer flex-col gap-1 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px]"
           >
-            <input
-              v-model="serverStore.serverForm.isPrivateNetwork"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Private network
+            <span class="flex items-center gap-2 font-black">
+              <input
+                v-model="serverStore.serverForm.isPrivateNetwork"
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-xs"
+              />
+              Private / local / tailnet URL
+            </span>
+            <span class="pl-6 opacity-60">
+              For localhost, LAN IPs, Tailscale, or anything not publicly
+              reachable.
+            </span>
           </label>
 
           <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px] font-bold"
+            class="flex cursor-pointer flex-col gap-1 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px]"
           >
-            <input
-              v-model="serverStore.serverForm.allowBrowserRequests"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Browser calls
+            <span class="flex items-center gap-2 font-black">
+              <input
+                v-model="serverStore.serverForm.allowBrowserRequests"
+                type="checkbox"
+                class="checkbox checkbox-primary checkbox-xs"
+              />
+              Allow browser-direct calls
+            </span>
+            <span class="pl-6 opacity-60">
+              Let the frontend fetch this server directly. Requires CORS to
+              allow your site.
+            </span>
           </label>
         </div>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70"
+            >API Docs / Info Link</span
+          >
+          <input
+            v-model="serverStore.serverForm.apiLink"
+            class="input input-bordered input-sm rounded-xl text-xs"
+            placeholder="https://docs.example.com"
+          />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70">Model Name</span>
+          <input
+            v-model="serverStore.serverForm.model"
+            class="input input-bordered input-sm rounded-xl text-xs"
+            placeholder="v1-5-pruned, flux-dev, gpt-4o-mini..."
+          />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70"
+            >Designer / Provider</span
+          >
+          <input
+            v-model="serverStore.serverForm.designer"
+            class="input input-bordered input-sm rounded-xl text-xs"
+            placeholder="OpenAI, Stability, Local Lola..."
+          />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70">Version</span>
+          <input
+            v-model="serverStore.serverForm.version"
+            class="input input-bordered input-sm rounded-xl text-xs"
+            placeholder="1.0, SDXL, Forge, Comfy..."
+          />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="text-[11px] font-bold opacity-70">Sort Order</span>
+          <input
+            v-model.number="serverStore.serverForm.sortOrder"
+            type="number"
+            class="input input-bordered input-sm rounded-xl text-xs"
+          />
+        </label>
+
+        <label
+          class="flex cursor-pointer items-end gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold"
+        >
+          <input
+            v-model="serverStore.serverForm.isEditable"
+            type="checkbox"
+            class="checkbox checkbox-primary checkbox-xs"
+          />
+          Editable
+        </label>
+
+        <label
+          class="flex cursor-pointer items-end gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold"
+        >
+          <input
+            v-model="serverStore.serverForm.isPublic"
+            type="checkbox"
+            class="checkbox checkbox-primary checkbox-xs"
+          />
+          Public
+        </label>
+
+        <label
+          class="flex cursor-pointer items-end gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold"
+        >
+          <input
+            v-model="serverStore.serverForm.isOfficial"
+            type="checkbox"
+            class="checkbox checkbox-primary checkbox-xs"
+          />
+          Official
+        </label>
+
+        <label
+          class="flex cursor-pointer items-end gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold"
+        >
+          <input
+            v-model="serverStore.serverForm.isDefault"
+            type="checkbox"
+            class="checkbox checkbox-primary checkbox-xs"
+          />
+          Default
+        </label>
+
+        <label class="flex flex-col gap-1 sm:col-span-2">
+          <span class="text-[11px] font-bold opacity-70">Notes</span>
+          <textarea
+            v-model="serverStore.serverForm.notes"
+            class="textarea textarea-bordered rounded-xl text-xs"
+            rows="2"
+            placeholder="Private setup notes, auth quirks, launch flags, cursed YAML discoveries..."
+          />
+        </label>
 
         <div class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
@@ -590,6 +711,8 @@ function applyAccessModePreset() {
       allowBrowserRequests: true,
       isPublic: false,
       useOidc: false,
+      oidcProvider: null,
+      requiresApiKey: false,
     }
     return
   }
@@ -602,6 +725,8 @@ function applyAccessModePreset() {
       allowBrowserRequests: true,
       isPublic: false,
       useOidc: false,
+      oidcProvider: null,
+      requiresApiKey: false,
     }
     return
   }
@@ -615,6 +740,7 @@ function applyAccessModePreset() {
       requiresApiKey: true,
       isPublic: false,
       useOidc: false,
+      oidcProvider: null,
     }
     return
   }
@@ -627,6 +753,7 @@ function applyAccessModePreset() {
       allowBrowserRequests: false,
       isPublic: false,
       useOidc: true,
+      requiresApiKey: false,
       oidcProvider: serverStore.serverForm.oidcProvider || 'authelia',
     }
     return
@@ -637,9 +764,10 @@ function applyAccessModePreset() {
       ...serverStore.serverForm,
       isPrivateNetwork: false,
       requiresClientSideCheck: false,
-      allowBrowserRequests: true,
+      allowBrowserRequests: false,
       isPublic: false,
       useOidc: false,
+      requiresApiKey: false,
     }
     return
   }
@@ -650,6 +778,7 @@ function applyAccessModePreset() {
     requiresClientSideCheck: false,
     allowBrowserRequests: true,
     isPublic: false,
+    useOidc: false,
   }
 }
 
@@ -666,8 +795,12 @@ function applyServerTypePreset() {
       supportsTxt2Img: true,
       supportsImg2Img: true,
       supportsChat: false,
+      supportsCheckpointOverride: false,
+      supportsSampler: false,
+      supportsNegativePrompt: false,
       supportsSeed: true,
       supportsSteps: true,
+      supportsVideo: Boolean(serverStore.serverForm.supportsVideo),
     }
     return
   }
@@ -700,6 +833,7 @@ function applyServerTypePreset() {
       supportsTxt2Img: true,
       supportsImg2Img: true,
       supportsChat: false,
+      supportsComfyWorkflow: false,
     }
     return
   }
@@ -715,6 +849,12 @@ function applyServerTypePreset() {
       supportsTxt2Img: false,
       supportsImg2Img: false,
       supportsComfyWorkflow: false,
+      supportsCheckpointOverride: false,
+      supportsSampler: false,
+      supportsNegativePrompt: false,
+      supportsSeed: false,
+      supportsSteps: false,
+      supportsVideo: false,
     }
     return
   }
@@ -730,6 +870,12 @@ function applyServerTypePreset() {
       supportsTxt2Img: false,
       supportsImg2Img: false,
       supportsComfyWorkflow: false,
+      supportsCheckpointOverride: false,
+      supportsSampler: false,
+      supportsNegativePrompt: false,
+      supportsSeed: false,
+      supportsSteps: false,
+      supportsVideo: false,
     }
   }
 }
@@ -794,8 +940,11 @@ function selectBlueprint() {
   serverStore.setBlueprintServer(serverStore.selectedBlueprintServerId)
   apiKey.value = ''
   apiKeyName.value = serverStore.serverForm.apiKeyName || ''
-  applyServerTypePreset()
-  applyAccessModePreset()
+
+  if (!selectedBlueprint.value) {
+    applyServerTypePreset()
+    applyAccessModePreset()
+  }
 }
 
 async function ensurePrivateServer(): Promise<number | null> {
@@ -858,8 +1007,6 @@ async function clearKey() {
 }
 
 async function handleSave() {
-  applyAccessModePreset()
-  applyServerTypePreset()
   normalizeServerFormForSave()
 
   if (isCloning.value) {
@@ -908,13 +1055,6 @@ watch(
   },
 )
 
-watch(
-  () => serverStore.serverForm.accessMode,
-  () => {
-    applyAccessModePreset()
-  },
-)
-
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     serverStore.closeServerForm()
@@ -927,9 +1067,6 @@ onMounted(() => {
   }
 
   apiKeyName.value = serverStore.serverForm.apiKeyName || ''
-
-  applyServerTypePreset()
-  applyAccessModePreset()
 
   window.addEventListener('keydown', onKeydown)
 })

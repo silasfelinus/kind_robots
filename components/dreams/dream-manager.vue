@@ -92,7 +92,7 @@
         subtitle="Optionally ground dreams in a story setting."
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <server-gallery v-else-if="currentTab === 'servers'" />
 
       <dream-interact v-else-if="currentTab === 'interact'" />
 

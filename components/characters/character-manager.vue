@@ -88,7 +88,7 @@
         subtitle="Use characters inside collaborative dream sessions."
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <server-gallery v-else-if="currentTab === 'servers'" />
 
       <character-interact v-else-if="currentTab === 'interact'" />
 

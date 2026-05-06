@@ -28,45 +28,102 @@
     </Transition>
   </Teleport>
 
-  <section class="relative">
-    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 p-2">
-      <div
+  <section class="relative mx-auto flex w-full max-w-7xl flex-col gap-5 p-3 sm:p-4 lg:p-6">
+    <div class="rounded-2xl border border-base-300 bg-base-200/80 p-4 shadow-lg backdrop-blur sm:p-5">
+      <div class="flex flex-col gap-2 text-center">
+        <h2 class="text-2xl font-black text-base-content sm:text-3xl">
+          Screen FX
+        </h2>
+
+        <p class="mx-auto max-w-2xl text-sm text-base-content/70 sm:text-base">
+          Toggle a little visual chaos. The responsible kind. Probably.
+        </p>
+
+        <div
+          v-if="activeCount > 0"
+          class="mx-auto mt-2 rounded-full border border-accent/40 bg-accent/15 px-4 py-1 text-sm font-bold text-accent-content"
+        >
+          {{ activeCount }} active effect{{ activeCount === 1 ? '' : 's' }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+    >
+      <button
         v-for="effect in effects"
         :key="effect.id"
-        class="relative flex flex-col items-center gap-2"
+        type="button"
+        class="group relative flex min-h-40 flex-col items-center justify-between overflow-hidden rounded-2xl border p-4 text-center shadow-md transition-all duration-200 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-accent/40 sm:min-h-48 sm:p-5 lg:min-h-52"
+        :class="getEffectButtonClasses(effect.isActive)"
+        :title="effect.tooltip"
+        @click="toggleEffect(effect.id)"
+        @mouseenter="hoveredEffect = effect.id"
+        @mouseleave="hoveredEffect = null"
+        @focus="hoveredEffect = effect.id"
+        @blur="hoveredEffect = null"
       >
         <div
-          v-if="hoveredEffect === effect.id"
-          class="pointer-events-none absolute -top-10 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-xl bg-base-300 bg-opacity-90 px-2 py-1 text-sm font-bold text-base-content"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          :class="effect.isActive ? 'bg-accent/10' : 'bg-primary/10'"
+        />
+
+        <div
+          v-if="effect.isActive"
+          class="absolute right-3 top-3 rounded-full border border-accent/40 bg-accent px-2 py-1 text-xs font-black uppercase tracking-wide text-accent-content shadow"
         >
-          {{ effect.tooltip }}
+          on
         </div>
 
-        <button
-          type="button"
-          class="flex cursor-pointer items-center justify-center rounded-full p-3 transition-transform hover:scale-125 hover:bg-accent"
-          :class="{
-            'bg-accent': effect.isActive,
-            'bg-transparent': !effect.isActive,
-          }"
-          @click="toggleEffect(effect.id)"
-          @mouseenter="hoveredEffect = effect.id"
-          @mouseleave="hoveredEffect = null"
-          @focus="hoveredEffect = effect.id"
-          @blur="hoveredEffect = null"
+        <div
+          class="relative flex h-20 w-20 items-center justify-center rounded-full border transition-all duration-200 group-hover:scale-110 sm:h-24 sm:w-24 lg:h-28 lg:w-28"
+          :class="getIconShellClasses(effect.isActive)"
         >
           <Icon
             :name="effect.icon"
             :title="effect.label"
             :class="{ glow: effect.isActive }"
-            class="h-8 w-8 fill-current text-default md:h-12 md:w-12"
+            class="h-11 w-11 fill-current sm:h-14 sm:w-14 lg:h-16 lg:w-16"
           />
-        </button>
-
-        <div class="text-center text-sm text-default">
-          {{ effect.isActive ? effect.reveal : effect.label }}
         </div>
-      </div>
+
+        <div class="relative flex min-h-20 flex-col justify-end gap-2">
+          <div class="text-base font-black leading-tight text-base-content sm:text-lg">
+            {{ effect.label }}
+          </div>
+
+          <div
+            class="mx-auto rounded-full px-3 py-1 text-xs font-bold sm:text-sm"
+            :class="effect.isActive ? 'bg-accent text-accent-content' : 'bg-base-300 text-base-content/70'"
+          >
+            {{ effect.isActive ? effect.reveal : 'Tap to activate' }}
+          </div>
+        </div>
+
+        <Transition name="tooltip">
+          <div
+            v-if="hoveredEffect === effect.id"
+            class="pointer-events-none absolute bottom-3 left-3 right-3 rounded-xl border border-base-300 bg-base-100/95 px-3 py-2 text-xs font-bold text-base-content shadow-lg backdrop-blur sm:text-sm"
+          >
+            {{ effect.tooltip }}
+          </div>
+        </Transition>
+      </button>
+    </div>
+
+    <div
+      v-if="activeCount > 0"
+      class="flex justify-center pt-2"
+    >
+      <button
+        type="button"
+        class="btn btn-error btn-wide rounded-2xl text-base font-black shadow-lg"
+        @click="clearAll"
+      >
+        <Icon name="kind-icon:close" class="h-5 w-5" />
+        Clear all effects
+      </button>
     </div>
   </section>
 </template>
@@ -259,6 +316,18 @@ const activeComponents = computed(() => {
     }))
 })
 
+function getEffectButtonClasses(isActive: boolean) {
+  return isActive
+    ? 'border-accent bg-accent/20 text-accent-content shadow-accent/20'
+    : 'border-base-300 bg-base-100/90 text-base-content hover:border-primary/60 hover:bg-base-200'
+}
+
+function getIconShellClasses(isActive: boolean) {
+  return isActive
+    ? 'border-accent bg-accent text-accent-content shadow-lg shadow-accent/30'
+    : 'border-base-300 bg-base-200 text-primary group-hover:border-primary group-hover:bg-primary group-hover:text-primary-content'
+}
+
 function toggleEffect(effectId: string) {
   effects.value = effects.value.map((effect) => {
     if (effect.id !== effectId) return effect
@@ -327,16 +396,32 @@ function clearAll() {
   transform: translateY(8px);
 }
 
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition:
+    opacity 0.16s,
+    transform 0.16s;
+}
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 @keyframes glow {
   0%,
   100% {
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+    box-shadow:
+      0 0 6px rgba(255, 255, 255, 0.45),
+      0 0 12px rgba(255, 255, 255, 0.25);
   }
 
   50% {
     box-shadow:
-      0 0 16px rgba(255, 255, 255, 0.7),
-      0 0 24px rgba(255, 115, 253, 0.7);
+      0 0 18px rgba(255, 255, 255, 0.75),
+      0 0 30px rgba(255, 115, 253, 0.7),
+      0 0 44px rgba(115, 195, 255, 0.45);
   }
 }
 

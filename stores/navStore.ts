@@ -170,17 +170,33 @@ export const useNavStore = defineStore('navStore', () => {
     lastError.value = null
   }
 
-  function syncToLocalStorage(): void {
+  function syncIconsToLocalStorage(): void {
     safeSetLocalStorage(navIconsStorageKey, JSON.stringify(items.value))
+  }
+
+  function syncFavoritesToLocalStorage(): void {
     safeSetLocalStorage(navFavoritesStorageKey, JSON.stringify(favorites.value))
+  }
+
+  function syncDashboardTabsToLocalStorage(): void {
     safeSetLocalStorage(
       dashboardTabsStorageKey,
       JSON.stringify(dashboardTabs.value),
     )
+  }
+
+  function syncWonderLabFolderToLocalStorage(): void {
     safeSetLocalStorage(wonderLabFolderStorageKey, wonderLabFolder.value ?? '')
   }
 
-  function hydrateFromLocalStorage(): void {
+  function syncToLocalStorage(): void {
+    syncIconsToLocalStorage()
+    syncFavoritesToLocalStorage()
+    syncDashboardTabsToLocalStorage()
+    syncWonderLabFolderToLocalStorage()
+  }
+
+  function hydrateIconsFromLocalStorage(): void {
     const storedIcons = safeParseArray<SmartIcon>(
       safeGetLocalStorage(navIconsStorageKey),
     )
@@ -188,29 +204,42 @@ export const useNavStore = defineStore('navStore', () => {
     if (storedIcons.length) {
       items.value = normalizeIcons(storedIcons)
     }
+  }
 
+  function hydrateFavoritesFromLocalStorage(): void {
     favorites.value = safeParseArray<string>(
       safeGetLocalStorage(navFavoritesStorageKey),
     )
+  }
 
+  function hydrateDashboardTabsFromLocalStorage(): void {
     dashboardTabs.value = normalizeDashboardTabs(
       safeParseRecord(safeGetLocalStorage(dashboardTabsStorageKey)),
     )
+  }
 
+  function hydrateWonderLabFolderFromLocalStorage(): void {
     wonderLabFolder.value =
       safeGetLocalStorage(wonderLabFolderStorageKey) || null
+  }
+
+  function hydrateFromLocalStorage(): void {
+    hydrateIconsFromLocalStorage()
+    hydrateFavoritesFromLocalStorage()
+    hydrateDashboardTabsFromLocalStorage()
+    hydrateWonderLabFolderFromLocalStorage()
   }
 
   function applyIconsFromSmartbar(): void {
     if (smartbarStore.icons.length) {
       items.value = normalizeIcons(smartbarStore.icons)
-      syncToLocalStorage()
+      syncIconsToLocalStorage()
       return
     }
 
     if (!items.value.length) {
       items.value = seededIcons()
-      syncToLocalStorage()
+      syncIconsToLocalStorage()
     }
   }
 
@@ -235,9 +264,12 @@ export const useNavStore = defineStore('navStore', () => {
 
         hydrateFromLocalStorage()
 
-        if (!smartbarStore.isInitialized) {
+        if (!smartbarStore.isInitialized || force) {
           await smartbarStore.initialize()
         }
+
+        hydrateDashboardTabsFromLocalStorage()
+        hydrateWonderLabFolderFromLocalStorage()
 
         applyIconsFromSmartbar()
         syncModelTypeIfNeeded()
@@ -249,9 +281,12 @@ export const useNavStore = defineStore('navStore', () => {
 
         if (!items.value.length) {
           items.value = seededIcons()
+          syncIconsToLocalStorage()
           syncModelTypeIfNeeded()
-          syncToLocalStorage()
         }
+
+        hydrateDashboardTabsFromLocalStorage()
+        hydrateWonderLabFolderFromLocalStorage()
 
         isInitialized.value = false
       } finally {
@@ -275,7 +310,7 @@ export const useNavStore = defineStore('navStore', () => {
   function setIcons(data: SmartIcon[]): void {
     items.value = normalizeIcons(data)
     syncModelTypeIfNeeded()
-    syncToLocalStorage()
+    syncIconsToLocalStorage()
   }
 
   function refreshIconsFromSmartbar(): void {
@@ -304,7 +339,7 @@ export const useNavStore = defineStore('navStore', () => {
       favorites.value.splice(index, 1)
     }
 
-    syncToLocalStorage()
+    syncFavoritesToLocalStorage()
   }
 
   function setDashboardTabFromContent(tabKey?: string | null): string | null {
@@ -312,7 +347,9 @@ export const useNavStore = defineStore('navStore', () => {
 
     if (!normalizedTabKey) return null
 
-    for (const dashboardKey of Object.keys(dashboardConfigs) as DashboardKey[]) {
+    for (const dashboardKey of Object.keys(
+      dashboardConfigs,
+    ) as DashboardKey[]) {
       if (isDashboardTabKey(dashboardKey, normalizedTabKey)) {
         return setDashboardTab(dashboardKey, normalizedTabKey)
       }
@@ -356,7 +393,7 @@ export const useNavStore = defineStore('navStore', () => {
       [dashboardKey]: nextTab,
     }
 
-    syncToLocalStorage()
+    syncDashboardTabsToLocalStorage()
 
     return nextTab
   }
@@ -422,15 +459,17 @@ export const useNavStore = defineStore('navStore', () => {
 
   function setWonderLabFolder(folder: string | null): void {
     wonderLabFolder.value = folder
-    syncToLocalStorage()
+    syncWonderLabFolderToLocalStorage()
   }
 
   if (isClient) {
     hydrateFromLocalStorage()
 
-    watch(favorites, () => syncToLocalStorage(), { deep: true })
-    watch(dashboardTabs, () => syncToLocalStorage(), { deep: true })
-    watch(wonderLabFolder, () => syncToLocalStorage())
+    watch(favorites, () => syncFavoritesToLocalStorage(), { deep: true })
+    watch(dashboardTabs, () => syncDashboardTabsToLocalStorage(), {
+      deep: true,
+    })
+    watch(wonderLabFolder, () => syncWonderLabFolderToLocalStorage())
   }
 
   return {
@@ -487,6 +526,6 @@ export const useNavStore = defineStore('navStore', () => {
     clearRouteHistory,
 
     setWonderLabFolder,
-setDashboardTabFromContent,
+    setDashboardTabFromContent,
   }
 })

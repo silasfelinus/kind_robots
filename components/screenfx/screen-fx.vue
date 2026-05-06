@@ -1,6 +1,6 @@
 <!-- /components/content/screenfx/screen-fx.vue -->
 <template>
-  <div class="pointer-events-none fixed inset-0 z-50">
+  <div class="pointer-events-none fixed inset-0 z-60">
     <component
       :is="activeComponent.component"
       v-for="activeComponent in activeComponents"
@@ -214,7 +214,7 @@ function clearAll() {
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
-  z-index: 60;
+  z-index: 70;
   display: flex;
   align-items: center;
   gap: 6px;

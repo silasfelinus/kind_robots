@@ -11,34 +11,36 @@
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { useErrorStore, ErrorType } from '../../stores/errorStore'
-import { useUserStore } from '../../stores/userStore'
-import { useArtStore } from '../../stores/artStore'
-import { useRandomStore } from '../../stores/randomStore'
-import { useCharacterStore } from '../../stores/characterStore'
-import { useBotStore } from '../../stores/botStore'
-import { useChatStore } from '../../stores/chatStore'
-import { useMilestoneStore } from '../../stores/milestoneStore'
-import { useDisplayStore } from '../../stores/displayStore'
-import { usePitchStore } from '../../stores/pitchStore'
-import { usePromptStore } from '../../stores/promptStore'
-import { useReactionStore } from '../../stores/reactionStore'
-import { useRewardStore } from '../../stores/rewardStore'
-import { useGalleryStore } from '../../stores/galleryStore'
-import { useScenarioStore } from '../../stores/scenarioStore'
-import { useWeirdStore } from '../../stores/weirdStore'
-import { useConsoleStore } from '../../stores/consoleStore'
-import { useChoiceStore } from '../../stores/choiceStore'
-import { useSmartbarStore } from '../../stores/smartbarStore'
-import { useComponentStore } from '../../stores/componentStore'
-import { usePageStore } from '../../stores/pageStore'
-import { useNavStore } from '../../stores/navStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
+import { useUserStore } from '@/stores/userStore'
+import { useArtStore } from '@/stores/artStore'
+import { useRandomStore } from '@/stores/randomStore'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useBotStore } from '@/stores/botStore'
+import { useChatStore } from '@/stores/chatStore'
+import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useDisplayStore } from '@/stores/displayStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import { usePromptStore } from '@/stores/promptStore'
+import { useReactionStore } from '@/stores/reactionStore'
+import { useRewardStore } from '@/stores/rewardStore'
+import { useGalleryStore } from '@/stores/galleryStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useWeirdStore } from '@/stores/weirdStore'
+import { useConsoleStore } from '@/stores/consoleStore'
+import { useChoiceStore } from '@/stores/choiceStore'
+import { useSmartbarStore } from '@/stores/smartbarStore'
+import { useComponentStore } from '@/stores/componentStore'
+import { usePageStore } from '@/stores/pageStore'
+import { useNavStore } from '@/stores/navStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
+import { useServerStore } from '@/stores/serverStore'
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
+const serverStore = useServerStore()
 const artStore = useArtStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
@@ -79,6 +81,26 @@ function handleOverlayHidden() {
   emitReadyOnce()
 }
 
+async function initializeServerStore() {
+  await errorStore.handleError(
+    async () => {
+      if (!serverStore.isInitialized) {
+        await serverStore.initialize({
+          fetchRemote: true,
+        })
+
+        return
+      }
+
+      if (!serverStore.hasLoaded || serverStore.servers.length === 0) {
+        await serverStore.fetchAllServers(true)
+      }
+    },
+    ErrorType.STORE_ERROR,
+    'Error initializing server store',
+  )
+}
+
 async function initializeStores() {
   try {
     if (!displayStore.isInitialized) {
@@ -97,6 +119,8 @@ async function initializeStores() {
       consoleStore.initialize?.(),
       milestoneStore.initialize?.(),
     ])
+
+    await initializeServerStore()
 
     await Promise.all([
       artStore.initialize?.(),
@@ -121,7 +145,9 @@ async function initializeStores() {
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
-      `Initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+      `Initialization failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
     )
   } finally {
     storesReady.value = true

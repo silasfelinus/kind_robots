@@ -1,4 +1,4 @@
-<!-- /components/content/screenfx/screen-fx.vue -->
+<!-- /components/screenfx/screen-fx.vue -->
 <template>
   <Teleport to="body">
     <div
@@ -72,7 +72,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, resolveComponent, type Component } from 'vue'
+// /components/screenfx/screen-fx.vue
+import {
+  computed,
+  defineAsyncComponent,
+  markRaw,
+  ref,
+  shallowRef,
+  type Component,
+} from 'vue'
 
 interface Effect {
   id: string
@@ -84,24 +92,60 @@ interface Effect {
   isActive: boolean
 }
 
-const effectComponents = {
-  fizzyBubbles: resolveComponent('LazyFizzyBubbles') as Component,
-  bubbleEffect: resolveComponent('LazyBubbleEffect') as Component,
-  rainEffect: resolveComponent('LazyRainEffect') as Component,
-  butterflyAnimation: resolveComponent('LazyButterflyAnimation') as Component,
-  starfieldEffect: resolveComponent('LazyStarfieldEffect') as Component,
-  matrixRain: resolveComponent('LazyMatrixRain') as Component,
-  fireflyEffect: resolveComponent('LazyFireflyEffect') as Component,
-  lightningEffect: resolveComponent('LazyLightningEffect') as Component,
-  snowEffect: resolveComponent('LazySnowEffect') as Component,
-  lavaLamp: resolveComponent('LazyLavaLamp') as Component,
-  toasterEffect: resolveComponent('LazyToasterEffect') as Component,
-}
+const FizzyBubbles = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/fizzy-bubbles.vue')),
+)
 
-const effects = ref<Effect[]>([
+const BubbleEffect = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/bubble-effect.vue')),
+)
+
+const RainEffect = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/rain-effect.vue')),
+)
+
+const ButterflyAnimation = markRaw(
+  defineAsyncComponent(
+    () => import('@/components/screenfx/butterfly-animation.vue'),
+  ),
+)
+
+const StarfieldEffect = markRaw(
+  defineAsyncComponent(
+    () => import('@/components/screenfx/starfield-effect.vue'),
+  ),
+)
+
+const MatrixRain = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/matrix-rain.vue')),
+)
+
+const FireflyEffect = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/firefly-effect.vue')),
+)
+
+const LightningEffect = markRaw(
+  defineAsyncComponent(
+    () => import('@/components/screenfx/lightning-effect.vue'),
+  ),
+)
+
+const SnowEffect = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/snow-effect.vue')),
+)
+
+const LavaLamp = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/lava-lamp.vue')),
+)
+
+const ToasterEffect = markRaw(
+  defineAsyncComponent(() => import('@/components/screenfx/toaster-effect.vue')),
+)
+
+const effects = shallowRef<Effect[]>([
   {
     id: 'fizzy-bubbles',
-    component: effectComponents.fizzyBubbles,
+    component: FizzyBubbles,
     label: 'Fizzy Lifting',
     icon: 'kind-icon:soda',
     tooltip: 'Float away with fizzy bubbles 🍾',
@@ -110,7 +154,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'bubble-effect',
-    component: effectComponents.bubbleEffect,
+    component: BubbleEffect,
     label: 'Bubble Fiesta',
     icon: 'kind-icon:bubbles',
     tooltip: 'Rainbow clown bubbles 🌈',
@@ -119,7 +163,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'rain-effect',
-    component: effectComponents.rainEffect,
+    component: RainEffect,
     label: 'Rainmaker',
     icon: 'kind-icon:raindrop',
     tooltip: "Rain doesn't have to be sad 🌧️",
@@ -128,7 +172,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'butterfly-animation',
-    component: effectComponents.butterflyAnimation,
+    component: ButterflyAnimation,
     label: 'Butterfly Scouts',
     icon: 'kind-icon:butterfly',
     tooltip: 'Release AMI 🦋',
@@ -137,7 +181,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'starfield-effect',
-    component: effectComponents.starfieldEffect,
+    component: StarfieldEffect,
     label: 'Warp Drive',
     icon: 'kind-icon:star',
     tooltip: 'Punch it, Chewie ✨',
@@ -146,7 +190,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'matrix-rain',
-    component: effectComponents.matrixRain,
+    component: MatrixRain,
     label: 'Matrix Rain',
     icon: 'kind-icon:code',
     tooltip: 'Follow the white rabbit 🐇',
@@ -155,7 +199,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'firefly-effect',
-    component: effectComponents.fireflyEffect,
+    component: FireflyEffect,
     label: 'Fireflies',
     icon: 'kind-icon:sparkle',
     tooltip: 'Organic drift and warmth 🌿',
@@ -164,7 +208,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'lightning-effect',
-    component: effectComponents.lightningEffect,
+    component: LightningEffect,
     label: 'Storm Caller',
     icon: 'kind-icon:lightning',
     tooltip: 'Periodic arc strikes ⚡',
@@ -173,7 +217,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'snow-effect',
-    component: effectComponents.snowEffect,
+    component: SnowEffect,
     label: 'Snow Globe',
     icon: 'kind-icon:snowflake',
     tooltip: 'Soft particle drift ❄️',
@@ -182,7 +226,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'lava-lamp',
-    component: effectComponents.lavaLamp,
+    component: LavaLamp,
     label: 'Lava Lamp',
     icon: 'kind-icon:flame',
     tooltip: 'Goo blobs merge and float 🫧',
@@ -191,7 +235,7 @@ const effects = ref<Effect[]>([
   },
   {
     id: 'toaster-effect',
-    component: effectComponents.toasterEffect,
+    component: ToasterEffect,
     label: 'Flying Toasters',
     icon: 'kind-icon:toast',
     tooltip: 'After Dark tribute 🍞',
@@ -216,17 +260,21 @@ const activeComponents = computed(() => {
 })
 
 function toggleEffect(effectId: string) {
-  const effect = effects.value.find((entry) => entry.id === effectId)
+  effects.value = effects.value.map((effect) => {
+    if (effect.id !== effectId) return effect
 
-  if (!effect) return
-
-  effect.isActive = !effect.isActive
+    return {
+      ...effect,
+      isActive: !effect.isActive,
+    }
+  })
 }
 
 function clearAll() {
-  effects.value.forEach((effect) => {
-    effect.isActive = false
-  })
+  effects.value = effects.value.map((effect) => ({
+    ...effect,
+    isActive: false,
+  }))
 }
 </script>
 

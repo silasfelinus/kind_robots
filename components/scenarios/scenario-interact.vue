@@ -104,14 +104,21 @@
                 v-if="rewardStore.selectedReward"
                 class="btn btn-ghost btn-xs mt-2 rounded-xl"
                 type="button"
-                :disabled="isStartingStory || isResponding"
+                :disabled="isBusy"
                 @click="rewardStore.deselectReward()"
               >
                 Clear reward
               </button>
             </div>
 
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div
+              class="rounded-2xl border p-3"
+              :class="
+                scenarioStore.currentChoice
+                  ? 'border-primary/40 bg-primary/10'
+                  : 'border-base-300 bg-base-200'
+              "
+            >
               <p class="text-xs font-bold uppercase text-base-content/50">
                 Opening Choice
               </p>
@@ -120,15 +127,28 @@
                 {{ selectedChoiceTitle }}
               </p>
 
-              <button
+              <div
                 v-if="scenarioStore.currentChoice"
-                class="btn btn-ghost btn-xs mt-2 rounded-xl"
-                type="button"
-                :disabled="isStartingStory || isResponding"
-                @click="scenarioStore.setCurrentChoice('')"
+                class="mt-2 flex flex-wrap gap-2"
               >
-                Clear choice
-              </button>
+                <button
+                  class="btn btn-primary btn-xs rounded-xl text-white"
+                  type="button"
+                  :disabled="isBusy"
+                  @click="useCurrentChoiceAsPrompt"
+                >
+                  Use as prompt
+                </button>
+
+                <button
+                  class="btn btn-ghost btn-xs rounded-xl"
+                  type="button"
+                  :disabled="isBusy"
+                  @click="clearCurrentChoice"
+                >
+                  Clear choice
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -163,6 +183,8 @@
                 <div
                   class="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-sm leading-relaxed text-primary-content shadow-sm"
                 >
+                  <p class="mb-1 text-xs font-bold opacity-70">You</p>
+
                   <p class="whitespace-pre-wrap">
                     {{ chat.content }}
                   </p>
@@ -179,6 +201,10 @@
                 <div
                   class="max-w-[85%] rounded-2xl rounded-bl-sm bg-base-100 px-4 py-3 text-sm leading-relaxed shadow-sm"
                 >
+                  <p class="mb-1 text-xs font-bold text-base-content/50">
+                    Weirdlandia
+                  </p>
+
                   <span
                     v-if="!chat.botResponse"
                     class="flex items-center gap-1 py-1 text-base-content/60"
@@ -200,32 +226,59 @@
         <section class="shrink-0 border-t border-base-300 bg-base-100 p-3">
           <label class="form-control">
             <span class="label">
-              <span class="label-text font-bold">Custom direction</span>
-              <span class="label-text-alt text-base-content/50">Optional</span>
+              <span class="label-text font-bold">
+                {{ storyRunning ? 'Next action' : 'Custom direction' }}
+              </span>
+
+              <span class="label-text-alt text-base-content/50">
+                {{ storyRunning ? 'Required' : 'Optional' }}
+              </span>
             </span>
 
             <textarea
               v-model="customDirection"
-              class="textarea textarea-bordered min-h-20 resize-none rounded-2xl bg-base-200"
-              placeholder="Add a tone, goal, complication, skill check, inventory item, or narrative twist..."
-              :disabled="isStartingStory || isResponding"
+              class="textarea textarea-bordered min-h-24 resize-none rounded-2xl bg-base-200"
+              :placeholder="directionPlaceholder"
+              :disabled="isBusy"
             />
           </label>
 
+          <div
+            v-if="activePrompt"
+            class="mt-3 rounded-2xl border border-primary/30 bg-primary/10 p-3 text-sm"
+          >
+            <p class="text-xs font-bold uppercase text-primary">
+              Active prompt
+            </p>
+
+            <p class="mt-1 text-base-content/80">
+              {{ activePrompt }}
+            </p>
+          </div>
+
           <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              class="btn btn-xs btn-ghost rounded-xl"
+              type="button"
+              :disabled="!activePrompt"
+              @click="copyActivePrompt"
+            >
+              Copy Active Prompt
+            </button>
+
             <button
               class="btn btn-xs btn-ghost rounded-xl"
               type="button"
               :disabled="!storyPromptPreview"
               @click="copyPrompt"
             >
-              Copy Prompt
+              Copy Full Prompt
             </button>
 
             <button
               class="btn btn-xs btn-ghost rounded-xl"
               type="button"
-              :disabled="isStartingStory || isResponding"
+              :disabled="isBusy"
               @click="newStory"
             >
               New Story
@@ -234,7 +287,7 @@
             <button
               class="btn btn-xs btn-ghost rounded-xl"
               type="button"
-              :disabled="isStartingStory || isResponding"
+              :disabled="isBusy"
               @click="clearSelections"
             >
               Reset Selections
@@ -248,15 +301,12 @@
           <button
             class="btn btn-success mt-3 min-h-14 w-full rounded-2xl"
             type="button"
-            :disabled="!canStartStory || isStartingStory || isResponding"
-            @click="startStory"
+            :disabled="!canSubmitStory"
+            @click="submitStoryTurn"
           >
-            <span
-              v-if="isStartingStory || isResponding"
-              class="loading loading-spinner loading-sm"
-            />
+            <span v-if="isBusy" class="loading loading-spinner loading-sm" />
             <Icon v-else name="kind-icon:play" class="h-5 w-5" />
-            Start Story
+            {{ primaryActionLabel }}
           </button>
         </section>
       </div>
@@ -402,6 +452,8 @@ const storyLogRef = ref<HTMLElement | null>(null)
 const storyRunning = ref(false)
 const isStartingStory = ref(false)
 const customDirection = ref('')
+const activePrompt = ref('')
+const lastAppliedChoice = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const sessionChatIds = ref<number[]>([])
@@ -446,13 +498,44 @@ const isResponding = computed(() => {
   return sessionChats.value.some((chat) => !chat.botResponse)
 })
 
+const isBusy = computed(() => {
+  return isStartingStory.value || isResponding.value
+})
+
 const canStartStory = computed(() => {
   return Boolean(
     scenarioStore.selectedScenario &&
     characterStore.selectedCharacter &&
-    !isStartingStory.value &&
-    !isResponding.value,
+    !isBusy.value,
   )
+})
+
+const canContinueStory = computed(() => {
+  return Boolean(
+    storyRunning.value &&
+    customDirection.value.trim() &&
+    !isBusy.value &&
+    scenarioStore.selectedScenario &&
+    characterStore.selectedCharacter,
+  )
+})
+
+const canSubmitStory = computed(() => {
+  return storyRunning.value ? canContinueStory.value : canStartStory.value
+})
+
+const primaryActionLabel = computed(() => {
+  if (isBusy.value) return 'Story goblin thinking...'
+
+  return storyRunning.value ? 'Send Next Turn' : 'Start Story'
+})
+
+const directionPlaceholder = computed(() => {
+  if (storyRunning.value) {
+    return 'Choose an option, use an item, ask a question, trigger a skill check, or do something deeply unwise...'
+  }
+
+  return 'Add a tone, goal, complication, skill check, inventory item, or narrative twist...'
 })
 
 const storyPromptPreview = computed(() => {
@@ -460,7 +543,7 @@ const storyPromptPreview = computed(() => {
     return ''
   }
 
-  return buildStoryPrompt()
+  return storyRunning.value ? buildNextTurnPrompt() : buildStoryPrompt()
 })
 
 const systemPrompt = computed(() => {
@@ -528,6 +611,33 @@ function buildStoryPrompt() {
     .join('\n')
 }
 
+function buildNextTurnPrompt() {
+  const scenario = scenarioStore.selectedScenario
+  const character = characterStore.selectedCharacter
+  const reward = rewardStore.selectedReward
+  const direction = customDirection.value.trim()
+
+  if (!scenario || !character) return ''
+
+  return [
+    `Continue the current Weirdlandia story.`,
+    `Scenario: ${scenario.title}`,
+    `Character: ${character.name || 'Unnamed'} the ${
+      character.honorific || 'Unremarkable'
+    }`,
+    reward ? `Reward in play: ${reward.text}` : '',
+    reward ? `Reward power: ${reward.power || 'Unknown'}` : '',
+    scenarioStore.currentChoice
+      ? `Selected choice or prompt: ${scenarioStore.currentChoice}`
+      : '',
+    `Player action: ${direction}`,
+    '',
+    'Resolve this action in the ongoing story. Preserve continuity from the previous messages. Include consequences, character-specific reactions, and 3-5 new follow-up options.',
+  ]
+    .filter(Boolean)
+    .join('\n')
+}
+
 function buildMessagesForStoryResponse(): StoryMessage[] {
   return [
     {
@@ -546,11 +656,103 @@ function scrollToBottom() {
   el.scrollTop = el.scrollHeight
 }
 
+function useCurrentChoiceAsPrompt() {
+  const choice = scenarioStore.currentChoice.trim()
+
+  if (!choice) return
+
+  customDirection.value = choice
+  activePrompt.value = choice
+  lastAppliedChoice.value = choice
+  setStatus('Choice loaded as the active prompt.')
+}
+
+function clearCurrentChoice() {
+  scenarioStore.setCurrentChoice('')
+
+  if (activePrompt.value === lastAppliedChoice.value) {
+    activePrompt.value = ''
+  }
+
+  if (customDirection.value === lastAppliedChoice.value) {
+    customDirection.value = ''
+  }
+
+  lastAppliedChoice.value = ''
+}
+
 async function copyPrompt() {
   if (!storyPromptPreview.value) return
 
   await navigator.clipboard.writeText(storyPromptPreview.value)
   setStatus('Story prompt copied.')
+}
+
+async function copyActivePrompt() {
+  if (!activePrompt.value.trim()) return
+
+  await navigator.clipboard.writeText(activePrompt.value)
+  setStatus('Active prompt copied.')
+}
+
+async function submitStoryTurn() {
+  if (storyRunning.value) {
+    await continueStory()
+    return
+  }
+
+  await startStory()
+}
+
+async function createAndStreamStoryChat(content: string) {
+  const character = characterStore.selectedCharacter
+
+  if (!character) {
+    throw new Error('Select a character before launching the story goblin.')
+  }
+
+  const payload: ChatRuntimeInput = {
+    content,
+    userId: userStore.userId ?? userStore.user?.id ?? character.userId ?? 10,
+    type: 'Weirdlandia',
+    characterId: character.id,
+    recipientId: null,
+    serverId: serverStore.activeTextServer?.id ?? null,
+    isPublic: false,
+  }
+
+  const newChat = await chatStore.addChat(payload)
+
+  if (!newChat?.id) {
+    throw new Error('Failed to create chat.')
+  }
+
+  sessionChatIds.value.push(newChat.id)
+  chatStore.selectedChat = newChat
+
+  if (Array.isArray(weirdStore.history)) {
+    weirdStore.history.push(newChat)
+  }
+
+  await nextTick()
+  scrollToBottom()
+
+  if (typeof chatStore.streamResponse !== 'function') {
+    throw new Error('chatStore.streamResponse is not available.')
+  }
+
+  await chatStore.streamResponse(newChat.id, {
+    model: serverStore.activeTextServer?.model || 'gpt-4o-mini',
+    temperature: 0.9,
+    maxTokens: 2048,
+    serverId: serverStore.activeTextServer?.id ?? null,
+    messages: buildMessagesForStoryResponse(),
+  })
+
+  await nextTick()
+  scrollToBottom()
+
+  return newChat
 }
 
 async function startStory() {
@@ -561,11 +763,6 @@ async function startStory() {
     )
     return
   }
-
-  const scenario = scenarioStore.selectedScenario
-  const character = characterStore.selectedCharacter
-
-  if (!scenario || !character) return
 
   const content = buildStoryPrompt()
 
@@ -578,52 +775,47 @@ async function startStory() {
   statusMessage.value = ''
 
   try {
-    const payload: ChatRuntimeInput = {
-      content,
-      userId: userStore.userId ?? userStore.user?.id ?? character.userId ?? 10,
-      type: 'Weirdlandia',
-      characterId: character.id,
-      recipientId: null,
-      serverId: serverStore.activeTextServer?.id ?? null,
-      isPublic: false,
-    }
-
-    const newChat = await chatStore.addChat(payload)
-
-    if (!newChat?.id) {
-      throw new Error('Failed to create chat.')
-    }
-
-    sessionChatIds.value.push(newChat.id)
-    chatStore.selectedChat = newChat
+    await createAndStreamStoryChat(content)
     storyRunning.value = true
-
-    if (Array.isArray(weirdStore.history)) {
-      weirdStore.history.push(newChat)
-    }
-
-    await nextTick()
-    scrollToBottom()
-
-    if (typeof chatStore.streamResponse !== 'function') {
-      throw new Error('chatStore.streamResponse is not available.')
-    }
-
-    await chatStore.streamResponse(newChat.id, {
-      model: serverStore.activeTextServer?.model || 'gpt-4o-mini',
-      temperature: 0.9,
-      maxTokens: 2048,
-      serverId: serverStore.activeTextServer?.id ?? null,
-      messages: buildMessagesForStoryResponse(),
-    })
-
-    await nextTick()
-    scrollToBottom()
+    customDirection.value = ''
+    activePrompt.value = ''
     setStatus('Story response returned.')
   } catch (error) {
     console.error('Error starting the story:', error)
     setStatus(
       error instanceof Error ? error.message : 'Error starting the story.',
+      'error',
+    )
+  } finally {
+    isStartingStory.value = false
+  }
+}
+
+async function continueStory() {
+  if (!canContinueStory.value) {
+    setStatus('Choose or type the next action before continuing.', 'error')
+    return
+  }
+
+  const content = buildNextTurnPrompt()
+
+  if (!content.trim()) {
+    setStatus('Could not build next-turn prompt.', 'error')
+    return
+  }
+
+  isStartingStory.value = true
+  statusMessage.value = ''
+
+  try {
+    await createAndStreamStoryChat(content)
+    customDirection.value = ''
+    activePrompt.value = ''
+    setStatus('Next story response returned.')
+  } catch (error) {
+    console.error('Error continuing the story:', error)
+    setStatus(
+      error instanceof Error ? error.message : 'Error continuing the story.',
       'error',
     )
   } finally {
@@ -644,6 +836,7 @@ function stopStory() {
   }
 
   storyRunning.value = false
+  activePrompt.value = ''
   setStatus('Story stopped.')
 }
 
@@ -651,6 +844,9 @@ function newStory() {
   sessionChatIds.value = []
   storyRunning.value = false
   chatStore.selectedChat = null
+  customDirection.value = ''
+  activePrompt.value = ''
+  lastAppliedChoice.value = ''
 
   if (Array.isArray(weirdStore.history)) {
     weirdStore.history = []
@@ -665,6 +861,8 @@ function clearSelections() {
   rewardStore.deselectReward()
   scenarioStore.setCurrentChoice('')
   customDirection.value = ''
+  activePrompt.value = ''
+  lastAppliedChoice.value = ''
   storyRunning.value = false
   sessionChatIds.value = []
   chatStore.selectedChat = null
@@ -689,6 +887,26 @@ watch(
   async () => {
     await nextTick()
     scrollToBottom()
+  },
+)
+
+watch(
+  () => scenarioStore.currentChoice,
+  (choice) => {
+    const cleanChoice = choice.trim()
+
+    if (!cleanChoice || isBusy.value) return
+
+    const shouldApplyChoice =
+      !customDirection.value.trim() ||
+      customDirection.value.trim() === lastAppliedChoice.value
+
+    if (!shouldApplyChoice) return
+
+    customDirection.value = cleanChoice
+    activePrompt.value = cleanChoice
+    lastAppliedChoice.value = cleanChoice
+    setStatus('Choice selected as the active prompt.')
   },
 )
 </script>

@@ -977,45 +977,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     window.visualViewport?.removeEventListener('resize', updateViewport)
   }
 
-  function loadState() {
-    if (typeof window === 'undefined') return
-
-    try {
-      const saved = window.localStorage.getItem('displayStoreState')
-      if (saved) {
-        Object.assign(state, JSON.parse(saved))
-      }
-
-      if (
-        state.SmartState !== 'front' &&
-        state.SmartState !== 'dash' &&
-        state.SmartState !== 'back'
-      ) {
-        state.SmartState = 'front'
-      }
-
-      state.sidebarLeftState = normalizeSidebarState(
-        state.sidebarLeftState,
-      ) as DisplayState
-      state.sidebarRightState = normalizeSidebarState(
-        state.sidebarRightState,
-      ) as DisplayState
-
-      state.footerState = normalizeFooterState(
-        state.footerState,
-      ) as DisplayState
-
-      if (
-        state.viewportSize === 'small' &&
-        state.sidebarLeftState === 'priority' &&
-        state.sidebarRightState === 'priority'
-      ) {
-        state.sidebarRightState = 'open'
-      }
-    } catch (error) {
-      handleError(error, "Couldn't load state.")
-    }
-  }
+  
 
   function setSmartState(next: SmartState) {
     if (next !== 'front' && next !== 'dash' && next !== 'back') {
@@ -1034,15 +996,95 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function saveState() {
-    if (typeof window === 'undefined') return
-
-    try {
-      window.localStorage.setItem('displayStoreState', JSON.stringify(state))
-    } catch (error) {
-      handleError(error, "couldn't save state.")
-    }
+  function getSavedDisplayState() {
+  return {
+    headerState: state.headerState,
+    sidebarLeftState: state.sidebarLeftState,
+    sidebarRightState: state.sidebarRightState,
+    footerState: state.footerState,
+    showTutorial: state.showTutorial,
+    flipState: state.flipState,
+    fullscreenState: state.fullscreenState,
+    displayMode: state.displayMode,
+    displayAction: state.displayAction,
+    previousRoute: state.previousRoute,
+    mainComponent: state.mainComponent,
+    showLeft: state.showLeft,
+    showCenter: state.showCenter,
+    showRight: state.showRight,
+    showExtended: state.showExtended,
+    showCorner: state.showCorner,
+    SmartState: state.SmartState,
   }
+}
+
+function loadState() {
+  if (typeof window === 'undefined') return
+
+  try {
+    const saved = window.localStorage.getItem('displayStoreState')
+
+    if (saved) {
+      const parsed = JSON.parse(saved) as Partial<typeof state>
+
+      if (parsed.headerState) state.headerState = parsed.headerState
+      if (parsed.sidebarLeftState) state.sidebarLeftState = parsed.sidebarLeftState
+      if (parsed.sidebarRightState) state.sidebarRightState = parsed.sidebarRightState
+      if (parsed.footerState) state.footerState = parsed.footerState
+      if (typeof parsed.showTutorial === 'boolean') state.showTutorial = parsed.showTutorial
+      if (parsed.flipState) state.flipState = parsed.flipState
+      if (parsed.fullscreenState) state.fullscreenState = parsed.fullscreenState
+      if (parsed.displayMode) state.displayMode = parsed.displayMode
+      if (parsed.displayAction) state.displayAction = parsed.displayAction
+      if (typeof parsed.previousRoute === 'string') state.previousRoute = parsed.previousRoute
+      if (typeof parsed.mainComponent === 'string') state.mainComponent = parsed.mainComponent
+      if (typeof parsed.showLeft === 'boolean') state.showLeft = parsed.showLeft
+      if (typeof parsed.showCenter === 'boolean') state.showCenter = parsed.showCenter
+      if (typeof parsed.showRight === 'boolean') state.showRight = parsed.showRight
+      if (typeof parsed.showExtended === 'boolean') state.showExtended = parsed.showExtended
+      if (typeof parsed.showCorner === 'boolean') state.showCorner = parsed.showCorner
+      if (parsed.SmartState) state.SmartState = parsed.SmartState
+    }
+
+    if (
+      state.SmartState !== 'front' &&
+      state.SmartState !== 'dash' &&
+      state.SmartState !== 'back'
+    ) {
+      state.SmartState = 'front'
+    }
+
+    state.sidebarLeftState = normalizeSidebarState(
+      state.sidebarLeftState,
+    ) as DisplayState
+
+    state.sidebarRightState = normalizeSidebarState(
+      state.sidebarRightState,
+    ) as DisplayState
+
+    state.footerState = normalizeFooterState(state.footerState) as DisplayState
+
+    state.isInitialized = false
+    state.isAnimating = false
+    state.currentAnimation = ''
+  } catch (error) {
+    window.localStorage.removeItem('displayStoreState')
+    handleError(error, "Couldn't load state.")
+  }
+}
+
+function saveState() {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(
+      'displayStoreState',
+      JSON.stringify(getSavedDisplayState()),
+    )
+  } catch (error) {
+    handleError(error, "couldn't save state.")
+  }
+}
 
   function setFooterComponent(name: string) {
     const normalized = normalizeFooterComponent(name)
@@ -1051,24 +1093,22 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function initialize() {
-    if (typeof window === 'undefined' || state.isInitialized) return
+  if (typeof window === 'undefined' || state.isInitialized) return
 
-    queueMicrotask(() => {
-      try {
-        loadState()
-        applyViewportSize()
+  state.isInitialized = true
 
-        window.addEventListener('resize', updateViewport)
-        window.addEventListener('orientationchange', updateViewport)
+  try {
+    loadState()
+    applyViewportSize()
 
-        window.visualViewport?.addEventListener('resize', updateViewport)
-
-        state.isInitialized = true
-      } catch (error) {
-        handleError(error, 'Task Failed: ')
-      }
-    })
+    window.addEventListener('resize', updateViewport)
+    window.addEventListener('orientationchange', updateViewport)
+    window.visualViewport?.addEventListener('resize', updateViewport)
+  } catch (error) {
+    state.isInitialized = false
+    handleError(error, 'Task Failed: ')
   }
+}
 
   return {
     ...toRefs(state),

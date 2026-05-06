@@ -75,6 +75,18 @@
         {{ server.serverType }}
       </span>
 
+      <span class="badge badge-outline badge-sm">
+        {{ server.generationEngine || fallbackEngine }}
+      </span>
+
+      <span class="badge badge-ghost badge-sm">
+        {{ server.defaultTransport || 'BROWSER' }}
+      </span>
+
+      <span v-if="server.accessMode" class="badge badge-ghost badge-sm">
+        {{ server.accessMode }}
+      </span>
+
       <span v-if="server.isDefault" class="badge badge-primary badge-sm">
         Default
       </span>
@@ -101,7 +113,9 @@
 
     <div v-if="!compact" class="grid grid-cols-1 gap-2 md:grid-cols-3">
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">URL</div>
+        <div class="text-xs font-bold uppercase text-base-content/50">
+          Base URL
+        </div>
 
         <div class="truncate font-mono text-xs">
           {{ server.baseUrl || 'n/a' }}
@@ -110,11 +124,43 @@
 
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
         <div class="text-xs font-bold uppercase text-base-content/50">
-          Access
+          Browser URL
         </div>
 
-        <div class="truncate text-xs font-bold">
-          {{ server.accessMode || 'n/a' }}
+        <div class="truncate font-mono text-xs">
+          {{ server.browserBaseUrl || server.baseUrl || 'n/a' }}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">
+          Backend URL
+        </div>
+
+        <div class="truncate font-mono text-xs">
+          {{ server.backendBaseUrl || server.baseUrl || 'n/a' }}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="!compact" class="grid grid-cols-1 gap-2 md:grid-cols-3">
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">
+          Endpoint
+        </div>
+
+        <div class="truncate font-mono text-xs">
+          {{ server.endpointPath || 'n/a' }}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">
+          Health
+        </div>
+
+        <div class="truncate font-mono text-xs">
+          {{ server.healthPath || 'n/a' }}
         </div>
       </div>
 
@@ -136,6 +182,47 @@
       </div>
     </div>
 
+    <div
+      v-if="!compact && showDefaults"
+      class="grid grid-cols-2 gap-2 md:grid-cols-4"
+    >
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">Size</div>
+
+        <div class="text-xs font-bold">
+          {{ server.defaultWidth || 512 }}×{{ server.defaultHeight || 512 }}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">
+          Steps
+        </div>
+
+        <div class="text-xs font-bold">
+          {{ server.defaultSteps ?? 'n/a' }}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">CFG</div>
+
+        <div class="text-xs font-bold">
+          {{ server.defaultCfg ?? 'n/a' }}
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="text-xs font-bold uppercase text-base-content/50">
+          Scheduler
+        </div>
+
+        <div class="truncate text-xs font-bold">
+          {{ server.defaultScheduler || server.defaultSampler || 'n/a' }}
+        </div>
+      </div>
+    </div>
+
     <div v-if="showCapabilities" class="flex flex-wrap gap-2">
       <span v-if="server.supportsTxt2Img" class="badge badge-primary badge-sm">
         txt2img
@@ -145,11 +232,41 @@
         img2img
       </span>
 
+      <span v-if="server.supportsImageEdit" class="badge badge-accent badge-sm">
+        edit
+      </span>
+
+      <span v-if="server.supportsInpaint" class="badge badge-accent badge-sm">
+        inpaint
+      </span>
+
+      <span v-if="server.supportsOutpaint" class="badge badge-accent badge-sm">
+        outpaint
+      </span>
+
       <span
         v-if="server.supportsComfyWorkflow"
         class="badge badge-secondary badge-sm"
       >
         workflow
+      </span>
+
+      <span
+        v-if="server.supportsWorkflowUpload"
+        class="badge badge-secondary badge-sm"
+      >
+        upload workflow
+      </span>
+
+      <span v-if="server.supportsFlux" class="badge badge-secondary badge-sm">
+        flux
+      </span>
+
+      <span
+        v-if="server.supportsKontext"
+        class="badge badge-secondary badge-sm"
+      >
+        kontext
       </span>
 
       <span v-if="server.supportsChat" class="badge badge-accent badge-sm">
@@ -166,6 +283,55 @@
       <span v-if="server.supportsSampler" class="badge badge-ghost badge-sm">
         sampler
       </span>
+
+      <span
+        v-if="server.supportsNegativePrompt"
+        class="badge badge-ghost badge-sm"
+      >
+        negative
+      </span>
+
+      <span v-if="server.supportsSeed" class="badge badge-ghost badge-sm">
+        seed
+      </span>
+
+      <span v-if="server.supportsSteps" class="badge badge-ghost badge-sm">
+        steps
+      </span>
+
+      <span v-if="server.supportsBatch" class="badge badge-ghost badge-sm">
+        batch
+      </span>
+
+      <span v-if="server.supportsVideo" class="badge badge-ghost badge-sm">
+        video
+      </span>
+    </div>
+
+    <div
+      v-if="
+        showWorkflow &&
+        (server.workflowPath || server.workflowVersion || server.workflowJson)
+      "
+      class="rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
+      <div class="mb-2 flex items-center gap-2">
+        <Icon name="kind-icon:workflow" class="h-4 w-4 text-secondary" />
+
+        <span class="text-xs font-black uppercase text-base-content/50">
+          Workflow
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <p class="truncate font-mono text-xs">
+          {{ server.workflowPath || 'No workflow path' }}
+        </p>
+
+        <p class="truncate text-xs font-bold opacity-70">
+          {{ server.workflowVersion || 'No version label' }}
+        </p>
+      </div>
     </div>
 
     <div v-if="showUseButtons" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -223,6 +389,8 @@ const props = withDefaults(
     showCapabilities?: boolean
     showUseButtons?: boolean
     showDebug?: boolean
+    showWorkflow?: boolean
+    showDefaults?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
     allowTest?: boolean
@@ -236,6 +404,8 @@ const props = withDefaults(
     showCapabilities: true,
     showUseButtons: true,
     showDebug: false,
+    showWorkflow: true,
+    showDefaults: true,
     allowEdit: true,
     allowDelete: true,
     allowTest: true,
@@ -269,6 +439,12 @@ const serverTitle = computed(() => {
   )
 })
 
+const fallbackEngine = computed(() => {
+  if (props.server.serverType === 'A1111') return 'A1111'
+  if (props.server.serverType === 'COMFY') return 'COMFY'
+  return 'OTHER'
+})
+
 const isArtCapable = computed(() => {
   const server = props.server
 
@@ -276,9 +452,17 @@ const isArtCapable = computed(() => {
     server.serverType === 'ART' ||
     server.serverType === 'A1111' ||
     server.serverType === 'COMFY' ||
+    server.generationEngine === 'A1111' ||
+    server.generationEngine === 'COMFY' ||
+    server.generationEngine === 'FLUX' ||
+    server.generationEngine === 'KONTEXT' ||
+    server.generationEngine === 'OPENAI_IMAGE' ||
     Boolean(server.supportsTxt2Img) ||
     Boolean(server.supportsImg2Img) ||
-    Boolean(server.supportsComfyWorkflow)
+    Boolean(server.supportsImageEdit) ||
+    Boolean(server.supportsComfyWorkflow) ||
+    Boolean(server.supportsFlux) ||
+    Boolean(server.supportsKontext)
   )
 })
 
@@ -306,6 +490,11 @@ const canDelete = computed(() => {
 })
 
 const serverIcon = computed(() => {
+  if (props.server.generationEngine === 'KONTEXT') return 'kind-icon:wand'
+  if (props.server.generationEngine === 'FLUX') return 'kind-icon:sparkles'
+  if (props.server.generationEngine === 'COMFY') return 'kind-icon:workflow'
+  if (props.server.generationEngine === 'A1111') return 'kind-icon:palette'
+  if (props.server.generationEngine === 'OPENAI_IMAGE') return 'kind-icon:image'
   if (props.server.serverType === 'TEXT') return 'kind-icon:chat'
   if (props.server.serverType === 'OPENAI_COMPATIBLE') return 'kind-icon:chat'
   if (props.server.serverType === 'COMFY') return 'kind-icon:workflow'

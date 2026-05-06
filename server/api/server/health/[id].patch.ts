@@ -1,9 +1,13 @@
 // /server/api/server/health/[id].patch.ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import prisma from '@/server/utils/prisma'
-import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
-import type { ServerStatus } from '~/prisma/generated/prisma/client'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
+import prisma from './../../../utils/prisma'
+import { errorHandler } from './../../../utils/error'
+import {
+  canReadServer,
+  getOptionalAuthUser,
+  parseId,
+  readServerById,
+} from './../../../utils/serverApi'
 
 type BrowserHealthReport = {
   ok?: boolean
@@ -14,107 +18,60 @@ type BrowserHealthReport = {
   message?: string
 }
 
-function resolveServerStatus(ok: boolean, status: number): ServerStatus {
-  if (ok) return 'ONLINE'
-  if (status > 0) return 'DEGRADED'
-  return 'OFFLINE'
-}
-
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-
   try {
-    id = Number(event.context.params?.id)
+    const id = parseId(getRouterParam(event, 'id'))
+    const user = await getOptionalAuthUser(event)
+    const server = await readServerById(id)
 
-    if (!Number.isInteger(id) || id <= 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid Server ID. Must be a positive integer.',
-      })
-    }
-
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const server = await prisma.server.findUnique({
-      where: { id },
-    })
-
-    if (!server) {
-      throw createError({
-        statusCode: 404,
-        message: `Server with ID ${id} not found.`,
-      })
-    }
-
-    const canUpdate = user.Role === 'ADMIN' || server.userId === user.id
-
-    if (!canUpdate) {
+    if (!canReadServer(server, user)) {
       throw createError({
         statusCode: 403,
-        message: 'You do not have permission to update this Server health.',
+        message: 'You do not have permission to update this health report.',
       })
     }
 
-    const body = await readBody<BrowserHealthReport>(event)
+    const body = (await readBody(event)) as BrowserHealthReport
     const ok = Boolean(body.ok)
-    const status = typeof body.status === 'number' ? body.status : 0
-    const statusText =
-      typeof body.statusText === 'string' && body.statusText.trim()
-        ? body.statusText.trim().slice(0, 300)
-        : ok
-          ? 'OK'
-          : 'Browser request failed'
 
-    const latencyMs =
-      typeof body.latencyMs === 'number' && Number.isFinite(body.latencyMs)
-        ? Math.max(0, Math.round(body.latencyMs))
-        : null
-
-    const lastStatus = resolveServerStatus(ok, status)
-
-    const updated = await prisma.server.update({
+    const updatedServer = await prisma.server.update({
       where: { id },
       data: {
         lastCheckedAt: new Date(),
-        lastStatus,
+        lastStatus: ok ? 'ONLINE' : 'OFFLINE',
       },
     })
 
     return {
       success: true,
       message: ok
-        ? 'Browser health check report saved.'
-        : body.message || 'Browser health check failure saved.',
+        ? 'Browser health report saved.'
+        : body.message || 'Browser health report saved as offline.',
       data: {
-        id: updated.id,
-        title: updated.title,
+        id: updatedServer.id,
+        title: updatedServer.title,
+        lastCheckedAt: updatedServer.lastCheckedAt,
+        lastStatus: updatedServer.lastStatus,
         ok,
-        status,
-        statusText,
-        latencyMs,
-        lastStatus,
-        lastCheckedAt: updated.lastCheckedAt,
+        status: typeof body.status === 'number' ? body.status : 0,
+        statusText:
+          typeof body.statusText === 'string'
+            ? body.statusText
+            : ok
+              ? 'OK'
+              : 'Browser request failed',
+        latencyMs: typeof body.latencyMs === 'number' ? body.latencyMs : 0,
+        responseBody: body.responseBody ?? null,
         runLocation: 'browser',
       },
-      statusCode: 200,
     }
   } catch (error) {
-    const handled = errorHandler(error)
-    event.node.res.statusCode = handled.statusCode || 500
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
 
     return {
       success: false,
-      message:
-        handled.message || `Failed to update Server health with ID ${id}.`,
-      data: null,
-      statusCode: event.node.res.statusCode,
+      message: handledError.message || 'Failed to save health report.',
     }
   }
 })

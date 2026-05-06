@@ -683,17 +683,29 @@ function buildCharacterSystemPrompt(): string {
 }
 
 function buildCharacterMessages(content: string): BotCafeMessage[] {
+  const recentMessages = chatMessages.value
+    .slice(-10)
+    .filter((message, index, messages) => {
+      const isLastMessage = index === messages.length - 1
+      return !(
+        isLastMessage &&
+        message.role === 'user' &&
+        message.content === content
+      )
+    })
+    .map(
+      (message): BotCafeMessage => ({
+        role: message.role,
+        content: message.content,
+      }),
+    )
+
   return [
     {
       role: 'system',
       content: buildCharacterSystemPrompt(),
     },
-    ...chatMessages.value.slice(-10).map(
-      (message): BotCafeMessage => ({
-        role: message.role,
-        content: message.content,
-      }),
-    ),
+    ...recentMessages,
     {
       role: 'user',
       content,

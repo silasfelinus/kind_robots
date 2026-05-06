@@ -1752,6 +1752,43 @@ export const useServerStore = defineStore('serverStore', () => {
     return source
   }
 
+  const selectedBlueprintServerId = ref<number | null>(null)
+
+  const blueprintServers = computed(() => {
+    return servers.value.filter((server) => {
+      return (
+        server.isDefault ||
+        server.isOfficial ||
+        server.isPublic ||
+        server.userId === userStore.user?.id
+      )
+    })
+  })
+
+  function setBlueprintServer(id: number | null) {
+    selectedBlueprintServerId.value = id
+
+    if (!id) return
+
+    const blueprint = getServerById(id)
+
+    if (!blueprint) return
+
+    serverForm.value = {
+      ...blueprint,
+      id: undefined,
+      title: `${blueprint.title || blueprint.label || 'Server'} Custom`,
+      label: blueprint.label || blueprint.title || 'Custom Server',
+      userId: userStore.user?.id,
+      isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isEditable: true,
+      apiKey: undefined,
+      apiKeyName: blueprint.apiKeyName || null,
+    }
+  }
+
   function deselectServer(): void {
     selectedServer.value = null
     serverForm.value = {}
@@ -1794,6 +1831,10 @@ export const useServerStore = defineStore('serverStore', () => {
     activeTextServer,
     artServerOptions,
     textServerOptions,
+
+    selectedBlueprintServerId,
+    blueprintServers,
+    setBlueprintServer,
 
     syncToLocalStorage,
     loadFromLocalStorage,

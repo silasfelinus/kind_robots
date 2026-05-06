@@ -50,8 +50,8 @@
           class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
           aria-label="Filter servers by scope"
         >
-          <option value="visible">Visible active</option>
           <option value="owned">Mine</option>
+          <option value="visible">Visible active</option>
           <option value="official">Official</option>
           <option value="public">Public</option>
           <option value="hidden">Hidden</option>
@@ -141,7 +141,11 @@
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:server" class="h-10 w-10" />
-        <p class="text-lg font-bold">No servers found.</p>
+        <p class="text-lg font-bold">No private servers found.</p>
+        <p class="max-w-xl text-sm opacity-70">
+          Click Add to choose an official, public, default, or existing server
+          as a blueprint for your private copy.
+        </p>
 
         <button
           v-if="allowAdd"
@@ -204,6 +208,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Server, ServerType } from '~/prisma/generated/prisma/client'
 import { useServerStore } from '@/stores/serverStore'
+import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type ServerGalleryMode = 'art' | 'text' | 'all'
@@ -257,26 +262,25 @@ const props = withDefaults(
 )
 
 const serverStore = useServerStore()
+const userStore = useUserStore()
 
 const selectedType = ref<ServerType | 'all'>('all')
-const selectedScope = ref<ServerScope>('visible')
+const selectedScope = ref<ServerScope>('owned')
 const searchQuery = ref('')
 const isLoading = ref(false)
 
 const resolvedTitle = computed(() => {
   if (props.title) return props.title
-  if (props.mode === 'art') return 'Art Servers'
-  if (props.mode === 'text') return 'Text Servers'
-  return 'Servers'
+  if (props.mode === 'art') return 'My Art Servers'
+  if (props.mode === 'text') return 'My Text Servers'
+  return 'My Servers'
 })
 
 const resolvedSubtitle = computed(() => {
   if (props.subtitle) return props.subtitle
-  if (props.mode === 'art')
-    return 'Select, add, edit, test, or activate an image engine.'
-  if (props.mode === 'text')
-    return 'Select, add, edit, test, or activate a chat engine.'
-  return 'Browse, select, test, edit, and activate your available engines.'
+  if (props.mode === 'art') return 'Your private image engines.'
+  if (props.mode === 'text') return 'Your private chat engines.'
+  return 'Your private server configs. Click Add to clone from a blueprint.'
 })
 
 const activeServer = computed(() => {
@@ -304,31 +308,50 @@ const dropdownPlaceholder = computed(() => {
   return 'Choose a server'
 })
 
-const baseServers = computed<Server[]>(() => {
-  if (props.mode === 'art') return serverStore.artServers
-  if (props.mode === 'text') return serverStore.textServers
-
-  if (selectedScope.value === 'owned') return serverStore.ownedServers
-  if (selectedScope.value === 'official') return serverStore.officialServers
-  if (selectedScope.value === 'public') return serverStore.publicServers
-  if (selectedScope.value === 'hidden') return serverStore.hiddenServers
-  if (selectedScope.value === 'all') return serverStore.servers
-
+const ownedServersForMode = computed(() => {
   return serverStore.servers.filter((server) => {
-    if (!server.isActive) return false
-
-    return (
-      server.serverType === 'ART' ||
-      server.serverType === 'A1111' ||
-      server.serverType === 'COMFY' ||
-      server.serverType === 'TEXT' ||
-      server.serverType === 'OPENAI_COMPATIBLE' ||
-      Boolean(server.supportsTxt2Img) ||
-      Boolean(server.supportsImg2Img) ||
-      Boolean(server.supportsComfyWorkflow) ||
-      Boolean(server.supportsChat)
-    )
+    if (server.userId !== userStore.user?.id) return false
+    if (props.mode === 'art') return isArtCapable(server)
+    if (props.mode === 'text') return isTextCapable(server)
+    return true
   })
+})
+
+const visibleServersForMode = computed(() => {
+  const servers =
+    props.mode === 'art'
+      ? serverStore.artServers
+      : props.mode === 'text'
+        ? serverStore.textServers
+        : serverStore.visibleActiveServers
+
+  return servers.filter((server) => {
+    if (props.mode === 'art') return isArtCapable(server)
+    if (props.mode === 'text') return isTextCapable(server)
+    return isArtCapable(server) || isTextCapable(server)
+  })
+})
+
+const baseServers = computed<Server[]>(() => {
+  if (selectedScope.value === 'owned') return ownedServersForMode.value
+
+  if (selectedScope.value === 'official') {
+    return serverStore.officialServers.filter(matchesMode)
+  }
+
+  if (selectedScope.value === 'public') {
+    return serverStore.publicServers.filter(matchesMode)
+  }
+
+  if (selectedScope.value === 'hidden') {
+    return serverStore.hiddenServers.filter(matchesMode)
+  }
+
+  if (selectedScope.value === 'all') {
+    return serverStore.servers.filter(matchesMode)
+  }
+
+  return visibleServersForMode.value
 })
 
 const filteredServers = computed(() => {
@@ -360,7 +383,7 @@ const filteredServers = computed(() => {
 
 onMounted(async () => {
   if (props.autoLoad) {
-    await refreshServers()
+    await refreshServers(true)
   }
 })
 
@@ -375,6 +398,31 @@ async function refreshServers(force = false) {
   } finally {
     isLoading.value = false
   }
+}
+
+function isArtCapable(server: Server) {
+  return (
+    server.serverType === 'ART' ||
+    server.serverType === 'A1111' ||
+    server.serverType === 'COMFY' ||
+    Boolean(server.supportsTxt2Img) ||
+    Boolean(server.supportsImg2Img) ||
+    Boolean(server.supportsComfyWorkflow)
+  )
+}
+
+function isTextCapable(server: Server) {
+  return (
+    server.serverType === 'TEXT' ||
+    server.serverType === 'OPENAI_COMPATIBLE' ||
+    Boolean(server.supportsChat)
+  )
+}
+
+function matchesMode(server: Server) {
+  if (props.mode === 'art') return isArtCapable(server)
+  if (props.mode === 'text') return isTextCapable(server)
+  return isArtCapable(server) || isTextCapable(server)
 }
 
 function isSelected(id: number) {
@@ -424,14 +472,6 @@ function resolveNewServerMode(): 'art' | 'text' {
     return 'text'
   }
 
-  if (
-    selectedType.value === 'ART' ||
-    selectedType.value === 'A1111' ||
-    selectedType.value === 'COMFY'
-  ) {
-    return 'art'
-  }
-
   return 'art'
 }
 
@@ -461,6 +501,7 @@ function startAddingServer() {
     supportsSteps: !isTextMode,
   })
 
+  serverStore.selectedBlueprintServerId = null
   serverStore.openServerForm()
 }
 
@@ -469,6 +510,7 @@ async function startEditingServerById(id: number) {
 
   if (!server) return
 
+  serverStore.selectedBlueprintServerId = null
   serverStore.openServerForm()
 }
 

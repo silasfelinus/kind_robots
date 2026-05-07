@@ -13,18 +13,13 @@
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
-      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <server-gallery
-          title="Servers"
-          subtitle="Browse, select, test, edit, and activate your available engines."
-          variant="dashboard"
-          mode="all"
-        />
-
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <server-interact />
-        </div>
-      </section>
+      <server-gallery
+        v-if="currentTab === 'overview'"
+        title="Servers"
+        subtitle="Browse, select, test, edit, activate, and inspect your available engines."
+        variant="dashboard"
+        mode="all"
+      />
 
       <server-gallery
         v-else-if="currentTab === 'art'"
@@ -44,6 +39,7 @@
 
       <server-gallery
         v-else-if="currentTab === 'all'"
+        mode="all"
         variant="dashboard"
         title="All Servers"
         subtitle="Every visible server in one place."
@@ -94,6 +90,18 @@ const managerSummary = computed(() => {
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'art') {
+    serverStore.setCurrentServerMode('art')
+    return
+  }
+
+  if (tab === 'text') {
+    serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {
@@ -122,5 +130,6 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+  setTab(activeTab.value)
 })
 </script>

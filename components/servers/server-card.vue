@@ -13,7 +13,7 @@
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Server"
-        @click.stop="emit('edit', server.id)"
+        @click.stop="editServer"
       >
         <Icon name="kind-icon:pencil" class="h-4 w-4" />
       </button>
@@ -106,8 +106,15 @@
         {{ server.isActive ? 'Active' : 'Inactive' }}
       </span>
 
-      <span v-if="activeSelected" class="badge badge-accent badge-sm">
+      <span v-if="isCurrentServer" class="badge badge-accent badge-sm">
         Selected
+      </span>
+
+      <span
+        v-else-if="isActiveGenerationServer"
+        class="badge badge-outline badge-sm"
+      >
+        Preferred
       </span>
     </div>
 
@@ -339,7 +346,7 @@
         v-if="isArtCapable"
         class="btn btn-primary btn-sm rounded-xl text-white"
         type="button"
-        @click.stop="emit('use-art', server.id)"
+        @click.stop="useForArt"
       >
         <Icon name="kind-icon:palette" class="h-4 w-4" />
         Use for Art
@@ -349,12 +356,20 @@
         v-if="isTextCapable"
         class="btn btn-secondary btn-sm rounded-xl"
         type="button"
-        @click.stop="emit('use-text', server.id)"
+        @click.stop="useForText"
       >
         <Icon name="kind-icon:chat" class="h-4 w-4" />
         Use for Text
       </button>
     </div>
+
+    <section
+      v-if="showStatus && isCurrentServer"
+      class="rounded-2xl border border-primary/30 bg-base-200 p-3"
+      @click.stop
+    >
+      <server-status :compact="statusCompact" />
+    </section>
 
     <details
       v-if="showDebug"
@@ -391,6 +406,8 @@ const props = withDefaults(
     showDebug?: boolean
     showWorkflow?: boolean
     showDefaults?: boolean
+    showStatus?: boolean
+    statusCompact?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
     allowTest?: boolean
@@ -406,31 +423,30 @@ const props = withDefaults(
     showDebug: false,
     showWorkflow: true,
     showDefaults: true,
+    showStatus: true,
+    statusCompact: false,
     allowEdit: true,
     allowDelete: true,
     allowTest: true,
   },
 )
 
-const emit = defineEmits<{
-  select: [id: number]
-  edit: [id: number]
-  delete: [id: number]
-  test: [id: number]
-  'use-art': [id: number]
-  'use-text': [id: number]
-}>()
-
 const serverStore = useServerStore()
 const userStore = useUserStore()
 
-const activeSelected = computed(() => {
+const isCurrentServer = computed(() => {
+  return serverStore.currentServer?.id === props.server.id
+})
+
+const isActiveGenerationServer = computed(() => {
   return (
-    props.selected ||
-    serverStore.selectedServer?.id === props.server.id ||
     serverStore.activeArtServer?.id === props.server.id ||
     serverStore.activeTextServer?.id === props.server.id
   )
+})
+
+const activeSelected = computed(() => {
+  return props.selected || isCurrentServer.value
 })
 
 const serverTitle = computed(() => {
@@ -536,20 +552,31 @@ const statusClass = computed(() => {
 })
 
 function selectServer() {
-  serverStore.selectServer(props.server.id)
-  emit('select', props.server.id)
+  serverStore.setCurrentServer(props.server.id)
+}
+
+async function editServer() {
+  serverStore.setCurrentServer(props.server.id)
+  await serverStore.startEditingServer(props.server.id)
+  serverStore.openServerForm()
 }
 
 async function testServer() {
-  emit('test', props.server.id)
+  serverStore.setCurrentServer(props.server.id)
   await serverStore.testServerHealth(props.server.id)
 }
 
 async function deleteServer() {
-  const result = await serverStore.deleteServer(props.server.id)
+  await serverStore.deleteServer(props.server.id)
+}
 
-  if (result.success) {
-    emit('delete', props.server.id)
-  }
+async function useForArt() {
+  serverStore.setCurrentServer(props.server.id)
+  await serverStore.setActiveArtServer(props.server.id)
+}
+
+async function useForText() {
+  serverStore.setCurrentServer(props.server.id)
+  await serverStore.setActiveTextServer(props.server.id)
 }
 </script>

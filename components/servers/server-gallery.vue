@@ -229,7 +229,6 @@
               v-for="server in artDisplayServers"
               :key="`art-card-${server.id}`"
               :server="server"
-              :selected="isSelected(server.id)"
               :compact="isCompact"
               :show-actions="showCardActions"
               :show-description="showDescriptions"
@@ -238,12 +237,6 @@
               :allow-edit="allowEdit"
               :allow-delete="allowDelete"
               :allow-test="allowTest"
-              @select="selectServerById"
-              @edit="startEditingServerById"
-              @delete="handleServerDeleted"
-              @test="handleServerTested"
-              @use-art="setActiveArtServer"
-              @use-text="setActiveTextServer"
             />
           </div>
         </section>
@@ -274,7 +267,6 @@
               v-for="server in textDisplayServers"
               :key="`text-card-${server.id}`"
               :server="server"
-              :selected="isSelected(server.id)"
               :compact="isCompact"
               :show-actions="showCardActions"
               :show-description="showDescriptions"
@@ -283,12 +275,6 @@
               :allow-edit="allowEdit"
               :allow-delete="allowDelete"
               :allow-test="allowTest"
-              @select="selectServerById"
-              @edit="startEditingServerById"
-              @delete="handleServerDeleted"
-              @test="handleServerTested"
-              @use-art="setActiveArtServer"
-              @use-text="setActiveTextServer"
             />
           </div>
         </section>
@@ -299,7 +285,6 @@
           v-for="server in filteredServers"
           :key="server.id"
           :server="server"
-          :selected="isSelected(server.id)"
           :compact="isCompact"
           :show-actions="showCardActions"
           :show-description="showDescriptions"
@@ -308,12 +293,6 @@
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
           :allow-test="allowTest"
-          @select="selectServerById"
-          @edit="startEditingServerById"
-          @delete="handleServerDeleted"
-          @test="handleServerTested"
-          @use-art="setActiveArtServer"
-          @use-text="setActiveTextServer"
         />
       </div>
     </section>
@@ -321,7 +300,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Server, ServerType } from '~/prisma/generated/prisma/client'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
@@ -400,6 +379,7 @@ const resolvedSubtitle = computed(() => {
 })
 
 const activeServer = computed(() => {
+  if (serverStore.currentServer) return serverStore.currentServer
   if (props.mode === 'art') return serverStore.activeArtServer
   if (props.mode === 'text') return serverStore.activeTextServer
   return serverStore.selectedServer
@@ -502,10 +482,19 @@ const textDisplayServers = computed(() => {
 })
 
 onMounted(async () => {
+  applyCurrentServerMode()
+
   if (props.autoLoad) {
     await refreshServers(true)
   }
 })
+
+watch(
+  () => props.mode,
+  () => {
+    applyCurrentServerMode()
+  },
+)
 
 async function refreshServers(force = false) {
   isLoading.value = true
@@ -545,19 +534,22 @@ function matchesMode(server: Server) {
   return isArtCapable(server) || isTextCapable(server)
 }
 
-function isSelected(id: number) {
-  if (props.mode === 'art') return serverStore.activeArtServer?.id === id
-  if (props.mode === 'text') return serverStore.activeTextServer?.id === id
+function applyCurrentServerMode() {
+  if (props.mode === 'art') {
+    serverStore.setCurrentServerMode('art')
+    return
+  }
 
-  return (
-    serverStore.selectedServer?.id === id ||
-    serverStore.activeArtServer?.id === id ||
-    serverStore.activeTextServer?.id === id
-  )
+  if (props.mode === 'text') {
+    serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function selectServerById(id: number) {
-  await serverStore.selectServer(id)
+  serverStore.setCurrentServer(id)
 
   if (props.mode === 'art') {
     await serverStore.setActiveArtServer(id)
@@ -653,31 +645,6 @@ function clearSelectedServer() {
   serverStore.closeServerForm()
 }
 
-function handleServerDeleted(id: number) {
-  if (serverStore.selectedServer?.id === id) {
-    serverStore.deselectServer()
-  }
-
-  if (serverStore.activeArtServer?.id === id) {
-    void serverStore.setActiveArtServer(null)
-  }
-
-  if (serverStore.activeTextServer?.id === id) {
-    void serverStore.setActiveTextServer(null)
-  }
-}
-
-function handleServerTested() {}
-
-async function setActiveArtServer(id: number) {
-  await serverStore.setActiveArtServer(id)
-  await serverStore.selectServer(id)
-}
-
-async function setActiveTextServer(id: number) {
-  await serverStore.setActiveTextServer(id)
-  await serverStore.selectServer(id)
-}
 </script>
 
 <style scoped>

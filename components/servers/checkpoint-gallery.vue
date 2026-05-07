@@ -361,7 +361,9 @@ const errorStore = useErrorStore()
 const userStore = useUserStore()
 const serverStore = useServerStore()
 
-const activeServer = computed(() => serverStore.activeArtServer)
+const activeServer = computed(() => {
+  return serverStore.currentServer || serverStore.activeArtServer
+})
 
 const isExpanded = ref(false)
 const isLoading = ref(false)
@@ -597,7 +599,16 @@ async function refreshModel() {
   localError.value = ''
 
   try {
-    await checkpointStore.fetchCurrentModelFromApi()
+    const server = activeServer.value
+
+    if (
+      server?.generationEngine === 'A1111' ||
+      server?.serverType === 'A1111'
+    ) {
+      await serverStore.fetchA1111Options(server)
+    }
+
+    await checkpointStore.fetchCurrentModelFromApi(server)
     await hydrateSelectedCheckpoint()
     updateCacheBuster()
     errorStore.clearError()

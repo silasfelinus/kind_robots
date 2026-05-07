@@ -95,8 +95,6 @@
           :selected="true"
           :show-actions="true"
           :allow-delete="false"
-          @edit="editServer"
-          @test="testServer"
         />
 
         <server-gallery
@@ -123,8 +121,6 @@
           :selected="true"
           :show-actions="true"
           :allow-delete="false"
-          @edit="editServer"
-          @test="testServer"
         />
 
         <server-gallery
@@ -223,30 +219,6 @@ function startServerPreset(serverType: ServerType) {
   showServerForm.value = true
 }
 
-async function editServer(id: number) {
-  const server =
-    serverStore.getServerById(id) ?? (await serverStore.fetchServerById(id))
-
-  if (!server) return
-
-  serverStore.selectServer(id)
-  serverStore.serverForm = {
-    ...server,
-  }
-
-  showServerForm.value = true
-}
-
-async function testServer(id: number) {
-  healthMessage.value = ''
-
-  const result = await serverStore.testServerHealth(id)
-
-  healthOk.value = Boolean(result.success && result.data?.ok)
-  healthMessage.value =
-    result.message ||
-    (healthOk.value ? 'Server is online.' : 'Server is offline.')
-}
 
 async function handleServerSaved() {
   showServerForm.value = false

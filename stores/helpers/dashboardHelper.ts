@@ -14,6 +14,15 @@ export type DashboardConfig = {
   tabs: DashboardTabConfig[]
 }
 
+const serverStatusTab: DashboardTabConfig = {
+  key: 'status',
+  label: 'Status',
+  icon: 'kind-icon:activity',
+  title: 'Server Status',
+  summary:
+    'Inspect runtime health, refresh server capabilities, change active model settings, and import server resources.',
+}
+
 export const dashboardConfigs = {
   user: {
     key: 'user',
@@ -107,6 +116,7 @@ export const dashboardConfigs = {
         title: 'Art Collections',
         summary: 'Organize art into reusable collections.',
       },
+
       {
         key: 'checkpoints',
         label: 'Models',

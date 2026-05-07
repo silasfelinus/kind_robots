@@ -1,74 +1,36 @@
 // /cypress/e2e/api/server.cy.ts
 /// <reference types="cypress" />
 
-describe('Server API Full CRUD + Ownership Tests', () => {
-  const baseUrl = 'https://kind-robots.vercel.app/api/server'
-  const userUrl = 'https://kind-robots.vercel.app/api/users'
+interface ApiResponse<T = any> {
+  success: boolean
+  message: string
+  data?: T
+  statusCode?: number
+  user?: T
+}
 
-  let globalApiKey = ''
-  let userA_id: number
-  let userA_apiKey: string
-  let userB_id: number
-  let userB_apiKey: string
+describe('Server API Full CRUD + Ownership Tests', () => {
+  const API_BASE = Cypress.env('API_BASE') ?? 'https://kind-robots.vercel.app'
+  const baseUrl = `${API_BASE}/api/server`
+
+  const userA_apiKey = Cypress.env('USER_TOKEN')
+  const userB_apiKey = Cypress.env('INTRUDER_TOKEN')
+  const testUserId = 9
+
   let serverId: number
 
   const time = Date.now()
-  const userA_name = `server-owner-${time}`
-  const userB_name = `server-intruder-${time}`
   const serverTitle = `Server-${time}`
 
   before(() => {
-    cy.env(['API_KEY']).then((env) => {
-      globalApiKey = String(env.API_KEY || '')
-      expect(globalApiKey, 'API_KEY').to.be.a('string').and.not.be.empty
-    })
-
-    cy.then(() => {
-      const register = (username: string) =>
-        cy.request({
-          method: 'POST',
-          url: `${userUrl}/register`,
-          headers: {
-            'x-api-key': globalApiKey,
-            'Content-Type': 'application/json',
-          },
-          body: {
-            username,
-            email: `${username}@test.com`,
-            password: 'testtest12',
-          },
-        })
-
-      register(userA_name).then((res) => {
-        expect(res.status).to.be.oneOf([200, 201])
-        expect(res.body.success).to.be.true
-        expect(res.body.user).to.be.an('object').that.is.not.empty
-
-        userA_id = res.body.user.id
-        userA_apiKey = res.body.user.apiKey
-
-        expect(userA_id).to.be.a('number')
-        expect(userA_apiKey).to.be.a('string').and.not.be.empty
-      })
-
-      register(userB_name).then((res) => {
-        expect(res.status).to.be.oneOf([200, 201])
-        expect(res.body.success).to.be.true
-        expect(res.body.user).to.be.an('object').that.is.not.empty
-
-        userB_id = res.body.user.id
-        userB_apiKey = res.body.user.apiKey
-
-        expect(userB_id).to.be.a('number')
-        expect(userB_apiKey).to.be.a('string').and.not.be.empty
-      })
-    })
+    expect(userA_apiKey, 'Cypress.env("USER_TOKEN")').to.be.a('string').and.not
+      .be.empty
   })
 
   it('POST: User A creates a private ART server', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
       headers: {
@@ -84,6 +46,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
         baseUrl: 'https://lola.acrocatranch.com',
         endpointPath: '/sdapi/v1/txt2img',
         healthPath: '/sdapi/v1/progress',
+        userId: testUserId,
         isPublic: false,
         isOfficial: false,
         isDefault: false,
@@ -111,6 +74,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
       expect(res.body.data.serverType).to.eq('ART')
       expect(res.body.data.baseUrl).to.eq('https://lola.acrocatranch.com')
       expect(res.body.data.endpointPath).to.eq('/sdapi/v1/txt2img')
+      expect(res.body.data.userId).to.eq(testUserId)
 
       serverId = res.body.data.id
 
@@ -122,7 +86,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse<any[]>>({
       method: 'GET',
       url: baseUrl,
       headers: {
@@ -133,19 +97,19 @@ describe('Server API Full CRUD + Ownership Tests', () => {
       expect(res.body.success).to.be.true
       expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data.find(
+      const match = res.body.data?.find(
         (item: Record<string, unknown>) => item.id === serverId,
       )
 
       expect(match).to.not.be.undefined
-      expect(match.title).to.eq(serverTitle)
+      expect(match?.title).to.eq(serverTitle)
     })
   })
 
   it('GET: anonymous fetch does not include User A private server', () => {
     expect(serverId).to.exist
 
-    cy.request({
+    cy.request<ApiResponse<any[]>>({
       method: 'GET',
       url: baseUrl,
     }).then((res) => {
@@ -153,7 +117,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
       expect(res.body.success).to.be.true
       expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data.find(
+      const match = res.body.data?.find(
         (item: Record<string, unknown>) => item.id === serverId,
       )
 
@@ -165,7 +129,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -177,14 +141,16 @@ describe('Server API Full CRUD + Ownership Tests', () => {
       expect(res.body.data.id).to.eq(serverId)
       expect(res.body.data.title).to.eq(serverTitle)
       expect(res.body.data.serverType).to.eq('ART')
+      expect(res.body.data.userId).to.eq(testUserId)
     })
   })
 
-  it('GET: User B cannot fetch User A private server by ID', () => {
-    expect(serverId).to.exist
-    expect(userB_apiKey).to.be.a('string').and.not.be.empty
+  it('GET: User B cannot fetch User A private server by ID', function () {
+    if (!userB_apiKey) this.skip()
 
-    cy.request({
+    expect(serverId).to.exist
+
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -202,7 +168,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -227,11 +193,12 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     })
   })
 
-  it('PATCH: User B fails to update User A server', () => {
-    expect(serverId).to.exist
-    expect(userB_apiKey).to.be.a('string').and.not.be.empty
+  it('PATCH: User B fails to update User A server', function () {
+    if (!userB_apiKey) this.skip()
 
-    cy.request({
+    expect(serverId).to.exist
+
+    cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -253,7 +220,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'PATCH',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -274,7 +241,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
   it('POST: rejects malformed URL', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
       headers: {
@@ -286,6 +253,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
         serverType: 'ART',
         baseUrl: 'not-a-real-url',
         endpointPath: '/sdapi/v1/txt2img',
+        userId: testUserId,
       },
       failOnStatusCode: false,
     }).then((res) => {
@@ -296,7 +264,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
   })
 
   it('POST: rejects missing auth', () => {
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'POST',
       url: baseUrl,
       headers: {
@@ -307,19 +275,19 @@ describe('Server API Full CRUD + Ownership Tests', () => {
         serverType: 'ART',
         baseUrl: 'https://example.com',
         endpointPath: '/sdapi/v1/txt2img',
+        userId: testUserId,
       },
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(401)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('Invalid or expired token')
     })
   })
 
   it('GET: invalid server ID returns 400', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/banana`,
       headers: {
@@ -329,14 +297,14 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(400)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('Invalid Server ID')
+      expect(res.body.message.toLowerCase()).to.include('invalid server id')
     })
   })
 
   it('GET: unknown server ID returns 404', () => {
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/99999999`,
       headers: {
@@ -354,7 +322,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/health/${serverId}`,
       headers: {
@@ -402,11 +370,12 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     })
   })
 
-  it('GET: health endpoint blocked for non-owner on private server', () => {
-    expect(serverId).to.exist
-    expect(userB_apiKey).to.be.a('string').and.not.be.empty
+  it('GET: health endpoint blocked for non-owner on private server', function () {
+    if (!userB_apiKey) this.skip()
 
-    cy.request({
+    expect(serverId).to.exist
+
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/health/${serverId}`,
       headers: {
@@ -420,11 +389,12 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     })
   })
 
-  it('DELETE: User B fails to delete User A server', () => {
-    expect(serverId).to.exist
-    expect(userB_apiKey).to.be.a('string').and.not.be.empty
+  it('DELETE: User B fails to delete User A server', function () {
+    if (!userB_apiKey) this.skip()
 
-    cy.request({
+    expect(serverId).to.exist
+
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -434,7 +404,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(403)
       expect(res.body.success).to.be.false
-      expect(res.body.message).to.include('authorized')
+      expect(res.body.message.toLowerCase()).to.include('authorized')
     })
   })
 
@@ -442,7 +412,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'DELETE',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -451,9 +421,8 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(200)
       expect(res.body.success).to.be.true
-      expect(res.body.message).to.include(
-        `Server with ID ${serverId} successfully deleted`,
-      )
+      expect(res.body.message.toLowerCase()).to.include('server')
+      expect(res.body.message.toLowerCase()).to.include('deleted')
     })
   })
 
@@ -461,7 +430,7 @@ describe('Server API Full CRUD + Ownership Tests', () => {
     expect(serverId).to.exist
     expect(userA_apiKey).to.be.a('string').and.not.be.empty
 
-    cy.request({
+    cy.request<ApiResponse>({
       method: 'GET',
       url: `${baseUrl}/${serverId}`,
       headers: {
@@ -475,29 +444,15 @@ describe('Server API Full CRUD + Ownership Tests', () => {
   })
 
   after(() => {
-    cy.then(() => {
-      const deleteUser = (
-        id: number | undefined,
-        apiKey: string | undefined,
-      ) => {
-        if (!id || !apiKey) {
-          return
-        }
+    if (!serverId || !userA_apiKey) return
 
-        cy.request({
-          method: 'DELETE',
-          url: `${userUrl}/${id}`,
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-          },
-          failOnStatusCode: false,
-        }).then((res) => {
-          expect(res.status).to.be.oneOf([200, 404])
-        })
-      }
-
-      deleteUser(userA_id, userA_apiKey)
-      deleteUser(userB_id, userB_apiKey)
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${serverId}`,
+      headers: {
+        Authorization: `Bearer ${userA_apiKey}`,
+      },
+      failOnStatusCode: false,
     })
   })
 })

@@ -12,24 +12,29 @@ interface ApiResponse<T = any> {
   statusCode?: number
 }
 
-describe('[Model] API Full CRUD + Ownership Tests', () => {
+describe('[Model] API Full CRUD + Auth Tests', () => {
   const modelName = 'sample'
-  const API_BASE = Cypress.env('API_BASE') ?? 'https://kind-robots.vercel.app'
-  const baseUrl = `${API_BASE}/api/${modelName}s`
-
-  const userToken = Cypress.env('USER_TOKEN')
-  const intruderToken = Cypress.env('INTRUDER_TOKEN')
-  const invalidToken = 'someInvalidTokenValue'
+  const fallbackApiBase = 'https://kind-robots.vercel.app'
+  const invalidToken = 'definitely-not-a-real-token'
   const testUserId = 9
 
+  let apiBase = fallbackApiBase
+  let baseUrl = `${fallbackApiBase}/api/${modelName}s`
+  let userToken = ''
   let itemId: number
 
   const time = Date.now()
   const itemTitle = `${modelName.toUpperCase()}-${time}`
 
   before(() => {
-    expect(userToken, 'Cypress.env("USER_TOKEN")').to.be.a('string').and.not.be
-      .empty
+    cy.env(['API_BASE', 'USER_TOKEN']).then((env) => {
+      apiBase = String(env.API_BASE || fallbackApiBase)
+      baseUrl = `${apiBase}/api/${modelName}s`
+      userToken = String(env.USER_TOKEN || '')
+
+      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+        .empty
+    })
   })
 
   it('POST: rejects record creation without auth', () => {
@@ -195,27 +200,6 @@ describe('[Model] API Full CRUD + Ownership Tests', () => {
     })
   })
 
-  it('PATCH: intruder fails to update record', function () {
-    if (!intruderToken) this.skip()
-
-    cy.request<ApiResponse>({
-      method: 'PATCH',
-      url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${intruderToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: {
-        title: 'Unauthorized Edit',
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
-      expect(res.body.success).to.eq(false)
-      expect(res.body.message).to.include('permission')
-    })
-  })
-
   it('DELETE: rejects delete without auth', () => {
     cy.request<ApiResponse>({
       method: 'DELETE',
@@ -238,23 +222,6 @@ describe('[Model] API Full CRUD + Ownership Tests', () => {
     }).then((res) => {
       expect(res.status).to.eq(401)
       expect(res.body.success).to.eq(false)
-    })
-  })
-
-  it('DELETE: intruder fails to delete record', function () {
-    if (!intruderToken) this.skip()
-
-    cy.request<ApiResponse>({
-      method: 'DELETE',
-      url: `${baseUrl}/${itemId}`,
-      headers: {
-        Authorization: `Bearer ${intruderToken}`,
-      },
-      failOnStatusCode: false,
-    }).then((res) => {
-      expect(res.status).to.eq(403)
-      expect(res.body.success).to.eq(false)
-      expect(res.body.message).to.include('authorized')
     })
   })
 

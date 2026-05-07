@@ -2427,6 +2427,57 @@ export const useServerStore = defineStore('serverStore', () => {
       return data
     })
   }
+  async function fetchA1111Loras(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchA1111Loras', async () => {
+      const data = await requestRuntimeJson(server, '/sdapi/v1/loras', {
+        method: 'GET',
+      })
+
+      const loras = Array.isArray(data) ? data : []
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: `Fetched ${loras.length} A1111 LoRA${
+          loras.length === 1 ? '' : 's'
+        }.`,
+        a1111: {
+          loras,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
+  async function fetchA1111Embeddings(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchA1111Embeddings', async () => {
+      const data = await requestRuntimeJson(server, '/sdapi/v1/embeddings', {
+        method: 'GET',
+      })
+
+      const loaded =
+        data && typeof data === 'object'
+          ? (data as Record<string, unknown>).loaded
+          : null
+
+      const count =
+        loaded && typeof loaded === 'object'
+          ? Object.keys(loaded as Record<string, unknown>).length
+          : 0
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: `Fetched ${count} A1111 embedding${count === 1 ? '' : 's'}.`,
+        a1111: {
+          embeddings: data,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
 
   async function fetchComfyHistory(server: Server): Promise<unknown> {
     return await runRuntimeAction(server, 'fetchComfyHistory', async () => {
@@ -2487,6 +2538,8 @@ export const useServerStore = defineStore('serverStore', () => {
     selectedBlueprintServerId,
     blueprintServers,
     setBlueprintServer,
+    fetchA1111Loras,
+    fetchA1111Embeddings,
 
     syncToLocalStorage,
     loadFromLocalStorage,

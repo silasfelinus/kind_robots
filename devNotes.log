@@ -85,3 +85,7 @@ added a few more chat interactions: rewards, character, story, still troubleshoo
 added a wealth of new icons for the screen effects
 troubleshooted server galleries, refactored art-servers and text-servers to server-gallery
 still seeking a working handshake from vercel to a password or tailscale guarded art modeller
+
+5/7/2026
+wORKING HANDSHAKE! cAN send to sd and get image, can test with comfy and sd, can run .http tests that pass with comfy and sd
+really amazed that I'm at this point. have made other progress with server model and what not since, but all pales.

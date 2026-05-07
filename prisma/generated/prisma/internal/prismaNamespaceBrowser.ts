@@ -518,6 +518,7 @@ export const ResourceScalarFieldEnum = {
   description: 'description',
   isMature: 'isMature',
   resourceType: 'resourceType',
+  supportedServer: 'supportedServer',
   userId: 'userId',
   artImageId: 'artImageId',
   generation: 'generation'

@@ -1026,9 +1026,27 @@ export const useArtStore = defineStore('artStore', () => {
     server: Server,
     form: GenerateArtData,
   ): Promise<string> {
-    if (server.serverType !== 'A1111') {
+    if (server.serverType !== 'A1111' && server.generationEngine !== 'A1111') {
       throw new Error(
-        `Server "${server.title}" is ${server.serverType}. Browser art generation currently supports A1111 servers only.`,
+        `Server "${server.title}" is ${server.serverType}/${server.generationEngine}. Browser art generation currently supports A1111 servers only.`,
+      )
+    }
+
+    if (server.supportsComfyWorkflow || server.generationEngine === 'COMFY') {
+      throw new Error(
+        `Server "${server.title}" supports Comfy workflows. Use the Comfy browser route instead.`,
+      )
+    }
+
+    if (server.generationEngine === 'FLUX') {
+      throw new Error(
+        `Server "${server.title}" is a Flux server. Use the Flux browser route instead.`,
+      )
+    }
+
+    if (server.generationEngine === 'KONTEXT') {
+      throw new Error(
+        `Server "${server.title}" is a Kontext server. Use the Kontext browser route instead.`,
       )
     }
 
@@ -1038,32 +1056,59 @@ export const useArtStore = defineStore('artStore', () => {
       )
     }
 
-    const response = await serverStore.requestServer(
-      server,
-      getArtGenerationEndpointPath(server),
-      {
-        method: 'POST',
-        headers: getClientServerHeaders(server),
-        body: JSON.stringify({
-          prompt: form.promptString,
-          negative_prompt: form.negativePrompt || ' ',
-          steps: form.steps ?? 20,
-          cfg_scale: calculateCfg(form.cfg ?? 3, form.cfgHalf ?? false),
-          seed: form.seed ?? -1,
-          width: 512,
-          height: 512,
-          sampler_index: form.sampler || 'Euler a',
-          override_settings: {
-            sd_model_checkpoint:
-              form.checkpoint || 'Flux/flux1-dev-fp8.safetensors',
-          },
-          user: form.designer || 'kindguest',
-        }),
-      },
-    )
+    const endpointPath = getArtGenerationEndpointPath(server)
+
+    if (!endpointPath.includes('/sdapi/v1/txt2img')) {
+      throw new Error(
+        `Server "${server.title}" endpoint does not look like an A1111 txt2img endpoint: ${endpointPath}`,
+      )
+    }
+
+    const requestBody: Record<string, unknown> = {
+      prompt: form.promptString,
+      negative_prompt: form.negativePrompt || ' ',
+      steps: form.steps ?? server.defaultSteps ?? 20,
+      cfg_scale: calculateCfg(
+        form.cfg ?? server.defaultCfg ?? 3,
+        form.cfgHalf ?? false,
+      ),
+      seed: form.seed ?? -1,
+      width: form.width ?? server.defaultWidth ?? 512,
+      height: form.height ?? server.defaultHeight ?? 512,
+      sampler_index: form.sampler || server.defaultSampler || 'Euler a',
+      user: form.designer || 'kindguest',
+    }
+
+    const cleanCheckpoint =
+      typeof form.checkpoint === 'string' ? form.checkpoint.trim() : ''
+
+    if (cleanCheckpoint) {
+      requestBody.override_settings = {
+        sd_model_checkpoint: cleanCheckpoint,
+      }
+    }
+
+    const response = await serverStore.requestServer(server, endpointPath, {
+      method: 'POST',
+      headers: getClientServerHeaders(server),
+      body: JSON.stringify(requestBody),
+    })
 
     if (!response.ok) {
-      const message = await response.text()
+      let message = ''
+
+      try {
+        const contentType = response.headers.get('content-type') || ''
+
+        if (contentType.includes('application/json')) {
+          const errorData = await response.json()
+          message = stringifyServerError(errorData)
+        } else {
+          message = await response.text()
+        }
+      } catch {
+        message = response.statusText
+      }
 
       throw new Error(
         `Browser image generation failed: ${response.status} ${response.statusText}${message ? ` - ${message}` : ''}`,
@@ -1077,6 +1122,28 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     return data.images[0]
+  }
+
+  function stringifyServerError(errorData: unknown): string {
+    if (!errorData) return ''
+
+    if (typeof errorData === 'string') return errorData
+
+    if (typeof errorData === 'object') {
+      const data = errorData as Record<string, unknown>
+
+      const message = data.message
+      const error = data.error
+      const detail = data.detail
+
+      if (typeof error === 'string') return error
+      if (typeof message === 'string') return message
+      if (typeof detail === 'string') return detail
+
+      return JSON.stringify(data)
+    }
+
+    return String(errorData)
   }
 
   async function saveBrowserGeneratedArt(

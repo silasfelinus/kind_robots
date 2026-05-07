@@ -3,7 +3,12 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
-export type AnimationLayerZone = 'header' | 'left' | 'right' | 'footer'
+export type AnimationLayerZone =
+  | 'header'
+  | 'left'
+  | 'center'
+  | 'right'
+  | 'footer'
 
 export type AnimationEffectId =
   | 'aurora-effect'
@@ -57,11 +62,10 @@ interface AnimationStoreState {
   zones: Record<AnimationLayerZone, boolean>
   startedAt: number | null
 }
-
-// All false = layer is contained to main content only
 const defaultZones: Record<AnimationLayerZone, boolean> = {
   header: false,
   left: false,
+  center: true,
   right: false,
   footer: false,
 }

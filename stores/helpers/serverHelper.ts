@@ -1,4 +1,4 @@
-// /stores/helpers/statusHelper.ts
+// /stores/helpers/serverHelper.ts
 import type { Server } from '~/prisma/generated/prisma/client'
 
 export type ModelStatusEngine =
@@ -9,6 +9,35 @@ export type ModelStatusEngine =
   | 'UNKNOWN'
 
 export type ModelStatusTone = 'safe' | 'warning' | 'error' | 'unknown'
+
+export type ModelStatusSource =
+  | 'options'
+  | 'sd-models'
+  | 'generation-info'
+  | 'comfy-history'
+  | 'server-fallback'
+  | 'unknown'
+
+export interface RuntimeHealthReport {
+  ok: boolean
+  status: number
+  statusText: string
+  latencyMs: number
+  path: string
+  data?: unknown
+}
+
+export interface ServerRuntimeReport {
+  serverId: number
+  engine: ModelStatusEngine
+  checkedAt: string
+  success: boolean
+  message: string
+  health?: RuntimeHealthReport
+  a1111?: Record<string, unknown>
+  comfy?: Record<string, unknown>
+  raw?: unknown
+}
 
 export interface ModelStatusReport {
   success: boolean
@@ -23,13 +52,7 @@ export interface ModelStatusReport {
   actualGenerationModel: string
   modelHash: string
   sampler: string
-  source:
-    | 'options'
-    | 'sd-models'
-    | 'generation-info'
-    | 'comfy-history'
-    | 'server-fallback'
-    | 'unknown'
+  source: ModelStatusSource
   raw?: unknown
 }
 
@@ -47,17 +70,17 @@ export interface A1111GenerationInfo {
   scheduler?: string
 }
 
+export interface ComfyWorkflowNode {
+  class_type?: string
+  inputs?: Record<string, unknown>
+}
+
 export interface ComfyHistoryResponse {
   [promptId: string]: {
     prompt?: [number, string, Record<string, ComfyWorkflowNode>]
     status?: unknown
     outputs?: unknown
   }
-}
-
-export interface ComfyWorkflowNode {
-  class_type?: string
-  inputs?: Record<string, unknown>
 }
 
 export function getModelStatusEngine(
@@ -89,12 +112,19 @@ export function normalizeCheckpointName(value: unknown): string {
   return (
     value
       .trim()
+      .replace(/^['"]|['"]$/g, '')
       .replace(/\s+\[[a-fA-F0-9]+\]$/, '')
       .replace(/\\/g, '/')
       .split('/')
       .pop()
       ?.trim() || ''
   )
+}
+
+export function normalizeModelName(value: unknown): string {
+  if (typeof value !== 'string') return ''
+
+  return value.trim().replace(/^['"]|['"]$/g, '')
 }
 
 export function modelNamesMatch(left: unknown, right: unknown): boolean {
@@ -115,8 +145,7 @@ export function parseA1111GenerationInfo(value: unknown): A1111GenerationInfo {
 
   if (typeof value === 'string') {
     try {
-      const parsed = JSON.parse(value)
-      return parseA1111GenerationInfo(parsed)
+      return parseA1111GenerationInfo(JSON.parse(value))
     } catch {
       return {}
     }
@@ -145,29 +174,34 @@ export function findComfyCheckpointFromWorkflow(workflow: unknown): string {
 
   for (const node of Object.values(nodes)) {
     const classType = node.class_type || ''
+    const lowerClassType = classType.toLowerCase()
     const inputs = node.inputs || {}
 
     if (
       classType === 'CheckpointLoaderSimple' ||
       classType === 'CheckpointLoader' ||
-      classType.toLowerCase().includes('checkpoint')
+      lowerClassType.includes('checkpoint')
     ) {
-      const ckptName = inputs.ckpt_name || inputs.checkpoint || inputs.model
+      const checkpoint =
+        inputs.ckpt_name ||
+        inputs.checkpoint ||
+        inputs.model ||
+        inputs.model_name
 
-      if (typeof ckptName === 'string' && ckptName.trim()) {
-        return ckptName.trim()
+      if (typeof checkpoint === 'string' && checkpoint.trim()) {
+        return checkpoint.trim()
       }
     }
 
     if (
       classType === 'UNETLoader' ||
       classType === 'DiffusionModelLoader' ||
-      classType.toLowerCase().includes('unet')
+      lowerClassType.includes('unet')
     ) {
-      const unetName = inputs.unet_name || inputs.model_name || inputs.model
+      const model = inputs.unet_name || inputs.model_name || inputs.model
 
-      if (typeof unetName === 'string' && unetName.trim()) {
-        return unetName.trim()
+      if (typeof model === 'string' && model.trim()) {
+        return model.trim()
       }
     }
   }
@@ -198,7 +232,7 @@ export function createModelStatusReport(input: {
   actualGenerationModel?: string
   modelHash?: string
   sampler?: string
-  source?: ModelStatusReport['source']
+  source?: ModelStatusSource
   raw?: unknown
 }): ModelStatusReport {
   const server = input.server

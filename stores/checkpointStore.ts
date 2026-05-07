@@ -16,7 +16,7 @@ import {
   type A1111OptionsResponse,
   type ModelStatusEngine,
   type ModelStatusReport,
-} from '@/stores/helpers/statusHelper'
+} from '~/stores/helpers/serverHelper'
 
 type ApiResponse<T> = {
   success: boolean

@@ -10,6 +10,10 @@ import type {
   ServerStatus,
   ServerType,
 } from '~/prisma/generated/prisma/client'
+import {
+  getModelStatusEngine,
+  type ServerRuntimeReport,
+} from './helpers/serverHelper'
 
 export interface ServerForm extends Partial<Server> {}
 
@@ -200,6 +204,10 @@ export const useServerStore = defineStore('serverStore', () => {
   const activeTextServerId: Ref<number | null> = ref(null)
   const healthResults: Ref<Record<number, ServerHealthResponse>> = ref({})
 
+  const runtimeReportsByServerId = ref<Record<number, ServerRuntimeReport>>({})
+  const runtimeLoadingByServerId = ref<Record<number, boolean>>({})
+  const runtimeErrorByServerId = ref<Record<number, string>>({})
+
   const isSaving = ref(false)
   const isInitialized = ref(false)
   const isInitializing = ref(false)
@@ -361,6 +369,42 @@ export const useServerStore = defineStore('serverStore', () => {
     )
   })
 
+  const activeRuntimeReport = computed<ServerRuntimeReport | null>(() => {
+    const serverId =
+      selectedServer.value?.id ||
+      activeArtServer.value?.id ||
+      activeTextServer.value?.id ||
+      0
+
+    if (!serverId) return null
+
+    return runtimeReportsByServerId.value[serverId] || null
+  })
+
+  const activeRuntimeLoading = computed(() => {
+    const serverId =
+      selectedServer.value?.id ||
+      activeArtServer.value?.id ||
+      activeTextServer.value?.id ||
+      0
+
+    if (!serverId) return false
+
+    return Boolean(runtimeLoadingByServerId.value[serverId])
+  })
+
+  const activeRuntimeError = computed(() => {
+    const serverId =
+      selectedServer.value?.id ||
+      activeArtServer.value?.id ||
+      activeTextServer.value?.id ||
+      0
+
+    if (!serverId) return ''
+
+    return runtimeErrorByServerId.value[serverId] || ''
+  })
+
   const artServerOptions = computed<ServerOption[]>(() =>
     artServers.value
       .slice()
@@ -410,6 +454,11 @@ export const useServerStore = defineStore('serverStore', () => {
     lastError.value = null
   }
 
+  function getRuntimeReportForServer(server: Server | null | undefined) {
+    if (!server?.id) return null
+    return getRuntimeReport(server.id)
+  }
+
   function isServerHidden(id: number): boolean {
     return hiddenServerIdSet.value.has(id)
   }
@@ -421,26 +470,79 @@ export const useServerStore = defineStore('serverStore', () => {
     return `${cleanBase}${cleanPath}`
   }
 
-  function shouldSendCredentials(server: Server): boolean {
-    return Boolean(
-      server.useOidc ||
-      server.accessMode === 'PUBLIC_OIDC' ||
-      server.accessMode === 'PUBLIC_PROTECTED',
-    )
+  function getRuntimeReport(serverId: number): ServerRuntimeReport | null {
+    return runtimeReportsByServerId.value[serverId] || null
   }
 
-  function buildCorsHeaders(options: RequestInit): HeadersInit {
-    const headers = new Headers(options.headers)
-
-    if (!headers.has('Accept')) {
-      headers.set('Accept', 'application/json, text/plain, */*')
+  function setRuntimeReport(report: ServerRuntimeReport): void {
+    runtimeReportsByServerId.value = {
+      ...runtimeReportsByServerId.value,
+      [report.serverId]: report,
     }
+  }
 
-    if (options.body && !headers.has('Content-Type')) {
-      headers.set('Content-Type', 'application/json')
+  function clearRuntimeReport(serverId: number): void {
+    const reports = { ...runtimeReportsByServerId.value }
+    const loading = { ...runtimeLoadingByServerId.value }
+    const errors = { ...runtimeErrorByServerId.value }
+
+    delete reports[serverId]
+    delete loading[serverId]
+    delete errors[serverId]
+
+    runtimeReportsByServerId.value = reports
+    runtimeLoadingByServerId.value = loading
+    runtimeErrorByServerId.value = errors
+  }
+
+  function clearAllRuntimeReports(): void {
+    runtimeReportsByServerId.value = {}
+    runtimeLoadingByServerId.value = {}
+    runtimeErrorByServerId.value = {}
+  }
+
+  function setRuntimeLoading(serverId: number, loading: boolean): void {
+    runtimeLoadingByServerId.value = {
+      ...runtimeLoadingByServerId.value,
+      [serverId]: loading,
     }
+  }
 
-    return headers
+  function setRuntimeError(serverId: number, message = ''): void {
+    runtimeErrorByServerId.value = {
+      ...runtimeErrorByServerId.value,
+      [serverId]: message,
+    }
+  }
+
+  function setRuntimeHealthReport(input: {
+    server: Server | null
+    serverId: number
+    success: boolean
+    message: string
+    healthPath: string
+    status: number
+    statusText: string
+    latencyMs: number
+    responseBody: unknown
+    raw?: unknown
+  }): void {
+    setRuntimeReport({
+      serverId: input.serverId,
+      engine: getModelStatusEngine(input.server),
+      checkedAt: new Date().toISOString(),
+      success: input.success,
+      message: input.message,
+      health: {
+        ok: input.success,
+        status: input.status,
+        statusText: input.statusText,
+        latencyMs: input.latencyMs,
+        path: input.healthPath,
+        data: input.responseBody,
+      },
+      raw: input.raw,
+    })
   }
 
   async function requestServer(
@@ -1151,6 +1253,18 @@ export const useServerStore = defineStore('serverStore', () => {
     healthResults.value[id] = result
     patchServerFromHealthResponse(result)
     syncToLocalStorage()
+    setRuntimeHealthReport({
+      server,
+      serverId: id,
+      success: report.ok,
+      message: report.message,
+      healthPath,
+      status: report.status,
+      statusText: report.statusText,
+      latencyMs: report.latencyMs,
+      responseBody: report.responseBody,
+      raw: result,
+    })
 
     return result
   }
@@ -2035,6 +2149,304 @@ export const useServerStore = defineStore('serverStore', () => {
     syncToLocalStorage()
   }
 
+  async function readRuntimeJsonResponse(response: Response): Promise<unknown> {
+    const contentType = response.headers.get('content-type') || ''
+
+    if (contentType.includes('application/json')) {
+      return await response.json().catch(() => null)
+    }
+
+    return await response.text().catch(() => null)
+  }
+
+  function stringifyRuntimeError(value: unknown): string {
+    if (!value) return ''
+
+    if (typeof value === 'string') return value
+
+    if (typeof value === 'object') {
+      const data = value as Record<string, unknown>
+
+      const error = data.error
+      const message = data.message
+      const detail = data.detail
+      const statusMessage = data.statusMessage
+      const statusText = data.statusText
+
+      if (typeof error === 'string') return error
+      if (typeof message === 'string') return message
+      if (typeof detail === 'string') return detail
+      if (typeof statusMessage === 'string') return statusMessage
+      if (typeof statusText === 'string') return statusText
+
+      return JSON.stringify(data)
+    }
+
+    return String(value)
+  }
+
+  async function requestRuntimeJson(
+    server: Server,
+    path: string,
+    options: RequestInit = {},
+  ): Promise<unknown> {
+    const response = await requestServer(server, path, options)
+    const data = await readRuntimeJsonResponse(response)
+
+    if (!response.ok) {
+      const message = stringifyRuntimeError(data)
+
+      throw new Error(
+        `Runtime request failed: ${response.status} ${response.statusText}${
+          message ? ` - ${message}` : ''
+        }`,
+      )
+    }
+
+    return data
+  }
+
+  function patchRuntimeReport(
+    server: Server,
+    patch: Partial<ServerRuntimeReport>,
+  ): ServerRuntimeReport {
+    const existing = runtimeReportsByServerId.value[server.id]
+
+    const report: ServerRuntimeReport = {
+      serverId: server.id,
+      engine: getModelStatusEngine(server),
+      checkedAt: new Date().toISOString(),
+      success: patch.success ?? existing?.success ?? true,
+      message:
+        patch.message || existing?.message || 'Server runtime report updated.',
+      health: patch.health ?? existing?.health,
+      a1111: {
+        ...(existing?.a1111 || {}),
+        ...(patch.a1111 || {}),
+      },
+      comfy: {
+        ...(existing?.comfy || {}),
+        ...(patch.comfy || {}),
+      },
+      raw: patch.raw ?? existing?.raw,
+    }
+
+    setRuntimeReport(report)
+    return report
+  }
+
+  async function runRuntimeAction<T>(
+    server: Server,
+    label: string,
+    action: () => Promise<T>,
+  ): Promise<T> {
+    setRuntimeLoading(server.id, true)
+    setRuntimeError(server.id, '')
+
+    try {
+      const result = await action()
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: `${label} succeeded.`,
+      })
+
+      return result
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : `${label} failed.`
+
+      setRuntimeError(server.id, message)
+
+      patchRuntimeReport(server, {
+        success: false,
+        message,
+      })
+
+      setStoreError(ErrorType.NETWORK_ERROR, message, label)
+
+      throw error
+    } finally {
+      setRuntimeLoading(server.id, false)
+    }
+  }
+
+  async function fetchA1111Options(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchA1111Options', async () => {
+      const data = await requestRuntimeJson(server, '/sdapi/v1/options', {
+        method: 'GET',
+      })
+
+      const options =
+        data && typeof data === 'object'
+          ? (data as Record<string, unknown>)
+          : {}
+
+      const currentModel =
+        typeof options.sd_model_checkpoint === 'string'
+          ? options.sd_model_checkpoint
+          : ''
+
+      const currentModelHash =
+        typeof options.sd_checkpoint_hash === 'string'
+          ? options.sd_checkpoint_hash
+          : ''
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: currentModel
+          ? `A1111 current model: ${currentModel}`
+          : 'A1111 options fetched.',
+        a1111: {
+          options,
+          currentModel,
+          currentModelHash,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
+  async function fetchA1111Models(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchA1111Models', async () => {
+      const data = await requestRuntimeJson(server, '/sdapi/v1/sd-models', {
+        method: 'GET',
+      })
+
+      const models = Array.isArray(data) ? data : []
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: `Fetched ${models.length} A1111 model${
+          models.length === 1 ? '' : 's'
+        }.`,
+        a1111: {
+          models,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
+  async function fetchA1111Samplers(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchA1111Samplers', async () => {
+      const data = await requestRuntimeJson(server, '/sdapi/v1/samplers', {
+        method: 'GET',
+      })
+
+      const samplers = Array.isArray(data) ? data : []
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: `Fetched ${samplers.length} A1111 sampler${
+          samplers.length === 1 ? '' : 's'
+        }.`,
+        a1111: {
+          samplers,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
+  async function setA1111Model(
+    server: Server,
+    checkpoint: string,
+  ): Promise<unknown> {
+    return await runRuntimeAction(server, 'setA1111Model', async () => {
+      const cleanCheckpoint = checkpoint.trim()
+
+      if (!cleanCheckpoint) {
+        throw new Error('Cannot set A1111 model without a checkpoint name.')
+      }
+
+      const data = await requestRuntimeJson(server, '/sdapi/v1/options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sd_model_checkpoint: cleanCheckpoint,
+        }),
+      })
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: `Requested A1111 model change: ${cleanCheckpoint}`,
+        a1111: {
+          requestedModel: cleanCheckpoint,
+          setModelResponse: data,
+        },
+        raw: data,
+      })
+
+      await fetchA1111Options(server)
+
+      return data
+    })
+  }
+
+  async function fetchComfySystemStats(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchComfySystemStats', async () => {
+      const data = await requestRuntimeJson(server, '/system_stats', {
+        method: 'GET',
+      })
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: 'Fetched Comfy system stats.',
+        comfy: {
+          systemStats: data,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
+  async function fetchComfyObjectInfo(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchComfyObjectInfo', async () => {
+      const data = await requestRuntimeJson(server, '/object_info', {
+        method: 'GET',
+      })
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: 'Fetched Comfy object info.',
+        comfy: {
+          objectInfo: data,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
+  async function fetchComfyHistory(server: Server): Promise<unknown> {
+    return await runRuntimeAction(server, 'fetchComfyHistory', async () => {
+      const data = await requestRuntimeJson(server, '/history', {
+        method: 'GET',
+      })
+
+      patchRuntimeReport(server, {
+        success: true,
+        message: 'Fetched Comfy history.',
+        comfy: {
+          history: data,
+        },
+        raw: data,
+      })
+
+      return data
+    })
+  }
+
   return {
     servers,
     selectedServer,
@@ -2111,6 +2523,12 @@ export const useServerStore = defineStore('serverStore', () => {
     getServerById,
     getServersByType,
     getCompatibleServers,
+    getRuntimeReport,
+    setRuntimeReport,
+    clearRuntimeReport,
+    clearAllRuntimeReports,
+    setRuntimeLoading,
+    setRuntimeError,
 
     cloneServerPayload,
     saveServerAsUserCopy,
@@ -2123,6 +2541,25 @@ export const useServerStore = defineStore('serverStore', () => {
     openServerForm,
     closeServerForm,
     toggleServerForm,
+
+    runtimeReportsByServerId,
+    runtimeLoadingByServerId,
+    runtimeErrorByServerId,
+    activeRuntimeReport,
+    activeRuntimeLoading,
+    activeRuntimeError,
+    getRuntimeReportForServer,
+
+    setRuntimeHealthReport,
+    patchRuntimeReport,
+
+    fetchA1111Options,
+    fetchA1111Models,
+    fetchA1111Samplers,
+    setA1111Model,
+    fetchComfySystemStats,
+    fetchComfyObjectInfo,
+    fetchComfyHistory,
   }
 })
 

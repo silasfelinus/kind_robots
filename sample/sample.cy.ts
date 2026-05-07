@@ -91,6 +91,7 @@ describe('[Model] API Full CRUD + Ownership Tests', () => {
       expect(res.body.data).to.have.property('id')
 
       itemId = res.body.data.id
+
       expect(itemId).to.be.a('number')
     })
   })
@@ -104,7 +105,8 @@ describe('[Model] API Full CRUD + Ownership Tests', () => {
       expect(res.body.success).to.eq(true)
       expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data.find((item: any) => item.id === itemId)
+      const match = res.body.data?.find((item: any) => item.id === itemId)
+
       expect(match).to.not.eq(undefined)
     })
   })
@@ -121,7 +123,8 @@ describe('[Model] API Full CRUD + Ownership Tests', () => {
       expect(res.body.success).to.eq(true)
       expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data.find((item: any) => item.id === itemId)
+      const match = res.body.data?.find((item: any) => item.id === itemId)
+
       expect(match).to.not.eq(undefined)
     })
   })

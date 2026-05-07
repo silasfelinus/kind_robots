@@ -30,7 +30,7 @@ import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import {
   modelNamesMatch,
   parseA1111GenerationInfo,
-} from '@/stores/helpers/statusHelper'
+} from '~/stores/helpers/serverHelper'
 
 type ApiResponse<T> = {
   success: boolean

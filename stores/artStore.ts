@@ -27,6 +27,10 @@ import {
   updateArtImageId,
 } from '@/stores/helpers/artHelper'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
+import {
+  modelNamesMatch,
+  parseA1111GenerationInfo,
+} from '@/stores/helpers/statusHelper'
 
 type ApiResponse<T> = {
   success: boolean
@@ -1026,25 +1030,35 @@ export const useArtStore = defineStore('artStore', () => {
     server: Server,
     form: GenerateArtData,
   ): Promise<string> {
-    if (server.serverType !== 'A1111' && server.generationEngine !== 'A1111') {
+    const checkpointStore = useCheckpointStore()
+
+    const serverEngine = server.generationEngine || ''
+    const serverType = server.serverType || ''
+    const isA1111Server = serverType === 'A1111' || serverEngine === 'A1111'
+    const isComfyServer =
+      serverType === 'COMFY' ||
+      serverEngine === 'COMFY' ||
+      Boolean(server.supportsComfyWorkflow)
+
+    if (!isA1111Server) {
       throw new Error(
-        `Server "${server.title}" is ${server.serverType}/${server.generationEngine}. Browser art generation currently supports A1111 servers only.`,
+        `Server "${server.title}" is ${serverType}/${serverEngine}. Browser A1111 generation only supports A1111 or Forge-compatible servers.`,
       )
     }
 
-    if (server.supportsComfyWorkflow || server.generationEngine === 'COMFY') {
+    if (isComfyServer) {
       throw new Error(
         `Server "${server.title}" supports Comfy workflows. Use the Comfy browser route instead.`,
       )
     }
 
-    if (server.generationEngine === 'FLUX') {
+    if (serverEngine === 'FLUX') {
       throw new Error(
         `Server "${server.title}" is a Flux server. Use the Flux browser route instead.`,
       )
     }
 
-    if (server.generationEngine === 'KONTEXT') {
+    if (serverEngine === 'KONTEXT') {
       throw new Error(
         `Server "${server.title}" is a Kontext server. Use the Kontext browser route instead.`,
       )
@@ -1064,8 +1078,37 @@ export const useArtStore = defineStore('artStore', () => {
       )
     }
 
+    const cleanPrompt =
+      typeof form.promptString === 'string' ? form.promptString.trim() : ''
+
+    if (!cleanPrompt) {
+      throw new Error('Cannot generate art without a prompt.')
+    }
+
+    const cleanCheckpoint =
+      typeof form.checkpoint === 'string' ? form.checkpoint.trim() : ''
+
+    const selectedCheckpointName =
+      checkpointStore.selectedCheckpoint?.name ||
+      checkpointStore.selectedCheckpoint?.customLabel ||
+      ''
+
+    const requestedCheckpoint = cleanCheckpoint || selectedCheckpointName
+
+    if (!requestedCheckpoint) {
+      throw new Error(
+        'Cannot generate art without a selected checkpoint. Pick a model first.',
+      )
+    }
+
+    const sampler =
+      form.sampler ||
+      checkpointStore.selectedSampler?.name ||
+      server.defaultSampler ||
+      'Euler a'
+
     const requestBody: Record<string, unknown> = {
-      prompt: form.promptString,
+      prompt: cleanPrompt,
       negative_prompt: form.negativePrompt || ' ',
       steps: form.steps ?? server.defaultSteps ?? 20,
       cfg_scale: calculateCfg(
@@ -1075,17 +1118,12 @@ export const useArtStore = defineStore('artStore', () => {
       seed: form.seed ?? -1,
       width: form.width ?? server.defaultWidth ?? 512,
       height: form.height ?? server.defaultHeight ?? 512,
-      sampler_index: form.sampler || server.defaultSampler || 'Euler a',
+      sampler_index: sampler,
       user: form.designer || 'kindguest',
-    }
-
-    const cleanCheckpoint =
-      typeof form.checkpoint === 'string' ? form.checkpoint.trim() : ''
-
-    if (cleanCheckpoint) {
-      requestBody.override_settings = {
-        sd_model_checkpoint: cleanCheckpoint,
-      }
+      override_settings: {
+        sd_model_checkpoint: requestedCheckpoint,
+      },
+      override_settings_restore_afterwards: true,
     }
 
     const response = await serverStore.requestServer(server, endpointPath, {
@@ -1095,33 +1133,65 @@ export const useArtStore = defineStore('artStore', () => {
     })
 
     if (!response.ok) {
-      let message = ''
-
-      try {
-        const contentType = response.headers.get('content-type') || ''
-
-        if (contentType.includes('application/json')) {
-          const errorData = await response.json()
-          message = stringifyServerError(errorData)
-        } else {
-          message = await response.text()
-        }
-      } catch {
-        message = response.statusText
-      }
+      const message = await parseServerErrorResponse(response)
 
       throw new Error(
         `Browser image generation failed: ${response.status} ${response.statusText}${message ? ` - ${message}` : ''}`,
       )
     }
 
-    const data = await response.json()
+    const generationData = await response.json()
 
-    if (!Array.isArray(data.images) || !data.images[0]) {
+    if (!Array.isArray(generationData.images) || !generationData.images[0]) {
       throw new Error('Browser image generation returned no image.')
     }
 
-    return data.images[0]
+    const generationInfo = parseA1111GenerationInfo(generationData.info)
+
+    const generationReport = checkpointStore.recordA1111GenerationStatus({
+      server,
+      selectedCheckpoint: selectedCheckpointName,
+      requestedCheckpoint,
+      info: generationData.info,
+    })
+
+    const actualGenerationModel =
+      generationInfo.sd_model_name ||
+      generationReport.actualGenerationModel ||
+      ''
+
+    if (
+      requestedCheckpoint &&
+      actualGenerationModel &&
+      !modelNamesMatch(requestedCheckpoint, actualGenerationModel)
+    ) {
+      throw new Error(
+        `Safety check failed. Requested "${requestedCheckpoint}", but A1111 reported "${actualGenerationModel}".`,
+      )
+    }
+
+    if (!actualGenerationModel) {
+      throw new Error(
+        `Safety check failed. A1111 generated an image but did not report which model was used.`,
+      )
+    }
+
+    return generationData.images[0]
+  }
+
+  async function parseServerErrorResponse(response: Response): Promise<string> {
+    try {
+      const contentType = response.headers.get('content-type') || ''
+
+      if (contentType.includes('application/json')) {
+        const errorData = await response.json()
+        return stringifyServerError(errorData)
+      }
+
+      return await response.text()
+    } catch {
+      return response.statusText
+    }
   }
 
   function stringifyServerError(errorData: unknown): string {
@@ -1132,13 +1202,24 @@ export const useArtStore = defineStore('artStore', () => {
     if (typeof errorData === 'object') {
       const data = errorData as Record<string, unknown>
 
-      const message = data.message
       const error = data.error
+      const message = data.message
       const detail = data.detail
+      const statusMessage = data.statusMessage
+      const statusText = data.statusText
 
       if (typeof error === 'string') return error
       if (typeof message === 'string') return message
       if (typeof detail === 'string') return detail
+      if (typeof statusMessage === 'string') return statusMessage
+      if (typeof statusText === 'string') return statusText
+
+      if (Array.isArray(detail)) {
+        return detail
+          .map((entry) => stringifyServerError(entry))
+          .filter(Boolean)
+          .join('; ')
+      }
 
       return JSON.stringify(data)
     }

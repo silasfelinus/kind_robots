@@ -289,11 +289,11 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     }
   }
 
-  async function fetchCurrentModelFromApi() {
+  async function fetchCurrentModelFromApi(serverInput?: Server | null) {
     modelUpdating.value = true
 
     try {
-      const server = getActiveServer()
+      const server = getActiveServer(serverInput)
 
       if (!server) {
         currentApiModel.value = ''
@@ -317,38 +317,55 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
         return modelName
       }
 
-      const query = server.id ? `?serverId=${server.id}` : ''
+      const options = await serverStore.fetchA1111Options(server)
+      const runtimeReport = serverStore.getRuntimeReportForServer(server)
+      const a1111 = runtimeReport?.a1111 || {}
 
-      const response = await performFetch<ModelApiResponse>(
-        `/api/art/sd/currentModel${query}`,
-      )
+      const modelName =
+        cleanName(a1111.currentModel) ||
+        extractModelName(a1111.options) ||
+        extractModelName(options)
 
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to fetch current model.')
-      }
-
-      const modelName = extractModelName(response.data)
-
-      if (!modelName) {
-        throw new Error('Model fetch returned no model name.')
-      }
+      const modelHash =
+        cleanName(a1111.currentModelHash) ||
+        cleanName(
+          a1111.options &&
+            typeof a1111.options === 'object' &&
+            'sd_checkpoint_hash' in a1111.options
+            ? (a1111.options as Record<string, unknown>).sd_checkpoint_hash
+            : '',
+        )
 
       currentApiModel.value = modelName
 
-      setModelStatusReport(
-        createModelStatusReport({
-          server,
-          selectedCheckpoint: selectedCheckpointName.value,
-          activeModel: modelName,
-          source: 'options',
-          raw: response.data,
-        }),
-      )
+      const report = createModelStatusReport({
+        server,
+        selectedCheckpoint: selectedCheckpointName.value,
+        activeModel: modelName,
+        modelHash,
+        source: modelName ? 'options' : 'unknown',
+        raw: runtimeReport || options,
+      })
+
+      setModelStatusReport(report)
 
       return modelName
     } catch (error) {
+      const message = getErrorMessage(error, 'Could not fetch current model.')
+
       currentApiModel.value = ''
-      throw error
+      modelStatusError.value = message
+
+      setModelStatusReport(
+        createModelStatusReport({
+          server: getActiveServer(serverInput),
+          selectedCheckpoint: selectedCheckpointName.value,
+          source: 'unknown',
+          raw: error,
+        }),
+      )
+
+      return ''
     } finally {
       modelUpdating.value = false
     }
@@ -360,33 +377,42 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     const activeServer = getActiveServer(server)
 
     if (!activeServer) {
-      return createModelStatusReport({
+      const report = createModelStatusReport({
         server: null,
         selectedCheckpoint: selectedCheckpointName.value,
         source: 'unknown',
       })
+
+      setModelStatusReport(report)
+      return report
     }
 
-    const query = activeServer.id ? `?serverId=${activeServer.id}` : ''
+    const options = await serverStore.fetchA1111Options(activeServer)
+    const runtimeReport = serverStore.getRuntimeReportForServer(activeServer)
+    const a1111 = runtimeReport?.a1111 || {}
 
-    const response = await performFetch<
-      ModelApiResponse | A1111OptionsResponse
-    >(`/api/art/sd/currentModel${query}`)
+    const activeModel =
+      cleanName(a1111.currentModel) ||
+      extractModelName(a1111.options) ||
+      extractModelName(options)
 
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to fetch A1111 model status.')
-    }
-
-    const activeModel = extractModelName(response.data)
-    const data = response.data as A1111OptionsResponse
+    const modelHash =
+      cleanName(a1111.currentModelHash) ||
+      cleanName(
+        a1111.options &&
+          typeof a1111.options === 'object' &&
+          'sd_checkpoint_hash' in a1111.options
+          ? (a1111.options as Record<string, unknown>).sd_checkpoint_hash
+          : '',
+      )
 
     const report = createModelStatusReport({
       server: activeServer,
       selectedCheckpoint: selectedCheckpointName.value,
       activeModel,
-      modelHash: cleanName(data.sd_checkpoint_hash),
-      source: 'options',
-      raw: response.data,
+      modelHash,
+      source: activeModel ? 'options' : 'unknown',
+      raw: runtimeReport || options,
     })
 
     setModelStatusReport(report)

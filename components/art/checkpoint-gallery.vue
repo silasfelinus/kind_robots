@@ -241,7 +241,11 @@
         class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
       >
         <div class="min-w-0">
-          <span class="font-semibold">Active Model:</span>
+          <span class="font-semibold">
+            {{
+              isLiveModelCheckRelevant ? 'Active API Model:' : 'Server Model:'
+            }}
+          </span>
 
           <span class="ml-1 font-mono text-primary">
             <Icon
@@ -296,6 +300,11 @@ import type { Resource } from '@/stores/resourceStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+import { useServerStore } from '@/stores/serverStore'
+import {
+  resourceSupportsServer,
+  type ResourceServerLink,
+} from '@/stores/helpers/resourceCompatibility'
 
 type CheckpointResource = Partial<Resource> & {
   id?: number
@@ -305,6 +314,8 @@ type CheckpointResource = Partial<Resource> & {
   localPath?: string | null
   MediaPath?: string | null
   generation?: string | null
+  supportedServer?: string | null
+  Servers?: ResourceServerLink[] | number[] | null
   isMature?: boolean | null
 }
 
@@ -348,6 +359,9 @@ const props = withDefaults(
 const checkpointStore = useCheckpointStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
+const serverStore = useServerStore()
+
+const activeServer = computed(() => serverStore.activeArtServer)
 
 const isExpanded = ref(false)
 const isLoading = ref(false)
@@ -403,7 +417,9 @@ const baseCheckpoints = computed<CheckpointResource[]>(() => {
 })
 
 const visibleCheckpoints = computed<CheckpointResource[]>(() => {
-  let checkpoints = baseCheckpoints.value
+  let checkpoints = baseCheckpoints.value.filter((checkpoint) => {
+    return resourceSupportsServer(checkpoint, activeServer.value)
+  })
 
   if (!showMature.value) {
     checkpoints = checkpoints.filter((checkpoint) => !checkpoint.isMature)
@@ -420,6 +436,7 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
         checkpoint.localPath,
         checkpoint.MediaPath,
         checkpoint.generation,
+        checkpoint.supportedServer,
       ]
         .map((value) => safeText(value).trim())
         .filter(Boolean)
@@ -468,7 +485,18 @@ const selectedCheckpointLabel = computed(() => {
   return getCheckpointLabel(selected as CheckpointResource)
 })
 
+const isLiveModelCheckRelevant = computed(() => {
+  const server = activeServer.value
+
+  return Boolean(
+    server &&
+    (server.serverType === 'A1111' || server.generationEngine === 'A1111'),
+  )
+})
+
 const mismatchWarning = computed(() => {
+  if (!isLiveModelCheckRelevant.value) return false
+
   const selected = selectedCheckpointName.value
   const current = safeText(checkpointStore.currentApiModel).trim()
 
@@ -482,7 +510,19 @@ const activeModelLabel = computed(() => {
     return 'Hidden Model'
   }
 
-  return safeText(checkpointStore.currentApiModel).trim() || 'Loading...'
+  const currentApiModel = safeText(checkpointStore.currentApiModel).trim()
+
+  if (currentApiModel) return currentApiModel
+
+  const server = activeServer.value
+
+  return (
+    safeText(server?.model).trim() ||
+    safeText(server?.workflowVersion).trim() ||
+    safeText(server?.label).trim() ||
+    safeText(server?.title).trim() ||
+    'No active model'
+  )
 })
 
 const summary = computed(() => {
@@ -554,6 +594,7 @@ function updateCacheBuster() {
 
 async function refreshModel() {
   isLoading.value = true
+  localError.value = ''
 
   try {
     await checkpointStore.fetchCurrentModelFromApi()
@@ -561,10 +602,24 @@ async function refreshModel() {
     updateCacheBuster()
     errorStore.clearError()
   } catch (error) {
+    const server = activeServer.value
+
+    if (
+      server &&
+      server.generationEngine !== 'A1111' &&
+      server.serverType !== 'A1111'
+    ) {
+      await hydrateSelectedCheckpoint()
+      updateCacheBuster()
+      return
+    }
+
     const message =
       error instanceof Error && error.message
         ? error.message
         : 'Could not reach art server model status.'
+
+    localError.value = message
 
     errorStore.setError(
       ErrorType.NETWORK_ERROR,
@@ -577,14 +632,35 @@ async function refreshModel() {
 
 async function hydrateSelectedCheckpoint() {
   const currentName = safeText(checkpointStore.currentApiModel).trim()
-  const found = currentName
-    ? (checkpointStore.findCheckpointByName(currentName) as CheckpointResource)
-    : null
 
-  const foundName = safeText(found?.name).trim()
+  if (currentName) {
+    const found = checkpointStore.findCheckpointByName(
+      currentName,
+    ) as CheckpointResource | null
 
-  if (foundName && (!found?.isMature || showMature.value)) {
-    checkpointStore.selectCheckpointByName(foundName)
+    if (found) {
+      const foundName = safeText(found.name).trim()
+
+      if (
+        foundName &&
+        (!found.isMature || showMature.value) &&
+        resourceSupportsServer(found, activeServer.value)
+      ) {
+        checkpointStore.selectCheckpointByName(foundName)
+        return
+      }
+    }
+  }
+
+  const selected =
+    checkpointStore.selectedCheckpoint as CheckpointResource | null
+
+  if (
+    selected &&
+    selected.name &&
+    resourceSupportsServer(selected, activeServer.value) &&
+    (!selected.isMature || showMature.value)
+  ) {
     return
   }
 
@@ -594,7 +670,6 @@ async function hydrateSelectedCheckpoint() {
     checkpointStore.selectCheckpointByName(fallbackName)
   }
 }
-
 function hydrateSelectedSampler() {
   if (checkpointStore.selectedSampler) return
 

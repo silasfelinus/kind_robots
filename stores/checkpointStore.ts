@@ -200,8 +200,29 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     modelUpdating.value = true
 
     try {
-      const serverId = serverStore.activeArtServer?.id
-      const query = serverId ? `?serverId=${serverId}` : ''
+      const server = serverStore.activeArtServer
+
+      if (!server) {
+        currentApiModel.value = ''
+        return ''
+      }
+
+      if (
+        server.generationEngine !== 'A1111' &&
+        server.serverType !== 'A1111'
+      ) {
+        const modelName =
+          server.model ||
+          server.workflowVersion ||
+          server.label ||
+          server.title ||
+          ''
+
+        currentApiModel.value = modelName
+        return modelName
+      }
+
+      const query = server.id ? `?serverId=${server.id}` : ''
 
       const response = await performFetch<string>(
         `/api/art/sd/currentModel${query}`,

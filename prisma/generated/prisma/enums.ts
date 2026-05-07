@@ -9,6 +9,20 @@
 * 🟢 You can import this file directly.
 */
 
+export const SupportedServer = {
+  SD15: 'SD15',
+  SDXL: 'SDXL',
+  COMFY: 'COMFY',
+  FLUX: 'FLUX',
+  KONTEXT: 'KONTEXT',
+  GENERIC: 'GENERIC',
+  UNKNOWN: 'UNKNOWN',
+  OPENAI: 'OPENAI'
+} as const
+
+export type SupportedServer = (typeof SupportedServer)[keyof typeof SupportedServer]
+
+
 export const ServerAccessMode = {
   LOCAL: 'LOCAL',
   TAILSCALE: 'TAILSCALE',

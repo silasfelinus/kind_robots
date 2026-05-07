@@ -2871,6 +2871,7 @@ export const ResourceScalarFieldEnum = {
   description: 'description',
   isMature: 'isMature',
   resourceType: 'resourceType',
+  supportedServer: 'supportedServer',
   userId: 'userId',
   artImageId: 'artImageId',
   generation: 'generation'
@@ -3606,6 +3607,13 @@ export type EnumReactionCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'ResourceType'
  */
 export type EnumResourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceType'>
+    
+
+
+/**
+ * Reference to a field of type 'SupportedServer'
+ */
+export type EnumSupportedServerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportedServer'>
     
 
 

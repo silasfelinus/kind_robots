@@ -17,6 +17,8 @@ import { resolveServer, getServerEndpoint } from '../../utils/serverResolver'
 type ServerAwareRequestData = RequestData & {
   serverId?: number | null
   serverName?: string | null
+  width?: number | null
+  height?: number | null
 }
 
 type GenerateImageResponse = {
@@ -34,6 +36,23 @@ interface GenerateImageInput {
   steps?: number
   checkpoint?: string | null
   sampler?: string | null
+  width?: number | null
+  height?: number | null
+}
+
+type A1111Txt2ImgRequest = {
+  prompt: string
+  negative_prompt: string
+  steps: number
+  cfg_scale: number
+  seed: number
+  width: number
+  height: number
+  sampler_index: string
+  user: string
+  override_settings?: {
+    sd_model_checkpoint?: string
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -51,6 +70,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const authorizationHeader = event.node.req.headers.authorization
+
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
@@ -59,6 +79,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const token = authorizationHeader.split(' ')[1] ?? ''
+
     const user = await prisma.user.findFirst({
       where: { apiKey: token },
       select: {
@@ -91,19 +112,23 @@ export default defineEventHandler(async (event) => {
     }
 
     const validatedData: Partial<RequestData> = {}
+
     validatedData.userId = await validateAndLoadUserId(
       requestData,
       validatedData,
     )
+
     validatedData.promptId = await validateAndLoadPromptId(
       requestData,
       validatedData,
     )
+
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
     const rawCfg = Number(requestData.cfg)
+
     const cfgValue = calculateCfg(
       Number.isNaN(rawCfg) ? 3 : rawCfg,
       requestData.cfgHalf ?? false,
@@ -123,9 +148,11 @@ export default defineEventHandler(async (event) => {
       cfgValue,
       negativePrompt: requestData.negativePrompt || '',
       seed: requestData.seed ?? -1,
-      steps: requestData.steps ?? 20,
+      steps: requestData.steps ?? server.defaultSteps ?? 20,
       checkpoint: requestData.checkpoint ?? null,
-      sampler: requestData.sampler ?? 'Euler a',
+      sampler: requestData.sampler ?? server.defaultSampler ?? 'Euler a',
+      width: requestData.width ?? server.defaultWidth ?? 512,
+      height: requestData.height ?? server.defaultHeight ?? 512,
     })
 
     if (!response.images?.length) {
@@ -152,6 +179,7 @@ export default defineEventHandler(async (event) => {
     )
 
     imageId = savedImage.id
+
     if (!imageId) {
       throw createError({
         statusCode: 500,
@@ -165,9 +193,9 @@ export default defineEventHandler(async (event) => {
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
         checkpoint: requestData.checkpoint ?? null,
-        sampler: requestData.sampler ?? null,
+        sampler: requestData.sampler ?? server.defaultSampler ?? null,
         seed: requestData.seed ?? -1,
-        steps: requestData.steps ?? 20,
+        steps: requestData.steps ?? server.defaultSteps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
@@ -195,6 +223,7 @@ export default defineEventHandler(async (event) => {
     })
 
     event.node.res.statusCode = 201
+
     return {
       success: true,
       message: 'Art and image saved successfully!',
@@ -203,6 +232,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
+
     return {
       success: false,
       message: handledError.message || 'Failed to create new art.',
@@ -220,18 +250,32 @@ export async function generateImage({
   steps,
   checkpoint,
   sampler,
+  width,
+  height,
 }: GenerateImageInput): Promise<GenerateImageResponse> {
   const endpoint = getServerEndpoint(server)
 
-  if (server.serverType !== 'A1111') {
+  if (server.serverType !== 'A1111' && server.generationEngine !== 'A1111') {
     throw new Error(
-      `Server "${server.title}" is ${server.serverType}. This route only supports A1111 txt2img servers.`,
+      `Server "${server.title}" is ${server.serverType}/${server.generationEngine}. This route only supports A1111 txt2img servers.`,
     )
   }
 
-  if (server.supportsComfyWorkflow) {
+  if (server.supportsComfyWorkflow || server.generationEngine === 'COMFY') {
     throw new Error(
       `Server "${server.title}" supports Comfy workflows. Use the Comfy route instead.`,
+    )
+  }
+
+  if (server.generationEngine === 'FLUX') {
+    throw new Error(
+      `Server "${server.title}" is a Flux server. Use the Flux route instead.`,
+    )
+  }
+
+  if (server.generationEngine === 'KONTEXT') {
+    throw new Error(
+      `Server "${server.title}" is a Kontext server. Use the Kontext route instead.`,
     )
   }
 
@@ -241,26 +285,33 @@ export async function generateImage({
     )
   }
 
-  console.log('[Art Generate] Calling upstream image server', {
+  console.log('[Art Generate] Calling A1111 upstream image server', {
     serverId: server.id,
     title: server.title,
     serverType: server.serverType,
+    generationEngine: server.generationEngine,
     endpoint,
   })
 
-  const requestBody = {
+  const requestBody: A1111Txt2ImgRequest = {
     prompt,
     negative_prompt: negativePrompt || ' ',
-    steps: steps ?? 20,
-    cfg_scale: cfgValue || 3,
+    steps: steps ?? server.defaultSteps ?? 20,
+    cfg_scale: cfgValue || server.defaultCfg || 3,
     seed: seed ?? -1,
-    width: 512,
-    height: 512,
-    sampler_index: sampler || 'Euler a',
-    override_settings: {
-      sd_model_checkpoint: checkpoint || 'Flux/flux1-dev-fp8.safetensors',
-    },
+    width: width ?? server.defaultWidth ?? 512,
+    height: height ?? server.defaultHeight ?? 512,
+    sampler_index: sampler || server.defaultSampler || 'Euler a',
     user,
+  }
+
+  const cleanCheckpoint =
+    typeof checkpoint === 'string' ? checkpoint.trim() : ''
+
+  if (cleanCheckpoint) {
+    requestBody.override_settings = {
+      sd_model_checkpoint: cleanCheckpoint,
+    }
   }
 
   try {
@@ -275,6 +326,7 @@ export async function generateImage({
 
     if (!response.ok) {
       let details = ''
+
       try {
         const errorData = await response.json()
         details = stringifyServerError(errorData)
@@ -288,12 +340,13 @@ export async function generateImage({
     }
 
     const responseData = await response.json()
+
     return {
       images: Array.isArray(responseData.images) ? responseData.images : [],
       error: responseData.error,
     }
   } catch (error) {
-    console.error('Error during image generation:', error)
+    console.error('Error during A1111 image generation:', error)
     throw error instanceof Error ? error : new Error('Image generation failed.')
   }
 }

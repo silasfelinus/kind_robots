@@ -136,7 +136,7 @@ export type Prompt = Prisma.PromptModel
 export type Reaction = Prisma.ReactionModel
 /**
  * Model Resource
- * This should also be used if a user wants to add a custom art or text generator beyond those servives offered by kind robots. We are intended to be a philanthropic service, so if users use our frameworks without taxing our servers, that is ideal. That said, we aim to be agnostic while encouraging ethical use. In the next year I hope to offer services hosted through solar power locally, and that may change how we encourage services. At the moment, the environmental impact of AI is a valid criticism and I hope the benefits end up being a net gain for the world, as our particular endeavor hopes to be.
+ * This should also be used if a user wants to add a custom art or text checkpoints
  */
 export type Resource = Prisma.ResourceModel
 /**

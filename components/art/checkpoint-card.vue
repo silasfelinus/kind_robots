@@ -97,6 +97,14 @@
           User
         </span>
 
+        <span class="badge badge-secondary badge-sm">
+          {{ compatibilityLabel }}
+        </span>
+
+        <span v-if="!isCompatible" class="badge badge-error badge-sm">
+          incompatible
+        </span>
+
         <span
           v-if="checkpointGeneration"
           class="badge badge-secondary badge-sm"
@@ -133,11 +141,16 @@
     </details>
   </reactable-card>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Resource } from '@/stores/resourceStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
+import { useServerStore } from '@/stores/serverStore'
+import {
+  getResourceCompatibilityLabel,
+  resourceSupportsServer,
+  type ResourceServerLink,
+} from '@/stores/helpers/resourceCompatibility'
 
 type CheckpointResource = Partial<Resource> & {
   id?: number
@@ -147,6 +160,8 @@ type CheckpointResource = Partial<Resource> & {
   localPath?: string | null
   MediaPath?: string | null
   generation?: string | null
+  supportedServer?: string | null
+  Servers?: ResourceServerLink[] | number[] | null
   isMature?: boolean | null
   artImageId?: number | null
   userId?: number | null
@@ -191,6 +206,9 @@ const props = withDefaults(
 )
 
 const checkpointStore = useCheckpointStore()
+const serverStore = useServerStore()
+
+const activeServer = computed(() => serverStore.activeArtServer)
 
 const checkpointName = computed(() => {
   return safeText(props.checkpoint.name).trim()
@@ -208,14 +226,38 @@ const checkpointGeneration = computed(() => {
   return safeText(props.checkpoint.generation).trim()
 })
 
+const compatibilityLabel = computed(() => {
+  return getResourceCompatibilityLabel(props.checkpoint, activeServer.value)
+})
+
+const isCompatible = computed(() => {
+  return resourceSupportsServer(props.checkpoint, activeServer.value)
+})
+
 const normalizedFallbackIcon = computed(() => {
   return safeText(props.fallbackIcon).trim() || 'kind-icon:image'
 })
 
 const isActive = computed(() => {
+  const selectedId = Number(checkpointStore.selectedCheckpoint?.id)
+  const checkpointId = Number(props.checkpoint.id)
+
+  if (
+    Number.isInteger(selectedId) &&
+    selectedId > 0 &&
+    Number.isInteger(checkpointId) &&
+    checkpointId > 0
+  ) {
+    return selectedId === checkpointId
+  }
+
+  const selectedName = safeText(checkpointStore.selectedCheckpoint?.name).trim()
+  const currentApiModel = safeText(checkpointStore.currentApiModel).trim()
+
   return Boolean(
     checkpointName.value &&
-    safeText(checkpointStore.currentApiModel).trim() === checkpointName.value,
+    (selectedName === checkpointName.value ||
+      currentApiModel === checkpointName.value),
   )
 })
 
@@ -235,7 +277,10 @@ const canReact = computed(() => {
 
 const canSelect = computed(() => {
   return Boolean(
-    props.allowSelect && checkpointName.value && !isHiddenMature.value,
+    props.allowSelect &&
+    checkpointName.value &&
+    !isHiddenMature.value &&
+    isCompatible.value,
   )
 })
 
@@ -264,8 +309,9 @@ const imageSource = computed(() => {
 
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean')
+  if (typeof value === 'number' || typeof value === 'boolean') {
     return String(value)
+  }
 
   return ''
 }

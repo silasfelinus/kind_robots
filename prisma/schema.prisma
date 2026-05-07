@@ -626,7 +626,7 @@ model Reaction {
   @@index([themeId], map: "Reaction_themeId_fkey")
 }
 
-/// This should also be used if a user wants to add a custom art or text generator beyond those servives offered by kind robots. We are intended to be a philanthropic service, so if users use our frameworks without taxing our servers, that is ideal. That said, we aim to be agnostic while encouraging ethical use. In the next year I hope to offer services hosted through solar power locally, and that may change how we encourage services. At the moment, the environmental impact of AI is a valid criticism and I hope the benefits end up being a net gain for the world, as our particular endeavor hopes to be.
+/// This should also be used if a user wants to add a custom art or text checkpoints
 model Resource {
   id           Int          @id @default(autoincrement())
   createdAt    DateTime     @default(now())
@@ -641,15 +641,29 @@ model Resource {
   description  String?      @db.Text
   isMature     Boolean      @default(false)
   resourceType ResourceType @default(EMBEDDING)
+  supportedServer SupportedServer @default(SDXL)
   userId       Int?         @default(1)
   artImageId   Int?
   generation   String?
   ArtImage     ArtImage?
   Reactions    Reaction[]
+  Servers      Server[]
   User         User?        @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
 }
+
+enum SupportedServer {
+  SD15
+  SDXL
+  COMFY
+  FLUX
+  KONTEXT
+  GENERIC
+  UNKNOWN
+  OPENAI
+}
+
 
 /// Reward has morphed in intent, it used to be used specifically as a reward for completing a Scenario, and still can be. But in general it is an Item model, and users have the ability to create their own rewards as one shot storytelling prompts in Scenarios. They are designed in the format of the game Equisite Corpse, where storytellers take turns creating a story with a cliffhanger, then expecting the next storyteller to respond. With Scenarios, it's usually user and AI (or multiple users), and the idea was that a reward would be a crazy twist to the narrative, exemplified by our first Reward: The Button that Blows up the World.
 model Reward {
@@ -776,6 +790,7 @@ model Server {
   Arts                       Art[]
   Bots                       Bot[]
   Chats                      Chat[]
+  Resources                  Resource[]
   user                       User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   generationEngine          ServerGenerationEngine @default(A1111)

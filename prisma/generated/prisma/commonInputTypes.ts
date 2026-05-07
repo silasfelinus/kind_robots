@@ -334,6 +334,13 @@ export type EnumResourceTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumResourceTypeFilter<$PrismaModel> | $Enums.ResourceType
 }
 
+export type EnumSupportedServerFilter<$PrismaModel = never> = {
+  equals?: $Enums.SupportedServer | Prisma.EnumSupportedServerFieldRefInput<$PrismaModel>
+  in?: $Enums.SupportedServer[]
+  notIn?: $Enums.SupportedServer[]
+  not?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel> | $Enums.SupportedServer
+}
+
 export type EnumResourceTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceType | Prisma.EnumResourceTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceType[]
@@ -342,6 +349,16 @@ export type EnumResourceTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResourceTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResourceTypeFilter<$PrismaModel>
+}
+
+export type EnumSupportedServerWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SupportedServer | Prisma.EnumSupportedServerFieldRefInput<$PrismaModel>
+  in?: $Enums.SupportedServer[]
+  notIn?: $Enums.SupportedServer[]
+  not?: Prisma.NestedEnumSupportedServerWithAggregatesFilter<$PrismaModel> | $Enums.SupportedServer
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
 }
 
 export type EnumServerTypeFilter<$PrismaModel = never> = {
@@ -850,6 +867,13 @@ export type NestedEnumResourceTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumResourceTypeFilter<$PrismaModel> | $Enums.ResourceType
 }
 
+export type NestedEnumSupportedServerFilter<$PrismaModel = never> = {
+  equals?: $Enums.SupportedServer | Prisma.EnumSupportedServerFieldRefInput<$PrismaModel>
+  in?: $Enums.SupportedServer[]
+  notIn?: $Enums.SupportedServer[]
+  not?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel> | $Enums.SupportedServer
+}
+
 export type NestedEnumResourceTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceType | Prisma.EnumResourceTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceType[]
@@ -858,6 +882,16 @@ export type NestedEnumResourceTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResourceTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResourceTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumSupportedServerWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SupportedServer | Prisma.EnumSupportedServerFieldRefInput<$PrismaModel>
+  in?: $Enums.SupportedServer[]
+  notIn?: $Enums.SupportedServer[]
+  not?: Prisma.NestedEnumSupportedServerWithAggregatesFilter<$PrismaModel> | $Enums.SupportedServer
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
 }
 
 export type NestedEnumServerTypeFilter<$PrismaModel = never> = {

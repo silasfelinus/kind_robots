@@ -113,7 +113,7 @@
         </div>
 
         <div
-          class="mt-3 grid grid-cols-1 gap-2 text-xs md:grid-cols-2 xl:grid-cols-4"
+          :class="statusGridClass"
         >
           <div class="rounded-xl bg-base-200 p-2">
             <p class="font-bold uppercase text-base-content/45">Server</p>
@@ -278,12 +278,21 @@ const serverStore = useServerStore()
 const resourceStore = useResourceStore()
 const userStore = useUserStore()
 
+const props = withDefaults(
+  defineProps<{
+    compact?: boolean
+  }>(),
+  {
+    compact: false,
+  },
+)
+
 const manualCheckpoint = ref('')
 const isCreatingResources = ref(false)
 const resourceImportMessage = ref('')
 
 const activeServer = computed(() => {
-  return serverStore.activeArtServer
+  return serverStore.currentServer || serverStore.activeArtServer
 })
 const runtimeResourceCandidates = computed(() => {
   if (!activeServer.value) return []
@@ -293,6 +302,12 @@ const runtimeResourceCandidates = computed(() => {
     report: runtimeReport.value,
     userId: userStore.user?.id ?? null,
   })
+})
+
+const statusGridClass = computed(() => {
+  return props.compact
+    ? 'mt-3 grid grid-cols-1 gap-2 text-xs md:grid-cols-2'
+    : 'mt-3 grid grid-cols-1 gap-2 text-xs md:grid-cols-2 xl:grid-cols-4'
 })
 
 const runtimeResourceCountLabel = computed(() => {
@@ -499,7 +514,7 @@ const statusToneLabel = computed(() => {
 })
 
 const statusMessage = computed(() => {
-  if (!activeServer.value) return 'No active art server selected.'
+  if (!activeServer.value) return 'No server selected.'
   if (runtimeError.value) return runtimeError.value
   if (checkpointStore.modelStatusError) return checkpointStore.modelStatusError
   if (modelReport.value?.message) return modelReport.value.message

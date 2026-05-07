@@ -208,7 +208,9 @@ const props = withDefaults(
 const checkpointStore = useCheckpointStore()
 const serverStore = useServerStore()
 
-const activeServer = computed(() => serverStore.activeArtServer)
+const activeServer = computed(() => {
+  return serverStore.currentServer || serverStore.activeArtServer
+})
 
 const checkpointName = computed(() => {
   return safeText(props.checkpoint.name).trim()

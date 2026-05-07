@@ -16,6 +16,108 @@
       </p>
     </header>
 
+    <section class="rounded-2xl border p-4" :class="modelStatusPanelClass">
+      <div class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
+        >
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <Icon :name="modelStatusIcon" class="h-5 w-5 shrink-0" />
+
+              <h2 class="text-lg font-black">Model Safety Check</h2>
+            </div>
+
+            <p class="mt-1 text-sm opacity-80">
+              {{ modelStatusMessage }}
+            </p>
+          </div>
+
+          <button
+            class="btn btn-sm rounded-xl"
+            :class="modelStatusButtonClass"
+            type="button"
+            :disabled="checkpointStore.modelStatusLoading || isGenerating"
+            @click="checkActiveModel"
+          >
+            <span
+              v-if="checkpointStore.modelStatusLoading"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            Check Model
+          </button>
+        </div>
+
+        <div
+          class="grid grid-cols-1 gap-2 text-xs md:grid-cols-2 xl:grid-cols-4"
+        >
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Server</p>
+            <p class="mt-1 break-all font-mono">
+              {{ activeArtServerLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Engine</p>
+            <p class="mt-1 break-all font-mono">
+              {{ activeEngineLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Selected</p>
+            <p class="mt-1 break-all font-mono">
+              {{ selectedCheckpointLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Live API Model</p>
+            <p class="mt-1 break-all font-mono">
+              {{ liveApiModelLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Last Requested</p>
+            <p class="mt-1 break-all font-mono">
+              {{ lastRequestedModelLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Last Actual</p>
+            <p class="mt-1 break-all font-mono">
+              {{ lastActualModelLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Sampler</p>
+            <p class="mt-1 break-all font-mono">
+              {{ selectedSamplerLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Generate Gate</p>
+            <p class="mt-1 break-all font-mono">
+              {{ generationGateLabel }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          v-if="checkpointStore.modelStatusError"
+          class="rounded-2xl bg-error/10 p-3 text-sm font-semibold text-error"
+        >
+          {{ checkpointStore.modelStatusError }}
+        </div>
+      </div>
+    </section>
+
     <div
       v-if="statusMessage"
       class="rounded-2xl border p-3 text-sm"
@@ -299,6 +401,13 @@
                 <span class="font-bold">Collection:</span>
                 {{ selectedCollectionLabel }}
               </p>
+
+              <p
+                v-if="!canGenerate && generationGateReason"
+                class="mt-2 font-semibold text-warning"
+              >
+                {{ generationGateReason }}
+              </p>
             </div>
 
             <button
@@ -359,6 +468,18 @@
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <p class="text-xs font-bold uppercase text-base-content/45">
+                Live API Model
+              </p>
+
+              <p
+                class="mt-1 truncate text-sm font-semibold text-base-content/80"
+              >
+                {{ liveApiModelLabel }}
+              </p>
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p class="text-xs font-bold uppercase text-base-content/45">
                 Sampler
               </p>
 
@@ -369,13 +490,30 @@
               </p>
             </div>
 
-            <button
-              class="btn btn-sm btn-outline rounded-xl"
-              type="button"
-              @click="navStore.setDashboardTab('art', 'checkpoints')"
-            >
-              Change Model
-            </button>
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                class="btn btn-sm btn-outline rounded-xl"
+                type="button"
+                @click="navStore.setDashboardTab('art', 'checkpoints')"
+              >
+                Change Model
+              </button>
+
+              <button
+                class="btn btn-sm rounded-xl"
+                :class="modelStatusButtonClass"
+                type="button"
+                :disabled="checkpointStore.modelStatusLoading || isGenerating"
+                @click="checkActiveModel"
+              >
+                <span
+                  v-if="checkpointStore.modelStatusLoading"
+                  class="loading loading-spinner loading-xs"
+                />
+                <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+                Verify
+              </button>
+            </div>
           </div>
         </section>
 
@@ -489,16 +627,30 @@ const activeArtServerLabel = computed(() => {
   )
 })
 
+const activeEngineLabel = computed(() => {
+  return (
+    serverStore.activeArtServer?.generationEngine ||
+    serverStore.activeArtServer?.serverType ||
+    checkpointStore.activeEngine ||
+    'UNKNOWN'
+  )
+})
+
 const selectedCheckpointLabel = computed(() => {
   return (
     checkpointStore.selectedCheckpoint?.customLabel ||
     checkpointStore.selectedCheckpoint?.name ||
+    artStore.artForm.checkpoint ||
     'No checkpoint selected'
   )
 })
 
 const selectedSamplerLabel = computed(() => {
-  return checkpointStore.selectedSampler?.name || 'No sampler selected'
+  return (
+    checkpointStore.selectedSampler?.name ||
+    artStore.artForm.sampler ||
+    'No sampler selected'
+  )
 })
 
 const selectedCollectionLabel = computed(() => {
@@ -520,13 +672,116 @@ const seedModel = computed({
   },
 })
 
-const canGenerate = computed(() => {
-  return Boolean(
-    !isGenerating.value &&
-    !artStore.loading &&
-    promptStore.promptField?.trim() &&
-    serverStore.activeArtServer,
+const currentModelReport = computed(() => {
+  return checkpointStore.lastGenerationStatus || checkpointStore.modelStatus
+})
+
+const liveApiModelLabel = computed(() => {
+  return (
+    checkpointStore.modelStatus?.activeModel ||
+    checkpointStore.currentApiModel ||
+    'Not checked'
   )
+})
+
+const lastRequestedModelLabel = computed(() => {
+  return (
+    checkpointStore.lastGenerationStatus?.requestedCheckpoint ||
+    'No generation yet'
+  )
+})
+
+const lastActualModelLabel = computed(() => {
+  return (
+    checkpointStore.lastGenerationStatus?.actualGenerationModel ||
+    'No generation yet'
+  )
+})
+
+const modelStatusTone = computed(() => {
+  return currentModelReport.value?.tone || 'unknown'
+})
+
+const modelStatusMessage = computed(() => {
+  if (checkpointStore.modelStatusLoading) {
+    return 'Checking the live model state...'
+  }
+
+  return currentModelReport.value?.message || 'Model has not been checked yet.'
+})
+
+const modelStatusPanelClass = computed(() => {
+  if (modelStatusTone.value === 'safe') {
+    return 'border-success/40 bg-success/10 text-success'
+  }
+
+  if (modelStatusTone.value === 'warning') {
+    return 'border-warning/40 bg-warning/10 text-warning'
+  }
+
+  if (modelStatusTone.value === 'error') {
+    return 'border-error/40 bg-error/10 text-error'
+  }
+
+  return 'border-base-300 bg-base-100 text-base-content'
+})
+
+const modelStatusButtonClass = computed(() => {
+  if (modelStatusTone.value === 'safe') return 'btn-success'
+  if (modelStatusTone.value === 'warning') return 'btn-warning'
+  if (modelStatusTone.value === 'error') return 'btn-error'
+
+  return 'btn-outline'
+})
+
+const modelStatusIcon = computed(() => {
+  if (modelStatusTone.value === 'safe') return 'kind-icon:check'
+  if (modelStatusTone.value === 'warning') return 'kind-icon:warning'
+  if (modelStatusTone.value === 'error') return 'kind-icon:close'
+
+  return 'kind-icon:server'
+})
+
+const selectedCheckpointIsMature = computed(() => {
+  return Boolean(checkpointStore.selectedCheckpoint?.isMature)
+})
+
+const modelMismatchBlocksGeneration = computed(() => {
+  return (
+    checkpointStore.hasModelMismatch &&
+    Boolean(checkpointStore.lastGenerationStatus)
+  )
+})
+
+const generationGateReason = computed(() => {
+  if (isGenerating.value) return 'Generation is already running.'
+  if (artStore.loading) return 'Art store is loading.'
+  if (!promptStore.promptField?.trim()) return 'Prompt is required.'
+  if (!serverStore.activeArtServer) return 'No active art server selected.'
+  if (
+    !checkpointStore.selectedCheckpoint?.name &&
+    !artStore.artForm.checkpoint
+  ) {
+    return 'No checkpoint selected.'
+  }
+
+  if (modelMismatchBlocksGeneration.value) {
+    return 'Last generation reported a model mismatch. Re-check or change model before generating again.'
+  }
+
+  if (selectedCheckpointIsMature.value && !artStore.artForm.isMature) {
+    return 'Selected checkpoint is marked mature, but this request is not marked mature.'
+  }
+
+  return ''
+})
+
+const canGenerate = computed(() => {
+  return Boolean(!generationGateReason.value)
+})
+
+const generationGateLabel = computed(() => {
+  return canGenerate.value ? 'Ready' : generationGateReason.value || 'Blocked'
 })
 
 const promptPreview = computed(() => {
@@ -540,6 +795,9 @@ const promptPreview = computed(() => {
       artStore.artForm.checkpoint ||
       ''
     }`,
+    `Live API Model: ${liveApiModelLabel.value}`,
+    `Last Requested: ${lastRequestedModelLabel.value}`,
+    `Last Actual: ${lastActualModelLabel.value}`,
     `Sampler: ${
       checkpointStore.selectedSampler?.name || artStore.artForm.sampler || ''
     }`,
@@ -559,11 +817,38 @@ watch(localCfg, (value) => {
 })
 
 watch(
+  () => checkpointStore.selectedCheckpoint?.name,
+  (name) => {
+    artStore.artForm.checkpoint = name || ''
+  },
+  { immediate: true },
+)
+
+watch(
+  () => checkpointStore.selectedSampler?.name,
+  (name) => {
+    artStore.artForm.sampler = name || ''
+  },
+  { immediate: true },
+)
+
+watch(
   () => checkpointStore.selectedCheckpoint?.isMature,
   (isMature) => {
     artStore.artForm.isMature = Boolean(isMature)
   },
   { immediate: true },
+)
+
+watch(
+  () => serverStore.activeArtServer?.id,
+  async () => {
+    checkpointStore.clearModelStatus()
+
+    if (serverStore.activeArtServer) {
+      await checkActiveModel()
+    }
+  },
 )
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
@@ -610,6 +895,7 @@ function resetInteract() {
   artStore.artForm.promptString = ''
   artStore.artForm.negativePrompt = ''
   artStore.artForm.seed = null
+  checkpointStore.clearModelStatus()
   artStore.updateArtListSelection('__negative__', [])
 }
 
@@ -620,8 +906,29 @@ async function copyPromptPreview() {
   setStatus('Prompt preview copied.')
 }
 
+async function checkActiveModel() {
+  const report = await checkpointStore.checkActiveModel()
+
+  if (report.tone === 'safe') {
+    setStatus('Model check passed.')
+    return
+  }
+
+  if (report.tone === 'warning') {
+    setStatus(report.message, 'error')
+    return
+  }
+
+  if (report.tone === 'error') {
+    setStatus(report.message, 'error')
+  }
+}
+
 async function generateArt() {
-  if (!canGenerate.value) return
+  if (!canGenerate.value) {
+    setStatus(generationGateReason.value || 'Generation is blocked.', 'error')
+    return
+  }
 
   isGenerating.value = true
   statusMessage.value = ''
@@ -663,7 +970,10 @@ async function generateArt() {
     }
 
     setStatus(result.message || 'Art generated.')
+
+    await checkpointStore.checkActiveModel()
     await milestoneStore.rewardMilestone(11)
+
     navStore.setDashboardTab('art', 'selected')
   } catch (error) {
     const message =
@@ -695,6 +1005,10 @@ onMounted(async () => {
   }
 
   syncPrompt()
+
+  if (serverStore.activeArtServer) {
+    await checkActiveModel()
+  }
 })
 </script>
 

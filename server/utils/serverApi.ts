@@ -11,12 +11,6 @@ import {
 } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 
-type AuthUser = {
-  id: number
-  username?: string | null
-  isAdmin?: boolean | null
-}
-
 type ServerBody = Record<string, unknown>
 
 const serverTypes: ServerType[] = [
@@ -54,6 +48,13 @@ export type SafeServer = Omit<Server, 'apiKey'> & {
   apiKey?: string | null
 }
 
+type AuthUser = {
+  id: number
+  username?: string | null
+  Role?: string | null
+  isAdmin: boolean
+}
+
 export async function getOptionalAuthUser(
   event: H3Event,
 ): Promise<AuthUser | null> {
@@ -70,11 +71,18 @@ export async function getOptionalAuthUser(
     select: {
       id: true,
       username: true,
-      isAdmin: true,
+      Role: true,
     },
   })
 
-  return user ?? null
+  if (!user) return null
+
+  return {
+    id: user.id,
+    username: user.username,
+    Role: user.Role,
+    isAdmin: user.Role === 'ADMIN',
+  }
 }
 
 export async function requireAuthUser(event: H3Event): Promise<AuthUser> {

@@ -17,6 +17,8 @@ import {
 
 export interface ServerForm extends Partial<Server> {}
 
+type CurrentServerMode = 'art' | 'text' | 'selected'
+
 export interface ServerOption {
   value: number
   label: string
@@ -199,6 +201,7 @@ function sortServers(a: Server, b: Server): number {
 export const useServerStore = defineStore('serverStore', () => {
   const servers: Ref<Server[]> = ref([])
   const selectedServer: Ref<Server | null> = ref(null)
+  const currentServerMode = ref<CurrentServerMode>('selected')
   const serverForm: Ref<ServerForm> = ref({})
   const activeArtServerId: Ref<number | null> = ref(null)
   const activeTextServerId: Ref<number | null> = ref(null)
@@ -369,40 +372,33 @@ export const useServerStore = defineStore('serverStore', () => {
     )
   })
 
+  const currentServer = computed<Server | null>(() => {
+    if (selectedServer.value) return selectedServer.value
+
+    if (currentServerMode.value === 'art') {
+      return activeArtServer.value
+    }
+
+    if (currentServerMode.value === 'text') {
+      return activeTextServer.value
+    }
+
+    return activeArtServer.value || activeTextServer.value || null
+  })
+
   const activeRuntimeReport = computed<ServerRuntimeReport | null>(() => {
-    const serverId =
-      selectedServer.value?.id ||
-      activeArtServer.value?.id ||
-      activeTextServer.value?.id ||
-      0
-
-    if (!serverId) return null
-
-    return runtimeReportsByServerId.value[serverId] || null
+    const serverId = currentServer.value?.id || 0
+    return serverId ? runtimeReportsByServerId.value[serverId] || null : null
   })
 
   const activeRuntimeLoading = computed(() => {
-    const serverId =
-      selectedServer.value?.id ||
-      activeArtServer.value?.id ||
-      activeTextServer.value?.id ||
-      0
-
-    if (!serverId) return false
-
-    return Boolean(runtimeLoadingByServerId.value[serverId])
+    const serverId = currentServer.value?.id || 0
+    return serverId ? Boolean(runtimeLoadingByServerId.value[serverId]) : false
   })
 
   const activeRuntimeError = computed(() => {
-    const serverId =
-      selectedServer.value?.id ||
-      activeArtServer.value?.id ||
-      activeTextServer.value?.id ||
-      0
-
-    if (!serverId) return ''
-
-    return runtimeErrorByServerId.value[serverId] || ''
+    const serverId = currentServer.value?.id || 0
+    return serverId ? runtimeErrorByServerId.value[serverId] || '' : ''
   })
 
   const artServerOptions = computed<ServerOption[]>(() =>
@@ -1355,14 +1351,30 @@ export const useServerStore = defineStore('serverStore', () => {
 
     return healthPromises.value[id]
   }
+
   function selectServer(id: number): void {
-    const server = servers.value.find((item: Server): boolean => item.id === id)
+    setCurrentServer(id)
+  }
+
+  function setCurrentServerMode(mode: CurrentServerMode): void {
+    currentServerMode.value = mode
+  }
+
+  function setCurrentServer(id: number | null): void {
+    if (id === null) {
+      selectedServer.value = null
+      serverForm.value = {}
+      syncToLocalStorage()
+      return
+    }
+
+    const server = getServerById(id)
 
     if (!server) {
       setStoreError(
         ErrorType.VALIDATION_ERROR,
         'Server not found.',
-        'selectServer',
+        'setCurrentServer',
       )
       return
     }
@@ -2144,9 +2156,7 @@ export const useServerStore = defineStore('serverStore', () => {
   }
 
   function deselectServer(): void {
-    selectedServer.value = null
-    serverForm.value = {}
-    syncToLocalStorage()
+    setCurrentServer(null)
   }
 
   async function readRuntimeJsonResponse(response: Response): Promise<unknown> {
@@ -2613,6 +2623,11 @@ export const useServerStore = defineStore('serverStore', () => {
     fetchComfySystemStats,
     fetchComfyObjectInfo,
     fetchComfyHistory,
+
+    currentServerMode,
+    currentServer,
+    setCurrentServerMode,
+    setCurrentServer,
   }
 })
 

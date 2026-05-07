@@ -254,10 +254,7 @@
         >
           <div class="flex items-center justify-between gap-3">
             <div class="flex min-w-0 items-center gap-2">
-              <Icon
-                name="kind-icon:message-circle"
-                class="h-5 w-5 text-secondary"
-              />
+              <Icon name="kind-icon:circle" class="h-5 w-5 text-secondary" />
               <div class="min-w-0">
                 <h3 class="truncate text-base font-black">Text Modelers</h3>
                 <p class="text-xs opacity-60">

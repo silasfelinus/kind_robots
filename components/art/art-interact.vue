@@ -615,27 +615,59 @@ const useNegative = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 
+function getServerById(id: number) {
+  return serverStore.servers?.find((server) => server.id === id) || null
+}
+
+function isA1111Server(server: unknown): boolean {
+  if (!server || typeof server !== 'object') return false
+
+  const data = server as {
+    serverType?: string | null
+    generationEngine?: string | null
+    supportsTxt2Img?: boolean | null
+    supportsComfyWorkflow?: boolean | null
+  }
+
+  return Boolean(
+    (data.serverType === 'A1111' || data.generationEngine === 'A1111') &&
+    data.supportsTxt2Img &&
+    !data.supportsComfyWorkflow,
+  )
+}
+
 const localCfg = ref(
   (artStore.artForm.cfg ?? 7) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
 
+const selectedArtServer = computed(() => {
+  const formServerId = artStore.artForm.serverId
+
+  if (typeof formServerId === 'number' && formServerId > 0) {
+    const formServer = getServerById(formServerId)
+
+    if (formServer) return formServer
+  }
+
+  return serverStore.activeArtServer || null
+})
+
 const activeArtServerLabel = computed(() => {
   return (
-    serverStore.activeArtServer?.label ||
-    serverStore.activeArtServer?.title ||
+    selectedArtServer.value?.label ||
+    selectedArtServer.value?.title ||
     'No art server selected'
   )
 })
 
 const activeEngineLabel = computed(() => {
   return (
-    serverStore.activeArtServer?.generationEngine ||
-    serverStore.activeArtServer?.serverType ||
+    selectedArtServer.value?.generationEngine ||
+    selectedArtServer.value?.serverType ||
     checkpointStore.activeEngine ||
     'UNKNOWN'
   )
 })
-
 const selectedCheckpointLabel = computed(() => {
   return (
     checkpointStore.selectedCheckpoint?.customLabel ||
@@ -757,7 +789,11 @@ const generationGateReason = computed(() => {
   if (isGenerating.value) return 'Generation is already running.'
   if (artStore.loading) return 'Art store is loading.'
   if (!promptStore.promptField?.trim()) return 'Prompt is required.'
-  if (!serverStore.activeArtServer) return 'No active art server selected.'
+  if (!selectedArtServer.value) return 'No art server selected.'
+
+  if (!isA1111Server(selectedArtServer.value)) {
+    return `Selected server "${activeArtServerLabel.value}" is not an A1111 txt2img server. Choose your Stable Diffusion server, not Comfy.`
+  }
   if (
     !checkpointStore.selectedCheckpoint?.name &&
     !artStore.artForm.checkpoint
@@ -841,11 +877,11 @@ watch(
 )
 
 watch(
-  () => serverStore.activeArtServer?.id,
+  () => selectedArtServer.value?.id,
   async () => {
     checkpointStore.clearModelStatus()
 
-    if (serverStore.activeArtServer) {
+    if (selectedArtServer.value) {
       await checkActiveModel()
     }
   },
@@ -933,7 +969,7 @@ async function generateArt() {
   isGenerating.value = true
   statusMessage.value = ''
 
-  const activeServer = serverStore.activeArtServer
+  const activeServer = selectedArtServer.value
 
   try {
     if (!activeServer) {
@@ -1006,7 +1042,7 @@ onMounted(async () => {
 
   syncPrompt()
 
-  if (serverStore.activeArtServer) {
+  if (selectedArtServer.value) {
     await checkActiveModel()
   }
 })

@@ -127,17 +127,30 @@ export function normalizeModelName(value: unknown): string {
   return value.trim().replace(/^['"]|['"]$/g, '')
 }
 
+export function normalizeCheckpointName(value: unknown): string {
+  return normalizeModelName(value)
+    .replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
+    .trim()
+}
+
+export function normalizeCheckpointNameForCompare(value: unknown): string {
+  return normalizeCheckpointName(value)
+    .toLowerCase()
+    .replace(/^sdxl[\s_-]*/i, '')
+    .replace(/^sd[\s_-]*/i, '')
+    .replace(/[\s_-]*v\d+(\.\d+)?$/i, '')
+    .replace(/[^a-z0-9]+/g, '')
+    .trim()
+}
+
 export function modelNamesMatch(left: unknown, right: unknown): boolean {
-  const a = normalizeCheckpointName(left).toLowerCase()
-  const b = normalizeCheckpointName(right).toLowerCase()
+  const a = normalizeCheckpointNameForCompare(left)
+  const b = normalizeCheckpointNameForCompare(right)
 
   if (!a || !b) return false
   if (a === b) return true
 
-  const aBase = a.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
-  const bBase = b.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
-
-  return aBase === bBase
+  return a.includes(b) || b.includes(a)
 }
 
 export function parseA1111GenerationInfo(value: unknown): A1111GenerationInfo {

@@ -222,7 +222,6 @@ const componentsMap: ComponentMapType = {
   'glitch-effect': resolveComponent('LazyGlitchEffect'),
   'fire-effect': resolveComponent('LazyFireEffect'),
   'kaleidoscope-effect': resolveComponent('LazyKaleidoscopeEffect'),
-  'smudge-effect': resolveComponent('LazySmudgeEffect'),
   'pixel-explosion': resolveComponent('LazyPixelExplosion'),
   'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
   'pacbot-effect': resolveComponent('LazyPacbotEffect'),

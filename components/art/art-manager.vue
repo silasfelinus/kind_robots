@@ -488,10 +488,26 @@ const generationTone = ref<'success' | 'error'>('success')
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
+function getServerById(id: number) {
+  return serverStore.servers?.find((server) => server.id === id) || null
+}
+
+const selectedArtServer = computed(() => {
+  const formServerId = artStore.artForm.serverId
+
+  if (typeof formServerId === 'number' && formServerId > 0) {
+    const formServer = getServerById(formServerId)
+
+    if (formServer) return formServer
+  }
+
+  return serverStore.activeArtServer || null
+})
+
 const activeArtServerLabel = computed(() => {
   return (
-    serverStore.activeArtServer?.label ||
-    serverStore.activeArtServer?.title ||
+    selectedArtServer.value?.label ||
+    selectedArtServer.value?.title ||
     'No art server selected'
   )
 })
@@ -517,7 +533,7 @@ const canGenerate = computed(() => {
   return Boolean(
     !isGenerating.value &&
     promptStore.promptField?.trim() &&
-    serverStore.activeArtServer,
+    selectedArtServer.value,
   )
 })
 
@@ -566,7 +582,7 @@ function clearPrompt() {
 }
 
 function useActiveServer() {
-  const server = serverStore.activeArtServer
+  const server = selectedArtServer.value
 
   if (!server) {
     generationTone.value = 'error'
@@ -587,7 +603,7 @@ async function generateArt() {
   isGenerating.value = true
   generationMessage.value = ''
 
-  const activeServer = serverStore.activeArtServer
+  const activeServer = selectedArtServer.value
 
   try {
     if (!activeServer) {
@@ -615,6 +631,13 @@ async function generateArt() {
       designer: artStore.artForm.designer,
       userId: artStore.artForm.userId,
       pitch: artStore.artForm.pitch,
+      engine:
+        activeServer.generationEngine === 'A1111' ||
+        activeServer.serverType === 'A1111'
+          ? 'a1111'
+          : undefined,
+      transport:
+        activeServer.defaultTransport === 'BACKEND' ? 'backend' : undefined,
     })
 
     generationTone.value = result.success ? 'success' : 'error'

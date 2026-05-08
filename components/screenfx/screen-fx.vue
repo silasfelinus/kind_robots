@@ -446,16 +446,7 @@ const effects = ref<Effect[]>([
     color: '#f97316',
     isActive: false,
   },
-  {
-    id: 'smudge-effect',
-    label: 'Smudge',
-    reveal: 'Wet paint',
-    icon: 'kind-icon:brush',
-    tooltip: 'Drag to smudge, Shift to paint, Scroll to resize 🎨',
-    color: '#db2777',
-    isActive: false,
-    blocksInput: true,
-  },
+  
   {
     id: 'ascii-aquarium',
     label: 'Aquarium',

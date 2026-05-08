@@ -12,7 +12,11 @@ import {
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '.'
-import { resolveServer, getServerEndpoint } from '../../utils/serverResolver'
+import {
+  resolveServer,
+  getServerEndpoint,
+  type ServerEndpointTransport,
+} from '../../utils/serverResolver'
 
 type ServerAwareRequestData = RequestData & {
   serverId?: number | null
@@ -53,6 +57,7 @@ type A1111Txt2ImgRequest = {
   override_settings?: {
     sd_model_checkpoint?: string
   }
+  override_settings_restore_afterwards?: boolean
 }
 
 export default defineEventHandler(async (event) => {
@@ -208,7 +213,7 @@ export default defineEventHandler(async (event) => {
         artImageId: imageId,
         serverId: server.id,
         serverName: server.title,
-        serverUrl: getServerEndpoint(server),
+        serverUrl: getServerEndpoint(server, 'backend'),
       },
     })
 
@@ -253,7 +258,8 @@ export async function generateImage({
   width,
   height,
 }: GenerateImageInput): Promise<GenerateImageResponse> {
-  const endpoint = getServerEndpoint(server)
+  const transport: ServerEndpointTransport = 'backend'
+  const endpoint = getServerEndpoint(server, transport)
 
   if (server.serverType !== 'A1111' && server.generationEngine !== 'A1111') {
     throw new Error(
@@ -285,14 +291,6 @@ export async function generateImage({
     )
   }
 
-  console.log('[Art Generate] Calling A1111 upstream image server', {
-    serverId: server.id,
-    title: server.title,
-    serverType: server.serverType,
-    generationEngine: server.generationEngine,
-    endpoint,
-  })
-
   const requestBody: A1111Txt2ImgRequest = {
     prompt,
     negative_prompt: negativePrompt || ' ',
@@ -312,30 +310,49 @@ export async function generateImage({
     requestBody.override_settings = {
       sd_model_checkpoint: cleanCheckpoint,
     }
+    requestBody.override_settings_restore_afterwards = true
   }
+
+  const headers = getBackendServerHeaders(server)
+
+  console.log('[Art Generate] Calling A1111 upstream image server', {
+    serverId: server.id,
+    title: server.title,
+    serverType: server.serverType,
+    generationEngine: server.generationEngine,
+    endpoint,
+    requiresApiKey: server.requiresApiKey,
+    apiKeyName: server.apiKeyName,
+    proxyTokenPresent: Boolean(process.env.ART_SERVER_PROXY_TOKEN),
+  })
 
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Kindrobots-Server-Token': process.env.ART_SERVER_PROXY_TOKEN ?? '',
-      },
+      headers,
       body: JSON.stringify(requestBody),
     })
 
     if (!response.ok) {
-      let details = ''
-
-      try {
-        const errorData = await response.json()
-        details = stringifyServerError(errorData)
-      } catch {
-        details = response.statusText
-      }
+      const details = await parseUpstreamErrorResponse(response)
 
       throw new Error(
-        `Image generation failed: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`,
+        [
+          `Image generation failed: ${response.status} ${response.statusText}`,
+          `endpoint=${endpoint}`,
+          `serverId=${server.id}`,
+          `serverTitle=${server.title}`,
+          `serverType=${server.serverType}`,
+          `generationEngine=${server.generationEngine}`,
+          `requiresApiKey=${String(server.requiresApiKey)}`,
+          `apiKeyName=${server.apiKeyName || 'none'}`,
+          process.env.ART_SERVER_PROXY_TOKEN
+            ? 'proxyToken=present'
+            : 'proxyToken=missing',
+          details ? `details=${details}` : '',
+        ]
+          .filter(Boolean)
+          .join(' | '),
       )
     }
 
@@ -348,6 +365,53 @@ export async function generateImage({
   } catch (error) {
     console.error('Error during A1111 image generation:', error)
     throw error instanceof Error ? error : new Error('Image generation failed.')
+  }
+}
+
+function getBackendServerHeaders(server: Server): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  if (!server.requiresApiKey) {
+    return headers
+  }
+
+  const apiKeyName = server.apiKeyName?.trim() || 'X-Kindrobots-Server-Token'
+  const envToken = process.env.ART_SERVER_PROXY_TOKEN || ''
+  const serverToken = server.apiKey || ''
+  const token = envToken || serverToken
+
+  if (!token) {
+    throw new Error(
+      `Missing backend proxy token for server "${server.title}". Set ART_SERVER_PROXY_TOKEN in Vercel or store a server apiKey.`,
+    )
+  }
+
+  if (apiKeyName.toLowerCase() === 'authorization') {
+    headers.Authorization = token.startsWith('Bearer ')
+      ? token
+      : `Bearer ${token}`
+  } else {
+    headers[apiKeyName] = token
+  }
+
+  return headers
+}
+
+async function parseUpstreamErrorResponse(response: Response): Promise<string> {
+  try {
+    const contentType = response.headers.get('content-type') || ''
+
+    if (contentType.includes('application/json')) {
+      const errorData = await response.json()
+      return stringifyServerError(errorData)
+    }
+
+    const text = await response.text()
+    return text || response.statusText
+  } catch {
+    return response.statusText
   }
 }
 

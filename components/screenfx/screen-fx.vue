@@ -446,7 +446,7 @@ const effects = ref<Effect[]>([
     color: '#f97316',
     isActive: false,
   },
-  
+
   {
     id: 'ascii-aquarium',
     label: 'Aquarium',
@@ -1028,6 +1028,7 @@ const clearAll = () => {
   text-overflow: ellipsis;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .fx-block-chip {

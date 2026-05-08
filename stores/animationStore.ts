@@ -220,7 +220,7 @@ const generationEffects: AnimationEffect[] = [
     generationSafe: true,
   },
   // ── Interactive ───────────────────────────────────────────────────────────
-  
+
   {
     id: 'ascii-aquarium',
     label: 'Aquarium',
@@ -253,17 +253,9 @@ function pickRandomEffect(): AnimationEffectId {
   return safeEffects[index]?.id || 'starfield-effect'
 }
 
-function getNumber(value: unknown, fallback = 0): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
-}
-
-function getBoolean(value: unknown, fallback = false): boolean {
-  return typeof value === 'boolean' ? value : fallback
-}
-
 export const useAnimationStore = defineStore('animationStore', () => {
   const displayStore = useDisplayStore()
-  const display = displayStore as unknown as Record<string, unknown>
+
   const stopTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
   const state = reactive<AnimationStoreState>({
@@ -280,40 +272,32 @@ export const useAnimationStore = defineStore('animationStore', () => {
     () => effects.value.find((e) => e.id === state.activeEffectId) || null,
   )
 
+  // In animationStore.ts — replace layerStyle computed
+
   const layerStyle = computed(() => {
-    const showLeft = getBoolean(display.showLeft, false)
-    const showRight = getBoolean(display.showRight, false)
-    const headerHeight = getNumber(
-      display.headerHeight,
-      getNumber(display.headerHeightPx, 0),
-    )
-    const footerHeight = getNumber(
-      display.footerHeight,
-      getNumber(display.footerHeightPx, 0),
-    )
-    const leftWidth = showLeft
-      ? getNumber(display.leftWidth, getNumber(display.leftWidthPx, 0))
-      : 0
-    const rightWidth = showRight
-      ? getNumber(display.rightWidth, getNumber(display.rightWidthPx, 0))
-      : 0
+    const ds = displayStore
+
+    // All values match the units the layout system already uses.
+    // headerHeight is in vh (already 0 when hidden).
+    // effectiveFooterHeight is in vh (footer panel + bottom control row).
+    // mainContentLeft / mainContentRightInset are in vw (include padding + sidebar widths).
+    const headerH = ds.headerHeight // vh %
+    const padding = ds.sectionPaddingSize // vh %
+    const footerH = ds.effectiveFooterHeight // vh %
+    const leftW = ds.mainContentLeft // vw % (sidebar + padding)
+    const rightW = ds.mainContentRightInset // vw % (sidebar + padding)
 
     return {
       top: state.zones.header
         ? '0px'
-        : `var(--app-header-height, ${headerHeight}px)`,
+        : `calc(var(--vh) * ${headerH + padding})`,
       bottom: state.zones.footer
         ? '0px'
-        : `var(--app-footer-height, ${footerHeight}px)`,
-      left: state.zones.left
-        ? '0px'
-        : `var(--app-left-width,   ${leftWidth}px)`,
-      right: state.zones.right
-        ? '0px'
-        : `var(--app-right-width,  ${rightWidth}px)`,
+        : `calc(var(--vh) * ${footerH + padding})`,
+      left: state.zones.left ? '0px' : `${leftW}vw`,
+      right: state.zones.right ? '0px' : `${rightW}vw`,
     }
   })
-
   function clearStopTimer(): void {
     if (!stopTimer.value) return
     clearTimeout(stopTimer.value)

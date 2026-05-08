@@ -35,7 +35,6 @@ export type AnimationEffectId =
   | 'nyan-trail'
   | 'pixel-explosion'
   | 'wandering-creatures'
-  | 'smudge-effect'
   | 'ascii-aquarium'
   | 'pacbot-effect'
   | 'pocket-gremlin'
@@ -221,12 +220,7 @@ const generationEffects: AnimationEffect[] = [
     generationSafe: true,
   },
   // ── Interactive ───────────────────────────────────────────────────────────
-  {
-    id: 'smudge-effect',
-    label: 'Smudge',
-    icon: 'kind-icon:brush',
-    generationSafe: false,
-  },
+  
   {
     id: 'ascii-aquarium',
     label: 'Aquarium',

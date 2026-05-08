@@ -11,13 +11,13 @@
       <p
         class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
       >
-        Build prompts, tune generation settings, choose model context, and send
-        art requests through the selected art server.
+        Pick the server, checkpoint, sampler, and collection before sending art
+        requests.
       </p>
     </header>
 
     <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
         <label class="form-control">
           <span class="label">
             <span class="label-text font-bold">Art Server</span>
@@ -54,7 +54,7 @@
 
           <select
             class="select select-bordered rounded-2xl bg-base-200"
-            :value="selectedCheckpointId ?? ''"
+            :value="selectedCheckpointKey"
             :disabled="isGenerating || artStore.loading"
             @change="handleCheckpointChange"
           >
@@ -62,8 +62,8 @@
 
             <option
               v-for="checkpoint in checkpointOptions"
-              :key="checkpoint.id || checkpoint.name"
-              :value="checkpoint.id || checkpoint.name"
+              :key="getCheckpointKey(checkpoint)"
+              :value="getCheckpointKey(checkpoint)"
             >
               {{ getCheckpointDropdownLabel(checkpoint) }}
             </option>
@@ -104,6 +104,68 @@
             </span>
           </span>
         </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Collection</span>
+          </span>
+
+          <select
+            class="select select-bordered rounded-2xl bg-base-200"
+            :value="selectedCollectionId ?? ''"
+            :disabled="isGenerating || artStore.loading"
+            @change="handleCollectionChange"
+          >
+            <option value="">Generated Art</option>
+
+            <option
+              v-for="collection in collectionOptions"
+              :key="collection.id"
+              :value="collection.id"
+            >
+              {{ getCollectionLabel(collection) }}
+            </option>
+          </select>
+
+          <span class="label">
+            <span class="label-text-alt text-base-content/60">
+              {{ selectedCollectionLabel }}
+            </span>
+          </span>
+        </label>
+      </div>
+
+      <div
+        class="mt-4 grid grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 md:grid-cols-[minmax(0,1fr)_auto]"
+      >
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">New Collection</span>
+          </span>
+
+          <input
+            v-model="newCollectionTitle"
+            type="text"
+            class="input input-bordered rounded-2xl bg-base-100"
+            placeholder="Create a new collection..."
+            :disabled="isGenerating || artStore.loading || isCreatingCollection"
+            @keydown.enter.prevent="createCollection"
+          />
+        </label>
+
+        <button
+          class="btn btn-secondary rounded-2xl md:self-end"
+          type="button"
+          :disabled="!canCreateCollection"
+          @click="createCollection"
+        >
+          <span
+            v-if="isCreatingCollection"
+            class="loading loading-spinner loading-sm"
+          />
+          <Icon v-else name="kind-icon:plus" class="h-5 w-5" />
+          Add Collection
+        </button>
       </div>
     </section>
 
@@ -158,14 +220,14 @@
           </div>
 
           <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Selected</p>
+            <p class="font-bold uppercase opacity-60">Selected Checkpoint</p>
             <p class="mt-1 break-all font-mono">
               {{ selectedCheckpointLabel }}
             </p>
           </div>
 
           <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Live API Model</p>
+            <p class="font-bold uppercase opacity-60">Loaded API Model</p>
             <p class="mt-1 break-all font-mono">
               {{ liveApiModelLabel }}
             </p>
@@ -530,7 +592,7 @@
               <h2 class="text-lg font-bold text-base-content">Model Context</h2>
 
               <p class="text-sm text-base-content/60">
-                Selected server, selected checkpoint, and live backend model.
+                Selected model, loaded backend model, and generation routing.
               </p>
             </div>
 
@@ -538,55 +600,15 @@
           </div>
 
           <div class="grid gap-3">
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text text-xs font-bold uppercase text-base-content/45">
-                  Art Server
-                </span>
-              </span>
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p class="text-xs font-bold uppercase text-base-content/45">
+                Selected Server
+              </p>
 
-              <select
-                class="select select-bordered select-sm rounded-xl bg-base-200"
-                :value="selectedServerId ?? ''"
-                :disabled="isGenerating || artStore.loading"
-                @change="handleServerChange"
-              >
-                <option value="">Select an art server</option>
-
-                <option
-                  v-for="server in artServerOptions"
-                  :key="server.id"
-                  :value="server.id"
-                >
-                  {{ getServerLabel(server) }}
-                </option>
-              </select>
-            </label>
-
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text text-xs font-bold uppercase text-base-content/45">
-                  Checkpoint
-                </span>
-              </span>
-
-              <select
-                class="select select-bordered select-sm rounded-xl bg-base-200"
-                :value="selectedCheckpointId ?? ''"
-                :disabled="isGenerating || artStore.loading"
-                @change="handleCheckpointChange"
-              >
-                <option value="">Select a checkpoint</option>
-
-                <option
-                  v-for="checkpoint in checkpointOptions"
-                  :key="checkpoint.id || checkpoint.name"
-                  :value="checkpoint.id || checkpoint.name"
-                >
-                  {{ getCheckpointDropdownLabel(checkpoint) }}
-                </option>
-              </select>
-            </label>
+              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
+                {{ activeArtServerLabel }}
+              </p>
+            </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <p class="text-xs font-bold uppercase text-base-content/45">
@@ -600,7 +622,7 @@
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <p class="text-xs font-bold uppercase text-base-content/45">
-                Live API Model
+                Loaded API Model
               </p>
 
               <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
@@ -610,11 +632,11 @@
 
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <p class="text-xs font-bold uppercase text-base-content/45">
-                Sampler
+                Collection
               </p>
 
               <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
-                {{ selectedSamplerLabel }}
+                {{ selectedCollectionLabel }}
               </p>
             </div>
 
@@ -642,29 +664,6 @@
                 Verify
               </button>
             </div>
-          </div>
-        </section>
-
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h2 class="text-lg font-bold text-base-content">Collection Target</h2>
-
-          <p class="mt-1 text-sm text-base-content/60">
-            New art is added to generated art and, when selected, the active
-            collection.
-          </p>
-
-          <div class="mt-3">
-            <collection-gallery
-              variant="row"
-              title="Collections"
-              subtitle="Pick a target."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-card-actions="false"
-              :show-stats="false"
-              :compact="true"
-              :auto-load="false"
-            />
           </div>
         </section>
 
@@ -717,6 +716,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Resource, Server } from '~/prisma/generated/prisma/client'
+import { performFetch } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -727,12 +727,14 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
 import { negativeList } from '@/stores/seeds/artList'
+import { validCheckpoints } from '@/stores/seeds/validCheckpoints'
 
 type ResourceLike = Partial<Resource> & {
   id?: number
   name?: string | null
   customLabel?: string | null
   label?: string | null
+  generation?: string | null
   resourceType?: string | null
   isMature?: boolean | null
 }
@@ -741,6 +743,27 @@ type SamplerLike = {
   id?: number | string
   name: string
   label?: string | null
+}
+
+type CollectionLike = {
+  id: number
+  label?: string | null
+  title?: string | null
+  name?: string | null
+  userId?: number | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+}
+
+type ApiResponse<T> = {
+  success: boolean
+  message?: string
+  data?: T
+}
+
+type CheckpointReport = {
+  tone: 'safe' | 'warning' | 'error' | 'unknown'
+  message: string
 }
 
 type CheckpointStoreShape = {
@@ -769,10 +792,7 @@ type CheckpointStoreShape = {
   modelStatusLoading?: boolean
   modelStatusError?: string
   initialize?: () => Promise<unknown>
-  checkActiveModel?: () => Promise<{
-    tone: 'safe' | 'warning' | 'error' | 'unknown'
-    message: string
-  }>
+  checkActiveModel?: () => Promise<CheckpointReport>
   clearModelStatus?: () => void
   selectSamplerByName?: (name: string) => unknown
   selectCheckpointById?: (id: number) => unknown
@@ -789,6 +809,18 @@ type ServerStoreShape = {
   selectServerById?: (id: number) => unknown
 }
 
+type CollectionStoreShape = {
+  collections?: CollectionLike[]
+  currentCollection?: CollectionLike | null
+  selectedCollections?: CollectionLike[]
+  fetchCollections?: () => Promise<unknown>
+  selectCollection?: (collection: CollectionLike) => unknown
+  selectCollectionById?: (id: number) => unknown
+  setCurrentCollection?: (collection: CollectionLike | null) => unknown
+  createCollection?: (input: Partial<CollectionLike>) => Promise<CollectionLike | ApiResponse<CollectionLike>>
+  getOrCreateCollection?: (title: string) => Promise<CollectionLike>
+}
+
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
@@ -801,15 +833,19 @@ const serverStore = useServerStore()
 
 const checkpointApi = checkpointStore as unknown as CheckpointStoreShape
 const serverApi = serverStore as unknown as ServerStoreShape
+const collectionApi = collectionStore as unknown as CollectionStoreShape
 
 const isGenerating = ref(false)
+const isCreatingCollection = ref(false)
 const makePretty = ref(false)
 const useNegative = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const selectedServerId = ref<number | null>(null)
-const selectedCheckpointId = ref<number | string | null>(null)
+const selectedCheckpointKey = ref('')
 const selectedSamplerName = ref('')
+const selectedCollectionId = ref<number | null>(null)
+const newCollectionTitle = ref('')
 
 const localCfg = ref(
   (artStore.artForm.cfg ?? 7) + (artStore.artForm.cfgHalf ? 0.5 : 0),
@@ -844,9 +880,10 @@ const checkpointOptions = computed<ResourceLike[]>(() => {
     checkpointApi.resources,
     checkpointApi.validCheckpoints,
     checkpointApi.checkpointResources,
+    validCheckpoints as ResourceLike[],
   ]
 
-  const found = candidates.find((items) => Array.isArray(items)) || []
+  const found = candidates.find((items) => Array.isArray(items) && items.length) || []
 
   return [...found]
     .filter((checkpoint) => {
@@ -864,7 +901,7 @@ const checkpointOptions = computed<ResourceLike[]>(() => {
 
 const samplerOptions = computed<SamplerLike[]>(() => {
   const candidates = [checkpointApi.samplers, checkpointApi.samplerOptions]
-  const found = candidates.find((items) => Array.isArray(items)) || []
+  const found = candidates.find((items) => Array.isArray(items) && items.length) || []
 
   if (found.length) {
     return [...found]
@@ -879,6 +916,12 @@ const samplerOptions = computed<SamplerLike[]>(() => {
     { name: 'DPM++ 2M Karras' },
     { name: 'DPM++ SDE Karras' },
   ]
+})
+
+const collectionOptions = computed<CollectionLike[]>(() => {
+  return [...(collectionApi.collections || [])].sort((a, b) => {
+    return getCollectionLabel(a).localeCompare(getCollectionLabel(b))
+  })
 })
 
 const selectedArtServer = computed<Server | null>(() => {
@@ -898,17 +941,26 @@ const selectedArtServer = computed<Server | null>(() => {
 })
 
 const selectedCheckpoint = computed<ResourceLike | null>(() => {
-  if (selectedCheckpointId.value !== null && selectedCheckpointId.value !== '') {
-    const id = selectedCheckpointId.value
-
+  if (selectedCheckpointKey.value) {
     const match = checkpointOptions.value.find((checkpoint) => {
-      return checkpoint.id === Number(id) || checkpoint.name === String(id)
+      return getCheckpointKey(checkpoint) === selectedCheckpointKey.value
     })
 
     if (match) return match
   }
 
   return checkpointApi.selectedCheckpoint || null
+})
+
+const selectedCollection = computed<CollectionLike | null>(() => {
+  if (selectedCollectionId.value) {
+    return (
+      collectionOptions.value.find((entry) => entry.id === selectedCollectionId.value) ||
+      null
+    )
+  }
+
+  return collectionApi.currentCollection || collectionApi.selectedCollections?.[0] || null
 })
 
 const requestedCheckpointName = computed(() => {
@@ -960,11 +1012,9 @@ const selectedSamplerLabel = computed(() => {
 })
 
 const selectedCollectionLabel = computed(() => {
-  return (
-    collectionStore.currentCollection?.label ||
-    collectionStore.selectedCollections?.[0]?.label ||
-    'Generated Art'
-  )
+  return selectedCollection.value
+    ? getCollectionLabel(selectedCollection.value)
+    : 'Generated Art'
 })
 
 const promptLength = computed(() => {
@@ -1053,7 +1103,9 @@ const selectedCheckpointIsMature = computed(() => {
 })
 
 const modelMismatchBlocksGeneration = computed(() => {
-  return Boolean(checkpointApi.hasModelMismatch && checkpointApi.lastGenerationStatus)
+  return Boolean(
+    checkpointApi.hasModelMismatch && checkpointApi.lastGenerationStatus,
+  )
 })
 
 const generationGateReason = computed(() => {
@@ -1089,6 +1141,14 @@ const generationGateLabel = computed(() => {
   return canGenerate.value ? 'Ready' : generationGateReason.value || 'Blocked'
 })
 
+const canCreateCollection = computed(() => {
+  return Boolean(
+    newCollectionTitle.value.trim() &&
+      !isCreatingCollection.value &&
+      !isGenerating.value,
+  )
+})
+
 const promptPreview = computed(() => {
   const lines = [
     `Prompt: ${promptStore.promptField || ''}`,
@@ -1097,16 +1157,17 @@ const promptPreview = computed(() => {
       : '',
     `Selected Server ID: ${selectedArtServer.value?.id ?? 'none'}`,
     `Selected Server: ${activeArtServerLabel.value}`,
-    `Selected Checkpoint ID: ${selectedCheckpoint.value?.id ?? 'none'}`,
+    `Selected Checkpoint Key: ${selectedCheckpointKey.value || 'none'}`,
     `Selected Checkpoint Label: ${
       selectedCheckpoint.value?.customLabel || selectedCheckpoint.value?.label || 'none'
     }`,
     `Selected Checkpoint Name: ${requestedCheckpointName.value || 'none'}`,
     `Art Form Checkpoint: ${artStore.artForm.checkpoint || 'none'}`,
-    `Live API Model: ${liveApiModelLabel.value}`,
+    `Loaded API Model: ${liveApiModelLabel.value}`,
     `Last Requested: ${lastRequestedModelLabel.value}`,
     `Last Actual: ${lastActualModelLabel.value}`,
     `Sampler: ${selectedSamplerLabel.value}`,
+    `Collection: ${selectedCollectionLabel.value}`,
     `Steps: ${artStore.artForm.steps ?? 25}`,
     `CFG: ${localCfg.value.toFixed(1)}`,
     `Seed: ${artStore.artForm.seed ?? -1}`,
@@ -1124,17 +1185,16 @@ watch(localCfg, (value) => {
 
 watch(
   () => selectedArtServer.value?.id,
-  async (id) => {
+  (id) => {
     if (!id) return
 
     syncSelectedServerToForm()
     checkpointApi.clearModelStatus?.()
-    await checkActiveModel()
   },
 )
 
 watch(
-  () => selectedCheckpoint.value?.id || selectedCheckpoint.value?.name,
+  () => selectedCheckpoint.value?.name,
   () => {
     syncSelectedCheckpointToForm()
   },
@@ -1169,12 +1229,26 @@ function getServerLabel(server: Server): string {
   return `${name} · ${engine} · ${transport}`
 }
 
+function getCheckpointKey(checkpoint: ResourceLike): string {
+  return checkpoint.id ? String(checkpoint.id) : String(checkpoint.name || '')
+}
+
 function getCheckpointDropdownLabel(checkpoint: ResourceLike): string {
-  const label = checkpoint.customLabel || checkpoint.label || checkpoint.name || 'Checkpoint'
+  const label =
+    checkpoint.customLabel || checkpoint.label || checkpoint.name || 'Checkpoint'
   const generation = checkpoint.generation ? ` · ${checkpoint.generation}` : ''
   const maturity = checkpoint.isMature ? ' · mature' : ''
 
   return `${label}${generation}${maturity}`
+}
+
+function getCollectionLabel(collection: CollectionLike): string {
+  return (
+    collection.label ||
+    collection.title ||
+    collection.name ||
+    `Collection ${collection.id}`
+  )
 }
 
 function isA1111Server(server: unknown): boolean {
@@ -1239,6 +1313,30 @@ function syncSelectedCheckpointToForm() {
   }
 
   syncCheckpointStoreSelection(checkpoint)
+}
+
+function syncSelectedCollectionToStore() {
+  if (!selectedCollection.value) {
+    collectionApi.setCurrentCollection?.(null)
+    return
+  }
+
+  if (collectionApi.selectCollection) {
+    collectionApi.selectCollection(selectedCollection.value)
+    return
+  }
+
+  if (collectionApi.selectCollectionById) {
+    collectionApi.selectCollectionById(selectedCollection.value.id)
+    return
+  }
+
+  if (collectionApi.setCurrentCollection) {
+    collectionApi.setCurrentCollection(selectedCollection.value)
+    return
+  }
+
+  collectionApi.currentCollection = selectedCollection.value
 }
 
 function syncSamplerToStore(name: string) {
@@ -1317,15 +1415,12 @@ function handleServerChange(event: Event) {
 function handleCheckpointChange(event: Event) {
   const value = (event.target as HTMLSelectElement).value
 
+  selectedCheckpointKey.value = value
+
   if (!value) {
-    selectedCheckpointId.value = null
     artStore.artForm.checkpoint = ''
     return
   }
-
-  const numeric = Number(value)
-  selectedCheckpointId.value =
-    Number.isInteger(numeric) && numeric > 0 ? numeric : value
 
   syncSelectedCheckpointToForm()
   checkpointApi.clearModelStatus?.()
@@ -1337,6 +1432,14 @@ function handleSamplerChange(event: Event) {
 
   selectedSamplerName.value = value
   syncSamplerToStore(value)
+}
+
+function handleCollectionChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  const id = Number(value)
+
+  selectedCollectionId.value = Number.isInteger(id) && id > 0 ? id : null
+  syncSelectedCollectionToStore()
 }
 
 function applyPretty() {
@@ -1387,27 +1490,88 @@ async function copyPromptPreview() {
 async function checkActiveModel() {
   syncSelectedServerToForm()
 
-  const fallbackReport = {
-    tone: 'unknown' as const,
-    message: 'Model check is not available.',
+  if (!selectedArtServer.value) {
+    setStatus('Select an art server before checking the model.', 'error')
+    return
   }
 
-  const report = checkpointApi.checkActiveModel
-    ? await checkpointApi.checkActiveModel()
-    : fallbackReport
+  if (!checkpointApi.checkActiveModel) {
+    setStatus('Model check is not available in checkpointStore.', 'error')
+    return
+  }
+
+  const report = await checkpointApi.checkActiveModel()
 
   if (report.tone === 'safe') {
     setStatus('Model check passed.')
     return
   }
 
-  if (report.tone === 'warning') {
-    setStatus(report.message, 'error')
-    return
-  }
+  setStatus(report.message, 'error')
+}
 
-  if (report.tone === 'error') {
-    setStatus(report.message, 'error')
+async function createCollection() {
+  if (!canCreateCollection.value) return
+
+  isCreatingCollection.value = true
+
+  try {
+    const title = newCollectionTitle.value.trim()
+
+    let created: CollectionLike | null = null
+
+    if (collectionApi.createCollection) {
+      const response = await collectionApi.createCollection({
+        title,
+        label: title,
+        name: title,
+        isPublic: false,
+        isMature: false,
+      })
+
+      created =
+        response && 'success' in response
+          ? response.data || null
+          : (response as CollectionLike)
+    } else if (collectionApi.getOrCreateCollection) {
+      created = await collectionApi.getOrCreateCollection(title)
+    } else {
+      const response = await performFetch<CollectionLike>('/api/art/collection', {
+        method: 'POST',
+        body: JSON.stringify({
+          title,
+          label: title,
+          name: title,
+          isPublic: false,
+          isMature: false,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create collection.')
+      }
+
+      created = response.data
+    }
+
+    await collectionApi.fetchCollections?.()
+
+    if (created?.id) {
+      selectedCollectionId.value = created.id
+      syncSelectedCollectionToStore()
+    }
+
+    newCollectionTitle.value = ''
+    setStatus(`Created collection "${title}".`)
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to create collection.'
+
+    setStatus(message, 'error')
+    errorStore.addError(ErrorType.GENERAL_ERROR, message)
+  } finally {
+    isCreatingCollection.value = false
   }
 }
 
@@ -1435,6 +1599,7 @@ async function generateArt() {
     syncSelectedServerToForm()
     syncSelectedCheckpointToForm()
     syncSamplerToStore(selectedSamplerLabel.value)
+    syncSelectedCollectionToStore()
 
     const result = await artStore.generateArt({
       promptString: promptStore.promptField,
@@ -1511,7 +1676,7 @@ function initializeSelections() {
     null
 
   if (initialCheckpoint) {
-    selectedCheckpointId.value = initialCheckpoint.id || initialCheckpoint.name || null
+    selectedCheckpointKey.value = getCheckpointKey(initialCheckpoint)
     syncCheckpointStoreSelection(initialCheckpoint)
     syncSelectedCheckpointToForm()
   }
@@ -1524,6 +1689,16 @@ function initializeSelections() {
 
   selectedSamplerName.value = initialSampler
   syncSamplerToStore(initialSampler)
+
+  const initialCollection =
+    collectionApi.currentCollection ||
+    collectionApi.selectedCollections?.[0] ||
+    null
+
+  if (initialCollection?.id) {
+    selectedCollectionId.value = initialCollection.id
+    syncSelectedCollectionToStore()
+  }
 }
 
 onMounted(async () => {
@@ -1542,10 +1717,6 @@ onMounted(async () => {
 
   initializeSelections()
   syncPrompt()
-
-  if (selectedArtServer.value) {
-    await checkActiveModel()
-  }
 })
 </script>
 

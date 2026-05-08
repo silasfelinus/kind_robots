@@ -35,14 +35,15 @@
               v-for="server in artServerOptions"
               :key="server.id"
               :value="server.id"
+              :title="getServerOptionTitle(server)"
             >
-              {{ getServerLabel(server) }}
+              {{ getServerDropdownLabel(server) }}
             </option>
           </select>
 
           <span class="label">
-            <span class="label-text-alt text-base-content/60">
-              {{ activeEngineLabel }} · {{ selectedTransportLabel }}
+            <span class="label-text-alt break-all text-base-content/60">
+              {{ selectedServerEndpointLabel }}
             </span>
           </span>
         </label>
@@ -64,6 +65,7 @@
               v-for="checkpoint in checkpointOptions"
               :key="getCheckpointKey(checkpoint)"
               :value="getCheckpointKey(checkpoint)"
+              :title="getCheckpointOptionTitle(checkpoint)"
             >
               {{ getCheckpointDropdownLabel(checkpoint) }}
             </option>
@@ -213,9 +215,23 @@
           </div>
 
           <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Server ID</p>
+            <p class="mt-1 break-all font-mono">
+              {{ selectedArtServer?.id || 'none' }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
             <p class="font-bold uppercase opacity-60">Engine</p>
             <p class="mt-1 break-all font-mono">
               {{ activeEngineLabel }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/70 p-3">
+            <p class="font-bold uppercase opacity-60">Transport</p>
+            <p class="mt-1 break-all font-mono">
+              {{ selectedTransportLabel }}
             </p>
           </div>
 
@@ -230,20 +246,6 @@
             <p class="font-bold uppercase opacity-60">Loaded API Model</p>
             <p class="mt-1 break-all font-mono">
               {{ liveApiModelLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Last Requested</p>
-            <p class="mt-1 break-all font-mono">
-              {{ lastRequestedModelLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Last Actual</p>
-            <p class="mt-1 break-all font-mono">
-              {{ lastActualModelLabel }}
             </p>
           </div>
 
@@ -546,6 +548,16 @@
               </p>
 
               <p class="mt-1">
+                <span class="font-bold">Server ID:</span>
+                {{ selectedArtServer?.id || 'none' }}
+              </p>
+
+              <p class="mt-1 break-all">
+                <span class="font-bold">Endpoint:</span>
+                {{ selectedServerEndpointLabel }}
+              </p>
+
+              <p class="mt-1">
                 <span class="font-bold">Model:</span>
                 {{ selectedCheckpointLabel }}
               </p>
@@ -802,7 +814,10 @@ type CheckpointStoreShape = {
 type ServerStoreShape = {
   servers?: Server[]
   activeArtServer?: Server | null
-  initialize?: (options?: { fetchRemote?: boolean; force?: boolean }) => Promise<unknown>
+  initialize?: (options?: {
+    fetchRemote?: boolean
+    force?: boolean
+  }) => Promise<unknown>
   setActiveServer?: (server: Server) => unknown
   setActiveArtServer?: (server: Server) => unknown
   selectServer?: (id: number) => unknown
@@ -817,7 +832,9 @@ type CollectionStoreShape = {
   selectCollection?: (collection: CollectionLike) => unknown
   selectCollectionById?: (id: number) => unknown
   setCurrentCollection?: (collection: CollectionLike | null) => unknown
-  createCollection?: (input: Partial<CollectionLike>) => Promise<CollectionLike | ApiResponse<CollectionLike>>
+  createCollection?: (
+    input: Partial<CollectionLike>,
+  ) => Promise<CollectionLike | ApiResponse<CollectionLike>>
   getOrCreateCollection?: (title: string) => Promise<CollectionLike>
 }
 
@@ -861,8 +878,10 @@ const artServerOptions = computed<Server[]>(() => {
       return Boolean(
         server.isActive &&
           (server.serverType === 'A1111' ||
+            server.serverType === 'ART' ||
             server.generationEngine === 'A1111' ||
-            server.supportsTxt2Img),
+            server.supportsTxt2Img ||
+            server.supportsImg2Img),
       )
     })
     .sort((a, b) => {
@@ -870,7 +889,8 @@ const artServerOptions = computed<Server[]>(() => {
       const bOrder = b.sortOrder ?? 0
 
       if (aOrder !== bOrder) return aOrder - bOrder
-      return getServerLabel(a).localeCompare(getServerLabel(b))
+
+      return getServerDropdownLabel(a).localeCompare(getServerDropdownLabel(b))
     })
 })
 
@@ -883,7 +903,8 @@ const checkpointOptions = computed<ResourceLike[]>(() => {
     validCheckpoints as ResourceLike[],
   ]
 
-  const found = candidates.find((items) => Array.isArray(items) && items.length) || []
+  const found =
+    candidates.find((items) => Array.isArray(items) && items.length) || []
 
   return [...found]
     .filter((checkpoint) => {
@@ -901,7 +922,8 @@ const checkpointOptions = computed<ResourceLike[]>(() => {
 
 const samplerOptions = computed<SamplerLike[]>(() => {
   const candidates = [checkpointApi.samplers, checkpointApi.samplerOptions]
-  const found = candidates.find((items) => Array.isArray(items) && items.length) || []
+  const found =
+    candidates.find((items) => Array.isArray(items) && items.length) || []
 
   if (found.length) {
     return [...found]
@@ -926,7 +948,13 @@ const collectionOptions = computed<CollectionLike[]>(() => {
 
 const selectedArtServer = computed<Server | null>(() => {
   if (selectedServerId.value) {
-    return getServerById(selectedServerId.value)
+    const selected = getServerById(selectedServerId.value)
+
+    if (selected) return selected
+  }
+
+  if (serverApi.activeArtServer?.id) {
+    return serverApi.activeArtServer
   }
 
   const formServerId = artStore.artForm.serverId
@@ -937,7 +965,7 @@ const selectedArtServer = computed<Server | null>(() => {
     if (formServer) return formServer
   }
 
-  return serverApi.activeArtServer || null
+  return artServerOptions.value[0] || null
 })
 
 const selectedCheckpoint = computed<ResourceLike | null>(() => {
@@ -955,8 +983,9 @@ const selectedCheckpoint = computed<ResourceLike | null>(() => {
 const selectedCollection = computed<CollectionLike | null>(() => {
   if (selectedCollectionId.value) {
     return (
-      collectionOptions.value.find((entry) => entry.id === selectedCollectionId.value) ||
-      null
+      collectionOptions.value.find((entry) => {
+        return entry.id === selectedCollectionId.value
+      }) || null
     )
   }
 
@@ -1000,6 +1029,22 @@ const activeEngineLabel = computed(() => {
 
 const selectedTransportLabel = computed(() => {
   return selectedArtServer.value?.defaultTransport || 'AUTO'
+})
+
+const selectedServerEndpointLabel = computed(() => {
+  const server = selectedArtServer.value
+
+  if (!server) return 'n/a'
+
+  const base =
+    server.defaultTransport === 'BROWSER'
+      ? server.browserBaseUrl || server.baseUrl
+      : server.backendBaseUrl || server.baseUrl
+
+  const cleanBase = String(base || '').replace(/\/+$/, '')
+  const path = String(server.endpointPath || '').replace(/^\/+/, '')
+
+  return path ? `${cleanBase}/${path}` : cleanBase || 'n/a'
 })
 
 const selectedSamplerLabel = computed(() => {
@@ -1112,10 +1157,15 @@ const generationGateReason = computed(() => {
   if (isGenerating.value) return 'Generation is already running.'
   if (artStore.loading) return 'Art store is loading.'
   if (!promptStore.promptField?.trim()) return 'Prompt is required.'
-  if (!selectedArtServer.value) return 'No art server selected.'
+
+  if (!selectedArtServer.value) {
+    const requestedId = selectedServerId.value || artStore.artForm.serverId || 'none'
+
+    return `No art server found for selected ID ${requestedId}. Refresh servers or pick another server.`
+  }
 
   if (!isA1111Server(selectedArtServer.value)) {
-    return `Selected server "${activeArtServerLabel.value}" is not an A1111 txt2img server. Choose your Stable Diffusion server, not Comfy.`
+    return `Selected server #${selectedArtServer.value.id} "${getServerDisplayName(selectedArtServer.value)}" is ${selectedArtServer.value.serverType}/${selectedArtServer.value.generationEngine}. Choose an A1111 Stable Diffusion txt2img server.`
   }
 
   if (!requestedCheckpointName.value) {
@@ -1157,9 +1207,12 @@ const promptPreview = computed(() => {
       : '',
     `Selected Server ID: ${selectedArtServer.value?.id ?? 'none'}`,
     `Selected Server: ${activeArtServerLabel.value}`,
+    `Selected Endpoint: ${selectedServerEndpointLabel.value}`,
     `Selected Checkpoint Key: ${selectedCheckpointKey.value || 'none'}`,
     `Selected Checkpoint Label: ${
-      selectedCheckpoint.value?.customLabel || selectedCheckpoint.value?.label || 'none'
+      selectedCheckpoint.value?.customLabel ||
+      selectedCheckpoint.value?.label ||
+      'none'
     }`,
     `Selected Checkpoint Name: ${requestedCheckpointName.value || 'none'}`,
     `Art Form Checkpoint: ${artStore.artForm.checkpoint || 'none'}`,
@@ -1182,6 +1235,23 @@ watch(localCfg, (value) => {
   artStore.artForm.cfg = Math.floor(value)
   artStore.artForm.cfgHalf = value % 1 >= 0.5
 })
+
+watch(
+  () => serverApi.activeArtServer?.id,
+  (id) => {
+    if (!id) return
+
+    const server = getServerById(id) || serverApi.activeArtServer
+
+    if (!server) return
+
+    selectedServerId.value = server.id
+    artStore.artForm.serverId = server.id
+    artStore.artForm.serverName = server.label || server.title
+    checkpointApi.clearModelStatus?.()
+  },
+  { immediate: true },
+)
 
 watch(
   () => selectedArtServer.value?.id,
@@ -1221,16 +1291,54 @@ function getServerById(id: number): Server | null {
   return allServers.value.find((server) => server.id === id) || null
 }
 
-function getServerLabel(server: Server): string {
-  const name = server.label || server.title || `Server ${server.id}`
+function getServerDisplayName(server: Server): string {
+  const label = server.label || ''
+  const title = server.title || ''
+
+  if (label && title && label !== title) {
+    return `${label} / ${title}`
+  }
+
+  return label || title || `Server ${server.id}`
+}
+
+function getServerDropdownLabel(server: Server): string {
+  const name = getServerDisplayName(server)
   const engine = server.generationEngine || server.serverType || 'UNKNOWN'
   const transport = server.defaultTransport || 'AUTO'
+  const url = server.backendBaseUrl || server.browserBaseUrl || server.baseUrl
 
-  return `${name} · ${engine} · ${transport}`
+  return `#${server.id} · ${name} · ${engine} · ${transport} · ${url}`
+}
+
+function getServerOptionTitle(server: Server): string {
+  return [
+    `ID: ${server.id}`,
+    `Title: ${server.title || 'n/a'}`,
+    `Label: ${server.label || 'n/a'}`,
+    `Type: ${server.serverType || 'n/a'}`,
+    `Engine: ${server.generationEngine || 'n/a'}`,
+    `Transport: ${server.defaultTransport || 'n/a'}`,
+    `Access: ${server.accessMode || 'n/a'}`,
+    `Base: ${server.baseUrl || 'n/a'}`,
+    `Backend: ${server.backendBaseUrl || 'n/a'}`,
+    `Browser: ${server.browserBaseUrl || 'n/a'}`,
+    `Endpoint: ${server.endpointPath || 'n/a'}`,
+  ].join('\n')
 }
 
 function getCheckpointKey(checkpoint: ResourceLike): string {
   return checkpoint.id ? String(checkpoint.id) : String(checkpoint.name || '')
+}
+
+function getCheckpointOptionTitle(checkpoint: ResourceLike): string {
+  return [
+    `ID: ${checkpoint.id || 'n/a'}`,
+    `Label: ${checkpoint.customLabel || checkpoint.label || 'n/a'}`,
+    `Name: ${checkpoint.name || 'n/a'}`,
+    `Generation: ${checkpoint.generation || 'n/a'}`,
+    `Mature: ${checkpoint.isMature ? 'yes' : 'no'}`,
+  ].join('\n')
 }
 
 function getCheckpointDropdownLabel(checkpoint: ResourceLike): string {
@@ -1409,7 +1517,7 @@ function handleServerChange(event: Event) {
   syncServerStoreSelection(server)
   syncSelectedServerToForm()
   checkpointApi.clearModelStatus?.()
-  setStatus(`Using ${server.label || server.title}.`)
+  setStatus(`Using #${server.id} ${getServerDisplayName(server)}.`)
 }
 
 function handleCheckpointChange(event: Event) {
@@ -1656,8 +1764,8 @@ async function generateArt() {
 
 function initializeSelections() {
   const initialServer =
-    getServerById(artStore.artForm.serverId || 0) ||
     serverApi.activeArtServer ||
+    getServerById(artStore.artForm.serverId || 0) ||
     artServerOptions.value[0] ||
     null
 

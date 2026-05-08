@@ -828,15 +828,21 @@ type CollectionStoreShape = {
   collections?: CollectionLike[]
   currentCollection?: CollectionLike | null
   selectedCollections?: CollectionLike[]
-  fetchCollections?: () => Promise<unknown>
-  selectCollection?: (collection: CollectionLike) => unknown
-  selectCollectionById?: (id: number) => unknown
-  setCurrentCollection?: (collection: CollectionLike | null) => unknown
+  selectedCollectionIds?: number[]
+  fetchCollections?: (force?: boolean) => Promise<unknown>
+  setCurrentCollection?: (collectionId: number | null) => void
+  setSelectedCollectionIds?: (ids: number[]) => void
+  toggleSelectedCollectionId?: (collectionId: number) => void
+  clearSelectedCollections?: () => void
   createCollection?: (
-    input: Partial<CollectionLike>,
-  ) => Promise<CollectionLike | ApiResponse<CollectionLike>>
-  getOrCreateCollection?: (title: string) => Promise<CollectionLike>
+    label: string,
+    userId: number,
+    isPublic?: boolean,
+    isMature?: boolean,
+  ) => Promise<CollectionLike>
+  getOrCreateGeneratedArtCollection?: (userId: number) => Promise<CollectionLike>
 }
+
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
@@ -1386,27 +1392,15 @@ function syncPrompt() {
   artStore.artForm.promptString = promptStore.promptField
 }
 
-function syncSelectedServerToForm() {
-  const server = selectedArtServer.value
-
-  if (!server) return
-
-  artStore.artForm.serverId = server.id
-  artStore.artForm.serverName = server.label || server.title
-
-  if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
-    artStore.artForm.engine = 'a1111'
+function syncSelectedCollectionToStore() {
+  if (!selectedCollection.value) {
+    collectionApi.setCurrentCollection?.(null)
+    collectionApi.clearSelectedCollections?.()
+    return
   }
 
-  if (server.defaultTransport === 'BACKEND') {
-    artStore.artForm.transport = 'backend'
-  }
-
-  if (server.defaultTransport === 'BROWSER') {
-    artStore.artForm.transport = 'browser'
-  }
-
-  syncServerStoreSelection(server)
+  collectionApi.setCurrentCollection?.(selectedCollection.value.id)
+  collectionApi.setSelectedCollectionIds?.([selectedCollection.value.id])
 }
 
 function syncSelectedCheckpointToForm() {
@@ -1625,31 +1619,20 @@ async function createCollection() {
 
   try {
     const title = newCollectionTitle.value.trim()
+    const userId = artStore.artForm.userId || 9
 
     let created: CollectionLike | null = null
 
     if (collectionApi.createCollection) {
-      const response = await collectionApi.createCollection({
-        title,
-        label: title,
-        name: title,
-        isPublic: false,
-        isMature: false,
-      })
-
-      created =
-        response && 'success' in response
-          ? response.data || null
-          : (response as CollectionLike)
-    } else if (collectionApi.getOrCreateCollection) {
-      created = await collectionApi.getOrCreateCollection(title)
+      created = await collectionApi.createCollection(title, userId, false, false)
+    } else if (collectionApi.getOrCreateGeneratedArtCollection) {
+      created = await collectionApi.getOrCreateGeneratedArtCollection(userId)
     } else {
       const response = await performFetch<CollectionLike>('/api/art/collection', {
         method: 'POST',
         body: JSON.stringify({
-          title,
           label: title,
-          name: title,
+          userId,
           isPublic: false,
           isMature: false,
         }),
@@ -1663,11 +1646,12 @@ async function createCollection() {
       created = response.data
     }
 
-    await collectionApi.fetchCollections?.()
+    await collectionApi.fetchCollections?.(true)
 
     if (created?.id) {
       selectedCollectionId.value = created.id
-      syncSelectedCollectionToStore()
+      collectionApi.setCurrentCollection?.(created.id)
+      collectionApi.setSelectedCollectionIds?.([created.id])
     }
 
     newCollectionTitle.value = ''
@@ -1681,7 +1665,7 @@ async function createCollection() {
   } finally {
     isCreatingCollection.value = false
   }
-}
+}m
 
 async function generateArt() {
   if (!canGenerate.value) {

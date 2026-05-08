@@ -127,11 +127,6 @@ export function normalizeModelName(value: unknown): string {
   return value.trim().replace(/^['"]|['"]$/g, '')
 }
 
-export function normalizeCheckpointName(value: unknown): string {
-  return normalizeModelName(value)
-    .replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
-    .trim()
-}
 
 export function normalizeCheckpointNameForCompare(value: unknown): string {
   return normalizeCheckpointName(value)

@@ -14,118 +14,7 @@
   >
     <template #default="{ activeTab: currentTab }">
       <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div
-          class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(280px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]"
-        >
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <checkpoint-gallery
-              variant="select"
-              title="Model"
-              subtitle="Choose the art model."
-              :show-controls="false"
-              :show-status="true"
-              :show-sampler="true"
-              :show-images="false"
-              :show-descriptions="false"
-              :show-meta="false"
-              :show-select-buttons="false"
-              :compact="true"
-              :auto-load-art-images="false"
-            />
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <section
-              class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
-            >
-              <header
-                class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center"
-              >
-                <h2 class="text-xl font-bold text-primary">Prompt Lab</h2>
-
-                <p class="mt-1 text-sm text-base-content/70">
-                  Build a prompt, pick a model, and commit pixel alchemy.
-                </p>
-              </header>
-
-              <div
-                v-if="generationMessage"
-                class="rounded-2xl border p-3 text-sm"
-                :class="
-                  generationTone === 'error'
-                    ? 'border-error/40 bg-error/10 text-error'
-                    : 'border-success/40 bg-success/10 text-success'
-                "
-              >
-                {{ generationMessage }}
-              </div>
-
-              <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-                <label class="form-control">
-                  <span class="label">
-                    <span class="label-text font-bold">Prompt</span>
-                  </span>
-
-                  <textarea
-                    v-model="promptStore.promptField"
-                    class="textarea textarea-bordered min-h-28 resize-none rounded-2xl bg-base-200"
-                    placeholder="Enter your creative prompt..."
-                    :disabled="isGenerating"
-                  />
-                </label>
-
-                <div
-                  class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
-                >
-                  <div
-                    class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/65"
-                  >
-                    <p>
-                      <span class="font-bold">Model:</span>
-                      {{ selectedCheckpointLabel }}
-                    </p>
-
-                    <p class="mt-1">
-                      <span class="font-bold">Server:</span>
-                      {{ activeArtServerLabel }}
-                    </p>
-                  </div>
-
-                  <button
-                    class="btn btn-primary min-h-16 rounded-2xl text-white"
-                    type="button"
-                    :disabled="!canGenerate"
-                    @click="generateArt"
-                  >
-                    <span
-                      v-if="isGenerating"
-                      class="loading loading-spinner loading-sm"
-                    />
-                    <Icon v-else name="kind-icon:sparkles" class="h-5 w-5" />
-                    {{ isGenerating ? 'Working...' : 'Create Art' }}
-                  </button>
-                </div>
-              </div>
-
-              <div class="min-h-0 flex-1 overflow-auto">
-                <art-randomizer />
-              </div>
-            </section>
-          </div>
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <collection-gallery
-              variant="row"
-              title="Collections"
-              subtitle="Choose where the art lands."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-card-actions="false"
-              :show-stats="false"
-              :compact="true"
-            />
-          </div>
-        </div>
+        <art-interact />
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
           <art-gallery
@@ -145,175 +34,7 @@
         </div>
       </section>
 
-      <section
-        v-else-if="currentTab === 'generate'"
-        class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <checkpoint-gallery
-            variant="select"
-            title="Model and Sampler"
-            subtitle="Pick the image engine."
-            :show-controls="false"
-            :show-status="true"
-            :show-sampler="true"
-            :show-images="false"
-            :show-descriptions="false"
-            :show-meta="false"
-            :show-select-buttons="false"
-            :auto-load-art-images="false"
-          />
-        </div>
-
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <section
-            class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-3"
-          >
-            <header
-              class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center"
-            >
-              <h2 class="text-2xl font-bold text-primary">Generate Art</h2>
-
-              <p class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70">
-                Write a prompt, use randomizer pieces, then generate through the
-                active art server.
-              </p>
-            </header>
-
-            <div
-              v-if="generationMessage"
-              class="rounded-2xl border p-3 text-sm"
-              :class="
-                generationTone === 'error'
-                  ? 'border-error/40 bg-error/10 text-error'
-                  : 'border-success/40 bg-success/10 text-success'
-              "
-            >
-              {{ generationMessage }}
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <label class="form-control">
-                <span class="label">
-                  <span class="label-text font-bold">Prompt</span>
-                </span>
-
-                <textarea
-                  v-model="promptStore.promptField"
-                  class="textarea textarea-bordered min-h-32 resize-none rounded-2xl bg-base-200"
-                  placeholder="A robot butterfly librarian arguing with a haunted teapot..."
-                  :disabled="isGenerating"
-                />
-              </label>
-
-              <div
-                class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4"
-              >
-                <label class="form-control">
-                  <span class="label">
-                    <span class="label-text font-bold">Steps</span>
-                  </span>
-
-                  <input
-                    v-model.number="artStore.artForm.steps"
-                    type="number"
-                    min="1"
-                    max="150"
-                    class="input input-bordered bg-base-200"
-                  />
-                </label>
-
-                <label class="form-control">
-                  <span class="label">
-                    <span class="label-text font-bold">CFG</span>
-                  </span>
-
-                  <input
-                    v-model.number="artStore.artForm.cfg"
-                    type="number"
-                    min="1"
-                    max="30"
-                    class="input input-bordered bg-base-200"
-                  />
-                </label>
-
-                <label
-                  class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-                >
-                  <span class="label-text font-bold">Half CFG</span>
-
-                  <input
-                    v-model="artStore.artForm.cfgHalf"
-                    type="checkbox"
-                    class="toggle toggle-primary"
-                  />
-                </label>
-
-                <label
-                  class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-                >
-                  <span class="label-text font-bold">Public</span>
-
-                  <input
-                    v-model="artStore.artForm.isPublic"
-                    type="checkbox"
-                    class="toggle toggle-success"
-                  />
-                </label>
-              </div>
-
-              <label class="form-control mt-4">
-                <span class="label">
-                  <span class="label-text font-bold">Negative Prompt</span>
-                </span>
-
-                <textarea
-                  v-model="artStore.artForm.negativePrompt"
-                  class="textarea textarea-bordered min-h-20 resize-none rounded-2xl bg-base-200"
-                  placeholder="blurry, low quality, cursed spaghetti fingers..."
-                />
-              </label>
-
-              <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <button
-                  class="btn btn-ghost rounded-xl"
-                  type="button"
-                  :disabled="isGenerating"
-                  @click="clearPrompt"
-                >
-                  Clear
-                </button>
-
-                <button
-                  class="btn btn-secondary rounded-xl"
-                  type="button"
-                  :disabled="isGenerating"
-                  @click="useActiveServer"
-                >
-                  Use Active Art Server
-                </button>
-
-                <button
-                  class="btn btn-primary rounded-xl text-white"
-                  type="button"
-                  :disabled="!canGenerate"
-                  @click="generateArt"
-                >
-                  <span
-                    v-if="isGenerating"
-                    class="loading loading-spinner loading-sm"
-                  />
-                  {{ isGenerating ? 'Generating...' : 'Generate Art' }}
-                </button>
-              </div>
-            </div>
-
-            <div class="min-h-0 flex-1 overflow-auto">
-              <art-randomizer />
-            </div>
-          </section>
-        </div>
-      </section>
+      <art-interact v-else-if="currentTab === 'generate'" />
 
       <art-gallery
         v-else-if="currentTab === 'gallery'"
@@ -463,51 +184,28 @@
 import { computed, onMounted, ref } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { ErrorType, useErrorStore } from '@/stores/errorStore'
-import { useNavStore } from '@/stores/navStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useServerStore } from '@/stores/serverStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { useNavStore } from '@/stores/navStore'
+import { useServerStore } from '@/stores/serverStore'
 
 const dashboardKey = 'art' as const
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
-const errorStore = useErrorStore()
 const navStore = useNavStore()
-const promptStore = usePromptStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-const isGenerating = ref(false)
-const generationMessage = ref('')
-const generationTone = ref<'success' | 'error'>('success')
 
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
-function getServerById(id: number) {
-  return serverStore.servers?.find((server) => server.id === id) || null
-}
-
-const selectedArtServer = computed(() => {
-  const formServerId = artStore.artForm.serverId
-
-  if (typeof formServerId === 'number' && formServerId > 0) {
-    const formServer = getServerById(formServerId)
-
-    if (formServer) return formServer
-  }
-
-  return serverStore.activeArtServer || null
-})
-
 const activeArtServerLabel = computed(() => {
   return (
-    selectedArtServer.value?.label ||
-    selectedArtServer.value?.title ||
+    serverStore.activeArtServer?.label ||
+    serverStore.activeArtServer?.title ||
     'No art server selected'
   )
 })
@@ -519,6 +217,7 @@ const selectedCheckpointLabel = computed(() => {
     'No checkpoint selected'
   )
 })
+
 const managerSummary = computed(() => {
   const artCount = artStore.art.length
   const collectionCount = collectionStore.collections.length
@@ -527,14 +226,6 @@ const managerSummary = computed(() => {
     : 'no art selected'
 
   return `${artCount} art records, ${collectionCount} collections. Current model: ${selectedCheckpointLabel.value}. Server: ${activeArtServerLabel.value}. Selected: ${selectedArt}.`
-})
-
-const canGenerate = computed(() => {
-  return Boolean(
-    !isGenerating.value &&
-    promptStore.promptField?.trim() &&
-    selectedArtServer.value,
-  )
 })
 
 function setTab(tab: string) {
@@ -574,95 +265,6 @@ async function loadManagerData(force = false) {
 
 async function refreshManagerData() {
   await loadManagerData(true)
-}
-
-function clearPrompt() {
-  promptStore.promptField = ''
-  generationMessage.value = ''
-}
-
-function useActiveServer() {
-  const server = selectedArtServer.value
-
-  if (!server) {
-    generationTone.value = 'error'
-    generationMessage.value = 'No active art server selected.'
-    return
-  }
-
-  artStore.artForm.serverId = server.id
-  artStore.artForm.serverName = server.label || server.title
-
-  generationTone.value = 'success'
-  generationMessage.value = `Using ${server.label || server.title}.`
-}
-
-async function generateArt() {
-  if (!canGenerate.value) return
-
-  isGenerating.value = true
-  generationMessage.value = ''
-
-  const activeServer = selectedArtServer.value
-
-  try {
-    if (!activeServer) {
-      throw new Error('No active art server selected.')
-    }
-
-    const result = await artStore.generateArt({
-      promptString: promptStore.promptField,
-      negativePrompt: artStore.artForm.negativePrompt,
-      steps: artStore.artForm.steps,
-      cfg: artStore.artForm.cfg,
-      cfgHalf: artStore.artForm.cfgHalf,
-      isMature: artStore.artForm.isMature,
-      isPublic: artStore.artForm.isPublic,
-      seed: artStore.artForm.seed,
-      galleryId: artStore.artForm.galleryId,
-      promptId: artStore.artForm.promptId,
-      pitchId: artStore.artForm.pitchId,
-      serverId: activeServer.id,
-      serverName: activeServer.label || activeServer.title,
-      checkpoint:
-        checkpointStore.selectedCheckpoint?.name || artStore.artForm.checkpoint,
-      sampler:
-        checkpointStore.selectedSampler?.name || artStore.artForm.sampler,
-      designer: artStore.artForm.designer,
-      userId: artStore.artForm.userId,
-      pitch: artStore.artForm.pitch,
-      engine:
-        activeServer.generationEngine === 'A1111' ||
-        activeServer.serverType === 'A1111'
-          ? 'a1111'
-          : undefined,
-      transport:
-        activeServer.defaultTransport === 'BACKEND' ? 'backend' : undefined,
-    })
-
-    generationTone.value = result.success ? 'success' : 'error'
-    generationMessage.value =
-      result.message ||
-      (result.success ? 'Art generated.' : 'Generation failed.')
-
-    if (!result.success) {
-      errorStore.addError(
-        ErrorType.GENERAL_ERROR,
-        result.message || 'Generation failed.',
-      )
-      return
-    }
-
-    navStore.setDashboardTab(dashboardKey, 'selected')
-  } catch (error) {
-    generationTone.value = 'error'
-    generationMessage.value =
-      error instanceof Error ? error.message : 'Generation failed.'
-
-    errorStore.addError(ErrorType.GENERAL_ERROR, generationMessage.value)
-  } finally {
-    isGenerating.value = false
-  }
 }
 
 onMounted(async () => {

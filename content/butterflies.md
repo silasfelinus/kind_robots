@@ -19,3 +19,5 @@ footer: 'butterfly-footer'
 ---
 
 :butterfly-sanctuary
+:butterfly-lab
+:butterfly-grid

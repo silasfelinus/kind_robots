@@ -65,7 +65,6 @@ const componentsMap: ComponentMap = {
   'pixel-explosion': resolveComponent('LazyPixelExplosion'),
   'wandering-creatures': resolveComponent('LazyWanderingCreatures'),
   'toaster-effect': resolveComponent('LazyToasterEffect'),
-  'smudge-effect': resolveComponent('LazySmudgeEffect'),
   'ascii-aquarium': resolveComponent('LazyAsciiAquarium'),
   'pacbot-effect': resolveComponent('LazyPacbotEffect'),
   'pocket-gremlin': resolveComponent('LazyPocketGremlin'),

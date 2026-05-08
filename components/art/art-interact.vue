@@ -1417,29 +1417,6 @@ function syncSelectedCheckpointToForm() {
   syncCheckpointStoreSelection(checkpoint)
 }
 
-function syncSelectedCollectionToStore() {
-  if (!selectedCollection.value) {
-    collectionApi.setCurrentCollection?.(null)
-    return
-  }
-
-  if (collectionApi.selectCollection) {
-    collectionApi.selectCollection(selectedCollection.value)
-    return
-  }
-
-  if (collectionApi.selectCollectionById) {
-    collectionApi.selectCollectionById(selectedCollection.value.id)
-    return
-  }
-
-  if (collectionApi.setCurrentCollection) {
-    collectionApi.setCurrentCollection(selectedCollection.value)
-    return
-  }
-
-  collectionApi.currentCollection = selectedCollection.value
-}
 
 function syncSamplerToStore(name: string) {
   if (!name) return

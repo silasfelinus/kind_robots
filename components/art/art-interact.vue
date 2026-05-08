@@ -617,7 +617,9 @@
                 Selected Server
               </p>
 
-              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
+              <p
+                class="mt-1 break-all text-xs font-semibold text-base-content/80"
+              >
                 {{ activeArtServerLabel }}
               </p>
             </div>
@@ -627,7 +629,9 @@
                 Selected Checkpoint Name
               </p>
 
-              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
+              <p
+                class="mt-1 break-all text-xs font-semibold text-base-content/80"
+              >
                 {{ requestedCheckpointName || 'n/a' }}
               </p>
             </div>
@@ -637,7 +641,9 @@
                 Loaded API Model
               </p>
 
-              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
+              <p
+                class="mt-1 break-all text-xs font-semibold text-base-content/80"
+              >
                 {{ liveApiModelLabel }}
               </p>
             </div>
@@ -647,7 +653,9 @@
                 Collection
               </p>
 
-              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
+              <p
+                class="mt-1 break-all text-xs font-semibold text-base-content/80"
+              >
                 {{ selectedCollectionLabel }}
               </p>
             </div>
@@ -840,9 +848,10 @@ type CollectionStoreShape = {
     isPublic?: boolean,
     isMature?: boolean,
   ) => Promise<CollectionLike>
-  getOrCreateGeneratedArtCollection?: (userId: number) => Promise<CollectionLike>
+  getOrCreateGeneratedArtCollection?: (
+    userId: number,
+  ) => Promise<CollectionLike>
 }
-
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
@@ -883,11 +892,11 @@ const artServerOptions = computed<Server[]>(() => {
     .filter((server) => {
       return Boolean(
         server.isActive &&
-          (server.serverType === 'A1111' ||
-            server.serverType === 'ART' ||
-            server.generationEngine === 'A1111' ||
-            server.supportsTxt2Img ||
-            server.supportsImg2Img),
+        (server.serverType === 'A1111' ||
+          server.serverType === 'ART' ||
+          server.generationEngine === 'A1111' ||
+          server.supportsTxt2Img ||
+          server.supportsImg2Img),
       )
     })
     .sort((a, b) => {
@@ -916,7 +925,7 @@ const checkpointOptions = computed<ResourceLike[]>(() => {
     .filter((checkpoint) => {
       return Boolean(
         checkpoint?.name &&
-          (!checkpoint.resourceType || checkpoint.resourceType === 'CHECKPOINT'),
+        (!checkpoint.resourceType || checkpoint.resourceType === 'CHECKPOINT'),
       )
     })
     .sort((a, b) => {
@@ -995,7 +1004,11 @@ const selectedCollection = computed<CollectionLike | null>(() => {
     )
   }
 
-  return collectionApi.currentCollection || collectionApi.selectedCollections?.[0] || null
+  return (
+    collectionApi.currentCollection ||
+    collectionApi.selectedCollections?.[0] ||
+    null
+  )
 })
 
 const requestedCheckpointName = computed(() => {
@@ -1165,7 +1178,8 @@ const generationGateReason = computed(() => {
   if (!promptStore.promptField?.trim()) return 'Prompt is required.'
 
   if (!selectedArtServer.value) {
-    const requestedId = selectedServerId.value || artStore.artForm.serverId || 'none'
+    const requestedId =
+      selectedServerId.value || artStore.artForm.serverId || 'none'
 
     return `No art server found for selected ID ${requestedId}. Refresh servers or pick another server.`
   }
@@ -1200,8 +1214,8 @@ const generationGateLabel = computed(() => {
 const canCreateCollection = computed(() => {
   return Boolean(
     newCollectionTitle.value.trim() &&
-      !isCreatingCollection.value &&
-      !isGenerating.value,
+    !isCreatingCollection.value &&
+    !isGenerating.value,
   )
 })
 
@@ -1349,7 +1363,10 @@ function getCheckpointOptionTitle(checkpoint: ResourceLike): string {
 
 function getCheckpointDropdownLabel(checkpoint: ResourceLike): string {
   const label =
-    checkpoint.customLabel || checkpoint.label || checkpoint.name || 'Checkpoint'
+    checkpoint.customLabel ||
+    checkpoint.label ||
+    checkpoint.name ||
+    'Checkpoint'
   const generation = checkpoint.generation ? ` · ${checkpoint.generation}` : ''
   const maturity = checkpoint.isMature ? ' · mature' : ''
 
@@ -1377,8 +1394,8 @@ function isA1111Server(server: unknown): boolean {
 
   return Boolean(
     (data.serverType === 'A1111' || data.generationEngine === 'A1111') &&
-      data.supportsTxt2Img &&
-      !data.supportsComfyWorkflow,
+    data.supportsTxt2Img &&
+    !data.supportsComfyWorkflow,
   )
 }
 
@@ -1416,7 +1433,6 @@ function syncSelectedCheckpointToForm() {
 
   syncCheckpointStoreSelection(checkpoint)
 }
-
 
 function syncSamplerToStore(name: string) {
   if (!name) return
@@ -1471,6 +1487,54 @@ function syncCheckpointStoreSelection(checkpoint: ResourceLike) {
   }
 
   checkpointApi.selectedCheckpoint = checkpoint
+}
+
+function syncSelectedServerToForm() {
+  const server = selectedArtServer.value || serverStore.activeArtServer
+
+  if (!server) {
+    artStore.artForm.serverId = null
+    artStore.artForm.serverName = null
+    artStore.artForm.engine = undefined
+    artStore.artForm.transport = undefined
+    return
+  }
+
+  artStore.artForm.serverId = server.id
+  artStore.artForm.serverName = server.label || server.title
+
+  if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
+    artStore.artForm.engine = 'a1111'
+  } else if (
+    server.generationEngine === 'COMFY' ||
+    server.serverType === 'COMFY' ||
+    server.supportsComfyWorkflow
+  ) {
+    artStore.artForm.engine = 'comfy'
+  } else if (server.generationEngine === 'FLUX' || server.supportsFlux) {
+    artStore.artForm.engine = 'flux'
+  } else if (server.generationEngine === 'KONTEXT' || server.supportsKontext) {
+    artStore.artForm.engine = 'kontext'
+  } else {
+    artStore.artForm.engine = undefined
+  }
+
+  if (server.defaultTransport === 'BACKEND') {
+    artStore.artForm.transport = 'backend'
+    return
+  }
+
+  if (
+    server.requiresClientSideCheck ||
+    server.isPrivateNetwork ||
+    server.accessMode === 'LOCAL' ||
+    server.allowBrowserRequests
+  ) {
+    artStore.artForm.transport = 'browser'
+    return
+  }
+
+  artStore.artForm.transport = 'backend'
 }
 
 function handleServerChange(event: Event) {
@@ -1601,20 +1665,28 @@ async function createCollection() {
     let created: CollectionLike | null = null
 
     if (collectionApi.createCollection) {
-      created = await collectionApi.createCollection(title, userId, false, false)
+      created = await collectionApi.createCollection(
+        title,
+        userId,
+        false,
+        false,
+      )
     } else if (collectionApi.getOrCreateGeneratedArtCollection) {
       created = await collectionApi.getOrCreateGeneratedArtCollection(userId)
     } else {
-      const response = await performFetch<CollectionLike>('/api/art/collection', {
-        method: 'POST',
-        body: JSON.stringify({
-          label: title,
-          userId,
-          isPublic: false,
-          isMature: false,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      })
+      const response = await performFetch<CollectionLike>(
+        '/api/art/collection',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            label: title,
+            userId,
+            isPublic: false,
+            isMature: false,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
 
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create collection.')
@@ -1642,7 +1714,7 @@ async function createCollection() {
   } finally {
     isCreatingCollection.value = false
   }
-}m
+}
 
 async function generateArt() {
   if (!canGenerate.value) {

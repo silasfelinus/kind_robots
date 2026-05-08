@@ -12,9 +12,100 @@
         class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
       >
         Build prompts, tune generation settings, choose model context, and send
-        art requests through the active art server.
+        art requests through the selected art server.
       </p>
     </header>
+
+    <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Art Server</span>
+          </span>
+
+          <select
+            class="select select-bordered rounded-2xl bg-base-200"
+            :value="selectedServerId ?? ''"
+            :disabled="isGenerating || artStore.loading"
+            @change="handleServerChange"
+          >
+            <option value="">Select an art server</option>
+
+            <option
+              v-for="server in artServerOptions"
+              :key="server.id"
+              :value="server.id"
+            >
+              {{ getServerLabel(server) }}
+            </option>
+          </select>
+
+          <span class="label">
+            <span class="label-text-alt text-base-content/60">
+              {{ activeEngineLabel }} · {{ selectedTransportLabel }}
+            </span>
+          </span>
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Checkpoint</span>
+          </span>
+
+          <select
+            class="select select-bordered rounded-2xl bg-base-200"
+            :value="selectedCheckpointId ?? ''"
+            :disabled="isGenerating || artStore.loading"
+            @change="handleCheckpointChange"
+          >
+            <option value="">Select a checkpoint</option>
+
+            <option
+              v-for="checkpoint in checkpointOptions"
+              :key="checkpoint.id || checkpoint.name"
+              :value="checkpoint.id || checkpoint.name"
+            >
+              {{ getCheckpointDropdownLabel(checkpoint) }}
+            </option>
+          </select>
+
+          <span class="label">
+            <span class="label-text-alt break-all text-base-content/60">
+              {{ requestedCheckpointName || 'No checkpoint selected' }}
+            </span>
+          </span>
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Sampler</span>
+          </span>
+
+          <select
+            class="select select-bordered rounded-2xl bg-base-200"
+            :value="selectedSamplerName"
+            :disabled="isGenerating || artStore.loading"
+            @change="handleSamplerChange"
+          >
+            <option value="">Select a sampler</option>
+
+            <option
+              v-for="sampler in samplerOptions"
+              :key="sampler.name"
+              :value="sampler.name"
+            >
+              {{ sampler.name }}
+            </option>
+          </select>
+
+          <span class="label">
+            <span class="label-text-alt text-base-content/60">
+              {{ selectedSamplerLabel }}
+            </span>
+          </span>
+        </label>
+      </div>
+    </section>
 
     <section class="rounded-2xl border p-4" :class="modelStatusPanelClass">
       <div class="flex flex-col gap-3">
@@ -398,6 +489,11 @@
               </p>
 
               <p class="mt-1">
+                <span class="font-bold">Loaded:</span>
+                {{ liveApiModelLabel }}
+              </p>
+
+              <p class="mt-1">
                 <span class="font-bold">Collection:</span>
                 {{ selectedCollectionLabel }}
               </p>
@@ -434,7 +530,7 @@
               <h2 class="text-lg font-bold text-base-content">Model Context</h2>
 
               <p class="text-sm text-base-content/60">
-                Active engine and checkpoint.
+                Selected server, selected checkpoint, and live backend model.
               </p>
             </div>
 
@@ -442,27 +538,63 @@
           </div>
 
           <div class="grid gap-3">
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold uppercase text-base-content/45">
+                  Art Server
+                </span>
+              </span>
+
+              <select
+                class="select select-bordered select-sm rounded-xl bg-base-200"
+                :value="selectedServerId ?? ''"
+                :disabled="isGenerating || artStore.loading"
+                @change="handleServerChange"
+              >
+                <option value="">Select an art server</option>
+
+                <option
+                  v-for="server in artServerOptions"
+                  :key="server.id"
+                  :value="server.id"
+                >
+                  {{ getServerLabel(server) }}
+                </option>
+              </select>
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold uppercase text-base-content/45">
+                  Checkpoint
+                </span>
+              </span>
+
+              <select
+                class="select select-bordered select-sm rounded-xl bg-base-200"
+                :value="selectedCheckpointId ?? ''"
+                :disabled="isGenerating || artStore.loading"
+                @change="handleCheckpointChange"
+              >
+                <option value="">Select a checkpoint</option>
+
+                <option
+                  v-for="checkpoint in checkpointOptions"
+                  :key="checkpoint.id || checkpoint.name"
+                  :value="checkpoint.id || checkpoint.name"
+                >
+                  {{ getCheckpointDropdownLabel(checkpoint) }}
+                </option>
+              </select>
+            </label>
+
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <p class="text-xs font-bold uppercase text-base-content/45">
-                Art Server
+                Selected Checkpoint Name
               </p>
 
-              <p
-                class="mt-1 truncate text-sm font-semibold text-base-content/80"
-              >
-                {{ activeArtServerLabel }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/45">
-                Checkpoint
-              </p>
-
-              <p
-                class="mt-1 truncate text-sm font-semibold text-base-content/80"
-              >
-                {{ selectedCheckpointLabel }}
+              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
+                {{ requestedCheckpointName || 'n/a' }}
               </p>
             </div>
 
@@ -471,9 +603,7 @@
                 Live API Model
               </p>
 
-              <p
-                class="mt-1 truncate text-sm font-semibold text-base-content/80"
-              >
+              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
                 {{ liveApiModelLabel }}
               </p>
             </div>
@@ -483,9 +613,7 @@
                 Sampler
               </p>
 
-              <p
-                class="mt-1 truncate text-sm font-semibold text-base-content/80"
-              >
+              <p class="mt-1 break-all text-xs font-semibold text-base-content/80">
                 {{ selectedSamplerLabel }}
               </p>
             </div>
@@ -496,7 +624,7 @@
                 type="button"
                 @click="navStore.setDashboardTab('art', 'checkpoints')"
               >
-                Change Model
+                More Models
               </button>
 
               <button
@@ -588,6 +716,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { Resource, Server } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
@@ -599,6 +728,67 @@ import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
 import { negativeList } from '@/stores/seeds/artList'
 
+type ResourceLike = Partial<Resource> & {
+  id?: number
+  name?: string | null
+  customLabel?: string | null
+  label?: string | null
+  resourceType?: string | null
+  isMature?: boolean | null
+}
+
+type SamplerLike = {
+  id?: number | string
+  name: string
+  label?: string | null
+}
+
+type CheckpointStoreShape = {
+  checkpoints?: ResourceLike[]
+  resources?: ResourceLike[]
+  validCheckpoints?: ResourceLike[]
+  checkpointResources?: ResourceLike[]
+  selectedCheckpoint?: ResourceLike | null
+  selectedSampler?: SamplerLike | null
+  samplers?: SamplerLike[]
+  samplerOptions?: SamplerLike[]
+  modelStatus?: {
+    activeModel?: string | null
+    tone?: string | null
+    message?: string | null
+  } | null
+  lastGenerationStatus?: {
+    requestedCheckpoint?: string | null
+    actualGenerationModel?: string | null
+    tone?: string | null
+    message?: string | null
+  } | null
+  currentApiModel?: string | null
+  activeEngine?: string | null
+  hasModelMismatch?: boolean
+  modelStatusLoading?: boolean
+  modelStatusError?: string
+  initialize?: () => Promise<unknown>
+  checkActiveModel?: () => Promise<{
+    tone: 'safe' | 'warning' | 'error' | 'unknown'
+    message: string
+  }>
+  clearModelStatus?: () => void
+  selectSamplerByName?: (name: string) => unknown
+  selectCheckpointById?: (id: number) => unknown
+  selectCheckpointByName?: (name: string) => unknown
+}
+
+type ServerStoreShape = {
+  servers?: Server[]
+  activeArtServer?: Server | null
+  initialize?: (options?: { fetchRemote?: boolean; force?: boolean }) => Promise<unknown>
+  setActiveServer?: (server: Server) => unknown
+  setActiveArtServer?: (server: Server) => unknown
+  selectServer?: (id: number) => unknown
+  selectServerById?: (id: number) => unknown
+}
+
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
@@ -609,38 +799,93 @@ const promptStore = usePromptStore()
 const randomStore = useRandomStore()
 const serverStore = useServerStore()
 
+const checkpointApi = checkpointStore as unknown as CheckpointStoreShape
+const serverApi = serverStore as unknown as ServerStoreShape
+
 const isGenerating = ref(false)
 const makePretty = ref(false)
 const useNegative = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
-
-function getServerById(id: number) {
-  return serverStore.servers?.find((server) => server.id === id) || null
-}
-
-function isA1111Server(server: unknown): boolean {
-  if (!server || typeof server !== 'object') return false
-
-  const data = server as {
-    serverType?: string | null
-    generationEngine?: string | null
-    supportsTxt2Img?: boolean | null
-    supportsComfyWorkflow?: boolean | null
-  }
-
-  return Boolean(
-    (data.serverType === 'A1111' || data.generationEngine === 'A1111') &&
-    data.supportsTxt2Img &&
-    !data.supportsComfyWorkflow,
-  )
-}
+const selectedServerId = ref<number | null>(null)
+const selectedCheckpointId = ref<number | string | null>(null)
+const selectedSamplerName = ref('')
 
 const localCfg = ref(
   (artStore.artForm.cfg ?? 7) + (artStore.artForm.cfgHalf ? 0.5 : 0),
 )
 
-const selectedArtServer = computed(() => {
+const allServers = computed<Server[]>(() => {
+  return Array.isArray(serverApi.servers) ? serverApi.servers : []
+})
+
+const artServerOptions = computed<Server[]>(() => {
+  return allServers.value
+    .filter((server) => {
+      return Boolean(
+        server.isActive &&
+          (server.serverType === 'A1111' ||
+            server.generationEngine === 'A1111' ||
+            server.supportsTxt2Img),
+      )
+    })
+    .sort((a, b) => {
+      const aOrder = a.sortOrder ?? 0
+      const bOrder = b.sortOrder ?? 0
+
+      if (aOrder !== bOrder) return aOrder - bOrder
+      return getServerLabel(a).localeCompare(getServerLabel(b))
+    })
+})
+
+const checkpointOptions = computed<ResourceLike[]>(() => {
+  const candidates = [
+    checkpointApi.checkpoints,
+    checkpointApi.resources,
+    checkpointApi.validCheckpoints,
+    checkpointApi.checkpointResources,
+  ]
+
+  const found = candidates.find((items) => Array.isArray(items)) || []
+
+  return [...found]
+    .filter((checkpoint) => {
+      return Boolean(
+        checkpoint?.name &&
+          (!checkpoint.resourceType || checkpoint.resourceType === 'CHECKPOINT'),
+      )
+    })
+    .sort((a, b) => {
+      return getCheckpointDropdownLabel(a).localeCompare(
+        getCheckpointDropdownLabel(b),
+      )
+    })
+})
+
+const samplerOptions = computed<SamplerLike[]>(() => {
+  const candidates = [checkpointApi.samplers, checkpointApi.samplerOptions]
+  const found = candidates.find((items) => Array.isArray(items)) || []
+
+  if (found.length) {
+    return [...found]
+      .filter((sampler) => Boolean(sampler?.name))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  return [
+    { name: 'Euler a' },
+    { name: 'Euler' },
+    { name: 'DPM++ 2M' },
+    { name: 'DPM++ 2M Karras' },
+    { name: 'DPM++ SDE Karras' },
+  ]
+})
+
+const selectedArtServer = computed<Server | null>(() => {
+  if (selectedServerId.value) {
+    return getServerById(selectedServerId.value)
+  }
+
   const formServerId = artStore.artForm.serverId
 
   if (typeof formServerId === 'number' && formServerId > 0) {
@@ -649,7 +894,39 @@ const selectedArtServer = computed(() => {
     if (formServer) return formServer
   }
 
-  return serverStore.activeArtServer || null
+  return serverApi.activeArtServer || null
+})
+
+const selectedCheckpoint = computed<ResourceLike | null>(() => {
+  if (selectedCheckpointId.value !== null && selectedCheckpointId.value !== '') {
+    const id = selectedCheckpointId.value
+
+    const match = checkpointOptions.value.find((checkpoint) => {
+      return checkpoint.id === Number(id) || checkpoint.name === String(id)
+    })
+
+    if (match) return match
+  }
+
+  return checkpointApi.selectedCheckpoint || null
+})
+
+const requestedCheckpointName = computed(() => {
+  return selectedCheckpoint.value?.name || ''
+})
+
+const selectedCheckpointLabel = computed(() => {
+  const label =
+    selectedCheckpoint.value?.customLabel ||
+    selectedCheckpoint.value?.label ||
+    selectedCheckpoint.value?.name ||
+    'No checkpoint selected'
+
+  const name = selectedCheckpoint.value?.name || ''
+
+  if (!name || label === name) return label
+
+  return `${label} (${name})`
 })
 
 const activeArtServerLabel = computed(() => {
@@ -664,22 +941,19 @@ const activeEngineLabel = computed(() => {
   return (
     selectedArtServer.value?.generationEngine ||
     selectedArtServer.value?.serverType ||
-    checkpointStore.activeEngine ||
+    checkpointApi.activeEngine ||
     'UNKNOWN'
   )
 })
-const selectedCheckpointLabel = computed(() => {
-  return (
-    checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.name ||
-    artStore.artForm.checkpoint ||
-    'No checkpoint selected'
-  )
+
+const selectedTransportLabel = computed(() => {
+  return selectedArtServer.value?.defaultTransport || 'AUTO'
 })
 
 const selectedSamplerLabel = computed(() => {
   return (
-    checkpointStore.selectedSampler?.name ||
+    selectedSamplerName.value ||
+    checkpointApi.selectedSampler?.name ||
     artStore.artForm.sampler ||
     'No sampler selected'
   )
@@ -705,27 +979,27 @@ const seedModel = computed({
 })
 
 const currentModelReport = computed(() => {
-  return checkpointStore.lastGenerationStatus || checkpointStore.modelStatus
+  return checkpointApi.lastGenerationStatus || checkpointApi.modelStatus
 })
 
 const liveApiModelLabel = computed(() => {
   return (
-    checkpointStore.modelStatus?.activeModel ||
-    checkpointStore.currentApiModel ||
+    checkpointApi.modelStatus?.activeModel ||
+    checkpointApi.currentApiModel ||
     'Not checked'
   )
 })
 
 const lastRequestedModelLabel = computed(() => {
   return (
-    checkpointStore.lastGenerationStatus?.requestedCheckpoint ||
+    checkpointApi.lastGenerationStatus?.requestedCheckpoint ||
     'No generation yet'
   )
 })
 
 const lastActualModelLabel = computed(() => {
   return (
-    checkpointStore.lastGenerationStatus?.actualGenerationModel ||
+    checkpointApi.lastGenerationStatus?.actualGenerationModel ||
     'No generation yet'
   )
 })
@@ -735,7 +1009,7 @@ const modelStatusTone = computed(() => {
 })
 
 const modelStatusMessage = computed(() => {
-  if (checkpointStore.modelStatusLoading) {
+  if (checkpointApi.modelStatusLoading) {
     return 'Checking the live model state...'
   }
 
@@ -775,14 +1049,11 @@ const modelStatusIcon = computed(() => {
 })
 
 const selectedCheckpointIsMature = computed(() => {
-  return Boolean(checkpointStore.selectedCheckpoint?.isMature)
+  return Boolean(selectedCheckpoint.value?.isMature)
 })
 
 const modelMismatchBlocksGeneration = computed(() => {
-  return (
-    checkpointStore.hasModelMismatch &&
-    Boolean(checkpointStore.lastGenerationStatus)
-  )
+  return Boolean(checkpointApi.hasModelMismatch && checkpointApi.lastGenerationStatus)
 })
 
 const generationGateReason = computed(() => {
@@ -794,10 +1065,8 @@ const generationGateReason = computed(() => {
   if (!isA1111Server(selectedArtServer.value)) {
     return `Selected server "${activeArtServerLabel.value}" is not an A1111 txt2img server. Choose your Stable Diffusion server, not Comfy.`
   }
-  if (
-    !checkpointStore.selectedCheckpoint?.name &&
-    !artStore.artForm.checkpoint
-  ) {
+
+  if (!requestedCheckpointName.value) {
     return 'No checkpoint selected.'
   }
 
@@ -826,17 +1095,18 @@ const promptPreview = computed(() => {
     artStore.artForm.negativePrompt
       ? `Negative: ${artStore.artForm.negativePrompt}`
       : '',
-    `Checkpoint: ${
-      checkpointStore.selectedCheckpoint?.name ||
-      artStore.artForm.checkpoint ||
-      ''
+    `Selected Server ID: ${selectedArtServer.value?.id ?? 'none'}`,
+    `Selected Server: ${activeArtServerLabel.value}`,
+    `Selected Checkpoint ID: ${selectedCheckpoint.value?.id ?? 'none'}`,
+    `Selected Checkpoint Label: ${
+      selectedCheckpoint.value?.customLabel || selectedCheckpoint.value?.label || 'none'
     }`,
+    `Selected Checkpoint Name: ${requestedCheckpointName.value || 'none'}`,
+    `Art Form Checkpoint: ${artStore.artForm.checkpoint || 'none'}`,
     `Live API Model: ${liveApiModelLabel.value}`,
     `Last Requested: ${lastRequestedModelLabel.value}`,
     `Last Actual: ${lastActualModelLabel.value}`,
-    `Sampler: ${
-      checkpointStore.selectedSampler?.name || artStore.artForm.sampler || ''
-    }`,
+    `Sampler: ${selectedSamplerLabel.value}`,
     `Steps: ${artStore.artForm.steps ?? 25}`,
     `CFG: ${localCfg.value.toFixed(1)}`,
     `Seed: ${artStore.artForm.seed ?? -1}`,
@@ -853,15 +1123,26 @@ watch(localCfg, (value) => {
 })
 
 watch(
-  () => checkpointStore.selectedCheckpoint?.name,
-  (name) => {
-    artStore.artForm.checkpoint = name || ''
+  () => selectedArtServer.value?.id,
+  async (id) => {
+    if (!id) return
+
+    syncSelectedServerToForm()
+    checkpointApi.clearModelStatus?.()
+    await checkActiveModel()
+  },
+)
+
+watch(
+  () => selectedCheckpoint.value?.id || selectedCheckpoint.value?.name,
+  () => {
+    syncSelectedCheckpointToForm()
   },
   { immediate: true },
 )
 
 watch(
-  () => checkpointStore.selectedSampler?.name,
+  () => selectedSamplerLabel.value,
   (name) => {
     artStore.artForm.sampler = name || ''
   },
@@ -869,23 +1150,49 @@ watch(
 )
 
 watch(
-  () => checkpointStore.selectedCheckpoint?.isMature,
+  () => selectedCheckpoint.value?.isMature,
   (isMature) => {
     artStore.artForm.isMature = Boolean(isMature)
   },
   { immediate: true },
 )
 
-watch(
-  () => selectedArtServer.value?.id,
-  async () => {
-    checkpointStore.clearModelStatus()
+function getServerById(id: number): Server | null {
+  return allServers.value.find((server) => server.id === id) || null
+}
 
-    if (selectedArtServer.value) {
-      await checkActiveModel()
-    }
-  },
-)
+function getServerLabel(server: Server): string {
+  const name = server.label || server.title || `Server ${server.id}`
+  const engine = server.generationEngine || server.serverType || 'UNKNOWN'
+  const transport = server.defaultTransport || 'AUTO'
+
+  return `${name} · ${engine} · ${transport}`
+}
+
+function getCheckpointDropdownLabel(checkpoint: ResourceLike): string {
+  const label = checkpoint.customLabel || checkpoint.label || checkpoint.name || 'Checkpoint'
+  const generation = checkpoint.generation ? ` · ${checkpoint.generation}` : ''
+  const maturity = checkpoint.isMature ? ' · mature' : ''
+
+  return `${label}${generation}${maturity}`
+}
+
+function isA1111Server(server: unknown): boolean {
+  if (!server || typeof server !== 'object') return false
+
+  const data = server as {
+    serverType?: string | null
+    generationEngine?: string | null
+    supportsTxt2Img?: boolean | null
+    supportsComfyWorkflow?: boolean | null
+  }
+
+  return Boolean(
+    (data.serverType === 'A1111' || data.generationEngine === 'A1111') &&
+      data.supportsTxt2Img &&
+      !data.supportsComfyWorkflow,
+  )
+}
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message
@@ -895,6 +1202,141 @@ function setStatus(message: string, tone: 'success' | 'error' = 'success') {
 function syncPrompt() {
   promptStore.syncToLocalStorage?.()
   artStore.artForm.promptString = promptStore.promptField
+}
+
+function syncSelectedServerToForm() {
+  const server = selectedArtServer.value
+
+  if (!server) return
+
+  artStore.artForm.serverId = server.id
+  artStore.artForm.serverName = server.label || server.title
+
+  if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
+    artStore.artForm.engine = 'a1111'
+  }
+
+  if (server.defaultTransport === 'BACKEND') {
+    artStore.artForm.transport = 'backend'
+  }
+
+  if (server.defaultTransport === 'BROWSER') {
+    artStore.artForm.transport = 'browser'
+  }
+
+  syncServerStoreSelection(server)
+}
+
+function syncSelectedCheckpointToForm() {
+  const checkpoint = selectedCheckpoint.value
+
+  if (!checkpoint?.name) return
+
+  artStore.artForm.checkpoint = checkpoint.name
+
+  if (checkpoint.isMature) {
+    artStore.artForm.isMature = true
+  }
+
+  syncCheckpointStoreSelection(checkpoint)
+}
+
+function syncSamplerToStore(name: string) {
+  if (!name) return
+
+  artStore.artForm.sampler = name
+
+  if (checkpointApi.selectSamplerByName) {
+    checkpointApi.selectSamplerByName(name)
+    return
+  }
+
+  const sampler = samplerOptions.value.find((entry) => entry.name === name)
+
+  if (sampler) {
+    checkpointApi.selectedSampler = sampler
+  }
+}
+
+function syncServerStoreSelection(server: Server) {
+  if (serverApi.setActiveArtServer) {
+    serverApi.setActiveArtServer(server)
+    return
+  }
+
+  if (serverApi.setActiveServer) {
+    serverApi.setActiveServer(server)
+    return
+  }
+
+  if (serverApi.selectServerById) {
+    serverApi.selectServerById(server.id)
+    return
+  }
+
+  if (serverApi.selectServer) {
+    serverApi.selectServer(server.id)
+    return
+  }
+
+  serverApi.activeArtServer = server
+}
+
+function syncCheckpointStoreSelection(checkpoint: ResourceLike) {
+  if (checkpoint.id && checkpointApi.selectCheckpointById) {
+    checkpointApi.selectCheckpointById(checkpoint.id)
+    return
+  }
+
+  if (checkpoint.name && checkpointApi.selectCheckpointByName) {
+    checkpointApi.selectCheckpointByName(checkpoint.name)
+    return
+  }
+
+  checkpointApi.selectedCheckpoint = checkpoint
+}
+
+function handleServerChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  const id = Number(value)
+
+  selectedServerId.value = Number.isInteger(id) && id > 0 ? id : null
+
+  if (!selectedServerId.value) return
+
+  const server = getServerById(selectedServerId.value)
+
+  if (!server) return
+
+  syncServerStoreSelection(server)
+  syncSelectedServerToForm()
+  checkpointApi.clearModelStatus?.()
+  setStatus(`Using ${server.label || server.title}.`)
+}
+
+function handleCheckpointChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+
+  if (!value) {
+    selectedCheckpointId.value = null
+    artStore.artForm.checkpoint = ''
+    return
+  }
+
+  const numeric = Number(value)
+  selectedCheckpointId.value =
+    Number.isInteger(numeric) && numeric > 0 ? numeric : value
+
+  syncSelectedCheckpointToForm()
+  checkpointApi.clearModelStatus?.()
+  setStatus(`Selected ${selectedCheckpointLabel.value}.`)
+}
+
+function handleSamplerChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+
+  selectedSamplerName.value = value
+  syncSamplerToStore(value)
 }
 
 function applyPretty() {
@@ -931,7 +1373,7 @@ function resetInteract() {
   artStore.artForm.promptString = ''
   artStore.artForm.negativePrompt = ''
   artStore.artForm.seed = null
-  checkpointStore.clearModelStatus()
+  checkpointApi.clearModelStatus?.()
   artStore.updateArtListSelection('__negative__', [])
 }
 
@@ -943,7 +1385,16 @@ async function copyPromptPreview() {
 }
 
 async function checkActiveModel() {
-  const report = await checkpointStore.checkActiveModel()
+  syncSelectedServerToForm()
+
+  const fallbackReport = {
+    tone: 'unknown' as const,
+    message: 'Model check is not available.',
+  }
+
+  const report = checkpointApi.checkActiveModel
+    ? await checkpointApi.checkActiveModel()
+    : fallbackReport
 
   if (report.tone === 'safe') {
     setStatus('Model check passed.')
@@ -973,10 +1424,17 @@ async function generateArt() {
 
   try {
     if (!activeServer) {
-      throw new Error('No active art server selected.')
+      throw new Error('No art server selected.')
+    }
+
+    if (!requestedCheckpointName.value) {
+      throw new Error('No checkpoint selected.')
     }
 
     syncPrompt()
+    syncSelectedServerToForm()
+    syncSelectedCheckpointToForm()
+    syncSamplerToStore(selectedSamplerLabel.value)
 
     const result = await artStore.generateArt({
       promptString: promptStore.promptField,
@@ -992,13 +1450,22 @@ async function generateArt() {
       pitchId: artStore.artForm.pitchId,
       serverId: activeServer.id,
       serverName: activeServer.label || activeServer.title,
-      checkpoint:
-        checkpointStore.selectedCheckpoint?.name || artStore.artForm.checkpoint,
-      sampler:
-        checkpointStore.selectedSampler?.name || artStore.artForm.sampler,
+      checkpoint: requestedCheckpointName.value,
+      sampler: selectedSamplerLabel.value,
       designer: artStore.artForm.designer,
       userId: artStore.artForm.userId,
       pitch: artStore.artForm.pitch,
+      engine:
+        activeServer.generationEngine === 'A1111' ||
+        activeServer.serverType === 'A1111'
+          ? 'a1111'
+          : undefined,
+      transport:
+        activeServer.defaultTransport === 'BACKEND'
+          ? 'backend'
+          : activeServer.defaultTransport === 'BROWSER'
+            ? 'browser'
+            : undefined,
     })
 
     if (!result.success) {
@@ -1007,7 +1474,7 @@ async function generateArt() {
 
     setStatus(result.message || 'Art generated.')
 
-    await checkpointStore.checkActiveModel()
+    await checkpointApi.checkActiveModel?.()
     await milestoneStore.rewardMilestone(11)
 
     navStore.setDashboardTab('art', 'selected')
@@ -1020,6 +1487,43 @@ async function generateArt() {
   } finally {
     isGenerating.value = false
   }
+}
+
+function initializeSelections() {
+  const initialServer =
+    getServerById(artStore.artForm.serverId || 0) ||
+    serverApi.activeArtServer ||
+    artServerOptions.value[0] ||
+    null
+
+  if (initialServer) {
+    selectedServerId.value = initialServer.id
+    syncServerStoreSelection(initialServer)
+    syncSelectedServerToForm()
+  }
+
+  const initialCheckpoint =
+    checkpointApi.selectedCheckpoint ||
+    checkpointOptions.value.find((checkpoint) => {
+      return checkpoint.name === artStore.artForm.checkpoint
+    }) ||
+    checkpointOptions.value[0] ||
+    null
+
+  if (initialCheckpoint) {
+    selectedCheckpointId.value = initialCheckpoint.id || initialCheckpoint.name || null
+    syncCheckpointStoreSelection(initialCheckpoint)
+    syncSelectedCheckpointToForm()
+  }
+
+  const initialSampler =
+    checkpointApi.selectedSampler?.name ||
+    artStore.artForm.sampler ||
+    samplerOptions.value[0]?.name ||
+    'Euler a'
+
+  selectedSamplerName.value = initialSampler
+  syncSamplerToStore(initialSampler)
 }
 
 onMounted(async () => {
@@ -1036,10 +1540,7 @@ onMounted(async () => {
     collectionStore.fetchCollections?.(),
   ])
 
-  if (!checkpointStore.selectedSampler) {
-    checkpointStore.selectSamplerByName('Euler a')
-  }
-
+  initializeSelections()
   syncPrompt()
 
   if (selectedArtServer.value) {

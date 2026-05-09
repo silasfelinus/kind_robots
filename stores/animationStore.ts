@@ -322,6 +322,26 @@ export const useAnimationStore = defineStore('animationStore', () => {
     start({ message: 'Generating art...', durationMs: null, ...options })
   }
 
+  function nextEffect(): void {
+    const all = effects.value
+    const idx = all.findIndex((e) => e.id === state.activeEffectId)
+    const next = all[(idx + 1) % all.length]
+    if (next) {
+      state.activeEffectId = next.id
+      state.message = next.label
+    }
+  }
+
+  function prevEffect(): void {
+    const all = effects.value
+    const idx = all.findIndex((e) => e.id === state.activeEffectId)
+    const prev = all[(idx - 1 + all.length) % all.length]
+    if (prev) {
+      state.activeEffectId = prev.id
+      state.message = prev.label
+    }
+  }
+
   function stop(): void {
     clearStopTimer()
     state.isActive = false
@@ -353,5 +373,7 @@ export const useAnimationStore = defineStore('animationStore', () => {
     setZones,
     toggleZone,
     resetZones,
+    nextEffect,
+    prevEffect,
   }
 })

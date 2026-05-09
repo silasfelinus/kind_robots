@@ -66,10 +66,18 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm"> Private </span>
+        <span v-else class="badge badge-warning badge-sm">Private</span>
 
         <span v-if="art.isMature" class="badge badge-error badge-sm">
           Mature
+        </span>
+
+        <span
+          v-if="checkpointResource?.isMature && !art.isMature"
+          class="badge badge-error badge-sm"
+          title="Checkpoint is marked mature"
+        >
+          Model 18+
         </span>
       </div>
 
@@ -102,8 +110,26 @@
       </div>
 
       <div v-if="showMeta" class="flex flex-wrap gap-2">
-        <span v-if="art.checkpoint" class="badge badge-outline badge-sm">
-          {{ art.checkpoint }}
+        <button
+          v-if="checkpointDisplay"
+          class="badge badge-outline badge-sm max-w-full cursor-copy gap-1 truncate"
+          type="button"
+          :title="checkpointTitle"
+          @click.stop="copyCheckpoint"
+        >
+          <Icon name="kind-icon:checkpoint" class="h-3 w-3" />
+          <span class="truncate">{{ checkpointDisplay }}</span>
+        </button>
+
+        <span
+          v-if="checkpointResource?.generation || art.genres"
+          class="badge badge-accent badge-sm"
+        >
+          {{ checkpointResource?.generation || art.genres }}
+        </span>
+
+        <span v-if="loadingCheckpoint" class="badge badge-ghost badge-sm">
+          Loading model
         </span>
 
         <span v-if="art.sampler" class="badge badge-ghost badge-sm">
@@ -137,17 +163,33 @@
           </p>
         </div>
 
-        <div>
+        <button
+          class="rounded-xl text-left transition hover:bg-base-200 disabled:hover:bg-transparent"
+          type="button"
+          :disabled="!art.seed"
+          title="Copy seed"
+          @click.stop="copySeed"
+        >
           <p class="font-bold uppercase text-base-content/45">Seed</p>
           <p class="truncate text-base-content/75">
             {{ art.seed ?? 'n/a' }}
           </p>
-        </div>
+        </button>
 
         <div>
           <p class="font-bold uppercase text-base-content/45">Image</p>
           <p class="truncate text-base-content/75">
             {{ art.artImageId ? `#${art.artImageId}` : 'path only' }}
+          </p>
+        </div>
+
+        <div
+          v-if="art.checkpointResourceId || art.checkpoint"
+          class="col-span-2"
+        >
+          <p class="font-bold uppercase text-base-content/45">Checkpoint</p>
+          <p class="truncate text-base-content/75" :title="checkpointTitle">
+            {{ checkpointResourceIdDisplay }}
           </p>
         </div>
       </div>
@@ -174,7 +216,7 @@
         </summary>
 
         <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-          JSON.stringify(art, null, 2)
+          JSON.stringify(debugArt, null, 2)
         }}</pre>
       </details>
     </div>
@@ -184,9 +226,10 @@
 <script setup lang="ts">
 // /components/content/art/art-card.vue
 import { computed, onMounted, ref, watch } from 'vue'
-import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
+import type { Art, ArtImage, Resource } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
+import { useResourceStore } from '@/stores/resourceStore'
 
 const props = withDefaults(
   defineProps<{
@@ -207,6 +250,7 @@ const props = withDefaults(
     allowDelete?: boolean
     allowCopyPrompt?: boolean
     autoLoadImage?: boolean
+    autoLoadCheckpoint?: boolean
     fallbackImage?: string
   }>(),
   {
@@ -226,6 +270,7 @@ const props = withDefaults(
     allowDelete: true,
     allowCopyPrompt: true,
     autoLoadImage: true,
+    autoLoadCheckpoint: true,
     fallbackImage: '/images/backtree.webp',
   },
 )
@@ -233,17 +278,24 @@ const props = withDefaults(
 const emit = defineEmits<{
   edit: [id: number]
   delete: [id: number]
-  copied: [prompt: string]
+  copied: [value: string]
 }>()
 
 const artStore = useArtStore()
 const userStore = useUserStore()
+const resourceStore = useResourceStore()
 
 const localArtImage = ref<ArtImage | null>(props.artImage)
+const localCheckpointResource = ref<Resource | null>(null)
 const loadingImage = ref(false)
+const loadingCheckpoint = ref(false)
 
 const activeSelected = computed(() => {
   return props.selected || artStore.currentArt?.id === props.art.id
+})
+
+const checkpointResource = computed(() => {
+  return localCheckpointResource.value
 })
 
 const canDelete = computed(() => {
@@ -260,6 +312,55 @@ const cfgDisplay = computed(() => {
 
 const artAltText = computed(() => {
   return props.art.promptString || `Artwork ${props.art.id}`
+})
+
+const checkpointDisplay = computed(() => {
+  if (checkpointResource.value?.customLabel) {
+    return checkpointResource.value.customLabel
+  }
+
+  if (checkpointResource.value?.name) {
+    return cleanCheckpointName(checkpointResource.value.name)
+  }
+
+  if (props.art.checkpoint) {
+    return cleanCheckpointName(props.art.checkpoint)
+  }
+
+  if (props.art.checkpointResourceId) {
+    return `Checkpoint #${props.art.checkpointResourceId}`
+  }
+
+  return ''
+})
+
+const checkpointTitle = computed(() => {
+  const parts = [
+    checkpointResource.value?.customLabel,
+    checkpointResource.value?.name,
+    checkpointResource.value?.localPath,
+    props.art.checkpoint,
+  ].filter(Boolean)
+
+  return [...new Set(parts)].join(' • ')
+})
+
+const checkpointResourceIdDisplay = computed(() => {
+  if (!props.art.checkpointResourceId) {
+    return checkpointDisplay.value || 'n/a'
+  }
+
+  return checkpointDisplay.value
+    ? `#${props.art.checkpointResourceId} • ${checkpointDisplay.value}`
+    : `#${props.art.checkpointResourceId}`
+})
+
+const debugArt = computed(() => {
+  return {
+    ...props.art,
+    resolvedCheckpointResource: checkpointResource.value,
+    resolvedCheckpointDisplay: checkpointDisplay.value,
+  }
 })
 
 const computedArtImage = computed(() => {
@@ -281,6 +382,18 @@ const computedArtImage = computed(() => {
 
   return props.fallbackImage
 })
+
+function cleanCheckpointName(value: string) {
+  return (
+    value
+      .split('/')
+      .at(-1)
+      ?.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
+      .replace(/\s*\[[^\]]+\]\s*$/g, '')
+      .replace(/[_-]+/g, ' ')
+      .trim() || value
+  )
+}
 
 async function loadArtImage() {
   if (!props.autoLoadImage) return
@@ -308,6 +421,35 @@ async function loadArtImage() {
   }
 }
 
+async function loadCheckpointResource() {
+  if (!props.autoLoadCheckpoint) return
+
+  const checkpointResourceId = props.art.checkpointResourceId
+
+  if (!checkpointResourceId) {
+    localCheckpointResource.value = null
+    return
+  }
+
+  const existing = resourceStore.resources.find((resource) => {
+    return resource.id === checkpointResourceId
+  })
+
+  if (existing) {
+    localCheckpointResource.value = existing
+    return
+  }
+
+  loadingCheckpoint.value = true
+
+  try {
+    localCheckpointResource.value =
+      await resourceStore.getResourceById(checkpointResourceId)
+  } finally {
+    loadingCheckpoint.value = false
+  }
+}
+
 async function selectArt() {
   await artStore.selectArtRecord(
     props.art,
@@ -327,14 +469,53 @@ async function copyPrompt() {
   emit('copied', props.art.promptString)
 }
 
+async function copySeed() {
+  if (!props.art.seed) return
+
+  const seed = String(props.art.seed)
+  await navigator.clipboard.writeText(seed)
+  emit('copied', seed)
+}
+
+async function copyCheckpoint() {
+  const checkpoint =
+    checkpointResource.value?.localPath ||
+    checkpointResource.value?.name ||
+    props.art.checkpoint
+
+  if (!checkpoint) return
+
+  await navigator.clipboard.writeText(checkpoint)
+  emit('copied', checkpoint)
+}
+
 onMounted(async () => {
-  await loadArtImage()
+  await Promise.all([loadArtImage(), loadCheckpointResource()])
 })
 
 watch(
   () => [props.art.artImageId, props.artImage?.id],
-  async () => {
+  async (
+    [artImageId, artImagePropId],
+    [previousArtImageId, previousArtImagePropId],
+  ) => {
+    if (
+      artImageId === previousArtImageId &&
+      artImagePropId === previousArtImagePropId
+    ) {
+      return
+    }
+
     await loadArtImage()
+  },
+)
+
+watch(
+  () => props.art.checkpointResourceId,
+  async (checkpointResourceId, previousCheckpointResourceId) => {
+    if (checkpointResourceId === previousCheckpointResourceId) return
+
+    await loadCheckpointResource()
   },
 )
 </script>

@@ -721,8 +721,12 @@ function closeCheckpointForm() {
   editingCheckpoint.value = null
 }
 
-async function handleCheckpointSaved(resource: Partial<Resource>) {
-  if (resource.name) {
+function isCheckpointResource(value: unknown): value is Partial<Resource> {
+  return Boolean(value && typeof value === 'object')
+}
+
+async function handleCheckpointSaved(resource: unknown) {
+  if (isCheckpointResource(resource) && resource.name) {
     checkpointStore.selectCheckpointByName(resource.name)
   }
 
@@ -730,7 +734,6 @@ async function handleCheckpointSaved(resource: Partial<Resource>) {
   await hydrateSelectedCheckpoint()
   updateCacheBuster()
 }
-
 async function refreshModel() {
   isLoading.value = true
   localError.value = ''

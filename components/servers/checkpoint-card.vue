@@ -209,7 +209,7 @@ const checkpointStore = useCheckpointStore()
 const serverStore = useServerStore()
 
 const activeServer = computed(() => {
-  return serverStore.currentServer || serverStore.activeArtServer
+  return serverStore.activeArtServer || serverStore.currentServer
 })
 
 const checkpointName = computed(() => {

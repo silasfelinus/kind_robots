@@ -9,6 +9,21 @@
 * 🟢 You can import this file directly.
 */
 
+export const ResourceType = {
+  CHECKPOINT: 'CHECKPOINT',
+  EMBEDDING: 'EMBEDDING',
+  LORA: 'LORA',
+  LYCORIS: 'LYCORIS',
+  HYPERNETWORK: 'HYPERNETWORK',
+  SAMPLER: 'SAMPLER',
+  CONTROLNET: 'CONTROLNET',
+  URL: 'URL',
+  API: 'API'
+} as const
+
+export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
+
+
 export const SupportedServer = {
   SD15: 'SD15',
   SDXL: 'SDXL',
@@ -90,21 +105,6 @@ export const ReactionCategory = {
 } as const
 
 export type ReactionCategory = (typeof ReactionCategory)[keyof typeof ReactionCategory]
-
-
-export const ResourceType = {
-  CHECKPOINT: 'CHECKPOINT',
-  EMBEDDING: 'EMBEDDING',
-  LORA: 'LORA',
-  LYCORIS: 'LYCORIS',
-  HYPERNETWORK: 'HYPERNETWORK',
-  SAMPLER: 'SAMPLER',
-  CONTROLNET: 'CONTROLNET',
-  URL: 'URL',
-  API: 'API'
-} as const
-
-export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
 
 
 export const Role = {

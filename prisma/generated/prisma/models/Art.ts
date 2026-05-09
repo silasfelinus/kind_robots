@@ -434,6 +434,7 @@ export type ArtWhereInput = {
   Reaction?: Prisma.ReactionListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
   Butterflies?: Prisma.ButterflyListRelationFilter
+  Tags?: Prisma.TagListRelationFilter
   ArtCollection?: Prisma.ArtCollectionListRelationFilter
 }
 
@@ -474,6 +475,7 @@ export type ArtOrderByWithRelationInput = {
   Reaction?: Prisma.ReactionOrderByRelationAggregateInput
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
   Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
+  Tags?: Prisma.TagOrderByRelationAggregateInput
   ArtCollection?: Prisma.ArtCollectionOrderByRelationAggregateInput
   _relevance?: Prisma.ArtOrderByRelevanceInput
 }
@@ -518,6 +520,7 @@ export type ArtWhereUniqueInput = Prisma.AtLeast<{
   Reaction?: Prisma.ReactionListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
   Butterflies?: Prisma.ButterflyListRelationFilter
+  Tags?: Prisma.TagListRelationFilter
   ArtCollection?: Prisma.ArtCollectionListRelationFilter
 }, "id">
 
@@ -617,6 +620,7 @@ export type ArtCreateInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -651,6 +655,7 @@ export type ArtUncheckedCreateInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -684,6 +689,7 @@ export type ArtUpdateInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -718,6 +724,7 @@ export type ArtUncheckedUpdateInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -1281,6 +1288,44 @@ export type ArtUncheckedUpdateManyWithoutServerNestedInput = {
   deleteMany?: Prisma.ArtScalarWhereInput | Prisma.ArtScalarWhereInput[]
 }
 
+export type ArtCreateNestedManyWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutTagsInput, Prisma.ArtUncheckedCreateWithoutTagsInput> | Prisma.ArtCreateWithoutTagsInput[] | Prisma.ArtUncheckedCreateWithoutTagsInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutTagsInput | Prisma.ArtCreateOrConnectWithoutTagsInput[]
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+}
+
+export type ArtUncheckedCreateNestedManyWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutTagsInput, Prisma.ArtUncheckedCreateWithoutTagsInput> | Prisma.ArtCreateWithoutTagsInput[] | Prisma.ArtUncheckedCreateWithoutTagsInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutTagsInput | Prisma.ArtCreateOrConnectWithoutTagsInput[]
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+}
+
+export type ArtUpdateManyWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutTagsInput, Prisma.ArtUncheckedCreateWithoutTagsInput> | Prisma.ArtCreateWithoutTagsInput[] | Prisma.ArtUncheckedCreateWithoutTagsInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutTagsInput | Prisma.ArtCreateOrConnectWithoutTagsInput[]
+  upsert?: Prisma.ArtUpsertWithWhereUniqueWithoutTagsInput | Prisma.ArtUpsertWithWhereUniqueWithoutTagsInput[]
+  set?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  disconnect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  delete?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  update?: Prisma.ArtUpdateWithWhereUniqueWithoutTagsInput | Prisma.ArtUpdateWithWhereUniqueWithoutTagsInput[]
+  updateMany?: Prisma.ArtUpdateManyWithWhereWithoutTagsInput | Prisma.ArtUpdateManyWithWhereWithoutTagsInput[]
+  deleteMany?: Prisma.ArtScalarWhereInput | Prisma.ArtScalarWhereInput[]
+}
+
+export type ArtUncheckedUpdateManyWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutTagsInput, Prisma.ArtUncheckedCreateWithoutTagsInput> | Prisma.ArtCreateWithoutTagsInput[] | Prisma.ArtUncheckedCreateWithoutTagsInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutTagsInput | Prisma.ArtCreateOrConnectWithoutTagsInput[]
+  upsert?: Prisma.ArtUpsertWithWhereUniqueWithoutTagsInput | Prisma.ArtUpsertWithWhereUniqueWithoutTagsInput[]
+  set?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  disconnect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  delete?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  update?: Prisma.ArtUpdateWithWhereUniqueWithoutTagsInput | Prisma.ArtUpdateWithWhereUniqueWithoutTagsInput[]
+  updateMany?: Prisma.ArtUpdateManyWithWhereWithoutTagsInput | Prisma.ArtUpdateManyWithWhereWithoutTagsInput[]
+  deleteMany?: Prisma.ArtScalarWhereInput | Prisma.ArtScalarWhereInput[]
+}
+
 export type ArtCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.ArtCreateWithoutUserInput, Prisma.ArtUncheckedCreateWithoutUserInput> | Prisma.ArtCreateWithoutUserInput[] | Prisma.ArtUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.ArtCreateOrConnectWithoutUserInput | Prisma.ArtCreateOrConnectWithoutUserInput[]
@@ -1352,6 +1397,7 @@ export type ArtCreateWithoutArtImageInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -1385,6 +1431,7 @@ export type ArtUncheckedCreateWithoutArtImageInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -1433,6 +1480,7 @@ export type ArtUpdateWithoutArtImageInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -1466,6 +1514,7 @@ export type ArtUncheckedUpdateWithoutArtImageInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -1499,6 +1548,7 @@ export type ArtCreateWithoutArtCollectionInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
 }
 
 export type ArtUncheckedCreateWithoutArtCollectionInput = {
@@ -1532,6 +1582,7 @@ export type ArtUncheckedCreateWithoutArtCollectionInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
 }
 
 export type ArtCreateOrConnectWithoutArtCollectionInput = {
@@ -1616,6 +1667,7 @@ export type ArtCreateWithoutButterfliesInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -1649,6 +1701,7 @@ export type ArtUncheckedCreateWithoutButterfliesInput = {
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutArtInput
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -1697,6 +1750,7 @@ export type ArtUpdateWithoutButterfliesInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -1730,6 +1784,7 @@ export type ArtUncheckedUpdateWithoutButterfliesInput = {
   ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutArtNestedInput
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -1762,6 +1817,7 @@ export type ArtCreateWithoutDreamsInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -1795,6 +1851,7 @@ export type ArtUncheckedCreateWithoutDreamsInput = {
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutArtInput
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -1843,6 +1900,7 @@ export type ArtUpdateWithoutDreamsInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -1876,6 +1934,7 @@ export type ArtUncheckedUpdateWithoutDreamsInput = {
   ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutArtNestedInput
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -1908,6 +1967,7 @@ export type ArtCreateWithoutGalleryInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -1941,6 +2001,7 @@ export type ArtUncheckedCreateWithoutGalleryInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -1999,6 +2060,7 @@ export type ArtCreateWithoutPitchInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -2032,6 +2094,7 @@ export type ArtUncheckedCreateWithoutPitchInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -2090,6 +2153,7 @@ export type ArtCreateWithoutPromptInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -2123,6 +2187,7 @@ export type ArtUncheckedCreateWithoutPromptInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -2181,6 +2246,7 @@ export type ArtCreateWithoutReactionInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -2214,6 +2280,7 @@ export type ArtUncheckedCreateWithoutReactionInput = {
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -2262,6 +2329,7 @@ export type ArtUpdateWithoutReactionInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -2295,6 +2363,7 @@ export type ArtUncheckedUpdateWithoutReactionInput = {
   ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -2327,6 +2396,7 @@ export type ArtCreateWithoutCheckpointResourceInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -2360,6 +2430,7 @@ export type ArtUncheckedCreateWithoutCheckpointResourceInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -2418,6 +2489,7 @@ export type ArtCreateWithoutServerInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -2451,6 +2523,7 @@ export type ArtUncheckedCreateWithoutServerInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -2478,6 +2551,94 @@ export type ArtUpdateWithWhereUniqueWithoutServerInput = {
 export type ArtUpdateManyWithWhereWithoutServerInput = {
   where: Prisma.ArtScalarWhereInput
   data: Prisma.XOR<Prisma.ArtUpdateManyMutationInput, Prisma.ArtUncheckedUpdateManyWithoutServerInput>
+}
+
+export type ArtCreateWithoutTagsInput = {
+  createdAt?: Date | string | null
+  updatedAt?: Date | string | null
+  path?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  designer?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  promptString: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  serverName?: string | null
+  serverUrl?: string | null
+  artImageId?: number | null
+  imagePath?: string | null
+  genres?: string | null
+  negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
+  Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
+  Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
+  Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
+  User?: Prisma.UserCreateNestedOneWithoutArtInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
+}
+
+export type ArtUncheckedCreateWithoutTagsInput = {
+  id?: number
+  createdAt?: Date | string | null
+  updatedAt?: Date | string | null
+  path?: string | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  designer?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  promptId?: number | null
+  userId?: number | null
+  pitchId?: number | null
+  galleryId?: number | null
+  promptString: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  artImageId?: number | null
+  imagePath?: string | null
+  genres?: string | null
+  negativePrompt?: string | null
+  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutArtInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
+}
+
+export type ArtCreateOrConnectWithoutTagsInput = {
+  where: Prisma.ArtWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtCreateWithoutTagsInput, Prisma.ArtUncheckedCreateWithoutTagsInput>
+}
+
+export type ArtUpsertWithWhereUniqueWithoutTagsInput = {
+  where: Prisma.ArtWhereUniqueInput
+  update: Prisma.XOR<Prisma.ArtUpdateWithoutTagsInput, Prisma.ArtUncheckedUpdateWithoutTagsInput>
+  create: Prisma.XOR<Prisma.ArtCreateWithoutTagsInput, Prisma.ArtUncheckedCreateWithoutTagsInput>
+}
+
+export type ArtUpdateWithWhereUniqueWithoutTagsInput = {
+  where: Prisma.ArtWhereUniqueInput
+  data: Prisma.XOR<Prisma.ArtUpdateWithoutTagsInput, Prisma.ArtUncheckedUpdateWithoutTagsInput>
+}
+
+export type ArtUpdateManyWithWhereWithoutTagsInput = {
+  where: Prisma.ArtScalarWhereInput
+  data: Prisma.XOR<Prisma.ArtUpdateManyMutationInput, Prisma.ArtUncheckedUpdateManyWithoutTagsInput>
 }
 
 export type ArtCreateWithoutUserInput = {
@@ -2509,6 +2670,7 @@ export type ArtCreateWithoutUserInput = {
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
 }
 
@@ -2542,6 +2704,7 @@ export type ArtUncheckedCreateWithoutUserInput = {
   Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutArtsInput
   ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
 }
 
@@ -2601,6 +2764,7 @@ export type ArtUpdateWithoutArtCollectionInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
 }
 
 export type ArtUncheckedUpdateWithoutArtCollectionInput = {
@@ -2634,6 +2798,7 @@ export type ArtUncheckedUpdateWithoutArtCollectionInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
 }
 
 export type ArtUncheckedUpdateManyWithoutArtCollectionInput = {
@@ -2722,6 +2887,7 @@ export type ArtUpdateWithoutGalleryInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -2755,6 +2921,7 @@ export type ArtUncheckedUpdateWithoutGalleryInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -2843,6 +3010,7 @@ export type ArtUpdateWithoutPitchInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -2876,6 +3044,7 @@ export type ArtUncheckedUpdateWithoutPitchInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -2964,6 +3133,7 @@ export type ArtUpdateWithoutPromptInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -2997,6 +3167,7 @@ export type ArtUncheckedUpdateWithoutPromptInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -3085,6 +3256,7 @@ export type ArtUpdateWithoutCheckpointResourceInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -3118,6 +3290,7 @@ export type ArtUncheckedUpdateWithoutCheckpointResourceInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -3206,6 +3379,7 @@ export type ArtUpdateWithoutServerInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -3239,6 +3413,7 @@ export type ArtUncheckedUpdateWithoutServerInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -3262,6 +3437,102 @@ export type ArtUncheckedUpdateManyWithoutServerInput = {
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type ArtUpdateWithoutTagsInput = {
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  promptString?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
+  Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
+  Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
+  Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
+}
+
+export type ArtUncheckedUpdateWithoutTagsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptString?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutArtNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
+}
+
+export type ArtUncheckedUpdateManyWithoutTagsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptString?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3327,6 +3598,7 @@ export type ArtUpdateWithoutUserInput = {
   Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
 }
 
@@ -3360,6 +3632,7 @@ export type ArtUncheckedUpdateWithoutUserInput = {
   Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutArtsNestedInput
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
@@ -3400,6 +3673,7 @@ export type ArtCountOutputType = {
   Reaction: number
   Dreams: number
   Butterflies: number
+  Tags: number
   ArtCollection: number
 }
 
@@ -3407,6 +3681,7 @@ export type ArtCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.In
   Reaction?: boolean | ArtCountOutputTypeCountReactionArgs
   Dreams?: boolean | ArtCountOutputTypeCountDreamsArgs
   Butterflies?: boolean | ArtCountOutputTypeCountButterfliesArgs
+  Tags?: boolean | ArtCountOutputTypeCountTagsArgs
   ArtCollection?: boolean | ArtCountOutputTypeCountArtCollectionArgs
 }
 
@@ -3439,6 +3714,13 @@ export type ArtCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Exte
  */
 export type ArtCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ButterflyWhereInput
+}
+
+/**
+ * ArtCountOutputType without action
+ */
+export type ArtCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TagWhereInput
 }
 
 /**
@@ -3486,6 +3768,7 @@ export type ArtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   Reaction?: boolean | Prisma.Art$ReactionArgs<ExtArgs>
   Dreams?: boolean | Prisma.Art$DreamsArgs<ExtArgs>
   Butterflies?: boolean | Prisma.Art$ButterfliesArgs<ExtArgs>
+  Tags?: boolean | Prisma.Art$TagsArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Art$ArtCollectionArgs<ExtArgs>
   _count?: boolean | Prisma.ArtCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["art"]>
@@ -3533,6 +3816,7 @@ export type ArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Reaction?: boolean | Prisma.Art$ReactionArgs<ExtArgs>
   Dreams?: boolean | Prisma.Art$DreamsArgs<ExtArgs>
   Butterflies?: boolean | Prisma.Art$ButterfliesArgs<ExtArgs>
+  Tags?: boolean | Prisma.Art$TagsArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Art$ArtCollectionArgs<ExtArgs>
   _count?: boolean | Prisma.ArtCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -3550,6 +3834,7 @@ export type $ArtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     Reaction: Prisma.$ReactionPayload<ExtArgs>[]
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
     Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
+    Tags: Prisma.$TagPayload<ExtArgs>[]
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -3929,6 +4214,7 @@ export interface Prisma__ArtClient<T, Null = never, ExtArgs extends runtime.Type
   Reaction<T extends Prisma.Art$ReactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$ReactionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dreams<T extends Prisma.Art$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Butterflies<T extends Prisma.Art$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Tags<T extends Prisma.Art$TagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$TagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollection<T extends Prisma.Art$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$ArtCollectionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4535,6 +4821,30 @@ export type Art$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
+}
+
+/**
+ * Art.Tags
+ */
+export type Art$TagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tag
+   */
+  select?: Prisma.TagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tag
+   */
+  omit?: Prisma.TagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TagInclude<ExtArgs> | null
+  where?: Prisma.TagWhereInput
+  orderBy?: Prisma.TagOrderByWithRelationInput | Prisma.TagOrderByWithRelationInput[]
+  cursor?: Prisma.TagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TagScalarFieldEnum | Prisma.TagScalarFieldEnum[]
 }
 
 /**

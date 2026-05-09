@@ -411,7 +411,6 @@ export const ModelName = {
   User: 'User',
   ReactionToTag: 'ReactionToTag',
   ArtToProduct: 'ArtToProduct',
-  ArtToTag: 'ArtToTag',
   MilestoneToUser: 'MilestoneToUser',
   RewardToUser: 'RewardToUser'
 } as const
@@ -429,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "artToTag" | "milestoneToUser" | "rewardToUser"
+    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "milestoneToUser" | "rewardToUser"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2215,72 +2214,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ArtToTag: {
-      payload: Prisma.$ArtToTagPayload<ExtArgs>
-      fields: Prisma.ArtToTagFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ArtToTagFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ArtToTagFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>
-        }
-        findFirst: {
-          args: Prisma.ArtToTagFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ArtToTagFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>
-        }
-        findMany: {
-          args: Prisma.ArtToTagFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>[]
-        }
-        create: {
-          args: Prisma.ArtToTagCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>
-        }
-        createMany: {
-          args: Prisma.ArtToTagCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ArtToTagDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>
-        }
-        update: {
-          args: Prisma.ArtToTagUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>
-        }
-        deleteMany: {
-          args: Prisma.ArtToTagDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ArtToTagUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ArtToTagUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToTagPayload>
-        }
-        aggregate: {
-          args: Prisma.ArtToTagAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateArtToTag>
-        }
-        groupBy: {
-          args: Prisma.ArtToTagGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtToTagGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ArtToTagCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtToTagCountAggregateOutputType> | number
-        }
-      }
-    }
     MilestoneToUser: {
       payload: Prisma.$MilestoneToUserPayload<ExtArgs>
       fields: Prisma.MilestoneToUserFieldRefs
@@ -3116,14 +3049,6 @@ export const ArtToProductScalarFieldEnum = {
 export type ArtToProductScalarFieldEnum = (typeof ArtToProductScalarFieldEnum)[keyof typeof ArtToProductScalarFieldEnum]
 
 
-export const ArtToTagScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ArtToTagScalarFieldEnum = (typeof ArtToTagScalarFieldEnum)[keyof typeof ArtToTagScalarFieldEnum]
-
-
 export const MilestoneToUserScalarFieldEnum = {
   A: 'A',
   B: 'B'
@@ -3810,7 +3735,6 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   reactionToTag?: Prisma.ReactionToTagOmit
   artToProduct?: Prisma.ArtToProductOmit
-  artToTag?: Prisma.ArtToTagOmit
   milestoneToUser?: Prisma.MilestoneToUserOmit
   rewardToUser?: Prisma.RewardToUserOmit
 }

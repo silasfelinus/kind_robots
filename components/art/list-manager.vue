@@ -9,7 +9,7 @@
       <form @submit.prevent="handleCreate" class="flex gap-2 w-full md:w-auto">
         <input
           v-model="newTitle"
-          class="input input-sm input-bordered flex-1 min-w-[150px] max-w-full"
+          class="input input-sm input-bordered flex-1 min-w-37.5 max-w-full"
           placeholder="New list title"
           @input="isTyping = true"
         />
@@ -36,7 +36,7 @@
           <div class="flex gap-2 items-center flex-1 w-full min-w-0 max-w-full">
             <input
               v-model="list.title"
-              class="input input-sm input-bordered flex-1 min-w-[120px] max-w-full truncate"
+              class="input input-sm input-bordered flex-1 min-w-30 max-w-full truncate"
               :disabled="list.source !== 'user'"
               @change="save(list)"
             />
@@ -106,7 +106,7 @@
             :key="`${list.key}-entry-${i}`"
             class="flex justify-between items-center gap-2"
           >
-            <span class="break-words">{{ entry }}</span>
+            <span class="wrap-break-word">{{ entry }}</span>
             <button
               class="btn btn-xs btn-outline"
               type="button"

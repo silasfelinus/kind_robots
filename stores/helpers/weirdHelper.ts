@@ -18,12 +18,15 @@ export function fromPrismaScenario(prisma: PrismaScenario): ScenarioView {
   return {
     ...prisma,
     intros: parseIntros(prisma.intros),
+    isPublic: prisma.isPublic ?? true,
+    isMature: prisma.isMature ?? false,
   }
 }
 
 export function parseIntros(raw: string | unknown): string[] {
   try {
     const parsed = typeof raw === 'string' ? JSON.parse(raw) : []
+
     return Array.isArray(parsed) ? parsed : []
   } catch {
     return []
@@ -31,22 +34,24 @@ export function parseIntros(raw: string | unknown): string[] {
 }
 
 export function fromSeedScenario(
-  s: Partial<PrismaScenario> & { intros: string },
+  scenario: Partial<PrismaScenario> & { intros: string },
 ): ScenarioView {
   return {
-    ...s,
-    intros: parseIntros(s.intros),
-    id: -1,
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    title: s.title ?? '',
-    description: s.description ?? '',
-    genres: s.genres ?? '',
-    userId: s.userId ?? 0,
-    imagePath: s.imagePath ?? '',
-    locations: s.locations ?? '',
-    artPrompt: s.artPrompt ?? '',
-    inspirations: s.inspirations ?? '',
-    artImageId: s.artImageId ?? null,
+    ...scenario,
+    intros: parseIntros(scenario.intros),
+    id: scenario.id ?? -1,
+    createdAt: scenario.createdAt ?? new Date(0),
+    updatedAt: scenario.updatedAt ?? new Date(0),
+    title: scenario.title ?? '',
+    description: scenario.description ?? '',
+    genres: scenario.genres ?? '',
+    userId: scenario.userId ?? 0,
+    imagePath: scenario.imagePath ?? '',
+    locations: scenario.locations ?? '',
+    artPrompt: scenario.artPrompt ?? '',
+    inspirations: scenario.inspirations ?? '',
+    artImageId: scenario.artImageId ?? null,
+    isPublic: scenario.isPublic ?? true,
+    isMature: scenario.isMature ?? false,
   }
 }

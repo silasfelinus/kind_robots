@@ -1,4 +1,4 @@
-<!-- /components/content/prompts/brainstorm-manager.vue -->
+<!-- /components/content/brainstorm/brainstorm-manager.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-300 p-3 text-base-content"
@@ -580,17 +580,6 @@
       <pitch-gallery
         title="Pitch Gallery"
         subtitle="Browse, edit, select, or generate from big ideas."
-        @edit="handlePitchEdit"
-      />
-    </section>
-
-    <section
-      v-else-if="activeSection === 'prompts'"
-      class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
-    >
-      <prompt-gallery
-        title="Prompt Gallery"
-        subtitle="Reusable phrases, fragments, and prompt seeds."
       />
     </section>
 
@@ -598,7 +587,13 @@
       v-else
       class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
     >
-      <server-gallery class="h-full w-full" />
+      <server-gallery
+        class="h-full w-full"
+        mode="text"
+        variant="dashboard"
+        title="Brainstorm Server"
+        subtitle="Choose the text engine for idea generation."
+      />
     </section>
   </section>
 </template>
@@ -774,11 +769,6 @@ watch(
   },
   { immediate: true },
 )
-
-function handlePitchEdit(id: number) {
-  selectPitch(id)
-  activeSection.value = 'builder'
-}
 
 function selectPitch(pitchId: number) {
   candidates.value = []

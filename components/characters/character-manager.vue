@@ -13,49 +13,78 @@
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
-      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <character-gallery
-              variant="row"
-              title="Characters"
-              subtitle="Pick the cast."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :show-card-actions="true"
-              :show-mode-buttons="false"
-              :compact="true"
-            />
-          </div>
+      <section
+        v-if="currentTab === 'overview'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <character-gallery
+            variant="dropdown"
+            title="Character"
+            subtitle="Choose the cast member."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-mode-buttons="false"
+            :show-meta="true"
+            :compact="true"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <scenario-gallery
-              variant="row"
-              title="Scenarios"
-              subtitle="Pick the trouble."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :show-inspirations="false"
-              :compact="true"
-            />
-          </div>
+          <scenario-gallery
+            variant="dropdown"
+            title="Scenario"
+            subtitle="Optionally choose the trouble."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-inspirations="false"
+            :show-choices="false"
+            :show-meta="false"
+            :compact="true"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <reward-gallery
-              variant="row"
-              title="Rewards"
-              subtitle="Pick the plot grenade."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :compact="true"
-            />
-          </div>
+          <reward-gallery
+            variant="dropdown"
+            title="Reward"
+            subtitle="Optionally choose the plot grenade."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-meta="false"
+            :compact="true"
+          />
+
+          <dream-gallery
+            variant="dropdown"
+            title="Dream"
+            subtitle="Optionally choose a collaborative dream."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-open-button="false"
+            :show-stats="false"
+            :show-meta="false"
+            :compact="true"
+          />
+
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            title="Text Server"
+            subtitle="Choose the chat engine."
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+          />
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <div class="min-h-0 xl:col-span-7">
           <character-interact />
         </div>
       </section>
@@ -88,7 +117,7 @@
         subtitle="Use characters inside collaborative dream sessions."
       />
 
-      <server-gallery v-else-if="currentTab === 'servers'" />
+      <server-manager v-else-if="currentTab === 'servers'" />
 
       <character-interact v-else-if="currentTab === 'interact'" />
 
@@ -126,18 +155,61 @@ const managerError = ref<string | null>(null)
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
+const selectedCharacterName = computed(() => {
+  const character = characterStore.selectedCharacter
+
+  if (!character) return 'no character'
+
+  if (character.name && character.honorific) {
+    return `${character.name} the ${character.honorific}`
+  }
+
+  return character.name || character.honorific || 'unnamed character'
+})
+
+const selectedScenarioName = computed(() => {
+  return scenarioStore.selectedScenario?.title || 'no scenario'
+})
+
+const selectedRewardName = computed(() => {
+  return (
+    rewardStore.selectedReward?.label ||
+    rewardStore.selectedReward?.text ||
+    rewardStore.selectedReward?.power ||
+    'no reward'
+  )
+})
+
+const selectedDreamName = computed(() => {
+  return dreamStore.selectedDream?.title || 'no dream'
+})
+
+const selectedTextServerName = computed(() => {
+  return (
+    serverStore.activeTextServer?.label ||
+    serverStore.activeTextServer?.title ||
+    'no text server'
+  )
+})
+
 const managerSummary = computed(() => {
   const characterCount = characterStore.characters.length
   const scenarioCount = scenarioStore.scenarios.length
   const rewardCount = rewardStore.rewards.length
-  const selectedCharacter =
-    characterStore.selectedCharacter?.name || 'no character'
+  const dreamCount = dreamStore.dreams.length
 
-  return `${characterCount} characters, ${scenarioCount} scenarios, and ${rewardCount} rewards loaded. Current cast member: ${selectedCharacter}.`
+  return `${characterCount} characters, ${scenarioCount} scenarios, ${rewardCount} rewards, and ${dreamCount} dreams loaded. Current setup: ${selectedCharacterName.value}, ${selectedScenarioName.value}, ${selectedRewardName.value}, ${selectedDreamName.value}, ${selectedTextServerName.value}.`
 })
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'servers' || tab === 'interact' || tab === 'overview') {
+    serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {
@@ -196,5 +268,6 @@ watch(
 
 onMounted(async () => {
   await loadManagerData()
+  setTab(activeTab.value)
 })
 </script>

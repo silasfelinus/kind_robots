@@ -578,7 +578,8 @@ export const dashboardConfigs = {
         label: 'Overview',
         icon: 'kind-icon:sparkles',
         title: 'Reward Overview',
-        summary: 'Pick a reward and decide how it changes the story.',
+        summary:
+          'Pick a reward, choose a text engine, and generate a story encounter.',
       },
       {
         key: 'rewards',
@@ -586,13 +587,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:gift',
         title: 'Reward Gallery',
         summary: 'Select, add, edit, or delete story rewards and artifacts.',
-      },
-      {
-        key: 'characters',
-        label: 'Characters',
-        icon: 'kind-icon:person',
-        title: 'Character Gallery',
-        summary: 'Choose who encounters the reward.',
       },
       {
         key: 'collections',
@@ -611,9 +605,9 @@ export const dashboardConfigs = {
       },
       {
         key: 'interact',
-        label: 'Interact',
+        label: 'Generate',
         icon: 'kind-icon:chat',
-        title: 'Reward Interact',
+        title: 'Reward Generator',
         summary: 'Turn a selected reward into a story prompt.',
       },
     ],
@@ -629,7 +623,8 @@ export const dashboardConfigs = {
         label: 'Overview',
         icon: 'kind-icon:server',
         title: 'Server Overview',
-        summary: 'Manage text and art engines from one control room.',
+        summary:
+          'Manage text engines, art engines, and model resources from one control room.',
       },
       {
         key: 'art',
@@ -645,6 +640,14 @@ export const dashboardConfigs = {
         icon: 'kind-icon:chat',
         title: 'Text Servers',
         summary: 'Pick, test, customize, and activate chat engines.',
+      },
+      {
+        key: 'checkpoints',
+        label: 'Models',
+        icon: 'kind-icon:blueprint',
+        title: 'Checkpoints',
+        summary:
+          'Choose checkpoints, samplers, and verify active backend models.',
       },
       {
         key: 'all',

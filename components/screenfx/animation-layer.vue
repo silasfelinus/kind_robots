@@ -18,6 +18,7 @@
             :name="animationStore.activeEffect?.icon || 'kind-icon:sparkles'"
             class="h-5 w-5 text-secondary"
           />
+          <animation-controls />
           <span>{{ animationStore.message || 'Generating art...' }}</span>
         </div>
       </section>

@@ -13,39 +13,42 @@
     @refresh="refreshManagerData"
   >
     <template #default>
-      <section v-if="activeTab === 'overview'" class="flex flex-col gap-4">
-        <div
-          class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"
-        >
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <bot-gallery
-              variant="row"
-              title="Bot Roster"
-              subtitle="Pick the voice."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :show-card-actions="true"
-              :show-launch-button="true"
-              :compact="true"
-            />
-          </div>
+      <section
+        v-if="activeTab === 'overview'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <bot-gallery
+            variant="dropdown"
+            title="Bot"
+            subtitle="Choose the voice."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-launch-button="false"
+            :show-meta="true"
+            :show-personality="true"
+            :compact="true"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <server-gallery
-              mode="text"
-              variant="row"
-              title="Text Servers"
-              subtitle="Pick the brain engine."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-use-buttons="false"
-              :compact="true"
-            />
-          </div>
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            title="Text Server"
+            subtitle="Choose the brain engine."
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+          />
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <div class="min-h-0 xl:col-span-7">
           <bot-interact />
         </div>
       </section>
@@ -102,20 +105,36 @@ const managerError = ref<string | null>(null)
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
-const managerSummary = computed(() => {
-  const botCount = botStore.bots.length
-  const visibleCount = botStore.visibleBots.length
-  const selectedBot = botStore.currentBot?.name || 'no bot'
-  const activeTextServer =
+const selectedBotName = computed(() => {
+  return (
+    botStore.currentBot?.name ||
+    botStore.currentBot?.subtitle ||
+    botStore.currentBot?.tagline ||
+    'no bot'
+  )
+})
+
+const activeTextServerName = computed(() => {
+  return (
     serverStore.activeTextServer?.label ||
     serverStore.activeTextServer?.title ||
     'no text server'
+  )
+})
 
-  return `${botCount} bots loaded, ${visibleCount} visible. Current bot: ${selectedBot}. Runtime text engine: ${activeTextServer}.`
+const managerSummary = computed(() => {
+  const botCount = botStore.bots.length
+  const visibleCount = botStore.visibleBots.length
+
+  return `${botCount} bots loaded, ${visibleCount} visible. Current setup: ${selectedBotName.value}, ${activeTextServerName.value}.`
 })
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'overview' || tab === 'interact' || tab === 'servers') {
+    serverStore.setCurrentServerMode('text')
+  }
 }
 
 async function loadManagerData(force = false) {
@@ -160,5 +179,6 @@ async function handleBotSaved() {
 
 onMounted(async () => {
   await loadManagerData()
+  setTab(activeTab.value)
 })
 </script>

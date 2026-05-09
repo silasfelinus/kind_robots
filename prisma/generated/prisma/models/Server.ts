@@ -59,6 +59,7 @@ export type ServerMinAggregateOutputType = {
   endpointPath: string | null
   healthPath: string | null
   userId: number | null
+  isMature: boolean | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isDefault: boolean | null
@@ -125,6 +126,7 @@ export type ServerMaxAggregateOutputType = {
   endpointPath: string | null
   healthPath: string | null
   userId: number | null
+  isMature: boolean | null
   isPublic: boolean | null
   isOfficial: boolean | null
   isDefault: boolean | null
@@ -191,6 +193,7 @@ export type ServerCountAggregateOutputType = {
   endpointPath: number
   healthPath: number
   userId: number
+  isMature: number
   isPublic: number
   isOfficial: number
   isDefault: number
@@ -280,6 +283,7 @@ export type ServerMinAggregateInputType = {
   endpointPath?: true
   healthPath?: true
   userId?: true
+  isMature?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
@@ -346,6 +350,7 @@ export type ServerMaxAggregateInputType = {
   endpointPath?: true
   healthPath?: true
   userId?: true
+  isMature?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
@@ -412,6 +417,7 @@ export type ServerCountAggregateInputType = {
   endpointPath?: true
   healthPath?: true
   userId?: true
+  isMature?: true
   isPublic?: true
   isOfficial?: true
   isDefault?: true
@@ -566,6 +572,7 @@ export type ServerGroupByOutputType = {
   endpointPath: string | null
   healthPath: string | null
   userId: number | null
+  isMature: boolean
   isPublic: boolean
   isOfficial: boolean
   isDefault: boolean
@@ -656,6 +663,7 @@ export type ServerWhereInput = {
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
+  isMature?: Prisma.BoolFilter<"Server"> | boolean
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
@@ -728,6 +736,7 @@ export type ServerOrderByWithRelationInput = {
   endpointPath?: Prisma.SortOrderInput | Prisma.SortOrder
   healthPath?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
@@ -804,6 +813,7 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
+  isMature?: Prisma.BoolFilter<"Server"> | boolean
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
@@ -876,6 +886,7 @@ export type ServerOrderByWithAggregationInput = {
   endpointPath?: Prisma.SortOrderInput | Prisma.SortOrder
   healthPath?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
@@ -951,6 +962,7 @@ export type ServerScalarWhereWithAggregatesInput = {
   endpointPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"Server"> | number | null
+  isMature?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isPublic?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   isDefault?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
@@ -1016,6 +1028,7 @@ export type ServerCreateInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -1088,6 +1101,7 @@ export type ServerUncheckedCreateInput = {
   endpointPath?: string | null
   healthPath?: string | null
   userId?: number | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -1157,6 +1171,7 @@ export type ServerUpdateInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1229,6 +1244,7 @@ export type ServerUncheckedUpdateInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1300,6 +1316,7 @@ export type ServerCreateManyInput = {
   endpointPath?: string | null
   healthPath?: string | null
   userId?: number | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -1365,6 +1382,7 @@ export type ServerUpdateManyMutationInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1432,6 +1450,7 @@ export type ServerUncheckedUpdateManyInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1520,6 +1539,7 @@ export type ServerCountOrderByAggregateInput = {
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
@@ -1597,6 +1617,7 @@ export type ServerMaxOrderByAggregateInput = {
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
@@ -1663,6 +1684,7 @@ export type ServerMinOrderByAggregateInput = {
   endpointPath?: Prisma.SortOrder
   healthPath?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isOfficial?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
@@ -1893,6 +1915,7 @@ export type ServerCreateWithoutArtsInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -1964,6 +1987,7 @@ export type ServerUncheckedCreateWithoutArtsInput = {
   endpointPath?: string | null
   healthPath?: string | null
   userId?: number | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2048,6 +2072,7 @@ export type ServerUpdateWithoutArtsInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2119,6 +2144,7 @@ export type ServerUncheckedUpdateWithoutArtsInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2187,6 +2213,7 @@ export type ServerCreateWithoutBotsInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2258,6 +2285,7 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   endpointPath?: string | null
   healthPath?: string | null
   userId?: number | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2342,6 +2370,7 @@ export type ServerUpdateWithoutBotsInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2413,6 +2442,7 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2481,6 +2511,7 @@ export type ServerCreateWithoutChatsInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2552,6 +2583,7 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   endpointPath?: string | null
   healthPath?: string | null
   userId?: number | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2636,6 +2668,7 @@ export type ServerUpdateWithoutChatsInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2707,6 +2740,7 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2775,6 +2809,7 @@ export type ServerCreateWithoutResourcesInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2846,6 +2881,7 @@ export type ServerUncheckedCreateWithoutResourcesInput = {
   endpointPath?: string | null
   healthPath?: string | null
   userId?: number | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -2940,6 +2976,7 @@ export type ServerScalarWhereInput = {
   endpointPath?: Prisma.StringNullableFilter<"Server"> | string | null
   healthPath?: Prisma.StringNullableFilter<"Server"> | string | null
   userId?: Prisma.IntNullableFilter<"Server"> | number | null
+  isMature?: Prisma.BoolFilter<"Server"> | boolean
   isPublic?: Prisma.BoolFilter<"Server"> | boolean
   isOfficial?: Prisma.BoolFilter<"Server"> | boolean
   isDefault?: Prisma.BoolFilter<"Server"> | boolean
@@ -3005,6 +3042,7 @@ export type ServerCreateWithoutUserInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -3075,6 +3113,7 @@ export type ServerUncheckedCreateWithoutUserInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -3170,6 +3209,7 @@ export type ServerUpdateWithoutResourcesInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3241,6 +3281,7 @@ export type ServerUncheckedUpdateWithoutResourcesInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3311,6 +3352,7 @@ export type ServerUncheckedUpdateManyWithoutResourcesInput = {
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3377,6 +3419,7 @@ export type ServerCreateManyUserInput = {
   baseUrl: string
   endpointPath?: string | null
   healthPath?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -3442,6 +3485,7 @@ export type ServerUpdateWithoutUserInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3512,6 +3556,7 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3582,6 +3627,7 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
   endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3707,6 +3753,7 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   endpointPath?: boolean
   healthPath?: boolean
   userId?: boolean
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -3782,6 +3829,7 @@ export type ServerSelectScalar = {
   endpointPath?: boolean
   healthPath?: boolean
   userId?: boolean
+  isMature?: boolean
   isPublic?: boolean
   isOfficial?: boolean
   isDefault?: boolean
@@ -3836,7 +3884,7 @@ export type ServerSelectScalar = {
   defaultTransport?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "browserBaseUrl" | "backendBaseUrl" | "workflowPath" | "workflowJson" | "workflowVersion" | "defaultWidth" | "defaultHeight" | "defaultSteps" | "defaultCfg" | "defaultSampler" | "defaultScheduler" | "accessMode" | "requiresClientSideCheck" | "isPrivateNetwork" | "allowBrowserRequests" | "requiresApiKey" | "apiKeyName" | "apiKey" | "useOidc" | "oidcProvider" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "supportsFlux" | "supportsKontext" | "supportsInpaint" | "supportsOutpaint" | "supportsImageEdit" | "supportsWorkflowUpload" | "supportsBatch" | "apiLink" | "model" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "generationEngine" | "defaultTransport", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isMature" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "browserBaseUrl" | "backendBaseUrl" | "workflowPath" | "workflowJson" | "workflowVersion" | "defaultWidth" | "defaultHeight" | "defaultSteps" | "defaultCfg" | "defaultSampler" | "defaultScheduler" | "accessMode" | "requiresClientSideCheck" | "isPrivateNetwork" | "allowBrowserRequests" | "requiresApiKey" | "apiKeyName" | "apiKey" | "useOidc" | "oidcProvider" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "supportsFlux" | "supportsKontext" | "supportsInpaint" | "supportsOutpaint" | "supportsImageEdit" | "supportsWorkflowUpload" | "supportsBatch" | "apiLink" | "model" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "generationEngine" | "defaultTransport", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Arts?: boolean | Prisma.Server$ArtsArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
@@ -3868,6 +3916,7 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     endpointPath: string | null
     healthPath: string | null
     userId: number | null
+    isMature: boolean
     isPublic: boolean
     isOfficial: boolean
     isDefault: boolean
@@ -4306,6 +4355,7 @@ export interface ServerFieldRefs {
   readonly endpointPath: Prisma.FieldRef<"Server", 'String'>
   readonly healthPath: Prisma.FieldRef<"Server", 'String'>
   readonly userId: Prisma.FieldRef<"Server", 'Int'>
+  readonly isMature: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isOfficial: Prisma.FieldRef<"Server", 'Boolean'>
   readonly isDefault: Prisma.FieldRef<"Server", 'Boolean'>

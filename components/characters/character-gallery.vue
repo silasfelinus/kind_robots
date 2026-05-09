@@ -1,7 +1,10 @@
 <!-- /components/content/weird/character-gallery.vue -->
 <template>
-  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -16,7 +19,7 @@
           >
             Selected:
             <span class="font-semibold text-primary">
-              {{ characterStore.selectedCharacter.name || 'Unnamed Character' }}
+              {{ selectedCharacterTitle }}
             </span>
           </p>
 
@@ -25,30 +28,57 @@
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ filteredCharacters.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span
+            v-if="!isLoading && !characterStore.loading"
+            class="badge badge-ghost"
+          >
+            {{ filteredCharacters.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && !isDropdownMode"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="startAddingCharacter"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button
+            v-if="allowRefresh && !isDropdownMode"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isLoading || characterStore.loading"
+            @click="refreshCharacters(true)"
+          >
+            <span
+              v-if="isLoading || characterStore.loading"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls"
-        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+        v-if="showControls && !isDropdownMode"
+        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]"
       >
-        <select
-          v-model="selectedUser"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter characters by user"
+        <label
+          v-if="userStore.isAdmin"
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
-          <option value="all">All users</option>
-          <option value="mine">Mine</option>
-          <option
-            v-for="user in userStore.users"
-            :key="user.id"
-            :value="user.id"
-          >
-            {{ user.username }}
-          </option>
-        </select>
+          <span class="label-text font-bold">Show Mature</span>
+
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-accent toggle-sm"
+          />
+        </label>
 
         <select
           v-model="selectedGenre"
@@ -56,6 +86,7 @@
           aria-label="Filter characters by genre"
         >
           <option value="all">All genres</option>
+
           <option v-for="genre in characterGenres" :key="genre" :value="genre">
             {{ genre }}
           </option>
@@ -68,43 +99,9 @@
           class="input input-bordered input-sm w-full bg-base-100"
           aria-label="Search characters"
         />
-      </div>
-
-      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingCharacter"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
 
         <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          :disabled="!characterStore.selectedCharacter"
-          @click="startEditingSelectedCharacter"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          v-if="allowClone"
-          class="btn btn-accent btn-sm rounded-xl"
-          type="button"
-          :disabled="!characterStore.selectedCharacter"
-          @click="cloneSelectedCharacter"
-        >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
-          Clone
-        </button>
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
           type="button"
           :disabled="!characterStore.selectedCharacter"
           @click="clearSelectedCharacter"
@@ -112,35 +109,31 @@
           <Icon name="kind-icon:x" class="h-4 w-4" />
           Clear
         </button>
-
-        <button
-          v-if="allowRefresh"
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isLoading"
-          @click="refreshCharacters(true)"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
       </div>
     </header>
 
     <section
       v-if="showCharacterForm"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <h3 class="text-sm font-bold text-base-content">
-          {{ formTitle }}
-        </h3>
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ formTitle }}
+          </h3>
+
+          <p class="text-sm text-base-content/60">
+            {{ formSubtitle }}
+          </p>
+        </div>
 
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl"
           type="button"
           @click="closeCharacterForm"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
         </button>
       </div>
 
@@ -168,6 +161,120 @@
         </p>
       </div>
 
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon name="kind-icon:person" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Character
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedCharacterTitle }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedCharacterSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                v-if="canCloneSelected"
+                class="btn btn-accent btn-sm rounded-xl"
+                type="button"
+                @click="cloneSelectedCharacter"
+              >
+                <Icon name="kind-icon:copy" class="h-4 w-4" />
+                <span class="hidden sm:inline">Clone</span>
+              </button>
+
+              <button
+                v-if="canEditSelected"
+                class="btn btn-secondary btn-sm rounded-xl"
+                type="button"
+                @click="startEditingSelectedCharacter"
+              >
+                <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+            </div>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="characterStore.selectedCharacter?.id ?? ''"
+            aria-label="Select character"
+            @change="selectCharacterFromEvent"
+          >
+            <option value="">Choose a character</option>
+
+            <option
+              v-for="character in filteredCharacters"
+              :key="character.id"
+              :value="character.id"
+            >
+              {{ getCharacterTitle(character) }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Character</option>
+          </select>
+
+          <div
+            v-if="characterStore.selectedCharacter"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ selectedCharacterDescription }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-if="characterStore.selectedCharacter.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
+              </span>
+
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
+              <span
+                v-if="characterStore.selectedCharacter.isMature"
+                class="badge badge-warning badge-sm"
+              >
+                Mature
+              </span>
+
+              <span
+                v-if="characterStore.selectedCharacter.genre"
+                class="badge badge-outline badge-sm"
+              >
+                {{ characterStore.selectedCharacter.genre }}
+              </span>
+
+              <span
+                v-if="characterStore.selectedCharacter.level"
+                class="badge badge-secondary badge-sm"
+              >
+                Level {{ characterStore.selectedCharacter.level }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div
         v-else-if="filteredCharacters.length === 0"
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
@@ -177,7 +284,7 @@
         <div>
           <p class="text-lg font-bold">No characters found.</p>
           <p class="mt-1 text-sm">
-            Either the cast list is empty, or the filters are being dramatic.
+            No public or owned characters match this gallery.
           </p>
         </div>
 
@@ -187,27 +294,9 @@
           type="button"
           @click="startAddingCharacter"
         >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
           Make the first weirdo
         </button>
-      </div>
-
-      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
-        <select
-          class="select select-bordered w-full bg-base-100"
-          :value="characterStore.selectedCharacter?.id ?? ''"
-          aria-label="Select character"
-          @change="selectCharacterFromEvent"
-        >
-          <option value="">Choose a character</option>
-
-          <option
-            v-for="character in filteredCharacters"
-            :key="character.id"
-            :value="character.id"
-          >
-            {{ character.name || `Character ${character.id}` }}
-          </option>
-        </select>
       </div>
 
       <div v-else :class="layoutClass">
@@ -233,7 +322,7 @@
         />
       </div>
     </section>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -249,9 +338,9 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    showHeader?: boolean
     showImages?: boolean
     showControls?: boolean
-    showToolbar?: boolean
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
@@ -270,9 +359,9 @@ const props = withDefaults(
     variant: 'dashboard',
     title: 'Characters',
     subtitle: 'Browse, select, add, edit, or clone the cast.',
+    showHeader: true,
     showImages: true,
     showControls: true,
-    showToolbar: true,
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
@@ -292,30 +381,115 @@ const props = withDefaults(
 const characterStore = useCharacterStore()
 const userStore = useUserStore()
 
-const selectedUser = ref<string | number>('all')
 const selectedGenre = ref('all')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const showCharacterForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
-const isCompact = computed(
-  () =>
-    props.compact || props.variant === 'row' || props.variant === 'dropdown',
-)
+const isDropdownMode = computed(() => props.variant === 'dropdown')
 
-const formTitle = computed(() =>
-  formMode.value === 'edit' ? 'Edit Character' : 'Add Character',
-)
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
+})
 
-const layoutClass = computed(() =>
-  props.variant === 'row' ? 'character-row' : 'character-grid',
-)
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'character-row' : 'character-grid'
+})
+
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  set: async (value: boolean) => {
+    if (!userStore.user) return
+
+    await userStore.updateUser({ showMature: value })
+  },
+})
+
+const selectedCharacter = computed(() => {
+  return characterStore.selectedCharacter
+})
+
+const selectedCharacterTitle = computed(() => {
+  return selectedCharacter.value
+    ? getCharacterTitle(selectedCharacter.value)
+    : 'No character selected'
+})
+
+const selectedCharacterSubtitle = computed(() => {
+  const character = selectedCharacter.value
+
+  if (!character) return 'Choose a character or add a new one.'
+
+  return (
+    [character.species, character.class, character.honorific, character.genre]
+      .filter(Boolean)
+      .join(' / ') || 'Character selected.'
+  )
+})
+
+const selectedCharacterDescription = computed(() => {
+  const character = selectedCharacter.value
+
+  if (!character) return 'No character selected.'
+
+  return (
+    character.backstory ||
+    character.personality ||
+    character.drive ||
+    character.quirks ||
+    character.skills ||
+    'No character description yet.'
+  )
+})
+
+const formTitle = computed(() => {
+  return formMode.value === 'edit' ? 'Edit Character' : 'Add Character'
+})
+
+const formSubtitle = computed(() => {
+  return formMode.value === 'edit'
+    ? 'Tune this cast member before they steal the whole scene.'
+    : 'Create a new cast member for stories, dreams, and chaos.'
+})
+
+const canEditSelected = computed(() => {
+  const character = selectedCharacter.value
+
+  if (!props.allowEdit || !character?.id) return false
+  if (userStore.isAdmin) return true
+
+  return character.userId === currentUserId.value
+})
+
+const canCloneSelected = computed(() => {
+  return Boolean(props.allowClone && selectedCharacter.value?.id)
+})
+
+const galleryCharacters = computed<Character[]>(() => {
+  let characters = characterStore.characters
+
+  if (!userStore.isAdmin) {
+    characters = characters.filter((character) => {
+      return character.isPublic || character.userId === currentUserId.value
+    })
+  }
+
+  if (!showMature.value) {
+    characters = characters.filter((character) => !character.isMature)
+  }
+
+  return characters
+})
 
 const characterGenres = computed(() => {
   const set = new Set<string>()
 
-  for (const character of characterStore.characters) {
+  for (const character of galleryCharacters.value) {
     const genre = character.genre?.trim()
 
     if (genre) {
@@ -327,27 +501,17 @@ const characterGenres = computed(() => {
 })
 
 const filteredCharacters = computed<Character[]>(() => {
-  let characters = characterStore.characters
-
-  if (selectedUser.value === 'mine') {
-    characters = characters.filter(
-      (character) => character.userId === userStore.userId,
-    )
-  } else if (selectedUser.value !== 'all') {
-    characters = characters.filter(
-      (character) => character.userId === Number(selectedUser.value),
-    )
-  }
+  let characters = galleryCharacters.value
 
   if (selectedGenre.value !== 'all') {
-    characters = characters.filter(
-      (character) => character.genre === selectedGenre.value,
-    )
+    characters = characters.filter((character) => {
+      return character.genre === selectedGenre.value
+    })
   }
 
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
+  const query = searchQuery.value.trim().toLowerCase()
 
+  if (query) {
     characters = characters.filter((character) => {
       const haystack = [
         character.name,
@@ -360,6 +524,8 @@ const filteredCharacters = computed<Character[]>(() => {
         character.quirks,
         character.inventory,
         character.skills,
+        character.drive,
+        character.artPrompt,
       ]
         .filter(Boolean)
         .join(' ')
@@ -378,6 +544,14 @@ onMounted(async () => {
   }
 })
 
+function getCharacterTitle(character: Character) {
+  if (character.name && character.honorific) {
+    return `${character.name} the ${character.honorific}`
+  }
+
+  return character.name || character.honorific || `Character ${character.id}`
+}
+
 async function refreshCharacters(force = false) {
   isLoading.value = true
 
@@ -394,6 +568,12 @@ async function refreshCharacters(force = false) {
 
 function selectCharacterFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    startAddingCharacter()
+    return
+  }
+
   const id = Number(target.value)
 
   if (!Number.isInteger(id) || id <= 0) {

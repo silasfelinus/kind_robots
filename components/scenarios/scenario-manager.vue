@@ -1,4 +1,4 @@
-<!-- /components/content/weird/scenario-manager.vue -->
+<!-- /components/scenarios/scenario-manager.vue -->
 <template>
   <dashboard-shell
     title="Choose Your Own Weird Adventure"
@@ -13,47 +13,64 @@
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
-      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <scenario-gallery
-              variant="row"
-              title="Scenarios"
-              subtitle="Pick the playground."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :show-inspirations="false"
-              :compact="true"
-            />
-          </div>
+      <section
+        v-if="currentTab === 'overview'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <scenario-gallery
+            variant="dropdown"
+            title="Scenario"
+            subtitle="Choose the playground."
+            :show-controls="false"
+            :show-images="true"
+            :show-inspirations="false"
+            :show-choices="false"
+            :show-card-actions="false"
+            :show-meta="false"
+            :compact="true"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <character-gallery
-              variant="row"
-              title="Characters"
-              subtitle="Choose the cast."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :compact="true"
-            />
-          </div>
+          <character-gallery
+            variant="dropdown"
+            title="Character"
+            subtitle="Choose the cast."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-meta="false"
+            :compact="true"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <reward-gallery
-              variant="row"
-              title="Rewards"
-              subtitle="Pick the plot grenade."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :compact="true"
-            />
-          </div>
+          <reward-gallery
+            variant="dropdown"
+            title="Reward"
+            subtitle="Choose the plot grenade."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-meta="false"
+            :compact="true"
+          />
+
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            title="Text Server"
+            subtitle="Choose the narration engine."
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+          />
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <div class="min-h-0 xl:col-span-7">
           <scenario-interact />
         </div>
       </section>
@@ -107,6 +124,7 @@ import { useChoiceStore } from '@/stores/choiceStore'
 import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useServerStore } from '@/stores/serverStore'
 
 const dashboardKey = 'scenario' as const
 
@@ -115,6 +133,7 @@ const choiceStore = useChoiceStore()
 const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
+const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
@@ -126,8 +145,22 @@ const managerSummary = computed(() => {
   const scenarioCount = scenarioStore.scenarios.length
   const characterCount = characterStore.characters.length
   const rewardCount = rewardStore.rewards.length
+  const textCount = serverStore.textServers.length
 
-  return `${scenarioCount} scenarios, ${characterCount} characters, ${rewardCount} rewards loaded. The goblin spreadsheet is satisfied.`
+  const scenarioName = scenarioStore.selectedScenario?.title || 'no scenario'
+
+  const characterName =
+    characterStore.selectedCharacter?.name ||
+    characterStore.selectedCharacter?.honorific ||
+    'no character'
+
+  const rewardName =
+    rewardStore.selectedReward?.label ||
+    rewardStore.selectedReward?.text ||
+    rewardStore.selectedReward?.power ||
+    'no reward'
+
+  return `${scenarioCount} scenarios, ${characterCount} characters, ${rewardCount} rewards, and ${textCount} text servers loaded. Active setup: ${scenarioName}, ${characterName}, ${rewardName}.`
 })
 
 function setTab(tab: string) {
@@ -156,6 +189,10 @@ async function loadManagerData(force = false) {
         force,
         fetchRemote: true,
       }),
+      serverStore.initialize({
+        force,
+        fetchRemote: true,
+      }),
     ])
   } catch (error) {
     managerError.value =
@@ -173,5 +210,6 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+  setTab(activeTab.value)
 })
 </script>

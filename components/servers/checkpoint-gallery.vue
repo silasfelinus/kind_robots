@@ -4,6 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -12,18 +13,30 @@
             {{ title }}
           </h2>
 
-          <p class="text-sm text-base-content/60">
+          <p class="truncate text-sm text-base-content/60">
             {{ summary }}
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ visibleCheckpoints.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span v-if="!isLoading" class="badge badge-ghost">
+            {{ visibleCheckpoints.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && !isDropdownMode"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="openAddCheckpoint"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls && !isSelectMode"
+        v-if="showControls && !isDropdownMode"
         class="grid grid-cols-1 gap-2 md:grid-cols-[auto_minmax(0,1fr)_auto]"
       >
         <label
@@ -65,90 +78,136 @@
     </header>
 
     <section
-      v-if="isSelectMode"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+      v-if="showCheckpointForm"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      <div class="grid grid-cols-1 gap-3">
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Model</span>
-          </span>
+      <add-checkpoint
+        :checkpoint="editingCheckpoint"
+        @saved="handleCheckpointSaved"
+        @close="closeCheckpointForm"
+      />
+    </section>
 
-          <select
-            v-model="selectedCheckpointName"
-            class="select select-bordered w-full bg-base-200"
-            :disabled="isLoading || checkpointStore.modelUpdating"
+    <section
+      v-if="isDropdownMode"
+      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex min-w-0 items-start gap-3">
+          <div
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
           >
-            <option disabled value="">Select a checkpoint...</option>
+            <Icon name="kind-icon:checkpoint" class="h-6 w-6 text-primary" />
+          </div>
 
-            <option
-              v-for="checkpoint in visibleCheckpoints"
-              :key="checkpoint.name || checkpoint.id"
-              :value="safeText(checkpoint.name).trim()"
-              :disabled="!safeText(checkpoint.name).trim()"
-            >
-              {{ getCheckpointLabel(checkpoint) }}
-            </option>
-          </select>
-        </label>
+          <div class="min-w-0">
+            <p class="text-xs font-bold uppercase text-base-content/50">
+              Current Checkpoint
+            </p>
 
-        <label v-if="showSampler" class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Sampler</span>
-          </span>
+            <h3 class="truncate text-base font-black text-base-content">
+              {{ selectedCheckpointLabel }}
+            </h3>
 
-          <select
-            v-model="selectedSamplerName"
-            class="select select-bordered w-full bg-base-200"
-            :disabled="isLoading || checkpointStore.modelUpdating"
-          >
-            <option disabled value="">Select a sampler...</option>
-
-            <option
-              v-for="sampler in checkpointStore.allSamplers"
-              :key="sampler.name"
-              :value="safeText(sampler.name).trim()"
-            >
-              {{ sampler.name }}
-            </option>
-          </select>
-        </label>
-
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs">
-          <p>
-            <span class="font-bold">Selected:</span>
-            {{ selectedCheckpointLabel }}
-          </p>
-
-          <p class="mt-1">
-            <span class="font-bold">Active API Model:</span>
-            {{ activeModelLabel }}
-          </p>
-
-          <p v-if="mismatchWarning" class="mt-1 font-semibold text-warning">
-            Selected model does not match the active backend model.
-          </p>
+            <p class="truncate text-sm text-base-content/60">
+              {{ activeModelLabel }}
+            </p>
+          </div>
         </div>
 
         <button
-          v-if="allowRefresh"
-          class="btn btn-outline btn-sm rounded-xl"
+          v-if="canEditSelected"
+          class="btn btn-secondary btn-sm rounded-xl"
           type="button"
-          :disabled="isLoading || checkpointStore.modelUpdating"
-          @click="refreshModel"
+          @click="openEditCheckpoint"
         >
-          <span
-            v-if="isLoading || checkpointStore.modelUpdating"
-            class="loading loading-spinner loading-xs"
-          />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh Model
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          <span class="hidden sm:inline">Edit</span>
         </button>
+      </div>
+
+      <select
+        class="select select-bordered w-full bg-base-200"
+        :value="selectedCheckpointName"
+        :disabled="isLoading || checkpointStore.modelUpdating"
+        aria-label="Select checkpoint"
+        @change="selectCheckpointFromEvent"
+      >
+        <option disabled value="">Select a checkpoint...</option>
+
+        <option
+          v-for="checkpoint in visibleCheckpoints"
+          :key="checkpoint.name || checkpoint.id"
+          :value="safeText(checkpoint.name).trim()"
+          :disabled="!safeText(checkpoint.name).trim()"
+        >
+          {{ getCheckpointLabel(checkpoint) }}
+        </option>
+
+        <option v-if="allowAdd" disabled>──────────</option>
+
+        <option v-if="allowAdd" value="__add__">Add Checkpoint</option>
+      </select>
+
+      <select
+        v-if="showSampler"
+        v-model="selectedSamplerName"
+        class="select select-bordered w-full bg-base-200"
+        :disabled="isLoading || checkpointStore.modelUpdating"
+        aria-label="Select sampler"
+      >
+        <option disabled value="">Select a sampler...</option>
+
+        <option
+          v-for="sampler in checkpointStore.allSamplers"
+          :key="sampler.name"
+          :value="safeText(sampler.name).trim()"
+        >
+          {{ sampler.name }}
+        </option>
+      </select>
+
+      <div class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs">
+        <p>
+          <span class="font-bold">Selected:</span>
+          {{ selectedCheckpointLabel }}
+        </p>
+
+        <p class="mt-1">
+          <span class="font-bold">Active API Model:</span>
+          {{ activeModelLabel }}
+        </p>
+
+        <p v-if="mismatchWarning" class="mt-1 font-semibold text-warning">
+          Selected model does not match the active backend model.
+        </p>
+      </div>
+
+      <button
+        v-if="allowRefresh"
+        class="btn btn-outline btn-sm rounded-xl"
+        type="button"
+        :disabled="isLoading || checkpointStore.modelUpdating"
+        @click="refreshModel"
+      >
+        <span
+          v-if="isLoading || checkpointStore.modelUpdating"
+          class="loading loading-spinner loading-xs"
+        />
+        <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+        Refresh Model
+      </button>
+
+      <div
+        v-if="localError"
+        class="rounded-2xl bg-warning/10 p-2 text-xs text-warning"
+      >
+        {{ localError }}
       </div>
     </section>
 
     <section
-      v-if="variant === 'compact' && compactCheckpoint && !isExpanded"
+      v-else-if="variant === 'compact' && compactCheckpoint && !isExpanded"
       class="shrink-0"
     >
       <checkpoint-card
@@ -165,10 +224,7 @@
       />
     </section>
 
-    <section
-      v-if="!isSelectMode && (variant !== 'compact' || isExpanded)"
-      class="min-h-0 flex-1 overflow-auto"
-    >
+    <section v-else class="min-h-0 flex-1 overflow-auto">
       <div
         v-if="isLoading"
         class="flex h-full min-h-60 items-center justify-center"
@@ -187,6 +243,16 @@
         <p class="mt-1 text-sm">
           Either the models are hiding, or the filter gremlin is overachieving.
         </p>
+
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm mt-2 rounded-xl"
+          type="button"
+          @click="openAddCheckpoint"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add Checkpoint
+        </button>
       </div>
 
       <div v-else :class="layoutClass">
@@ -208,7 +274,7 @@
     </section>
 
     <section
-      v-if="showSampler && !isSelectMode"
+      v-if="showSampler && !isDropdownMode"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
     >
       <label class="form-control">
@@ -234,7 +300,7 @@
     </section>
 
     <footer
-      v-if="showStatus && !isSelectMode"
+      v-if="showStatus && !isDropdownMode"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs text-base-content/70"
     >
       <div
@@ -284,13 +350,6 @@
         {{ localError }}
       </div>
     </footer>
-
-    <div
-      v-if="localError && isSelectMode"
-      class="rounded-2xl bg-warning/10 p-2 text-xs text-warning"
-    >
-      {{ localError }}
-    </div>
   </section>
 </template>
 
@@ -313,13 +372,17 @@ type CheckpointResource = Partial<Resource> & {
   description?: string | null
   localPath?: string | null
   MediaPath?: string | null
+  customUrl?: string | null
+  civitaiUrl?: string | null
+  huggingUrl?: string | null
   generation?: string | null
   supportedServer?: string | null
   Servers?: ResourceServerLink[] | number[] | null
   isMature?: boolean | null
+  userId?: number | null
 }
 
-type CheckpointGalleryVariant = 'dashboard' | 'row' | 'compact' | 'select'
+type CheckpointGalleryVariant = 'dashboard' | 'row' | 'compact' | 'dropdown'
 
 const props = withDefaults(
   defineProps<{
@@ -327,6 +390,7 @@ const props = withDefaults(
     title?: string
     subtitle?: string
     compact?: boolean
+    showHeader?: boolean
     showControls?: boolean
     showSampler?: boolean
     showStatus?: boolean
@@ -335,6 +399,8 @@ const props = withDefaults(
     showMeta?: boolean
     showSelectButtons?: boolean
     showDebug?: boolean
+    allowAdd?: boolean
+    allowEdit?: boolean
     allowRefresh?: boolean
     autoLoad?: boolean
   }>(),
@@ -343,6 +409,7 @@ const props = withDefaults(
     title: 'Checkpoints',
     subtitle: 'Choose the art model used for image generation.',
     compact: false,
+    showHeader: true,
     showControls: true,
     showSampler: true,
     showStatus: true,
@@ -351,6 +418,8 @@ const props = withDefaults(
     showMeta: true,
     showSelectButtons: false,
     showDebug: false,
+    allowAdd: true,
+    allowEdit: true,
     allowRefresh: true,
     autoLoad: true,
   },
@@ -361,20 +430,29 @@ const errorStore = useErrorStore()
 const userStore = useUserStore()
 const serverStore = useServerStore()
 
-const activeServer = computed(() => {
-  return serverStore.currentServer || serverStore.activeArtServer
-})
-
 const isExpanded = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
 const cacheBuster = ref(Date.now())
 const localError = ref('')
+const showCheckpointForm = ref(false)
+const editingCheckpoint = ref<CheckpointResource | null>(null)
 
-const isSelectMode = computed(() => props.variant === 'select')
+const activeServer = computed(() => {
+  return serverStore.currentServer || serverStore.activeArtServer
+})
+
+const isDropdownMode = computed(() => {
+  return props.variant === 'dropdown'
+})
 
 const isCompact = computed(() => {
-  return props.compact || props.variant === 'row' || props.variant === 'compact'
+  return (
+    props.compact ||
+    props.variant === 'row' ||
+    props.variant === 'compact' ||
+    isDropdownMode.value
+  )
 })
 
 const layoutClass = computed(() => {
@@ -403,6 +481,10 @@ const selectedSamplerName = computed({
   },
 })
 
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
 const showMature = computed({
   get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
   set: async (value: boolean) => {
@@ -418,8 +500,16 @@ const baseCheckpoints = computed<CheckpointResource[]>(() => {
   return Array.isArray(checkpoints) ? (checkpoints as CheckpointResource[]) : []
 })
 
+const accessibleCheckpoints = computed<CheckpointResource[]>(() => {
+  if (userStore.isAdmin) return baseCheckpoints.value
+
+  return baseCheckpoints.value.filter((checkpoint) => {
+    return !checkpoint.userId || checkpoint.userId === currentUserId.value
+  })
+})
+
 const visibleCheckpoints = computed<CheckpointResource[]>(() => {
-  let checkpoints = baseCheckpoints.value.filter((checkpoint) => {
+  let checkpoints = accessibleCheckpoints.value.filter((checkpoint) => {
     return resourceSupportsServer(checkpoint, activeServer.value)
   })
 
@@ -437,6 +527,9 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
         checkpoint.description,
         checkpoint.localPath,
         checkpoint.MediaPath,
+        checkpoint.customUrl,
+        checkpoint.civitaiUrl,
+        checkpoint.huggingUrl,
         checkpoint.generation,
         checkpoint.supportedServer,
       ]
@@ -452,18 +545,6 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
   return checkpoints
 })
 
-const displayedCheckpoints = computed<CheckpointResource[]>(() => {
-  const selected = safeText(checkpointStore.selectedCheckpoint?.name).trim()
-
-  if (!isExpanded.value && selected) {
-    const match = checkpointStore.findCheckpointByName(selected)
-
-    return match ? [match as CheckpointResource] : []
-  }
-
-  return visibleCheckpoints.value
-})
-
 const compactCheckpoint = computed<CheckpointResource | null>(() => {
   if (isExpanded.value) return null
 
@@ -476,15 +557,28 @@ const compactCheckpoint = computed<CheckpointResource | null>(() => {
     )
   }
 
-  return displayedCheckpoints.value[0] ?? null
+  return visibleCheckpoints.value[0] ?? null
+})
+
+const selectedCheckpoint = computed(() => {
+  return checkpointStore.selectedCheckpoint as CheckpointResource | null
+})
+
+const canEditSelected = computed(() => {
+  const checkpoint = selectedCheckpoint.value
+
+  if (!props.allowEdit || !checkpoint?.id) return false
+  if (userStore.isAdmin) return true
+
+  return checkpoint.userId === currentUserId.value
 })
 
 const selectedCheckpointLabel = computed(() => {
-  const selected = checkpointStore.selectedCheckpoint
+  const selected = selectedCheckpoint.value
 
   if (!selected) return 'No checkpoint selected'
 
-  return getCheckpointLabel(selected as CheckpointResource)
+  return getCheckpointLabel(selected)
 })
 
 const isLiveModelCheckRelevant = computed(() => {
@@ -506,7 +600,7 @@ const mismatchWarning = computed(() => {
 })
 
 const activeModelLabel = computed(() => {
-  const selected = checkpointStore.selectedCheckpoint
+  const selected = selectedCheckpoint.value
 
   if (!showMature.value && selected?.isMature) {
     return 'Hidden Model'
@@ -529,8 +623,8 @@ const activeModelLabel = computed(() => {
 
 const summary = computed(() => {
   const selected =
-    safeText(checkpointStore.selectedCheckpoint?.customLabel).trim() ||
-    safeText(checkpointStore.selectedCheckpoint?.name).trim()
+    safeText(selectedCheckpoint.value?.customLabel).trim() ||
+    safeText(selectedCheckpoint.value?.name).trim()
 
   if (selected) {
     return `Selected: ${selected}`
@@ -541,6 +635,7 @@ const summary = computed(() => {
 
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
+
   if (typeof value === 'number' || typeof value === 'boolean') {
     return String(value)
   }
@@ -592,6 +687,48 @@ function getCheckpointLabel(checkpoint: CheckpointResource): string {
 
 function updateCacheBuster() {
   cacheBuster.value = Date.now()
+}
+
+function selectCheckpointFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    openAddCheckpoint()
+    return
+  }
+
+  const name = safeText(target.value).trim()
+
+  if (name) {
+    checkpointStore.selectCheckpointByName(name)
+  }
+}
+
+function openAddCheckpoint() {
+  editingCheckpoint.value = null
+  showCheckpointForm.value = true
+}
+
+function openEditCheckpoint() {
+  if (!selectedCheckpoint.value) return
+
+  editingCheckpoint.value = selectedCheckpoint.value
+  showCheckpointForm.value = true
+}
+
+function closeCheckpointForm() {
+  showCheckpointForm.value = false
+  editingCheckpoint.value = null
+}
+
+async function handleCheckpointSaved(resource: Partial<Resource>) {
+  if (resource.name) {
+    checkpointStore.selectCheckpointByName(resource.name)
+  }
+
+  closeCheckpointForm()
+  await hydrateSelectedCheckpoint()
+  updateCacheBuster()
 }
 
 async function refreshModel() {
@@ -663,8 +800,7 @@ async function hydrateSelectedCheckpoint() {
     }
   }
 
-  const selected =
-    checkpointStore.selectedCheckpoint as CheckpointResource | null
+  const selected = selectedCheckpoint.value
 
   if (
     selected &&
@@ -681,6 +817,7 @@ async function hydrateSelectedCheckpoint() {
     checkpointStore.selectCheckpointByName(fallbackName)
   }
 }
+
 function hydrateSelectedSampler() {
   if (checkpointStore.selectedSampler) return
 

@@ -192,6 +192,7 @@ export const BotScalarFieldEnum = {
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
   isPublic: 'isPublic',
+  isMature: 'isMature',
   underConstruction: 'underConstruction',
   canDelete: 'canDelete',
   userId: 'userId',
@@ -276,6 +277,7 @@ export const CharacterScalarFieldEnum = {
   genre: 'genre',
   artImageId: 'artImageId',
   isPublic: 'isPublic',
+  isMature: 'isMature',
   userId: 'userId',
   artPrompt: 'artPrompt',
   goalStat1Name: 'goalStat1Name',
@@ -464,6 +466,8 @@ export const PromptScalarFieldEnum = {
   prompt: 'prompt',
   userId: 'userId',
   galleryId: 'galleryId',
+  isMature: 'isMature',
+  isPublic: 'isPublic',
   creationSource: 'creationSource',
   pitchId: 'pitchId',
   botId: 'botId',
@@ -516,6 +520,7 @@ export const ResourceScalarFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
+  isPublic: 'isPublic',
   isMature: 'isMature',
   resourceType: 'resourceType',
   supportedServer: 'supportedServer',
@@ -540,7 +545,9 @@ export const RewardScalarFieldEnum = {
   userId: 'userId',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
-  imagePrompt: 'imagePrompt'
+  imagePrompt: 'imagePrompt',
+  isPublic: 'isPublic',
+  isMature: 'isMature'
 } as const
 
 export type RewardScalarFieldEnum = (typeof RewardScalarFieldEnum)[keyof typeof RewardScalarFieldEnum]
@@ -559,7 +566,9 @@ export const ScenarioScalarFieldEnum = {
   locations: 'locations',
   artPrompt: 'artPrompt',
   genres: 'genres',
-  inspirations: 'inspirations'
+  inspirations: 'inspirations',
+  isMature: 'isMature',
+  isPublic: 'isPublic'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
@@ -578,6 +587,7 @@ export const ServerScalarFieldEnum = {
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
   userId: 'userId',
+  isMature: 'isMature',
   isPublic: 'isPublic',
   isOfficial: 'isOfficial',
   isDefault: 'isDefault',
@@ -647,6 +657,7 @@ export const SmartIconScalarFieldEnum = {
   label: 'label',
   link: 'link',
   component: 'component',
+  isMature: 'isMature',
   isPublic: 'isPublic',
   description: 'description',
   category: 'category',

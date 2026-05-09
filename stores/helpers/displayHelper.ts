@@ -7,6 +7,33 @@ export function setCustomVh() {
   }
 }
 
+export type NavDock = 'top' | 'bottom'
+
+export interface DisplayStoreState {
+  headerState: DisplayState
+  sidebarLeftState: DisplayState
+  sidebarRightState: DisplayState
+  footerState: DisplayState
+  navDock: NavDock
+  isVertical: boolean
+  viewportSize: 'small' | 'medium' | 'large' | 'extraLarge'
+  isTouchDevice: boolean
+  showTutorial: boolean
+  isInitialized: boolean
+  flipState: FlipState
+  isFullScreen: boolean
+  isMobileViewport: boolean
+  isAnimating: boolean
+  currentAnimation: string
+  resizeTimeout: ReturnType<typeof setTimeout> | null
+  fullscreenState: FullscreenState
+  displayMode: displayModeState
+  displayAction: displayActionState
+  previousRoute: string
+  mainComponent: string
+  SmartState: SmartState
+}
+
 export type SmartState = 'front' | 'back' | 'dash'
 
 export type DisplayState =

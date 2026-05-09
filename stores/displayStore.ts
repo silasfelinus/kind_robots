@@ -9,6 +9,7 @@ import type {
   displayActionState,
   EffectId,
   SmartState,
+  NavDock,
 } from './helpers/displayHelper'
 import { setCustomVh } from './helpers/displayHelper'
 import {
@@ -37,7 +38,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
     headerState: 'open' as DisplayState,
     sidebarLeftState: 'hidden' as DisplayState,
     sidebarRightState: 'hidden' as DisplayState,
-    footerState: 'hidden' as DisplayState,
+    footerState: 'disabled' as DisplayState,
+    navDock: 'bottom' as NavDock,
 
     isVertical: false,
     viewportSize: 'large' as ViewportSize,
@@ -69,7 +71,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const promptOffsetOwner = ref<PromptOffsetOwner>('')
 
   const bottomControlRowVisible = computed(() => {
-    return footerStage.value !== 'disabled'
+    return true
   })
 
   const bottomControlCount = 5
@@ -96,6 +98,25 @@ export const useDisplayStore = defineStore('displayStore', () => {
       footerControlBottom.value +
       sectionPaddingSize.value
     )
+  })
+
+  const headerDockedBottom = computed(() => state.navDock === 'bottom')
+  const headerDockedTop = computed(() => state.navDock === 'top')
+
+  const headerContentVisible = computed(() => {
+    return state.headerState !== 'hidden' && state.headerState !== 'disabled'
+  })
+
+  const topDockHeight = computed(() => {
+    return headerDockedTop.value && headerContentVisible.value
+      ? headerHeight.value
+      : 0
+  })
+
+  const bottomHeaderDockHeight = computed(() => {
+    return headerDockedBottom.value && headerContentVisible.value
+      ? headerHeight.value
+      : 0
   })
 
   function getBottomControlStyle(
@@ -144,11 +165,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const effectiveFooterHeight = computed(() => {
-    return footerPanelHeight.value + bottomControlRowHeight.value
+    return footerPanelHeight.value
+  })
+
+  const bottomDockHeight = computed(() => {
+    return (
+      bottomHeaderDockHeight.value +
+      effectiveFooterHeight.value +
+      bottomControlRowHeight.value
+    )
   })
 
   const contentBottomOffset = computed(() => {
-    return effectiveFooterHeight.value + sectionPaddingSize.value
+    return bottomDockHeight.value + sectionPaddingSize.value
   })
 
   function normalizeFooterComponent(value: string | null): FooterKey {
@@ -209,9 +238,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
   )
 
   const mainPanelTopOffset = computed(() => {
-    const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
-    return header + padding
+    return topDockHeight.value + sectionPaddingSize.value
   })
 
   const sidebarLeftWidth = computed(() => {
@@ -373,11 +400,10 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const sidebarContentHeight = computed(() => {
     const padding = sectionPaddingSize.value
-    const headerExists = state.headerState !== 'hidden'
-    const header = headerExists ? headerHeight.value : 0
-    const headerPadding = headerExists ? padding * 2 : padding
+    const topDock = topDockHeight.value
+    const topPadding = topDock > 0 ? padding * 2 : padding
 
-    return 100 - (header + headerPadding + contentBottomOffset.value)
+    return 100 - (topDock + topPadding + contentBottomOffset.value)
   })
 
   const mainContentLeft = computed(() => {
@@ -434,14 +460,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const rightToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
     const isHidden = rightSidebarStage.value === 'hidden'
     const isPriority = rightSidebarStage.value === 'priority'
 
     const sidebarTop = isPriority
       ? fullColumnTopOffset.value
-      : header + padding * 2
+      : topDockHeight.value + padding * 2
 
     const seam = isHidden ? padding : padding + sidebarRightWidth.value
 
@@ -456,14 +481,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const leftToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
 
     const isHidden = leftSidebarStage.value === 'hidden'
     const isPriority = leftSidebarStage.value === 'priority'
 
     const sidebarTop = isPriority
       ? fullColumnTopOffset.value
-      : header + padding * 2
+      : topDockHeight.value + padding * 2
 
     const seam = isHidden ? padding : padding + sidebarLeftWidth.value
 
@@ -518,10 +542,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
     const topOffset = rightSidebarPriority.value
       ? fullColumnTopOffset.value
-      : header + padding * 2
+      : topDockHeight.value + padding * 2
 
     return {
       position: 'fixed',
@@ -543,11 +566,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const leftSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    const topOffset = topDockHeight.value + padding * 2
 
     if (!sidebarLeftVisible.value) {
       return {
-        top: `calc(var(--vh) * ${header + padding * 2})`,
+        top: `calc(var(--vh) * ${topOffset})`,
         left: `${padding}vw`,
         width: '0px',
         height: '0px',
@@ -564,7 +587,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
 
     return {
-      top: `calc(var(--vh) * ${header + padding * 2})`,
+      top: `calc(var(--vh) * ${topOffset})`,
       left: `${padding}vw`,
       width: `${sidebarLeftWidth.value}vw`,
       height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
@@ -573,11 +596,11 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const rightSidebarStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const header = state.headerState === 'hidden' ? 0 : headerHeight.value
+    const topOffset = topDockHeight.value + padding * 2
 
     if (!sidebarRightVisible.value) {
       return {
-        top: `calc(var(--vh) * ${header + padding * 2})`,
+        top: `calc(var(--vh) * ${topOffset})`,
         right: `${padding}vw`,
         width: '0px',
         height: '0px',
@@ -594,7 +617,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
 
     return {
-      top: `calc(var(--vh) * ${header + padding * 2})`,
+      top: `calc(var(--vh) * ${topOffset})`,
       right: `${padding}vw`,
       width: `${sidebarRightWidth.value}vw`,
       height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
@@ -603,15 +626,21 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const headerStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
-    const isHidden = state.headerState === 'hidden'
+    const isHidden = !headerContentVisible.value
+    const bottomOffset = bottomControlRowHeight.value + padding
 
     return {
+      position: 'fixed',
       height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,
       width: `${headerWidth.value}vw`,
-      top: `calc(var(--vh) * ${padding})`,
+      top: headerDockedTop.value ? `calc(var(--vh) * ${padding})` : 'auto',
+      bottom: headerDockedBottom.value
+        ? `calc(var(--vh) * ${bottomOffset})`
+        : 'auto',
       left: `${headerLeftInset.value}vw`,
       opacity: isHidden ? '0' : '1',
       pointerEvents: isHidden ? 'none' : 'auto',
+      zIndex: '20',
     }
   })
 
@@ -626,29 +655,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const footerStyle = computed<CSSProperties>(() => {
-    if (!footerContentVisible.value) {
-      return {
-        top: '100vh',
-        left: `${footerLeftInset.value}vw`,
-        width: `${footerWidth.value}vw`,
-        height: '0px',
-        opacity: '0',
-        pointerEvents: 'none',
-      }
-    }
-
     return {
-      top: `calc(var(--vh) * ${
-        100 -
-        footerPanelHeight.value -
-        bottomControlRowHeight.value -
-        sectionPaddingSize.value
-      })`,
+      top: '100vh',
       left: `${footerLeftInset.value}vw`,
       width: `${footerWidth.value}vw`,
-      height: `calc(var(--vh) * ${footerPanelHeight.value})`,
-      opacity: '1',
-      pointerEvents: 'auto',
+      height: '0px',
+      opacity: '0',
+      pointerEvents: 'none',
     }
   })
 
@@ -793,10 +806,13 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function toggleFooter() {
-    const order: DisplayState[] = ['compact', 'open', 'priority', 'hidden']
-    const currentIndex = order.indexOf(state.footerState)
-    state.footerState = order[(currentIndex + 1) % order.length] ?? 'compact'
+    state.footerState = 'disabled'
     clearPromptOffset()
+    saveState()
+  }
+
+  function setNavDock(next: NavDock) {
+    state.navDock = next === 'top' ? 'top' : 'bottom'
     saveState()
   }
 
@@ -977,8 +993,6 @@ export const useDisplayStore = defineStore('displayStore', () => {
     window.visualViewport?.removeEventListener('resize', updateViewport)
   }
 
-  
-
   function setSmartState(next: SmartState) {
     if (next !== 'front' && next !== 'dash' && next !== 'back') {
       state.SmartState = 'front'
@@ -997,94 +1011,113 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function getSavedDisplayState() {
-  return {
-    headerState: state.headerState,
-    sidebarLeftState: state.sidebarLeftState,
-    sidebarRightState: state.sidebarRightState,
-    footerState: state.footerState,
-    showTutorial: state.showTutorial,
-    flipState: state.flipState,
-    fullscreenState: state.fullscreenState,
-    displayMode: state.displayMode,
-    displayAction: state.displayAction,
-    previousRoute: state.previousRoute,
-    mainComponent: state.mainComponent,
-    showLeft: state.showLeft,
-    showCenter: state.showCenter,
-    showRight: state.showRight,
-    showExtended: state.showExtended,
-    showCorner: state.showCorner,
-    SmartState: state.SmartState,
-  }
-}
-
-function loadState() {
-  if (typeof window === 'undefined') return
-
-  try {
-    const saved = window.localStorage.getItem('displayStoreState')
-
-    if (saved) {
-      const parsed = JSON.parse(saved) as Partial<typeof state>
-
-      if (parsed.headerState) state.headerState = parsed.headerState
-      if (parsed.sidebarLeftState) state.sidebarLeftState = parsed.sidebarLeftState
-      if (parsed.sidebarRightState) state.sidebarRightState = parsed.sidebarRightState
-      if (parsed.footerState) state.footerState = parsed.footerState
-      if (typeof parsed.showTutorial === 'boolean') state.showTutorial = parsed.showTutorial
-      if (parsed.flipState) state.flipState = parsed.flipState
-      if (parsed.fullscreenState) state.fullscreenState = parsed.fullscreenState
-      if (parsed.displayMode) state.displayMode = parsed.displayMode
-      if (parsed.displayAction) state.displayAction = parsed.displayAction
-      if (typeof parsed.previousRoute === 'string') state.previousRoute = parsed.previousRoute
-      if (typeof parsed.mainComponent === 'string') state.mainComponent = parsed.mainComponent
-      if (typeof parsed.showLeft === 'boolean') state.showLeft = parsed.showLeft
-      if (typeof parsed.showCenter === 'boolean') state.showCenter = parsed.showCenter
-      if (typeof parsed.showRight === 'boolean') state.showRight = parsed.showRight
-      if (typeof parsed.showExtended === 'boolean') state.showExtended = parsed.showExtended
-      if (typeof parsed.showCorner === 'boolean') state.showCorner = parsed.showCorner
-      if (parsed.SmartState) state.SmartState = parsed.SmartState
+    return {
+      headerState: state.headerState,
+      sidebarLeftState: state.sidebarLeftState,
+      sidebarRightState: state.sidebarRightState,
+      footerState: state.footerState,
+      navDock: state.navDock,
+      showTutorial: state.showTutorial,
+      flipState: state.flipState,
+      fullscreenState: state.fullscreenState,
+      displayMode: state.displayMode,
+      displayAction: state.displayAction,
+      previousRoute: state.previousRoute,
+      mainComponent: state.mainComponent,
+      showLeft: state.showLeft,
+      showCenter: state.showCenter,
+      showRight: state.showRight,
+      showExtended: state.showExtended,
+      showCorner: state.showCorner,
+      SmartState: state.SmartState,
     }
+  }
 
-    if (
-      state.SmartState !== 'front' &&
-      state.SmartState !== 'dash' &&
-      state.SmartState !== 'back'
-    ) {
-      state.SmartState = 'front'
+  function loadState() {
+    if (typeof window === 'undefined') return
+
+    try {
+      const saved = window.localStorage.getItem('displayStoreState')
+
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<typeof state>
+
+        if (parsed.headerState) state.headerState = parsed.headerState
+        if (parsed.sidebarLeftState)
+          state.sidebarLeftState = parsed.sidebarLeftState
+        if (parsed.sidebarRightState)
+          state.sidebarRightState = parsed.sidebarRightState
+
+        if (typeof parsed.showTutorial === 'boolean')
+          state.showTutorial = parsed.showTutorial
+        if (parsed.flipState) state.flipState = parsed.flipState
+        if (parsed.fullscreenState)
+          state.fullscreenState = parsed.fullscreenState
+        if (parsed.displayMode) state.displayMode = parsed.displayMode
+        if (parsed.displayAction) state.displayAction = parsed.displayAction
+        if (typeof parsed.previousRoute === 'string')
+          state.previousRoute = parsed.previousRoute
+        if (typeof parsed.mainComponent === 'string')
+          state.mainComponent = parsed.mainComponent
+        if (typeof parsed.showLeft === 'boolean')
+          state.showLeft = parsed.showLeft
+        if (typeof parsed.showCenter === 'boolean')
+          state.showCenter = parsed.showCenter
+        if (typeof parsed.showRight === 'boolean')
+          state.showRight = parsed.showRight
+        if (typeof parsed.showExtended === 'boolean')
+          state.showExtended = parsed.showExtended
+        if (typeof parsed.showCorner === 'boolean')
+          state.showCorner = parsed.showCorner
+        if (parsed.SmartState) state.SmartState = parsed.SmartState
+
+        if (parsed.navDock === 'top' || parsed.navDock === 'bottom') {
+          state.navDock = parsed.navDock
+        }
+      }
+
+      state.footerState = 'disabled'
+      clearPromptOffset()
+
+      if (
+        state.SmartState !== 'front' &&
+        state.SmartState !== 'dash' &&
+        state.SmartState !== 'back'
+      ) {
+        state.SmartState = 'front'
+      }
+
+      state.sidebarLeftState = normalizeSidebarState(
+        state.sidebarLeftState,
+      ) as DisplayState
+
+      state.sidebarRightState = normalizeSidebarState(
+        state.sidebarRightState,
+      ) as DisplayState
+
+      state.footerState = 'disabled'
+
+      state.isInitialized = false
+      state.isAnimating = false
+      state.currentAnimation = ''
+    } catch (error) {
+      window.localStorage.removeItem('displayStoreState')
+      handleError(error, "Couldn't load state.")
     }
-
-    state.sidebarLeftState = normalizeSidebarState(
-      state.sidebarLeftState,
-    ) as DisplayState
-
-    state.sidebarRightState = normalizeSidebarState(
-      state.sidebarRightState,
-    ) as DisplayState
-
-    state.footerState = normalizeFooterState(state.footerState) as DisplayState
-
-    state.isInitialized = false
-    state.isAnimating = false
-    state.currentAnimation = ''
-  } catch (error) {
-    window.localStorage.removeItem('displayStoreState')
-    handleError(error, "Couldn't load state.")
   }
-}
 
-function saveState() {
-  if (typeof window === 'undefined') return
+  function saveState() {
+    if (typeof window === 'undefined') return
 
-  try {
-    window.localStorage.setItem(
-      'displayStoreState',
-      JSON.stringify(getSavedDisplayState()),
-    )
-  } catch (error) {
-    handleError(error, "couldn't save state.")
+    try {
+      window.localStorage.setItem(
+        'displayStoreState',
+        JSON.stringify(getSavedDisplayState()),
+      )
+    } catch (error) {
+      handleError(error, "couldn't save state.")
+    }
   }
-}
 
   function setFooterComponent(name: string) {
     const normalized = normalizeFooterComponent(name)
@@ -1093,22 +1126,22 @@ function saveState() {
   }
 
   function initialize() {
-  if (typeof window === 'undefined' || state.isInitialized) return
+    if (typeof window === 'undefined' || state.isInitialized) return
 
-  state.isInitialized = true
+    state.isInitialized = true
 
-  try {
-    loadState()
-    applyViewportSize()
+    try {
+      loadState()
+      applyViewportSize()
 
-    window.addEventListener('resize', updateViewport)
-    window.addEventListener('orientationchange', updateViewport)
-    window.visualViewport?.addEventListener('resize', updateViewport)
-  } catch (error) {
-    state.isInitialized = false
-    handleError(error, 'Task Failed: ')
+      window.addEventListener('resize', updateViewport)
+      window.addEventListener('orientationchange', updateViewport)
+      window.visualViewport?.addEventListener('resize', updateViewport)
+    } catch (error) {
+      state.isInitialized = false
+      handleError(error, 'Task Failed: ')
+    }
   }
-}
 
   return {
     ...toRefs(state),
@@ -1211,6 +1244,13 @@ function saveState() {
     getBottomControlStyle,
     applyViewportSize,
     getStackedBottomControlStyle,
+    headerDockedBottom,
+    headerDockedTop,
+    headerContentVisible,
+    topDockHeight,
+    bottomHeaderDockHeight,
+    bottomDockHeight,
+    setNavDock,
   }
 })
 

@@ -93,6 +93,7 @@ export type CharacterMinAggregateOutputType = {
   genre: string | null
   artImageId: number | null
   isPublic: boolean | null
+  isMature: boolean | null
   userId: number | null
   artPrompt: string | null
   goalStat1Name: string | null
@@ -140,6 +141,7 @@ export type CharacterMaxAggregateOutputType = {
   genre: string | null
   artImageId: number | null
   isPublic: boolean | null
+  isMature: boolean | null
   userId: number | null
   artPrompt: string | null
   goalStat1Name: string | null
@@ -187,6 +189,7 @@ export type CharacterCountAggregateOutputType = {
   genre: number
   artImageId: number
   isPublic: number
+  isMature: number
   userId: number
   artPrompt: number
   goalStat1Name: number
@@ -272,6 +275,7 @@ export type CharacterMinAggregateInputType = {
   genre?: true
   artImageId?: true
   isPublic?: true
+  isMature?: true
   userId?: true
   artPrompt?: true
   goalStat1Name?: true
@@ -319,6 +323,7 @@ export type CharacterMaxAggregateInputType = {
   genre?: true
   artImageId?: true
   isPublic?: true
+  isMature?: true
   userId?: true
   artPrompt?: true
   goalStat1Name?: true
@@ -366,6 +371,7 @@ export type CharacterCountAggregateInputType = {
   genre?: true
   artImageId?: true
   isPublic?: true
+  isMature?: true
   userId?: true
   artPrompt?: true
   goalStat1Name?: true
@@ -500,6 +506,7 @@ export type CharacterGroupByOutputType = {
   genre: string | null
   artImageId: number | null
   isPublic: boolean
+  isMature: boolean
   userId: number
   artPrompt: string | null
   goalStat1Name: string | null
@@ -570,6 +577,7 @@ export type CharacterWhereInput = {
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
+  isMature?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntFilter<"Character"> | number
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   goalStat1Name?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -624,6 +632,7 @@ export type CharacterOrderByWithRelationInput = {
   genre?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   goalStat1Name?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -682,6 +691,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
+  isMature?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntFilter<"Character"> | number
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   goalStat1Name?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -736,6 +746,7 @@ export type CharacterOrderByWithAggregationInput = {
   genre?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   goalStat1Name?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -791,6 +802,7 @@ export type CharacterScalarWhereWithAggregatesInput = {
   genre?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
+  isMature?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
   userId?: Prisma.IntWithAggregatesFilter<"Character"> | number
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   goalStat1Name?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
@@ -837,6 +849,7 @@ export type CharacterCreateInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -890,6 +903,7 @@ export type CharacterUncheckedCreateInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -942,6 +956,7 @@ export type CharacterUpdateInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -995,6 +1010,7 @@ export type CharacterUncheckedUpdateInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1048,6 +1064,7 @@ export type CharacterCreateManyInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -1094,6 +1111,7 @@ export type CharacterUpdateManyMutationInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1140,6 +1158,7 @@ export type CharacterUncheckedUpdateManyInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1198,6 +1217,7 @@ export type CharacterCountOrderByAggregateInput = {
   genre?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   goalStat1Name?: Prisma.SortOrder
@@ -1263,6 +1283,7 @@ export type CharacterMaxOrderByAggregateInput = {
   genre?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   goalStat1Name?: Prisma.SortOrder
@@ -1310,6 +1331,7 @@ export type CharacterMinOrderByAggregateInput = {
   genre?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   goalStat1Name?: Prisma.SortOrder
@@ -1566,6 +1588,7 @@ export type CharacterCreateWithoutArtImageInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -1618,6 +1641,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -1685,6 +1709,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1737,6 +1762,7 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1788,6 +1814,7 @@ export type CharacterCreateWithoutButterfliesInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -1840,6 +1867,7 @@ export type CharacterUncheckedCreateWithoutButterfliesInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -1907,6 +1935,7 @@ export type CharacterUpdateWithoutButterfliesInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1959,6 +1988,7 @@ export type CharacterUncheckedUpdateWithoutButterfliesInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2010,6 +2040,7 @@ export type CharacterCreateWithoutChatsInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -2062,6 +2093,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -2129,6 +2161,7 @@ export type CharacterUpdateWithoutChatsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2181,6 +2214,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2232,6 +2266,7 @@ export type CharacterCreateWithoutReactionsInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -2284,6 +2319,7 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -2351,6 +2387,7 @@ export type CharacterUpdateWithoutReactionsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2403,6 +2440,7 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2454,6 +2492,7 @@ export type CharacterCreateWithoutRewardsInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -2506,6 +2545,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -2582,6 +2622,7 @@ export type CharacterScalarWhereInput = {
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
+  isMature?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntFilter<"Character"> | number
   artPrompt?: Prisma.StringNullableFilter<"Character"> | string | null
   goalStat1Name?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -2628,6 +2669,7 @@ export type CharacterCreateWithoutScenariosInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -2680,6 +2722,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   userId?: number
   artPrompt?: string | null
   goalStat1Name?: string | null
@@ -2752,6 +2795,7 @@ export type CharacterCreateWithoutUserInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -2804,6 +2848,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -2881,6 +2926,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2933,6 +2979,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2985,6 +3032,7 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3031,6 +3079,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3083,6 +3132,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3135,6 +3185,7 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3182,6 +3233,7 @@ export type CharacterCreateManyUserInput = {
   genre?: string | null
   artImageId?: number | null
   isPublic?: boolean
+  isMature?: boolean
   artPrompt?: string | null
   goalStat1Name?: string | null
   goalStat1Value?: number | null
@@ -3227,6 +3279,7 @@ export type CharacterUpdateWithoutUserInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3279,6 +3332,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3331,6 +3385,7 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goalStat1Value?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3444,6 +3499,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   genre?: boolean
   artImageId?: boolean
   isPublic?: boolean
+  isMature?: boolean
   userId?: boolean
   artPrompt?: boolean
   goalStat1Name?: boolean
@@ -3501,6 +3557,7 @@ export type CharacterSelectScalar = {
   genre?: boolean
   artImageId?: boolean
   isPublic?: boolean
+  isMature?: boolean
   userId?: boolean
   artPrompt?: boolean
   goalStat1Name?: boolean
@@ -3517,7 +3574,7 @@ export type CharacterSelectScalar = {
   personality?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "inventory" | "statName1" | "statValue1" | "statName2" | "statValue2" | "statName3" | "statValue3" | "statName4" | "statValue4" | "statName5" | "statValue5" | "statName6" | "statValue6" | "quirks" | "skills" | "genre" | "artImageId" | "isPublic" | "userId" | "artPrompt" | "goalStat1Name" | "goalStat1Value" | "goalStat2Name" | "goalStat2Value" | "goalStat3Name" | "goalStat3Value" | "goalStat4Name" | "goalStat4Value" | "honorific" | "imagePath" | "designer" | "personality", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "inventory" | "statName1" | "statValue1" | "statName2" | "statValue2" | "statName3" | "statValue3" | "statName4" | "statValue4" | "statName5" | "statValue5" | "statName6" | "statValue6" | "quirks" | "skills" | "genre" | "artImageId" | "isPublic" | "isMature" | "userId" | "artPrompt" | "goalStat1Name" | "goalStat1Value" | "goalStat2Name" | "goalStat2Value" | "goalStat3Name" | "goalStat3Value" | "goalStat4Name" | "goalStat4Value" | "honorific" | "imagePath" | "designer" | "personality", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -3571,6 +3628,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     genre: string | null
     artImageId: number | null
     isPublic: boolean
+    isMature: boolean
     userId: number
     artPrompt: string | null
     goalStat1Name: string | null
@@ -3991,6 +4049,7 @@ export interface CharacterFieldRefs {
   readonly genre: Prisma.FieldRef<"Character", 'String'>
   readonly artImageId: Prisma.FieldRef<"Character", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Character", 'Boolean'>
+  readonly isMature: Prisma.FieldRef<"Character", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Character", 'Int'>
   readonly artPrompt: Prisma.FieldRef<"Character", 'String'>
   readonly goalStat1Name: Prisma.FieldRef<"Character", 'String'>

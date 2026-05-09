@@ -1,7 +1,10 @@
-<!-- /components/content/weird/scenario-gallery.vue -->
+<!-- /components/scenarios/scenario-gallery.vue -->
 <template>
-  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -25,63 +28,62 @@
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ filteredScenarios.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span v-if="!isLoading" class="badge badge-ghost">
+            {{ filteredScenarios.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && !isDropdownMode"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="startAddingScenario"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button
+            v-if="allowRefresh && !isDropdownMode"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isLoading"
+            @click="refreshScenarios(true)"
+          >
+            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls"
-        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+        v-if="showControls && !isDropdownMode"
+        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_minmax(0,1fr)_auto]"
       >
-        <select
-          v-model="selectedUser"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter scenarios by user"
+        <label
+          v-if="userStore.isAdmin"
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
-          <option value="all">All users</option>
-          <option
-            v-for="user in userStore.users"
-            :key="user.id"
-            :value="user.id"
-          >
-            {{ user.username }}
-          </option>
-        </select>
+          <span class="label-text font-bold">Show Mature</span>
+
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-accent toggle-sm"
+          />
+        </label>
 
         <input
           v-model="searchQuery"
           type="search"
-          aria-label="Search scenarios by title"
+          aria-label="Search scenarios"
           placeholder="Search scenarios..."
           class="input input-bordered input-sm w-full bg-base-100"
         />
-      </div>
-
-      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingScenario"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
 
         <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          :disabled="!scenarioStore.selectedScenario"
-          @click="startEditingScenario"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
           type="button"
           :disabled="!scenarioStore.selectedScenario"
           @click="clearSelectedScenario"
@@ -89,35 +91,31 @@
           <Icon name="kind-icon:x" class="h-4 w-4" />
           Clear
         </button>
-
-        <button
-          v-if="allowRefresh"
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isLoading"
-          @click="refreshScenarios(true)"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
       </div>
     </header>
 
     <section
       v-if="showScenarioForm"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <h3 class="text-sm font-bold text-base-content">
-          {{ formTitle }}
-        </h3>
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ formTitle }}
+          </h3>
+
+          <p class="text-sm text-base-content/60">
+            {{ formSubtitle }}
+          </p>
+        </div>
 
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl"
           type="button"
           @click="closeScenarioForm"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
         </button>
       </div>
 
@@ -136,7 +134,104 @@
         v-else-if="errorMessage"
         class="flex h-full items-center justify-center rounded-2xl border border-error/40 bg-error/10 p-6 text-center text-error"
       >
-        <p class="text-lg font-bold">{{ errorMessage }}</p>
+        <p class="text-lg font-bold">
+          {{ errorMessage }}
+        </p>
+      </div>
+
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon name="kind-icon:map" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Scenario
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedScenarioTitle }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedScenarioSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <button
+              v-if="canEditSelected"
+              class="btn btn-secondary btn-sm rounded-xl"
+              type="button"
+              @click="startEditingScenario"
+            >
+              <Icon name="kind-icon:pencil" class="h-4 w-4" />
+              <span class="hidden sm:inline">Edit</span>
+            </button>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="scenarioStore.selectedScenario?.id ?? ''"
+            aria-label="Select scenario"
+            @change="selectScenarioFromEvent"
+          >
+            <option value="">Choose a scenario</option>
+
+            <option
+              v-for="scenario in filteredScenarios"
+              :key="scenario.id"
+              :value="scenario.id"
+            >
+              {{ scenario.title || 'Untitled Scenario' }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Scenario</option>
+          </select>
+
+          <div
+            v-if="scenarioStore.selectedScenario"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ selectedScenarioDescription }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-if="scenarioStore.selectedScenario.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
+              </span>
+
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
+              <span
+                v-if="scenarioStore.selectedScenario.isMature"
+                class="badge badge-warning badge-sm"
+              >
+                Mature
+              </span>
+
+              <span
+                v-if="scenarioStore.selectedScenario.genres"
+                class="badge badge-outline badge-sm"
+              >
+                {{ scenarioStore.selectedScenario.genres }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div
@@ -144,7 +239,12 @@
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:map" class="h-10 w-10" />
+
         <p class="text-lg font-bold">No scenarios found.</p>
+
+        <p class="max-w-xl text-sm opacity-70">
+          No public or owned scenarios match this gallery.
+        </p>
 
         <button
           v-if="allowAdd"
@@ -152,26 +252,9 @@
           type="button"
           @click="startAddingScenario"
         >
-          Add a scenario
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add Scenario
         </button>
-      </div>
-
-      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
-        <select
-          class="select select-bordered w-full bg-base-100"
-          :value="scenarioStore.selectedScenario?.id ?? ''"
-          aria-label="Select scenario"
-          @change="selectScenarioFromEvent"
-        >
-          <option value="">Choose a scenario</option>
-          <option
-            v-for="scenario in filteredScenarios"
-            :key="scenario.id"
-            :value="scenario.id"
-          >
-            {{ scenario.title || 'Untitled Scenario' }}
-          </option>
-        </select>
       </div>
 
       <div v-else :class="layoutClass">
@@ -198,7 +281,7 @@
         />
       </div>
     </section>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -214,9 +297,9 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    showHeader?: boolean
     showImages?: boolean
     showControls?: boolean
-    showToolbar?: boolean
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
@@ -234,9 +317,9 @@ const props = withDefaults(
     variant: 'dashboard',
     title: 'Scenarios',
     subtitle: 'Pick a weird little world to ruin beautifully.',
+    showHeader: true,
     showImages: true,
     showControls: true,
-    showToolbar: true,
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
@@ -255,12 +338,171 @@ const props = withDefaults(
 const scenarioStore = useScenarioStore()
 const userStore = useUserStore()
 
-const selectedUser = ref<string | number>('all')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const errorMessage = ref('')
 const showScenarioForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
+
+const isDropdownMode = computed(() => props.variant === 'dropdown')
+
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
+})
+
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'scenario-row' : 'scenario-grid'
+})
+
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const selectedScenario = computed(() => {
+  return scenarioStore.selectedScenario
+})
+
+const selectedScenarioTitle = computed(() => {
+  return selectedScenario.value?.title || 'No scenario selected'
+})
+
+const selectedScenarioDescription = computed(() => {
+  return (
+    selectedScenario.value?.description ||
+    selectedScenario.value?.intros ||
+    selectedScenario.value?.locations ||
+    'No description yet. The plot goblin remains suspiciously quiet.'
+  )
+})
+
+const selectedScenarioSubtitle = computed(() => {
+  const scenario = selectedScenario.value
+
+  if (!scenario) return 'Choose a scenario or add a new one.'
+
+  return (
+    scenario.genres ||
+    scenario.locations ||
+    scenario.description ||
+    'Scenario selected.'
+  )
+})
+
+const formTitle = computed(() => {
+  return formMode.value === 'edit' ? 'Edit Scenario' : 'Add Scenario'
+})
+
+const formSubtitle = computed(() => {
+  return formMode.value === 'edit'
+    ? 'Tune this world before it bites somebody.'
+    : 'Create a new narrative playground.'
+})
+
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  set: async (value: boolean) => {
+    if (!userStore.user) return
+
+    await userStore.updateUser({ showMature: value })
+  },
+})
+
+const canEditSelected = computed(() => {
+  const scenario = selectedScenario.value
+
+  if (!props.allowEdit || !scenario?.id) return false
+  if (userStore.isAdmin) return true
+
+  return scenario.userId === currentUserId.value
+})
+
+const galleryScenarios = computed<Scenario[]>(() => {
+  let scenarios = scenarioStore.scenarios
+
+  if (!userStore.isAdmin) {
+    scenarios = scenarios.filter((scenario) => {
+      return scenario.isPublic || scenario.userId === currentUserId.value
+    })
+  }
+
+  if (!showMature.value) {
+    scenarios = scenarios.filter((scenario) => !scenario.isMature)
+  }
+
+  return scenarios
+})
+
+const filteredScenarios = computed<Scenario[]>(() => {
+  let scenarios = galleryScenarios.value
+
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (query) {
+    scenarios = scenarios.filter((scenario) => {
+      return (
+        (scenario.title || '').toLowerCase().includes(query) ||
+        (scenario.description || '').toLowerCase().includes(query) ||
+        (scenario.intros || '').toLowerCase().includes(query) ||
+        (scenario.locations || '').toLowerCase().includes(query) ||
+        (scenario.genres || '').toLowerCase().includes(query) ||
+        (scenario.inspirations || '').toLowerCase().includes(query) ||
+        (scenario.artPrompt || '').toLowerCase().includes(query)
+      )
+    })
+  }
+
+  return scenarios
+})
+
+onMounted(async () => {
+  if (props.autoLoad) {
+    await refreshScenarios()
+  }
+})
+
+async function refreshScenarios(force = false) {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    await scenarioStore.initialize({
+      force,
+      fetchRemote: true,
+      includeSeeds: true,
+    })
+  } catch (error) {
+    console.error('Failed to load scenarios:', error)
+
+    errorMessage.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to load scenarios. Please try again.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function selectScenario(id: number) {
+  await scenarioStore.selectScenario(id)
+}
+
+function selectScenarioFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    startAddingScenario()
+    return
+  }
+
+  const id = Number(target.value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    clearSelectedScenario()
+    return
+  }
+
+  void selectScenario(id)
+}
 
 function startAddingScenario() {
   scenarioStore.deselectScenario()
@@ -274,10 +516,20 @@ function startAddingScenario() {
     artPrompt: '',
     imagePath: null,
     artImageId: null,
+    isPublic: true,
+    isMature: false,
   }
 
   formMode.value = 'add'
   showScenarioForm.value = true
+}
+
+function startEditingScenario() {
+  const id = scenarioStore.selectedScenario?.id
+
+  if (!id) return
+
+  void startEditingScenarioById(id)
 }
 
 async function startEditingScenarioById(id: number) {
@@ -305,6 +557,7 @@ function cloneScenarioById(id: number) {
     ...scenarioStore.toScenarioForm(scenario),
     id: undefined,
     title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
+    isPublic: false,
   }
 
   formMode.value = 'add'
@@ -316,110 +569,6 @@ function clearSelectedScenario() {
   showScenarioForm.value = false
 }
 
-function handleScenarioDeleted(id: number) {
-  if (scenarioStore.selectedScenario?.id === id) {
-    scenarioStore.deselectScenario()
-  }
-}
-
-const variant = computed(() => props.variant)
-const title = computed(() => props.title)
-const subtitle = computed(() => props.subtitle)
-const showImages = computed(() => props.showImages)
-const showControls = computed(() => props.showControls)
-const showToolbar = computed(() => props.showToolbar)
-const showCardActions = computed(() => props.showCardActions)
-const showDescriptions = computed(() => props.showDescriptions)
-const showMeta = computed(() => props.showMeta)
-const showInspirations = computed(() => props.showInspirations)
-const showChoices = computed(() => props.showChoices)
-const allowAdd = computed(() => props.allowAdd)
-const allowEdit = computed(() => props.allowEdit)
-const allowDelete = computed(() => props.allowDelete)
-const allowClone = computed(() => props.allowClone)
-const allowRefresh = computed(() => props.allowRefresh)
-
-const isCompact = computed(
-  () =>
-    props.compact || props.variant === 'row' || props.variant === 'dropdown',
-)
-
-const formTitle = computed(() =>
-  formMode.value === 'edit' ? 'Edit Scenario' : 'Add Scenario',
-)
-
-const layoutClass = computed(() =>
-  props.variant === 'row' ? 'scenario-row' : 'scenario-grid',
-)
-
-const filteredScenarios = computed<Scenario[]>(() => {
-  let scenarios = scenarioStore.scenarios
-
-  if (selectedUser.value !== 'all') {
-    scenarios = scenarios.filter(
-      (scenario) => scenario.userId === Number(selectedUser.value),
-    )
-  }
-
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
-
-    scenarios = scenarios.filter((scenario) =>
-      (scenario.title || '').toLowerCase().includes(query),
-    )
-  }
-
-  return scenarios
-})
-
-onMounted(async () => {
-  if (props.autoLoad) {
-    await refreshScenarios()
-  }
-})
-
-async function refreshScenarios(force = false) {
-  isLoading.value = true
-  errorMessage.value = ''
-
-  try {
-    await scenarioStore.initialize({
-      force,
-      fetchRemote: true,
-      includeSeeds: true,
-    })
-  } catch (error) {
-    console.error('Failed to load scenarios:', error)
-    errorMessage.value = 'Failed to load scenarios. Please try again.'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function selectScenario(id: number) {
-  await scenarioStore.selectScenario(id)
-}
-
-function selectScenarioFromEvent(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const id = Number(target.value)
-
-  if (!Number.isInteger(id) || id <= 0) {
-    clearSelectedScenario()
-    return
-  }
-
-  void selectScenario(id)
-}
-
-function startEditingScenario() {
-  const id = scenarioStore.selectedScenario?.id
-
-  if (!id) return
-
-  startEditingScenarioById(id)
-}
-
 function closeScenarioForm() {
   showScenarioForm.value = false
 }
@@ -427,6 +576,12 @@ function closeScenarioForm() {
 async function handleScenarioSaved() {
   showScenarioForm.value = false
   await refreshScenarios(true)
+}
+
+function handleScenarioDeleted(id: number) {
+  if (scenarioStore.selectedScenario?.id === id) {
+    scenarioStore.deselectScenario()
+  }
 }
 
 function handleScenarioChoice(choice: string) {

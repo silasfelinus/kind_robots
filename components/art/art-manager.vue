@@ -13,7 +13,49 @@
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
-      <add-art v-if="currentTab === 'generate'" />
+      <section
+        v-if="currentTab === 'generate'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <server-gallery
+            mode="art"
+            variant="dropdown"
+            title="Art Server"
+            subtitle="Choose the image engine."
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+          />
+
+          <checkpoint-gallery
+            variant="dropdown"
+            title="Checkpoint"
+            subtitle="Choose the active model and sampler."
+            :show-header="true"
+            :show-controls="false"
+            :show-status="false"
+          />
+
+          <art-gallery
+            variant="dropdown"
+            title="Collection"
+            subtitle="Optionally choose where generated art should land."
+            :show-controls="false"
+            :compact="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-7">
+          <add-art />
+        </div>
+      </section>
 
       <art-gallery
         v-else-if="currentTab === 'gallery'"
@@ -23,6 +65,13 @@
         :show-selected-panel="true"
       />
 
+      <collection-gallery
+        v-else-if="currentTab === 'collections'"
+        variant="dashboard"
+        title="Collections"
+        subtitle="Browse, create, edit, merge, and inspect art collections."
+      />
+
       <checkpoint-gallery
         v-else-if="currentTab === 'checkpoints'"
         variant="dashboard"
@@ -30,13 +79,7 @@
         subtitle="Choose models, samplers, and verify the active backend model."
       />
 
-      <server-gallery
-        v-else-if="currentTab === 'servers'"
-        variant="dashboard"
-        mode="art"
-        title="Art Servers"
-        subtitle="Select the backend or browser-accessible image engine."
-      />
+      <server-manager v-else-if="currentTab === 'servers'" />
 
       <art-interact v-else-if="currentTab === 'selected'" />
 
@@ -76,7 +119,7 @@ const activeArtServerLabel = computed(() => {
   return (
     serverStore.activeArtServer?.label ||
     serverStore.activeArtServer?.title ||
-    'No art server selected'
+    'no art server'
   )
 })
 
@@ -84,22 +127,40 @@ const selectedCheckpointLabel = computed(() => {
   return (
     checkpointStore.selectedCheckpoint?.customLabel ||
     checkpointStore.selectedCheckpoint?.name ||
-    'No checkpoint selected'
+    'no checkpoint'
   )
+})
+
+const selectedCollectionLabel = computed(() => {
+  const selected =
+    collectionStore.selectedCollections?.[0] ||
+    collectionStore.collections.find((collection) => {
+      return collection.id === collectionStore.selectedCollectionIds?.[0]
+    })
+
+  return selected?.label || 'no collection'
+})
+
+const selectedArtLabel = computed(() => {
+  return artStore.currentArt ? `Art #${artStore.currentArt.id}` : 'no art'
 })
 
 const managerSummary = computed(() => {
   const artCount = artStore.art.length
   const collectionCount = collectionStore.collections.length
-  const selectedArt = artStore.currentArt
-    ? `Art #${artStore.currentArt.id}`
-    : 'no art selected'
 
-  return `${artCount} art records, ${collectionCount} collections. Current model: ${selectedCheckpointLabel.value}. Server: ${activeArtServerLabel.value}. Selected: ${selectedArt}.`
+  return `${artCount} art records and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Selected: ${selectedArtLabel.value}.`
 })
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'generate' || tab === 'checkpoints' || tab === 'servers') {
+    serverStore.setCurrentServerMode('art')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {
@@ -118,9 +179,10 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
         hydrateImages: false,
       }),
-      checkpointStore.initialize(),
       collectionStore.fetchCollections?.(),
     ])
+
+    checkpointStore.initialize()
 
     if (!checkpointStore.selectedSampler) {
       checkpointStore.selectSamplerByName('Euler a')
@@ -139,5 +201,6 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+  setTab(activeTab.value)
 })
 </script>

@@ -1,7 +1,10 @@
 <!-- /components/server/server-gallery.vue -->
 <template>
-  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -11,7 +14,7 @@
           </h2>
 
           <p v-if="activeServer" class="truncate text-sm text-base-content/70">
-            Active:
+            Selected:
             <span class="font-semibold text-primary">
               {{ activeServer.label || activeServer.title }}
             </span>
@@ -22,13 +25,25 @@
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ filteredServers.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span v-if="!isLoading" class="badge badge-ghost">
+            {{ filteredServers.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && variant !== 'dropdown'"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="openAddServer"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add Server</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls"
+        v-if="shouldShowControls"
         class="flex flex-col gap-2 lg:flex-row lg:items-center"
       >
         <select
@@ -45,19 +60,6 @@
           <option value="OTHER">OTHER</option>
         </select>
 
-        <select
-          v-model="selectedScope"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter servers by scope"
-        >
-          <option value="owned">Mine</option>
-          <option value="visible">Visible active</option>
-          <option value="official">Official</option>
-          <option value="public">Public</option>
-          <option value="hidden">Hidden</option>
-          <option value="all">All loaded</option>
-        </select>
-
         <input
           v-model="searchQuery"
           type="search"
@@ -66,56 +68,33 @@
           class="input input-bordered input-sm w-full bg-base-100"
         />
       </div>
-
-      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingServer"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
-
-        <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          :disabled="!editableServerId"
-          @click="startEditingSelectedServer"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="!serverStore.selectedServer && !activeServer"
-          @click="clearSelectedServer"
-        >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
-          Clear
-        </button>
-
-        <button
-          v-if="allowRefresh"
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isLoading"
-          @click="refreshServers(true)"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
     </header>
 
     <section
-      v-if="serverStore.isServerFormOpen"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      v-if="showAddServer"
+      class="rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ formTitle }}
+          </h3>
+
+          <p class="text-sm text-base-content/60">
+            {{ formSubtitle }}
+          </p>
+        </div>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          @click="closeAddServer"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
+        </button>
+      </div>
+
       <add-server />
     </section>
 
@@ -136,61 +115,59 @@
         </p>
       </div>
 
-      <div
-        v-else-if="filteredServers.length === 0"
-        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
-      >
-        <Icon name="kind-icon:server" class="h-10 w-10" />
-        <p class="text-lg font-bold">No private servers found.</p>
-        <p class="max-w-xl text-sm opacity-70">
-          Click Add to choose an official, public, default, or existing server
-          as a blueprint for your private copy.
-        </p>
-
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingServer"
+      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          Add a server
-        </button>
-      </div>
-
-      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
-        <select
-          class="select select-bordered w-full bg-base-100"
-          :value="activeServer?.id ?? ''"
-          aria-label="Select server"
-          @change="selectServerFromEvent"
-        >
-          <option value="">
-            {{ dropdownPlaceholder }}
-          </option>
-
-          <template v-if="mode === 'all'">
-            <optgroup v-if="artDisplayServers.length" label="Art Modelers">
-              <option
-                v-for="server in artDisplayServers"
-                :key="`art-${server.id}`"
-                :value="server.id"
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300"
+                :class="selectedIconBgClass"
               >
-                [{{ server.serverType }}] {{ server.label || server.title }}
-              </option>
-            </optgroup>
+                <Icon
+                  :name="selectedIcon"
+                  class="h-6 w-6"
+                  :class="selectedIconTextClass"
+                />
+              </div>
 
-            <optgroup v-if="textDisplayServers.length" label="Text Modelers">
-              <option
-                v-for="server in textDisplayServers"
-                :key="`text-${server.id}`"
-                :value="server.id"
-              >
-                [{{ server.serverType }}] {{ server.label || server.title }}
-              </option>
-            </optgroup>
-          </template>
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Server
+                </p>
 
-          <template v-else>
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ activeServerTitle }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ activeServerSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <button
+              v-if="allowEdit && activeServer"
+              class="btn btn-secondary btn-sm rounded-xl"
+              type="button"
+              @click="startEditingSelectedServer"
+            >
+              <Icon name="kind-icon:pencil" class="h-4 w-4" />
+              <span class="hidden sm:inline">Edit</span>
+            </button>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-100"
+            :value="selectedDropdownValue"
+            aria-label="Select server"
+            @change="selectServerFromEvent"
+          >
+            <option value="">
+              {{ dropdownPlaceholder }}
+            </option>
+
             <option
               v-for="server in filteredServers"
               :key="server.id"
@@ -198,86 +175,35 @@
             >
               [{{ server.serverType }}] {{ server.label || server.title }}
             </option>
-          </template>
-        </select>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Server</option>
+          </select>
+        </div>
       </div>
 
-      <div v-else-if="mode === 'all'" class="flex flex-col gap-4">
-        <section
-          v-if="artDisplayServers.length"
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+      <div
+        v-else-if="filteredServers.length === 0"
+        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
+      >
+        <Icon name="kind-icon:server" class="h-10 w-10" />
+
+        <p class="text-lg font-bold">No servers found.</p>
+
+        <p class="max-w-xl text-sm opacity-70">
+          No public or owned servers match this gallery.
+        </p>
+
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm rounded-xl"
+          type="button"
+          @click="openAddServer"
         >
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex min-w-0 items-center gap-2">
-              <Icon name="kind-icon:image" class="h-5 w-5 text-primary" />
-              <div class="min-w-0">
-                <h3 class="truncate text-base font-black">Art Modelers</h3>
-                <p class="text-xs opacity-60">
-                  Image engines, Comfy workflows, A1111, and visual chaos
-                  factories.
-                </p>
-              </div>
-            </div>
-
-            <span class="badge badge-primary badge-sm shrink-0">
-              {{ artDisplayServers.length }}
-            </span>
-          </div>
-
-          <div :class="layoutClass">
-            <server-card
-              v-for="server in artDisplayServers"
-              :key="`art-card-${server.id}`"
-              :server="server"
-              :compact="isCompact"
-              :show-actions="showCardActions"
-              :show-description="showDescriptions"
-              :show-meta="showMeta"
-              :show-use-buttons="showUseButtons"
-              :allow-edit="allowEdit"
-              :allow-delete="allowDelete"
-              :allow-test="allowTest"
-            />
-          </div>
-        </section>
-
-        <section
-          v-if="textDisplayServers.length"
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
-        >
-          <div class="flex items-center justify-between gap-3">
-            <div class="flex min-w-0 items-center gap-2">
-              <Icon name="kind-icon:circle" class="h-5 w-5 text-secondary" />
-              <div class="min-w-0">
-                <h3 class="truncate text-base font-black">Text Modelers</h3>
-                <p class="text-xs opacity-60">
-                  Chat engines, OpenAI-compatible APIs, and suspiciously
-                  eloquent machines.
-                </p>
-              </div>
-            </div>
-
-            <span class="badge badge-secondary badge-sm shrink-0">
-              {{ textDisplayServers.length }}
-            </span>
-          </div>
-
-          <div :class="layoutClass">
-            <server-card
-              v-for="server in textDisplayServers"
-              :key="`text-card-${server.id}`"
-              :server="server"
-              :compact="isCompact"
-              :show-actions="showCardActions"
-              :show-description="showDescriptions"
-              :show-meta="showMeta"
-              :show-use-buttons="showUseButtons"
-              :allow-edit="allowEdit"
-              :allow-delete="allowDelete"
-              :allow-test="allowTest"
-            />
-          </div>
-        </section>
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add Server
+        </button>
       </div>
 
       <div v-else :class="layoutClass">
@@ -289,14 +215,20 @@
           :show-actions="showCardActions"
           :show-description="showDescriptions"
           :show-meta="showMeta"
+          :show-capabilities="showCapabilities"
           :show-use-buttons="showUseButtons"
+          :show-debug="showDebug"
+          :show-workflow="showWorkflow"
+          :show-defaults="showDefaults"
+          :show-status="showStatus"
+          :status-compact="statusCompact"
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
           :allow-test="allowTest"
         />
       </div>
     </section>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -307,13 +239,6 @@ import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type ServerGalleryMode = 'art' | 'text' | 'all'
-type ServerScope =
-  | 'visible'
-  | 'owned'
-  | 'official'
-  | 'public'
-  | 'hidden'
-  | 'all'
 
 const props = withDefaults(
   defineProps<{
@@ -321,17 +246,22 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    showHeader?: boolean
     showControls?: boolean
-    showToolbar?: boolean
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
+    showCapabilities?: boolean
     showUseButtons?: boolean
+    showDebug?: boolean
+    showWorkflow?: boolean
+    showDefaults?: boolean
+    showStatus?: boolean
+    statusCompact?: boolean
     allowAdd?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
     allowTest?: boolean
-    allowRefresh?: boolean
     compact?: boolean
     autoLoad?: boolean
   }>(),
@@ -340,17 +270,22 @@ const props = withDefaults(
     variant: 'dashboard',
     title: '',
     subtitle: '',
+    showHeader: true,
     showControls: true,
-    showToolbar: true,
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
+    showCapabilities: true,
     showUseButtons: true,
+    showDebug: false,
+    showWorkflow: true,
+    showDefaults: true,
+    showStatus: true,
+    statusCompact: false,
     allowAdd: true,
     allowEdit: true,
     allowDelete: true,
     allowTest: true,
-    allowRefresh: true,
     compact: false,
     autoLoad: true,
   },
@@ -360,22 +295,37 @@ const serverStore = useServerStore()
 const userStore = useUserStore()
 
 const selectedType = ref<ServerType | 'all'>('all')
-const selectedScope = ref<ServerScope>('owned')
 const searchQuery = ref('')
 const isLoading = ref(false)
+const showAddServer = ref(false)
+const formMode = ref<'add' | 'edit'>('add')
 
 const resolvedTitle = computed(() => {
   if (props.title) return props.title
-  if (props.mode === 'art') return 'My Art Servers'
-  if (props.mode === 'text') return 'My Text Servers'
-  return 'My Servers'
+  if (props.mode === 'art') return 'Art Servers'
+  if (props.mode === 'text') return 'Text Servers'
+  return 'Servers'
 })
 
 const resolvedSubtitle = computed(() => {
   if (props.subtitle) return props.subtitle
-  if (props.mode === 'art') return 'Your private image engines.'
-  if (props.mode === 'text') return 'Your private chat engines.'
-  return 'Your private server configs. Click Add to clone from a blueprint.'
+  if (props.mode === 'art') return 'Public and owned image engines.'
+  if (props.mode === 'text') return 'Public and owned chat engines.'
+  return 'Public and owned model servers.'
+})
+
+const formTitle = computed(() => {
+  return formMode.value === 'edit' ? 'Edit Server' : 'Add Server'
+})
+
+const formSubtitle = computed(() => {
+  return formMode.value === 'edit'
+    ? 'Update this server config.'
+    : 'Create or clone a server config.'
+})
+
+const shouldShowControls = computed(() => {
+  return props.showControls && props.variant !== 'dropdown'
 })
 
 const activeServer = computed(() => {
@@ -385,85 +335,81 @@ const activeServer = computed(() => {
   return serverStore.selectedServer
 })
 
-const editableServerId = computed(() => {
-  return serverStore.selectedServer?.id ?? activeServer.value?.id ?? null
+const activeServerTitle = computed(() => {
+  return (
+    activeServer.value?.label ||
+    activeServer.value?.title ||
+    'No server selected'
+  )
 })
 
-const isCompact = computed(
-  () =>
-    props.compact || props.variant === 'row' || props.variant === 'dropdown',
-)
+const activeServerSubtitle = computed(() => {
+  const server = activeServer.value
 
-const layoutClass = computed(() =>
-  props.variant === 'row' ? 'server-row' : 'server-grid',
-)
+  if (!server) {
+    return 'Choose a server or add a new one.'
+  }
 
-const dropdownPlaceholder = computed(() => {
-  if (props.mode === 'art') return 'Use default art server'
-  if (props.mode === 'text') return 'Use default text server'
-  return 'Choose a server'
+  return (
+    server.description || server.baseUrl || server.serverType || 'Server ready.'
+  )
 })
 
-const ownedServersForMode = computed(() => {
+const selectedDropdownValue = computed(() => {
+  return activeServer.value?.id ? String(activeServer.value.id) : ''
+})
+
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const isCompact = computed(() => {
+  return (
+    props.compact || props.variant === 'row' || props.variant === 'dropdown'
+  )
+})
+
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'server-row' : 'server-grid'
+})
+
+const galleryServers = computed<Server[]>(() => {
+  if (userStore.isAdmin) {
+    return serverStore.servers
+  }
+
   return serverStore.servers.filter((server) => {
-    if (server.userId !== userStore.user?.id) return false
-    return matchesMode(server)
+    return server.isPublic || server.userId === currentUserId.value
   })
 })
 
-const visibleServersForMode = computed(() => {
-  const servers =
-    props.mode === 'art'
-      ? serverStore.artServers
-      : props.mode === 'text'
-        ? serverStore.textServers
-        : serverStore.visibleActiveServers
-
-  return servers.filter(matchesMode)
-})
-
-const baseServers = computed<Server[]>(() => {
-  if (selectedScope.value === 'owned') return ownedServersForMode.value
-
-  if (selectedScope.value === 'official') {
-    return serverStore.officialServers.filter(matchesMode)
-  }
-
-  if (selectedScope.value === 'public') {
-    return serverStore.publicServers.filter(matchesMode)
-  }
-
-  if (selectedScope.value === 'hidden') {
-    return serverStore.hiddenServers.filter(matchesMode)
-  }
-
-  if (selectedScope.value === 'all') {
-    return serverStore.servers.filter(matchesMode)
-  }
-
-  return visibleServersForMode.value
+const modeServers = computed(() => {
+  return galleryServers.value.filter(matchesMode)
 })
 
 const filteredServers = computed(() => {
-  let servers = baseServers.value
+  let servers = modeServers.value
 
   if (selectedType.value !== 'all') {
-    servers = servers.filter(
-      (server) => server.serverType === selectedType.value,
-    )
+    servers = servers.filter((server) => {
+      return server.serverType === selectedType.value
+    })
   }
 
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
+  const query = searchQuery.value.trim().toLowerCase()
 
+  if (query) {
     servers = servers.filter((server) => {
       return (
         (server.title || '').toLowerCase().includes(query) ||
         (server.label || '').toLowerCase().includes(query) ||
         (server.description || '').toLowerCase().includes(query) ||
         (server.baseUrl || '').toLowerCase().includes(query) ||
+        (server.browserBaseUrl || '').toLowerCase().includes(query) ||
+        (server.backendBaseUrl || '').toLowerCase().includes(query) ||
         (server.category || '').toLowerCase().includes(query) ||
-        (server.serverType || '').toLowerCase().includes(query)
+        (server.serverType || '').toLowerCase().includes(query) ||
+        (server.generationEngine || '').toLowerCase().includes(query)
       )
     })
   }
@@ -471,21 +417,67 @@ const filteredServers = computed(() => {
   return servers
 })
 
-const artDisplayServers = computed(() => {
-  return filteredServers.value.filter(isArtCapable)
+const selectedIcon = computed(() => {
+  const server = activeServer.value
+
+  if (!server) return 'kind-icon:server'
+  if (server.generationEngine === 'KONTEXT') return 'kind-icon:wand'
+  if (server.generationEngine === 'FLUX') return 'kind-icon:sparkles'
+  if (server.generationEngine === 'COMFY') return 'kind-icon:workflow'
+  if (server.generationEngine === 'A1111') return 'kind-icon:palette'
+  if (server.generationEngine === 'OPENAI_IMAGE') return 'kind-icon:image'
+  if (server.serverType === 'TEXT') return 'kind-icon:chat'
+  if (server.serverType === 'OPENAI_COMPATIBLE') return 'kind-icon:chat'
+  if (server.serverType === 'COMFY') return 'kind-icon:workflow'
+  if (server.serverType === 'A1111') return 'kind-icon:palette'
+  if (server.serverType === 'ART') return 'kind-icon:palette'
+
+  return 'kind-icon:server'
 })
 
-const textDisplayServers = computed(() => {
-  return filteredServers.value.filter((server) => {
-    return isTextCapable(server) && !isArtCapable(server)
-  })
+const selectedIconBgClass = computed(() => {
+  const server = activeServer.value
+
+  if (!server) return 'bg-base-200'
+
+  if (isTextCapable(server) && !isArtCapable(server)) {
+    return 'bg-secondary/10'
+  }
+
+  if (isArtCapable(server) && !isTextCapable(server)) {
+    return 'bg-primary/10'
+  }
+
+  return 'bg-accent/10'
+})
+
+const selectedIconTextClass = computed(() => {
+  const server = activeServer.value
+
+  if (!server) return 'text-base-content/50'
+
+  if (isTextCapable(server) && !isArtCapable(server)) {
+    return 'text-secondary'
+  }
+
+  if (isArtCapable(server) && !isTextCapable(server)) {
+    return 'text-primary'
+  }
+
+  return 'text-accent'
+})
+
+const dropdownPlaceholder = computed(() => {
+  if (props.mode === 'art') return 'Choose an art server'
+  if (props.mode === 'text') return 'Choose a text server'
+  return 'Choose a server'
 })
 
 onMounted(async () => {
   applyCurrentServerMode()
 
   if (props.autoLoad) {
-    await refreshServers(true)
+    await refreshServers()
   }
 })
 
@@ -514,9 +506,17 @@ function isArtCapable(server: Server) {
     server.serverType === 'ART' ||
     server.serverType === 'A1111' ||
     server.serverType === 'COMFY' ||
+    server.generationEngine === 'A1111' ||
+    server.generationEngine === 'COMFY' ||
+    server.generationEngine === 'FLUX' ||
+    server.generationEngine === 'KONTEXT' ||
+    server.generationEngine === 'OPENAI_IMAGE' ||
     Boolean(server.supportsTxt2Img) ||
     Boolean(server.supportsImg2Img) ||
-    Boolean(server.supportsComfyWorkflow)
+    Boolean(server.supportsImageEdit) ||
+    Boolean(server.supportsComfyWorkflow) ||
+    Boolean(server.supportsFlux) ||
+    Boolean(server.supportsKontext)
   )
 }
 
@@ -531,6 +531,7 @@ function isTextCapable(server: Server) {
 function matchesMode(server: Server) {
   if (props.mode === 'art') return isArtCapable(server)
   if (props.mode === 'text') return isTextCapable(server)
+
   return isArtCapable(server) || isTextCapable(server)
 }
 
@@ -562,74 +563,20 @@ async function selectServerById(id: number) {
 
 function selectServerFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    openAddServer()
+    return
+  }
+
   const id = Number(target.value)
 
   if (!Number.isInteger(id) || id <= 0) {
-    if (props.mode === 'art') void serverStore.setActiveArtServer(null)
-    if (props.mode === 'text') void serverStore.setActiveTextServer(null)
-    if (props.mode === 'all') serverStore.deselectServer()
+    clearSelectedServer()
     return
   }
 
   void selectServerById(id)
-}
-
-function resolveNewServerMode(): 'art' | 'text' {
-  if (props.mode === 'art' || props.mode === 'text') return props.mode
-
-  if (
-    selectedType.value === 'TEXT' ||
-    selectedType.value === 'OPENAI_COMPATIBLE'
-  ) {
-    return 'text'
-  }
-
-  return 'art'
-}
-
-function startAddingServer() {
-  const mode = resolveNewServerMode()
-  const isTextMode = mode === 'text'
-  const title = isTextMode ? 'New Text Server' : 'New Art Server'
-  const serverType = isTextMode ? 'OPENAI_COMPATIBLE' : 'COMFY'
-
-  serverStore.startAddingServer({
-    title,
-    label: title,
-    serverType,
-    category: isTextMode ? 'text' : 'image',
-    endpointPath: isTextMode ? '/v1/chat/completions' : '/prompt',
-    healthPath: isTextMode ? '/v1/models' : '/system_stats',
-    accessMode: isTextMode ? 'PUBLIC_API_KEY' : 'TAILSCALE',
-    isPrivateNetwork: !isTextMode,
-    requiresClientSideCheck: !isTextMode,
-    allowBrowserRequests: !isTextMode,
-    supportsChat: isTextMode,
-    supportsTxt2Img: !isTextMode,
-    supportsImg2Img: !isTextMode,
-    supportsComfyWorkflow: !isTextMode,
-    supportsCheckpointOverride: !isTextMode,
-    supportsSeed: !isTextMode,
-    supportsSteps: !isTextMode,
-  })
-
-  serverStore.selectedBlueprintServerId = null
-  serverStore.openServerForm()
-}
-
-async function startEditingServerById(id: number) {
-  const server = await serverStore.startEditingServer(id)
-
-  if (!server) return
-
-  serverStore.selectedBlueprintServerId = null
-  serverStore.openServerForm()
-}
-
-function startEditingSelectedServer() {
-  if (!editableServerId.value) return
-
-  void startEditingServerById(editableServerId.value)
 }
 
 function clearSelectedServer() {
@@ -642,9 +589,35 @@ function clearSelectedServer() {
   }
 
   serverStore.deselectServer()
-  serverStore.closeServerForm()
 }
 
+function openAddServer() {
+  formMode.value = 'add'
+  showAddServer.value = true
+  serverStore.deselectServer()
+  serverStore.openServerForm()
+}
+
+async function startEditingSelectedServer() {
+  const id = activeServer.value?.id
+
+  if (!id) return
+
+  formMode.value = 'edit'
+  serverStore.setCurrentServer(id)
+
+  const server = await serverStore.startEditingServer(id)
+
+  if (!server) return
+
+  showAddServer.value = true
+  serverStore.openServerForm()
+}
+
+function closeAddServer() {
+  showAddServer.value = false
+  serverStore.closeServerForm()
+}
 </script>
 
 <style scoped>

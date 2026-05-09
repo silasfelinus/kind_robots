@@ -13,50 +13,80 @@
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
-      <section v-if="currentTab === 'overview'" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <dream-gallery
-              variant="row"
-              title="Dreams"
-              subtitle="Pick the shared canvas."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-images="true"
-              :show-card-actions="true"
-              :show-open-button="false"
-              :compact="true"
-            />
-          </div>
+      <section
+        v-if="currentTab === 'overview'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <dream-gallery
+            variant="dropdown"
+            title="Dream"
+            subtitle="Choose the shared canvas."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-open-button="false"
+            :show-stats="false"
+            :show-meta="true"
+            :compact="true"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <server-gallery
-              mode="art"
-              variant="row"
-              title="Art Servers"
-              subtitle="Pick the image engine."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-use-buttons="false"
-              :compact="true"
-            />
-          </div>
+          <server-gallery
+            mode="art"
+            variant="dropdown"
+            title="Art Server"
+            subtitle="Choose the image engine."
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+          />
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <server-gallery
-              mode="text"
-              variant="row"
-              title="Text Servers"
-              subtitle="Pick the chat engine."
-              :show-controls="false"
-              :show-toolbar="false"
-              :show-use-buttons="false"
-              :compact="true"
-            />
-          </div>
+          <checkpoint-gallery
+            variant="dropdown"
+            title="Checkpoint"
+            subtitle="Choose the active art model and sampler."
+            :show-header="true"
+            :show-controls="false"
+            :show-status="false"
+          />
+
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            title="Text Server"
+            subtitle="Choose the chat engine."
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+          />
+
+          <scenario-gallery
+            variant="dropdown"
+            title="Scenario"
+            subtitle="Optionally ground the dream in a story setting."
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-inspirations="false"
+            :show-choices="false"
+            :show-meta="false"
+            :compact="true"
+          />
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <div class="min-h-0 xl:col-span-7">
           <dream-interact />
         </div>
       </section>
@@ -92,7 +122,7 @@
         subtitle="Optionally ground dreams in a story setting."
       />
 
-      <server-gallery v-else-if="currentTab === 'servers'" />
+      <server-manager v-else-if="currentTab === 'servers'" />
 
       <dream-interact v-else-if="currentTab === 'interact'" />
 
@@ -112,6 +142,7 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
 const dashboardKey = 'dream' as const
@@ -120,6 +151,7 @@ const checkpointStore = useCheckpointStore()
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
 const promptStore = usePromptStore()
+const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
@@ -128,23 +160,59 @@ const managerError = ref<string | null>(null)
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
-const managerSummary = computed(() => {
-  const dreamCount = dreamStore.dreams.length
-  const selectedDream = dreamStore.selectedDream?.title || 'no dream'
-  const artServer =
+const selectedDreamName = computed(() => {
+  return dreamStore.selectedDream?.title || 'no dream'
+})
+
+const selectedScenarioName = computed(() => {
+  return scenarioStore.selectedScenario?.title || 'no scenario'
+})
+
+const selectedCheckpointName = computed(() => {
+  return (
+    checkpointStore.selectedCheckpoint?.customLabel ||
+    checkpointStore.selectedCheckpoint?.name ||
+    'no checkpoint'
+  )
+})
+
+const artServerName = computed(() => {
+  return (
     serverStore.activeArtServer?.label ||
     serverStore.activeArtServer?.title ||
     'no art server'
-  const textServer =
+  )
+})
+
+const textServerName = computed(() => {
+  return (
     serverStore.activeTextServer?.label ||
     serverStore.activeTextServer?.title ||
     'no text server'
+  )
+})
 
-  return `${dreamCount} dreams loaded. Current dream: ${selectedDream}. Engines: ${artServer} and ${textServer}.`
+const managerSummary = computed(() => {
+  const dreamCount = dreamStore.dreams.length
+  const scenarioCount = scenarioStore.scenarios.length
+
+  return `${dreamCount} dreams and ${scenarioCount} scenarios loaded. Current setup: ${selectedDreamName.value}, ${artServerName.value}, ${selectedCheckpointName.value}, ${textServerName.value}, ${selectedScenarioName.value}.`
 })
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'art') {
+    serverStore.setCurrentServerMode('art')
+    return
+  }
+
+  if (tab === 'prompts' || tab === 'interact' || tab === 'overview') {
+    serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {
@@ -156,12 +224,18 @@ async function loadManagerData(force = false) {
       navStore.initialize(),
       dreamStore.initialize(force),
       promptStore.initialize?.(),
+      scenarioStore.initialize({
+        force,
+        fetchRemote: true,
+        includeSeeds: true,
+      }),
       serverStore.initialize({
         force,
         fetchRemote: true,
       }),
-      checkpointStore.initialize(),
     ])
+
+    checkpointStore.initialize()
   } catch (error) {
     managerError.value =
       error instanceof Error ? error.message : 'Failed to load dream manager.'
@@ -176,5 +250,6 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+  setTab(activeTab.value)
 })
 </script>

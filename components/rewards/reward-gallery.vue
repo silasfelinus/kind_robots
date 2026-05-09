@@ -1,7 +1,10 @@
 <!-- /components/content/rewards/reward-gallery.vue -->
 <template>
-  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -16,7 +19,7 @@
           >
             Selected:
             <span class="font-semibold text-primary">
-              {{ rewardStore.selectedReward.text || 'Untitled Reward' }}
+              {{ selectedRewardTitle }}
             </span>
           </p>
 
@@ -25,21 +28,59 @@
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ filteredRewards.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span v-if="!isLoading" class="badge badge-ghost">
+            {{ filteredRewards.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && !isDropdownMode"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="startAddingReward"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button
+            v-if="allowRefresh && !isDropdownMode"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isLoading"
+            @click="refreshRewards(true)"
+          >
+            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls"
-        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+        v-if="showControls && !isDropdownMode"
+        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto]"
       >
+        <label
+          v-if="userStore.isAdmin"
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+        >
+          <span class="label-text font-bold">Show Mature</span>
+
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-accent toggle-sm"
+          />
+        </label>
+
         <select
           v-model="selectedCollection"
           class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
           aria-label="Filter rewards by collection"
         >
           <option value="all">All collections</option>
+
           <option
             v-for="collection in collections"
             :key="collection"
@@ -55,6 +96,7 @@
           aria-label="Filter rewards by rarity"
         >
           <option value="all">All rarities</option>
+
           <option v-for="rarity in rarities" :key="rarity" :value="rarity">
             Rarity {{ rarity }}
           </option>
@@ -67,32 +109,9 @@
           placeholder="Search rewards..."
           class="input input-bordered input-sm w-full bg-base-100"
         />
-      </div>
-
-      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingReward"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
 
         <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          :disabled="!rewardStore.selectedReward"
-          @click="startEditingReward"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
           type="button"
           :disabled="!rewardStore.selectedReward"
           @click="clearSelectedReward"
@@ -100,35 +119,31 @@
           <Icon name="kind-icon:x" class="h-4 w-4" />
           Clear
         </button>
-
-        <button
-          v-if="allowRefresh"
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isLoading"
-          @click="refreshRewards(true)"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
       </div>
     </header>
 
     <section
       v-if="showRewardForm"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <h3 class="text-sm font-bold text-base-content">
-          {{ formTitle }}
-        </h3>
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ formTitle }}
+          </h3>
+
+          <p class="text-sm text-base-content/60">
+            {{ formSubtitle }}
+          </p>
+        </div>
 
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl"
           type="button"
           @click="closeRewardForm"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
         </button>
       </div>
 
@@ -152,12 +167,116 @@
         </p>
       </div>
 
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon :name="selectedRewardIcon" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Reward
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedRewardTitle }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedRewardSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <button
+              v-if="canEditSelected"
+              class="btn btn-secondary btn-sm rounded-xl"
+              type="button"
+              @click="startEditingReward"
+            >
+              <Icon name="kind-icon:pencil" class="h-4 w-4" />
+              <span class="hidden sm:inline">Edit</span>
+            </button>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="rewardStore.selectedReward?.id ?? ''"
+            aria-label="Select reward"
+            @change="selectRewardFromEvent"
+          >
+            <option value="">Choose a reward</option>
+
+            <option
+              v-for="reward in filteredRewards"
+              :key="reward.id"
+              :value="reward.id"
+            >
+              {{ getRewardTitle(reward) }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Reward</option>
+          </select>
+
+          <div
+            v-if="rewardStore.selectedReward"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ selectedRewardDescription }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-if="rewardStore.selectedReward.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
+              </span>
+
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
+              <span
+                v-if="rewardStore.selectedReward.isMature"
+                class="badge badge-warning badge-sm"
+              >
+                Mature
+              </span>
+
+              <span class="badge badge-outline badge-sm">
+                Rarity {{ rewardStore.selectedReward.rarity }}
+              </span>
+
+              <span
+                v-if="rewardStore.selectedReward.collection"
+                class="badge badge-secondary badge-sm"
+              >
+                {{ rewardStore.selectedReward.collection }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div
         v-else-if="filteredRewards.length === 0"
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:gift" class="h-10 w-10" />
+
         <p class="text-lg font-bold">No rewards found.</p>
+
+        <p class="max-w-xl text-sm opacity-70">
+          No public or owned rewards match this gallery.
+        </p>
 
         <button
           v-if="allowAdd"
@@ -165,26 +284,9 @@
           type="button"
           @click="startAddingReward"
         >
-          Add a reward
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add Reward
         </button>
-      </div>
-
-      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
-        <select
-          class="select select-bordered w-full bg-base-100"
-          :value="rewardStore.selectedReward?.id ?? ''"
-          aria-label="Select reward"
-          @change="selectRewardFromEvent"
-        >
-          <option value="">Choose a reward</option>
-          <option
-            v-for="reward in filteredRewards"
-            :key="reward.id"
-            :value="reward.id"
-          >
-            {{ reward.text || 'Untitled Reward' }}
-          </option>
-        </select>
       </div>
 
       <div v-else :class="layoutClass">
@@ -206,13 +308,14 @@
         />
       </div>
     </section>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useRewardStore } from '@/stores/rewardStore'
+import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
@@ -221,9 +324,9 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    showHeader?: boolean
     showImages?: boolean
     showControls?: boolean
-    showToolbar?: boolean
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
@@ -238,9 +341,9 @@ const props = withDefaults(
     variant: 'dashboard',
     title: 'Rewards',
     subtitle: 'Pick a story item, boon, curse, artifact, or plot grenade.',
+    showHeader: true,
     showImages: true,
     showControls: true,
-    showToolbar: true,
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
@@ -254,6 +357,7 @@ const props = withDefaults(
 )
 
 const rewardStore = useRewardStore()
+const userStore = useUserStore()
 
 const selectedCollection = ref<string>('all')
 const selectedRarity = ref<string | number>('all')
@@ -262,37 +366,87 @@ const isLoading = ref(false)
 const showRewardForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
-const variant = computed(() => props.variant)
-const title = computed(() => props.title)
-const subtitle = computed(() => props.subtitle)
-const showImages = computed(() => props.showImages)
-const showControls = computed(() => props.showControls)
-const showToolbar = computed(() => props.showToolbar)
-const showCardActions = computed(() => props.showCardActions)
-const showDescriptions = computed(() => props.showDescriptions)
-const showMeta = computed(() => props.showMeta)
-const allowAdd = computed(() => props.allowAdd)
-const allowEdit = computed(() => props.allowEdit)
-const allowDelete = computed(() => props.allowDelete)
-const allowRefresh = computed(() => props.allowRefresh)
+const isDropdownMode = computed(() => props.variant === 'dropdown')
 
-const isCompact = computed(
-  () =>
-    props.compact || props.variant === 'row' || props.variant === 'dropdown',
-)
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
+})
 
-const formTitle = computed(() =>
-  formMode.value === 'edit' ? 'Edit Reward' : 'Add Reward',
-)
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'reward-row' : 'reward-grid'
+})
 
-const layoutClass = computed(() =>
-  props.variant === 'row' ? 'reward-row' : 'reward-grid',
-)
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  set: async (value: boolean) => {
+    if (!userStore.user) return
+
+    await userStore.updateUser({ showMature: value })
+  },
+})
+
+const selectedReward = computed(() => {
+  return rewardStore.selectedReward
+})
+
+const selectedRewardTitle = computed(() => {
+  return selectedReward.value
+    ? getRewardTitle(selectedReward.value)
+    : 'No reward selected'
+})
+
+const selectedRewardSubtitle = computed(() => {
+  const reward = selectedReward.value
+
+  if (!reward) return 'Choose a reward or add a new one.'
+
+  return reward.collection || reward.power || reward.text || 'Reward selected.'
+})
+
+const selectedRewardDescription = computed(() => {
+  const reward = selectedReward.value
+
+  if (!reward) return 'No reward selected.'
+
+  return (
+    reward.power ||
+    reward.text ||
+    reward.collection ||
+    'No reward description yet.'
+  )
+})
+
+const selectedRewardIcon = computed(() => {
+  return selectedReward.value?.icon || 'kind-icon:gift'
+})
+
+const formTitle = computed(() => {
+  return formMode.value === 'edit' ? 'Edit Reward' : 'Add Reward'
+})
+
+const formSubtitle = computed(() => {
+  return formMode.value === 'edit'
+    ? 'Tune this reward before it detonates the narrative.'
+    : 'Create a new story item, boon, curse, artifact, or plot grenade.'
+})
+
+const canEditSelected = computed(() => {
+  const reward = selectedReward.value
+
+  if (!props.allowEdit || !reward?.id) return false
+  if (userStore.isAdmin) return true
+
+  return reward.userId === currentUserId.value
+})
 
 const collections = computed(() => {
   const set = new Set<string>()
 
-  for (const reward of rewardStore.rewards) {
+  for (const reward of visibleRewards.value) {
     const collection = reward.collection?.trim()
 
     if (collection) {
@@ -306,7 +460,7 @@ const collections = computed(() => {
 const rarities = computed(() => {
   const set = new Set<number>()
 
-  for (const reward of rewardStore.rewards) {
+  for (const reward of visibleRewards.value) {
     if (Number.isFinite(reward.rarity)) {
       set.add(reward.rarity)
     }
@@ -315,30 +469,51 @@ const rarities = computed(() => {
   return Array.from(set).sort((a, b) => a - b)
 })
 
-const filteredRewards = computed<Reward[]>(() => {
+const galleryRewards = computed<Reward[]>(() => {
   let rewards = rewardStore.rewards
 
+  if (!userStore.isAdmin) {
+    rewards = rewards.filter((reward) => {
+      return reward.isPublic || reward.userId === currentUserId.value
+    })
+  }
+
+  if (!showMature.value) {
+    rewards = rewards.filter((reward) => !reward.isMature)
+  }
+
+  return rewards
+})
+
+const visibleRewards = computed<Reward[]>(() => {
+  return galleryRewards.value
+})
+
+const filteredRewards = computed<Reward[]>(() => {
+  let rewards = visibleRewards.value
+
   if (selectedCollection.value !== 'all') {
-    rewards = rewards.filter(
-      (reward) => reward.collection === selectedCollection.value,
-    )
+    rewards = rewards.filter((reward) => {
+      return reward.collection === selectedCollection.value
+    })
   }
 
   if (selectedRarity.value !== 'all') {
-    rewards = rewards.filter(
-      (reward) => reward.rarity === Number(selectedRarity.value),
-    )
+    rewards = rewards.filter((reward) => {
+      return reward.rarity === Number(selectedRarity.value)
+    })
   }
 
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
+  const query = searchQuery.value.trim().toLowerCase()
 
+  if (query) {
     rewards = rewards.filter((reward) => {
       return (
         (reward.text || '').toLowerCase().includes(query) ||
         (reward.power || '').toLowerCase().includes(query) ||
         (reward.collection || '').toLowerCase().includes(query) ||
-        (reward.label || '').toLowerCase().includes(query)
+        (reward.label || '').toLowerCase().includes(query) ||
+        (reward.imagePrompt || '').toLowerCase().includes(query)
       )
     })
   }
@@ -351,6 +526,10 @@ onMounted(async () => {
     await refreshRewards()
   }
 })
+
+function getRewardTitle(reward: Reward) {
+  return reward.label || reward.text || reward.power || `Reward #${reward.id}`
+}
 
 async function refreshRewards(force = false) {
   isLoading.value = true
@@ -371,6 +550,12 @@ async function selectReward(id: number) {
 
 function selectRewardFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    startAddingReward()
+    return
+  }
+
   const id = Number(target.value)
 
   if (!Number.isInteger(id) || id <= 0) {

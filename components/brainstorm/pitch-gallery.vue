@@ -4,6 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -27,28 +28,57 @@
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ filteredPitches.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span
+            v-if="!isLoading && !pitchStore.loading"
+            class="badge badge-ghost"
+          >
+            {{ filteredPitches.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && !isDropdownMode"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="startAddingPitch"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button
+            v-if="allowRefresh && !isDropdownMode"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isLoading || pitchStore.loading"
+            @click="refreshPitches(true)"
+          >
+            <span
+              v-if="isLoading || pitchStore.loading"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls"
-        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+        v-if="showControls && !isDropdownMode"
+        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]"
       >
-        <select
-          v-model="scope"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter pitches by scope"
+        <label
+          v-if="userStore.isAdmin"
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
-          <option value="visible">Visible</option>
-          <option value="mine">Mine</option>
-          <option value="public">Public</option>
-          <option value="titles">Titles</option>
-          <option value="brainstorms">Brainstorms</option>
-          <option value="randomlists">Random Lists</option>
-          <option value="all">All loaded</option>
-        </select>
+          <span class="label-text font-bold">Show Mature</span>
+
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-accent toggle-sm"
+          />
+        </label>
 
         <select
           v-model="selectedPitchType"
@@ -66,16 +96,6 @@
           </option>
         </select>
 
-        <select
-          v-model="matureFilter"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter mature pitches"
-        >
-          <option value="allowed">Allowed</option>
-          <option value="safe">Safe only</option>
-          <option value="mature">Mature only</option>
-        </select>
-
         <input
           v-model="searchQuery"
           type="search"
@@ -83,43 +103,9 @@
           class="input input-bordered input-sm w-full bg-base-100"
           aria-label="Search pitches"
         />
-      </div>
-
-      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingPitch"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
 
         <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          :disabled="!pitchStore.selectedPitch"
-          @click="startEditingSelectedPitch"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          v-if="allowClone"
-          class="btn btn-accent btn-sm rounded-xl"
-          type="button"
-          :disabled="!pitchStore.selectedPitch"
-          @click="cloneSelectedPitch"
-        >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
-          Clone
-        </button>
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
           type="button"
           :disabled="!pitchStore.selectedPitch"
           @click="clearSelectedPitch"
@@ -127,35 +113,31 @@
           <Icon name="kind-icon:x" class="h-4 w-4" />
           Clear
         </button>
-
-        <button
-          v-if="allowRefresh"
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isLoading || pitchStore.loading"
-          @click="refreshPitches(true)"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
       </div>
     </header>
 
     <section
       v-if="showPitchForm"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <h3 class="text-sm font-bold text-base-content">
-          {{ formTitle }}
-        </h3>
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ formTitle }}
+          </h3>
+
+          <p class="text-sm text-base-content/60">
+            {{ formSubtitle }}
+          </p>
+        </div>
 
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl"
           type="button"
           @click="closePitchForm"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
         </button>
       </div>
 
@@ -183,6 +165,127 @@
         </p>
       </div>
 
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon name="kind-icon:idea" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Pitch
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedPitchLabel }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedPitchSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                v-if="canBrainstormSelected"
+                class="btn btn-info btn-sm rounded-xl"
+                type="button"
+                @click="brainstormSelectedPitch"
+              >
+                <Icon name="kind-icon:brain" class="h-4 w-4" />
+                <span class="hidden sm:inline">Brainstorm</span>
+              </button>
+
+              <button
+                v-if="canCloneSelected"
+                class="btn btn-accent btn-sm rounded-xl"
+                type="button"
+                @click="cloneSelectedPitch"
+              >
+                <Icon name="kind-icon:copy" class="h-4 w-4" />
+                <span class="hidden sm:inline">Clone</span>
+              </button>
+
+              <button
+                v-if="canEditSelected"
+                class="btn btn-secondary btn-sm rounded-xl"
+                type="button"
+                @click="startEditingSelectedPitch"
+              >
+                <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+            </div>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="pitchStore.selectedPitch?.id ?? ''"
+            aria-label="Select pitch"
+            @change="selectPitchFromEvent"
+          >
+            <option value="">Choose a pitch</option>
+
+            <option
+              v-for="pitch in filteredPitches"
+              :key="pitch.id"
+              :value="pitch.id"
+            >
+              {{ getPitchLabel(pitch) }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Pitch</option>
+          </select>
+
+          <div
+            v-if="pitchStore.selectedPitch"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ selectedPitchDescription }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-if="pitchStore.selectedPitch.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
+              </span>
+
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
+              <span
+                v-if="pitchStore.selectedPitch.isMature"
+                class="badge badge-warning badge-sm"
+              >
+                Mature
+              </span>
+
+              <span class="badge badge-secondary badge-sm">
+                {{ pitchStore.selectedPitch.PitchType }}
+              </span>
+
+              <span
+                v-if="pitchStore.selectedPitch.creationSource"
+                class="badge badge-outline badge-sm"
+              >
+                {{ pitchStore.selectedPitch.creationSource }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div
         v-else-if="filteredPitches.length === 0"
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
@@ -191,9 +294,9 @@
 
         <div>
           <p class="text-lg font-bold">No pitches found.</p>
+
           <p class="mt-1 text-sm">
-            Either the idea shelf is empty, or the filters are cosplaying as a
-            locked door.
+            No public or owned pitches match this gallery.
           </p>
         </div>
 
@@ -203,27 +306,9 @@
           type="button"
           @click="startAddingPitch"
         >
-          Create the first pitch
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Create Pitch
         </button>
-      </div>
-
-      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
-        <select
-          class="select select-bordered w-full bg-base-100"
-          :value="pitchStore.selectedPitch?.id ?? ''"
-          aria-label="Select pitch"
-          @change="selectPitchFromEvent"
-        >
-          <option value="">Choose a pitch</option>
-
-          <option
-            v-for="pitch in filteredPitches"
-            :key="pitch.id"
-            :value="pitch.id"
-          >
-            {{ getPitchLabel(pitch) }}
-          </option>
-        </select>
       </div>
 
       <div v-else :class="layoutClass">
@@ -264,24 +349,15 @@ import { PitchType, usePitchStore } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
-type PitchScope =
-  | 'visible'
-  | 'mine'
-  | 'public'
-  | 'titles'
-  | 'brainstorms'
-  | 'randomlists'
-  | 'all'
-type MatureFilter = 'allowed' | 'safe' | 'mature'
 
 const props = withDefaults(
   defineProps<{
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    showHeader?: boolean
     showImages?: boolean
     showControls?: boolean
-    showToolbar?: boolean
     showCardActions?: boolean
     showPitch?: boolean
     showDescriptions?: boolean
@@ -303,9 +379,9 @@ const props = withDefaults(
     variant: 'dashboard',
     title: 'Pitches',
     subtitle: 'Browse, select, add, edit, clone, or brainstorm big ideas.',
+    showHeader: true,
     showImages: true,
     showControls: true,
-    showToolbar: true,
     showCardActions: true,
     showPitch: true,
     showDescriptions: true,
@@ -329,47 +405,112 @@ const pitchStore = usePitchStore()
 const userStore = useUserStore()
 const navStore = useNavStore()
 
-const scope = ref<PitchScope>('visible')
-const matureFilter = ref<MatureFilter>('allowed')
 const selectedPitchType = ref<PitchType | ''>('')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const showPitchForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
-const isCompact = computed(() => {
-  return props.compact || props.variant === 'row' || props.variant === 'dropdown'
-})
+const isDropdownMode = computed(() => props.variant === 'dropdown')
 
-const formTitle = computed(() => {
-  return formMode.value === 'edit' ? 'Edit Pitch' : 'Add Pitch'
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
 })
 
 const layoutClass = computed(() => {
   return props.variant === 'row' ? 'pitch-row' : 'pitch-grid'
 })
 
-const selectedPitchLabel = computed(() => {
-  const pitch = pitchStore.selectedPitch
-
-  if (!pitch) return 'None'
-
-  return getPitchLabel(pitch)
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
 })
 
-const basePitches = computed<Pitch[]>(() => {
-  if (scope.value === 'mine') return pitchStore.ownedPitches
-  if (scope.value === 'public') return pitchStore.publicPitches
-  if (scope.value === 'titles') return pitchStore.titles
-  if (scope.value === 'brainstorms') return pitchStore.brainstormPitches
-  if (scope.value === 'randomlists') return pitchStore.randomListPitches
-  if (scope.value === 'all') return pitchStore.pitches
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  set: async (value: boolean) => {
+    if (!userStore.user) return
 
-  return pitchStore.visiblePitches
+    await userStore.updateUser({ showMature: value })
+  },
+})
+
+const selectedPitch = computed(() => {
+  return pitchStore.selectedPitch
+})
+
+const selectedPitchLabel = computed(() => {
+  return selectedPitch.value
+    ? getPitchLabel(selectedPitch.value)
+    : 'No pitch selected'
+})
+
+const selectedPitchSubtitle = computed(() => {
+  const pitch = selectedPitch.value
+
+  if (!pitch) return 'Choose a pitch or add a new one.'
+
+  return pitch.PitchType || pitch.creationSource || 'Pitch selected.'
+})
+
+const selectedPitchDescription = computed(() => {
+  const pitch = selectedPitch.value
+
+  if (!pitch) return 'No pitch selected.'
+
+  return (
+    pitch.description ||
+    pitch.pitch ||
+    pitch.flavorText ||
+    pitch.examples ||
+    'No pitch description yet.'
+  )
+})
+
+const formTitle = computed(() => {
+  return formMode.value === 'edit' ? 'Edit Pitch' : 'Add Pitch'
+})
+
+const formSubtitle = computed(() => {
+  return formMode.value === 'edit'
+    ? 'Tune this big idea before the idea moths get attached.'
+    : 'Create a big-picture idea for prompts, art, or story fuel.'
+})
+
+const canEditSelected = computed(() => {
+  const pitch = selectedPitch.value
+
+  if (!props.allowEdit || !pitch?.id) return false
+  if (userStore.isAdmin) return true
+
+  return pitch.userId === currentUserId.value
+})
+
+const canCloneSelected = computed(() => {
+  return Boolean(props.allowClone && selectedPitch.value?.id)
+})
+
+const canBrainstormSelected = computed(() => {
+  return Boolean(selectedPitch.value?.id)
+})
+
+const galleryPitches = computed<Pitch[]>(() => {
+  let pitches = pitchStore.pitches
+
+  if (!userStore.isAdmin) {
+    pitches = pitches.filter((pitch) => {
+      return pitch.isPublic || pitch.userId === currentUserId.value
+    })
+  }
+
+  if (!showMature.value) {
+    pitches = pitches.filter((pitch) => !pitch.isMature)
+  }
+
+  return pitches
 })
 
 const filteredPitches = computed<Pitch[]>(() => {
-  let pitches = basePitches.value
+  let pitches = galleryPitches.value
 
   if (selectedPitchType.value) {
     pitches = pitches.filter((pitch) => {
@@ -377,21 +518,9 @@ const filteredPitches = computed<Pitch[]>(() => {
     })
   }
 
-  if (matureFilter.value === 'safe') {
-    pitches = pitches.filter((pitch) => !pitch.isMature)
-  }
+  const query = searchQuery.value.trim().toLowerCase()
 
-  if (matureFilter.value === 'mature') {
-    pitches = pitches.filter((pitch) => pitch.isMature)
-  }
-
-  if (matureFilter.value === 'allowed' && !userStore.showMature) {
-    pitches = pitches.filter((pitch) => !pitch.isMature)
-  }
-
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
-
+  if (query) {
     pitches = pitches.filter((pitch) => {
       const haystack = [
         pitch.title,
@@ -442,6 +571,12 @@ function getPitchLabel(pitch: Pitch) {
 
 function selectPitchFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    startAddingPitch()
+    return
+  }
+
   const id = Number(target.value)
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -490,6 +625,14 @@ async function clonePitchById(id: number) {
 
   formMode.value = 'add'
   showPitchForm.value = true
+}
+
+function brainstormSelectedPitch() {
+  const id = pitchStore.selectedPitch?.id
+
+  if (!id) return
+
+  handlePitchBrainstorm(id)
 }
 
 function clearSelectedPitch() {

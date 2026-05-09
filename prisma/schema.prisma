@@ -141,7 +141,8 @@ model Bot {
   modules           String?    @db.VarChar(764)
   sampleResponse    String?    @db.VarChar(764)
   tagline           String?    @db.VarChar(764)
-  isPublic          Boolean    @default(false)
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
   underConstruction Boolean    @default(false)
   canDelete         Boolean    @default(false)
   userId            Int?       @default(1)
@@ -287,7 +288,8 @@ model Character {
   skills         String?    @db.VarChar(2048)
   genre          String?    @db.VarChar(256)
   artImageId     Int?
-  isPublic       Boolean    @default(false)
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
   userId         Int        @default(10)
   artPrompt      String?
   goalStat1Name  String?    @default("Principled|Chaotic")
@@ -544,6 +546,8 @@ model Prompt {
   prompt     String     @db.Text
   userId     Int?       @default(1)
   galleryId  Int?       @default(21)
+  isMature       Boolean    @default(false)
+  isPublic       Boolean    @default(true)
   creationSource CreationSource @default(HUMAN)
   pitchId    Int?
   botId      Int?
@@ -645,6 +649,7 @@ model Resource {
   huggingUrl      String?         @db.VarChar(764)
   localPath       String?         @db.VarChar(764)
   description     String?         @db.Text
+  isPublic        Boolean         @default(false)
   isMature        Boolean         @default(false)
   resourceType    ResourceType    @default(EMBEDDING)
   supportedServer SupportedServer @default(SDXL)
@@ -701,6 +706,8 @@ model Reward {
   artImageId  Int?
   imagePath   String?
   imagePrompt String?
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
   ArtImage    ArtImage?
   Reactions   Reaction[]
   User        User?       @relation(fields: [userId], references: [id])
@@ -726,6 +733,8 @@ model Scenario {
   artPrompt    String?     @db.Text
   genres       String?
   inspirations String?     @db.Text
+  isMature       Boolean    @default(false)
+  isPublic       Boolean    @default(true)
 
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
   User         User        @relation(fields: [userId], references: [id])
@@ -751,7 +760,8 @@ model Server {
   endpointPath               String?
   healthPath                 String?
   userId                     Int?
-  isPublic                   Boolean            @default(false)
+  isMature       Boolean    @default(false)
+  isPublic       Boolean    @default(true)
   isOfficial                 Boolean            @default(false)
   isDefault                  Boolean            @default(false)
   isActive                   Boolean            @default(true)
@@ -859,7 +869,8 @@ model SmartIcon {
   label       String?   @db.VarChar(255)
   link        String?   @db.VarChar(512)
   component   String?   @db.VarChar(255)
-  isPublic    Boolean   @default(true)
+  isMature       Boolean    @default(false)
+  isPublic       Boolean    @default(true)
   description String?   @db.VarChar(255)
   category    String?   @db.VarChar(255)
   modelType   String?   @db.VarChar(255)

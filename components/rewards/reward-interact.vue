@@ -353,18 +353,18 @@
           class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
         >
           <button
-            class="flex w-full items-center justify-between text-left"
+            class="flex w-full items-center justify-between gap-3 text-left"
             type="button"
             @click="showCharacterPanel = !showCharacterPanel"
           >
-            <div>
+            <div class="min-w-0">
               <h2 class="text-lg font-bold text-base-content">
                 Add a Character
                 <span class="badge badge-ghost badge-sm ml-2">Optional</span>
               </h2>
 
-              <p class="mt-0.5 text-sm text-base-content/60">
-                Attach a character from your roster to anchor the story.
+              <p class="mt-0.5 truncate text-sm text-base-content/60">
+                {{ selectedCharacterSummary }}
               </p>
             </div>
 
@@ -379,38 +379,27 @@
           </button>
 
           <div v-if="showCharacterPanel" class="mt-4">
-            <div
+            <character-gallery
+              variant="dropdown"
+              title="Character"
+              subtitle="Optionally anchor the reward story to a character."
+              :show-controls="false"
+              :show-images="true"
+              :show-card-actions="false"
+              :show-meta="false"
+              :compact="true"
+            />
+
+            <button
               v-if="characterStore.selectedCharacter"
-              class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3"
+              class="btn btn-ghost btn-xs mt-3 rounded-xl"
+              type="button"
+              :disabled="isStarting"
+              @click="characterStore.deselectCharacter?.()"
             >
-              <p class="font-bold text-secondary">
-                {{ selectedCharacterTitle }}
-              </p>
-
-              <p class="mt-1 text-sm text-base-content/70">
-                {{
-                  characterStore.selectedCharacter.species || 'Unknown species'
-                }}
-                /
-                {{ characterStore.selectedCharacter.class || 'Unknown class' }}
-              </p>
-
-              <button
-                class="btn btn-ghost btn-xs mt-2 rounded-xl"
-                type="button"
-                :disabled="isStarting"
-                @click="characterStore.deselectCharacter?.()"
-              >
-                Remove character
-              </button>
-            </div>
-
-            <div
-              v-else
-              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
-            >
-              No character selected. Head to the Characters tab to pick one.
-            </div>
+              <Icon name="kind-icon:x" class="h-4 w-4" />
+              Remove character
+            </button>
           </div>
         </section>
 
@@ -469,6 +458,19 @@ const characterStore = useCharacterStore()
 const chatStore = useChatStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
+
+const selectedCharacterSummary = computed(() => {
+  const character = characterStore.selectedCharacter
+
+  if (!character) {
+    return 'No character attached. The item may menace a generic silhouette.'
+  }
+
+  const species = character.species || 'unknown species'
+  const characterClass = character.class || 'unknown class'
+
+  return `${selectedCharacterTitle.value} · ${species} / ${characterClass}`
+})
 
 const storyLogRef = ref<HTMLElement | null>(null)
 const encounterMode = ref<

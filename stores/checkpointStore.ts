@@ -24,6 +24,23 @@ type ApiResponse<T> = {
   message?: string
 }
 
+type SaveCheckpointInput = {
+  name: string
+  customLabel?: string | null
+  MediaPath?: string | null
+  customUrl?: string | null
+  civitaiUrl?: string | null
+  huggingUrl?: string | null
+  localPath?: string | null
+  description?: string | null
+  isMature?: boolean
+  resourceType?: string
+  supportedServer?: string
+  userId?: number | null
+  artImageId?: number | null
+  generation?: string | null
+}
+
 type ModelApiObjectResponse = {
   model?: unknown
   currentModel?: unknown
@@ -371,6 +388,124 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     }
   }
 
+  function registerCheckpointResource(resource: Partial<Resource>) {
+    const name = cleanName(resource.name)
+
+    if (!name) return null
+
+    const checkpoint = {
+      ...resource,
+      resourceType: resource.resourceType || 'CHECKPOINT',
+    }
+
+    const existingIndex = allCheckpoints.value.findIndex((item) => {
+      return cleanName(item.name) === name || item.id === checkpoint.id
+    })
+
+    if (existingIndex >= 0) {
+      allCheckpoints.value[existingIndex] = {
+        ...allCheckpoints.value[existingIndex],
+        ...checkpoint,
+      }
+
+      return allCheckpoints.value[existingIndex]
+    }
+
+    allCheckpoints.value.unshift(checkpoint)
+
+    return checkpoint
+  }
+
+  async function createCheckpointResource(input: SaveCheckpointInput) {
+    const name = cleanName(input.name)
+
+    if (!name) {
+      throw new Error('Checkpoint name is required.')
+    }
+
+    const payload = {
+      ...input,
+      name,
+      resourceType: input.resourceType || 'CHECKPOINT',
+      supportedServer: input.supportedServer || 'SDXL',
+      userId: input.userId ?? userStore.userId ?? userStore.user?.id ?? null,
+    }
+
+    const res = await performFetch<Partial<Resource>>('/api/resources', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.success) {
+      const message = cleanName(res.message) || 'Failed to create checkpoint.'
+      errorStore.setError(ErrorType.GENERAL_ERROR, message)
+      throw new Error(message)
+    }
+
+    if (!res.data) {
+      const message = 'Resource API did not return a checkpoint resource.'
+      errorStore.setError(ErrorType.GENERAL_ERROR, message)
+      throw new Error(message)
+    }
+
+    const registered = registerCheckpointResource(res.data)
+
+    if (registered?.name) {
+      selectedCheckpoint.value = registered
+    }
+
+    return registered || res.data
+  }
+
+  async function updateCheckpointResource(
+    id: number,
+    input: SaveCheckpointInput,
+  ) {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('Checkpoint id is required.')
+    }
+
+    const name = cleanName(input.name)
+
+    if (!name) {
+      throw new Error('Checkpoint name is required.')
+    }
+
+    const payload = {
+      ...input,
+      name,
+      resourceType: input.resourceType || 'CHECKPOINT',
+      supportedServer: input.supportedServer || 'SDXL',
+      userId: input.userId ?? userStore.userId ?? userStore.user?.id ?? null,
+    }
+
+    const res = await performFetch<Partial<Resource>>(`/api/resources/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.success) {
+      const message = cleanName(res.message) || 'Failed to update checkpoint.'
+      errorStore.setError(ErrorType.GENERAL_ERROR, message)
+      throw new Error(message)
+    }
+
+    if (!res.data) {
+      const message =
+        'Resource API did not return an updated checkpoint resource.'
+      errorStore.setError(ErrorType.GENERAL_ERROR, message)
+      throw new Error(message)
+    }
+
+    const registered = registerCheckpointResource(res.data)
+
+    if (registered?.name) {
+      selectedCheckpoint.value = registered
+    }
+
+    return registered || res.data
+  }
+
   async function fetchA1111ModelStatus(
     server?: Server | null,
   ): Promise<ModelStatusReport> {
@@ -706,5 +841,8 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     clearModelStatus,
     findCheckpointByName,
     findSamplerByName,
+    createCheckpointResource,
+    registerCheckpointResource,
+    updateCheckpointResource,
   }
 })

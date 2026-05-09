@@ -1,7 +1,10 @@
 <!-- /components/content/bots/bot-gallery.vue -->
 <template>
-  <div class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
     <header
+      v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
@@ -16,7 +19,7 @@
           >
             Selected:
             <span class="font-semibold text-primary">
-              {{ botStore.currentBot.name || 'Unnamed Bot' }}
+              {{ selectedBotTitle }}
             </span>
           </p>
 
@@ -25,26 +28,57 @@
           </p>
         </div>
 
-        <span v-if="!isLoading" class="badge badge-ghost shrink-0">
-          {{ filteredBots.length }}
-        </span>
+        <div class="flex shrink-0 items-center gap-2">
+          <span
+            v-if="!isLoading && !botStore.loading"
+            class="badge badge-ghost"
+          >
+            {{ filteredBots.length }}
+          </span>
+
+          <button
+            v-if="allowAdd && !isDropdownMode"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="startAddingBot"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button
+            v-if="allowRefresh && !isDropdownMode"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isLoading || botStore.loading"
+            @click="refreshBots(true)"
+          >
+            <span
+              v-if="isLoading || botStore.loading"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       <div
-        v-if="showControls"
-        class="flex flex-col gap-2 lg:flex-row lg:items-center"
+        v-if="showControls && !isDropdownMode"
+        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]"
       >
-        <select
-          v-model="scope"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter bots by scope"
+        <label
+          v-if="userStore.isAdmin"
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
-          <option value="visible">Visible</option>
-          <option value="mine">Mine</option>
-          <option value="public">Public</option>
-          <option value="ready">Ready</option>
-          <option value="all">All loaded</option>
-        </select>
+          <span class="label-text font-bold">Show Mature</span>
+
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-accent toggle-sm"
+          />
+        </label>
 
         <select
           v-model="constructionFilter"
@@ -63,43 +97,9 @@
           class="input input-bordered input-sm w-full bg-base-100"
           aria-label="Search bots"
         />
-      </div>
-
-      <div v-if="showToolbar" class="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        <button
-          v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
-          type="button"
-          @click="startAddingBot"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
 
         <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          :disabled="!botStore.currentBot"
-          @click="startEditingSelectedBot"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          v-if="allowClone"
-          class="btn btn-accent btn-sm rounded-xl"
-          type="button"
-          :disabled="!botStore.currentBot"
-          @click="cloneSelectedBot"
-        >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
-          Clone
-        </button>
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
           type="button"
           :disabled="!botStore.currentBot"
           @click="clearSelectedBot"
@@ -107,35 +107,31 @@
           <Icon name="kind-icon:x" class="h-4 w-4" />
           Clear
         </button>
-
-        <button
-          v-if="allowRefresh"
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isLoading"
-          @click="refreshBots(true)"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          Refresh
-        </button>
       </div>
     </header>
 
     <section
       v-if="showBotForm"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      <div class="mb-3 flex items-center justify-between gap-2">
-        <h3 class="text-sm font-bold text-base-content">
-          {{ formTitle }}
-        </h3>
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ formTitle }}
+          </h3>
+
+          <p class="text-sm text-base-content/60">
+            {{ formSubtitle }}
+          </p>
+        </div>
 
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="btn btn-ghost btn-sm rounded-xl"
           type="button"
           @click="closeBotForm"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
         </button>
       </div>
 
@@ -163,6 +159,128 @@
         </p>
       </div>
 
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon name="kind-icon:robot" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Bot
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedBotTitle }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedBotSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                v-if="canLaunchSelected"
+                class="btn btn-info btn-sm rounded-xl"
+                type="button"
+                @click="launchSelectedBot"
+              >
+                <Icon name="kind-icon:play" class="h-4 w-4" />
+                <span class="hidden sm:inline">Launch</span>
+              </button>
+
+              <button
+                v-if="canCloneSelected"
+                class="btn btn-accent btn-sm rounded-xl"
+                type="button"
+                @click="cloneSelectedBot"
+              >
+                <Icon name="kind-icon:copy" class="h-4 w-4" />
+                <span class="hidden sm:inline">Clone</span>
+              </button>
+
+              <button
+                v-if="canEditSelected"
+                class="btn btn-secondary btn-sm rounded-xl"
+                type="button"
+                @click="startEditingSelectedBot"
+              >
+                <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+            </div>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="botStore.currentBot?.id ?? ''"
+            aria-label="Select bot"
+            @change="selectBotFromEvent"
+          >
+            <option value="">Choose a bot</option>
+
+            <option v-for="bot in filteredBots" :key="bot.id" :value="bot.id">
+              {{ getBotTitle(bot) }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Bot</option>
+          </select>
+
+          <div
+            v-if="botStore.currentBot"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ selectedBotDescription }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-if="botStore.currentBot.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
+              </span>
+
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
+              <span
+                v-if="botStore.currentBot.isMature"
+                class="badge badge-warning badge-sm"
+              >
+                Mature
+              </span>
+
+              <span
+                v-if="botStore.currentBot.underConstruction"
+                class="badge badge-warning badge-sm"
+              >
+                Building
+              </span>
+
+              <span v-else class="badge badge-success badge-sm"> Ready </span>
+
+              <span
+                v-if="botStore.currentBot.BotType"
+                class="badge badge-secondary badge-sm"
+              >
+                {{ botStore.currentBot.BotType }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div
         v-else-if="filteredBots.length === 0"
         class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
@@ -171,8 +289,9 @@
 
         <div>
           <p class="text-lg font-bold">No bots found.</p>
+
           <p class="mt-1 text-sm">
-            Either the bot shelf is empty, or the filters are being dramatic.
+            No public or owned bots match this gallery.
           </p>
         </div>
 
@@ -182,23 +301,9 @@
           type="button"
           @click="startAddingBot"
         >
-          Build the first bot
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Build Bot
         </button>
-      </div>
-
-      <div v-else-if="variant === 'dropdown'" class="flex flex-col gap-2">
-        <select
-          class="select select-bordered w-full bg-base-100"
-          :value="botStore.currentBot?.id ?? ''"
-          aria-label="Select bot"
-          @change="selectBotFromEvent"
-        >
-          <option value="">Choose a bot</option>
-
-          <option v-for="bot in filteredBots" :key="bot.id" :value="bot.id">
-            {{ bot.name || `Bot ${bot.id}` }}
-          </option>
-        </select>
       </div>
 
       <div v-else :class="layoutClass">
@@ -226,7 +331,7 @@
         />
       </div>
     </section>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -234,9 +339,9 @@ import { computed, onMounted, ref } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
-type BotScope = 'visible' | 'mine' | 'public' | 'ready' | 'all'
 type ConstructionFilter = 'all' | 'ready' | 'building'
 
 const props = withDefaults(
@@ -244,9 +349,9 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    showHeader?: boolean
     showImages?: boolean
     showControls?: boolean
-    showToolbar?: boolean
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
@@ -265,9 +370,9 @@ const props = withDefaults(
     variant: 'dashboard',
     title: 'Bots',
     subtitle: 'Browse, select, add, edit, clone, or launch bots.',
+    showHeader: true,
     showImages: true,
     showControls: true,
-    showToolbar: true,
     showCardActions: true,
     showDescriptions: true,
     showMeta: true,
@@ -286,17 +391,65 @@ const props = withDefaults(
 
 const botStore = useBotStore()
 const navStore = useNavStore()
+const userStore = useUserStore()
 
-const scope = ref<BotScope>('visible')
 const constructionFilter = ref<ConstructionFilter>('all')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const showBotForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
 
+const isDropdownMode = computed(() => props.variant === 'dropdown')
+
 const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
+})
+
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'bot-row' : 'bot-grid'
+})
+
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  set: async (value: boolean) => {
+    if (!userStore.user) return
+
+    await userStore.updateUser({ showMature: value })
+  },
+})
+
+const selectedBot = computed(() => {
+  return botStore.currentBot
+})
+
+const selectedBotTitle = computed(() => {
+  return selectedBot.value ? getBotTitle(selectedBot.value) : 'No bot selected'
+})
+
+const selectedBotSubtitle = computed(() => {
+  const bot = selectedBot.value
+
+  if (!bot) return 'Choose a bot or add a new one.'
+
+  return bot.subtitle || bot.tagline || bot.BotType || 'Bot selected.'
+})
+
+const selectedBotDescription = computed(() => {
+  const bot = selectedBot.value
+
+  if (!bot) return 'No bot selected.'
+
   return (
-    props.compact || props.variant === 'row' || props.variant === 'dropdown'
+    bot.description ||
+    bot.personality ||
+    bot.prompt ||
+    bot.botIntro ||
+    bot.userIntro ||
+    'No bot description yet.'
   )
 })
 
@@ -304,21 +457,47 @@ const formTitle = computed(() => {
   return formMode.value === 'edit' ? 'Edit Bot' : 'Add Bot'
 })
 
-const layoutClass = computed(() => {
-  return props.variant === 'row' ? 'bot-row' : 'bot-grid'
+const formSubtitle = computed(() => {
+  return formMode.value === 'edit'
+    ? 'Tune this bot before it develops lore.'
+    : 'Create a new bot persona, module, or charming nonsense engine.'
 })
 
-const baseBots = computed<Bot[]>(() => {
-  if (scope.value === 'mine') return botStore.ownedBots
-  if (scope.value === 'public') return botStore.publicBots
-  if (scope.value === 'ready') return botStore.readyBots
-  if (scope.value === 'all') return botStore.bots
+const canEditSelected = computed(() => {
+  const bot = selectedBot.value
 
-  return botStore.visibleBots
+  if (!props.allowEdit || !bot?.id) return false
+  if (userStore.isAdmin) return true
+
+  return bot.userId === currentUserId.value
+})
+
+const canCloneSelected = computed(() => {
+  return Boolean(props.allowClone && selectedBot.value?.id)
+})
+
+const canLaunchSelected = computed(() => {
+  return Boolean(selectedBot.value?.id)
+})
+
+const galleryBots = computed<Bot[]>(() => {
+  let bots = botStore.bots
+
+  if (!userStore.isAdmin) {
+    bots = bots.filter((bot) => {
+      return bot.isPublic || bot.userId === currentUserId.value
+    })
+  }
+
+  if (!showMature.value) {
+    bots = bots.filter((bot) => !bot.isMature)
+  }
+
+  return bots
 })
 
 const filteredBots = computed<Bot[]>(() => {
-  let bots = baseBots.value
+  let bots = galleryBots.value
 
   if (constructionFilter.value === 'ready') {
     bots = bots.filter((bot) => !bot.underConstruction)
@@ -328,9 +507,9 @@ const filteredBots = computed<Bot[]>(() => {
     bots = bots.filter((bot) => bot.underConstruction)
   }
 
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.trim().toLowerCase()
+  const query = searchQuery.value.trim().toLowerCase()
 
+  if (query) {
     bots = bots.filter((bot) => {
       const haystack = [
         bot.name,
@@ -363,6 +542,10 @@ onMounted(async () => {
   }
 })
 
+function getBotTitle(bot: Bot) {
+  return bot.name || bot.subtitle || bot.tagline || `Bot ${bot.id}`
+}
+
 async function refreshBots(force = false) {
   isLoading.value = true
 
@@ -384,6 +567,12 @@ async function selectBot(id: number) {
 
 function selectBotFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
+
+  if (target.value === '__add__') {
+    startAddingBot()
+    return
+  }
+
   const id = Number(target.value)
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -432,6 +621,14 @@ async function cloneBotById(id: number) {
 
   formMode.value = 'add'
   showBotForm.value = true
+}
+
+function launchSelectedBot() {
+  const id = botStore.currentBot?.id
+
+  if (!id) return
+
+  void launchBotById(id)
 }
 
 function clearSelectedBot() {

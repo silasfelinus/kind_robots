@@ -102,14 +102,6 @@ export const dashboardConfigs = {
         summary: 'Browse, select, upload, collect, and inspect generated art.',
       },
       {
-        key: 'collections',
-        label: 'Collections',
-        icon: 'kind-icon:folder',
-        title: 'Art Collections',
-        summary: 'Organize art into reusable collections.',
-      },
-
-      {
         key: 'checkpoints',
         label: 'Models',
         icon: 'kind-icon:blueprint',

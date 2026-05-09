@@ -23,13 +23,6 @@
         :show-selected-panel="true"
       />
 
-      <collection-gallery
-        v-else-if="currentTab === 'collections'"
-        variant="dashboard"
-        title="Collections"
-        subtitle="Organize art into reusable sets."
-      />
-
       <checkpoint-gallery
         v-else-if="currentTab === 'checkpoints'"
         variant="dashboard"

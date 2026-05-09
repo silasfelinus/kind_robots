@@ -2458,6 +2458,7 @@ export const ArtScalarFieldEnum = {
   updatedAt: 'updatedAt',
   path: 'path',
   checkpoint: 'checkpoint',
+  checkpointResourceId: 'checkpointResourceId',
   sampler: 'sampler',
   seed: 'seed',
   steps: 'steps',

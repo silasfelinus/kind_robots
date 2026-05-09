@@ -9,47 +9,51 @@ datasource db {
 
 /// Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
 model Art {
-  id             Int             @id @default(autoincrement())
-  createdAt      DateTime?       @default(now())
-  updatedAt      DateTime?       @default(now()) @updatedAt
-  path           String?         @default("UNDEFINED") @db.VarChar(764)
-  checkpoint     String?         @db.VarChar(256)
-  sampler        String?         @db.VarChar(764)
-  seed           Int?            @default(-1)
-  steps          Int?
-  designer       String?         @db.VarChar(764)
-  isPublic       Boolean?        @default(false)
-  isMature       Boolean?        @default(false)
-  promptId       Int?
-  userId         Int?            @default(10)
-  pitchId        Int?
-  galleryId      Int?            @default(21)
-  promptString   String          @db.Text
-  cfg            Int?            @default(3)
-  cfgHalf        Boolean?        @default(false)
-  serverId       Int?
-  serverName     String?         @db.VarChar(256)
-  serverUrl      String?         @db.VarChar(764)
-  artImageId     Int?
-  imagePath      String?
-  genres         String?
-  negativePrompt String?         @db.Text
-  Gallery        Gallery?        @relation(fields: [galleryId], references: [id])
-  Pitch          Pitch?          @relation(fields: [pitchId], references: [id])
-  Prompt         Prompt?         @relation(fields: [promptId], references: [id])
-  Server         Server?         @relation(fields: [serverId], references: [id])
-  User           User?           @relation(fields: [userId], references: [id])
-  ArtImage       ArtImage?
-  Reaction       Reaction[]
-  Dreams         Dream[]
-  Butterflies    Butterfly[]
-  ArtCollection  ArtCollection[] @relation("ArtToArtCollection")
+  id                   Int             @id @default(autoincrement())
+  createdAt            DateTime?       @default(now())
+  updatedAt            DateTime?       @default(now()) @updatedAt
+  path                 String?         @default("UNDEFINED") @db.VarChar(764)
+  checkpoint           String?         @db.VarChar(256)
+  checkpointResourceId Int?
+  sampler              String?         @db.VarChar(764)
+  seed                 Int?            @default(-1)
+  steps                Int?
+  designer             String?         @db.VarChar(764)
+  isPublic             Boolean?        @default(false)
+  isMature             Boolean?        @default(false)
+  promptId             Int?
+  userId               Int?            @default(10)
+  pitchId              Int?
+  galleryId            Int?            @default(21)
+  promptString         String          @db.Text
+  cfg                  Int?            @default(3)
+  cfgHalf              Boolean?        @default(false)
+  serverId             Int?
+  serverName           String?         @db.VarChar(256)
+  serverUrl            String?         @db.VarChar(764)
+  artImageId           Int?
+  imagePath            String?
+  genres               String?
+  negativePrompt       String?         @db.Text
+
+  CheckpointResource   Resource?       @relation("ArtCheckpointResource", fields: [checkpointResourceId], references: [id])
+  Gallery              Gallery?        @relation(fields: [galleryId], references: [id])
+  Pitch                Pitch?          @relation(fields: [pitchId], references: [id])
+  Prompt               Prompt?         @relation(fields: [promptId], references: [id])
+  Server               Server?         @relation(fields: [serverId], references: [id])
+  User                 User?           @relation(fields: [userId], references: [id])
+  ArtImage             ArtImage?
+  Reaction             Reaction[]
+  Dreams               Dream[]
+  Butterflies          Butterfly[]
+  ArtCollection        ArtCollection[] @relation("ArtToArtCollection")
 
   @@index([galleryId], map: "Art_galleryId_fkey")
   @@index([pitchId], map: "Art_pitchId_fkey")
   @@index([promptId], map: "Art_promptId_fkey")
   @@index([userId], map: "Art_userId_fkey")
   @@index([serverId], map: "Art_serverId_fkey")
+  @@index([checkpointResourceId], map: "Art_checkpointResourceId_fkey")
 }
 
 /// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
@@ -628,31 +632,32 @@ model Reaction {
 
 /// This should also be used if a user wants to add a custom art or text checkpoints
 model Resource {
-  id           Int          @id @default(autoincrement())
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime?    @default(now()) @updatedAt
-  name         String       @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
-  customLabel  String?      @db.VarChar(764)
-  MediaPath    String?      @db.VarChar(764)
-  customUrl    String?      @db.VarChar(764)
-  civitaiUrl   String?      @db.VarChar(764)
-  huggingUrl   String?      @db.VarChar(764)
-  localPath    String?      @db.VarChar(764)
-  description  String?      @db.Text
-  isMature     Boolean      @default(false)
-  resourceType ResourceType @default(EMBEDDING)
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @default(now()) @updatedAt
+  name            String          @unique(map: "Resource_id_key", length: 200) @db.VarChar(764)
+  customLabel     String?         @db.VarChar(764)
+  MediaPath       String?         @db.VarChar(764)
+  customUrl       String?         @db.VarChar(764)
+  civitaiUrl      String?         @db.VarChar(764)
+  huggingUrl      String?         @db.VarChar(764)
+  localPath       String?         @db.VarChar(764)
+  description     String?         @db.Text
+  isMature        Boolean         @default(false)
+  resourceType    ResourceType    @default(EMBEDDING)
   supportedServer SupportedServer @default(SDXL)
-  userId       Int?         @default(1)
-  artImageId   Int?
-  generation   String?
-  ArtImage     ArtImage?
-  Reactions    Reaction[]
-  Servers      Server[]
-  User         User?        @relation(fields: [userId], references: [id])
+  userId          Int?            @default(1)
+  artImageId      Int?
+  generation      String?
+
+  ArtImage        ArtImage?
+  Reactions       Reaction[]
+  Servers         Server[]
+  ArtsAsCheckpoint Art[]          @relation("ArtCheckpointResource")
+  User            User?           @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
 }
-
 enum SupportedServer {
   SD15
   SDXL

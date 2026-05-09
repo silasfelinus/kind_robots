@@ -13,13 +13,18 @@ import {
   validateAndLoadUserId,
 } from '..'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
+import {
+  resolveCheckpointResource,
+  type CheckpointResourceRequestData,
+} from '../utils/checkpointResource'
 
-type ComfyGenerateRequestData = RequestData & {
-  serverId?: number | null
-  serverName?: string | null
-  workflow?: ComfyWorkflow | null
-  workflowJson?: ComfyWorkflow | null
-}
+type ComfyGenerateRequestData = RequestData &
+  CheckpointResourceRequestData & {
+    serverId?: number | null
+    serverName?: string | null
+    workflow?: ComfyWorkflow | null
+    workflowJson?: ComfyWorkflow | null
+  }
 
 type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
@@ -208,12 +213,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const resolvedCheckpoint = await resolveCheckpointResource({
+      requestData,
+      server,
+    })
+
     newArt = await prisma.art.create({
       data: {
         path: savedImage.fileName,
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
-        checkpoint: requestData.checkpoint ?? null,
+        checkpoint: resolvedCheckpoint.checkpoint,
+        checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
         sampler: requestData.sampler ?? null,
         seed: requestData.seed ?? -1,
         steps: requestData.steps ?? 20,

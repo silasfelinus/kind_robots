@@ -13,12 +13,17 @@ import {
   validateAndLoadUserId,
 } from '.'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
+import {
+  resolveCheckpointResource,
+  type CheckpointResourceRequestData,
+} from './utils/checkpointResource'
 
-type SaveGeneratedRequestData = RequestData & {
-  imageBase64: string
-  serverId?: number | null
-  serverName?: string | null
-}
+type SaveGeneratedRequestData = RequestData &
+  CheckpointResourceRequestData & {
+    imageBase64: string
+    serverId?: number | null
+    serverName?: string | null
+  }
 
 export default defineEventHandler(async (event) => {
   let imageId: number | null = null
@@ -126,12 +131,18 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const resolvedCheckpoint = await resolveCheckpointResource({
+      requestData,
+      server,
+    })
+
     newArt = await prisma.art.create({
       data: {
         path: savedImage.fileName,
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
-        checkpoint: requestData.checkpoint ?? null,
+        checkpoint: resolvedCheckpoint.checkpoint,
+        checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
         sampler: requestData.sampler ?? null,
         seed: requestData.seed ?? -1,
         steps: requestData.steps ?? 20,

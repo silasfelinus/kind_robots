@@ -28,6 +28,11 @@ type ServerAwareRequestData = RequestData & {
 type GenerateImageResponse = {
   images: string[]
   error?: string
+  info?: string | null
+  parameters?: Record<string, unknown> | null
+  resolvedCheckpoint?: string | null
+  resolvedSampler?: string | null
+  resolvedSeed?: number | null
 }
 
 interface GenerateImageInput {
@@ -197,9 +202,20 @@ export default defineEventHandler(async (event) => {
         path: savedImage.fileName,
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
-        checkpoint: requestData.checkpoint ?? null,
-        sampler: requestData.sampler ?? server.defaultSampler ?? null,
-        seed: requestData.seed ?? -1,
+        checkpoint:
+          requestData.checkpoint ??
+          response.resolvedCheckpoint ??
+          server.model ??
+          null,
+        sampler:
+          requestData.sampler ??
+          response.resolvedSampler ??
+          server.defaultSampler ??
+          null,
+        seed:
+          requestData.seed && requestData.seed !== -1
+            ? requestData.seed
+            : (response.resolvedSeed ?? requestData.seed ?? -1),
         steps: requestData.steps ?? server.defaultSteps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),
@@ -357,10 +373,51 @@ export async function generateImage({
     }
 
     const responseData = await response.json()
+    const infoData = parseA1111Info(responseData.info)
+    const parameterData =
+      responseData.parameters &&
+      typeof responseData.parameters === 'object' &&
+      !Array.isArray(responseData.parameters)
+        ? (responseData.parameters as Record<string, unknown>)
+        : {}
+
+    const resolvedCheckpoint =
+      getStringField(infoData, [
+        'sd_model_checkpoint',
+        'sd_model_name',
+        'model',
+        'checkpoint',
+      ]) ||
+      getStringField(parameterData, [
+        'sd_model_checkpoint',
+        'sd_model_name',
+        'model',
+        'checkpoint',
+      ]) ||
+      null
+
+    const resolvedSampler =
+      getStringField(infoData, ['sampler_name', 'sampler', 'sampler_index']) ||
+      getStringField(parameterData, [
+        'sampler_name',
+        'sampler',
+        'sampler_index',
+      ]) ||
+      null
+
+    const resolvedSeed =
+      getNumberField(infoData, ['seed', 'all_seeds']) ||
+      getNumberField(parameterData, ['seed', 'all_seeds']) ||
+      null
 
     return {
       images: Array.isArray(responseData.images) ? responseData.images : [],
       error: responseData.error,
+      info: typeof responseData.info === 'string' ? responseData.info : null,
+      parameters: parameterData,
+      resolvedCheckpoint,
+      resolvedSampler,
+      resolvedSeed,
     }
   } catch (error) {
     console.error('Error during A1111 image generation:', error)
@@ -439,4 +496,57 @@ function stringifyServerError(errorData: unknown): string {
   }
 
   return String(errorData)
+}
+
+function parseA1111Info(info: unknown): Record<string, unknown> {
+  if (!info) return {}
+
+  if (typeof info === 'object' && !Array.isArray(info)) {
+    return info as Record<string, unknown>
+  }
+
+  if (typeof info !== 'string') return {}
+
+  try {
+    const parsed = JSON.parse(info)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {}
+  } catch {
+    return {}
+  }
+}
+
+function getStringField(
+  data: Record<string, unknown>,
+  keys: string[],
+): string | null {
+  for (const key of keys) {
+    const value = data[key]
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+
+  return null
+}
+
+function getNumberField(
+  data: Record<string, unknown>,
+  keys: string[],
+): number | null {
+  for (const key of keys) {
+    const value = data[key]
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Number(value)
+      if (Number.isFinite(parsed)) return parsed
+    }
+  }
+
+  return null
 }

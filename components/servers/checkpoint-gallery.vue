@@ -734,6 +734,7 @@ async function handleCheckpointSaved(resource: unknown) {
   await hydrateSelectedCheckpoint()
   updateCacheBuster()
 }
+
 async function refreshModel() {
   isLoading.value = true
   localError.value = ''
@@ -741,10 +742,13 @@ async function refreshModel() {
   try {
     const server = activeServer.value
 
-    if (
-      server?.generationEngine === 'A1111' ||
-      server?.serverType === 'A1111'
-    ) {
+    if (!server) {
+      await hydrateSelectedCheckpoint()
+      hydrateSelectedSampler()
+      return
+    }
+
+    if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
       await serverStore.fetchA1111Options(server)
     }
 
@@ -830,12 +834,15 @@ function hydrateSelectedSampler() {
 onMounted(async () => {
   if (!props.autoLoad) return
 
+  hydrateSelectedSampler()
+
+  if (!props.showStatus) return
+
   isLoading.value = true
   localError.value = ''
 
   try {
     await refreshModel()
-    hydrateSelectedSampler()
   } catch (error) {
     const message = getErrorMessage(error, 'Failed to initialize checkpoints')
 

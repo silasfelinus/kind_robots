@@ -112,9 +112,7 @@
           </div>
         </div>
 
-        <div
-          :class="statusGridClass"
-        >
+        <div :class="statusGridClass">
           <div class="rounded-xl bg-base-200 p-2">
             <p class="font-bold uppercase text-base-content/45">Server</p>
             <p class="mt-1 break-all font-mono">{{ serverLabel }}</p>
@@ -281,9 +279,11 @@ const userStore = useUserStore()
 const props = withDefaults(
   defineProps<{
     compact?: boolean
+    autoLoad?: boolean
   }>(),
   {
     compact: false,
+    autoLoad: false,
   },
 )
 
@@ -671,20 +671,16 @@ watch(
   () => activeServer.value?.id,
   async () => {
     manualCheckpoint.value = ''
+
+    if (!props.autoLoad) return
+
     await refreshRuntime()
   },
 )
 
-watch(
-  () => liveServerModelLabel.value,
-  (model) => {
-    if (!manualCheckpoint.value && model && model !== 'Not checked') {
-      manualCheckpoint.value = model
-    }
-  },
-)
-
 onMounted(async () => {
+  if (!props.autoLoad) return
+
   await refreshRuntime()
 })
 </script>

@@ -41,6 +41,7 @@
             :show-header="true"
             :show-controls="false"
             :show-status="false"
+            :auto-load="false"
           />
 
           <art-gallery

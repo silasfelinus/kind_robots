@@ -368,7 +368,7 @@
       class="rounded-2xl border border-primary/30 bg-base-200 p-3"
       @click.stop
     >
-      <server-status :compact="statusCompact" />
+      <server-status :compact="statusCompact" :auto-load="false" />
     </section>
 
     <details

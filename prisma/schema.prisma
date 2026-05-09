@@ -46,6 +46,7 @@ model Art {
   Reaction             Reaction[]
   Dreams               Dream[]
   Butterflies          Butterfly[]
+  Tags                 Tag[]           @relation("ArtToTag")
   ArtCollection        ArtCollection[] @relation("ArtToArtCollection")
 
   @@index([galleryId], map: "Art_galleryId_fkey")
@@ -96,7 +97,8 @@ model ArtImage {
   Butterflies Butterfly[]
   Scenarios   Scenario[]
   Dreams      Dream[]
-  Reactions Reaction[]
+  Reactions   Reaction[]
+
 
   @@index([galleryId], map: "ArtImage_galleryId_fkey")
   @@index([userId], map: "ArtImage_userId_fkey")
@@ -887,6 +889,7 @@ model Tag {
   Pitches    Pitch[]     @relation("PitchToTag")
   Butterflies Butterfly[]
   Dreams      Dream[]    @relation("DreamToTag")
+  Arts        Art[]     @relation("ArtToTag")
 
   @@index([userId], map: "Tag_userId_fkey")
 }
@@ -1003,14 +1006,6 @@ model ArtToProduct {
   @@map("_ArtToProduct")
 }
 
-model ArtToTag {
-  A Int
-  B Int
-
-  @@id([A, B])
-  @@index([B], map: "_ArtToTag_B_index")
-  @@map("_ArtToTag")
-}
 
 model MilestoneToUser {
   A Int

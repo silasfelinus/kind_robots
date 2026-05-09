@@ -936,6 +936,172 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+  async function updateArt(
+    id: number,
+    updates: Partial<Art>,
+  ): Promise<ApiResponse<Art>> {
+    try {
+      clearError()
+
+      const response = await performFetch<Art>(`/api/art/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update art.')
+      }
+
+      addOrUpdateArt(response.data)
+
+      if (state.currentArt?.id === id) {
+        state.currentArt = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating art')
+      setError(error, 'Failed to update art.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to update art.',
+      }
+    }
+  }
+
+  async function updateArtTags(
+    id: number,
+    tags: string[],
+  ): Promise<ApiResponse<Art>> {
+    try {
+      clearError()
+
+      const response = await performFetch<Art>(`/api/art/${id}/tags`, {
+        method: 'PATCH',
+        body: JSON.stringify({ tags }),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update art tags.')
+      }
+
+      addOrUpdateArt(response.data)
+
+      if (state.currentArt?.id === id) {
+        state.currentArt = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Tags updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating art tags')
+      setError(error, 'Failed to update art tags.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Failed to update art tags.',
+      }
+    }
+  }
+  async function addArtToCollection(
+    collectionId: number,
+    artId: number,
+  ): Promise<ApiResponse<unknown>> {
+    try {
+      clearError()
+
+      const response = await performFetch(
+        `/api/art/collection/${collectionId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            addArtIds: [artId],
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to add art to collection.')
+      }
+
+      await collectionStore.fetchCollections?.(true)
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art added to collection.',
+      }
+    } catch (error) {
+      handleError(error, 'adding art to collection')
+      setError(error, 'Failed to add art to collection.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to add art to collection.',
+      }
+    }
+  }
+
+  async function removeArtFromCollection(
+    collectionId: number,
+    artId: number,
+  ): Promise<ApiResponse<unknown>> {
+    try {
+      clearError()
+
+      const response = await performFetch(
+        `/api/art/collection/${collectionId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            removeArtIds: [artId],
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success) {
+        throw new Error(
+          response.message || 'Failed to remove art from collection.',
+        )
+      }
+
+      await collectionStore.fetchCollections?.(true)
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art removed from collection.',
+      }
+    } catch (error) {
+      handleError(error, 'removing art from collection')
+      setError(error, 'Failed to remove art from collection.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to remove art from collection.',
+      }
+    }
+  }
   async function generateBrowserArt(
     server: Server,
     data: GenerateArtData,
@@ -1277,14 +1443,6 @@ export const useArtStore = defineStore('artStore', () => {
   async function ensureCollectionsReady(): Promise<void> {
     if (collectionStore.collections?.length) return
     await collectionStore.fetchCollections?.()
-  }
-
-  async function addArtToCollection(collectionId: number, artId: number) {
-    return await performFetch(`/api/art/collection/${collectionId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artIds: [artId] }),
-      headers: { 'Content-Type': 'application/json' },
-    })
   }
 
   function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {
@@ -1654,6 +1812,11 @@ export const useArtStore = defineStore('artStore', () => {
 
     artListPresets,
     selectArtRecord,
+
+    updateArt,
+    updateArtTags,
+    addArtToCollection,
+    removeArtFromCollection,
   }
 })
 

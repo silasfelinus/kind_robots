@@ -161,11 +161,6 @@ export type ReactionToTag = Prisma.ReactionToTagModel
  */
 export type ArtToProduct = Prisma.ArtToProductModel
 /**
- * Model ArtToTag
- * 
- */
-export type ArtToTag = Prisma.ArtToTagModel
-/**
  * Model MilestoneToUser
  * 
  */

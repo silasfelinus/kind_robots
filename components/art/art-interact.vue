@@ -1,450 +1,203 @@
-<!-- /components/content/art/art-interact.vue -->
+<!-- /components/art/art-interact.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
+    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
   >
     <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
+      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:flex-row md:items-start md:justify-between"
     >
-      <h1 class="text-2xl font-bold text-primary md:text-3xl">Art Interact</h1>
+      <div class="min-w-0">
+        <h1 class="text-2xl font-black text-primary md:text-3xl">
+          Selected Art
+        </h1>
 
-      <p
-        class="mx-auto mt-2 max-w-3xl text-sm text-base-content/70 md:text-base"
-      >
-        Pick the server, checkpoint, sampler, and collection before sending art
-        requests.
-      </p>
-    </header>
-
-    <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Art Server</span>
-          </span>
-
-          <select
-            class="select select-bordered rounded-2xl bg-base-200"
-            :value="selectedServerId ?? ''"
-            :disabled="isGenerating || artStore.loading"
-            @change="handleServerChange"
-          >
-            <option value="">Select an art server</option>
-
-            <option
-              v-for="server in artServerOptions"
-              :key="server.id"
-              :value="server.id"
-              :title="getServerOptionTitle(server)"
-            >
-              {{ getServerDropdownLabel(server) }}
-            </option>
-          </select>
-
-          <span class="label">
-            <span class="label-text-alt break-all text-base-content/60">
-              {{ selectedServerEndpointLabel }}
-            </span>
-          </span>
-        </label>
-
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Checkpoint</span>
-          </span>
-
-          <select
-            class="select select-bordered rounded-2xl bg-base-200"
-            :value="selectedCheckpointKey"
-            :disabled="isGenerating || artStore.loading"
-            @change="handleCheckpointChange"
-          >
-            <option value="">Select a checkpoint</option>
-
-            <option
-              v-for="checkpoint in checkpointOptions"
-              :key="getCheckpointKey(checkpoint)"
-              :value="getCheckpointKey(checkpoint)"
-              :title="getCheckpointOptionTitle(checkpoint)"
-            >
-              {{ getCheckpointDropdownLabel(checkpoint) }}
-            </option>
-          </select>
-
-          <span class="label">
-            <span class="label-text-alt break-all text-base-content/60">
-              {{ requestedCheckpointName || 'No checkpoint selected' }}
-            </span>
-          </span>
-        </label>
-
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Sampler</span>
-          </span>
-
-          <select
-            class="select select-bordered rounded-2xl bg-base-200"
-            :value="selectedSamplerName"
-            :disabled="isGenerating || artStore.loading"
-            @change="handleSamplerChange"
-          >
-            <option value="">Select a sampler</option>
-
-            <option
-              v-for="sampler in samplerOptions"
-              :key="sampler.name"
-              :value="sampler.name"
-            >
-              {{ sampler.name }}
-            </option>
-          </select>
-
-          <span class="label">
-            <span class="label-text-alt text-base-content/60">
-              {{ selectedSamplerLabel }}
-            </span>
-          </span>
-        </label>
-
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">Collection</span>
-          </span>
-
-          <select
-            class="select select-bordered rounded-2xl bg-base-200"
-            :value="selectedCollectionId ?? ''"
-            :disabled="isGenerating || artStore.loading"
-            @change="handleCollectionChange"
-          >
-            <option value="">Generated Art</option>
-
-            <option
-              v-for="collection in collectionOptions"
-              :key="collection.id"
-              :value="collection.id"
-            >
-              {{ getCollectionLabel(collection) }}
-            </option>
-          </select>
-
-          <span class="label">
-            <span class="label-text-alt text-base-content/60">
-              {{ selectedCollectionLabel }}
-            </span>
-          </span>
-        </label>
+        <p class="mt-1 text-sm text-base-content/65 md:text-base">
+          Inspect, edit, collect, tag, and remix the current art record.
+        </p>
       </div>
 
-      <div
-        class="mt-4 grid grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 md:grid-cols-[minmax(0,1fr)_auto]"
-      >
-        <label class="form-control">
-          <span class="label">
-            <span class="label-text font-bold">New Collection</span>
-          </span>
-
-          <input
-            v-model="newCollectionTitle"
-            type="text"
-            class="input input-bordered rounded-2xl bg-base-100"
-            placeholder="Create a new collection..."
-            :disabled="isGenerating || artStore.loading || isCreatingCollection"
-            @keydown.enter.prevent="createCollection"
-          />
-        </label>
+      <div class="flex flex-wrap gap-2">
+        <button
+          class="btn btn-sm btn-outline rounded-xl"
+          type="button"
+          @click="navStore.setDashboardTab('art', 'gallery')"
+        >
+          <Icon name="kind-icon:image" class="h-4 w-4" />
+          Gallery
+        </button>
 
         <button
-          class="btn btn-secondary rounded-2xl md:self-end"
+          class="btn btn-sm btn-primary rounded-xl text-white"
           type="button"
-          :disabled="!canCreateCollection"
-          @click="createCollection"
+          :disabled="!currentArt"
+          @click="startRemix"
         >
-          <span
-            v-if="isCreatingCollection"
-            class="loading loading-spinner loading-sm"
-          />
-          <Icon v-else name="kind-icon:plus" class="h-5 w-5" />
-          Add Collection
+          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          Remix
         </button>
       </div>
-    </section>
-
-    <section class="rounded-2xl border p-4" :class="modelStatusPanelClass">
-      <div class="flex flex-col gap-3">
-        <div
-          class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
-        >
-          <div class="min-w-0">
-            <div class="flex items-center gap-2">
-              <Icon :name="modelStatusIcon" class="h-5 w-5 shrink-0" />
-
-              <h2 class="text-lg font-black">Model Safety Check</h2>
-            </div>
-
-            <p class="mt-1 text-sm opacity-80">
-              {{ modelStatusMessage }}
-            </p>
-          </div>
-
-          <button
-            class="btn btn-sm rounded-xl"
-            :class="modelStatusButtonClass"
-            type="button"
-            :disabled="checkpointStore.modelStatusLoading || isGenerating"
-            @click="checkActiveModel"
-          >
-            <span
-              v-if="checkpointStore.modelStatusLoading"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-            Check Model
-          </button>
-        </div>
-
-        <div
-          class="grid grid-cols-1 gap-2 text-xs md:grid-cols-2 xl:grid-cols-4"
-        >
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Server</p>
-            <p class="mt-1 break-all font-mono">
-              {{ activeArtServerLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Server ID</p>
-            <p class="mt-1 break-all font-mono">
-              {{ selectedArtServer?.id || 'none' }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Engine</p>
-            <p class="mt-1 break-all font-mono">
-              {{ activeEngineLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Transport</p>
-            <p class="mt-1 break-all font-mono">
-              {{ selectedTransportLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Selected Checkpoint</p>
-            <p class="mt-1 break-all font-mono">
-              {{ selectedCheckpointLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Loaded API Model</p>
-            <p class="mt-1 break-all font-mono">
-              {{ liveApiModelLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Sampler</p>
-            <p class="mt-1 break-all font-mono">
-              {{ selectedSamplerLabel }}
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/70 p-3">
-            <p class="font-bold uppercase opacity-60">Generate Gate</p>
-            <p class="mt-1 break-all font-mono">
-              {{ generationGateLabel }}
-            </p>
-          </div>
-        </div>
-
-        <div
-          v-if="checkpointStore.modelStatusError"
-          class="rounded-2xl bg-error/10 p-3 text-sm font-semibold text-error"
-        >
-          {{ checkpointStore.modelStatusError }}
-        </div>
-      </div>
-    </section>
+    </header>
 
     <div
       v-if="statusMessage"
-      class="rounded-2xl border p-3 text-sm"
-      :class="
-        statusTone === 'error'
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'border-success/40 bg-success/10 text-success'
-      "
+      class="rounded-2xl border p-3 text-sm font-semibold"
+      :class="statusClass"
     >
       {{ statusMessage }}
     </div>
 
-    <section
-      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)]"
+    <div
+      v-if="!currentArt"
+      class="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/55"
     >
-      <div
-        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-      >
-        <div class="shrink-0 border-b border-base-300 p-4">
-          <div class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-            <div class="min-w-0">
-              <h2 class="truncate text-xl font-black text-base-content">
-                Prompt Builder
-              </h2>
+      <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
 
-              <p class="mt-1 text-sm text-base-content/65">
-                {{ activeArtServerLabel }} · {{ selectedCheckpointLabel }} ·
-                {{ selectedSamplerLabel }}
+      <p class="mt-2 text-lg font-bold">No art selected.</p>
+
+      <p class="mt-1 max-w-xl text-sm">
+        Select something from the gallery first. The pixels are currently
+        standing around holding clipboards.
+      </p>
+
+      <button
+        class="btn btn-primary mt-4 rounded-2xl text-white"
+        type="button"
+        @click="navStore.setDashboardTab('art', 'gallery')"
+      >
+        Open Gallery
+      </button>
+    </div>
+
+    <div
+      v-else
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(280px,420px)_minmax(0,1fr)]"
+    >
+      <aside class="flex min-h-0 flex-col gap-4 overflow-auto">
+        <art-card
+          :art="currentArt"
+          :art-image="currentArtImage"
+          :selected="true"
+          :show-actions="true"
+          :show-prompt="false"
+          :show-meta="true"
+          :show-generation-meta="true"
+          :show-select-button="false"
+        />
+
+        <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="mb-3 flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-lg font-bold text-base-content">Model Source</h2>
+
+              <p class="text-sm text-base-content/60">
+                Resolved from the art record, not stuffed into fetch routes.
               </p>
             </div>
 
-            <div class="flex flex-wrap gap-2 lg:justify-end">
-              <button
-                class="btn btn-sm btn-ghost rounded-xl"
-                type="button"
-                :disabled="isGenerating"
-                @click="applyPretty"
-              >
-                <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-                Pretty
-              </button>
+            <Icon name="kind-icon:brain" class="h-6 w-6 text-primary" />
+          </div>
 
-              <button
-                class="btn btn-sm btn-secondary rounded-xl"
-                type="button"
-                :disabled="isGenerating"
-                @click="applySurprise"
-              >
-                <Icon name="kind-icon:dice" class="h-4 w-4" />
-                Surprise
-              </button>
+          <div class="grid gap-3 text-sm">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p class="text-xs font-bold uppercase text-base-content/45">
+                Checkpoint Resource
+              </p>
 
-              <button
-                class="btn btn-sm btn-ghost rounded-xl"
-                type="button"
-                :disabled="isGenerating"
-                @click="resetInteract"
-              >
-                <Icon name="kind-icon:refresh" class="h-4 w-4" />
-                Reset
-              </button>
+              <p class="mt-1 break-all font-semibold">
+                {{ checkpointResourceLabel }}
+              </p>
+            </div>
 
-              <button
-                class="btn btn-sm btn-primary rounded-xl text-white"
-                type="button"
-                :disabled="!canGenerate"
-                @click="generateArt"
-              >
-                <span
-                  v-if="isGenerating"
-                  class="loading loading-spinner loading-sm"
-                />
-                <Icon v-else name="kind-icon:image" class="h-4 w-4" />
-                {{ isGenerating ? 'Generating...' : 'Create Art' }}
-              </button>
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p class="text-xs font-bold uppercase text-base-content/45">
+                Checkpoint File
+              </p>
+
+              <p class="mt-1 break-all font-mono text-xs">
+                {{ currentArt.checkpoint || 'n/a' }}
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+                <p class="text-xs font-bold uppercase text-base-content/45">
+                  Sampler
+                </p>
+
+                <p class="mt-1 font-semibold">
+                  {{ currentArt.sampler || 'n/a' }}
+                </p>
+              </div>
+
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+                <p class="text-xs font-bold uppercase text-base-content/45">
+                  Seed
+                </p>
+
+                <p class="mt-1 font-mono text-xs">
+                  {{ currentArt.seed ?? 'n/a' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p class="text-xs font-bold uppercase text-base-content/45">
+                Server
+              </p>
+
+              <p class="mt-1 break-all font-semibold">
+                {{ currentArt.serverName || 'n/a' }}
+              </p>
             </div>
           </div>
-        </div>
+        </section>
+      </aside>
 
-        <div class="min-h-0 overflow-auto bg-base-200 p-4">
-          <div class="grid gap-4">
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Prompt</span>
-
-                <span class="label-text-alt text-base-content/50">
-                  {{ promptLength }} chars
-                </span>
-              </span>
-
-              <textarea
-                v-model="promptStore.promptField"
-                class="textarea textarea-bordered min-h-40 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
-                placeholder="A robot butterfly librarian arguing with a haunted teapot in a neon greenhouse..."
-                :disabled="isGenerating || artStore.loading"
-                @input="syncPrompt"
-              />
-            </label>
-
-            <Transition name="fade-expand">
-              <label v-if="useNegative" class="form-control">
-                <span class="label">
-                  <span class="label-text font-bold">Negative Prompt</span>
-                </span>
-
-                <textarea
-                  v-model="artStore.artForm.negativePrompt"
-                  class="textarea textarea-bordered min-h-28 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
-                  placeholder="blurry, low quality, extra limbs, cursed anatomy..."
-                  :disabled="isGenerating || artStore.loading"
-                />
-              </label>
-            </Transition>
-
+      <main
+        class="min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100"
+      >
+        <div class="grid gap-4 p-4">
+          <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div
-              class="grid grid-cols-1 gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 md:grid-cols-2 xl:grid-cols-4"
+              class="mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between"
             >
-              <label class="form-control">
-                <div class="mb-1 flex items-center justify-between">
-                  <span class="text-sm font-bold text-base-content/70">
-                    CFG Scale
-                  </span>
+              <div>
+                <h2 class="text-xl font-black text-base-content">
+                  Edit Art Data
+                </h2>
 
-                  <span class="font-mono text-sm font-bold text-primary">
-                    {{ localCfg.toFixed(1) }}
-                  </span>
-                </div>
+                <p class="text-sm text-base-content/60">
+                  This edits the Art record only. Image bytes stay blissfully
+                  unbothered.
+                </p>
+              </div>
 
-                <input
-                  v-model.number="localCfg"
-                  type="range"
-                  min="0"
-                  max="30"
-                  step="0.5"
-                  class="range range-primary range-sm"
-                  :disabled="isGenerating || artStore.loading"
+              <button
+                class="btn btn-primary rounded-2xl text-white"
+                type="button"
+                :disabled="isSaving || !hasDirtyFields"
+                @click="saveArtEdits"
+              >
+                <span
+                  v-if="isSaving"
+                  class="loading loading-spinner loading-sm"
                 />
-              </label>
+                <Icon v-else name="kind-icon:save" class="h-5 w-5" />
+                Save Changes
+              </button>
+            </div>
 
-              <label class="form-control">
-                <div class="mb-1 flex items-center justify-between">
-                  <span class="text-sm font-bold text-base-content/70">
-                    Steps
-                  </span>
-
-                  <span class="font-mono text-sm font-bold text-secondary">
-                    {{ artStore.artForm.steps ?? 25 }}
-                  </span>
-                </div>
-
-                <input
-                  v-model.number="artStore.artForm.steps"
-                  type="range"
-                  min="5"
-                  max="100"
-                  step="1"
-                  class="range range-secondary range-sm"
-                  :disabled="isGenerating || artStore.loading"
-                />
-              </label>
-
+            <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <label class="form-control">
                 <span class="label">
-                  <span class="label-text font-bold">Seed</span>
+                  <span class="label-text font-bold">Path</span>
                 </span>
 
                 <input
-                  v-model.number="seedModel"
-                  type="number"
-                  class="input input-bordered input-sm bg-base-200"
-                  placeholder="-1"
-                  :disabled="isGenerating || artStore.loading"
+                  v-model="editForm.path"
+                  type="text"
+                  class="input input-bordered rounded-2xl bg-base-100"
+                  placeholder="Art path or display key"
                 />
               </label>
 
@@ -454,949 +207,369 @@
                 </span>
 
                 <input
-                  v-model="artStore.artForm.designer"
+                  v-model="editForm.designer"
                   type="text"
-                  class="input input-bordered input-sm bg-base-200"
+                  class="input input-bordered rounded-2xl bg-base-100"
                   placeholder="Kind Designer"
-                  :disabled="isGenerating || artStore.loading"
                 />
               </label>
             </div>
 
+            <label class="form-control mt-4">
+              <span class="label">
+                <span class="label-text font-bold">Prompt</span>
+                <span class="label-text-alt text-base-content/50">
+                  {{ editForm.promptString.length }} chars
+                </span>
+              </span>
+
+              <textarea
+                v-model="editForm.promptString"
+                class="textarea textarea-bordered min-h-40 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
+                placeholder="Prompt..."
+              />
+            </label>
+
+            <label class="form-control mt-4">
+              <span class="label">
+                <span class="label-text font-bold">Negative Prompt</span>
+              </span>
+
+              <textarea
+                v-model="editForm.negativePrompt"
+                class="textarea textarea-bordered min-h-28 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
+                placeholder="Negative prompt..."
+              />
+            </label>
+
             <div
-              class="grid grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:grid-cols-2 xl:grid-cols-4"
+              class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
             >
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Steps</span>
+                </span>
+
+                <input
+                  v-model.number="editForm.steps"
+                  type="number"
+                  min="1"
+                  class="input input-bordered rounded-2xl bg-base-100"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Seed</span>
+                </span>
+
+                <input
+                  v-model.number="editForm.seed"
+                  type="number"
+                  class="input input-bordered rounded-2xl bg-base-100"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Sampler</span>
+                </span>
+
+                <input
+                  v-model="editForm.sampler"
+                  type="text"
+                  class="input input-bordered rounded-2xl bg-base-100"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Checkpoint</span>
+                </span>
+
+                <input
+                  v-model="editForm.checkpoint"
+                  type="text"
+                  class="input input-bordered rounded-2xl bg-base-100"
+                />
+              </label>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
               <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
               >
                 <span class="label-text font-bold">Public</span>
 
                 <input
-                  v-model="artStore.artForm.isPublic"
+                  v-model="editForm.isPublic"
                   type="checkbox"
                   class="toggle toggle-success"
-                  :disabled="isGenerating || artStore.loading"
                 />
               </label>
 
               <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
               >
                 <span class="label-text font-bold">Mature</span>
 
                 <input
-                  v-model="artStore.artForm.isMature"
+                  v-model="editForm.isMature"
                   type="checkbox"
                   class="toggle toggle-warning"
-                  :disabled="isGenerating || artStore.loading"
-                />
-              </label>
-
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-              >
-                <span class="label-text font-bold">Negative</span>
-
-                <input
-                  v-model="useNegative"
-                  type="checkbox"
-                  class="toggle toggle-error"
-                  :disabled="isGenerating || artStore.loading"
-                  @change="toggleNegativePrompt"
-                />
-              </label>
-
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-              >
-                <span class="label-text font-bold">Pretty</span>
-
-                <input
-                  v-model="makePretty"
-                  type="checkbox"
-                  class="toggle toggle-accent"
-                  :disabled="isGenerating || artStore.loading"
-                  @change="applyPretty"
                 />
               </label>
             </div>
+          </section>
 
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <section class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
               <div class="mb-3 flex items-center justify-between gap-2">
                 <div>
-                  <h3 class="font-bold text-base-content">Randomizer</h3>
+                  <h2 class="text-xl font-black text-base-content">
+                    Collections
+                  </h2>
 
                   <p class="text-sm text-base-content/60">
-                    Use list fragments and surprise controls to feed the prompt.
+                    Add or remove this piece from collections.
                   </p>
                 </div>
+
+                <Icon name="kind-icon:folder" class="h-6 w-6 text-secondary" />
               </div>
 
-              <art-randomizer />
-            </div>
-          </div>
-        </div>
+              <div class="grid gap-2">
+                <button
+                  v-for="collection in collectionOptions"
+                  :key="collection.id"
+                  class="btn justify-between rounded-2xl"
+                  :class="
+                    artCollectionIds.includes(collection.id)
+                      ? 'btn-secondary'
+                      : 'btn-outline'
+                  "
+                  type="button"
+                  :disabled="isCollectionSaving"
+                  @click="toggleCollection(collection.id)"
+                >
+                  <span class="truncate">{{
+                    getCollectionLabel(collection)
+                  }}</span>
 
-        <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-            <div
-              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/65"
-            >
-              <p>
-                <span class="font-bold">Server:</span>
-                {{ activeArtServerLabel }}
-              </p>
-
-              <p class="mt-1">
-                <span class="font-bold">Server ID:</span>
-                {{ selectedArtServer?.id || 'none' }}
-              </p>
-
-              <p class="mt-1 break-all">
-                <span class="font-bold">Endpoint:</span>
-                {{ selectedServerEndpointLabel }}
-              </p>
-
-              <p class="mt-1">
-                <span class="font-bold">Model:</span>
-                {{ selectedCheckpointLabel }}
-              </p>
-
-              <p class="mt-1">
-                <span class="font-bold">Loaded:</span>
-                {{ liveApiModelLabel }}
-              </p>
-
-              <p class="mt-1">
-                <span class="font-bold">Collection:</span>
-                {{ selectedCollectionLabel }}
-              </p>
-
-              <p
-                v-if="!canGenerate && generationGateReason"
-                class="mt-2 font-semibold text-warning"
-              >
-                {{ generationGateReason }}
-              </p>
+                  <Icon
+                    :name="
+                      artCollectionIds.includes(collection.id)
+                        ? 'kind-icon:check'
+                        : 'kind-icon:plus'
+                    "
+                    class="h-5 w-5"
+                  />
+                </button>
+              </div>
             </div>
 
-            <button
-              class="btn btn-primary min-h-16 rounded-2xl text-white"
-              type="button"
-              :disabled="!canGenerate"
-              @click="generateArt"
-            >
-              <span
-                v-if="isGenerating"
-                class="loading loading-spinner loading-sm"
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <div class="mb-3 flex items-center justify-between gap-2">
+                <div>
+                  <h2 class="text-xl font-black text-base-content">Tags</h2>
+
+                  <p class="text-sm text-base-content/60">
+                    Comma-separated tags for search, filtering, and tiny curator
+                    goblin joy.
+                  </p>
+                </div>
+
+                <Icon name="kind-icon:tag" class="h-6 w-6 text-accent" />
+              </div>
+
+              <textarea
+                v-model="tagText"
+                class="textarea textarea-bordered min-h-32 resize-none rounded-2xl bg-base-100 text-sm"
+                placeholder="portrait, robot, butterfly, suspiciously dramatic lighting"
               />
-              <Icon v-else name="kind-icon:sparkles" class="h-5 w-5" />
-              {{ isGenerating ? 'Generating...' : 'Generate Art' }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <div class="mb-3 flex items-center justify-between gap-2">
-            <div>
-              <h2 class="text-lg font-bold text-base-content">Model Context</h2>
-
-              <p class="text-sm text-base-content/60">
-                Selected model, loaded backend model, and generation routing.
-              </p>
-            </div>
-
-            <Icon name="kind-icon:server" class="h-6 w-6 text-primary" />
-          </div>
-
-          <div class="grid gap-3">
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/45">
-                Selected Server
-              </p>
-
-              <p
-                class="mt-1 break-all text-xs font-semibold text-base-content/80"
-              >
-                {{ activeArtServerLabel }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/45">
-                Selected Checkpoint Name
-              </p>
-
-              <p
-                class="mt-1 break-all text-xs font-semibold text-base-content/80"
-              >
-                {{ requestedCheckpointName || 'n/a' }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/45">
-                Loaded API Model
-              </p>
-
-              <p
-                class="mt-1 break-all text-xs font-semibold text-base-content/80"
-              >
-                {{ liveApiModelLabel }}
-              </p>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-              <p class="text-xs font-bold uppercase text-base-content/45">
-                Collection
-              </p>
-
-              <p
-                class="mt-1 break-all text-xs font-semibold text-base-content/80"
-              >
-                {{ selectedCollectionLabel }}
-              </p>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <button
-                class="btn btn-sm btn-outline rounded-xl"
-                type="button"
-                @click="navStore.setDashboardTab('art', 'checkpoints')"
-              >
-                More Models
-              </button>
 
               <button
-                class="btn btn-sm rounded-xl"
-                :class="modelStatusButtonClass"
+                class="btn btn-accent mt-3 w-full rounded-2xl"
                 type="button"
-                :disabled="checkpointStore.modelStatusLoading || isGenerating"
-                @click="checkActiveModel"
+                :disabled="isSavingTags"
+                @click="saveTags"
               >
                 <span
-                  v-if="checkpointStore.modelStatusLoading"
-                  class="loading loading-spinner loading-xs"
+                  v-if="isSavingTags"
+                  class="loading loading-spinner loading-sm"
                 />
-                <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-                Verify
+                <Icon v-else name="kind-icon:save" class="h-5 w-5" />
+                Save Tags
               </button>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section
-          class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
-        >
-          <div class="mb-3 flex items-center justify-between gap-2">
-            <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
-
-            <button
-              class="btn btn-xs btn-ghost rounded-xl"
-              type="button"
-              :disabled="!promptPreview"
-              @click="copyPromptPreview"
-            >
-              Copy
-            </button>
-          </div>
-
-          <pre
-            class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
-            >{{ promptPreview || 'No prompt yet.' }}</pre
+          <section
+            class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
           >
-        </section>
+            <div
+              class="mb-4 flex flex-col gap-2 md:flex-row md:items-start md:justify-between"
+            >
+              <div>
+                <h2 class="text-xl font-black text-primary">Remix</h2>
 
-        <section
-          v-if="artStore.currentArt"
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
-        >
-          <h2 class="mb-3 text-lg font-bold text-base-content">
-            Latest Result
-          </h2>
+                <p class="text-sm text-base-content/70">
+                  Send this piece back to the generator with the current model
+                  metadata and an edit request.
+                </p>
+              </div>
 
-          <art-card
-            :art="artStore.currentArt"
-            :art-image="artStore.currentArtImage"
-            :selected="true"
-            :show-actions="false"
-            :show-prompt="false"
-            :show-meta="true"
-            :show-generation-meta="false"
-            :compact="true"
-          />
-        </section>
-      </aside>
-    </section>
+              <button
+                class="btn btn-primary rounded-2xl text-white"
+                type="button"
+                @click="startRemix"
+              >
+                <Icon name="kind-icon:sparkles" class="h-5 w-5" />
+                Send to Generator
+              </button>
+            </div>
+
+            <textarea
+              v-model="remixPrompt"
+              class="textarea textarea-bordered min-h-28 resize-none rounded-2xl bg-base-100 text-sm leading-relaxed"
+              placeholder="Make it warmer, add glass wings, preserve the pose, remove the cursed elbow situation..."
+            />
+          </section>
+        </div>
+      </main>
+    </div>
   </section>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import type { Resource, Server } from '~/prisma/generated/prisma/client'
-import { performFetch } from '@/stores/utils'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import type { Art, ArtImage, Resource } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
-import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { ErrorType, useErrorStore } from '@/stores/errorStore'
-import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useNavStore } from '@/stores/navStore'
-import { usePromptStore } from '@/stores/promptStore'
-import { useRandomStore } from '@/stores/randomStore'
-import { useServerStore } from '@/stores/serverStore'
-import { negativeList } from '@/stores/seeds/artList'
-import { validCheckpoints } from '@/stores/seeds/validCheckpoints'
-
-type ResourceLike = Partial<Resource> & {
-  id?: number
-  name?: string | null
-  customLabel?: string | null
-  label?: string | null
-  generation?: string | null
-  resourceType?: string | null
-  isMature?: boolean | null
-}
-
-type SamplerLike = {
-  id?: number | string
-  name: string
-  label?: string | null
-}
+import { useResourceStore } from '@/stores/resourceStore'
 
 type CollectionLike = {
   id: number
   label?: string | null
-  title?: string | null
-  name?: string | null
-  userId?: number | null
-  isPublic?: boolean | null
-  isMature?: boolean | null
+  art?: Art[]
 }
 
-type ApiResponse<T> = {
-  success: boolean
-  message?: string
-  data?: T
+type ArtWithTags = Art & {
+  tags?: {
+    label?: string | null
+    name?: string | null
+  }[]
 }
 
-type CheckpointReport = {
-  tone: 'safe' | 'warning' | 'error' | 'unknown'
-  message: string
-}
-
-type CheckpointStoreShape = {
-  checkpoints?: ResourceLike[]
-  resources?: ResourceLike[]
-  validCheckpoints?: ResourceLike[]
-  checkpointResources?: ResourceLike[]
-  selectedCheckpoint?: ResourceLike | null
-  selectedSampler?: SamplerLike | null
-  samplers?: SamplerLike[]
-  samplerOptions?: SamplerLike[]
-  modelStatus?: {
-    activeModel?: string | null
-    tone?: string | null
-    message?: string | null
-  } | null
-  lastGenerationStatus?: {
-    requestedCheckpoint?: string | null
-    actualGenerationModel?: string | null
-    tone?: string | null
-    message?: string | null
-  } | null
-  currentApiModel?: string | null
-  activeEngine?: string | null
-  hasModelMismatch?: boolean
-  modelStatusLoading?: boolean
-  modelStatusError?: string
-  initialize?: () => Promise<unknown>
-  checkActiveModel?: () => Promise<CheckpointReport>
-  clearModelStatus?: () => void
-  selectSamplerByName?: (name: string) => unknown
-  selectCheckpointById?: (id: number) => unknown
-  selectCheckpointByName?: (name: string) => unknown
-}
-
-type ServerStoreShape = {
-  servers?: Server[]
-  activeArtServer?: Server | null
+type ResourceStoreShape = {
+  resources?: Resource[]
   initialize?: (options?: {
-    fetchRemote?: boolean
     force?: boolean
+    fetchRemote?: boolean
   }) => Promise<unknown>
-  setActiveServer?: (server: Server) => unknown
-  setActiveArtServer?: (server: Server) => unknown
-  selectServer?: (id: number) => unknown
-  selectServerById?: (id: number) => unknown
+  getResourceById?: (id: number) => Resource | null | undefined
+  fetchResourceById?: (id: number) => Promise<Resource | null | undefined>
 }
 
-type CollectionStoreShape = {
-  collections?: CollectionLike[]
-  currentCollection?: CollectionLike | null
-  selectedCollections?: CollectionLike[]
-  selectedCollectionIds?: number[]
-  fetchCollections?: (force?: boolean) => Promise<unknown>
-  setCurrentCollection?: (collectionId: number | null) => void
-  setSelectedCollectionIds?: (ids: number[]) => void
-  toggleSelectedCollectionId?: (collectionId: number) => void
-  clearSelectedCollections?: () => void
-  createCollection?: (
-    label: string,
-    userId: number,
-    isPublic?: boolean,
-    isMature?: boolean,
-  ) => Promise<CollectionLike>
-  getOrCreateGeneratedArtCollection?: (
-    userId: number,
-  ) => Promise<CollectionLike>
-}
+defineProps<{
+  compact?: boolean
+}>()
 
 const artStore = useArtStore()
-const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
-const errorStore = useErrorStore()
-const milestoneStore = useMilestoneStore()
 const navStore = useNavStore()
-const promptStore = usePromptStore()
-const randomStore = useRandomStore()
-const serverStore = useServerStore()
+const resourceStore = useResourceStore() as unknown as ResourceStoreShape
 
-const checkpointApi = checkpointStore as unknown as CheckpointStoreShape
-const serverApi = serverStore as unknown as ServerStoreShape
-const collectionApi = collectionStore as unknown as CollectionStoreShape
-
-const isGenerating = ref(false)
-const isCreatingCollection = ref(false)
-const makePretty = ref(false)
-const useNegative = ref(false)
+const isSaving = ref(false)
+const isSavingTags = ref(false)
+const isCollectionSaving = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
-const selectedServerId = ref<number | null>(null)
-const selectedCheckpointKey = ref('')
-const selectedSamplerName = ref('')
-const selectedCollectionId = ref<number | null>(null)
-const newCollectionTitle = ref('')
+const tagText = ref('')
+const remixPrompt = ref('')
+const checkpointResource = ref<Resource | null>(null)
 
-const localCfg = ref(
-  (artStore.artForm.cfg ?? 7) + (artStore.artForm.cfgHalf ? 0.5 : 0),
-)
-
-const allServers = computed<Server[]>(() => {
-  return Array.isArray(serverApi.servers) ? serverApi.servers : []
+const editForm = reactive({
+  path: '',
+  designer: '',
+  promptString: '',
+  negativePrompt: '',
+  checkpoint: '',
+  sampler: '',
+  steps: 25 as number | null,
+  seed: null as number | null,
+  genres: '',
+  isPublic: true,
+  isMature: false,
 })
 
-const artServerOptions = computed<Server[]>(() => {
-  return allServers.value
-    .filter((server) => {
-      return Boolean(
-        server.isActive &&
-        (server.serverType === 'A1111' ||
-          server.serverType === 'ART' ||
-          server.generationEngine === 'A1111' ||
-          server.supportsTxt2Img ||
-          server.supportsImg2Img),
-      )
-    })
-    .sort((a, b) => {
-      const aOrder = a.sortOrder ?? 0
-      const bOrder = b.sortOrder ?? 0
+const currentArt = computed<Art | null>(() => artStore.currentArt)
 
-      if (aOrder !== bOrder) return aOrder - bOrder
-
-      return getServerDropdownLabel(a).localeCompare(getServerDropdownLabel(b))
-    })
-})
-
-const checkpointOptions = computed<ResourceLike[]>(() => {
-  const candidates = [
-    checkpointApi.checkpoints,
-    checkpointApi.resources,
-    checkpointApi.validCheckpoints,
-    checkpointApi.checkpointResources,
-    validCheckpoints as ResourceLike[],
-  ]
-
-  const found =
-    candidates.find((items) => Array.isArray(items) && items.length) || []
-
-  return [...found]
-    .filter((checkpoint) => {
-      return Boolean(
-        checkpoint?.name &&
-        (!checkpoint.resourceType || checkpoint.resourceType === 'CHECKPOINT'),
-      )
-    })
-    .sort((a, b) => {
-      return getCheckpointDropdownLabel(a).localeCompare(
-        getCheckpointDropdownLabel(b),
-      )
-    })
-})
-
-const samplerOptions = computed<SamplerLike[]>(() => {
-  const candidates = [checkpointApi.samplers, checkpointApi.samplerOptions]
-  const found =
-    candidates.find((items) => Array.isArray(items) && items.length) || []
-
-  if (found.length) {
-    return [...found]
-      .filter((sampler) => Boolean(sampler?.name))
-      .sort((a, b) => a.name.localeCompare(b.name))
-  }
-
-  return [
-    { name: 'Euler a' },
-    { name: 'Euler' },
-    { name: 'DPM++ 2M' },
-    { name: 'DPM++ 2M Karras' },
-    { name: 'DPM++ SDE Karras' },
-  ]
+const currentArtImage = computed<ArtImage | null>(() => {
+  return artStore.currentArtImage
 })
 
 const collectionOptions = computed<CollectionLike[]>(() => {
-  return [...(collectionApi.collections || [])].sort((a, b) => {
-    return getCollectionLabel(a).localeCompare(getCollectionLabel(b))
-  })
+  return [...((collectionStore.collections || []) as CollectionLike[])].sort(
+    (a, b) => getCollectionLabel(a).localeCompare(getCollectionLabel(b)),
+  )
 })
 
-const selectedArtServer = computed<Server | null>(() => {
-  if (selectedServerId.value) {
-    const selected = getServerById(selectedServerId.value)
+const artCollectionIds = computed(() => {
+  if (!currentArt.value) return []
 
-    if (selected) return selected
-  }
-
-  if (serverApi.activeArtServer?.id) {
-    return serverApi.activeArtServer
-  }
-
-  const formServerId = artStore.artForm.serverId
-
-  if (typeof formServerId === 'number' && formServerId > 0) {
-    const formServer = getServerById(formServerId)
-
-    if (formServer) return formServer
-  }
-
-  return artServerOptions.value[0] || null
-})
-
-const selectedCheckpoint = computed<ResourceLike | null>(() => {
-  if (selectedCheckpointKey.value) {
-    const match = checkpointOptions.value.find((checkpoint) => {
-      return getCheckpointKey(checkpoint) === selectedCheckpointKey.value
+  return collectionOptions.value
+    .filter((collection) => {
+      return collection.art?.some((entry) => entry.id === currentArt.value?.id)
     })
-
-    if (match) return match
-  }
-
-  return checkpointApi.selectedCheckpoint || null
+    .map((collection) => collection.id)
 })
 
-const selectedCollection = computed<CollectionLike | null>(() => {
-  if (selectedCollectionId.value) {
+const checkpointResourceLabel = computed(() => {
+  if (checkpointResource.value) {
     return (
-      collectionOptions.value.find((entry) => {
-        return entry.id === selectedCollectionId.value
-      }) || null
+      checkpointResource.value.customLabel ||
+      checkpointResource.value.name ||
+      `Resource #${checkpointResource.value.id}`
     )
   }
 
-  return (
-    collectionApi.currentCollection ||
-    collectionApi.selectedCollections?.[0] ||
-    null
-  )
-})
-
-const requestedCheckpointName = computed(() => {
-  return selectedCheckpoint.value?.name || ''
-})
-
-const selectedCheckpointLabel = computed(() => {
-  const label =
-    selectedCheckpoint.value?.customLabel ||
-    selectedCheckpoint.value?.label ||
-    selectedCheckpoint.value?.name ||
-    'No checkpoint selected'
-
-  const name = selectedCheckpoint.value?.name || ''
-
-  if (!name || label === name) return label
-
-  return `${label} (${name})`
-})
-
-const activeArtServerLabel = computed(() => {
-  return (
-    selectedArtServer.value?.label ||
-    selectedArtServer.value?.title ||
-    'No art server selected'
-  )
-})
-
-const activeEngineLabel = computed(() => {
-  return (
-    selectedArtServer.value?.generationEngine ||
-    selectedArtServer.value?.serverType ||
-    checkpointApi.activeEngine ||
-    'UNKNOWN'
-  )
-})
-
-const selectedTransportLabel = computed(() => {
-  return selectedArtServer.value?.defaultTransport || 'AUTO'
-})
-
-const selectedServerEndpointLabel = computed(() => {
-  const server = selectedArtServer.value
-
-  if (!server) return 'n/a'
-
-  const base =
-    server.defaultTransport === 'BROWSER'
-      ? server.browserBaseUrl || server.baseUrl
-      : server.backendBaseUrl || server.baseUrl
-
-  const cleanBase = String(base || '').replace(/\/+$/, '')
-  const path = String(server.endpointPath || '').replace(/^\/+/, '')
-
-  return path ? `${cleanBase}/${path}` : cleanBase || 'n/a'
-})
-
-const selectedSamplerLabel = computed(() => {
-  return (
-    selectedSamplerName.value ||
-    checkpointApi.selectedSampler?.name ||
-    artStore.artForm.sampler ||
-    'No sampler selected'
-  )
-})
-
-const selectedCollectionLabel = computed(() => {
-  return selectedCollection.value
-    ? getCollectionLabel(selectedCollection.value)
-    : 'Generated Art'
-})
-
-const promptLength = computed(() => {
-  return promptStore.promptField?.length || 0
-})
-
-const seedModel = computed({
-  get: () => artStore.artForm.seed ?? -1,
-  set: (value: number) => {
-    artStore.artForm.seed = Number.isFinite(value) ? value : -1
-  },
-})
-
-const currentModelReport = computed(() => {
-  return checkpointApi.lastGenerationStatus || checkpointApi.modelStatus
-})
-
-const liveApiModelLabel = computed(() => {
-  return (
-    checkpointApi.modelStatus?.activeModel ||
-    checkpointApi.currentApiModel ||
-    'Not checked'
-  )
-})
-
-const lastRequestedModelLabel = computed(() => {
-  return (
-    checkpointApi.lastGenerationStatus?.requestedCheckpoint ||
-    'No generation yet'
-  )
-})
-
-const lastActualModelLabel = computed(() => {
-  return (
-    checkpointApi.lastGenerationStatus?.actualGenerationModel ||
-    'No generation yet'
-  )
-})
-
-const modelStatusTone = computed(() => {
-  return currentModelReport.value?.tone || 'unknown'
-})
-
-const modelStatusMessage = computed(() => {
-  if (checkpointApi.modelStatusLoading) {
-    return 'Checking the live model state...'
+  if (currentArt.value?.checkpointResourceId) {
+    return `Resource #${currentArt.value.checkpointResourceId}`
   }
 
-  return currentModelReport.value?.message || 'Model has not been checked yet.'
+  return 'No checkpoint resource linked'
 })
 
-const modelStatusPanelClass = computed(() => {
-  if (modelStatusTone.value === 'safe') {
-    return 'border-success/40 bg-success/10 text-success'
-  }
-
-  if (modelStatusTone.value === 'warning') {
-    return 'border-warning/40 bg-warning/10 text-warning'
-  }
-
-  if (modelStatusTone.value === 'error') {
+const statusClass = computed(() => {
+  if (statusTone.value === 'error') {
     return 'border-error/40 bg-error/10 text-error'
   }
 
-  return 'border-base-300 bg-base-100 text-base-content'
+  return 'border-success/40 bg-success/10 text-success'
 })
 
-const modelStatusButtonClass = computed(() => {
-  if (modelStatusTone.value === 'safe') return 'btn-success'
-  if (modelStatusTone.value === 'warning') return 'btn-warning'
-  if (modelStatusTone.value === 'error') return 'btn-error'
+const hasDirtyFields = computed(() => {
+  if (!currentArt.value) return false
 
-  return 'btn-outline'
-})
-
-const modelStatusIcon = computed(() => {
-  if (modelStatusTone.value === 'safe') return 'kind-icon:check'
-  if (modelStatusTone.value === 'warning') return 'kind-icon:warning'
-  if (modelStatusTone.value === 'error') return 'kind-icon:close'
-
-  return 'kind-icon:server'
-})
-
-const selectedCheckpointIsMature = computed(() => {
-  return Boolean(selectedCheckpoint.value?.isMature)
-})
-
-const modelMismatchBlocksGeneration = computed(() => {
-  return Boolean(
-    checkpointApi.hasModelMismatch && checkpointApi.lastGenerationStatus,
+  return (
+    JSON.stringify(buildEditPayload()) !==
+    JSON.stringify(buildOriginalPayload())
   )
 })
 
-const generationGateReason = computed(() => {
-  if (isGenerating.value) return 'Generation is already running.'
-  if (artStore.loading) return 'Art store is loading.'
-  if (!promptStore.promptField?.trim()) return 'Prompt is required.'
-
-  if (!selectedArtServer.value) {
-    const requestedId =
-      selectedServerId.value || artStore.artForm.serverId || 'none'
-
-    return `No art server found for selected ID ${requestedId}. Refresh servers or pick another server.`
-  }
-
-  if (!isA1111Server(selectedArtServer.value)) {
-    return `Selected server #${selectedArtServer.value.id} "${getServerDisplayName(selectedArtServer.value)}" is ${selectedArtServer.value.serverType}/${selectedArtServer.value.generationEngine}. Choose an A1111 Stable Diffusion txt2img server.`
-  }
-
-  if (!requestedCheckpointName.value) {
-    return 'No checkpoint selected.'
-  }
-
-  if (modelMismatchBlocksGeneration.value) {
-    return 'Last generation reported a model mismatch. Re-check or change model before generating again.'
-  }
-
-  if (selectedCheckpointIsMature.value && !artStore.artForm.isMature) {
-    return 'Selected checkpoint is marked mature, but this request is not marked mature.'
-  }
-
-  return ''
-})
-
-const canGenerate = computed(() => {
-  return Boolean(!generationGateReason.value)
-})
-
-const generationGateLabel = computed(() => {
-  return canGenerate.value ? 'Ready' : generationGateReason.value || 'Blocked'
-})
-
-const canCreateCollection = computed(() => {
-  return Boolean(
-    newCollectionTitle.value.trim() &&
-    !isCreatingCollection.value &&
-    !isGenerating.value,
-  )
-})
-
-const promptPreview = computed(() => {
-  const lines = [
-    `Prompt: ${promptStore.promptField || ''}`,
-    artStore.artForm.negativePrompt
-      ? `Negative: ${artStore.artForm.negativePrompt}`
-      : '',
-    `Selected Server ID: ${selectedArtServer.value?.id ?? 'none'}`,
-    `Selected Server: ${activeArtServerLabel.value}`,
-    `Selected Endpoint: ${selectedServerEndpointLabel.value}`,
-    `Selected Checkpoint Key: ${selectedCheckpointKey.value || 'none'}`,
-    `Selected Checkpoint Label: ${
-      selectedCheckpoint.value?.customLabel ||
-      selectedCheckpoint.value?.label ||
-      'none'
-    }`,
-    `Selected Checkpoint Name: ${requestedCheckpointName.value || 'none'}`,
-    `Art Form Checkpoint: ${artStore.artForm.checkpoint || 'none'}`,
-    `Loaded API Model: ${liveApiModelLabel.value}`,
-    `Last Requested: ${lastRequestedModelLabel.value}`,
-    `Last Actual: ${lastActualModelLabel.value}`,
-    `Sampler: ${selectedSamplerLabel.value}`,
-    `Collection: ${selectedCollectionLabel.value}`,
-    `Steps: ${artStore.artForm.steps ?? 25}`,
-    `CFG: ${localCfg.value.toFixed(1)}`,
-    `Seed: ${artStore.artForm.seed ?? -1}`,
-    `Public: ${artStore.artForm.isPublic ? 'yes' : 'no'}`,
-    `Mature: ${artStore.artForm.isMature ? 'yes' : 'no'}`,
-  ]
-
-  return lines.filter(Boolean).join('\n')
-})
-
-watch(localCfg, (value) => {
-  artStore.artForm.cfg = Math.floor(value)
-  artStore.artForm.cfgHalf = value % 1 >= 0.5
-})
-
 watch(
-  () => serverApi.activeArtServer?.id,
-  (id) => {
-    if (!id) return
-
-    const server = getServerById(id) || serverApi.activeArtServer
-
-    if (!server) return
-
-    selectedServerId.value = server.id
-    artStore.artForm.serverId = server.id
-    artStore.artForm.serverName = server.label || server.title
-    checkpointApi.clearModelStatus?.()
+  () => currentArt.value?.id,
+  async () => {
+    hydrateEditForm()
+    hydrateTags()
+    await hydrateCheckpointResource()
   },
   { immediate: true },
 )
-
-watch(
-  () => selectedArtServer.value?.id,
-  (id) => {
-    if (!id) return
-
-    syncSelectedServerToForm()
-    checkpointApi.clearModelStatus?.()
-  },
-)
-
-watch(
-  () => selectedCheckpoint.value?.name,
-  () => {
-    syncSelectedCheckpointToForm()
-  },
-  { immediate: true },
-)
-
-watch(
-  () => selectedSamplerLabel.value,
-  (name) => {
-    artStore.artForm.sampler = name || ''
-  },
-  { immediate: true },
-)
-
-watch(
-  () => selectedCheckpoint.value?.isMature,
-  (isMature) => {
-    artStore.artForm.isMature = Boolean(isMature)
-  },
-  { immediate: true },
-)
-
-function getServerById(id: number): Server | null {
-  return allServers.value.find((server) => server.id === id) || null
-}
-
-function getServerDisplayName(server: Server): string {
-  const label = server.label || ''
-  const title = server.title || ''
-
-  if (label && title && label !== title) {
-    return `${label} / ${title}`
-  }
-
-  return label || title || `Server ${server.id}`
-}
-
-function getServerDropdownLabel(server: Server): string {
-  const name = getServerDisplayName(server)
-  const engine = server.generationEngine || server.serverType || 'UNKNOWN'
-  const transport = server.defaultTransport || 'AUTO'
-  const url = server.backendBaseUrl || server.browserBaseUrl || server.baseUrl
-
-  return `#${server.id} · ${name} · ${engine} · ${transport} · ${url}`
-}
-
-function getServerOptionTitle(server: Server): string {
-  return [
-    `ID: ${server.id}`,
-    `Title: ${server.title || 'n/a'}`,
-    `Label: ${server.label || 'n/a'}`,
-    `Type: ${server.serverType || 'n/a'}`,
-    `Engine: ${server.generationEngine || 'n/a'}`,
-    `Transport: ${server.defaultTransport || 'n/a'}`,
-    `Access: ${server.accessMode || 'n/a'}`,
-    `Base: ${server.baseUrl || 'n/a'}`,
-    `Backend: ${server.backendBaseUrl || 'n/a'}`,
-    `Browser: ${server.browserBaseUrl || 'n/a'}`,
-    `Endpoint: ${server.endpointPath || 'n/a'}`,
-  ].join('\n')
-}
-
-function getCheckpointKey(checkpoint: ResourceLike): string {
-  return checkpoint.id ? String(checkpoint.id) : String(checkpoint.name || '')
-}
-
-function getCheckpointOptionTitle(checkpoint: ResourceLike): string {
-  return [
-    `ID: ${checkpoint.id || 'n/a'}`,
-    `Label: ${checkpoint.customLabel || checkpoint.label || 'n/a'}`,
-    `Name: ${checkpoint.name || 'n/a'}`,
-    `Generation: ${checkpoint.generation || 'n/a'}`,
-    `Mature: ${checkpoint.isMature ? 'yes' : 'no'}`,
-  ].join('\n')
-}
-
-function getCheckpointDropdownLabel(checkpoint: ResourceLike): string {
-  const label =
-    checkpoint.customLabel ||
-    checkpoint.label ||
-    checkpoint.name ||
-    'Checkpoint'
-  const generation = checkpoint.generation ? ` · ${checkpoint.generation}` : ''
-  const maturity = checkpoint.isMature ? ' · mature' : ''
-
-  return `${label}${generation}${maturity}`
-}
 
 function getCollectionLabel(collection: CollectionLike): string {
-  return (
-    collection.label ||
-    collection.title ||
-    collection.name ||
-    `Collection ${collection.id}`
-  )
-}
-
-function isA1111Server(server: unknown): boolean {
-  if (!server || typeof server !== 'object') return false
-
-  const data = server as {
-    serverType?: string | null
-    generationEngine?: string | null
-    supportsTxt2Img?: boolean | null
-    supportsComfyWorkflow?: boolean | null
-  }
-
-  return Boolean(
-    (data.serverType === 'A1111' || data.generationEngine === 'A1111') &&
-    data.supportsTxt2Img &&
-    !data.supportsComfyWorkflow,
-  )
+  return collection.label || `Collection ${collection.id}`
 }
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
@@ -1404,484 +577,224 @@ function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusTone.value = tone
 }
 
-function syncPrompt() {
-  promptStore.syncToLocalStorage?.()
-  artStore.artForm.promptString = promptStore.promptField
+function hydrateEditForm() {
+  const art = currentArt.value
+
+  if (!art) return
+
+  editForm.path = art.path || ''
+  editForm.designer = art.designer || ''
+  editForm.promptString = art.promptString || ''
+  editForm.negativePrompt = art.negativePrompt || ''
+  editForm.checkpoint = art.checkpoint || ''
+  editForm.sampler = art.sampler || ''
+  editForm.steps = art.steps ?? 25
+  editForm.seed = art.seed ?? null
+  editForm.genres = art.genres || ''
+  editForm.isPublic = Boolean(art.isPublic)
+  editForm.isMature = Boolean(art.isMature)
 }
 
-function syncSelectedCollectionToStore() {
-  if (!selectedCollection.value) {
-    collectionApi.setCurrentCollection?.(null)
-    collectionApi.clearSelectedCollections?.()
+function hydrateTags() {
+  const art = currentArt.value as ArtWithTags | null
+
+  if (!art?.tags?.length) {
+    tagText.value = ''
     return
   }
 
-  collectionApi.setCurrentCollection?.(selectedCollection.value.id)
-  collectionApi.setSelectedCollectionIds?.([selectedCollection.value.id])
+  tagText.value = art.tags
+    .map((tag) => tag.label || tag.name || '')
+    .filter(Boolean)
+    .join(', ')
 }
 
-function syncSelectedCheckpointToForm() {
-  const checkpoint = selectedCheckpoint.value
+async function hydrateCheckpointResource() {
+  checkpointResource.value = null
 
-  if (!checkpoint?.name) return
+  const resourceId = currentArt.value?.checkpointResourceId
 
-  artStore.artForm.checkpoint = checkpoint.name
+  if (!resourceId) return
 
-  if (checkpoint.isMature) {
-    artStore.artForm.isMature = true
-  }
+  const localResource =
+    resourceStore.getResourceById?.(resourceId) ||
+    resourceStore.resources?.find((resource) => resource.id === resourceId)
 
-  syncCheckpointStoreSelection(checkpoint)
-}
-
-function syncSamplerToStore(name: string) {
-  if (!name) return
-
-  artStore.artForm.sampler = name
-
-  if (checkpointApi.selectSamplerByName) {
-    checkpointApi.selectSamplerByName(name)
+  if (localResource) {
+    checkpointResource.value = localResource
     return
   }
 
-  const sampler = samplerOptions.value.find((entry) => entry.name === name)
+  const fetchedResource = await resourceStore.fetchResourceById?.(resourceId)
 
-  if (sampler) {
-    checkpointApi.selectedSampler = sampler
+  if (fetchedResource) {
+    checkpointResource.value = fetchedResource
   }
 }
 
-function syncServerStoreSelection(server: Server) {
-  if (serverApi.setActiveArtServer) {
-    serverApi.setActiveArtServer(server)
-    return
-  }
+function buildOriginalPayload() {
+  const art = currentArt.value
 
-  if (serverApi.setActiveServer) {
-    serverApi.setActiveServer(server)
-    return
+  return {
+    path: art?.path || '',
+    designer: art?.designer || '',
+    promptString: art?.promptString || '',
+    negativePrompt: art?.negativePrompt || '',
+    checkpoint: art?.checkpoint || '',
+    sampler: art?.sampler || '',
+    steps: art?.steps ?? 25,
+    seed: art?.seed ?? null,
+    genres: art?.genres || '',
+    isPublic: Boolean(art?.isPublic),
+    isMature: Boolean(art?.isMature),
   }
-
-  if (serverApi.selectServerById) {
-    serverApi.selectServerById(server.id)
-    return
-  }
-
-  if (serverApi.selectServer) {
-    serverApi.selectServer(server.id)
-    return
-  }
-
-  serverApi.activeArtServer = server
 }
 
-function syncCheckpointStoreSelection(checkpoint: ResourceLike) {
-  if (checkpoint.id && checkpointApi.selectCheckpointById) {
-    checkpointApi.selectCheckpointById(checkpoint.id)
-    return
+function buildEditPayload() {
+  return {
+    path: editForm.path.trim(),
+    designer: editForm.designer.trim(),
+    promptString: editForm.promptString.trim(),
+    negativePrompt: editForm.negativePrompt.trim(),
+    checkpoint: editForm.checkpoint.trim(),
+    sampler: editForm.sampler.trim(),
+    steps: Number.isFinite(editForm.steps) ? Number(editForm.steps) : null,
+    seed: Number.isFinite(editForm.seed) ? Number(editForm.seed) : null,
+    genres: editForm.genres.trim(),
+    isPublic: editForm.isPublic,
+    isMature: editForm.isMature,
   }
-
-  if (checkpoint.name && checkpointApi.selectCheckpointByName) {
-    checkpointApi.selectCheckpointByName(checkpoint.name)
-    return
-  }
-
-  checkpointApi.selectedCheckpoint = checkpoint
 }
 
-function syncSelectedServerToForm() {
-  const server = selectedArtServer.value || serverStore.activeArtServer
+function parseTags(): string[] {
+  return tagText.value
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .filter((tag, index, tags) => tags.indexOf(tag) === index)
+}
 
-  if (!server) {
-    artStore.artForm.serverId = null
-    artStore.artForm.serverName = null
-    artStore.artForm.engine = undefined
-    artStore.artForm.transport = undefined
-    return
+async function saveArtEdits() {
+  if (!currentArt.value) return
+
+  isSaving.value = true
+
+  try {
+    const response = await artStore.updateArt(
+      currentArt.value.id,
+      buildEditPayload(),
+    )
+
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to update art.')
+    }
+
+    setStatus('Art data updated.')
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Failed to update art.',
+      'error',
+    )
+  } finally {
+    isSaving.value = false
   }
+}
 
-  artStore.artForm.serverId = server.id
-  artStore.artForm.serverName = server.label || server.title
+async function saveTags() {
+  if (!currentArt.value) return
 
-  if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
-    artStore.artForm.engine = 'a1111'
-  } else if (
-    server.generationEngine === 'COMFY' ||
-    server.serverType === 'COMFY' ||
-    server.supportsComfyWorkflow
-  ) {
-    artStore.artForm.engine = 'comfy'
-  } else if (server.generationEngine === 'FLUX' || server.supportsFlux) {
-    artStore.artForm.engine = 'flux'
-  } else if (server.generationEngine === 'KONTEXT' || server.supportsKontext) {
-    artStore.artForm.engine = 'kontext'
-  } else {
-    artStore.artForm.engine = undefined
+  isSavingTags.value = true
+
+  try {
+    const response = await artStore.updateArtTags(
+      currentArt.value.id,
+      parseTags(),
+    )
+
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to update tags.')
+    }
+
+    setStatus('Tags updated.')
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Failed to update tags.',
+      'error',
+    )
+  } finally {
+    isSavingTags.value = false
   }
+}
 
-  if (server.defaultTransport === 'BACKEND') {
-    artStore.artForm.transport = 'backend'
-    return
+async function toggleCollection(collectionId: number) {
+  if (!currentArt.value) return
+
+  isCollectionSaving.value = true
+
+  try {
+    const artId = currentArt.value.id
+    const alreadySelected = artCollectionIds.value.includes(collectionId)
+
+    const response = alreadySelected
+      ? await artStore.removeArtFromCollection(collectionId, artId)
+      : await artStore.addArtToCollection(collectionId, artId)
+
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to update collection.')
+    }
+
+    await collectionStore.fetchCollections?.(true)
+
+    setStatus(
+      alreadySelected ? 'Removed from collection.' : 'Added to collection.',
+    )
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Failed to update collection.',
+      'error',
+    )
+  } finally {
+    isCollectionSaving.value = false
   }
-
-  if (
-    server.requiresClientSideCheck ||
-    server.isPrivateNetwork ||
-    server.accessMode === 'LOCAL' ||
-    server.allowBrowserRequests
-  ) {
-    artStore.artForm.transport = 'browser'
-    return
-  }
-
-  artStore.artForm.transport = 'backend'
 }
 
-function handleServerChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
-  const id = Number(value)
+function startRemix() {
+  const art = currentArt.value
 
-  selectedServerId.value = Number.isInteger(id) && id > 0 ? id : null
+  if (!art) return
 
-  if (!selectedServerId.value) return
-
-  const server = getServerById(selectedServerId.value)
-
-  if (!server) return
-
-  syncServerStoreSelection(server)
-  syncSelectedServerToForm()
-  checkpointApi.clearModelStatus?.()
-  setStatus(`Using #${server.id} ${getServerDisplayName(server)}.`)
-}
-
-function handleCheckpointChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
-
-  selectedCheckpointKey.value = value
-
-  if (!value) {
-    artStore.artForm.checkpoint = ''
-    return
-  }
-
-  syncSelectedCheckpointToForm()
-  checkpointApi.clearModelStatus?.()
-  setStatus(`Selected ${selectedCheckpointLabel.value}.`)
-}
-
-function handleSamplerChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
-
-  selectedSamplerName.value = value
-  syncSamplerToStore(value)
-}
-
-function handleCollectionChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
-  const id = Number(value)
-
-  selectedCollectionId.value = Number.isInteger(id) && id > 0 ? id : null
-  syncSelectedCollectionToStore()
-}
-
-function applyPretty() {
-  if (!makePretty.value) {
-    makePretty.value = true
-  }
-
-  randomStore.applyMakePretty()
-  syncPrompt()
-}
-
-function applySurprise() {
-  randomStore.applySurprise()
-  syncPrompt()
-}
-
-function toggleNegativePrompt() {
-  artStore.updateArtListSelection(
-    '__negative__',
-    useNegative.value ? negativeList : [],
+  const promptParts = [art.promptString, remixPrompt.value.trim()].filter(
+    Boolean,
   )
 
-  if (!useNegative.value) {
-    artStore.artForm.negativePrompt = ''
-  }
-}
+  artStore.setArtForm({
+    promptString: promptParts.join(', '),
+    negativePrompt: art.negativePrompt || '',
+    checkpoint: checkpointResource.value?.name || art.checkpoint || '',
+    sampler: art.sampler || '',
+    steps: art.steps ?? 25,
+    seed: -1,
+    designer: art.designer || '',
+    isPublic: art.isPublic ?? true,
+    isMature: art.isMature ?? false,
+    serverId: art.serverId ?? null,
+    serverName: art.serverName ?? null,
+    sourceImageId: currentArtImage.value?.id || art.artImageId || null,
+  })
 
-function resetInteract() {
-  randomStore.resetAll()
-  makePretty.value = false
-  useNegative.value = false
-  statusMessage.value = ''
-  promptStore.promptField = ''
-  artStore.artForm.promptString = ''
-  artStore.artForm.negativePrompt = ''
-  artStore.artForm.seed = null
-  checkpointApi.clearModelStatus?.()
-  artStore.updateArtListSelection('__negative__', [])
-}
-
-async function copyPromptPreview() {
-  if (!promptPreview.value) return
-
-  await navigator.clipboard.writeText(promptPreview.value)
-  setStatus('Prompt preview copied.')
-}
-
-async function checkActiveModel() {
-  syncSelectedServerToForm()
-
-  if (!selectedArtServer.value) {
-    setStatus('Select an art server before checking the model.', 'error')
-    return
-  }
-
-  if (!checkpointApi.checkActiveModel) {
-    setStatus('Model check is not available in checkpointStore.', 'error')
-    return
-  }
-
-  const report = await checkpointApi.checkActiveModel()
-
-  if (report.tone === 'safe') {
-    setStatus('Model check passed.')
-    return
-  }
-
-  setStatus(report.message, 'error')
-}
-
-async function createCollection() {
-  if (!canCreateCollection.value) return
-
-  isCreatingCollection.value = true
-
-  try {
-    const title = newCollectionTitle.value.trim()
-    const userId = artStore.artForm.userId || 9
-
-    let created: CollectionLike | null = null
-
-    if (collectionApi.createCollection) {
-      created = await collectionApi.createCollection(
-        title,
-        userId,
-        false,
-        false,
-      )
-    } else if (collectionApi.getOrCreateGeneratedArtCollection) {
-      created = await collectionApi.getOrCreateGeneratedArtCollection(userId)
-    } else {
-      const response = await performFetch<CollectionLike>(
-        '/api/art/collection',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            label: title,
-            userId,
-            isPublic: false,
-            isMature: false,
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to create collection.')
-      }
-
-      created = response.data
-    }
-
-    await collectionApi.fetchCollections?.(true)
-
-    if (created?.id) {
-      selectedCollectionId.value = created.id
-      collectionApi.setCurrentCollection?.(created.id)
-      collectionApi.setSelectedCollectionIds?.([created.id])
-    }
-
-    newCollectionTitle.value = ''
-    setStatus(`Created collection "${title}".`)
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to create collection.'
-
-    setStatus(message, 'error')
-    errorStore.addError(ErrorType.GENERAL_ERROR, message)
-  } finally {
-    isCreatingCollection.value = false
-  }
-}
-
-async function generateArt() {
-  if (!canGenerate.value) {
-    setStatus(generationGateReason.value || 'Generation is blocked.', 'error')
-    return
-  }
-
-  isGenerating.value = true
-  statusMessage.value = ''
-
-  const activeServer = selectedArtServer.value
-
-  try {
-    if (!activeServer) {
-      throw new Error('No art server selected.')
-    }
-
-    if (!requestedCheckpointName.value) {
-      throw new Error('No checkpoint selected.')
-    }
-
-    syncPrompt()
-    syncSelectedServerToForm()
-    syncSelectedCheckpointToForm()
-    syncSamplerToStore(selectedSamplerLabel.value)
-    syncSelectedCollectionToStore()
-
-    const result = await artStore.generateArt({
-      promptString: promptStore.promptField,
-      negativePrompt: artStore.artForm.negativePrompt,
-      steps: artStore.artForm.steps,
-      cfg: artStore.artForm.cfg,
-      cfgHalf: artStore.artForm.cfgHalf,
-      isMature: artStore.artForm.isMature,
-      isPublic: artStore.artForm.isPublic,
-      seed: artStore.artForm.seed,
-      galleryId: artStore.artForm.galleryId,
-      promptId: artStore.artForm.promptId,
-      pitchId: artStore.artForm.pitchId,
-      serverId: activeServer.id,
-      serverName: activeServer.label || activeServer.title,
-      checkpoint: requestedCheckpointName.value,
-      sampler: selectedSamplerLabel.value,
-      designer: artStore.artForm.designer,
-      userId: artStore.artForm.userId,
-      pitch: artStore.artForm.pitch,
-      engine:
-        activeServer.generationEngine === 'A1111' ||
-        activeServer.serverType === 'A1111'
-          ? 'a1111'
-          : undefined,
-      transport:
-        activeServer.defaultTransport === 'BACKEND'
-          ? 'backend'
-          : activeServer.defaultTransport === 'BROWSER'
-            ? 'browser'
-            : undefined,
-    })
-
-    if (!result.success) {
-      throw new Error(result.message || 'Generation failed.')
-    }
-
-    setStatus(result.message || 'Art generated.')
-
-    await checkpointApi.checkActiveModel?.()
-    await milestoneStore.rewardMilestone(11)
-
-    navStore.setDashboardTab('art', 'selected')
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Generation failed.'
-
-    setStatus(message, 'error')
-    errorStore.addError(ErrorType.GENERAL_ERROR, message)
-  } finally {
-    isGenerating.value = false
-  }
-}
-
-function initializeSelections() {
-  const initialServer =
-    serverApi.activeArtServer ||
-    getServerById(artStore.artForm.serverId || 0) ||
-    artServerOptions.value[0] ||
-    null
-
-  if (initialServer) {
-    selectedServerId.value = initialServer.id
-    syncServerStoreSelection(initialServer)
-    syncSelectedServerToForm()
-  }
-
-  const initialCheckpoint =
-    checkpointApi.selectedCheckpoint ||
-    checkpointOptions.value.find((checkpoint) => {
-      return checkpoint.name === artStore.artForm.checkpoint
-    }) ||
-    checkpointOptions.value[0] ||
-    null
-
-  if (initialCheckpoint) {
-    selectedCheckpointKey.value = getCheckpointKey(initialCheckpoint)
-    syncCheckpointStoreSelection(initialCheckpoint)
-    syncSelectedCheckpointToForm()
-  }
-
-  const initialSampler =
-    checkpointApi.selectedSampler?.name ||
-    artStore.artForm.sampler ||
-    samplerOptions.value[0]?.name ||
-    'Euler a'
-
-  selectedSamplerName.value = initialSampler
-  syncSamplerToStore(initialSampler)
-
-  const initialCollection =
-    collectionApi.currentCollection ||
-    collectionApi.selectedCollections?.[0] ||
-    null
-
-  if (initialCollection?.id) {
-    selectedCollectionId.value = initialCollection.id
-    syncSelectedCollectionToStore()
-  }
+  navStore.setDashboardTab('art', 'generate')
 }
 
 onMounted(async () => {
   await Promise.all([
-    navStore.initialize(),
-    serverStore.initialize({
+    collectionStore.fetchCollections?.(),
+    resourceStore.initialize?.({
       fetchRemote: true,
     }),
-    artStore.initialize({
-      fetchRemote: false,
-      hydrateImages: false,
-    }),
-    checkpointStore.initialize(),
-    collectionStore.fetchCollections?.(),
   ])
 
-  initializeSelections()
-  syncPrompt()
+  hydrateEditForm()
+  hydrateTags()
+  await hydrateCheckpointResource()
 })
 </script>
-
-<style scoped>
-.fade-expand-enter-active,
-.fade-expand-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease,
-    max-height 0.2s ease;
-  overflow: hidden;
-}
-
-.fade-expand-enter-from,
-.fade-expand-leave-to {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(0.35rem);
-}
-
-.fade-expand-enter-to,
-.fade-expand-leave-from {
-  max-height: 16rem;
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>

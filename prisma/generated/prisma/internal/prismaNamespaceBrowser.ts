@@ -78,7 +78,6 @@ export const ModelName = {
   User: 'User',
   ReactionToTag: 'ReactionToTag',
   ArtToProduct: 'ArtToProduct',
-  ArtToTag: 'ArtToTag',
   MilestoneToUser: 'MilestoneToUser',
   RewardToUser: 'RewardToUser'
 } as const
@@ -761,14 +760,6 @@ export const ArtToProductScalarFieldEnum = {
 } as const
 
 export type ArtToProductScalarFieldEnum = (typeof ArtToProductScalarFieldEnum)[keyof typeof ArtToProductScalarFieldEnum]
-
-
-export const ArtToTagScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ArtToTagScalarFieldEnum = (typeof ArtToTagScalarFieldEnum)[keyof typeof ArtToTagScalarFieldEnum]
 
 
 export const MilestoneToUserScalarFieldEnum = {

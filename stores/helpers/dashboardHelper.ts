@@ -84,16 +84,8 @@ export const dashboardConfigs = {
   art: {
     key: 'art',
     label: 'Art',
-    defaultTab: 'overview',
+    defaultTab: 'generate',
     tabs: [
-      {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:dashboard',
-        title: 'Art Overview',
-        summary:
-          'Generate art, browse collections, choose models, and inspect selected images.',
-      },
       {
         key: 'generate',
         label: 'Generate',

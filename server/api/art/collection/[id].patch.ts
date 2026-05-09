@@ -1,118 +1,216 @@
-// server/api/art/collection/[id].patch.ts
+// /server/api/art/collection/[id].patch.ts
 import { defineEventHandler, createError, readBody } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import { validateApiKey } from '../../../utils/validateKey'
+
+type PatchCollectionBody = {
+  label?: unknown
+  description?: unknown
+  isPublic?: unknown
+  isMature?: unknown
+  artIds?: unknown
+  addArtIds?: unknown
+  removeArtIds?: unknown
+  mode?: unknown
+}
+
+function normalizeIdArray(value: unknown, fieldName: string): number[] {
+  if (typeof value === 'undefined') return []
+
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be an array of integers.`,
+    })
+  }
+
+  const ids = value.map((entry) => Number(entry))
+
+  if (!ids.every((id) => Number.isInteger(id) && id > 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `All ${fieldName} values must be positive integers.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
+async function assertArtIdsExist(artIds: number[], fieldName: string) {
+  if (!artIds.length) return
+
+  const validArt = await prisma.art.findMany({
+    where: {
+      id: {
+        in: artIds,
+      },
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  const validIds = new Set(validArt.map((art) => art.id))
+  const missing = artIds.filter((id) => !validIds.has(id))
+
+  if (missing.length) {
+    throw createError({
+      statusCode: 404,
+      message: `Missing art IDs in ${fieldName}: ${missing.join(', ')}`,
+    })
+  }
+}
 
 export default defineEventHandler(async (event) => {
-  let response
-  let collectionId
+  let collectionId = 0
 
   try {
-    // Validate ID
     collectionId = Number(event.context.params?.id)
-    if (isNaN(collectionId) || collectionId <= 0) {
-      event.node.res.statusCode = 400
-      throw createError({ statusCode: 400, message: 'Invalid collection ID.' })
-    }
 
-    // Verify token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
+    if (!Number.isInteger(collectionId) || collectionId <= 0) {
       throw createError({
-        statusCode: 401,
-        message: 'Missing or invalid token.',
+        statusCode: 400,
+        message: 'Invalid collection ID.',
       })
     }
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-    if (!user) {
-      event.node.res.statusCode = 401
+
+    const { isValid, user } = await validateApiKey(event)
+
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    // Fetch collection
     const collection = await prisma.artCollection.findUnique({
-      where: { id: collectionId },
-      include: { art: true },
+      where: {
+        id: collectionId,
+      },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
+
     if (!collection) {
-      event.node.res.statusCode = 404
-      throw createError({ statusCode: 404, message: 'Collection not found.' })
+      throw createError({
+        statusCode: 404,
+        message: 'Collection not found.',
+      })
     }
+
     if (collection.userId !== user.id) {
-      event.node.res.statusCode = 403
       throw createError({
         statusCode: 403,
         message: 'Not authorized to update this collection.',
       })
     }
 
-    // Read update data
-    const body = await readBody(event)
-    const { artIds, label, isPublic, isMature } = body
+    const body = await readBody<PatchCollectionBody>(event)
 
-    const updateData: any = {}
+    const updateData: Prisma.ArtCollectionUpdateInput = {}
 
-    // Replace art list
-    if (Array.isArray(artIds)) {
-      if (!artIds.length) {
-        throw createError({
-          statusCode: 400,
-          message: 'artIds must be a non-empty array.',
-        })
-      }
-      if (!artIds.every(Number.isInteger)) {
-        throw createError({
-          statusCode: 400,
-          message: 'All artIds must be integers.',
-        })
-      }
-
-      const validArt = await prisma.art.findMany({
-        where: { id: { in: artIds } },
-      })
-      if (validArt.length !== artIds.length) {
-        const missing = artIds.filter(
-          (id) => !validArt.some((art: Art) => art.id === id),
-        )
-        throw createError({
-          statusCode: 404,
-          message: `Missing art IDs: ${missing.join(', ')}`,
-        })
-      }
-
-      updateData.art = { set: validArt.map((art: Art) => ({ id: art.id })) }
+    if (typeof body.label === 'string') {
+      updateData.label = body.label.trim()
     }
 
-    // Optional metadata updates
-    if (typeof label === 'string') updateData.label = label.trim()
-    if (typeof isPublic === 'boolean') updateData.isPublic = isPublic
-    if (typeof isMature === 'boolean') updateData.isMature = isMature
+    if (typeof body.description === 'string') {
+      updateData.description = body.description.trim()
+    }
+
+    if (typeof body.isPublic === 'boolean') {
+      updateData.isPublic = body.isPublic
+    }
+
+    if (typeof body.isMature === 'boolean') {
+      updateData.isMature = body.isMature
+    }
+
+    const artIds = normalizeIdArray(body.artIds, 'artIds')
+    const addArtIds = normalizeIdArray(body.addArtIds, 'addArtIds')
+    const removeArtIds = normalizeIdArray(body.removeArtIds, 'removeArtIds')
+
+    const mode = typeof body.mode === 'string' ? body.mode : 'replace'
+
+    if (artIds.length && mode === 'add') {
+      await assertArtIdsExist(artIds, 'artIds')
+
+      updateData.art = {
+        connect: artIds.map((id) => ({ id })),
+      }
+    } else if (artIds.length) {
+      await assertArtIdsExist(artIds, 'artIds')
+
+      updateData.art = {
+        set: artIds.map((id) => ({ id })),
+      }
+    }
+
+    if (addArtIds.length) {
+      await assertArtIdsExist(addArtIds, 'addArtIds')
+
+      const existingArtUpdate =
+        updateData.art && typeof updateData.art === 'object'
+          ? updateData.art
+          : {}
+
+      updateData.art = {
+        ...existingArtUpdate,
+        connect: addArtIds.map((id) => ({ id })),
+      }
+    }
+
+    if (removeArtIds.length) {
+      await assertArtIdsExist(removeArtIds, 'removeArtIds')
+
+      const existingArtUpdate =
+        updateData.art && typeof updateData.art === 'object'
+          ? updateData.art
+          : {}
+
+      updateData.art = {
+        ...existingArtUpdate,
+        disconnect: removeArtIds.map((id) => ({ id })),
+      }
+    }
+
+    if (!Object.keys(updateData).length) {
+      throw createError({
+        statusCode: 400,
+        message: 'No valid collection updates were provided.',
+      })
+    }
 
     const updated = await prisma.artCollection.update({
-      where: { id: collectionId },
+      where: {
+        id: collectionId,
+      },
       data: updateData,
-      include: { art: true },
+      include: {
+        art: {
+          orderBy: {
+            id: 'desc',
+          },
+        },
+      },
     })
 
-    response = { success: true, data: updated }
-    event.node.res.statusCode = 200
+    return {
+      success: true,
+      message: 'Collection updated.',
+      data: updated,
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+
+    return {
       success: false,
       message:
         handledError.message || `Failed to update collection ${collectionId}.`,
     }
   }
-
-  return response
 })

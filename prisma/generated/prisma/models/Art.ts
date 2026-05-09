@@ -28,6 +28,7 @@ export type AggregateArt = {
 
 export type ArtAvgAggregateOutputType = {
   id: number | null
+  checkpointResourceId: number | null
   seed: number | null
   steps: number | null
   promptId: number | null
@@ -41,6 +42,7 @@ export type ArtAvgAggregateOutputType = {
 
 export type ArtSumAggregateOutputType = {
   id: number | null
+  checkpointResourceId: number | null
   seed: number | null
   steps: number | null
   promptId: number | null
@@ -58,6 +60,7 @@ export type ArtMinAggregateOutputType = {
   updatedAt: Date | null
   path: string | null
   checkpoint: string | null
+  checkpointResourceId: number | null
   sampler: string | null
   seed: number | null
   steps: number | null
@@ -86,6 +89,7 @@ export type ArtMaxAggregateOutputType = {
   updatedAt: Date | null
   path: string | null
   checkpoint: string | null
+  checkpointResourceId: number | null
   sampler: string | null
   seed: number | null
   steps: number | null
@@ -114,6 +118,7 @@ export type ArtCountAggregateOutputType = {
   updatedAt: number
   path: number
   checkpoint: number
+  checkpointResourceId: number
   sampler: number
   seed: number
   steps: number
@@ -140,6 +145,7 @@ export type ArtCountAggregateOutputType = {
 
 export type ArtAvgAggregateInputType = {
   id?: true
+  checkpointResourceId?: true
   seed?: true
   steps?: true
   promptId?: true
@@ -153,6 +159,7 @@ export type ArtAvgAggregateInputType = {
 
 export type ArtSumAggregateInputType = {
   id?: true
+  checkpointResourceId?: true
   seed?: true
   steps?: true
   promptId?: true
@@ -170,6 +177,7 @@ export type ArtMinAggregateInputType = {
   updatedAt?: true
   path?: true
   checkpoint?: true
+  checkpointResourceId?: true
   sampler?: true
   seed?: true
   steps?: true
@@ -198,6 +206,7 @@ export type ArtMaxAggregateInputType = {
   updatedAt?: true
   path?: true
   checkpoint?: true
+  checkpointResourceId?: true
   sampler?: true
   seed?: true
   steps?: true
@@ -226,6 +235,7 @@ export type ArtCountAggregateInputType = {
   updatedAt?: true
   path?: true
   checkpoint?: true
+  checkpointResourceId?: true
   sampler?: true
   seed?: true
   steps?: true
@@ -341,6 +351,7 @@ export type ArtGroupByOutputType = {
   updatedAt: Date | null
   path: string | null
   checkpoint: string | null
+  checkpointResourceId: number | null
   sampler: string | null
   seed: number | null
   steps: number | null
@@ -392,6 +403,7 @@ export type ArtWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Art"> | Date | string | null
   path?: Prisma.StringNullableFilter<"Art"> | string | null
   checkpoint?: Prisma.StringNullableFilter<"Art"> | string | null
+  checkpointResourceId?: Prisma.IntNullableFilter<"Art"> | number | null
   sampler?: Prisma.StringNullableFilter<"Art"> | string | null
   seed?: Prisma.IntNullableFilter<"Art"> | number | null
   steps?: Prisma.IntNullableFilter<"Art"> | number | null
@@ -412,6 +424,7 @@ export type ArtWhereInput = {
   imagePath?: Prisma.StringNullableFilter<"Art"> | string | null
   genres?: Prisma.StringNullableFilter<"Art"> | string | null
   negativePrompt?: Prisma.StringNullableFilter<"Art"> | string | null
+  CheckpointResource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
@@ -430,6 +443,7 @@ export type ArtOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   path?: Prisma.SortOrderInput | Prisma.SortOrder
   checkpoint?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   sampler?: Prisma.SortOrderInput | Prisma.SortOrder
   seed?: Prisma.SortOrderInput | Prisma.SortOrder
   steps?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -450,6 +464,7 @@ export type ArtOrderByWithRelationInput = {
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   genres?: Prisma.SortOrderInput | Prisma.SortOrder
   negativePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  CheckpointResource?: Prisma.ResourceOrderByWithRelationInput
   Gallery?: Prisma.GalleryOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
@@ -472,6 +487,7 @@ export type ArtWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"Art"> | Date | string | null
   path?: Prisma.StringNullableFilter<"Art"> | string | null
   checkpoint?: Prisma.StringNullableFilter<"Art"> | string | null
+  checkpointResourceId?: Prisma.IntNullableFilter<"Art"> | number | null
   sampler?: Prisma.StringNullableFilter<"Art"> | string | null
   seed?: Prisma.IntNullableFilter<"Art"> | number | null
   steps?: Prisma.IntNullableFilter<"Art"> | number | null
@@ -492,6 +508,7 @@ export type ArtWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Art"> | string | null
   genres?: Prisma.StringNullableFilter<"Art"> | string | null
   negativePrompt?: Prisma.StringNullableFilter<"Art"> | string | null
+  CheckpointResource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
@@ -510,6 +527,7 @@ export type ArtOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   path?: Prisma.SortOrderInput | Prisma.SortOrder
   checkpoint?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   sampler?: Prisma.SortOrderInput | Prisma.SortOrder
   seed?: Prisma.SortOrderInput | Prisma.SortOrder
   steps?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -546,6 +564,7 @@ export type ArtScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Art"> | Date | string | null
   path?: Prisma.StringNullableWithAggregatesFilter<"Art"> | string | null
   checkpoint?: Prisma.StringNullableWithAggregatesFilter<"Art"> | string | null
+  checkpointResourceId?: Prisma.IntNullableWithAggregatesFilter<"Art"> | number | null
   sampler?: Prisma.StringNullableWithAggregatesFilter<"Art"> | string | null
   seed?: Prisma.IntNullableWithAggregatesFilter<"Art"> | number | null
   steps?: Prisma.IntNullableWithAggregatesFilter<"Art"> | number | null
@@ -588,6 +607,7 @@ export type ArtCreateInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -606,6 +626,7 @@ export type ArtUncheckedCreateInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -653,6 +674,7 @@ export type ArtUpdateInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -671,6 +693,7 @@ export type ArtUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -704,6 +727,7 @@ export type ArtCreateManyInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -754,6 +778,7 @@ export type ArtUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -788,6 +813,7 @@ export type ArtCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   path?: Prisma.SortOrder
   checkpoint?: Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrder
   sampler?: Prisma.SortOrder
   seed?: Prisma.SortOrder
   steps?: Prisma.SortOrder
@@ -812,6 +838,7 @@ export type ArtCountOrderByAggregateInput = {
 
 export type ArtAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrder
   seed?: Prisma.SortOrder
   steps?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
@@ -829,6 +856,7 @@ export type ArtMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   path?: Prisma.SortOrder
   checkpoint?: Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrder
   sampler?: Prisma.SortOrder
   seed?: Prisma.SortOrder
   steps?: Prisma.SortOrder
@@ -857,6 +885,7 @@ export type ArtMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   path?: Prisma.SortOrder
   checkpoint?: Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrder
   sampler?: Prisma.SortOrder
   seed?: Prisma.SortOrder
   steps?: Prisma.SortOrder
@@ -881,6 +910,7 @@ export type ArtMinOrderByAggregateInput = {
 
 export type ArtSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  checkpointResourceId?: Prisma.SortOrder
   seed?: Prisma.SortOrder
   steps?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
@@ -1167,6 +1197,48 @@ export type ArtUpdateOneWithoutReactionNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ArtUpdateToOneWithWhereWithoutReactionInput, Prisma.ArtUpdateWithoutReactionInput>, Prisma.ArtUncheckedUpdateWithoutReactionInput>
 }
 
+export type ArtCreateNestedManyWithoutCheckpointResourceInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutCheckpointResourceInput, Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput> | Prisma.ArtCreateWithoutCheckpointResourceInput[] | Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput | Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput[]
+  createMany?: Prisma.ArtCreateManyCheckpointResourceInputEnvelope
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+}
+
+export type ArtUncheckedCreateNestedManyWithoutCheckpointResourceInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutCheckpointResourceInput, Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput> | Prisma.ArtCreateWithoutCheckpointResourceInput[] | Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput | Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput[]
+  createMany?: Prisma.ArtCreateManyCheckpointResourceInputEnvelope
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+}
+
+export type ArtUpdateManyWithoutCheckpointResourceNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutCheckpointResourceInput, Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput> | Prisma.ArtCreateWithoutCheckpointResourceInput[] | Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput | Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput[]
+  upsert?: Prisma.ArtUpsertWithWhereUniqueWithoutCheckpointResourceInput | Prisma.ArtUpsertWithWhereUniqueWithoutCheckpointResourceInput[]
+  createMany?: Prisma.ArtCreateManyCheckpointResourceInputEnvelope
+  set?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  disconnect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  delete?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  update?: Prisma.ArtUpdateWithWhereUniqueWithoutCheckpointResourceInput | Prisma.ArtUpdateWithWhereUniqueWithoutCheckpointResourceInput[]
+  updateMany?: Prisma.ArtUpdateManyWithWhereWithoutCheckpointResourceInput | Prisma.ArtUpdateManyWithWhereWithoutCheckpointResourceInput[]
+  deleteMany?: Prisma.ArtScalarWhereInput | Prisma.ArtScalarWhereInput[]
+}
+
+export type ArtUncheckedUpdateManyWithoutCheckpointResourceNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtCreateWithoutCheckpointResourceInput, Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput> | Prisma.ArtCreateWithoutCheckpointResourceInput[] | Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput[]
+  connectOrCreate?: Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput | Prisma.ArtCreateOrConnectWithoutCheckpointResourceInput[]
+  upsert?: Prisma.ArtUpsertWithWhereUniqueWithoutCheckpointResourceInput | Prisma.ArtUpsertWithWhereUniqueWithoutCheckpointResourceInput[]
+  createMany?: Prisma.ArtCreateManyCheckpointResourceInputEnvelope
+  set?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  disconnect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  delete?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  connect?: Prisma.ArtWhereUniqueInput | Prisma.ArtWhereUniqueInput[]
+  update?: Prisma.ArtUpdateWithWhereUniqueWithoutCheckpointResourceInput | Prisma.ArtUpdateWithWhereUniqueWithoutCheckpointResourceInput[]
+  updateMany?: Prisma.ArtUpdateManyWithWhereWithoutCheckpointResourceInput | Prisma.ArtUpdateManyWithWhereWithoutCheckpointResourceInput[]
+  deleteMany?: Prisma.ArtScalarWhereInput | Prisma.ArtScalarWhereInput[]
+}
+
 export type ArtCreateNestedManyWithoutServerInput = {
   create?: Prisma.XOR<Prisma.ArtCreateWithoutServerInput, Prisma.ArtUncheckedCreateWithoutServerInput> | Prisma.ArtCreateWithoutServerInput[] | Prisma.ArtUncheckedCreateWithoutServerInput[]
   connectOrCreate?: Prisma.ArtCreateOrConnectWithoutServerInput | Prisma.ArtCreateOrConnectWithoutServerInput[]
@@ -1271,6 +1343,7 @@ export type ArtCreateWithoutArtImageInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -1288,6 +1361,7 @@ export type ArtUncheckedCreateWithoutArtImageInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -1350,6 +1424,7 @@ export type ArtUpdateWithoutArtImageInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -1367,6 +1442,7 @@ export type ArtUncheckedUpdateWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1413,6 +1489,7 @@ export type ArtCreateWithoutArtCollectionInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -1430,6 +1507,7 @@ export type ArtUncheckedCreateWithoutArtCollectionInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -1486,6 +1564,7 @@ export type ArtScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Art"> | Date | string | null
   path?: Prisma.StringNullableFilter<"Art"> | string | null
   checkpoint?: Prisma.StringNullableFilter<"Art"> | string | null
+  checkpointResourceId?: Prisma.IntNullableFilter<"Art"> | number | null
   sampler?: Prisma.StringNullableFilter<"Art"> | string | null
   seed?: Prisma.IntNullableFilter<"Art"> | number | null
   steps?: Prisma.IntNullableFilter<"Art"> | number | null
@@ -1528,6 +1607,7 @@ export type ArtCreateWithoutButterfliesInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -1545,6 +1625,7 @@ export type ArtUncheckedCreateWithoutButterfliesInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -1607,6 +1688,7 @@ export type ArtUpdateWithoutButterfliesInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -1624,6 +1706,7 @@ export type ArtUncheckedUpdateWithoutButterfliesInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1670,6 +1753,7 @@ export type ArtCreateWithoutDreamsInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -1687,6 +1771,7 @@ export type ArtUncheckedCreateWithoutDreamsInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -1749,6 +1834,7 @@ export type ArtUpdateWithoutDreamsInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -1766,6 +1852,7 @@ export type ArtUncheckedUpdateWithoutDreamsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1812,6 +1899,7 @@ export type ArtCreateWithoutGalleryInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
@@ -1829,6 +1917,7 @@ export type ArtUncheckedCreateWithoutGalleryInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -1901,6 +1990,7 @@ export type ArtCreateWithoutPitchInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
@@ -1918,6 +2008,7 @@ export type ArtUncheckedCreateWithoutPitchInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -1990,6 +2081,7 @@ export type ArtCreateWithoutPromptInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
@@ -2007,6 +2099,7 @@ export type ArtUncheckedCreateWithoutPromptInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2079,6 +2172,7 @@ export type ArtCreateWithoutReactionInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -2096,6 +2190,7 @@ export type ArtUncheckedCreateWithoutReactionInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2158,6 +2253,7 @@ export type ArtUpdateWithoutReactionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -2175,6 +2271,7 @@ export type ArtUncheckedUpdateWithoutReactionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2201,7 +2298,7 @@ export type ArtUncheckedUpdateWithoutReactionInput = {
   ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
 }
 
-export type ArtCreateWithoutServerInput = {
+export type ArtCreateWithoutCheckpointResourceInput = {
   createdAt?: Date | string | null
   updatedAt?: Date | string | null
   path?: string | null
@@ -2224,6 +2321,98 @@ export type ArtCreateWithoutServerInput = {
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtsInput
+  User?: Prisma.UserCreateNestedOneWithoutArtInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutArtInput
+  ArtCollection?: Prisma.ArtCollectionCreateNestedManyWithoutArtInput
+}
+
+export type ArtUncheckedCreateWithoutCheckpointResourceInput = {
+  id?: number
+  createdAt?: Date | string | null
+  updatedAt?: Date | string | null
+  path?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  designer?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  promptId?: number | null
+  userId?: number | null
+  pitchId?: number | null
+  galleryId?: number | null
+  promptString: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  artImageId?: number | null
+  imagePath?: string | null
+  genres?: string | null
+  negativePrompt?: string | null
+  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutArtInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutArtInput
+  ArtCollection?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtInput
+}
+
+export type ArtCreateOrConnectWithoutCheckpointResourceInput = {
+  where: Prisma.ArtWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtCreateWithoutCheckpointResourceInput, Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput>
+}
+
+export type ArtCreateManyCheckpointResourceInputEnvelope = {
+  data: Prisma.ArtCreateManyCheckpointResourceInput | Prisma.ArtCreateManyCheckpointResourceInput[]
+  skipDuplicates?: boolean
+}
+
+export type ArtUpsertWithWhereUniqueWithoutCheckpointResourceInput = {
+  where: Prisma.ArtWhereUniqueInput
+  update: Prisma.XOR<Prisma.ArtUpdateWithoutCheckpointResourceInput, Prisma.ArtUncheckedUpdateWithoutCheckpointResourceInput>
+  create: Prisma.XOR<Prisma.ArtCreateWithoutCheckpointResourceInput, Prisma.ArtUncheckedCreateWithoutCheckpointResourceInput>
+}
+
+export type ArtUpdateWithWhereUniqueWithoutCheckpointResourceInput = {
+  where: Prisma.ArtWhereUniqueInput
+  data: Prisma.XOR<Prisma.ArtUpdateWithoutCheckpointResourceInput, Prisma.ArtUncheckedUpdateWithoutCheckpointResourceInput>
+}
+
+export type ArtUpdateManyWithWhereWithoutCheckpointResourceInput = {
+  where: Prisma.ArtScalarWhereInput
+  data: Prisma.XOR<Prisma.ArtUpdateManyMutationInput, Prisma.ArtUncheckedUpdateManyWithoutCheckpointResourceInput>
+}
+
+export type ArtCreateWithoutServerInput = {
+  createdAt?: Date | string | null
+  updatedAt?: Date | string | null
+  path?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  designer?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  promptString: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  serverName?: string | null
+  serverUrl?: string | null
+  artImageId?: number | null
+  imagePath?: string | null
+  genres?: string | null
+  negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
+  Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
+  Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
+  Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
   User?: Prisma.UserCreateNestedOneWithoutArtInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutArtInput
   Reaction?: Prisma.ReactionCreateNestedManyWithoutArtInput
@@ -2238,6 +2427,7 @@ export type ArtUncheckedCreateWithoutServerInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2310,6 +2500,7 @@ export type ArtCreateWithoutUserInput = {
   imagePath?: string | null
   genres?: string | null
   negativePrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtsAsCheckpointInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutArtInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutArtInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutArtInput
@@ -2327,6 +2518,7 @@ export type ArtUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2399,6 +2591,7 @@ export type ArtUpdateWithoutArtCollectionInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -2416,6 +2609,7 @@ export type ArtUncheckedUpdateWithoutArtCollectionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2448,6 +2642,7 @@ export type ArtUncheckedUpdateManyWithoutArtCollectionInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2476,6 +2671,7 @@ export type ArtCreateManyGalleryInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2517,6 +2713,7 @@ export type ArtUpdateWithoutGalleryInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
@@ -2534,6 +2731,7 @@ export type ArtUncheckedUpdateWithoutGalleryInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2566,6 +2764,7 @@ export type ArtUncheckedUpdateManyWithoutGalleryInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2593,6 +2792,7 @@ export type ArtCreateManyPitchInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2634,6 +2834,7 @@ export type ArtUpdateWithoutPitchInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
@@ -2651,6 +2852,7 @@ export type ArtUncheckedUpdateWithoutPitchInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2683,6 +2885,7 @@ export type ArtUncheckedUpdateManyWithoutPitchInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2710,6 +2913,7 @@ export type ArtCreateManyPromptInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2751,6 +2955,7 @@ export type ArtUpdateWithoutPromptInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
@@ -2768,6 +2973,7 @@ export type ArtUncheckedUpdateWithoutPromptInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2800,6 +3006,7 @@ export type ArtUncheckedUpdateManyWithoutPromptInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2821,12 +3028,134 @@ export type ArtUncheckedUpdateManyWithoutPromptInput = {
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+export type ArtCreateManyCheckpointResourceInput = {
+  id?: number
+  createdAt?: Date | string | null
+  updatedAt?: Date | string | null
+  path?: string | null
+  checkpoint?: string | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  designer?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  promptId?: number | null
+  userId?: number | null
+  pitchId?: number | null
+  galleryId?: number | null
+  promptString: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  artImageId?: number | null
+  imagePath?: string | null
+  genres?: string | null
+  negativePrompt?: string | null
+}
+
+export type ArtUpdateWithoutCheckpointResourceInput = {
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  promptString?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
+  Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
+  Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtsNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutArtNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutArtNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutArtNestedInput
+  ArtCollection?: Prisma.ArtCollectionUpdateManyWithoutArtNestedInput
+}
+
+export type ArtUncheckedUpdateWithoutCheckpointResourceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptString?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutArtNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutArtNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutArtNestedInput
+  ArtCollection?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtNestedInput
+}
+
+export type ArtUncheckedUpdateManyWithoutCheckpointResourceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptString?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
 export type ArtCreateManyServerInput = {
   id?: number
   createdAt?: Date | string | null
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2868,6 +3197,7 @@ export type ArtUpdateWithoutServerInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -2885,6 +3215,7 @@ export type ArtUncheckedUpdateWithoutServerInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2917,6 +3248,7 @@ export type ArtUncheckedUpdateManyWithoutServerInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2944,6 +3276,7 @@ export type ArtCreateManyUserInput = {
   updatedAt?: Date | string | null
   path?: string | null
   checkpoint?: string | null
+  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -2985,6 +3318,7 @@ export type ArtUpdateWithoutUserInput = {
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtsAsCheckpointNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutArtNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutArtNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutArtNestedInput
@@ -3002,6 +3336,7 @@ export type ArtUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3034,6 +3369,7 @@ export type ArtUncheckedUpdateManyWithoutUserInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3119,6 +3455,7 @@ export type ArtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   updatedAt?: boolean
   path?: boolean
   checkpoint?: boolean
+  checkpointResourceId?: boolean
   sampler?: boolean
   seed?: boolean
   steps?: boolean
@@ -3139,6 +3476,7 @@ export type ArtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   imagePath?: boolean
   genres?: boolean
   negativePrompt?: boolean
+  CheckpointResource?: boolean | Prisma.Art$CheckpointResourceArgs<ExtArgs>
   Gallery?: boolean | Prisma.Art$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Art$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Art$PromptArgs<ExtArgs>
@@ -3160,6 +3498,7 @@ export type ArtSelectScalar = {
   updatedAt?: boolean
   path?: boolean
   checkpoint?: boolean
+  checkpointResourceId?: boolean
   sampler?: boolean
   seed?: boolean
   steps?: boolean
@@ -3182,8 +3521,9 @@ export type ArtSelectScalar = {
   negativePrompt?: boolean
 }
 
-export type ArtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "path" | "checkpoint" | "sampler" | "seed" | "steps" | "designer" | "isPublic" | "isMature" | "promptId" | "userId" | "pitchId" | "galleryId" | "promptString" | "cfg" | "cfgHalf" | "serverId" | "serverName" | "serverUrl" | "artImageId" | "imagePath" | "genres" | "negativePrompt", ExtArgs["result"]["art"]>
+export type ArtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "path" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "designer" | "isPublic" | "isMature" | "promptId" | "userId" | "pitchId" | "galleryId" | "promptString" | "cfg" | "cfgHalf" | "serverId" | "serverName" | "serverUrl" | "artImageId" | "imagePath" | "genres" | "negativePrompt", ExtArgs["result"]["art"]>
 export type ArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  CheckpointResource?: boolean | Prisma.Art$CheckpointResourceArgs<ExtArgs>
   Gallery?: boolean | Prisma.Art$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Art$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Art$PromptArgs<ExtArgs>
@@ -3200,6 +3540,7 @@ export type ArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type $ArtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Art"
   objects: {
+    CheckpointResource: Prisma.$ResourcePayload<ExtArgs> | null
     Gallery: Prisma.$GalleryPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
@@ -3217,6 +3558,7 @@ export type $ArtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     updatedAt: Date | null
     path: string | null
     checkpoint: string | null
+    checkpointResourceId: number | null
     sampler: string | null
     seed: number | null
     steps: number | null
@@ -3577,6 +3919,7 @@ readonly fields: ArtFieldRefs;
  */
 export interface Prisma__ArtClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  CheckpointResource<T extends Prisma.Art$CheckpointResourceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$CheckpointResourceArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Gallery<T extends Prisma.Art$GalleryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$GalleryArgs<ExtArgs>>): Prisma.Prisma__GalleryClient<runtime.Types.Result.GetResult<Prisma.$GalleryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Art$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Art$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Art$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -3621,6 +3964,7 @@ export interface ArtFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Art", 'DateTime'>
   readonly path: Prisma.FieldRef<"Art", 'String'>
   readonly checkpoint: Prisma.FieldRef<"Art", 'String'>
+  readonly checkpointResourceId: Prisma.FieldRef<"Art", 'Int'>
   readonly sampler: Prisma.FieldRef<"Art", 'String'>
   readonly seed: Prisma.FieldRef<"Art", 'Int'>
   readonly steps: Prisma.FieldRef<"Art", 'Int'>
@@ -3986,6 +4330,25 @@ export type ArtDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Limit how many Arts to delete.
    */
   limit?: number
+}
+
+/**
+ * Art.CheckpointResource
+ */
+export type Art$CheckpointResourceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Resource
+   */
+  select?: Prisma.ResourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Resource
+   */
+  omit?: Prisma.ResourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResourceInclude<ExtArgs> | null
+  where?: Prisma.ResourceWhereInput
 }
 
 /**

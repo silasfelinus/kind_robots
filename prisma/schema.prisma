@@ -658,6 +658,20 @@ model Resource {
 
   @@index([userId], map: "Resource_userId_fkey")
 }
+
+enum ResourceType {
+  CHECKPOINT
+  EMBEDDING
+  LORA
+  LYCORIS
+  HYPERNETWORK
+  SAMPLER
+  CONTROLNET
+  URL
+  API
+}
+
+
 enum SupportedServer {
   SD15
   SDXL
@@ -1047,17 +1061,6 @@ enum ReactionCategory {
   THEME
 }
 
-enum ResourceType {
-  CHECKPOINT
-  EMBEDDING
-  LORA
-  LYCORIS
-  HYPERNETWORK
-  SAMPLER
-  CONTROLNET
-  URL
-  API
-}
 
 enum Role {
   SYSTEM

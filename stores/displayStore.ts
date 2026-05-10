@@ -557,9 +557,8 @@ const footerRightInset = computed(() => {
 })
 
   const showCornerPanel = computed(() => {
-  return state.showCorner && state.sidebarRightState === 'open'
+  return state.showCorner && rightSidebarStage.value === 'open'
 })
-
 
 const leftSidebarStyle = computed<CSSProperties>(() => {
   const padding = sectionPaddingSize.value
@@ -652,10 +651,7 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
   const leftSidebarModeLabel = computed(() => leftSidebarStage.value)
   const rightSidebarModeLabel = computed(() => rightSidebarStage.value)
 
-  function getOppositeSide(side: LogicalSide): LogicalSide {
-    return side === 'left' ? 'right' : 'left'
-  }
-
+  
   function getSidebarKey(side: LogicalSide): SidebarStateKey {
     return side === 'left' ? 'sidebarLeftState' : 'sidebarRightState'
   }
@@ -666,7 +662,7 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
 
   function setSidebarStage(side: LogicalSide, stage: SidebarStage) {
   const key = getSidebarKey(side)
-  state[key] = stage
+  state[key] = stage === 'open' ? 'open' : 'hidden'
 }
 
   function requestPromptOffset(owner: FooterComponentName, nextOffset: number) {
@@ -1058,7 +1054,6 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
 
       state.footerState = 'disabled'
 
-      state.isInitialized = false
       state.isAnimating = false
       state.currentAnimation = ''
     } catch (error) {

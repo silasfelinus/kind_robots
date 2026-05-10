@@ -169,6 +169,9 @@ function showNextChannel() {
   void goToChannel(getWrappedChannel(1))
 }
 
+const previousChannel = computed(() => getWrappedChannel(-1))
+const nextChannel = computed(() => getWrappedChannel(1))
+
 const buttons = computed<ChannelButton[]>(() => [
   {
     key: 'left-sidebar',
@@ -180,8 +183,8 @@ const buttons = computed<ChannelButton[]>(() => [
   },
   {
     key: 'previous-channel',
-    label: 'Previous channel',
-    shortLabel: 'Prev',
+    label: `Go to ${previousChannel.value.label}`,
+    shortLabel: previousChannel.value.label,
     icon: 'kind-icon:chevron-left',
     class: 'hover:bg-accent hover:text-accent-content',
     action: showPreviousChannel,
@@ -197,8 +200,8 @@ const buttons = computed<ChannelButton[]>(() => [
   },
   {
     key: 'next-channel',
-    label: 'Next channel',
-    shortLabel: 'Next',
+    label: `Go to ${nextChannel.value.label}`,
+    shortLabel: nextChannel.value.label,
     icon: 'kind-icon:chevron-right',
     class: 'hover:bg-accent hover:text-accent-content',
     action: showNextChannel,

@@ -71,9 +71,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   const promptOffsetOwner = ref<PromptOffsetOwner>('')
 
   const bottomControlRowVisible = computed(() => {
-  return true
-})
-n
+    return true
+  })
+
   const bottomControlCount = 5
   const bottomControlGap = computed(() => {
     const sizes: Record<ViewportSize, number> = {
@@ -189,12 +189,12 @@ n
   }
 
   const mainPanelTopOffset = computed(() => {
-  return topDockHeight.value + sectionPaddingSize.value
-})
+    return topDockHeight.value + sectionPaddingSize.value
+  })
 
-const mainPanelHeight = computed(() => {
-  return 100 - mainPanelTopOffset.value - contentBottomOffset.value
-})
+  const mainPanelHeight = computed(() => {
+    return 100 - mainPanelTopOffset.value - contentBottomOffset.value
+  })
 
   function normalizeSidebarState(value: DisplayState): SidebarStage {
     if (value === 'hidden') return 'hidden'
@@ -242,20 +242,22 @@ const mainPanelHeight = computed(() => {
   )
 
   const channelPanelStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const isVisible = channelPanelVisible.value
+    const padding = sectionPaddingSize.value
+    const isVisible = channelPanelVisible.value
 
-  return {
-    position: 'fixed',
-    left: `${headerLeftInset.value}vw`,
-    width: `${headerWidth.value}vw`,
-    height: isVisible ? `calc(var(--vh) * ${channelPanelHeight.value})` : '0px',
-    bottom: `calc(var(--vh) * ${bottomControlRowHeight.value + padding})`,
-    opacity: isVisible ? '1' : '0',
-    pointerEvents: isVisible ? 'auto' : 'none',
-    zIndex: '20',
-  }
-})
+    return {
+      position: 'fixed',
+      left: `${headerLeftInset.value}vw`,
+      width: `${headerWidth.value}vw`,
+      height: isVisible
+        ? `calc(var(--vh) * ${channelPanelHeight.value})`
+        : '0px',
+      bottom: `calc(var(--vh) * ${bottomControlRowHeight.value + padding})`,
+      opacity: isVisible ? '1' : '0',
+      pointerEvents: isVisible ? 'auto' : 'none',
+      zIndex: '20',
+    }
+  })
 
   const sidebarLeftWidth = computed(() => {
     const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
@@ -445,24 +447,22 @@ const mainPanelHeight = computed(() => {
       : padding
   })
 
+  const channelPanelVisible = computed(() => {
+    return headerDockedBottom.value && !headerContentVisible.value
+  })
 
+  const channelPanelHeight = computed(() => {
+    if (!channelPanelVisible.value) return 0
 
-const channelPanelVisible = computed(() => {
-  return headerDockedBottom.value && !headerContentVisible.value
-})
+    const sizes: Record<ViewportSize, number> = {
+      small: 18,
+      medium: 14,
+      large: 12,
+      extraLarge: 10,
+    }
 
-const channelPanelHeight = computed(() => {
-  if (!channelPanelVisible.value) return 0
-
-  const sizes: Record<ViewportSize, number> = {
-    small: 18,
-    medium: 14,
-    large: 12,
-    extraLarge: 10,
-  }
-
-  return sizes[state.viewportSize]
-})
+    return sizes[state.viewportSize]
+  })
 
   const headerRightInset = computed(() => {
     const padding = sectionPaddingSize.value
@@ -660,24 +660,24 @@ const channelPanelHeight = computed(() => {
   })
 
   const headerStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const isHidden = !headerContentVisible.value
-  const bottomOffset = bottomControlRowHeight.value + padding
+    const padding = sectionPaddingSize.value
+    const isHidden = !headerContentVisible.value
+    const bottomOffset = bottomControlRowHeight.value + padding
 
-  return {
-    position: 'fixed',
-    height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,
-    width: `${headerWidth.value}vw`,
-    top: headerDockedTop.value ? `calc(var(--vh) * ${padding})` : 'auto',
-    bottom: headerDockedBottom.value
-      ? `calc(var(--vh) * ${bottomOffset})`
-      : 'auto',
-    left: `${headerLeftInset.value}vw`,
-    opacity: isHidden ? '0' : '1',
-    pointerEvents: isHidden ? 'none' : 'auto',
-    zIndex: '20',
-  }
-})
+    return {
+      position: 'fixed',
+      height: isHidden ? '0px' : `calc(var(--vh) * ${headerHeight.value})`,
+      width: `${headerWidth.value}vw`,
+      top: headerDockedTop.value ? `calc(var(--vh) * ${padding})` : 'auto',
+      bottom: headerDockedBottom.value
+        ? `calc(var(--vh) * ${bottomOffset})`
+        : 'auto',
+      left: `${headerLeftInset.value}vw`,
+      opacity: isHidden ? '0' : '1',
+      pointerEvents: isHidden ? 'none' : 'auto',
+      zIndex: '20',
+    }
+  })
 
   const mainContentStyle = computed<CSSProperties>(() => {
     return {
@@ -841,10 +841,10 @@ const channelPanelHeight = computed(() => {
   }
 
   function toggleFooter() {
-  state.footerState = 'disabled'
-  clearPromptOffset()
-  saveState()
-}
+    state.footerState = 'disabled'
+    clearPromptOffset()
+    saveState()
+  }
 
   function setNavDock(next: NavDock) {
     state.navDock = next === 'top' ? 'top' : 'bottom'
@@ -1286,15 +1286,9 @@ const channelPanelHeight = computed(() => {
     bottomHeaderDockHeight,
     bottomDockHeight,
     setNavDock,
-channelPanelVisible,
-channelPanelHeight,
-channelPanelStyle,
-headerDockedBottom,
-headerDockedTop,
-headerContentVisible,
-topDockHeight,
-bottomHeaderDockHeight,
-bottomDockHeight,n
+    channelPanelVisible,
+    channelPanelHeight,
+    channelPanelStyle,
   }
 })
 

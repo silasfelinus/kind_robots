@@ -557,72 +557,51 @@ const footerRightInset = computed(() => {
 })
 
   const showCornerPanel = computed(() => {
-    return (
-      state.showCorner &&
-      (state.sidebarRightState === 'open' ||
-        state.sidebarRightState === 'priority')
-    )
-  })
+  return state.showCorner && state.sidebarRightState === 'open'
+})
 
-  const leftSidebarStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
-    const topOffset = topDockHeight.value + padding * 2
 
-    if (!sidebarLeftVisible.value) {
-      return {
-        top: `calc(var(--vh) * ${topOffset})`,
-        left: `${padding}vw`,
-        width: '0px',
-        height: '0px',
-      }
-    }
+const leftSidebarStyle = computed<CSSProperties>(() => {
+  const padding = sectionPaddingSize.value
+  const topOffset = topDockHeight.value + padding * 2
 
-    if (leftSidebarPriority.value) {
-      return {
-        top: `calc(var(--vh) * ${fullColumnTopOffset.value})`,
-        left: `${padding}vw`,
-        width: `${sidebarLeftWidth.value}vw`,
-        height: `calc(var(--vh) * ${fullColumnHeight.value})`,
-      }
-    }
-
+  if (!sidebarLeftVisible.value) {
     return {
       top: `calc(var(--vh) * ${topOffset})`,
       left: `${padding}vw`,
-      width: `${sidebarLeftWidth.value}vw`,
-      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
+      width: '0px',
+      height: '0px',
     }
-  })
+  }
 
-  const rightSidebarStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
-    const topOffset = topDockHeight.value + padding * 2
+  return {
+    top: `calc(var(--vh) * ${topOffset})`,
+    left: `${padding}vw`,
+    width: `${sidebarLeftWidth.value}vw`,
+    height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
+  }
+})
 
-    if (!sidebarRightVisible.value) {
-      return {
-        top: `calc(var(--vh) * ${topOffset})`,
-        right: `${padding}vw`,
-        width: '0px',
-        height: '0px',
-      }
-    }
+const rightSidebarStyle = computed<CSSProperties>(() => {
+  const padding = sectionPaddingSize.value
+  const topOffset = topDockHeight.value + padding * 2
 
-    if (rightSidebarPriority.value) {
-      return {
-        top: `calc(var(--vh) * ${fullColumnTopOffset.value})`,
-        right: `${padding}vw`,
-        width: `${sidebarRightWidth.value}vw`,
-        height: `calc(var(--vh) * ${fullColumnHeight.value})`,
-      }
-    }
-
+  if (!sidebarRightVisible.value) {
     return {
       top: `calc(var(--vh) * ${topOffset})`,
       right: `${padding}vw`,
-      width: `${sidebarRightWidth.value}vw`,
-      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
+      width: '0px',
+      height: '0px',
     }
-  })
+  }
+
+  return {
+    top: `calc(var(--vh) * ${topOffset})`,
+    right: `${padding}vw`,
+    width: `${sidebarRightWidth.value}vw`,
+    height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
+  }
+})
 
   const headerStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
@@ -954,13 +933,7 @@ const footerRightInset = computed(() => {
         state.isMobileViewport = false
       }
 
-      if (
-        state.viewportSize === 'small' &&
-        state.sidebarLeftState === 'priority' &&
-        state.sidebarRightState === 'priority'
-      ) {
-        state.sidebarRightState = 'open'
-      }
+      
     } catch (error) {
       handleError(error, 'Viewport update failed')
     }

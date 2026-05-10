@@ -9,17 +9,9 @@
     </div>
 
     <div class="w-full overflow-x-hidden">
-      <div class="flex justify-end px-1">
-        <button
-          class="btn btn-ghost btn-xs gap-1 text-base-content/60 hover:text-base-content"
-          @click="showChat = !showChat"
-        >
-          <span>{{ showChat ? '🧠 Smart Panel' : '💬 Chat' }}</span>
-        </button>
-      </div>
 
-      <ami-chat v-if="showChat" class="w-full" />
-      <smart-panel v-else />
+      <ami-chat class="w-full" />
+ 
     </div>
 
     <div v-if="pageImage" class="w-full overflow-x-hidden">
@@ -45,7 +37,7 @@ import { NuxtImg } from '#components'
 import { usePageStore } from '@/stores/pageStore'
 
 const pageStore = usePageStore()
-const showChat = ref(false)
+
 
 const image = computed(() => pageStore.page?.image || '')
 

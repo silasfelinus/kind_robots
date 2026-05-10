@@ -16,7 +16,7 @@
           <p v-if="activeServer" class="truncate text-sm text-base-content/70">
             Selected:
             <span class="font-semibold text-primary">
-              {{ activeServer.label || activeServer.title }}
+              {{ activeServerDisplayName(activeServer) }}
             </span>
           </p>
 
@@ -144,6 +144,30 @@
                 <p class="truncate text-sm text-base-content/60">
                   {{ activeServerSubtitle }}
                 </p>
+
+                <div
+                  v-if="activeServer"
+                  class="mt-2 flex flex-wrap items-center gap-1"
+                >
+                  <span class="badge badge-primary badge-sm">
+                    {{ activeServer.serverType }}
+                  </span>
+
+                  <span class="badge badge-secondary badge-sm">
+                    {{ activeServer.generationEngine }}
+                  </span>
+
+                  <span class="badge badge-accent badge-sm">
+                    {{ activeServer.defaultTransport }}
+                  </span>
+
+                  <span
+                    v-if="activeServer.model"
+                    class="badge badge-ghost badge-sm max-w-full truncate"
+                  >
+                    {{ activeServer.model }}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -173,13 +197,21 @@
               :key="server.id"
               :value="server.id"
             >
-              [{{ server.serverType }}] {{ server.label || server.title }}
+              {{ serverDropdownLabel(server) }}
             </option>
 
             <option v-if="allowAdd" disabled>──────────</option>
 
             <option v-if="allowAdd" value="__add__">Add Server</option>
           </select>
+
+          <p
+            v-if="filteredServers.length === 0"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
+          >
+            No configured {{ modeLabel }} servers yet. Add one when you are
+            ready to wire up the glorious robot plumbing.
+          </p>
         </div>
       </div>
 
@@ -189,10 +221,11 @@
       >
         <Icon name="kind-icon:server" class="h-10 w-10" />
 
-        <p class="text-lg font-bold">No servers found.</p>
+        <p class="text-lg font-bold">No configured servers found.</p>
 
         <p class="max-w-xl text-sm opacity-70">
-          No public or owned servers match this gallery.
+          This view only shows servers owned by the current user unless you
+          explicitly opt into public or admin visibility.
         </p>
 
         <button
@@ -239,11 +272,13 @@ import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type ServerGalleryMode = 'art' | 'text' | 'all'
+type ServerVisibility = 'owned' | 'owned-and-public' | 'all'
 
 const props = withDefaults(
   defineProps<{
     mode?: ServerGalleryMode
     variant?: GalleryVariant
+    visibility?: ServerVisibility
     title?: string
     subtitle?: string
     showHeader?: boolean
@@ -268,6 +303,7 @@ const props = withDefaults(
   {
     mode: 'all',
     variant: 'dashboard',
+    visibility: 'owned',
     title: '',
     subtitle: '',
     showHeader: true,
@@ -309,9 +345,9 @@ const resolvedTitle = computed(() => {
 
 const resolvedSubtitle = computed(() => {
   if (props.subtitle) return props.subtitle
-  if (props.mode === 'art') return 'Public and owned image engines.'
-  if (props.mode === 'text') return 'Public and owned chat engines.'
-  return 'Public and owned model servers.'
+  if (props.mode === 'art') return 'Your configured image engines.'
+  if (props.mode === 'text') return 'Your configured chat engines.'
+  return 'Your configured model servers.'
 })
 
 const formTitle = computed(() => {
@@ -336,23 +372,30 @@ const activeServer = computed(() => {
 })
 
 const activeServerTitle = computed(() => {
-  return (
-    activeServer.value?.label ||
-    activeServer.value?.title ||
-    'No server selected'
-  )
+  const server = activeServer.value
+
+  if (!server) return 'No server selected'
+
+  return activeServerDisplayName(server)
 })
 
 const activeServerSubtitle = computed(() => {
   const server = activeServer.value
 
   if (!server) {
-    return 'Choose a server or add a new one.'
+    return 'Choose a configured server or add a new one.'
   }
 
-  return (
-    server.description || server.baseUrl || server.serverType || 'Server ready.'
-  )
+  const details = [
+    server.label,
+    server.model,
+    server.description,
+    server.baseUrl,
+    server.browserBaseUrl,
+    server.backendBaseUrl,
+  ].filter(Boolean)
+
+  return details[0] || 'Server ready.'
 })
 
 const selectedDropdownValue = computed(() => {
@@ -373,13 +416,15 @@ const layoutClass = computed(() => {
   return props.variant === 'row' ? 'server-row' : 'server-grid'
 })
 
-const galleryServers = computed<Server[]>(() => {
-  if (userStore.isAdmin) {
-    return serverStore.servers
-  }
+const modeLabel = computed(() => {
+  if (props.mode === 'art') return 'art'
+  if (props.mode === 'text') return 'text'
+  return 'configured'
+})
 
+const galleryServers = computed<Server[]>(() => {
   return serverStore.servers.filter((server) => {
-    return server.isPublic || server.userId === currentUserId.value
+    return matchesVisibility(server)
   })
 })
 
@@ -388,7 +433,7 @@ const modeServers = computed(() => {
 })
 
 const filteredServers = computed(() => {
-  let servers = modeServers.value
+  let servers = [...modeServers.value]
 
   if (selectedType.value !== 'all') {
     servers = servers.filter((server) => {
@@ -409,12 +454,14 @@ const filteredServers = computed(() => {
         (server.backendBaseUrl || '').toLowerCase().includes(query) ||
         (server.category || '').toLowerCase().includes(query) ||
         (server.serverType || '').toLowerCase().includes(query) ||
-        (server.generationEngine || '').toLowerCase().includes(query)
+        (server.generationEngine || '').toLowerCase().includes(query) ||
+        (server.model || '').toLowerCase().includes(query) ||
+        (server.designer || '').toLowerCase().includes(query)
       )
     })
   }
 
-  return servers
+  return servers.sort(sortServers)
 })
 
 const selectedIcon = computed(() => {
@@ -501,6 +548,22 @@ async function refreshServers(force = false) {
   }
 }
 
+function isOwnedByCurrentUser(server: Server) {
+  return Boolean(currentUserId.value && server.userId === currentUserId.value)
+}
+
+function matchesVisibility(server: Server) {
+  if (props.visibility === 'all') {
+    return userStore.isAdmin || isOwnedByCurrentUser(server)
+  }
+
+  if (props.visibility === 'owned-and-public') {
+    return isOwnedByCurrentUser(server) || Boolean(server.isPublic)
+  }
+
+  return isOwnedByCurrentUser(server)
+}
+
 function isArtCapable(server: Server) {
   return (
     server.serverType === 'ART' ||
@@ -533,6 +596,41 @@ function matchesMode(server: Server) {
   if (props.mode === 'text') return isTextCapable(server)
 
   return isArtCapable(server) || isTextCapable(server)
+}
+
+function activeServerDisplayName(server: Server) {
+  if (server.title && server.label && server.title !== server.label) {
+    return `${server.title} · ${server.label}`
+  }
+
+  return server.title || server.label || `Server ${server.id}`
+}
+
+function serverDropdownLabel(server: Server) {
+  const name = activeServerDisplayName(server)
+
+  const details = [
+    server.serverType,
+    server.generationEngine,
+    server.model,
+    server.defaultTransport,
+  ].filter(Boolean)
+
+  return `${name} (${details.join(' · ')})`
+}
+
+function sortServers(left: Server, right: Server) {
+  const leftOrder = left.sortOrder ?? 0
+  const rightOrder = right.sortOrder ?? 0
+
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder
+  }
+
+  const leftName = activeServerDisplayName(left).toLowerCase()
+  const rightName = activeServerDisplayName(right).toLowerCase()
+
+  return leftName.localeCompare(rightName)
 }
 
 function applyCurrentServerMode() {

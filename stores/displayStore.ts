@@ -20,7 +20,7 @@ import {
 
 export type ViewportSize = 'small' | 'medium' | 'large' | 'extraLarge'
 type FullscreenState = 'nuxt' | 'fullscreen'
-type SidebarStage = 'hidden' | 'compact' | 'open' | 'priority'
+type SidebarStage = 'hidden' | 'open'
 type SidebarStateKey = 'sidebarLeftState' | 'sidebarRightState'
 type LogicalSide = 'left' | 'right'
 
@@ -172,11 +172,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   function normalizeSidebarState(value: DisplayState): SidebarStage {
-    if (value === 'hidden') return 'hidden'
-    if (value === 'compact') return 'compact'
-    if (value === 'priority') return 'priority'
-    return 'open'
-  }
+  if (value === 'hidden' || value === 'disabled') return 'hidden'
+  return 'open'
+} 
 
   function normalizeFooterState(value: DisplayState): FooterStage {
     if (value === 'hidden') return 'hidden'
@@ -208,13 +206,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
     () => rightSidebarStage.value !== 'hidden',
   )
 
-  const leftSidebarPriority = computed(
-    () => leftSidebarStage.value === 'priority',
-  )
+  const leftSidebarPriority = computed(() => false)
 
-  const rightSidebarPriority = computed(
-    () => rightSidebarStage.value === 'priority',
-  )
+const rightSidebarPriority = computed(() => false)
 
   const channelPanelStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
@@ -235,27 +229,26 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   const sidebarLeftWidth = computed(() => {
-    const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
-      small: { hidden: 0, compact: 35, open: 40, priority: 50 },
-      medium: { hidden: 0, compact: 30, open: 35, priority: 40 },
-      large: { hidden: 0, compact: 24, open: 30, priority: 35 },
-      extraLarge: { hidden: 0, compact: 17, open: 22, priority: 30 },
-    }
+  const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
+    small: { hidden: 0, open: 40 },
+    medium: { hidden: 0, open: 35 },
+    large: { hidden: 0, open: 30 },
+    extraLarge: { hidden: 0, open: 22 },
+  }
 
-    return widths[state.viewportSize][leftSidebarStage.value]
-  })
+  return widths[state.viewportSize][leftSidebarStage.value]
+})
 
-  const sidebarRightWidth = computed(() => {
-    const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
-      small: { hidden: 0, compact: 18, open: 32, priority: 32 },
-      medium: { hidden: 0, compact: 30, open: 35, priority: 40 },
-      large: { hidden: 0, compact: 24, open: 30, priority: 35 },
-      extraLarge: { hidden: 0, compact: 17, open: 22, priority: 30 },
-    }
+const sidebarRightWidth = computed(() => {
+  const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
+    small: { hidden: 0, open: 32 },
+    medium: { hidden: 0, open: 35 },
+    large: { hidden: 0, open: 30 },
+    extraLarge: { hidden: 0, open: 22 },
+  }
 
-    return widths[state.viewportSize][rightSidebarStage.value]
-  })
-
+  return widths[state.viewportSize][rightSidebarStage.value]
+})
   const headerHeight = computed(() => {
     if (state.headerState === 'hidden') return 0
 
@@ -415,12 +408,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     return 100 - mainContentLeft.value - mainContentRightInset.value
   })
 
-  const headerLeftInset = computed(() => {
-    const padding = sectionPaddingSize.value
-    return leftSidebarPriority.value
-      ? padding + sidebarLeftWidth.value
-      : padding
-  })
+  
 
   const headerDockedBottom = computed(() => state.navDock === 'bottom')
   const headerDockedTop = computed(() => state.navDock === 'top')
@@ -458,76 +446,61 @@ export const useDisplayStore = defineStore('displayStore', () => {
       : 0
   })
 
-  const headerRightInset = computed(() => {
-    const padding = sectionPaddingSize.value
-    return rightSidebarPriority.value
-      ? padding + sidebarRightWidth.value
-      : padding
-  })
-
+  
   const headerWidth = computed(() => {
     return Math.max(0, 100 - headerLeftInset.value - headerRightInset.value)
   })
 
-  // After
-  const footerLeftInset = computed(() => {
-    const padding = sectionPaddingSize.value
-    return leftSidebarPriority.value
-      ? padding + sidebarLeftWidth.value
-      : padding
-  })
+  
+const headerLeftInset = computed(() => {
+  return sectionPaddingSize.value
+})
 
-  const footerRightInset = computed(() => {
-    const padding = sectionPaddingSize.value
-    return rightSidebarPriority.value
-      ? padding + sidebarRightWidth.value
-      : padding
-  })
+const headerRightInset = computed(() => {
+  return sectionPaddingSize.value
+})
+
+const footerLeftInset = computed(() => {
+  return sectionPaddingSize.value
+})
+
+const footerRightInset = computed(() => {
+  return sectionPaddingSize.value
+})
+
   const footerWidth = computed(() => {
     return Math.max(0, 100 - footerLeftInset.value - footerRightInset.value)
   })
 
   const rightToggleStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
+  const padding = sectionPaddingSize.value
+  const isHidden = rightSidebarStage.value === 'hidden'
+  const sidebarTop = topDockHeight.value + padding * 2
+  const seam = isHidden ? padding : padding + sidebarRightWidth.value
 
-    const isHidden = rightSidebarStage.value === 'hidden'
-    const isPriority = rightSidebarStage.value === 'priority'
-
-    const sidebarTop = isPriority
-      ? fullColumnTopOffset.value
-      : topDockHeight.value + padding * 2
-
-    const seam = isHidden ? padding : padding + sidebarRightWidth.value
-
-    return {
-      position: 'fixed',
-      top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
-      right: `${seam}vw`,
-      transform: 'translate(50%, -50%)',
-      zIndex: '30',
-    }
-  })
+  return {
+    position: 'fixed',
+    top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
+    right: `${seam}vw`,
+    transform: 'translate(50%, -50%)',
+    zIndex: '30',
+  }
+})
 
   const leftToggleStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
+  const padding = sectionPaddingSize.value
+  const isHidden = leftSidebarStage.value === 'hidden'
+  const sidebarTop = topDockHeight.value + padding * 2
+  const seam = isHidden ? padding : padding + sidebarLeftWidth.value
 
-    const isHidden = leftSidebarStage.value === 'hidden'
-    const isPriority = leftSidebarStage.value === 'priority'
-
-    const sidebarTop = isPriority
-      ? fullColumnTopOffset.value
-      : topDockHeight.value + padding * 2
-
-    const seam = isHidden ? padding : padding + sidebarLeftWidth.value
-
-    return {
-      position: 'fixed',
-      top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
-      left: `${seam}vw`,
-      transform: 'translate(-50%, -50%)',
-      zIndex: '30',
-    }
-  })
+  return {
+    position: 'fixed',
+    top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
+    left: `${seam}vw`,
+    transform: 'translate(-50%, -50%)',
+    zIndex: '30',
+  }
+})
 
   const headerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
@@ -570,20 +543,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
-    const padding = sectionPaddingSize.value
-    const topOffset = rightSidebarPriority.value
-      ? fullColumnTopOffset.value
-      : topDockHeight.value + padding * 2
+  const padding = sectionPaddingSize.value
+  const topOffset = topDockHeight.value + padding * 2
 
-    return {
-      position: 'fixed',
-      top: `calc(var(--vh) * ${topOffset})`,
-      right: `calc(${padding}vw + 0.75rem)`,
-      left: 'auto',
-      width: 'max-content',
-      zIndex: '30',
-    }
-  })
+  return {
+    position: 'fixed',
+    top: `calc(var(--vh) * ${topOffset})`,
+    right: `calc(${padding}vw + 0.75rem)`,
+    left: 'auto',
+    width: 'max-content',
+    zIndex: '30',
+  }
+})
 
   const showCornerPanel = computed(() => {
     return (
@@ -715,20 +686,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   function setSidebarStage(side: LogicalSide, stage: SidebarStage) {
-    const key = getSidebarKey(side)
-
-    if (stage === 'priority' && state.viewportSize === 'small') {
-      const oppositeSide = getOppositeSide(side)
-      const oppositeKey = getSidebarKey(oppositeSide)
-      const oppositeStage = getSidebarStage(oppositeSide)
-
-      if (oppositeStage === 'priority') {
-        state[oppositeKey] = 'open'
-      }
-    }
-
-    state[key] = stage
-  }
+  const key = getSidebarKey(side)
+  state[key] = stage
+}
 
   function requestPromptOffset(owner: FooterComponentName, nextOffset: number) {
     if (footerComponent.value !== owner) return
@@ -800,18 +760,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   function getNextSidebarStage(
-    current: SidebarStage,
-    direction: SidebarDirection,
-  ) {
-    const order: SidebarStage[] = ['hidden', 'open', 'priority']
-    const index = order.indexOf(current)
+  current: SidebarStage,
+  direction: SidebarDirection,
+) {
+  const order: SidebarStage[] = ['hidden', 'open']
+  const index = order.indexOf(current)
 
-    if (direction === 'backward') {
-      return order[(index - 1 + order.length) % order.length] ?? 'hidden'
-    }
-
-    return order[(index + 1) % order.length] ?? 'hidden'
+  if (direction === 'backward') {
+    return order[(index - 1 + order.length) % order.length] ?? 'hidden'
   }
+
+  return order[(index + 1) % order.length] ?? 'hidden'
+}
 
   function toggleSidebar(
     side: SidebarStateKey,

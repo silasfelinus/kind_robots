@@ -12,16 +12,15 @@
     @set-tab="setTab"
     @refresh="refreshManagerData"
   >
-    <template #default>
+    <template #default="{ activeTab: currentTab }">
       <section
-        v-if="activeTab === 'overview'"
+        v-if="currentTab === 'overview'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
         <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
           <bot-gallery
             variant="dropdown"
-            title="Bot"
-            subtitle="Choose the voice."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -34,8 +33,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the brain engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -54,18 +52,45 @@
       </section>
 
       <bot-gallery
-        v-else-if="activeTab === 'bots'"
+        v-else-if="currentTab === 'bots'"
         variant="dashboard"
-        title="Bot Gallery"
-        subtitle="Select, add, edit, clone, delete, or launch bots."
+        :show-header="false"
       />
 
-      <bot-interact v-else-if="activeTab === 'interact'" />
-
-      <server-manager v-else-if="activeTab === 'servers'" />
+      <bot-interact v-else-if="currentTab === 'interact'" />
 
       <section
-        v-else-if="activeTab === 'forge'"
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-7">
+          <server-gallery
+            mode="text"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-5">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
+
+      <section
+        v-else-if="currentTab === 'forge'"
         class="rounded-2xl border border-base-300 bg-base-200 p-3"
       >
         <add-bot
@@ -79,7 +104,7 @@
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
-        Unknown bot tab: {{ activeTab }}
+        Unknown bot tab: {{ currentTab }}
       </div>
     </template>
   </dashboard-shell>
@@ -134,7 +159,10 @@ function setTab(tab: string) {
 
   if (tab === 'overview' || tab === 'interact' || tab === 'servers') {
     serverStore.setCurrentServerMode('text')
+    return
   }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {

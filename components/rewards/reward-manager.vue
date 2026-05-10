@@ -20,8 +20,7 @@
         <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
           <reward-gallery
             variant="dropdown"
-            title="Reward"
-            subtitle="Choose the artifact, boon, curse, or plot grenade."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -33,8 +32,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the narration engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -55,20 +53,46 @@
       <reward-gallery
         v-else-if="currentTab === 'rewards'"
         variant="dashboard"
-        title="Reward Gallery"
-        subtitle="Select, add, edit, or delete story rewards and artifacts."
+        :show-header="false"
       />
 
       <reward-gallery
         v-else-if="currentTab === 'collections'"
         variant="dashboard"
-        title="Reward Collections"
-        subtitle="Browse rewards by collection, story type, or chaos flavor."
+        :show-header="false"
         :show-controls="true"
         :show-images="true"
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-7">
+          <server-gallery
+            mode="text"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-5">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
 
       <reward-interact v-else-if="currentTab === 'interact'" />
 
@@ -139,7 +163,10 @@ function setTab(tab: string) {
 
   if (tab === 'servers' || tab === 'interact' || tab === 'overview') {
     serverStore.setCurrentServerMode('text')
+    return
   }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {

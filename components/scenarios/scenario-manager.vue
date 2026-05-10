@@ -20,8 +20,7 @@
         <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
           <scenario-gallery
             variant="dropdown"
-            title="Scenario"
-            subtitle="Choose the playground."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-inspirations="false"
@@ -33,8 +32,7 @@
 
           <character-gallery
             variant="dropdown"
-            title="Character"
-            subtitle="Choose the cast."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -44,8 +42,7 @@
 
           <reward-gallery
             variant="dropdown"
-            title="Reward"
-            subtitle="Choose the plot grenade."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -56,8 +53,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the narration engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -78,32 +74,62 @@
       <scenario-gallery
         v-else-if="currentTab === 'scenarios'"
         variant="dashboard"
-        title="Scenario Gallery"
-        subtitle="Select, add, clone, or edit the playground."
+        :show-header="false"
       />
 
       <character-gallery
         v-else-if="currentTab === 'characters'"
         variant="dashboard"
-        title="Character Gallery"
-        subtitle="Select, add, or edit the cast."
+        :show-header="false"
       />
 
       <reward-gallery
         v-else-if="currentTab === 'rewards'"
         variant="dashboard"
-        title="Reward Gallery"
-        subtitle="Select, add, or edit story powers and plot grenades."
+        :show-header="false"
       />
 
       <choice-gallery
         v-else-if="currentTab === 'choices'"
         variant="dashboard"
+        :show-header="false"
       />
 
-      <genre-gallery v-else-if="currentTab === 'genres'" variant="dashboard" />
+      <genre-gallery
+        v-else-if="currentTab === 'genres'"
+        variant="dashboard"
+        :show-header="false"
+      />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-7">
+          <server-gallery
+            mode="text"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-5">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
 
       <scenario-interact v-else-if="currentTab === 'interact'" />
 
@@ -165,6 +191,13 @@ const managerSummary = computed(() => {
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'overview' || tab === 'interact' || tab === 'servers') {
+    serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
 }
 
 async function loadManagerData(force = false) {

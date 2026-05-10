@@ -20,8 +20,7 @@
         <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
           <dream-gallery
             variant="dropdown"
-            title="Dream"
-            subtitle="Choose the shared canvas."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -34,8 +33,7 @@
           <server-gallery
             mode="art"
             variant="dropdown"
-            title="Art Server"
-            subtitle="Choose the image engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -49,9 +47,7 @@
 
           <checkpoint-gallery
             variant="dropdown"
-            title="Checkpoint"
-            subtitle="Choose the active art model and sampler."
-            :show-header="true"
+            :show-header="false"
             :show-controls="false"
             :show-status="false"
           />
@@ -59,8 +55,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the chat engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -74,8 +69,7 @@
 
           <scenario-gallery
             variant="dropdown"
-            title="Scenario"
-            subtitle="Optionally ground the dream in a story setting."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -94,8 +88,7 @@
       <dream-gallery
         v-else-if="currentTab === 'dreams'"
         variant="dashboard"
-        title="Dream Gallery"
-        subtitle="Select, add, edit, clone, delete, or continue collaborative dreams."
+        :show-header="false"
       />
 
       <dream-prompts v-else-if="currentTab === 'prompts'" />
@@ -105,24 +98,69 @@
         class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"
       >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <art-gallery />
+          <art-gallery :show-header="false" />
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <collection-gallery />
+          <collection-gallery :show-header="false" />
         </div>
       </section>
 
-      <collection-gallery v-else-if="currentTab === 'collections'" />
+      <collection-gallery
+        v-else-if="currentTab === 'collections'"
+        :show-header="false"
+      />
 
       <scenario-gallery
         v-else-if="currentTab === 'scenarios'"
         variant="dashboard"
-        title="Scenario Links"
-        subtitle="Optionally ground dreams in a story setting."
+        :show-header="false"
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-6">
+          <server-gallery
+            mode="text"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-6">
+          <server-gallery
+            mode="art"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-12">
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <server-interact />
+          </div>
+        </div>
+      </section>
 
       <dream-interact v-else-if="currentTab === 'interact'" />
 
@@ -209,6 +247,11 @@ function setTab(tab: string) {
 
   if (tab === 'prompts' || tab === 'interact' || tab === 'overview') {
     serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  if (tab === 'servers') {
+    serverStore.setCurrentServerMode('selected')
     return
   }
 

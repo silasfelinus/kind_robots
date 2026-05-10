@@ -445,18 +445,7 @@ const mainPanelHeight = computed(() => {
       : padding
   })
 
-const headerDockedBottom = computed(() => state.navDock === 'bottom')
-const headerDockedTop = computed(() => state.navDock === 'top')
 
-const headerContentVisible = computed(() => {
-  return state.headerState !== 'hidden' && state.headerState !== 'disabled'
-})
-
-const topDockHeight = computed(() => {
-  return headerDockedTop.value && headerContentVisible.value
-    ? headerHeight.value
-    : 0
-})
 
 const channelPanelVisible = computed(() => {
   return headerDockedBottom.value && !headerContentVisible.value
@@ -473,29 +462,6 @@ const channelPanelHeight = computed(() => {
   }
 
   return sizes[state.viewportSize]
-})
-
-const bottomHeaderDockHeight = computed(() => {
-  if (!headerDockedBottom.value) return 0
-  if (headerContentVisible.value) return headerHeight.value
-
-  return channelPanelHeight.value
-})
-
-const footerPanelHeight = computed(() => {
-  return 0
-})
-
-const effectiveFooterHeight = computed(() => {
-  return 0
-})
-
-const bottomDockHeight = computed(() => {
-  return bottomHeaderDockHeight.value + bottomControlRowHeight.value
-})
-
-const contentBottomOffset = computed(() => {
-  return bottomDockHeight.value + sectionPaddingSize.value
 })
 
   const headerRightInset = computed(() => {

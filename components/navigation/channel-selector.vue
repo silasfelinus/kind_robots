@@ -92,7 +92,7 @@ const channels: ChannelRoute[] = [
   {
     key: 'user',
     label: 'User',
-    path: '/user',
+    path: '/dashboard',
   },
   {
     key: 'lab',

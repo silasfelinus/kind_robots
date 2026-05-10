@@ -21,8 +21,7 @@
           <server-gallery
             mode="art"
             variant="dropdown"
-            title="Art Server"
-            subtitle="Choose the image engine for art generation."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -37,8 +36,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the chat engine for text generation."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -52,9 +50,7 @@
 
           <checkpoint-gallery
             variant="dropdown"
-            title="Checkpoint"
-            subtitle="Choose the active art model and sampler."
-            :show-header="true"
+            :show-header="false"
             :show-controls="false"
             :show-status="false"
           />
@@ -69,31 +65,27 @@
         v-else-if="currentTab === 'art'"
         mode="art"
         variant="dashboard"
-        title="Art Servers"
-        subtitle="Image-capable engines, workflows, and visual chaos factories."
+        :show-header="false"
       />
 
       <server-gallery
         v-else-if="currentTab === 'text'"
         mode="text"
         variant="dashboard"
-        title="Text Servers"
-        subtitle="Chat-capable engines and OpenAI-compatible APIs."
+        :show-header="false"
       />
 
       <checkpoint-gallery
         v-else-if="currentTab === 'checkpoints'"
         variant="dashboard"
-        title="Checkpoints"
-        subtitle="Choose checkpoints, samplers, and verify the active backend model."
+        :show-header="false"
       />
 
       <server-gallery
         v-else-if="currentTab === 'all'"
         mode="all"
         variant="dashboard"
-        title="All Servers"
-        subtitle="Public servers, your servers, and everything if you are admin."
+        :show-header="false"
       />
 
       <server-interact v-else-if="currentTab === 'interact'" />
@@ -110,9 +102,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
-import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const dashboardKey = 'server' as const
 

@@ -21,8 +21,7 @@
           <server-gallery
             mode="art"
             variant="dropdown"
-            title="Art Server"
-            subtitle="Choose the image engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -36,9 +35,7 @@
 
           <checkpoint-gallery
             variant="dropdown"
-            title="Checkpoint"
-            subtitle="Choose the active model and sampler."
-            :show-header="true"
+            :show-header="false"
             :show-controls="false"
             :show-status="false"
             :auto-load="false"
@@ -46,8 +43,7 @@
 
           <art-gallery
             variant="dropdown"
-            title="Collection"
-            subtitle="Optionally choose where generated art should land."
+            :show-header="false"
             :show-controls="false"
             :compact="true"
           />
@@ -61,26 +57,51 @@
       <art-gallery
         v-else-if="currentTab === 'gallery'"
         variant="dashboard"
-        title="Art Gallery"
-        subtitle="Browse, select, upload, collect, and inspect generated art."
+        :show-header="false"
         :show-selected-panel="true"
       />
 
       <collection-gallery
         v-else-if="currentTab === 'collections'"
         variant="dashboard"
-        title="Collections"
-        subtitle="Browse, create, edit, merge, and inspect art collections."
+        :show-header="false"
       />
 
       <checkpoint-gallery
         v-else-if="currentTab === 'checkpoints'"
         variant="dashboard"
-        title="Checkpoints"
-        subtitle="Choose models, samplers, and verify the active backend model."
+        :show-header="false"
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-7">
+          <server-gallery
+            mode="art"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-5">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
 
       <art-interact v-else-if="currentTab === 'selected'" />
 

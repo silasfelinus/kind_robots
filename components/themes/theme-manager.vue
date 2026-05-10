@@ -1,38 +1,18 @@
 <!-- /components/content/themes/theme-manager.vue -->
 <template>
-  <div class="relative flex min-h-dvh flex-col overflow-hidden bg-base-300">
-    <!-- ── Header ──────────────────────────────────────────────────── -->
-    <header
-      class="flex shrink-0 flex-wrap items-center gap-4 border-b border-base-300 bg-base-100 px-5 py-3"
-    >
-      <!-- Brand -->
-      <div class="mr-auto flex items-center gap-2">
-        <span class="text-2xl leading-none text-amber-500">◐</span>
-        <span class="text-lg font-bold tracking-tight">Theme Manager</span>
-        <span class="self-end pb-0.5 font-mono text-[11px] opacity-40">
-          {{ allThemeCount }} themes
-        </span>
-      </div>
-
-      <!-- Tabs -->
-      <nav class="flex gap-1 rounded-xl border border-base-300 bg-base-200 p-1">
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-all"
-          :class="
-            activeMode === tab.id
-              ? 'bg-base-100 text-amber-500 shadow-sm'
-              : 'opacity-55 hover:bg-base-300 hover:opacity-85'
-          "
-          @click="activeMode = tab.id"
-        >
-          <span>{{ tab.icon }}</span>
-          <span class="hidden sm:inline">{{ tab.label }}</span>
-        </button>
-      </nav>
-
-      <!-- Active theme pill -->
+  <dashboard-shell
+    title="Theme Manager"
+    :summary="managerSummary"
+    :tabs="dashboardTabs"
+    :active-tab="activeTab"
+    :loading="isLoadingManager"
+    :error="managerError"
+    loading-message="Loading themes..."
+    nav-grid-class="xl:grid-cols-3"
+    @set-tab="setTab"
+    @refresh="refreshManagerData"
+  >
+    <template #actions>
       <span
         v-if="themeStore.currentTheme"
         class="flex items-center gap-1.5 rounded-full border border-amber-500 px-2.5 py-1 font-mono text-xs text-amber-500"
@@ -40,27 +20,27 @@
         <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
         {{ themeStore.currentTheme }}
       </span>
-    </header>
 
-    <!-- ── Body ────────────────────────────────────────────────────── -->
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <!-- ══ GALLERY ══════════════════════════════════════════════ -->
+      <span class="badge badge-neutral"> {{ allThemeCount }} themes </span>
+    </template>
+
+    <template #default="{ activeTab: currentTab }">
       <section
-        v-if="activeMode === 'gallery'"
-        class="flex flex-1 flex-col overflow-hidden"
+        v-if="currentTab === 'overview' || currentTab === 'gallery'"
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <!-- Search / filter bar -->
         <div
-          class="flex shrink-0 flex-wrap items-center gap-4 border-b border-base-300 bg-base-100 px-5 py-3"
+          class="flex shrink-0 flex-wrap items-center gap-4 border-b border-base-300 bg-base-200 px-4 py-3"
         >
           <input
             v-model="searchQuery"
-            class="input input-bordered input-sm min-w-44 flex-1 bg-base-200 focus:border-primary"
+            class="input input-bordered input-sm min-w-44 flex-1 rounded-xl bg-base-100 focus:border-primary"
             placeholder="Search themes…"
             type="search"
           />
+
           <label
-            class="flex cursor-pointer select-none items-center gap-2 text-sm opacity-70 hover:opacity-100"
+            class="flex cursor-pointer select-none items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm opacity-80 hover:opacity-100"
           >
             <input
               v-model="showDarkOnly"
@@ -71,10 +51,9 @@
           </label>
         </div>
 
-        <!-- Theme grid -->
         <div
           v-if="filteredDaisyThemes.length"
-          class="grid flex-1 gap-2 overflow-y-auto p-4 pb-8"
+          class="grid min-h-0 flex-1 gap-2 overflow-y-auto p-4 pb-8"
           style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr))"
         >
           <button
@@ -87,9 +66,9 @@
                 ? 'border-accent shadow-md'
                 : 'border-base-300 hover:border-accent/60 hover:shadow-sm'
             "
+            type="button"
             @click="applyTheme(theme)"
           >
-            <!-- Active badge -->
             <span
               v-if="themeStore.currentTheme === theme"
               class="absolute right-1.5 top-1.5 rounded bg-accent px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-accent-content"
@@ -97,14 +76,12 @@
               ✓
             </span>
 
-            <!-- Name -->
             <span
               class="w-full truncate text-center font-mono text-[11px] font-semibold text-base-content"
             >
               {{ theme }}
             </span>
 
-            <!-- Color circles -->
             <div class="flex gap-1">
               <span class="h-3.5 w-3.5 rounded-full bg-primary" />
               <span class="h-3.5 w-3.5 rounded-full bg-secondary" />
@@ -116,22 +93,27 @@
 
         <div
           v-else
-          class="flex flex-1 flex-col items-center justify-center gap-3 text-sm opacity-60"
+          class="flex min-h-80 flex-1 flex-col items-center justify-center gap-3 text-sm opacity-60"
         >
           <p>No themes match your search.</p>
-          <button class="btn btn-outline btn-sm" @click="searchQuery = ''">
+
+          <button
+            class="btn btn-outline btn-sm rounded-xl"
+            type="button"
+            @click="searchQuery = ''"
+          >
             Clear search
           </button>
         </div>
       </section>
-      <!-- ══ SHARED ════════════════════════════════════════════════ -->
+
       <section
-        v-if="activeMode === 'shared'"
-        class="flex flex-1 flex-col overflow-hidden"
+        v-else-if="currentTab === 'shared'"
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
         <div
           v-if="themeStore.sharedThemes.length"
-          class="grid flex-1 gap-3 overflow-y-auto p-5 pb-8"
+          class="grid min-h-0 flex-1 gap-3 overflow-y-auto p-5 pb-8"
           style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))"
         >
           <button
@@ -147,9 +129,9 @@
               background: swatchesFor(theme).base100,
               color: swatchesFor(theme).neutral,
             }"
+            type="button"
             @click="applySharedTheme(theme)"
           >
-            <!-- Active badge -->
             <span
               v-if="themeStore.currentTheme === theme.name"
               class="absolute right-1.5 top-1.5 z-10 rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wide text-white"
@@ -158,7 +140,6 @@
               Active
             </span>
 
-            <!-- Mini diorama -->
             <div
               class="flex flex-col gap-1.5 p-2.5"
               :style="{ background: swatchesFor(theme).base200 }"
@@ -173,11 +154,11 @@
                   :key="label"
                   class="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
                   :style="{ background: color }"
-                  >{{ label }}</span
                 >
+                  {{ label }}
+                </span>
               </div>
 
-              <!-- Progress bar -->
               <div
                 class="h-1.5 w-full overflow-hidden rounded-full"
                 :style="{ background: swatchesFor(theme).base300 }"
@@ -188,7 +169,6 @@
                 />
               </div>
 
-              <!-- Input mock -->
               <div
                 class="h-4 rounded border"
                 :style="{
@@ -198,7 +178,6 @@
               />
             </div>
 
-            <!-- No-values fallback strip -->
             <div
               v-if="!swatchesFor(theme).hasColors"
               class="flex h-2.5 items-center justify-center"
@@ -207,7 +186,6 @@
               <span class="font-mono text-[8px] opacity-40">no preview</span>
             </div>
 
-            <!-- Color swatch strip -->
             <div v-else class="flex h-2.5">
               <span
                 class="flex-1"
@@ -231,7 +209,6 @@
               />
             </div>
 
-            <!-- Name + meta -->
             <div
               class="border-t p-2"
               :style="{
@@ -242,31 +219,36 @@
               <div class="truncate text-center font-mono text-xs font-bold">
                 {{ theme.name }}
               </div>
+
               <div
                 v-if="theme.tagline"
                 class="truncate text-center text-[10px] opacity-60"
               >
                 {{ theme.tagline }}
               </div>
+
               <div class="mt-1 flex justify-center gap-1">
                 <span
                   v-if="theme.isPublic"
                   class="rounded px-1 py-0.5 font-mono text-[9px] opacity-60"
                   :style="{ background: swatchesFor(theme).base200 }"
-                  >Public</span
                 >
+                  Public
+                </span>
+
                 <span
                   v-if="theme.prefersDark"
                   class="rounded px-1 py-0.5 font-mono text-[9px] text-white"
                   :style="{ background: swatchesFor(theme).neutral }"
-                  >Dark</span
                 >
+                  Dark
+                </span>
               </div>
             </div>
 
-            <!-- Edit button -->
             <button
               class="absolute left-1.5 top-1.5 rounded border bg-white/80 px-1.5 py-0.5 font-mono text-[10px] font-bold opacity-0 transition-opacity group-hover:opacity-80 hover:opacity-100!"
+              type="button"
               @click.stop="editSharedTheme(theme)"
             >
               Edit
@@ -274,29 +256,34 @@
           </button>
         </div>
 
-        <!-- Empty state -->
         <div
           v-else
-          class="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center opacity-60"
+          class="flex min-h-80 flex-1 flex-col items-center justify-center gap-3 p-8 text-center opacity-60"
         >
           <div class="text-5xl opacity-20">◐</div>
+
           <p class="text-lg font-bold">No shared themes yet</p>
+
           <p class="max-w-xs text-sm">
             Create a custom theme in Forge and save it as public.
           </p>
-          <button class="btn btn-outline btn-sm" @click="activeMode = 'forge'">
+
+          <button
+            class="btn btn-outline btn-sm rounded-xl"
+            type="button"
+            @click="setTab('custom')"
+          >
             Go to Forge
           </button>
         </div>
       </section>
-      <!-- ══ FORGE ═════════════════════════════════════════════════ -->
+
       <section
-        v-if="activeMode === 'forge'"
-        class="flex flex-1 flex-col overflow-hidden"
+        v-else-if="currentTab === 'custom'"
+        class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
-        <!-- Forge top bar: load-existing select + mode label -->
         <div
-          class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-base-300 bg-base-100 px-5 py-3"
+          class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-base-300 bg-base-200 px-5 py-3"
         >
           <div class="flex items-center gap-2.5">
             <span
@@ -304,6 +291,7 @@
             >
               {{ themeStore.themeForm.id ? 'Editing' : 'Creating new theme' }}
             </span>
+
             <span
               v-if="themeStore.themeForm.id && themeStore.themeForm.name"
               class="text-sm font-bold text-amber-500"
@@ -311,19 +299,23 @@
               {{ themeStore.themeForm.name }}
             </span>
           </div>
+
           <div class="flex items-center gap-2">
             <button
               v-if="themeStore.themeForm.id"
-              class="btn btn-ghost btn-xs"
+              class="btn btn-ghost btn-xs rounded-xl"
+              type="button"
               @click="newTheme"
             >
               New theme instead
             </button>
+
             <select
-              class="select select-bordered select-sm bg-base-200 focus:border-amber-500"
+              class="select select-bordered select-sm rounded-xl bg-base-100 focus:border-amber-500"
               @change="onForgeSelect"
             >
-              <option value="">— Edit existing theme —</option>
+              <option value="">Edit existing theme</option>
+
               <option
                 v-for="theme in themeStore.sharedThemes"
                 :key="theme.id"
@@ -335,103 +327,54 @@
           </div>
         </div>
 
-        <!--
-          Delegate to <add-theme />.
-          It reads/writes themeStore.themeForm directly and owns all the
-          color pickers, save logic, preview, randomize, and error state.
-          :key="forgeKey" forces a remount when loading an existing theme
-          so add-theme's onMounted doesn't clobber our pre-populated form.
-        -->
-        <div class="flex-1 overflow-y-auto">
+        <div class="min-h-0 flex-1 overflow-y-auto">
           <add-theme :key="forgeKey" />
         </div>
       </section>
-    </div>
 
-    <!-- ── Loading overlay ─────────────────────────────────────────── -->
-    <transition name="tm-fade">
       <div
-        v-if="isLoading"
-        class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-base-100/85"
+        v-else
+        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
-        <span class="loading loading-spinner loading-md text-amber-500" />
-        <span class="font-mono text-sm">Loading themes…</span>
+        Unknown theme tab: {{ currentTab }}
       </div>
-    </transition>
-  </div>
+    </template>
+  </dashboard-shell>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useThemeStore, type Theme } from '@/stores/themeStore'
+import { computed, onMounted, ref } from 'vue'
 import { useMilestoneStore } from '@/stores/milestoneStore'
+import { useNavStore } from '@/stores/navStore'
+import { useThemeStore, type Theme } from '@/stores/themeStore'
 
-type Mode = 'gallery' | 'shared' | 'forge'
+const dashboardKey = 'theme' as const
 
 const themeStore = useThemeStore()
 const milestoneStore = useMilestoneStore()
+const navStore = useNavStore()
 
-// ── State ────────────────────────────────────────────────────────
-const activeMode = ref<Mode>('gallery')
 const searchQuery = ref('')
 const showDarkOnly = ref(false)
-const isLoading = ref(false)
-// Bumping forgeKey forces <add-theme> to remount when we load an existing
-// theme, so its onMounted/initializeThemeFormIfNeeded sees the pre-set form.
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
 const forgeKey = ref(0)
 
-// ── Shared-theme card helpers ─────────────────────────────────────
+const dashboardTabs = computed(() => {
+  return [
+    ...navStore.getDashboardTabs(dashboardKey),
+    {
+      key: 'shared',
+      label: 'Shared',
+      icon: 'kind-icon:gallery',
+      title: 'Shared Themes',
+      summary: 'Browse public custom themes from the community.',
+    },
+  ]
+})
 
-function safeValues(val: unknown): Record<string, string> {
-  return typeof val === 'object' && val !== null && !Array.isArray(val)
-    ? (val as Record<string, string>)
-    : {}
-}
+const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
-// Map canonical names → every alias we might see stored
-const KEY_ALIASES: Record<string, string[]> = {
-  primary: ['primary', '--primary', 'p', '--p'],
-  secondary: ['secondary', '--secondary', 's', '--s'],
-  accent: ['accent', '--accent', 'a', '--a'],
-  neutral: ['neutral', '--neutral', 'n', '--n'],
-  'base-100': ['base-100', '--base-100', 'b1', '--b1', 'base100'],
-  'base-200': ['base-200', '--base-200', 'b2', '--b2', 'base200'],
-  'base-300': ['base-300', '--base-300', 'b3', '--b3', 'base300'],
-}
-
-function resolveKey(
-  vals: Record<string, string>,
-  canonical: string,
-): string | undefined {
-  for (const alias of KEY_ALIASES[canonical] ?? [canonical, `--${canonical}`]) {
-    if (vals[alias] !== undefined) return vals[alias]
-  }
-}
-
-// Replace topSwatches with this in <script setup>
-function swatchesFor(theme: Theme) {
-  const vals = safeValues(theme.values)
-  const get = (canonical: string) => resolveKey(vals, canonical)
-  return {
-    primary: get('primary') ?? '#570df8',
-    secondary: get('secondary') ?? '#f000b8',
-    accent: get('accent') ?? '#1fb2a5',
-    neutral: get('neutral') ?? '#3d4451',
-    base100: get('base-100') ?? '#ffffff',
-    base200: get('base-200') ?? '#e5e7eb',
-    base300: get('base-300') ?? '#d1d5db',
-    hasColors: Object.keys(vals).length > 0,
-  }
-}
-
-// ── Tabs ─────────────────────────────────────────────────────────
-const tabs = [
-  { id: 'gallery' as Mode, label: 'Gallery', icon: '◫' },
-  { id: 'shared' as Mode, label: 'Shared', icon: '◈' },
-  { id: 'forge' as Mode, label: 'Forge', icon: '◐' },
-]
-
-// ── Computed ─────────────────────────────────────────────────────
 const DARK_THEMES = new Set([
   'dark',
   'night',
@@ -451,23 +394,101 @@ const DARK_THEMES = new Set([
 const filteredDaisyThemes = computed(() => {
   let list = (themeStore.daisyuiThemes ?? []) as string[]
   const q = searchQuery.value.trim().toLowerCase()
-  if (q) list = list.filter((t) => t.toLowerCase().includes(q))
-  if (showDarkOnly.value) list = list.filter((t) => DARK_THEMES.has(t))
+
+  if (q) {
+    list = list.filter((theme) => theme.toLowerCase().includes(q))
+  }
+
+  if (showDarkOnly.value) {
+    list = list.filter((theme) => DARK_THEMES.has(theme))
+  }
+
   return list
 })
 
-const allThemeCount = computed(
-  () =>
+const allThemeCount = computed(() => {
+  return (
     (themeStore.daisyuiThemes?.length ?? 0) +
-    (themeStore.sharedThemes?.length ?? 0),
-)
+    (themeStore.sharedThemes?.length ?? 0)
+  )
+})
 
-const SWATCH_KEYS = ['primary', 'secondary', 'accent', 'neutral', 'base-100']
+const managerSummary = computed(() => {
+  const currentTheme = themeStore.currentTheme || 'no active theme'
+  const daisyCount = themeStore.daisyuiThemes?.length ?? 0
+  const sharedCount = themeStore.sharedThemes?.length ?? 0
 
-// ── Actions ───────────────────────────────────────────────────────
+  return `${daisyCount} DaisyUI themes and ${sharedCount} shared themes loaded. Active theme: ${currentTheme}.`
+})
+
+function safeValues(value: unknown): Record<string, string> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, string>)
+    : {}
+}
+
+const KEY_ALIASES: Record<string, string[]> = {
+  primary: ['primary', '--primary', 'p', '--p'],
+  secondary: ['secondary', '--secondary', 's', '--s'],
+  accent: ['accent', '--accent', 'a', '--a'],
+  neutral: ['neutral', '--neutral', 'n', '--n'],
+  'base-100': ['base-100', '--base-100', 'b1', '--b1', 'base100'],
+  'base-200': ['base-200', '--base-200', 'b2', '--b2', 'base200'],
+  'base-300': ['base-300', '--base-300', 'b3', '--b3', 'base300'],
+}
+
+function resolveKey(
+  values: Record<string, string>,
+  canonical: string,
+): string | undefined {
+  for (const alias of KEY_ALIASES[canonical] ?? [canonical, `--${canonical}`]) {
+    if (values[alias] !== undefined) return values[alias]
+  }
+}
+
+function swatchesFor(theme: Theme) {
+  const values = safeValues(theme.values)
+
+  const get = (canonical: string) => {
+    return resolveKey(values, canonical)
+  }
+
+  return {
+    primary: get('primary') ?? '#570df8',
+    secondary: get('secondary') ?? '#f000b8',
+    accent: get('accent') ?? '#1fb2a5',
+    neutral: get('neutral') ?? '#3d4451',
+    base100: get('base-100') ?? '#ffffff',
+    base200: get('base-200') ?? '#e5e7eb',
+    base300: get('base-300') ?? '#d1d5db',
+    hasColors: Object.keys(values).length > 0,
+  }
+}
+
+function setTab(tab: string) {
+  navStore.setDashboardTab(dashboardKey, tab)
+}
+
+async function refreshManagerData() {
+  isLoadingManager.value = true
+  managerError.value = null
+
+  try {
+    await Promise.all([navStore.initialize(), themeStore.getThemes()])
+  } catch (error) {
+    managerError.value =
+      error instanceof Error ? error.message : 'Failed to refresh themes.'
+  } finally {
+    isLoadingManager.value = false
+  }
+}
+
 async function applyTheme(name: string) {
   const result = await themeStore.setActiveTheme(name)
-  if (result.success) milestoneStore.rewardMilestone(9)
+
+  if (result.success) {
+    milestoneStore.rewardMilestone(9)
+  }
 }
 
 async function applySharedTheme(theme: Theme) {
@@ -482,7 +503,10 @@ async function applySharedTheme(theme: Theme) {
     room: theme.room ?? '',
     values: safeValues(theme.values),
   })
-  if (result.success) milestoneStore.rewardMilestone(9)
+
+  if (result.success) {
+    milestoneStore.rewardMilestone(9)
+  }
 }
 
 function loadThemeIntoForm(theme: Theme) {
@@ -494,13 +518,12 @@ function loadThemeIntoForm(theme: Theme) {
   themeStore.themeForm.tagline = theme.tagline
   themeStore.themeForm.room = theme.room ?? ''
   themeStore.themeForm.values = safeValues(theme.values)
-  // Remount <add-theme> so its onMounted doesn't wipe the form we just set
   forgeKey.value++
 }
 
 function editSharedTheme(theme: Theme) {
   loadThemeIntoForm(theme)
-  activeMode.value = 'forge'
+  setTab('custom')
 }
 
 function newTheme() {
@@ -508,33 +531,22 @@ function newTheme() {
   forgeKey.value++
 }
 
-function onForgeSelect(e: Event) {
-  const id = Number((e.target as HTMLSelectElement).value)
+function onForgeSelect(event: Event) {
+  const target = event.target as HTMLSelectElement
+  const id = Number(target.value)
+
   if (!id) return
-  const theme = themeStore.sharedThemes.find((t: Theme) => t.id === id)
-  if (theme)
+
+  const theme = themeStore.sharedThemes.find((item: Theme) => item.id === id)
+
+  if (theme) {
     loadThemeIntoForm(theme)
-    // Reset select visually back to placeholder
-  ;(e.target as HTMLSelectElement).value = ''
+  }
+
+  target.value = ''
 }
 
-// ── Lifecycle ─────────────────────────────────────────────────────
 onMounted(async () => {
-  if (!themeStore.sharedThemes.length) {
-    await themeStore.getThemes()
-  }
+  await refreshManagerData()
 })
 </script>
-
-<style scoped>
-/* Only thing scoped CSS is needed for: the enter/leave transitions.
-   Everything else is Tailwind. */
-.tm-fade-enter-active,
-.tm-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.tm-fade-enter-from,
-.tm-fade-leave-to {
-  opacity: 0;
-}
-</style>

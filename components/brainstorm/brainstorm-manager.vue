@@ -1,57 +1,31 @@
 <!-- /components/content/brainstorm/brainstorm-manager.vue -->
 <template>
-  <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-300 p-3 text-base-content"
+  <dashboard-shell
+    title="Brainstorm Workshop"
+    :summary="managerSummary"
+    :tabs="tabs"
+    :active-tab="activeTab"
+    :loading="isLoadingManager"
+    :error="managerError"
+    loading-message="Loading pitches, prompts, art hooks, and idea goblin infrastructure..."
+    nav-grid-class="xl:grid-cols-4"
+    @set-tab="setTab"
+    @refresh="refreshManagerData"
   >
-    <header
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
-      <div
-        class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
-      >
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <Icon name="kind-icon:brain" class="h-7 w-7 text-primary" />
+    <template #actions>
+      <span v-if="selectedPitch" class="badge badge-primary">
+        {{ selectedPitch.title || 'Selected pitch' }}
+      </span>
 
-            <h1 class="text-2xl font-black text-primary">Brainstorm Manager</h1>
+      <span :class="sourceBadgeClass(activeCreationSource)">
+        {{ activeCreationSource }}
+      </span>
+    </template>
 
-            <span v-if="selectedPitch" class="badge badge-primary">
-              {{ selectedPitch.title || 'Selected pitch' }}
-            </span>
-
-            <span :class="sourceBadgeClass(activeCreationSource)">
-              {{ activeCreationSource }}
-            </span>
-          </div>
-
-          <p class="mt-1 text-sm text-base-content/65">
-            Build big ideas, harvest prompt lines, promote good fragments, and
-            feed the art goblin only quality snacks.
-          </p>
-        </div>
-
-        <nav class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          <button
-            v-for="section in sections"
-            :key="section.key"
-            type="button"
-            class="btn btn-sm rounded-2xl"
-            :class="
-              activeSection === section.key
-                ? 'btn-primary text-white'
-                : 'btn-outline'
-            "
-            @click="activeSection = section.key"
-          >
-            <Icon :name="section.icon" class="h-4 w-4" />
-            {{ section.label }}
-          </button>
-        </nav>
-      </div>
-
+    <template #default="{ activeTab: currentTab }">
       <div
         v-if="statusMessage"
-        class="rounded-2xl border p-3 text-sm"
+        class="mb-3 rounded-2xl border p-3 text-sm"
         :class="
           lastActionSuccess
             ? 'border-success/40 bg-success/10 text-success'
@@ -63,550 +37,592 @@
 
       <div
         v-if="pitchStore.lastError || promptStore.lastError || artStore.error"
-        class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+        class="mb-3 rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
       >
         {{ pitchStore.lastError || promptStore.lastError || artStore.error }}
       </div>
-    </header>
 
-    <section
-      v-if="activeSection === 'builder'"
-      class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(0,1fr)_340px]"
-    >
-      <main
-        class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      <section
+        v-if="currentTab === 'overview' || currentTab === 'interact'"
+        class="grid min-h-0 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]"
       >
-        <div class="shrink-0 border-b border-base-300 p-3">
-          <div
-            class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px_170px]"
-          >
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Title</span>
-              </span>
-
-              <input
-                v-model="pitchForm.title"
-                class="input input-bordered rounded-2xl bg-base-200 text-base font-bold"
-                placeholder="Vanderbilt Lacrosse"
-                @input="markEdited"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Pitch Type</span>
-              </span>
-
-              <select
-                v-model="pitchForm.PitchType"
-                class="select select-bordered rounded-2xl bg-base-200"
-                @change="markEdited"
-              >
-                <option
-                  v-for="type in pitchStore.pitchTypes"
-                  :key="type"
-                  :value="type"
-                >
-                  {{ type }}
-                </option>
-              </select>
-            </label>
-
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Source</span>
-              </span>
-
-              <select
-                v-model="activeCreationSource"
-                class="select select-bordered rounded-2xl bg-base-200"
-                @change="markEdited"
-              >
-                <option
-                  v-for="source in creationSources"
-                  :key="source"
-                  :value="source"
-                >
-                  {{ source }}
-                </option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <div class="min-h-0 space-y-4 overflow-y-auto p-3">
-          <section class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Core Pitch</span>
-              </span>
-
-              <textarea
-                v-model="pitchForm.pitch"
-                class="textarea textarea-bordered min-h-36 rounded-2xl bg-base-200"
-                placeholder="A wildly specific idea worth expanding..."
-                @input="markEdited"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Generator Instructions</span>
-              </span>
-
-              <textarea
-                v-model="pitchForm.description"
-                class="textarea textarea-bordered min-h-36 rounded-2xl bg-base-200"
-                placeholder="Tone, rules, vibe, forbidden goblin behavior..."
-                @input="markEdited"
-              />
-            </label>
-          </section>
-
-          <section class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Flavor Text</span>
-              </span>
-
-              <textarea
-                v-model="pitchForm.flavorText"
-                class="textarea textarea-bordered min-h-32 rounded-2xl bg-base-200"
-                placeholder="A little card sparkle..."
-                @input="markEdited"
-              />
-            </label>
-
-            <div class="form-control">
-              <span class="label">
-                <span class="label-text font-bold">Image Prompt</span>
-              </span>
-
-              <div class="grid gap-2">
-                <textarea
-                  v-model="pitchForm.imagePrompt"
-                  class="textarea textarea-bordered min-h-32 rounded-2xl bg-base-200"
-                  placeholder="Optional art prompt..."
-                  @input="markEdited"
-                />
-
-                <button
-                  type="button"
-                  class="btn btn-accent rounded-2xl"
-                  :disabled="isGeneratingArt || !pitchForm.imagePrompt?.trim()"
-                  @click="generateArtImage"
-                >
-                  <span
-                    v-if="isGeneratingArt"
-                    class="loading loading-spinner loading-sm"
-                  />
-                  <Icon v-else name="kind-icon:palette" class="h-4 w-4" />
-                  Get Art Image
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 class="text-lg font-bold">
-                  Sample Lines
-                  <span class="badge badge-neutral badge-sm ml-1">
-                    {{ examples.length }}
-                  </span>
-                </h2>
-
-                <p class="text-xs text-base-content/60">
-                  These examples guide the next brainstorm pass.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                class="btn btn-xs btn-outline rounded-2xl"
-                @click="addExample"
-              >
-                <Icon name="kind-icon:plus" class="h-3 w-3" />
-                Add Line
-              </button>
-            </div>
-
-            <TransitionGroup
-              name="example-list"
-              tag="div"
-              class="grid grid-cols-1 gap-2 lg:grid-cols-2"
+        <main
+          class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        >
+          <div class="shrink-0 border-b border-base-300 p-3">
+            <div
+              class="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_180px_170px]"
             >
-              <div
-                v-for="(_, index) in examples"
-                :key="`example-${index}`"
-                class="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
-              >
-                <span
-                  class="pt-2.5 text-right font-mono text-xs text-base-content/40"
-                >
-                  {{ index + 1 }}
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Title</span>
                 </span>
 
-                <textarea
-                  v-model="examples[index]"
-                  class="textarea textarea-bordered textarea-sm min-h-20 resize-y rounded-xl bg-base-200 font-mono text-xs"
-                  :placeholder="`Sample line ${index + 1}`"
+                <input
+                  v-model="pitchForm.title"
+                  class="input input-bordered rounded-2xl bg-base-200 text-base font-bold"
+                  placeholder="Vanderbilt Lacrosse"
                   @input="markEdited"
                 />
-
-                <button
-                  type="button"
-                  class="btn btn-xs btn-square btn-ghost rounded-xl text-error opacity-70 transition-opacity group-hover:opacity-100"
-                  @click="removeExample(index)"
-                >
-                  <Icon name="kind-icon:x" class="h-3 w-3" />
-                </button>
-              </div>
-            </TransitionGroup>
-          </section>
-
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 class="text-lg font-bold">AI Candidates</h2>
-
-                <p class="text-xs text-base-content/60">
-                  Accept, reject, resubmit, or promote the best lines.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                class="btn btn-info rounded-2xl"
-                :disabled="pitchStore.loading || !canGenerate"
-                @click="generateBrainstorm(false)"
-              >
-                <span
-                  v-if="pitchStore.loading"
-                  class="loading loading-spinner loading-sm"
-                />
-                <Icon v-else name="kind-icon:brain" class="h-4 w-4" />
-                {{ pitchStore.loading ? 'Generating...' : 'Generate Lines' }}
-              </button>
-            </div>
-
-            <div v-if="candidates.length" class="space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="font-bold text-info">
-                  Candidates
-                  <span class="badge badge-info badge-sm ml-1">
-                    {{ pendingCandidates.length }} pending
-                  </span>
-                </h3>
-
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-info rounded-2xl"
-                    :disabled="!pendingCandidates.length"
-                    @click="acceptAllPendingCandidates"
-                  >
-                    Accept Pending
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-warning rounded-2xl"
-                    :disabled="!pendingCandidates.length"
-                    @click="rejectAllCandidates"
-                  >
-                    Reject Pending
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-primary rounded-2xl"
-                    :disabled="
-                      pitchStore.loading ||
-                      !canGenerate ||
-                      !hasRejectedCandidates
-                    "
-                    @click="generateBrainstorm(true)"
-                  >
-                    Resubmit Rejected
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-secondary rounded-2xl"
-                    :disabled="!acceptedCandidates.length"
-                    @click="saveLinesAsPitch"
-                  >
-                    Save Accepted
-                  </button>
-                </div>
-              </div>
+              </label>
 
               <label class="form-control">
                 <span class="label">
-                  <span class="label-text text-xs font-bold">
-                    Rejection Feedback
+                  <span class="label-text font-bold">Pitch Type</span>
+                </span>
+
+                <select
+                  v-model="pitchForm.PitchType"
+                  class="select select-bordered rounded-2xl bg-base-200"
+                  @change="markEdited"
+                >
+                  <option
+                    v-for="type in pitchStore.pitchTypes"
+                    :key="type"
+                    :value="type"
+                  >
+                    {{ type }}
+                  </option>
+                </select>
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Source</span>
+                </span>
+
+                <select
+                  v-model="activeCreationSource"
+                  class="select select-bordered rounded-2xl bg-base-200"
+                  @change="markEdited"
+                >
+                  <option
+                    v-for="source in creationSources"
+                    :key="source"
+                    :value="source"
+                  >
+                    {{ source }}
+                  </option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="min-h-0 space-y-4 overflow-y-auto p-3">
+            <section class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Core Pitch</span>
+                </span>
+
+                <textarea
+                  v-model="pitchForm.pitch"
+                  class="textarea textarea-bordered min-h-36 rounded-2xl bg-base-200"
+                  placeholder="A wildly specific idea worth expanding..."
+                  @input="markEdited"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">
+                    Generator Instructions
                   </span>
                 </span>
 
                 <textarea
-                  v-model="rejectionFeedback"
-                  class="textarea textarea-bordered min-h-24 rounded-2xl bg-base-100 text-sm"
-                  placeholder="Tell the bot what went wrong and what to do instead..."
+                  v-model="pitchForm.description"
+                  class="textarea textarea-bordered min-h-36 rounded-2xl bg-base-200"
+                  placeholder="Tone, rules, vibe, forbidden goblin behavior..."
+                  @input="markEdited"
+                />
+              </label>
+            </section>
+
+            <section class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Flavor Text</span>
+                </span>
+
+                <textarea
+                  v-model="pitchForm.flavorText"
+                  class="textarea textarea-bordered min-h-32 rounded-2xl bg-base-200"
+                  placeholder="A little card sparkle..."
+                  @input="markEdited"
                 />
               </label>
 
-              <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
-                <article
-                  v-for="candidate in candidates"
-                  :key="candidate.id"
-                  class="space-y-2 rounded-2xl border border-base-300 bg-base-100 p-3"
-                  :class="{
-                    'border-success/60 bg-success/10':
-                      candidate.status === 'accepted',
-                    'border-error/60 bg-error/10 opacity-80':
-                      candidate.status === 'rejected',
-                  }"
-                >
-                  <div class="flex items-start justify-between gap-2">
-                    <button
-                      type="button"
-                      class="min-w-0 flex-1 text-left text-sm leading-relaxed"
-                      @click="useCandidateAsPrompt(candidate.text)"
-                    >
-                      {{ candidate.text }}
-                    </button>
+              <div class="form-control">
+                <span class="label">
+                  <span class="label-text font-bold">Image Prompt</span>
+                </span>
 
-                    <span
-                      class="badge badge-xs"
-                      :class="{
-                        'badge-ghost': candidate.status === 'pending',
-                        'badge-success': candidate.status === 'accepted',
-                        'badge-error': candidate.status === 'rejected',
-                      }"
-                    >
-                      {{ candidate.status }}
-                    </span>
-                  </div>
-
+                <div class="grid gap-2">
                   <textarea
-                    v-if="candidate.status === 'rejected'"
-                    v-model="candidate.feedback"
-                    class="textarea textarea-bordered textarea-xs min-h-16 rounded-xl bg-base-200 text-xs"
-                    placeholder="Optional feedback for this rejected line..."
+                    v-model="pitchForm.imagePrompt"
+                    class="textarea textarea-bordered min-h-32 rounded-2xl bg-base-200"
+                    placeholder="Optional art prompt..."
+                    @input="markEdited"
                   />
 
-                  <div class="flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-accent rounded-2xl"
+                    :disabled="
+                      isGeneratingArt || !pitchForm.imagePrompt?.trim()
+                    "
+                    @click="generateArtImage"
+                  >
+                    <span
+                      v-if="isGeneratingArt"
+                      class="loading loading-spinner loading-sm"
+                    />
+                    <Icon v-else name="kind-icon:palette" class="h-4 w-4" />
+                    Get Art Image
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div
+                class="mb-3 flex flex-wrap items-center justify-between gap-2"
+              >
+                <div>
+                  <h2 class="text-lg font-bold">
+                    Sample Lines
+                    <span class="badge badge-neutral badge-sm ml-1">
+                      {{ examples.length }}
+                    </span>
+                  </h2>
+
+                  <p class="text-xs text-base-content/60">
+                    These examples guide the next brainstorm pass.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-xs btn-outline rounded-2xl"
+                  @click="addExample"
+                >
+                  <Icon name="kind-icon:plus" class="h-3 w-3" />
+                  Add Line
+                </button>
+              </div>
+
+              <TransitionGroup
+                name="example-list"
+                tag="div"
+                class="grid grid-cols-1 gap-2 lg:grid-cols-2"
+              >
+                <div
+                  v-for="(_, index) in examples"
+                  :key="`example-${index}`"
+                  class="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
+                >
+                  <span
+                    class="pt-2.5 text-right font-mono text-xs text-base-content/40"
+                  >
+                    {{ index + 1 }}
+                  </span>
+
+                  <textarea
+                    v-model="examples[index]"
+                    class="textarea textarea-bordered textarea-sm min-h-20 resize-y rounded-xl bg-base-200 font-mono text-xs"
+                    :placeholder="`Sample line ${index + 1}`"
+                    @input="markEdited"
+                  />
+
+                  <button
+                    type="button"
+                    class="btn btn-xs btn-square btn-ghost rounded-xl text-error opacity-70 transition-opacity group-hover:opacity-100"
+                    @click="removeExample(index)"
+                  >
+                    <Icon name="kind-icon:x" class="h-3 w-3" />
+                  </button>
+                </div>
+              </TransitionGroup>
+            </section>
+
+            <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div
+                class="mb-3 flex flex-wrap items-center justify-between gap-2"
+              >
+                <div>
+                  <h2 class="text-lg font-bold">AI Candidates</h2>
+
+                  <p class="text-xs text-base-content/60">
+                    Accept, reject, resubmit, or promote the best lines.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-info rounded-2xl"
+                  :disabled="pitchStore.loading || !canGenerate"
+                  @click="generateBrainstorm(false)"
+                >
+                  <span
+                    v-if="pitchStore.loading"
+                    class="loading loading-spinner loading-sm"
+                  />
+                  <Icon v-else name="kind-icon:brain" class="h-4 w-4" />
+                  {{ pitchStore.loading ? 'Generating...' : 'Generate Lines' }}
+                </button>
+              </div>
+
+              <div v-if="candidates.length" class="space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <h3 class="font-bold text-info">
+                    Candidates
+                    <span class="badge badge-info badge-sm ml-1">
+                      {{ pendingCandidates.length }} pending
+                    </span>
+                  </h3>
+
+                  <div class="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="btn btn-xs btn-primary rounded-xl"
-                      :disabled="candidate.status === 'accepted'"
-                      @click="acceptCandidate(candidate.id)"
+                      class="btn btn-xs btn-info rounded-2xl"
+                      :disabled="!pendingCandidates.length"
+                      @click="acceptAllPendingCandidates"
                     >
-                      Keep
+                      Accept Pending
                     </button>
 
                     <button
                       type="button"
-                      class="btn btn-xs btn-error btn-outline rounded-xl"
-                      :disabled="candidate.status === 'rejected'"
-                      @click="rejectCandidate(candidate.id)"
+                      class="btn btn-xs btn-warning rounded-2xl"
+                      :disabled="!pendingCandidates.length"
+                      @click="rejectAllCandidates"
                     >
-                      Reject
+                      Reject Pending
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-primary rounded-2xl"
+                      :disabled="
+                        pitchStore.loading ||
+                        !canGenerate ||
+                        !hasRejectedCandidates
+                      "
+                      @click="generateBrainstorm(true)"
+                    >
+                      Resubmit Rejected
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-secondary rounded-2xl"
+                      :disabled="!acceptedCandidates.length"
+                      @click="saveLinesAsPitch"
+                    >
+                      Save Accepted
                     </button>
                   </div>
-                </article>
-              </div>
-            </div>
+                </div>
 
-            <div
-              v-else
-              class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm text-base-content/55"
-            >
-              No candidates yet. Press Generate Lines and summon the idea moths.
-            </div>
-          </section>
-        </div>
+                <label class="form-control">
+                  <span class="label">
+                    <span class="label-text text-xs font-bold">
+                      Rejection Feedback
+                    </span>
+                  </span>
 
-        <footer
-          class="flex shrink-0 flex-col gap-2 border-t border-base-300 bg-base-200/60 p-3 sm:flex-row sm:justify-end"
-        >
-          <button
-            type="button"
-            class="btn btn-ghost rounded-2xl"
-            @click="startFreshPitch"
-          >
-            Reset
-          </button>
+                  <textarea
+                    v-model="rejectionFeedback"
+                    class="textarea textarea-bordered min-h-24 rounded-2xl bg-base-100 text-sm"
+                    placeholder="Tell the bot what went wrong and what to do instead..."
+                  />
+                </label>
 
-          <button
-            v-if="selectedPitch"
-            type="button"
-            class="btn btn-error btn-outline rounded-2xl"
-            :disabled="isSaving"
-            @click="deleteSelectedPitch"
-          >
-            <Icon name="kind-icon:trash" class="h-4 w-4" />
-            Delete
-          </button>
+                <div class="grid grid-cols-1 gap-2 lg:grid-cols-2">
+                  <article
+                    v-for="candidate in candidates"
+                    :key="candidate.id"
+                    class="space-y-2 rounded-2xl border border-base-300 bg-base-100 p-3"
+                    :class="{
+                      'border-success/60 bg-success/10':
+                        candidate.status === 'accepted',
+                      'border-error/60 bg-error/10 opacity-80':
+                        candidate.status === 'rejected',
+                    }"
+                  >
+                    <div class="flex items-start justify-between gap-2">
+                      <button
+                        type="button"
+                        class="min-w-0 flex-1 text-left text-sm leading-relaxed"
+                        @click="useCandidateAsPrompt(candidate.text)"
+                      >
+                        {{ candidate.text }}
+                      </button>
 
-          <button
-            type="button"
-            class="btn btn-primary rounded-2xl text-white"
-            :disabled="isSaving || !canSave"
-            @click="savePitch"
-          >
-            <span v-if="isSaving" class="loading loading-spinner loading-sm" />
-            <Icon v-else name="kind-icon:save" class="h-4 w-4" />
-            {{ selectedPitch ? 'Update Pitch' : 'Create Pitch' }}
-          </button>
-        </footer>
-      </main>
+                      <span
+                        class="badge badge-xs"
+                        :class="{
+                          'badge-ghost': candidate.status === 'pending',
+                          'badge-success': candidate.status === 'accepted',
+                          'badge-error': candidate.status === 'rejected',
+                        }"
+                      >
+                        {{ candidate.status }}
+                      </span>
+                    </div>
 
-      <aside
-        class="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
-      >
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <h2 class="mb-2 text-lg font-bold">Settings</h2>
+                    <textarea
+                      v-if="candidate.status === 'rejected'"
+                      v-model="candidate.feedback"
+                      class="textarea textarea-bordered textarea-xs min-h-16 rounded-xl bg-base-200 text-xs"
+                      placeholder="Optional feedback for this rejected line..."
+                    />
 
-          <div class="grid gap-3">
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text text-xs font-bold">Requests</span>
-              </span>
+                    <div class="flex flex-wrap justify-end gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-primary rounded-xl"
+                        :disabled="candidate.status === 'accepted'"
+                        @click="acceptCandidate(candidate.id)"
+                      >
+                        Keep
+                      </button>
 
-              <input
-                v-model.number="pitchStore.numberOfRequests"
-                type="number"
-                min="1"
-                max="100"
-                class="input input-bordered input-sm rounded-2xl bg-base-100"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label">
-                <span class="label-text text-xs font-bold">Max Tokens</span>
-              </span>
-
-              <input
-                v-model.number="pitchStore.maxTokens"
-                type="number"
-                min="100"
-                max="4000"
-                step="100"
-                class="input input-bordered input-sm rounded-2xl bg-base-100"
-              />
-            </label>
-
-            <label class="form-control">
-              <div class="mb-1 flex items-center justify-between">
-                <span class="text-xs font-bold">Temperature</span>
-
-                <span class="font-mono text-xs font-bold text-primary">
-                  {{ pitchStore.temperature.toFixed(1) }}
-                </span>
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-error btn-outline rounded-xl"
+                        :disabled="candidate.status === 'rejected'"
+                        @click="rejectCandidate(candidate.id)"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </article>
+                </div>
               </div>
 
-              <input
-                v-model.number="pitchStore.temperature"
-                type="range"
-                min="0.1"
-                max="1.5"
-                step="0.1"
-                class="range range-primary range-sm"
-              />
-            </label>
-
-            <div class="grid grid-cols-2 gap-2">
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+              <div
+                v-else
+                class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm text-base-content/55"
               >
-                <span class="label-text text-sm font-bold">Public</span>
-
-                <input
-                  v-model="pitchForm.isPublic"
-                  type="checkbox"
-                  class="toggle toggle-success toggle-sm"
-                  @change="markEdited"
-                />
-              </label>
-
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
-              >
-                <span class="label-text text-sm font-bold">Mature</span>
-
-                <input
-                  v-model="pitchForm.isMature"
-                  type="checkbox"
-                  class="toggle toggle-warning toggle-sm"
-                  @change="markEdited"
-                />
-              </label>
-            </div>
+                No candidates yet. Press Generate Lines and summon the idea
+                moths.
+              </div>
+            </section>
           </div>
-        </section>
 
-        <section
-          class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
-        >
-          <div class="mb-2 flex items-center justify-between gap-2">
-            <h2 class="text-lg font-bold">Prompt Preview</h2>
+          <footer
+            class="flex shrink-0 flex-col gap-2 border-t border-base-300 bg-base-200/60 p-3 sm:flex-row sm:justify-end"
+          >
+            <button
+              type="button"
+              class="btn btn-ghost rounded-2xl"
+              @click="startFreshPitch"
+            >
+              Reset
+            </button>
+
+            <button
+              v-if="selectedPitch"
+              type="button"
+              class="btn btn-error btn-outline rounded-2xl"
+              :disabled="isSaving"
+              @click="deleteSelectedPitch"
+            >
+              <Icon name="kind-icon:trash" class="h-4 w-4" />
+              Delete
+            </button>
 
             <button
               type="button"
-              class="btn btn-xs btn-ghost rounded-xl"
-              @click="sendPreviewToPromptStore"
+              class="btn btn-primary rounded-2xl text-white"
+              :disabled="isSaving || !canSave"
+              @click="savePitch"
             >
-              Use
+              <span
+                v-if="isSaving"
+                class="loading loading-spinner loading-sm"
+              />
+              <Icon v-else name="kind-icon:save" class="h-4 w-4" />
+              {{ selectedPitch ? 'Update Pitch' : 'Create Pitch' }}
             </button>
-          </div>
+          </footer>
+        </main>
 
-          <pre
-            class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-100 p-3 text-xs text-base-content/70"
-            >{{ promptPreview }}</pre
+        <aside
+          class="flex min-h-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <h2 class="mb-2 text-lg font-bold">Settings</h2>
+
+            <div class="grid gap-3">
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text text-xs font-bold">Requests</span>
+                </span>
+
+                <input
+                  v-model.number="pitchStore.numberOfRequests"
+                  type="number"
+                  min="1"
+                  max="100"
+                  class="input input-bordered input-sm rounded-2xl bg-base-100"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text text-xs font-bold">Max Tokens</span>
+                </span>
+
+                <input
+                  v-model.number="pitchStore.maxTokens"
+                  type="number"
+                  min="100"
+                  max="4000"
+                  step="100"
+                  class="input input-bordered input-sm rounded-2xl bg-base-100"
+                />
+              </label>
+
+              <label class="form-control">
+                <div class="mb-1 flex items-center justify-between">
+                  <span class="text-xs font-bold">Temperature</span>
+
+                  <span class="font-mono text-xs font-bold text-primary">
+                    {{ pitchStore.temperature.toFixed(1) }}
+                  </span>
+                </div>
+
+                <input
+                  v-model.number="pitchStore.temperature"
+                  type="range"
+                  min="0.1"
+                  max="1.5"
+                  step="0.1"
+                  class="range range-primary range-sm"
+                />
+              </label>
+
+              <div class="grid grid-cols-2 gap-2">
+                <label
+                  class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+                >
+                  <span class="label-text text-sm font-bold">Public</span>
+
+                  <input
+                    v-model="pitchForm.isPublic"
+                    type="checkbox"
+                    class="toggle toggle-success toggle-sm"
+                    @change="markEdited"
+                  />
+                </label>
+
+                <label
+                  class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+                >
+                  <span class="label-text text-sm font-bold">Mature</span>
+
+                  <input
+                    v-model="pitchForm.isMature"
+                    type="checkbox"
+                    class="toggle toggle-warning toggle-sm"
+                    @change="markEdited"
+                  />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
           >
-        </section>
-      </aside>
-    </section>
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <h2 class="text-lg font-bold">Prompt Preview</h2>
 
-    <section
-      v-else-if="activeSection === 'pitches'"
-      class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
-    >
-      <pitch-gallery
-        title="Pitch Gallery"
-        subtitle="Browse, edit, select, or generate from big ideas."
-      />
-    </section>
+              <button
+                type="button"
+                class="btn btn-xs btn-ghost rounded-xl"
+                @click="sendPreviewToPromptStore"
+              >
+                Use
+              </button>
+            </div>
 
-    <section
-      v-else
-      class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
-    >
-      <server-gallery
-        class="h-full w-full"
-        mode="text"
-        variant="dashboard"
-        title="Brainstorm Server"
-        subtitle="Choose the text engine for idea generation."
-      />
-    </section>
-  </section>
+            <pre
+              class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-100 p-3 text-xs text-base-content/70"
+              >{{ promptPreview }}</pre
+            >
+          </section>
+        </aside>
+      </section>
+
+      <section
+        v-else-if="currentTab === 'pitches'"
+        class="min-h-0 rounded-2xl border border-base-300 bg-base-200 p-3"
+      >
+        <pitch-gallery :show-header="false" />
+      </section>
+
+      <section
+        v-else-if="currentTab === 'prompts'"
+        class="min-h-0 rounded-2xl border border-base-300 bg-base-200 p-3"
+      >
+        <prompt-gallery :show-header="false" />
+      </section>
+
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-7">
+          <server-gallery
+            class="h-full w-full"
+            mode="text"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-5">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
+
+      <div
+        v-else
+        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      >
+        Unknown brainstorm tab: {{ currentTab }}
+      </div>
+    </template>
+  </dashboard-shell>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
+import { useNavStore } from '@/stores/navStore'
 import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
+import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
-type BrainstormSection = 'builder' | 'pitches' | 'prompts' | 'server'
 type CreationSourceType = 'HUMAN' | 'AI' | 'HYBRID' | 'UPLOAD' | 'UNKNOWN'
 type CandidateStatus = 'pending' | 'accepted' | 'rejected'
 
@@ -631,21 +647,20 @@ type PromptStoreWithCreate = ReturnType<typeof usePromptStore> & {
   ) => Promise<ActionResult<Prompt>>
 }
 
+const dashboardKey = 'brainstorm' as const
+
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore() as PromptStoreWithCreate
 const artStore = useArtStore()
+const navStore = useNavStore()
+const serverStore = useServerStore()
 const userStore = useUserStore()
 
-const sections: Array<{
-  key: BrainstormSection
-  label: string
-  icon: string
-}> = [
-  { key: 'builder', label: 'Builder', icon: 'kind-icon:plus' },
-  { key: 'pitches', label: 'Pitches', icon: 'kind-icon:gallery' },
-  { key: 'prompts', label: 'Prompts', icon: 'kind-icon:quote' },
-  { key: 'server', label: 'Server', icon: 'kind-icon:server' },
-]
+const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
+const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
+
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
 
 const creationSources: CreationSourceType[] = [
   'HUMAN',
@@ -673,7 +688,6 @@ const defaultBrainstormSeed = {
   ],
 }
 
-const activeSection = ref<BrainstormSection>('builder')
 const examples = ref<string[]>(defaultExamples())
 const candidates = ref<BrainstormCandidate[]>([])
 const rejectionFeedback = ref(
@@ -731,21 +745,64 @@ const promptPreview = computed(() => {
   return buildPromptFragmentString()
 })
 
-onMounted(async () => {
-  await Promise.all([
-    pitchStore.initialize({
-      fetchRemote: true,
-    }),
-    promptStore.initialize({
-      fetchRemote: true,
-    }),
-    artStore.initialize({
-      hydrateImages: false,
-    }),
-  ])
+const managerSummary = computed(() => {
+  const pitchCount = pitchStore.pitches?.length ?? 0
+  const promptCount = promptStore.prompts?.length ?? 0
+  const selected = selectedPitch.value?.title || 'no pitch selected'
 
-  promptStore.setPromptsFromString(buildPromptFragmentString())
+  return `${pitchCount} pitches and ${promptCount} prompts loaded. Selected: ${selected}.`
 })
+
+function setTab(tab: string) {
+  navStore.setDashboardTab(dashboardKey, tab)
+
+  if (tab === 'servers' || tab === 'overview' || tab === 'interact') {
+    serverStore.setCurrentServerMode('text')
+    return
+  }
+
+  serverStore.setCurrentServerMode('selected')
+}
+
+async function loadManagerData(force = false) {
+  isLoadingManager.value = true
+  managerError.value = null
+
+  try {
+    await Promise.all([
+      navStore.initialize(),
+      pitchStore.initialize({
+        force,
+        fetchRemote: true,
+      }),
+      promptStore.initialize({
+        force,
+        fetchRemote: true,
+      }),
+      artStore.initialize({
+        force,
+        hydrateImages: false,
+      }),
+      serverStore.initialize({
+        force,
+        fetchRemote: true,
+      }),
+    ])
+
+    promptStore.setPromptsFromString(buildPromptFragmentString())
+  } catch (error) {
+    managerError.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to load brainstorm manager.'
+  } finally {
+    isLoadingManager.value = false
+  }
+}
+
+async function refreshManagerData() {
+  await loadManagerData(true)
+}
 
 watch(
   selectedPitch,
@@ -1321,6 +1378,11 @@ function setAction(message: string, success = true) {
   statusMessage.value = message
   lastActionSuccess.value = success
 }
+
+onMounted(async () => {
+  await loadManagerData()
+  setTab(activeTab.value)
+})
 </script>
 
 <style scoped>

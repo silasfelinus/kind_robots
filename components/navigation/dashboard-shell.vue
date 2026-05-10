@@ -1,22 +1,66 @@
 <!-- /components/content/navigation/dashboard-shell.vue -->
 <template>
   <div
-    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-4"
+    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
     <header
-      class="relative mb-4 flex shrink-0 flex-col gap-3"
+      class="relative mb-4 flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md sm:p-4"
       :class="navZClass"
     >
-      <div class="min-w-0 text-center">
-        <h1
-          class="inline-block rounded-2xl bg-primary px-3 py-2 text-2xl font-bold text-primary-content md:text-3xl"
-        >
-          {{ title }}
-        </h1>
+      <div
+        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+      >
+        <div class="min-w-0">
+          <p
+            v-if="title"
+            class="mb-1 text-xs font-bold uppercase tracking-[0.24em] text-base-content/50"
+          >
+            {{ title }}
+          </p>
 
-        <p v-if="summary" class="mt-2 text-sm text-base-content/70">
-          {{ summary }}
-        </p>
+          <h1
+            class="inline-flex items-center gap-2 rounded-2xl bg-primary px-3 py-2 text-2xl font-bold text-primary-content md:text-3xl"
+          >
+            <Icon
+              :name="activeTabConfig.icon || fallbackIcon"
+              class="h-6 w-6"
+            />
+            {{ activeTitle }}
+          </h1>
+
+          <p
+            v-if="activeSummary"
+            class="mt-2 max-w-4xl text-sm text-base-content/70 sm:text-base"
+          >
+            {{ activeSummary }}
+          </p>
+
+          <p
+            v-else-if="summary"
+            class="mt-2 max-w-4xl text-sm text-base-content/70 sm:text-base"
+          >
+            {{ summary }}
+          </p>
+        </div>
+
+        <div class="flex shrink-0 flex-wrap items-center gap-2">
+          <slot
+            name="actions"
+            :active-tab="normalizedActiveTab"
+            :active-tab-config="activeTabConfig"
+          />
+
+          <button
+            v-if="showRefresh"
+            class="btn btn-sm btn-secondary rounded-xl"
+            type="button"
+            :disabled="loading"
+            @click="emit('refresh')"
+          >
+            <Icon name="kind-icon:refresh" class="h-4 w-4" />
+            {{ refreshLabel }}
+          </button>
+        </div>
       </div>
 
       <nav
@@ -53,34 +97,8 @@
     </div>
 
     <main
-      class="relative z-0 min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+      class="relative z-0 min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md sm:p-4"
     >
-      <div
-        v-if="showSectionHeader"
-        class="relative z-10 mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div>
-          <h2 class="text-xl font-bold text-base-content">
-            {{ activeTitle }}
-          </h2>
-
-          <p v-if="activeSummary" class="text-sm text-base-content/70">
-            {{ activeSummary }}
-          </p>
-        </div>
-
-        <button
-          v-if="showRefresh"
-          class="btn btn-sm btn-secondary rounded-xl"
-          type="button"
-          :disabled="loading"
-          @click="emit('refresh')"
-        >
-          <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          {{ refreshLabel }}
-        </button>
-      </div>
-
       <slot
         :active-tab="normalizedActiveTab"
         :active-tab-config="activeTabConfig"
@@ -106,7 +124,6 @@ const props = withDefaults(
     error?: string | null
     showRefresh?: boolean
     refreshLabel?: string
-    showSectionHeader?: boolean
     navGridClass?: string
     navZClass?: string
   }>(),
@@ -120,7 +137,6 @@ const props = withDefaults(
     error: null,
     showRefresh: true,
     refreshLabel: 'Refresh DB',
-    showSectionHeader: true,
     navGridClass: 'xl:grid-cols-6',
     navZClass: 'z-40',
   },
@@ -158,5 +174,7 @@ const activeTitle = computed(() => {
   return activeTabConfig.value.title || activeTabConfig.value.label
 })
 
-const activeSummary = computed(() => activeTabConfig.value.summary || '')
+const activeSummary = computed(() => {
+  return activeTabConfig.value.summary || props.summary || ''
+})
 </script>

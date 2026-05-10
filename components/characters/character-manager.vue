@@ -20,8 +20,7 @@
         <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
           <character-gallery
             variant="dropdown"
-            title="Character"
-            subtitle="Choose the cast member."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -32,8 +31,7 @@
 
           <scenario-gallery
             variant="dropdown"
-            title="Scenario"
-            subtitle="Optionally choose the trouble."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -45,8 +43,7 @@
 
           <reward-gallery
             variant="dropdown"
-            title="Reward"
-            subtitle="Optionally choose the plot grenade."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -56,8 +53,7 @@
 
           <dream-gallery
             variant="dropdown"
-            title="Dream"
-            subtitle="Optionally choose a collaborative dream."
+            :show-header="false"
             :show-controls="false"
             :show-images="true"
             :show-card-actions="false"
@@ -70,8 +66,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the chat engine."
+            :show-header="false"
             :show-controls="false"
             :show-card-actions="false"
             :show-descriptions="true"
@@ -92,32 +87,56 @@
       <character-gallery
         v-else-if="currentTab === 'characters'"
         variant="dashboard"
-        title="Character Gallery"
-        subtitle="Select, add, edit, clone, delete, or chat with characters."
+        :show-header="false"
       />
 
       <scenario-gallery
         v-else-if="currentTab === 'scenarios'"
         variant="dashboard"
-        title="Scenario Gallery"
-        subtitle="Pair characters with a story setting."
+        :show-header="false"
       />
 
       <reward-gallery
         v-else-if="currentTab === 'rewards'"
         variant="dashboard"
-        title="Reward Gallery"
-        subtitle="Give characters items, powers, curses, or suspicious snacks."
+        :show-header="false"
       />
 
       <dream-gallery
         v-else-if="currentTab === 'dreams'"
         variant="dashboard"
-        title="Dream Gallery"
-        subtitle="Use characters inside collaborative dream sessions."
+        :show-header="false"
       />
 
-      <server-manager v-else-if="currentTab === 'servers'" />
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="min-h-0 xl:col-span-7">
+          <server-gallery
+            mode="text"
+            variant="dashboard"
+            :show-header="false"
+            :show-controls="true"
+            :show-card-actions="true"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="true"
+            :show-use-buttons="true"
+            :show-workflow="true"
+            :show-defaults="true"
+            :show-status="true"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-5">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
 
       <character-interact v-else-if="currentTab === 'interact'" />
 

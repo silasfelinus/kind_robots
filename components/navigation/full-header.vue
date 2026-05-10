@@ -3,17 +3,17 @@
   <header
     ref="headerRoot"
     :key="headerKey"
-    class="isolate flex h-full w-full min-w-0 items-stretch gap-1 overflow-visible z-30"
+    class="isolate z-30 flex h-full w-full min-w-0 items-stretch gap-1 overflow-visible"
   >
     <button
       type="button"
-      class="group relative z-0 flex h-full shrink-0 overflow-hidden pointer-events-auto rounded-2xl transition-all duration-150 ease-in-out hover:brightness-110 hover:scale-[1.02] active:scale-[0.97] active:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-1"
+      class="group pointer-events-auto relative z-0 flex h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-150 ease-in-out hover:scale-[1.02] hover:brightness-110 active:scale-[0.97] active:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-1"
       :style="avatarColumnStyle"
       :title="avatarToggleTitle"
       @click="handleAvatarClick"
     >
       <page-image
-        class="m-0 block h-full w-full object-cover rounded-2xl object-center p-0"
+        class="m-0 block h-full w-full rounded-2xl object-cover object-center p-0"
       />
 
       <div
@@ -27,7 +27,6 @@
         </span>
       </div>
 
-      <!-- Subtle hover overlay -->
       <div
         class="pointer-events-none absolute inset-0 rounded-2xl bg-white/0 transition-colors duration-150 group-hover:bg-white/8"
       />
@@ -56,15 +55,10 @@ import {
   type CSSProperties,
 } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
-import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
-
-function handleAvatarClick() {
-  displayStore.toggleHeader()
-}
 
 const headerRoot = ref<HTMLElement | null>(null)
 let ro: ResizeObserver | null = null
@@ -74,6 +68,7 @@ const headerState = computed(() => displayStore.headerState)
 const isCompactHeader = computed(() => headerState.value === 'compact')
 const hasHeaderContent = computed(() => headerState.value !== 'hidden')
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
+
 const avatarToggleTitle = computed(() => {
   if (headerState.value === 'open') return 'Compact header'
   if (headerState.value === 'compact') return 'Hide header'
@@ -81,11 +76,8 @@ const avatarToggleTitle = computed(() => {
 })
 
 const prependIcons = computed(() =>
-  headerState.value === 'open' ||
-  headerState.value === 'compact' ||
-  headerState.value === 'priority'
+  hasHeaderContent.value
     ? [
-        // In the prependIcons computed, change the login entry label:
         {
           id: '__login',
           component: 'login-icon',
@@ -116,26 +108,11 @@ const prependIcons = computed(() =>
     : [],
 )
 
-const leftPriority = computed(
-  () => displayStore.leftSidebarModeLabel === 'priority',
-)
-const rightPriority = computed(
-  () => displayStore.rightSidebarModeLabel === 'priority',
-)
-const hasPrioritySidebar = computed(
-  () => leftPriority.value || rightPriority.value,
-)
-
 const avatarColumnStyle = computed<CSSProperties>(() => {
-  if (isCompactHeader.value && hasPrioritySidebar.value) {
-    return { flexBasis: '12%', maxWidth: '18%' }
-  }
   if (isCompactHeader.value) {
     return { flexBasis: '14%', maxWidth: '22%' }
   }
-  if (hasPrioritySidebar.value) {
-    return { flexBasis: '12%', maxWidth: '18%' }
-  }
+
   return { flexBasis: '15%', maxWidth: '24%' }
 })
 
@@ -145,10 +122,12 @@ const headerKey = computed(() =>
     viewportSize.value,
     displayStore.sidebarLeftState,
     displayStore.sidebarRightState,
-    displayStore.leftSidebarModeLabel,
-    displayStore.rightSidebarModeLabel,
   ].join('-'),
 )
+
+function handleAvatarClick() {
+  displayStore.toggleHeader()
+}
 
 function fireHeaderResized() {
   window.dispatchEvent(new CustomEvent('kr:header-resized'))
@@ -172,8 +151,6 @@ watch(
     viewportSize.value,
     displayStore.sidebarLeftState,
     displayStore.sidebarRightState,
-    displayStore.leftSidebarModeLabel,
-    displayStore.rightSidebarModeLabel,
   ],
   async () => {
     await nextTick()

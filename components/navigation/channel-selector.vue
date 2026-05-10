@@ -97,7 +97,7 @@ const channels: ChannelRoute[] = [
   {
     key: 'lab',
     label: 'Lab',
-    path: '/lab',
+    path: '/wonderlab',
   },
   {
     key: 'brainstorm',

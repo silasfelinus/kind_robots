@@ -24,7 +24,7 @@
     >
       <div class="h-full overflow-y-auto">
         <slot name="right">
-          <gallery-gallery />
+          <smart-panel />
         </slot>
       </div>
     </aside>

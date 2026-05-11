@@ -55,10 +55,13 @@
 
       <img
         v-else
+        :key="imageKey"
         :src="computedArtImage"
         :alt="artAltText"
         class="h-full w-full object-cover transition-transform hover:scale-105"
-        loading="lazy"
+        :loading="imageLoadingMode"
+        decoding="async"
+        @error="handleImageError"
       />
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
@@ -87,6 +90,16 @@
       >
         <Icon name="kind-icon:check" class="h-4 w-4" />
       </div>
+
+      <button
+        v-if="imageLoadFailed && showDebug"
+        class="absolute bottom-2 left-2 rounded-full bg-warning px-3 py-1 text-xs font-bold text-warning-content shadow"
+        type="button"
+        title="Retry image"
+        @click.stop="loadArtImage"
+      >
+        Retry image
+      </button>
     </div>
 
     <div class="flex min-w-0 flex-1 flex-col gap-2">
@@ -289,6 +302,7 @@ const localArtImage = ref<ArtImage | null>(props.artImage)
 const localCheckpointResource = ref<Resource | null>(null)
 const loadingImage = ref(false)
 const loadingCheckpoint = ref(false)
+const imageLoadFailed = ref(false)
 
 const activeSelected = computed(() => {
   return props.selected || artStore.currentArt?.id === props.art.id
@@ -312,6 +326,19 @@ const cfgDisplay = computed(() => {
 
 const artAltText = computed(() => {
   return props.art.promptString || `Artwork ${props.art.id}`
+})
+
+const imageLoadingMode = computed<'eager' | 'lazy'>(() => {
+  return props.compact ? 'eager' : 'lazy'
+})
+
+const imageKey = computed(() => {
+  return [
+    props.art.id,
+    props.art.artImageId || 'no-image-id',
+    props.artImage?.id || 'no-prop-image',
+    imageLoadFailed.value ? 'fallback' : 'primary',
+  ].join('-')
 })
 
 const checkpointDisplay = computed(() => {
@@ -355,22 +382,16 @@ const checkpointResourceIdDisplay = computed(() => {
     : `#${props.art.checkpointResourceId}`
 })
 
-const debugArt = computed(() => {
-  return {
-    ...props.art,
-    resolvedCheckpointResource: checkpointResource.value,
-    resolvedCheckpointDisplay: checkpointDisplay.value,
-  }
-})
-
 const computedArtImage = computed(() => {
-  if (localArtImage.value?.imageData) {
-    return `data:image/${localArtImage.value.fileType};base64,${localArtImage.value.imageData}`
+  if (imageLoadFailed.value) {
+    return props.fallbackImage
   }
 
-  if (props.artImage?.imageData) {
-    return `data:image/${props.artImage.fileType};base64,${props.artImage.imageData}`
-  }
+  const localImage = createImageDataUrl(localArtImage.value)
+  if (localImage) return localImage
+
+  const propImage = createImageDataUrl(props.artImage)
+  if (propImage) return propImage
 
   if (props.art.imagePath) {
     return props.art.imagePath
@@ -382,6 +403,61 @@ const computedArtImage = computed(() => {
 
   return props.fallbackImage
 })
+
+const debugArt = computed(() => {
+  return {
+    ...props.art,
+    localImageId: localArtImage.value?.id,
+    localImageFileType: localArtImage.value?.fileType,
+    propImageId: props.artImage?.id,
+    propImageFileType: props.artImage?.fileType,
+    resolvedImageSourceStart: computedArtImage.value.slice(0, 120),
+    imageLoadFailed: imageLoadFailed.value,
+    imageLoadingMode: imageLoadingMode.value,
+    resolvedCheckpointResource: checkpointResource.value,
+    resolvedCheckpointDisplay: checkpointDisplay.value,
+  }
+})
+
+function normalizeImageMimeType(fileType?: string | null) {
+  if (!fileType) return 'image/png'
+
+  const cleaned = fileType.trim().toLowerCase()
+
+  if (cleaned.startsWith('image/')) {
+    return cleaned
+  }
+
+  if (cleaned === 'jpg') {
+    return 'image/jpeg'
+  }
+
+  if (cleaned === 'jpeg') {
+    return 'image/jpeg'
+  }
+
+  if (cleaned === 'png') {
+    return 'image/png'
+  }
+
+  if (cleaned === 'webp') {
+    return 'image/webp'
+  }
+
+  if (cleaned === 'gif') {
+    return 'image/gif'
+  }
+
+  return `image/${cleaned}`
+}
+
+function createImageDataUrl(image?: ArtImage | null) {
+  if (!image?.imageData) return ''
+
+  const mimeType = normalizeImageMimeType(image.fileType)
+
+  return `data:${mimeType};base64,${image.imageData}`
+}
 
 function cleanCheckpointName(value: string) {
   return (
@@ -396,6 +472,8 @@ function cleanCheckpointName(value: string) {
 }
 
 async function loadArtImage() {
+  imageLoadFailed.value = false
+
   if (!props.autoLoadImage) return
 
   if (props.artImage?.imageData) {
@@ -409,16 +487,28 @@ async function loadArtImage() {
   }
 
   loadingImage.value = true
+  localArtImage.value = null
 
   try {
     const fetched = await artStore.getArtImageById(props.art.artImageId)
 
     if (fetched?.imageData) {
       localArtImage.value = fetched
+      return
     }
+
+    imageLoadFailed.value = true
+  } catch {
+    imageLoadFailed.value = true
   } finally {
     loadingImage.value = false
   }
+}
+
+function handleImageError() {
+  if (computedArtImage.value === props.fallbackImage) return
+
+  imageLoadFailed.value = true
 }
 
 async function loadCheckpointResource() {
@@ -494,12 +584,13 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.art.artImageId, props.artImage?.id],
+  () => [props.art.id, props.art.artImageId, props.artImage?.id],
   async (
-    [artImageId, artImagePropId],
-    [previousArtImageId, previousArtImagePropId],
+    [artId, artImageId, artImagePropId],
+    [previousArtId, previousArtImageId, previousArtImagePropId],
   ) => {
     if (
+      artId === previousArtId &&
       artImageId === previousArtImageId &&
       artImagePropId === previousArtImagePropId
     ) {

@@ -135,20 +135,15 @@ export const useDisplayStore = defineStore('displayStore', () => {
   }
 
   const footerPanelHeight = computed(() => {
-    if (!footerContentVisible.value) return 0
-    return footerHeight.value + promptOffset.value
+    return 0
   })
 
   const effectiveFooterHeight = computed(() => {
-    return footerPanelHeight.value
+    return 0
   })
 
   const bottomDockHeight = computed(() => {
-    return (
-      bottomHeaderDockHeight.value +
-      channelPanelHeight.value +
-      effectiveFooterHeight.value
-    )
+    return bottomHeaderDockHeight.value + channelPanelHeight.value
   })
 
   const contentBottomOffset = computed(() => {
@@ -172,9 +167,9 @@ export const useDisplayStore = defineStore('displayStore', () => {
   })
 
   function normalizeSidebarState(value: DisplayState): SidebarStage {
-  if (value === 'hidden' || value === 'disabled') return 'hidden'
-  return 'open'
-} 
+    if (value === 'hidden' || value === 'disabled') return 'hidden'
+    return 'open'
+  }
 
   function normalizeFooterState(value: DisplayState): FooterStage {
     if (value === 'hidden') return 'hidden'
@@ -208,7 +203,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
   const leftSidebarPriority = computed(() => false)
 
-const rightSidebarPriority = computed(() => false)
+  const rightSidebarPriority = computed(() => false)
 
   const channelPanelStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
@@ -229,26 +224,26 @@ const rightSidebarPriority = computed(() => false)
   })
 
   const sidebarLeftWidth = computed(() => {
-  const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
-    small: { hidden: 0, open: 40 },
-    medium: { hidden: 0, open: 35 },
-    large: { hidden: 0, open: 30 },
-    extraLarge: { hidden: 0, open: 22 },
-  }
+    const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
+      small: { hidden: 0, open: 40 },
+      medium: { hidden: 0, open: 35 },
+      large: { hidden: 0, open: 30 },
+      extraLarge: { hidden: 0, open: 22 },
+    }
 
-  return widths[state.viewportSize][leftSidebarStage.value]
-})
+    return widths[state.viewportSize][leftSidebarStage.value]
+  })
 
-const sidebarRightWidth = computed(() => {
-  const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
-    small: { hidden: 0, open: 32 },
-    medium: { hidden: 0, open: 35 },
-    large: { hidden: 0, open: 30 },
-    extraLarge: { hidden: 0, open: 22 },
-  }
+  const sidebarRightWidth = computed(() => {
+    const widths: Record<ViewportSize, Record<SidebarStage, number>> = {
+      small: { hidden: 0, open: 32 },
+      medium: { hidden: 0, open: 35 },
+      large: { hidden: 0, open: 30 },
+      extraLarge: { hidden: 0, open: 22 },
+    }
 
-  return widths[state.viewportSize][rightSidebarStage.value]
-})
+    return widths[state.viewportSize][rightSidebarStage.value]
+  })
   const headerHeight = computed(() => {
     if (state.headerState === 'hidden') return 0
 
@@ -322,11 +317,10 @@ const sidebarRightWidth = computed(() => {
   })
 
   const footerContentVisible = computed(() => {
-    return footerStage.value !== 'hidden' && footerStage.value !== 'disabled'
+    return false
   })
-
   const footerHeight = computed(() => {
-    return footerLayout[footerStage.value][state.viewportSize]
+    return 0
   })
 
   const footerControlBottom = computed(() => {
@@ -408,8 +402,6 @@ const sidebarRightWidth = computed(() => {
     return 100 - mainContentLeft.value - mainContentRightInset.value
   })
 
-  
-
   const headerDockedBottom = computed(() => state.navDock === 'bottom')
   const headerDockedTop = computed(() => state.navDock === 'top')
 
@@ -446,61 +438,59 @@ const sidebarRightWidth = computed(() => {
       : 0
   })
 
-  
   const headerWidth = computed(() => {
     return Math.max(0, 100 - headerLeftInset.value - headerRightInset.value)
   })
 
-  
-const headerLeftInset = computed(() => {
-  return sectionPaddingSize.value
-})
+  const headerLeftInset = computed(() => {
+    return sectionPaddingSize.value
+  })
 
-const headerRightInset = computed(() => {
-  return sectionPaddingSize.value
-})
+  const headerRightInset = computed(() => {
+    return sectionPaddingSize.value
+  })
 
-const footerLeftInset = computed(() => {
-  return sectionPaddingSize.value
-})
+  const footerLeftInset = computed(() => {
+    return sectionPaddingSize.value
+  })
 
-const footerRightInset = computed(() => {
-  return sectionPaddingSize.value
-})
+  const footerRightInset = computed(() => {
+    return sectionPaddingSize.value
+  })
 
   const footerWidth = computed(() => {
     return Math.max(0, 100 - footerLeftInset.value - footerRightInset.value)
   })
 
   const rightToggleStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const isHidden = rightSidebarStage.value === 'hidden'
-  const sidebarTop = topDockHeight.value + padding * 2
-  const seam = isHidden ? padding : padding + sidebarRightWidth.value
+    const padding = sectionPaddingSize.value
+    const isHidden = rightSidebarStage.value === 'hidden'
+    const sidebarTop = topDockHeight.value + padding * 2
+    const seam = isHidden ? padding : padding + sidebarRightWidth.value
 
-  return {
-    position: 'fixed',
-    top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
-    right: `${seam}vw`,
-    transform: 'translate(50%, -50%)',
-    zIndex: '30',
-  }
-})
+    return {
+      position: 'fixed',
+      top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
+      right: `${seam}vw`,
+      transform: 'translate(50%, -50%)',
+      zIndex: '30',
+    }
+  })
 
   const leftToggleStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const isHidden = leftSidebarStage.value === 'hidden'
-  const sidebarTop = topDockHeight.value + padding * 2
-  const seam = isHidden ? padding : padding + sidebarLeftWidth.value
+    const padding = sectionPaddingSize.value
+    const isHidden = leftSidebarStage.value === 'hidden'
+    const sidebarTop = topDockHeight.value + padding * 2
+    const seam = isHidden ? padding : padding + sidebarLeftWidth.value
 
-  return {
-    position: 'fixed',
-    top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
-    left: `${seam}vw`,
-    transform: 'translate(-50%, -50%)',
-    zIndex: '30',
-  }
-})
+    return {
+      position: 'fixed',
+      top: `calc(var(--vh) * ${sidebarTop + sidebarContentHeight.value / 2})`,
+      left: `${seam}vw`,
+      transform: 'translate(-50%, -50%)',
+      zIndex: '30',
+    }
+  })
 
   const headerToggleStyle = computed<CSSProperties>(() => ({
     position: 'fixed',
@@ -543,64 +533,64 @@ const footerRightInset = computed(() => {
   }))
 
   const cornerPanelStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const topOffset = topDockHeight.value + padding * 2
+    const padding = sectionPaddingSize.value
+    const topOffset = topDockHeight.value + padding * 2
 
-  return {
-    position: 'fixed',
-    top: `calc(var(--vh) * ${topOffset})`,
-    right: `calc(${padding}vw + 0.75rem)`,
-    left: 'auto',
-    width: 'max-content',
-    zIndex: '30',
-  }
-})
+    return {
+      position: 'fixed',
+      top: `calc(var(--vh) * ${topOffset})`,
+      right: `calc(${padding}vw + 0.75rem)`,
+      left: 'auto',
+      width: 'max-content',
+      zIndex: '30',
+    }
+  })
 
   const showCornerPanel = computed(() => {
-  return state.showCorner && rightSidebarStage.value === 'open'
-})
+    return state.showCorner && rightSidebarStage.value === 'open'
+  })
 
-const leftSidebarStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const topOffset = topDockHeight.value + padding * 2
+  const leftSidebarStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
+    const topOffset = topDockHeight.value + padding * 2
 
-  if (!sidebarLeftVisible.value) {
+    if (!sidebarLeftVisible.value) {
+      return {
+        top: `calc(var(--vh) * ${topOffset})`,
+        left: `${padding}vw`,
+        width: '0px',
+        height: '0px',
+      }
+    }
+
     return {
       top: `calc(var(--vh) * ${topOffset})`,
       left: `${padding}vw`,
-      width: '0px',
-      height: '0px',
+      width: `${sidebarLeftWidth.value}vw`,
+      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
     }
-  }
+  })
 
-  return {
-    top: `calc(var(--vh) * ${topOffset})`,
-    left: `${padding}vw`,
-    width: `${sidebarLeftWidth.value}vw`,
-    height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
-  }
-})
+  const rightSidebarStyle = computed<CSSProperties>(() => {
+    const padding = sectionPaddingSize.value
+    const topOffset = topDockHeight.value + padding * 2
 
-const rightSidebarStyle = computed<CSSProperties>(() => {
-  const padding = sectionPaddingSize.value
-  const topOffset = topDockHeight.value + padding * 2
+    if (!sidebarRightVisible.value) {
+      return {
+        top: `calc(var(--vh) * ${topOffset})`,
+        right: `${padding}vw`,
+        width: '0px',
+        height: '0px',
+      }
+    }
 
-  if (!sidebarRightVisible.value) {
     return {
       top: `calc(var(--vh) * ${topOffset})`,
       right: `${padding}vw`,
-      width: '0px',
-      height: '0px',
+      width: `${sidebarRightWidth.value}vw`,
+      height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
     }
-  }
-
-  return {
-    top: `calc(var(--vh) * ${topOffset})`,
-    right: `${padding}vw`,
-    width: `${sidebarRightWidth.value}vw`,
-    height: `calc(var(--vh) * ${sidebarContentHeight.value})`,
-  }
-})
+  })
 
   const headerStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
@@ -651,7 +641,6 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
   const leftSidebarModeLabel = computed(() => leftSidebarStage.value)
   const rightSidebarModeLabel = computed(() => rightSidebarStage.value)
 
-  
   function getSidebarKey(side: LogicalSide): SidebarStateKey {
     return side === 'left' ? 'sidebarLeftState' : 'sidebarRightState'
   }
@@ -661,16 +650,12 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
   }
 
   function setSidebarStage(side: LogicalSide, stage: SidebarStage) {
-  const key = getSidebarKey(side)
-  state[key] = stage === 'open' ? 'open' : 'hidden'
-}
+    const key = getSidebarKey(side)
+    state[key] = stage === 'open' ? 'open' : 'hidden'
+  }
 
   function requestPromptOffset(owner: FooterComponentName, nextOffset: number) {
-    if (footerComponent.value !== owner) return
-
-    const clamped = Math.max(0, Math.min(nextOffset, 24))
-    promptOffset.value = clamped
-    promptOffsetOwner.value = clamped > 0 ? owner : ''
+    clearPromptOffset(owner)
   }
 
   function clearPromptOffset(owner?: FooterComponentName) {
@@ -688,16 +673,7 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
     clientHeight: number,
     extraPadding = 2,
   ) {
-    if (footerComponent.value !== owner) {
-      clearPromptOffset(owner)
-      return
-    }
-
-    const overflow = Math.max(0, scrollHeight - clientHeight)
-    const overflowVh =
-      window.innerHeight > 0 ? (overflow / window.innerHeight) * 100 : 0
-
-    requestPromptOffset(owner, overflowVh + extraPadding)
+    clearPromptOffset(owner)
   }
 
   function toggleFullscreen() {
@@ -735,18 +711,18 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
   })
 
   function getNextSidebarStage(
-  current: SidebarStage,
-  direction: SidebarDirection,
-) {
-  const order: SidebarStage[] = ['hidden', 'open']
-  const index = order.indexOf(current)
+    current: SidebarStage,
+    direction: SidebarDirection,
+  ) {
+    const order: SidebarStage[] = ['hidden', 'open']
+    const index = order.indexOf(current)
 
-  if (direction === 'backward') {
-    return order[(index - 1 + order.length) % order.length] ?? 'hidden'
+    if (direction === 'backward') {
+      return order[(index - 1 + order.length) % order.length] ?? 'hidden'
+    }
+
+    return order[(index + 1) % order.length] ?? 'hidden'
   }
-
-  return order[(index + 1) % order.length] ?? 'hidden'
-}
 
   function toggleSidebar(
     side: SidebarStateKey,
@@ -875,7 +851,7 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
     }
 
     if (section === 'footerState') {
-      state.footerState = normalizeFooterState(newState) as DisplayState
+      state.footerState = 'disabled'
       clearPromptOffset()
       saveState()
       return
@@ -928,8 +904,6 @@ const rightSidebarStyle = computed<CSSProperties>(() => {
         state.viewportSize = 'extraLarge'
         state.isMobileViewport = false
       }
-
-      
     } catch (error) {
       handleError(error, 'Viewport update failed')
     }

@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="isAdmin"
-    class="pointer-events-auto fixed right-3 top-3 z-[10000] flex items-center gap-2 rounded-2xl border border-base-300 bg-base-100/90 p-2 text-base-content shadow-xl backdrop-blur"
+    class="pointer-events-auto fixed right-3 top-3 z-10000 flex items-center gap-2 rounded-2xl border border-base-300 bg-base-100/90 p-2 text-base-content shadow-xl backdrop-blur"
   >
     <button
       class="btn btn-sm rounded-2xl border border-primary/40 bg-primary/15 text-primary hover:bg-primary hover:text-primary-content"
@@ -21,7 +21,7 @@
   <Teleport to="body">
     <div
       v-if="isDebugVisible"
-      class="pointer-events-none fixed inset-0 z-[9999] overflow-hidden bg-black/35 font-mono text-[0.65rem] text-white backdrop-blur-[1px]"
+      class="pointer-events-none fixed inset-0 z-9999 overflow-hidden bg-black/35 font-mono text-[0.65rem] text-white backdrop-blur-[1px]"
     >
       <div class="screen-debug-grid absolute inset-0" />
 
@@ -170,7 +170,7 @@
       </div>
 
       <div
-        class="pointer-events-auto fixed bottom-3 left-3 max-h-[42vh] w-[calc(100vw-1.5rem)] max-w-4xl overflow-y-auto rounded-2xl border border-base-300 bg-base-100/95 p-4 text-base-content shadow-2xl backdrop-blur sm:w-[42rem]"
+        class="pointer-events-auto fixed bottom-3 left-3 max-h-[42vh] w-[calc(100vw-1.5rem)] max-w-4xl overflow-y-auto rounded-2xl border border-base-300 bg-base-100/95 p-4 text-base-content shadow-2xl backdrop-blur sm:w-2xl"
       >
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>

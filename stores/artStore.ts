@@ -882,6 +882,7 @@ export const useArtStore = defineStore('artStore', () => {
       `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Flux, and Kontext only.`,
     )
   }
+
   function getArtGenerationTransport(
     server: Server,
     data?: GenerateArtData,
@@ -890,11 +891,16 @@ export const useArtStore = defineStore('artStore', () => {
       return data.transport
     }
 
-    if (server.requiresClientSideCheck) {
-      return 'browser'
+    const defaultTransport = String(
+      (server as Server & { defaultTransport?: string | null })
+        .defaultTransport || '',
+    ).toLowerCase()
+
+    if (defaultTransport === 'backend') {
+      return 'backend'
     }
 
-    if (server.isPrivateNetwork) {
+    if (defaultTransport === 'browser') {
       return 'browser'
     }
 
@@ -902,8 +908,8 @@ export const useArtStore = defineStore('artStore', () => {
       return 'browser'
     }
 
-    if (server.allowBrowserRequests) {
-      return 'browser'
+    if (server.requiresClientSideCheck || server.isPrivateNetwork) {
+      return server.allowBrowserRequests ? 'browser' : 'backend'
     }
 
     return 'backend'

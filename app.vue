@@ -5,7 +5,6 @@
     </div>
     <butterfly-layer />
     <animation-layer />
-    <screen-debug />
 
     <div class="fixed inset-0 z-50 pointer-events-none">
       <milestone-popup />

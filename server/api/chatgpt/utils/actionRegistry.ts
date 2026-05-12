@@ -1,5 +1,5 @@
 // /server/api/chatgpt/_utils/actionRegistry.ts
-import prisma from '../../utils/prisma'
+import prisma from '../../../utils/prisma'
 import {
   type ChatGptActionHeaders,
   type ChatGptSession,

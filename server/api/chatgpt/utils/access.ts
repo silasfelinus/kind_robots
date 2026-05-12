@@ -1,6 +1,6 @@
 // /server/api/chatgpt/_utils/access.ts
 import { createError } from 'h3'
-import prisma from '../../utils/prisma'
+import prisma from '../../../utils/prisma'
 import { firstToken, parseBearer, validateApiKey } from './token'
 
 export type ChatGptActionHeaders = Record<string, string | undefined>
@@ -22,7 +22,7 @@ export function isAdmin(user: any) {
   return getRole(user) === 'ADMIN'
 }
 
-export function fail(message: string, statusCode = 400) {
+export function fail(message: string, statusCode = 400): never {
   throw createError({
     statusCode,
     statusMessage: message,

@@ -1,14 +1,14 @@
 // /server/api/chatgpt/_utils/validate.ts
 import { createError } from 'h3'
 
-export function badRequest(message: string) {
+export function badRequest(message: string): never {
   throw createError({
     statusCode: 400,
     statusMessage: message,
   })
 }
 
-export function expectString(value: unknown, field: string) {
+export function expectString(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim()) {
     badRequest(`"${field}" must be a non-empty string`)
   }
@@ -16,7 +16,7 @@ export function expectString(value: unknown, field: string) {
   return value.trim()
 }
 
-export function expectNumber(value: unknown, field: string) {
+export function expectNumber(value: unknown, field: string): number {
   const numberValue = typeof value === 'number' ? value : Number(value)
 
   if (!Number.isFinite(numberValue)) {
@@ -26,7 +26,7 @@ export function expectNumber(value: unknown, field: string) {
   return numberValue
 }
 
-export function expectBoolean(value: unknown, field: string) {
+export function expectBoolean(value: unknown, field: string): boolean {
   if (typeof value !== 'boolean') {
     badRequest(`"${field}" must be a boolean`)
   }
@@ -34,7 +34,10 @@ export function expectBoolean(value: unknown, field: string) {
   return value
 }
 
-export function expectRecord(value: unknown, field: string) {
+export function expectRecord(
+  value: unknown,
+  field: string,
+): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     badRequest(`"${field}" must be an object`)
   }
@@ -78,16 +81,16 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value))
 }
 
-export function asString(value: unknown, fallback = '') {
+export function asString(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value : fallback
 }
 
-export function asNumber(value: unknown, fallback = 0) {
+export function asNumber(value: unknown, fallback = 0): number {
   const numberValue = typeof value === 'number' ? value : Number(value)
 
   return Number.isFinite(numberValue) ? numberValue : fallback
 }
 
-export function asBoolean(value: unknown, fallback = false) {
+export function asBoolean(value: unknown, fallback = false): boolean {
   return typeof value === 'boolean' ? value : fallback
 }

@@ -1,13 +1,15 @@
-// /server/api/chatgpt/_utils/actionRunner.ts
+// /server/api/chatgpt/utils/actionRunner.ts
 import { type ChatGptActionHeaders, fail } from './access'
 import {
   getIdInput,
   getListInput,
-  type PublicChatGptAction,
   translateCreateInput,
   translateUpdateInput,
 } from './actionGlossary'
 import { runRegistryAction } from './actionRegistry'
+import { uploadChatGptAsset } from './assetService'
+import { createArtCollectionFromAction } from './collectionService'
+import { createWorldContentBundle } from './worldBundleService'
 import { isRecord } from './validate'
 
 function requireInput(input: unknown) {
@@ -24,17 +26,16 @@ export async function runPublicAction(
   headers: ChatGptActionHeaders,
 ) {
   const input = requireInput(rawInput)
-  const publicAction = action as PublicChatGptAction
 
-  switch (publicAction) {
+  switch (action) {
     case 'dream.createLocation': {
-      const translated = translateCreateInput(publicAction, input)
+      const translated = translateCreateInput('dream.createLocation', input)
 
       return runRegistryAction('kr.create', translated, headers)
     }
 
     case 'dream.updateMine': {
-      const translated = translateUpdateInput(publicAction, input)
+      const translated = translateUpdateInput('dream.updateMine', input)
 
       return runRegistryAction('kr.update', translated, headers)
     }
@@ -83,7 +84,7 @@ export async function runPublicAction(
     }
 
     case 'art.createPrompt': {
-      const translated = translateCreateInput(publicAction, input)
+      const translated = translateCreateInput('art.createPrompt', input)
 
       return runRegistryAction('kr.create', translated, headers)
     }
@@ -119,7 +120,7 @@ export async function runPublicAction(
     }
 
     case 'character.create': {
-      const translated = translateCreateInput(publicAction, input)
+      const translated = translateCreateInput('character.create', input)
 
       return runRegistryAction('kr.create', translated, headers)
     }
@@ -141,7 +142,7 @@ export async function runPublicAction(
     }
 
     case 'scenario.create': {
-      const translated = translateCreateInput(publicAction, input)
+      const translated = translateCreateInput('scenario.create', input)
 
       return runRegistryAction('kr.create', translated, headers)
     }
@@ -179,7 +180,7 @@ export async function runPublicAction(
     }
 
     case 'bot.create': {
-      const translated = translateCreateInput(publicAction, input)
+      const translated = translateCreateInput('bot.create', input)
 
       return runRegistryAction('kr.create', translated, headers)
     }
@@ -199,6 +200,15 @@ export async function runPublicAction(
         headers,
       )
     }
+
+    case 'asset.uploadImage':
+      return uploadChatGptAsset(input, headers)
+
+    case 'collection.createArtCollection':
+      return createArtCollectionFromAction(input, headers)
+
+    case 'world.createContentBundle':
+      return createWorldContentBundle(input, headers)
 
     default:
       fail(`Unknown public action: ${action}`, 400)

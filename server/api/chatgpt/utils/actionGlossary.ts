@@ -18,6 +18,20 @@ export type PublicChatGptAction =
   | 'gallery.listPublic'
   | 'bot.create'
   | 'bot.listPublic'
+  | 'asset.uploadImage'
+  | 'collection.createArtCollection'
+  | 'world.createContentBundle'
+
+export type GlossaryCreateAction =
+  | 'dream.createLocation'
+  | 'art.createPrompt'
+  | 'character.create'
+  | 'scenario.create'
+  | 'bot.create'
+
+export type GlossaryUpdateAction = 'dream.updateMine'
+
+export type GlossaryAction = GlossaryCreateAction | GlossaryUpdateAction
 
 type Transform = (value: unknown) => unknown
 
@@ -30,8 +44,9 @@ type GlossaryEntry = {
 
 function toBoolean(value: unknown) {
   if (typeof value === 'boolean') return value
-  if (typeof value === 'string')
+  if (typeof value === 'string') {
     return ['true', 'yes', '1', 'public'].includes(value.toLowerCase())
+  }
   if (typeof value === 'number') return value === 1
 
   return false
@@ -58,7 +73,9 @@ function toStringArray(value: unknown) {
   return []
 }
 
-export const actionGlossary = {
+export const actionGlossary: Partial<
+  Record<PublicChatGptAction, GlossaryEntry>
+> = {
   'dream.createLocation': {
     model: 'Dream',
     defaults: {
@@ -284,17 +301,22 @@ export const actionGlossary = {
       isMature: toBoolean,
     },
   },
-} satisfies Partial<Record<PublicChatGptAction, GlossaryEntry>>
+}
 
-export function translateCreateInput(
-  action: PublicChatGptAction,
-  input: Record<string, unknown>,
-) {
+function getGlossaryEntry(action: GlossaryAction): GlossaryEntry {
   const glossary = actionGlossary[action]
 
   if (!glossary) {
     fail(`No glossary entry for action: ${action}`, 400)
   }
+
+  return glossary as GlossaryEntry
+}
+export function translateCreateInput(
+  action: GlossaryCreateAction,
+  input: Record<string, unknown>,
+) {
+  const glossary = getGlossaryEntry(action)
 
   const data: Record<string, unknown> = {
     ...(glossary.defaults ?? {}),
@@ -320,15 +342,10 @@ export function translateCreateInput(
 }
 
 export function translateUpdateInput(
-  action: PublicChatGptAction,
+  action: GlossaryUpdateAction,
   input: Record<string, unknown>,
 ) {
-  const glossary = actionGlossary[action]
-
-  if (!glossary) {
-    fail(`No glossary entry for action: ${action}`, 400)
-  }
-
+  const glossary = getGlossaryEntry(action)
   const idValue = input.id
   const id = typeof idValue === 'number' ? idValue : Number(idValue)
 

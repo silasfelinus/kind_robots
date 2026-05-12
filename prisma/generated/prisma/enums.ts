@@ -9,6 +9,16 @@
 * 🟢 You can import this file directly.
 */
 
+export const DreamAccessMode = {
+  OPEN: 'OPEN',
+  CODE: 'CODE',
+  PRIVATE: 'PRIVATE',
+  SOLO: 'SOLO'
+} as const
+
+export type DreamAccessMode = (typeof DreamAccessMode)[keyof typeof DreamAccessMode]
+
+
 export const ResourceType = {
   CHECKPOINT: 'CHECKPOINT',
   EMBEDDING: 'EMBEDDING',

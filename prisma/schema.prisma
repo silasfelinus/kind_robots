@@ -385,18 +385,18 @@ model Component {
 
 
 model Dream {
-  id              Int        @id @default(autoincrement())
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime?  @default(now()) @updatedAt
+  id              Int             @id @default(autoincrement())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @default(now()) @updatedAt
 
-  title           String     @db.VarChar(255)
-  slug            String?    @unique @db.VarChar(255)
-  description     String?    @db.Text
+  title           String          @db.VarChar(255)
+  slug            String?         @unique @db.VarChar(255)
+  description     String?         @db.Text
 
-  currentVibe     String     @db.Text
-  currentPrompt   String?    @db.Text
+  currentVibe     String          @db.Text
+  currentPrompt   String?         @db.Text
 
-  userId          Int        @default(10)
+  userId          Int             @default(10)
   pitchId         Int?
   artId           Int?
   artImageId      Int?
@@ -406,34 +406,38 @@ model Dream {
   galleryId       Int?
   scenarioId      Int?
 
-  isPublic        Boolean    @default(true)
-  isMature        Boolean    @default(false)
-  isActive        Boolean    @default(true)
+  accessMode      DreamAccessMode @default(OPEN)
+  privacyCode     String?         @db.VarChar(255)
 
-  User            User           @relation(fields: [userId], references: [id])
-  Gallery         Gallery?       @relation(fields: [galleryId], references: [id])
-  Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
-  Art             Art?           @relation(fields: [artId], references: [id])
-  Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
-  ArtImage        ArtImage?      @relation(fields: [artImageId], references: [id])
-  ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
+  isPublic        Boolean         @default(true)
+  isMature        Boolean         @default(false)
+  isActive        Boolean         @default(true)
 
-  Characters      Character[]    @relation("CharacterToDream")
-  Rewards         Reward[]       @relation("DreamToReward")
+  User            User            @relation(fields: [userId], references: [id])
+  Gallery         Gallery?        @relation(fields: [galleryId], references: [id])
+  Pitch           Pitch?          @relation(fields: [pitchId], references: [id])
+  Art             Art?            @relation(fields: [artId], references: [id])
+  Scenario        Scenario?       @relation(fields: [scenarioId], references: [id])
+  ArtImage        ArtImage?       @relation(fields: [artImageId], references: [id])
+  ArtCollection   ArtCollection?  @relation(fields: [artCollectionId], references: [id])
 
   Chats           Chat[]
   Reactions       Reaction[]
-  Tags            Tag[]          @relation("DreamToTag")
+  Tags            Tag[]           @relation("DreamToTag")
+  Characters      Character[]     @relation("CharacterToDream")
+  Rewards         Reward[]        @relation("DreamToReward")
 
   @@index([userId])
-  @@index([pitchId])
-  @@index([artId])
-  @@index([artImageId])
-  @@index([artCollectionId])
-  @@index([galleryId])
-  @@index([scenarioId])
+  @@index([accessMode])
   @@index([isPublic])
   @@index([isActive])
+}
+
+enum DreamAccessMode {
+  OPEN
+  CODE
+  PRIVATE
+  SOLO
 }
 
 

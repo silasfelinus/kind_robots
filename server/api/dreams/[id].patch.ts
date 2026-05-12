@@ -5,6 +5,14 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
+import {
+  accessModeToIsPublic,
+  assertDreamAccess,
+  normalizeDreamAccessMode,
+  normalizeDreamPrivacyCode,
+  redactDreamAccess,
+  type DreamAccessMode,
+} from './index'
 
 type DreamPatchBody = {
   title?: string
@@ -20,6 +28,8 @@ type DreamPatchBody = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  accessMode?: DreamAccessMode
+  privacyCode?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -172,12 +182,16 @@ function getUpdateSummary(body: DreamPatchBody): string {
   if (body.currentVibe !== undefined) changes.push('vibe')
   if (body.currentPrompt !== undefined) changes.push('prompt')
   if (body.scenarioId !== undefined) changes.push('scenario')
-  if (body.artImageId !== undefined || body.artId !== undefined)
+  if (body.artImageId !== undefined || body.artId !== undefined) {
     changes.push('visuals')
+  }
   if (body.artCollectionId !== undefined) changes.push('collection')
   if (body.tagIds !== undefined) changes.push('tags')
   if (body.characterIds !== undefined) changes.push('cast')
   if (body.rewardIds !== undefined) changes.push('items')
+  if (body.accessMode !== undefined || body.privacyCode !== undefined) {
+    changes.push('access')
+  }
   if (
     body.isPublic !== undefined ||
     body.isMature !== undefined ||
@@ -213,6 +227,9 @@ export default defineEventHandler(async (event) => {
         userId: true,
         title: true,
         artCollectionId: true,
+        isPublic: true,
+        accessMode: true,
+        privacyCode: true,
       },
     })
 
@@ -223,12 +240,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (existingDream.userId !== user.id && user.Role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to update this dream.',
-      })
-    }
+    assertDreamAccess({
+      dream: existingDream,
+      userId: user.id,
+      userRole: user.Role,
+      action: 'mutate',
+    })
 
     const body = await readBody<DreamPatchBody>(event)
 
@@ -311,7 +328,39 @@ export default defineEventHandler(async (event) => {
       dataInput.scenarioId = normalizeNullableId(body.scenarioId)
     }
 
-    if (typeof body.isPublic === 'boolean') {
+    if (body.accessMode !== undefined) {
+      const accessMode = normalizeDreamAccessMode(
+        body.accessMode,
+        existingDream.accessMode || 'OPEN',
+      )
+
+      dataInput.accessMode = accessMode
+      dataInput.isPublic = accessModeToIsPublic(accessMode)
+
+      if (accessMode !== 'CODE') {
+        dataInput.privacyCode = null
+      }
+    }
+
+    if (body.privacyCode !== undefined) {
+      const accessMode =
+        (dataInput.accessMode as DreamAccessMode | undefined) ||
+        existingDream.accessMode ||
+        'OPEN'
+
+      const privacyCode = normalizeDreamPrivacyCode(body.privacyCode)
+
+      if (accessMode === 'CODE' && !privacyCode) {
+        throw createError({
+          statusCode: 400,
+          message: 'A privacy code is required when accessMode is CODE.',
+        })
+      }
+
+      dataInput.privacyCode = accessMode === 'CODE' ? privacyCode : null
+    }
+
+    if (typeof body.isPublic === 'boolean' && body.accessMode === undefined) {
       dataInput.isPublic = body.isPublic
     }
 
@@ -413,7 +462,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dream updated successfully.',
-      data,
+      data: redactDreamAccess(data, true),
       statusCode: 200,
     }
   } catch (error) {

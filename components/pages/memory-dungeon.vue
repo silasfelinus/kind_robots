@@ -838,22 +838,26 @@ function onLevelComplete() {
   matchesSinceChallenge.value = 0
   oracleHighlight.value = ''
 
-  const message = pick(LEVEL_FLAVORS).replace('{n}', String(level.value + 1))
+  // ── GUARANTEED FLOOR HEAL ─────────────────────────────────────────
+  if (!wasFlawless) {
+    lives.value = Math.min(lives.value + 1, maxLives.value)
+    addLog('🏥 Floor cleared — wounds tended. You limp onward.', 'system')
+  } else {
+    addLog('🧠 MIND PALACE — Flawless floor! The dungeon is appalled.', 'award')
+  }
+  // ─────────────────────────────────────────────────────────────────
 
+  const message = pick(LEVEL_FLAVORS).replace('{n}', String(level.value + 1))
   addLog(`🎉 ${message}`, 'system')
   addLog(`✨ Level ${completedLevel} Bonus: +${bonus} pts`, 'system')
 
-  if (wasFlawless) {
-    addLog('🧠 MIND PALACE — Flawless floor! The dungeon is appalled.', 'award')
-  }
-
-  grantFloorReward(wasFlawless)
+  grantFloorReward(wasFlawless) // random bonus on top, as before
 
   setTimeout(() => {
     level.value++
     streak.value = 0
-    levelTransitioning.value = false
-    resetBoardForCurrentLevel()
+    resetBoardForCurrentLevel() // ← board reset while still transitioning
+    levelTransitioning.value = false // ← guard drops after
   }, 1400)
 }
 

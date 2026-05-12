@@ -361,7 +361,30 @@ export async function getChatGptAssetImage(
     fail('ArtImage not found', 404)
   }
 
-  requireOwnerOrAdmin(session, artImage.userId)
+  const user = requireUser(session)
+  const ownerId = typeof artImage.userId === 'number' ? artImage.userId : null
+
+  const isOwner = ownerId === user.id
+  const isAdminUser = isAdmin(user)
+
+  if (!isOwner && !isAdminUser) {
+    const publicArt = artImage.artId
+      ? await getDelegate('art').findFirst({
+          where: {
+            id: artImage.artId,
+            isPublic: true,
+            isMature: false,
+          },
+          select: {
+            id: true,
+          },
+        })
+      : null
+
+    if (!publicArt) {
+      fail('Forbidden', 403)
+    }
+  }
 
   return {
     ok: true,

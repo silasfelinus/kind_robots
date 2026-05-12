@@ -419,10 +419,10 @@ export const actionContracts: Record<KindRobotsActionName, ActionContract> = {
       'Use this after art.listPublic returns an artImageId.',
     ],
   },
-
+  //'Use asset.getImage one at a time when imageData is needed.',
   'asset.listRecentImages': {
     action: 'asset.listRecentImages',
-    summary: 'List recent owned ArtImages, including imageData.',
+    summary: 'List recent owned ArtImages without imageData.',
     primaryModel: 'ArtImage',
     relatedModels: ['Art'],
     requiresAuth: true,
@@ -436,7 +436,7 @@ export const actionContracts: Record<KindRobotsActionName, ActionContract> = {
       includeAllUsers: 'boolean optional admin-only',
     },
     returns: {
-      artImages: 'Private ArtImage[] including imageData',
+      artImages: 'Public ArtImage[] without imageData',
       artImageIds: 'number[]',
     },
     notes: [

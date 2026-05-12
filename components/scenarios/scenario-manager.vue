@@ -89,18 +89,6 @@
         :show-header="false"
       />
 
-      <choice-gallery
-        v-else-if="currentTab === 'choices'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
-      <genre-gallery
-        v-else-if="currentTab === 'genres'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
       <section
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"

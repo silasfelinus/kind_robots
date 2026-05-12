@@ -25,10 +25,7 @@
     </template>
 
     <template #default="{ activeTab: currentTab }">
-      <theme-gallery
-        v-if="currentTab === 'overview' || currentTab === 'gallery'"
-        @edit="setTab('custom')"
-      />
+      <theme-gallery v-if="currentTab === 'gallery'" @edit="setTab('custom')" />
 
       <section
         v-else-if="currentTab === 'custom'"

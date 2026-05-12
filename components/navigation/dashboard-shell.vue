@@ -267,13 +267,13 @@ const channels: ChannelRoute[] = [
     key: 'stories',
     label: 'Stories',
     path: '/stories',
-    icon: 'kind-icon:book',
+    icon: 'kind-icon:story',
   },
   {
     key: 'themes',
     label: 'Themes',
     path: '/themes',
-    icon: 'kind-icon:theme',
+    icon: 'kind-icon:paintbrush',
   },
   {
     key: 'user',

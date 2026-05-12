@@ -1,193 +1,264 @@
-<!-- /components/content/shop/giftshop-manager.vue -->
+<!-- /components/content/giftshop/giftshop-manager.vue -->
 <template>
   <dashboard-shell
-    title="Giftshop"
+    :title="dashboardTitle"
     :summary="managerSummary"
     :tabs="tabs"
     :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
-    loading-message="Stocking shelves, checking carts, and negotiating with sticker goblins..."
-    nav-grid-class="xl:grid-cols-3"
+    loading-message="Counting butterfly inventory... tiny clipboards take time."
+    nav-grid-class="xl:grid-cols-7"
     @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #actions>
-      <div class="badge badge-primary gap-1">
-        <Icon name="kind-icon:cart" class="h-3 w-3" />
-        {{ cartStore.items.length }} in cart
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <button
+          type="button"
+          class="btn btn-sm rounded-2xl"
+          :class="
+            activeTab === 'cart'
+              ? 'btn-secondary'
+              : cartStore.hasItems
+                ? 'btn-primary'
+                : 'btn-ghost'
+          "
+          @click="setTab('cart')"
+        >
+          <Icon name="kind-icon:cart" class="h-4 w-4" />
+          <span>{{ cartStore.totalItems }}</span>
+        </button>
+
+        <div v-if="cartStore.hasItems" class="badge badge-secondary gap-1 p-3">
+          <Icon name="kind-icon:jellybean" class="h-3 w-3" />
+          ${{ cartStore.formattedTotalPrice }}
+        </div>
+
+        <div class="badge badge-accent gap-1 p-3">
+          <Icon name="kind-icon:butterfly" class="h-3 w-3" />
+          Swarm-operated
+        </div>
       </div>
     </template>
 
     <template #default="{ activeTab: currentTab }">
-      <div
-        v-if="statusMessage"
-        class="mb-4 rounded-2xl border p-3 text-sm"
-        :class="
-          statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
-      >
-        {{ statusMessage }}
-      </div>
-
-      <section
-        v-if="currentTab === 'overview' || currentTab === 'products'"
-        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        <article
-          v-for="item in cartItems"
-          :key="item.id"
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+      <section class="flex min-h-0 flex-col gap-4">
+        <div
+          class="overflow-hidden rounded-2xl border border-primary/30 bg-linear-to-br from-primary/15 via-base-200 to-secondary/10 shadow-sm"
         >
-          <div v-if="item.needsArt" class="space-y-3">
-            <div class="flex items-center justify-between gap-2">
-              <label class="label p-0 font-semibold">🎨 Upload Your Art</label>
+          <div class="grid gap-4 p-4 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div class="min-w-0 space-y-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <Icon
+                  :name="activeTabInfo.icon"
+                  class="h-7 w-7 shrink-0 text-primary"
+                />
 
-              <button
-                type="button"
-                class="btn btn-xs btn-secondary rounded-xl"
-                @click="activateUpload(item)"
+                <h2 class="text-2xl font-black text-primary sm:text-3xl">
+                  {{ activeTabInfo.title || activeTabInfo.label }}
+                </h2>
+
+                <div class="badge badge-primary badge-outline">
+                  {{ activeTabInfo.label }}
+                </div>
+              </div>
+
+              <p
+                class="max-w-4xl text-sm leading-relaxed text-base-content/75 sm:text-base"
               >
-                <Icon name="kind-icon:image" class="h-4 w-4" />
-                Choose
+                {{ activeTabInfo.summary }}
+              </p>
+            </div>
+
+            <div
+              class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2 shadow-sm sm:grid-cols-3 lg:w-96 xl:grid-cols-4"
+            >
+              <button
+                v-for="tab in tabs"
+                :key="tab.key"
+                type="button"
+                class="btn min-h-16 rounded-2xl px-2"
+                :class="currentTab === tab.key ? 'btn-primary' : 'btn-ghost'"
+                @click="setTab(tab.key)"
+              >
+                <span class="flex flex-col items-center gap-1 text-center">
+                  <Icon :name="tab.icon" class="h-5 w-5" />
+
+                  <span class="text-xs font-bold leading-tight">
+                    {{ tab.label }}
+                  </span>
+                </span>
               </button>
             </div>
-
-            <div
-              class="flex h-40 w-full items-center justify-center overflow-hidden rounded-xl border bg-base-100"
-            >
-              <img
-                v-if="customImages[item.id]"
-                :src="customImages[item.id]"
-                :alt="`${item.label} custom art`"
-                class="h-full w-full object-contain"
-              />
-
-              <div
-                v-else
-                class="flex h-full w-full flex-col items-center justify-center gap-2 text-center text-sm text-base-content/60"
-              >
-                <Icon name="kind-icon:image" class="h-8 w-8 text-primary" />
-                <span>Upload art for this item</span>
-              </div>
-            </div>
-
-            <image-upload
-              v-if="activeUploadItemId === item.id"
-              class="rounded-2xl bg-base-100"
-            />
-
-            <div
-              v-if="customArtImageIds[item.id]"
-              class="rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs text-base-content/60"
-            >
-              Linked ArtImage #{{ customArtImageIds[item.id] }}
-            </div>
           </div>
 
-          <img
-            v-else
-            :src="item.image ?? fallbackImage"
-            :alt="item.label"
-            class="h-40 w-full rounded-xl border bg-base-100 object-contain"
+          <div
+            class="border-t border-base-300/70 bg-base-100/70 px-4 py-3 text-sm text-base-content/70"
+          >
+            <span class="font-bold text-primary">Swarm memo:</span>
+            {{ swarmMemo }}
+          </div>
+        </div>
+
+        <section class="min-h-0 flex-1">
+          <butterfly-sanctuary
+            v-if="currentTab === 'sanctuary'"
+            class="min-h-128 rounded-2xl border border-base-300 bg-base-100"
           />
 
-          <div class="text-lg font-semibold">{{ item.label }}</div>
+          <about-page
+            v-else-if="currentTab === 'about'"
+            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+          />
 
-          <div class="text-sm text-base-content/70">
-            {{ item.description }}
-          </div>
+          <div
+            v-else-if="currentTab === 'butterfly-lab'"
+            class="grid grid-cols-1 gap-4 2xl:grid-cols-2"
+          >
+            <butterfly-lab
+              class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
+            />
 
-          <div class="flex flex-col gap-1">
-            <div class="text-sm font-medium">
-              💰 ${{ item.price.toFixed(2) }}
-            </div>
-          </div>
-
-          <div class="form-control">
-            <label class="label font-semibold">🛒 Quantity</label>
-
-            <input
-              v-model.number="quantities[item.id]"
-              type="number"
-              min="1"
-              class="input input-sm input-bordered w-24 rounded-xl"
+            <butterfly-grid
+              class="min-h-112 rounded-2xl border border-base-300 bg-base-100"
             />
           </div>
 
-          <button
-            class="btn btn-primary btn-sm mt-auto rounded-xl"
-            :disabled="item.needsArt && !customArtImageIds[item.id]"
-            @click="addToCart(item)"
+          <giftshop-interact v-else-if="currentTab === 'giftshop'" />
+
+          <cart-interact
+            v-else-if="currentTab === 'cart'"
+            class="rounded-2xl"
+          />
+
+          <subscription-manager
+            v-else-if="currentTab === 'subscriptions'"
+            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+          />
+
+          <sponsor-page
+            v-else-if="currentTab === 'sponsor'"
+            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+          />
+
+          <div
+            v-else
+            class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
           >
-            ➕ Add to Cart
-          </button>
-        </article>
+            The butterflies misplaced tab
+            <span class="font-bold">{{ currentTab }}</span
+            >. This is why we do not let them near the router unsupervised.
+          </div>
+        </section>
       </section>
-
-      <section
-        v-else-if="currentTab === 'collections'"
-        class="rounded-2xl border border-base-300 bg-base-200 p-4"
-      >
-        <collection-gallery :show-header="false" />
-      </section>
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown giftshop tab: {{ currentTab }}
-      </div>
     </template>
   </dashboard-shell>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
+import { computed, onMounted, ref } from 'vue'
+import {
+  dashboardConfigs,
+  isDashboardTabKey,
+  type DashboardTabConfig,
+} from '@/stores/helpers/dashboardHelper'
 import { useCartStore } from '@/stores/cartStore'
 import { useNavStore } from '@/stores/navStore'
-import { useUploadStore } from '@/stores/uploadStore'
+import { useUserStore } from '@/stores/userStore'
+
+type GiftshopTabKey = (typeof dashboardConfigs.giftshop.tabs)[number]['key']
 
 const dashboardKey = 'giftshop' as const
+const dashboardConfig = dashboardConfigs[dashboardKey]
 
 const cartStore = useCartStore()
 const navStore = useNavStore()
-const uploadStore = useUploadStore()
+const userStore = useUserStore()
 
-const fallbackImage = '/images/backtree.webp'
-
-const activeUploadItemId = ref<string | null>(null)
-const statusMessage = ref('')
-const statusTone = ref<'success' | 'error'>('success')
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const customImages = reactive<Record<string, string>>({})
-const customArtImageIds = reactive<Record<string, number>>({})
-const customArtIds = reactive<Record<string, number>>({})
+const tabs = computed(() => [...dashboardConfig.tabs])
+const dashboardTitle = computed(() => dashboardConfig.label)
 
-const quantities = reactive<Record<string, number>>(
-  Object.fromEntries(cartItems.map((item) => [item.id, 1])),
-)
+const storedTab = computed(() => {
+  const tab = navStore.getDashboardTab?.(dashboardKey)
 
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
+  if (typeof tab === 'string' && isDashboardTabKey(dashboardKey, tab)) {
+    return tab as GiftshopTabKey
+  }
 
-const uploadReadyCount = computed(() => {
-  return cartItems.filter((item) => {
-    return !item.needsArt || customArtImageIds[item.id]
-  }).length
+  return dashboardConfig.defaultTab as GiftshopTabKey
+})
+
+const activeTab = computed<GiftshopTabKey>(() => storedTab.value)
+
+const activeTabInfo = computed<DashboardTabConfig>(() => {
+  const activeMatch = dashboardConfig.tabs.find((tab) => {
+    return tab.key === activeTab.value
+  })
+
+  if (activeMatch) return activeMatch
+
+  const defaultMatch = dashboardConfig.tabs.find((tab) => {
+    return tab.key === dashboardConfig.defaultTab
+  })
+
+  if (defaultMatch) return defaultMatch
+
+  return {
+    key: dashboardConfig.defaultTab,
+    label: dashboardConfig.label,
+    icon: 'kind-icon:gift',
+    title: dashboardConfig.label,
+    summary:
+      'The butterflies misplaced the current tab, which is frankly on brand.',
+  }
 })
 
 const managerSummary = computed(() => {
-  return `${cartItems.length} products available. ${uploadReadyCount.value} ready to add. ${cartStore.items.length} cart item(s) selected.`
+  const cartText = cartStore.hasItems
+    ? `${cartStore.totalItems} item(s), $${cartStore.formattedTotalPrice}`
+    : 'cart currently empty, butterflies visibly disappointed'
+
+  return `The butterflies run the sanctuary, the lab, the shop, billing, sponsorship, cart review, and allegedly the website. Current cart: ${cartText}.`
+})
+
+const swarmMemo = computed(() => {
+  const messages: Record<GiftshopTabKey, string> = {
+    sanctuary:
+      'Sanctuary first. Commerce second. Tiny winged governance always.',
+    about:
+      'The org chart is mostly humans, robots, and butterflies pretending not to understand payroll.',
+    'butterfly-lab':
+      'Lab access granted. Please do not feed experimental butterflies after midnight or before a CSS refactor.',
+    giftshop:
+      'Every artifact is inspected for whimsy, structural integrity, and whether AMI thinks it has main character energy.',
+    cart: 'Cart review initiated. The butterflies are counting jellybeans with terrifying precision.',
+    subscriptions:
+      'Subscriptions keep the servers awake and the butterflies in premium-grade imaginary nectar.',
+    sponsor:
+      'Sponsor energy goes toward the mission. The butterflies accept gratitude, impact, and tasteful confetti.',
+  }
+
+  return messages[activeTab.value]
+})
+
+onMounted(async () => {
+  await refreshManagerData()
+
+  if (!isDashboardTabKey(dashboardKey, storedTab.value)) {
+    setTab(dashboardConfig.defaultTab)
+  }
 })
 
 function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
+  const nextTab = isDashboardTabKey(dashboardKey, tab)
+    ? tab
+    : dashboardConfig.defaultTab
+
+  navStore.setDashboardTab?.(dashboardKey, nextTab)
 }
 
 async function refreshManagerData() {
@@ -195,73 +266,18 @@ async function refreshManagerData() {
   managerError.value = null
 
   try {
-    await navStore.initialize()
-    statusTone.value = 'success'
-    statusMessage.value = 'Giftshop refreshed.'
+    await Promise.all([
+      cartStore.initialize(),
+      userStore.initialize?.(),
+      navStore.initialize?.(),
+    ])
   } catch (error) {
     managerError.value =
-      error instanceof Error ? error.message : 'Failed to refresh giftshop.'
+      error instanceof Error
+        ? error.message
+        : 'The butterflies dropped the dashboard state into the nectar vat.'
   } finally {
     isLoadingManager.value = false
   }
-}
-
-function activateUpload(item: CartItem) {
-  activeUploadItemId.value = item.id
-  statusMessage.value = ''
-
-  uploadStore.setTarget({
-    model: 'Art',
-    modelId: null,
-    galleryName: 'giftshopUploads',
-    collectionLabel: 'giftshop',
-    promptString: `[GiftShopImage:${item.label}]`,
-    path: '[GiftShopImage]',
-    buttonLabel: `Upload for ${item.label}`,
-    icon: 'kind-icon:gift',
-    showPreview: false,
-    applyImage: async ({ artImageId, artId, imageData }) => {
-      customArtImageIds[item.id] = artImageId
-      customArtIds[item.id] = artId
-      customImages[item.id] = imageData || item.image || fallbackImage
-
-      statusTone.value = 'success'
-      statusMessage.value = `${item.label} art uploaded.`
-    },
-  })
-}
-
-function addToCart(item: CartItem) {
-  const quantity = Math.max(1, quantities[item.id] || 1)
-
-  const imageUrl = item.needsArt
-    ? customImages[item.id] || fallbackImage
-    : item.image || fallbackImage
-
-  const artImageId = item.needsArt ? customArtImageIds[item.id] || 0 : 0
-  const artId = item.needsArt ? customArtIds[item.id] || 0 : 0
-
-  if (item.needsArt && !artImageId) {
-    statusTone.value = 'error'
-    statusMessage.value = `Upload art before adding ${item.label} to the cart.`
-    activateUpload(item)
-    return
-  }
-
-  const payload = {
-    id: `${item.id}-${Date.now()}`,
-    type: item.type,
-    artImageId,
-    artId,
-    imageUrl,
-    quantity,
-    price: item.price,
-    notes: item.label,
-  }
-
-  cartStore.addItem(payload)
-
-  statusTone.value = 'success'
-  statusMessage.value = `Added ${quantity} × ${item.label} to cart.`
 }
 </script>

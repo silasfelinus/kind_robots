@@ -3,36 +3,23 @@
   <div class="container mx-auto p-4 space-y-4">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <h1 class="text-3xl font-bold text-primary">Smart Icon Gallery</h1>
 
-  <h1 class="text-3xl font-bold text-primary">Smart Icon Gallery</h1>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          class="btn btn-outline btn-sm rounded-xl"
+          :disabled="smartbarStore.loading"
+          @click="smartbarStore.fetchIcons(true)"
+        >
+          {{ smartbarStore.loading ? 'Refreshing...' : 'Refresh Icons' }}
+        </button>
 
-  <div class="flex flex-wrap items-center justify-center gap-2">
-
-    <button
-
-      type="button"
-
-      class="btn btn-outline btn-sm rounded-xl"
-
-      :disabled="smartbarStore.loading"
-
-      @click="smartbarStore.fetchIcons(true)"
-
-    >
-
-      {{ smartbarStore.loading ? 'Refreshing...' : 'Refresh Icons' }}
-
-    </button>
-
-    <NuxtLink to="/addicon" class="btn btn-primary btn-sm rounded-xl">
-
-      ➕ Add New Icon
-
-    </NuxtLink>
-
-  </div>
-
-</div>
+        <NuxtLink to="/addicon" class="btn btn-primary btn-sm rounded-xl">
+          ➕ Add New Icon
+        </NuxtLink>
+      </div>
+    </div>
 
     <!-- Custom Toggle -->
     <div
@@ -162,8 +149,11 @@ function openEditModal(icon: SmartIcon) {
   selectedIcon.value = icon
 }
 
+const LOCKED_ICON_IDS = new Set([1, 2, 3, 8])
+
 const filteredIcons = computed(() =>
   icons.value.filter((i: SmartIcon) => {
+    if (LOCKED_ICON_IDS.has(i.id)) return false
     if (filterScope.value === 'user' && i.userId !== user.value?.id)
       return false
     if (filterScope.value === 'public' && !i.isPublic) return false

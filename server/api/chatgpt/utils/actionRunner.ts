@@ -67,9 +67,9 @@ function buildListPayload(
   fallbackView = 'card',
 ) {
   const listInput = getListInput(input)
-  const where = {
-    ...listInput.where,
-  }
+  const where: Record<string, unknown> = isRecord(listInput.where)
+    ? { ...listInput.where }
+    : {}
 
   if (typeof input.slug === 'string' && input.slug.trim()) {
     where.slug = input.slug.trim()

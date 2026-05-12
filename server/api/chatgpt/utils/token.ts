@@ -1,4 +1,4 @@
-// /server/api/chatgpt/_utils/token.ts
+// /server/api/chatgpt/utils/token.ts
 export function parseBearer(authorizationHeader?: string | null) {
   if (!authorizationHeader) return ''
 

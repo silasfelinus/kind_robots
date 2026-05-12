@@ -1,4 +1,4 @@
-// /server/api/chatgpt/_utils/access.ts
+// /server/api/chatgpt/utils/access.ts
 import { createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { firstToken, parseBearer, validateApiKey } from './token'

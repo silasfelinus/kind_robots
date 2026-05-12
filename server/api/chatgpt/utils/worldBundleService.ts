@@ -60,7 +60,19 @@ type BundleManifest = {
 }
 
 function asString(value: unknown, fallback = '') {
-  return typeof value === 'string' ? value.trim() : fallback
+  if (typeof value === 'string') return value.trim()
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value).trim()
+  }
+
+  return fallback
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  const numberValue = typeof value === 'number' ? value : Number(value)
+
+  return Number.isFinite(numberValue) ? numberValue : fallback
 }
 
 function asStringArray(value: unknown) {
@@ -78,11 +90,34 @@ function asStringArray(value: unknown) {
   return []
 }
 
+function asTextBlock(value: unknown, fallback = '') {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry).trim())
+      .filter(Boolean)
+      .join('\n')
+  }
+
+  return asString(value, fallback)
+}
+
+function asCommaText(value: unknown, fallback = '') {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry).trim())
+      .filter(Boolean)
+      .join(', ')
+  }
+
+  return asString(value, fallback)
+}
+
 function asBoolean(value: unknown, fallback = false) {
   if (typeof value === 'boolean') return value
   if (typeof value === 'number') return value === 1
+
   if (typeof value === 'string') {
-    return ['true', 'yes', '1', 'public'].includes(value.toLowerCase())
+    return ['true', 'yes', '1', 'public'].includes(value.toLowerCase().trim())
   }
 
   return fallback
@@ -224,10 +259,12 @@ async function createScenario(opts: {
   if (!isRecord(opts.input)) return null
 
   const assetIds = getAssetIds(opts.assetMap, opts.input.imageAsset)
-  const intros =
+  const introEntries =
     asStringArray(opts.input.intros).length > 0
       ? asStringArray(opts.input.intros)
-      : opts.starterChoices
+      : asStringArray(opts.input.intro).length > 0
+        ? asStringArray(opts.input.intro)
+        : opts.starterChoices
 
   const data = cleanData({
     title:
@@ -236,10 +273,10 @@ async function createScenario(opts: {
       'Untitled Scenario',
     description:
       asString(opts.input.description) || asString(opts.input.summary) || '',
-    intros,
-    locations: asStringArray(opts.input.locations),
-    genres: asStringArray(opts.input.genres),
-    inspirations: asStringArray(opts.input.inspirations),
+    intros: introEntries.join('\n'),
+    locations: asTextBlock(opts.input.locations),
+    genres: asCommaText(opts.input.genres ?? opts.input.genre),
+    inspirations: asTextBlock(opts.input.inspirations),
     artPrompt:
       asString(opts.input.artPrompt) ||
       asString(opts.input.imagePrompt) ||
@@ -284,9 +321,9 @@ async function createCharacters(opts: {
       personality: asString(character.personality),
       backstory: asString(character.backstory),
       drive: asString(character.drive),
-      inventory: asString(character.inventory),
-      quirks: asString(character.quirks),
-      skills: asString(character.skills),
+      inventory: asTextBlock(character.inventory),
+      quirks: asTextBlock(character.quirks),
+      skills: asTextBlock(character.skills),
       artPrompt:
         asString(character.artPrompt) ||
         asString(character.imagePrompt) ||
@@ -294,6 +331,7 @@ async function createCharacters(opts: {
       artImageId: assetIds.artImageId ?? undefined,
       imagePath: assetIds.imagePath || undefined,
       isPublic: asBoolean(character.isPublic ?? character.public, true),
+      isMature: asBoolean(character.isMature ?? character.mature, false),
       designer: asString(character.designer),
     })
 
@@ -348,16 +386,18 @@ async function createRewards(opts: {
         asString(reward.text) ||
         asString(reward.description) ||
         asString(reward.summary),
-      power: asString(reward.power),
-      collection: asString(reward.collection),
-      rarity: asString(reward.rarity),
-      icon: asString(reward.icon),
+      power: asString(reward.power, 'Mysterious power'),
+      collection: asString(reward.collection, 'Bundle Rewards'),
+      rarity: asNumber(reward.rarity, 0),
+      icon: asString(reward.icon, 'kind-icon:gift'),
       imagePrompt:
         asString(reward.imagePrompt) ||
         asString(reward.artPrompt) ||
         asString(reward.prompt),
       artImageId: assetIds.artImageId ?? undefined,
       imagePath: assetIds.imagePath || undefined,
+      isPublic: asBoolean(reward.isPublic ?? reward.public, true),
+      isMature: asBoolean(reward.isMature ?? reward.mature, false),
     })
 
     const createdReward = await createModel('Reward', data, opts.headers)
@@ -409,6 +449,7 @@ async function createDreams(opts: {
       dream.imageAsset ?? imageAssetLabels[0],
     )
     const heroArtImageId = heroAsset?.artImageId ?? null
+    const heroArtId = heroAsset?.artId ?? null
 
     const data = cleanData({
       title: asString(dream.title) || asString(dream.name) || 'Untitled Dream',
@@ -420,12 +461,17 @@ async function createDreams(opts: {
       currentVibe:
         asString(dream.currentVibe) ||
         asString(dream.vibe) ||
-        asString(dream.mood),
+        asString(dream.mood) ||
+        'Atmospheric, strange, and ready for adventure.',
       currentPrompt:
         asString(dream.currentPrompt) ||
         asString(dream.imagePrompt) ||
         asString(dream.artPrompt) ||
-        asString(dream.prompt),
+        asString(dream.prompt) ||
+        heroAsset?.imagePath ||
+        asString(dream.description),
+      artId: heroArtId ?? undefined,
+      artImageId: heroArtImageId ?? undefined,
       artCollectionId: opts.artCollectionId ?? undefined,
       isPublic: asBoolean(dream.isPublic ?? dream.public, true),
       isMature: asBoolean(dream.isMature ?? dream.mature, false),
@@ -435,6 +481,7 @@ async function createDreams(opts: {
     const createdDream = await createModel('Dream', data, opts.headers)
     created.push({
       ...createdDream,
+      heroArtId,
       heroArtImageId,
     })
 

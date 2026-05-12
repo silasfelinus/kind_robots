@@ -1,4 +1,4 @@
-// /server/api/chatgpt/_utils/validate.ts
+// /server/api/chatgpt/utils/validate.ts
 import { createError } from 'h3'
 
 export function badRequest(message: string): never {

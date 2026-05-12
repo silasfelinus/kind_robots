@@ -9,7 +9,7 @@ import {
 import { getActionContract, getModelContract, listActions } from './metaService'
 import { runRegistryAction } from './actionRegistry'
 import {
-  getChatGptAsset,
+  getChatGptAssetImage,
   listRecentChatGptAssetImages,
   uploadChatGptAsset,
 } from './assetService'
@@ -289,7 +289,7 @@ export async function runPublicAction(
       return uploadChatGptAsset(input, headers)
 
     case 'asset.getImage':
-      return getChatGptAsset(input, headers)
+      return getChatGptAssetImage(input, headers)
 
     case 'asset.listRecentImages':
       return listRecentChatGptAssetImages(input, headers)

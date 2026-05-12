@@ -4,7 +4,8 @@
     "components": [
       "error-popup",
       "kind-loader",
-      "loading-messages"
+      "loading-messages",
+      "screen-debug"
     ]
   },
   {
@@ -16,12 +17,11 @@
       "art-gallery",
       "art-interact",
       "art-manager",
+      "art-randomizer",
       "art-reactions",
-      "checkpoint-card",
-      "checkpoint-gallery",
       "collection-card",
-      "collection-gallery",
-      "image-upload"
+      "image-upload",
+      "list-manager"
     ]
   },
   {
@@ -66,7 +66,9 @@
       "butterfly-footer",
       "butterfly-front",
       "butterfly-gallery",
+      "butterfly-grid",
       "butterfly-guide",
+      "butterfly-lab",
       "butterfly-layer",
       "butterfly-loader",
       "butterfly-mascot",
@@ -107,9 +109,10 @@
   {
     "folderName": "giftshop",
     "components": [
-      "cart-display",
+      "cart-interact",
       "credit-purchase",
       "giftshop-footer",
+      "giftshop-interact",
       "giftshop-manager",
       "print-swag",
       "shopping-cart",
@@ -149,6 +152,8 @@
   {
     "folderName": "navigation",
     "components": [
+      "ami-chat",
+      "channel-selector",
       "corner-panel",
       "corner-toggle",
       "dashboard-shell",
@@ -157,6 +162,7 @@
       "gallery-gallery",
       "kind-title",
       "page-image",
+      "smart-panel",
       "splash-tutorial",
       "title-card"
     ]
@@ -206,27 +212,58 @@
   {
     "folderName": "screenfx",
     "components": [
+      "animation-interact",
+      "animation-layer",
       "animation-loader",
       "animation-tester",
+      "ascii-aquarium",
+      "aurora-effect",
       "bubble-effect",
       "butterfly-animation",
+      "constellation-effect",
       "dream-status",
+      "fire-effect",
+      "firefly-effect",
+      "fireworks.effect",
       "fizzy-bubbles",
+      "floating-hearts",
+      "glitch-effect",
+      "kaleidoscope-effect",
+      "lava-lamp",
+      "lightning-effect",
+      "matrix-rain",
+      "nyan-trail",
+      "orbit-effect",
+      "pacbot-effect",
+      "pixel-explosion",
+      "pixel-rain",
+      "plasma-effect",
+      "pocket-gremlin",
       "rain-effect",
+      "ripple-effect",
       "screen-fx",
-      "talking-butterflies"
+      "siege-engine",
+      "smudge-effect",
+      "snow-effect",
+      "starfield-effect",
+      "talking-butterflies",
+      "toaster-effect",
+      "wandering-creatures",
+      "wishing-stars"
     ]
   },
   {
     "folderName": "servers",
     "components": [
+      "add-checkpoint",
       "add-server",
-      "art-servers",
+      "checkpoint-card",
+      "checkpoint-gallery",
       "server-card",
       "server-gallery",
       "server-interact",
       "server-manager",
-      "text-servers"
+      "server-status"
     ]
   },
   {

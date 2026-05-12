@@ -1,4 +1,4 @@
-<!-- /components/navigation/channel-selector.vue -->
+<!-- /components/navigation/bottom-panel.vue -->
 <template>
   <nav
     class="flex h-full w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100/90 p-2 shadow-xl shadow-base-content/10 backdrop-blur"

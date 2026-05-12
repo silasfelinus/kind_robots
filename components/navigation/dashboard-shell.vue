@@ -285,19 +285,19 @@ const channels: ChannelRoute[] = [
     key: 'lab',
     label: 'Lab',
     path: '/wonderlab',
-    icon: 'kind-icon:flask',
+    icon: 'kind-icon:foundry',
   },
   {
     key: 'brainstorm',
     label: 'Brainstorm',
     path: '/brainstorm',
-    icon: 'kind-icon:brainstorm',
+    icon: 'kind-icon:brain',
   },
   {
-    key: 'giftshop',
-    label: 'Giftshop',
-    path: '/giftshop',
-    icon: 'kind-icon:gift',
+    key: 'Sanctuary',
+    label: 'Sanctuary',
+    path: '/sanctuary',
+    icon: 'kind-icon:butterfly',
   },
   {
     key: 'dreams',
@@ -315,7 +315,7 @@ const channels: ChannelRoute[] = [
     key: 'characters',
     label: 'Characters',
     path: '/characters',
-    icon: 'kind-icon:users',
+    icon: 'kind-icon:mask',
   },
 ]
 

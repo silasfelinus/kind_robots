@@ -423,16 +423,22 @@ function handleDrop(event: DragEvent) {
 
 async function handleBatchUpload() {
   const files = queuedFiles.value.map((q) => q.file)
+
+  if (!files.length) return
+
   const label =
     collectionName.value.trim() ||
     uploadStore.activeTarget?.collectionLabel ||
     'My Uploads'
 
+  const modelType = connectedModelType.value || null
+  const modelId = modelType && connectedModelId.value ? connectedModelId.value : null
+
   const result = await uploadStore.uploadBatchForActiveTarget(
     files,
     label,
-    connectedModelType.value || null,
-    connectedModelId.value,
+    modelType && modelId ? modelType : null,
+    modelId,
   )
 
   succeededNames.value = new Set(result.succeeded.map((r) => r.fileName ?? ''))

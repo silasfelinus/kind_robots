@@ -10,8 +10,8 @@ import {
   expectString,
   optional,
   validateShape,
-} from './_utils/validate'
-import { runPublicAction } from './_utils/actionRunner'
+} from './utils/validate'
+import { runPublicAction } from './utils/actionRunner'
 
 export default defineEventHandler(async (event) => {
   try {

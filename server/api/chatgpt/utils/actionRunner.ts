@@ -58,6 +58,20 @@ export async function runPublicAction(
       )
     }
 
+    case 'dream.getFull': {
+      const id = getIdInput(input)
+
+      return runRegistryAction(
+        'kr.get',
+        {
+          model: 'Dream',
+          id,
+          view: 'full',
+        },
+        headers,
+      )
+    }
+
     case 'dream.getPublic': {
       const id = getIdInput(input)
 

@@ -13,6 +13,7 @@
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
+      <!-- ── Overview ─────────────────────────────────────────────────────── -->
       <section
         v-if="currentTab === 'overview'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
@@ -43,12 +44,10 @@
               >
                 <div class="flex items-center gap-2 text-base-content/50">
                   <Icon :name="stat.icon" class="h-4 w-4" />
-
-                  <span class="font-bold uppercase tracking-wide">
-                    {{ stat.label }}
-                  </span>
+                  <span class="font-bold uppercase tracking-wide">{{
+                    stat.label
+                  }}</span>
                 </div>
-
                 <div class="mt-1 text-lg font-black text-secondary">
                   {{ stat.value }}
                 </div>
@@ -61,26 +60,21 @@
                 type="button"
                 @click="setTab('dreams')"
               >
-                <Icon name="kind-icon:moon" class="h-4 w-4" />
-                Dreams
+                <Icon name="kind-icon:moon" class="h-4 w-4" />Dreams
               </button>
-
               <button
                 class="btn btn-sm btn-secondary rounded-2xl"
                 type="button"
                 @click="setTab('interact')"
               >
-                <Icon name="kind-icon:chat" class="h-4 w-4" />
-                Interact
+                <Icon name="kind-icon:chat" class="h-4 w-4" />Interact
               </button>
-
               <button
                 class="btn btn-sm btn-accent rounded-2xl"
                 type="button"
                 @click="setTab('art')"
               >
-                <Icon name="kind-icon:image" class="h-4 w-4" />
-                Art
+                <Icon name="kind-icon:image" class="h-4 w-4" />Art
               </button>
             </div>
           </div>
@@ -112,20 +106,7 @@
           <server-gallery
             mode="text"
             variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
-            :allow-add="false"
-            :allow-edit="false"
-            :allow-delete="false"
-            :allow-test="false"
+            v-bind="readonlyServerGalleryProps"
           />
         </aside>
 
@@ -134,6 +115,7 @@
         </div>
       </section>
 
+      <!-- ── Dreams ──────────────────────────────────────────────────────── -->
       <dream-gallery
         v-else-if="currentTab === 'dreams'"
         variant="dashboard"
@@ -146,27 +128,31 @@
         :show-meta="true"
       />
 
+      <!-- ── Prompts ─────────────────────────────────────────────────────── -->
       <dream-prompts v-else-if="currentTab === 'prompts'" />
 
+      <!-- ── Art ────────────────────────────────────────────────────────── -->
       <section
         v-else-if="currentTab === 'art'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
-        <div class="min-h-0 xl:col-span-8">
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-8">
           <div
-            class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
+            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
           >
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
               Dream Art
             </p>
-
             <h2 class="text-2xl font-black text-base-content">
               Visuals for {{ selectedTitle }}
             </h2>
-
             <p class="mt-2 text-sm text-base-content/70">
-              Choose or generate the current image for the dream.
+              Upload images, browse the gallery, or generate art for this dream.
             </p>
+          </div>
+
+          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <image-upload />
           </div>
 
           <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -175,29 +161,26 @@
         </div>
 
         <aside class="flex min-h-0 flex-col gap-4 xl:col-span-4">
+          <collection-gallery
+            variant="dropdown"
+            :show-header="true"
+            :show-controls="false"
+            :allow-add="true"
+            :allow-edit="false"
+            :allow-delete="false"
+            :allow-merge="false"
+            :allow-refresh="false"
+          />
           <server-gallery
             mode="art"
             variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
-            :allow-add="false"
-            :allow-edit="false"
-            :allow-delete="false"
-            :allow-test="false"
+            v-bind="readonlyServerGalleryProps"
           />
-
           <dream-list list-type="art" />
         </aside>
       </section>
 
+      <!-- ── Collections ────────────────────────────────────────────────── -->
       <section
         v-else-if="currentTab === 'collections'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
@@ -209,16 +192,13 @@
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
               Collections
             </p>
-
             <h2 class="text-2xl font-black text-base-content">
               Dream Collections
             </h2>
-
             <p class="mt-2 text-sm text-base-content/70">
               Manage shared art collections connected to the dream.
             </p>
           </div>
-
           <collection-gallery :show-header="false" />
         </div>
 
@@ -227,6 +207,7 @@
         </aside>
       </section>
 
+      <!-- ── Scenarios ──────────────────────────────────────────────────── -->
       <section
         v-else-if="currentTab === 'scenarios'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
@@ -238,11 +219,9 @@
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
               Scenario Link
             </p>
-
             <h2 class="text-2xl font-black text-base-content">
               Scenario in Dream
             </h2>
-
             <p class="mt-2 text-sm leading-relaxed text-base-content/70">
               Dream is the place. Scenario is what happens there.
             </p>
@@ -256,13 +235,11 @@
               >
                 Attached Scenario
               </p>
-
               <h3 class="mt-1 text-lg font-black text-base-content">
                 {{
                   dreamStore.selectedDream.Scenario.title || 'Untitled Scenario'
                 }}
               </h3>
-
               <p class="mt-2 line-clamp-5 text-sm text-base-content/70">
                 {{
                   dreamStore.selectedDream.Scenario.description ||
@@ -285,6 +262,7 @@
         </div>
       </section>
 
+      <!-- ── Servers ────────────────────────────────────────────────────── -->
       <section
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
@@ -295,41 +273,14 @@
             variant="dropdown"
             title="Text Server"
             subtitle="Choose the chat engine for this dream."
-            :show-header="true"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
-            :allow-add="false"
-            :allow-edit="false"
-            :allow-delete="false"
-            :allow-test="false"
+            v-bind="{ ...readonlyServerGalleryProps, showHeader: true }"
           />
-
           <server-gallery
             mode="art"
             variant="dropdown"
             title="Art Server"
             subtitle="Choose the image engine for dream visuals."
-            :show-header="true"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
-            :allow-add="false"
-            :allow-edit="false"
-            :allow-delete="false"
-            :allow-test="false"
+            v-bind="{ ...readonlyServerGalleryProps, showHeader: true }"
           />
         </div>
 
@@ -342,8 +293,10 @@
         </div>
       </section>
 
+      <!-- ── Interact ───────────────────────────────────────────────────── -->
       <dream-interact v-else-if="currentTab === 'interact'" />
 
+      <!-- ── Unknown ────────────────────────────────────────────────────── -->
       <div
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
@@ -355,12 +308,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
+import { useUploadStore } from '@/stores/uploadStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 
 const dashboardKey = 'dream' as const
 
@@ -369,24 +324,53 @@ const navStore = useNavStore()
 const promptStore = usePromptStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
+const uploadStore = useUploadStore()
+const collectionStore = useCollectionStore()
 
-const isLoadingManager = ref(false)
-const managerError = ref<string | null>(null)
+// ── Shared server-gallery readonly props ──────────────────────────────────────
+// Spread with v-bind to avoid repeating 14 props on every server-gallery usage.
+// Override individual props inline: v-bind="{ ...readonlyServerGalleryProps, showHeader: true }"
+const readonlyServerGalleryProps = {
+  showHeader: false,
+  showControls: false,
+  showCardActions: false,
+  showDescriptions: true,
+  showMeta: true,
+  showCapabilities: false,
+  showUseButtons: false,
+  showWorkflow: false,
+  showDefaults: false,
+  showStatus: false,
+  allowAdd: false,
+  allowEdit: false,
+  allowDelete: false,
+  allowTest: false,
+} as const
 
+// ── Tab → server mode lookup ──────────────────────────────────────────────────
+const SERVER_MODE_BY_TAB: Record<string, 'art' | 'text' | 'selected'> = {
+  art: 'art',
+  overview: 'text',
+  prompts: 'text',
+  servers: 'text',
+  interact: 'text',
+}
+
+// ── Nav state ─────────────────────────────────────────────────────────────────
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
-const selectedTitle = computed(() => {
-  return dreamStore.selectedDream?.title || 'No Dream selected'
-})
+// ── Dream state ───────────────────────────────────────────────────────────────
+const selectedTitle = computed(
+  () => dreamStore.selectedDream?.title || 'No Dream selected',
+)
 
-const selectedDescription = computed(() => {
-  return (
+const selectedDescription = computed(
+  () =>
     dreamStore.selectedDream?.description ||
     dreamStore.selectedDream?.currentVibe ||
-    'Choose a Dream from the gallery to inspect its art, collections, scenario, prompts, and chat.'
-  )
-})
+    'Choose a Dream from the gallery to inspect its art, collections, scenario, prompts, and chat.',
+)
 
 const selectedStats = computed(() => [
   {
@@ -418,34 +402,55 @@ const selectedStats = computed(() => [
 ])
 
 const managerSummary = computed(() => {
-  const dreamCount = dreamStore.dreams.length
-  const activeCount = dreamStore.activeDreams.length
-  const scenarioCount = scenarioStore.scenarios.length
   const selected = dreamStore.selectedDream?.title || 'no dream selected'
-
-  return `${activeCount}/${dreamCount} Dreams active. ${scenarioCount} Scenarios loaded. Current dream: ${selected}.`
+  return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} Dreams active. ${scenarioStore.scenarios.length} Scenarios loaded. Current dream: ${selected}.`
 })
 
+// ── Upload target ─────────────────────────────────────────────────────────────
+// Pre-wires the upload component to the selected dream's art collection.
+// Called whenever the art tab is entered or the selected dream changes on that tab.
+function setupUploadTarget() {
+  const dream = dreamStore.selectedDream
+  if (!dream) return
+
+  const collectionLabel =
+    dream.ArtCollection?.label || dream.title || `Dream ${dream.id}`
+
+  uploadStore.setTarget({
+    model: 'Dream',
+    modelId: dream.id,
+    collectionLabel,
+    buttonLabel: 'Upload to Dream',
+    icon: 'kind-icon:camera',
+    applyCollection: async ({ collectionLabel: label }) => {
+      await collectionStore.fetchCollections?.()
+      const collection = collectionStore.collections.find(
+        (c) => c.label === label,
+      )
+      if (collection?.id) {
+        await dreamStore.updateSelectedDream({ artCollectionId: collection.id })
+      }
+    },
+  })
+}
+
+watch(
+  () => dreamStore.selectedDream?.id,
+  () => {
+    if (activeTab.value === 'art') setupUploadTarget()
+  },
+)
+
+// ── Tab navigation ────────────────────────────────────────────────────────────
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'art') {
-    serverStore.setCurrentServerMode('art')
-    return
-  }
-
-  if (
-    tab === 'overview' ||
-    tab === 'prompts' ||
-    tab === 'servers' ||
-    tab === 'interact'
-  ) {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
+  serverStore.setCurrentServerMode(SERVER_MODE_BY_TAB[tab] ?? 'selected')
+  if (tab === 'art') setupUploadTarget()
 }
+
+// ── Data loading ──────────────────────────────────────────────────────────────
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
 
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
@@ -462,10 +467,7 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
         includeSeeds: true,
       }),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      serverStore.initialize({ force, fetchRemote: true }),
     ])
 
     setTab(activeTab.value)
@@ -481,7 +483,5 @@ async function refreshManagerData() {
   await loadManagerData(true)
 }
 
-onMounted(async () => {
-  await loadManagerData()
-})
+onMounted(() => loadManagerData())
 </script>

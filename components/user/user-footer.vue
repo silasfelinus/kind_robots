@@ -223,13 +223,6 @@ const footerLinks: UserFooterLink[] = [
     description: 'Rewards, progress, achievements',
   },
   {
-    label: 'Servers',
-    shortLabel: 'API',
-    key: 'servers',
-    icon: 'kind-icon:server',
-    description: 'AI endpoints and model backends',
-  },
-  {
     label: 'Themes',
     shortLabel: 'Theme',
     key: 'themes',

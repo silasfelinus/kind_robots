@@ -8,7 +8,7 @@ import {
   requireUser,
   resolveChatGptSession,
 } from './access'
-import { privateArtImageSelect } from './contracts'
+import { privateArtImageSelect, publicArtImageSelect } from './contracts'
 import { isRecord } from './validate'
 
 type AssetUploadInput = {
@@ -428,7 +428,7 @@ export async function listRecentChatGptAssetImages(
     take,
     skip,
     orderBy: { createdAt: 'desc' },
-    select: privateArtImageSelect,
+    select: publicArtImageSelect,
   })
 
   const mapped = artImages.map((artImage: Record<string, unknown>) =>
@@ -438,11 +438,11 @@ export async function listRecentChatGptAssetImages(
   return {
     ok: true,
     data: {
-      artImages: mapped.map((entry: ChatGptAssetImageResult) => entry.artImage),
-      artImageIds: mapped.map(
-        (entry: ChatGptAssetImageResult) => entry.artImageId,
+      artImages,
+      artImageIds: artImages.map((artImage: Record<string, unknown>) =>
+        Number(artImage.id),
       ),
-      count: mapped.length,
+      count: artImages.length,
     },
   }
 }

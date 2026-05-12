@@ -8,7 +8,7 @@
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Mapping dreamhouses, suspicious doors, and plot-adjacent furniture..."
-    nav-grid-class="sm:grid-cols-3 xl:grid-cols-9"
+    nav-grid-class="sm:grid-cols-3 xl:grid-cols-8"
     @set-tab="setTab"
     @refresh="refreshManagerData"
   >
@@ -22,7 +22,7 @@
             class="rounded-2xl border border-primary/30 bg-primary/10 p-4 shadow"
           >
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Current Location
+              Current Dream
             </p>
 
             <h2 class="mt-1 text-2xl font-black text-base-content">
@@ -43,6 +43,7 @@
               >
                 <div class="flex items-center gap-2 text-base-content/50">
                   <Icon :name="stat.icon" class="h-4 w-4" />
+
                   <span class="font-bold uppercase tracking-wide">
                     {{ stat.label }}
                   </span>
@@ -58,28 +59,28 @@
               <button
                 class="btn btn-sm btn-primary rounded-2xl"
                 type="button"
-                @click="setTab('about')"
+                @click="setTab('dreams')"
               >
-                <Icon name="kind-icon:pencil" class="h-4 w-4" />
-                Edit
+                <Icon name="kind-icon:moon" class="h-4 w-4" />
+                Dreams
               </button>
 
               <button
                 class="btn btn-sm btn-secondary rounded-2xl"
                 type="button"
-                @click="setTab('chat')"
+                @click="setTab('interact')"
               >
                 <Icon name="kind-icon:chat" class="h-4 w-4" />
-                Enter
+                Interact
               </button>
 
               <button
                 class="btn btn-sm btn-accent rounded-2xl"
                 type="button"
-                @click="setTab('scene')"
+                @click="setTab('art')"
               >
                 <Icon name="kind-icon:image" class="h-4 w-4" />
-                Assets
+                Art
               </button>
             </div>
           </div>
@@ -107,6 +108,25 @@
             :show-meta="false"
             :compact="true"
           />
+
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            :show-header="false"
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+            :allow-add="false"
+            :allow-edit="false"
+            :allow-delete="false"
+            :allow-test="false"
+          />
         </aside>
 
         <div class="min-h-0 xl:col-span-8">
@@ -114,14 +134,8 @@
         </div>
       </section>
 
-      <add-dream
-        v-else-if="currentTab === 'about'"
-        mode="edit"
-        @saved="handleDreamSaved"
-      />
-
       <dream-gallery
-        v-else-if="currentTab === 'atlas'"
+        v-else-if="currentTab === 'dreams'"
         variant="dashboard"
         :show-header="false"
         :show-controls="true"
@@ -132,8 +146,10 @@
         :show-meta="true"
       />
 
+      <dream-prompts v-else-if="currentTab === 'prompts'" />
+
       <section
-        v-else-if="currentTab === 'scene'"
+        v-else-if="currentTab === 'art'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
         <div class="min-h-0 xl:col-span-8">
@@ -141,7 +157,7 @@
             class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
           >
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Scene Assets
+              Dream Art
             </p>
 
             <h2 class="text-2xl font-black text-base-content">
@@ -149,8 +165,7 @@
             </h2>
 
             <p class="mt-2 text-sm text-base-content/70">
-              Generate or select art assets, then connect them to the Dream
-              collection so the location has a visual memory.
+              Choose or generate the current image for the dream.
             </p>
           </div>
 
@@ -160,77 +175,60 @@
         </div>
 
         <aside class="flex min-h-0 flex-col gap-4 xl:col-span-4">
+          <server-gallery
+            mode="art"
+            variant="dropdown"
+            :show-header="false"
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+            :allow-add="false"
+            :allow-edit="false"
+            :allow-delete="false"
+            :allow-test="false"
+          />
+
           <dream-list list-type="art" />
-
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <collection-gallery :show-header="false" />
-          </div>
         </aside>
       </section>
 
       <section
-        v-else-if="currentTab === 'cast'"
+        v-else-if="currentTab === 'collections'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
-        <div class="min-h-0 xl:col-span-7">
+        <div class="min-h-0 xl:col-span-8">
           <div
             class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
           >
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Cast
+              Collections
             </p>
 
             <h2 class="text-2xl font-black text-base-content">
-              Who belongs in {{ selectedTitle }}?
+              Dream Collections
             </h2>
 
             <p class="mt-2 text-sm text-base-content/70">
-              Characters can be residents, visitors, guides, rivals, hazards,
-              witnesses, or extremely suspicious furniture critics.
+              Manage shared art collections connected to the dream.
             </p>
           </div>
 
-          <character-gallery variant="dashboard" :show-header="false" />
+          <collection-gallery :show-header="false" />
         </div>
 
-        <aside class="min-h-0 xl:col-span-5">
-          <dream-list list-type="cast" />
+        <aside class="min-h-0 xl:col-span-4">
+          <dream-list list-type="art" />
         </aside>
       </section>
 
       <section
-        v-else-if="currentTab === 'items'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="min-h-0 xl:col-span-7">
-          <div
-            class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
-          >
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Items
-            </p>
-
-            <h2 class="text-2xl font-black text-base-content">
-              What can be found in {{ selectedTitle }}?
-            </h2>
-
-            <p class="mt-2 text-sm text-base-content/70">
-              Rewards become location items, tools, artifacts, keys, plot
-              twists, suspicious snacks, and other beautiful narrative
-              contraband.
-            </p>
-          </div>
-
-          <reward-gallery variant="dashboard" :show-header="false" />
-        </div>
-
-        <aside class="min-h-0 xl:col-span-5">
-          <dream-list list-type="items" />
-        </aside>
-      </section>
-
-      <section
-        v-else-if="currentTab === 'plot'"
+        v-else-if="currentTab === 'scenarios'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
         <div class="xl:col-span-4">
@@ -238,16 +236,15 @@
             class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow"
           >
             <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Plot Layer
+              Scenario Link
             </p>
 
             <h2 class="text-2xl font-black text-base-content">
-              Scenario in Location
+              Scenario in Dream
             </h2>
 
             <p class="mt-2 text-sm leading-relaxed text-base-content/70">
-              Dream is the place. Scenario is what happens there. Keep those
-              ideas separate and your future self will buy you a pastry.
+              Dream is the place. Scenario is what happens there.
             </p>
 
             <div
@@ -278,8 +275,7 @@
               v-else
               class="mt-4 rounded-2xl border border-dashed border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
             >
-              No Scenario attached yet. The location is vibing without a plot,
-              which is legal but suspicious.
+              No scenario attached yet.
             </div>
           </div>
         </div>
@@ -289,9 +285,64 @@
         </div>
       </section>
 
-      <dream-prompts v-else-if="currentTab === 'prompts'" />
+      <section
+        v-else-if="currentTab === 'servers'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            title="Text Server"
+            subtitle="Choose the chat engine for this dream."
+            :show-header="true"
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+            :allow-add="false"
+            :allow-edit="false"
+            :allow-delete="false"
+            :allow-test="false"
+          />
 
-      <dream-interact v-else-if="currentTab === 'chat'" />
+          <server-gallery
+            mode="art"
+            variant="dropdown"
+            title="Art Server"
+            subtitle="Choose the image engine for dream visuals."
+            :show-header="true"
+            :show-controls="false"
+            :show-card-actions="false"
+            :show-descriptions="true"
+            :show-meta="true"
+            :show-capabilities="false"
+            :show-use-buttons="false"
+            :show-workflow="false"
+            :show-defaults="false"
+            :show-status="false"
+            :allow-add="false"
+            :allow-edit="false"
+            :allow-delete="false"
+            :allow-test="false"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-7">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
+            <server-interact />
+          </div>
+        </div>
+      </section>
+
+      <dream-interact v-else-if="currentTab === 'interact'" />
 
       <div
         v-else
@@ -311,17 +362,6 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
-type DreamTab =
-  | 'overview'
-  | 'about'
-  | 'atlas'
-  | 'scene'
-  | 'cast'
-  | 'items'
-  | 'plot'
-  | 'prompts'
-  | 'chat'
-
 const dashboardKey = 'dream' as const
 
 const dreamStore = useDreamStore()
@@ -333,29 +373,8 @@ const serverStore = useServerStore()
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const tabs: { key: DreamTab; label: string; icon: string }[] = [
-  { key: 'overview', label: 'Overview', icon: 'kind-icon:map' },
-  { key: 'about', label: 'About', icon: 'kind-icon:scroll' },
-  { key: 'atlas', label: 'Atlas', icon: 'kind-icon:door' },
-  { key: 'scene', label: 'Scene', icon: 'kind-icon:image' },
-  { key: 'cast', label: 'Cast', icon: 'kind-icon:users' },
-  { key: 'items', label: 'Items', icon: 'kind-icon:gift' },
-  { key: 'plot', label: 'Plot', icon: 'kind-icon:story' },
-  { key: 'prompts', label: 'Prompts', icon: 'kind-icon:sparkles' },
-  { key: 'chat', label: 'Chat', icon: 'kind-icon:chat' },
-]
-
-const tabKeys = computed(() => tabs.map((tab) => tab.key))
-
-const activeTab = computed<DreamTab>(() => {
-  const storedTab = navStore.getDashboardTab(dashboardKey)
-
-  if (tabKeys.value.includes(storedTab as DreamTab)) {
-    return storedTab as DreamTab
-  }
-
-  return 'overview'
-})
+const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
+const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const selectedTitle = computed(() => {
   return dreamStore.selectedDream?.title || 'No Dream selected'
@@ -365,7 +384,7 @@ const selectedDescription = computed(() => {
   return (
     dreamStore.selectedDream?.description ||
     dreamStore.selectedDream?.currentVibe ||
-    'Choose a Dream location from the atlas to inspect its scene, cast, items, plot, prompts, and room history.'
+    'Choose a Dream from the gallery to inspect its art, collections, scenario, prompts, and chat.'
   )
 })
 
@@ -390,7 +409,7 @@ const selectedStats = computed(() => [
     icon: 'kind-icon:image',
   },
   {
-    label: 'Notes',
+    label: 'Chats',
     value:
       dreamStore.selectedDream?._count?.Chats ??
       dreamStore.selectedDreamChats.length,
@@ -402,26 +421,25 @@ const managerSummary = computed(() => {
   const dreamCount = dreamStore.dreams.length
   const activeCount = dreamStore.activeDreams.length
   const scenarioCount = scenarioStore.scenarios.length
-  const selected = dreamStore.selectedDream?.title || 'no location selected'
+  const selected = dreamStore.selectedDream?.title || 'no dream selected'
 
-  return `${activeCount}/${dreamCount} Dream locations active. ${scenarioCount} Scenarios loaded. Current location: ${selected}.`
+  return `${activeCount}/${dreamCount} Dreams active. ${scenarioCount} Scenarios loaded. Current dream: ${selected}.`
 })
 
-function isDreamTab(tab: string): tab is DreamTab {
-  return tabKeys.value.includes(tab as DreamTab)
-}
-
 function setTab(tab: string) {
-  const safeTab = isDreamTab(tab) ? tab : 'overview'
+  navStore.setDashboardTab(dashboardKey, tab)
 
-  navStore.setDashboardTab(dashboardKey, safeTab)
-
-  if (safeTab === 'scene') {
+  if (tab === 'art') {
     serverStore.setCurrentServerMode('art')
     return
   }
 
-  if (safeTab === 'prompts' || safeTab === 'chat' || safeTab === 'overview') {
+  if (
+    tab === 'overview' ||
+    tab === 'prompts' ||
+    tab === 'servers' ||
+    tab === 'interact'
+  ) {
     serverStore.setCurrentServerMode('text')
     return
   }
@@ -463,16 +481,7 @@ async function refreshManagerData() {
   await loadManagerData(true)
 }
 
-async function handleDreamSaved(id: number) {
-  await dreamStore.fetchDreamById(id, true)
-  setTab('overview')
-}
-
 onMounted(async () => {
   await loadManagerData()
-
-  if (!activeTab.value) {
-    setTab('overview')
-  }
 })
 </script>

@@ -11,8 +11,6 @@ import {
 } from './access'
 import { isRecord } from './validate'
 
-type ViewName = 'minimal' | 'card' | 'detail'
-
 type ModelKey =
   | 'Art'
   | 'ArtImage'
@@ -32,11 +30,14 @@ type ModelKey =
   | 'Tag'
   | 'Gallery'
 
+type RequiredViewName = 'minimal' | 'card' | 'detail'
+type ViewName = RequiredViewName | 'full'
+
 type RegistryItem = {
   delegate: any
   allowedWrite: readonly string[]
   allowedFilter: readonly string[]
-  views: Record<ViewName, any>
+  views: Record<RequiredViewName, any> & Partial<Record<'full', any>>
   requireAuthOnCreate?: boolean
   requireOwnerOnUpdate?: boolean
   requireOwnerOnDelete?: boolean
@@ -234,6 +235,75 @@ const registry: Record<ModelKey, RegistryItem> = {
           artServerId: true,
           createdAt: true,
           updatedAt: true,
+        },
+      },
+      full: {
+        include: {
+          User: {
+            select: {
+              id: true,
+              username: true,
+              avatarImage: true,
+            },
+          },
+          Pitch: true,
+          Art: true,
+          ArtImage: true,
+          ArtCollection: {
+            include: {
+              art: {
+                select: {
+                  id: true,
+                  artImageId: true,
+                  imagePath: true,
+                  promptString: true,
+                  isPublic: true,
+                  isMature: true,
+                },
+              },
+            },
+          },
+          Gallery: true,
+          Scenario: true,
+          Characters: true,
+          Rewards: true,
+          Tags: true,
+          Reactions: true,
+          Chats: {
+            take: 20,
+            orderBy: {
+              createdAt: 'desc',
+            },
+            include: {
+              User: {
+                select: {
+                  id: true,
+                  username: true,
+                  avatarImage: true,
+                },
+              },
+              Prompt: true,
+              ArtImage: {
+                select: {
+                  id: true,
+                  fileName: true,
+                  fileType: true,
+                  artId: true,
+                  galleryId: true,
+                  userId: true,
+                },
+              },
+              Reactions: true,
+            },
+          },
+          _count: {
+            select: {
+              Chats: true,
+              Reactions: true,
+              Characters: true,
+              Rewards: true,
+            },
+          },
         },
       },
     },

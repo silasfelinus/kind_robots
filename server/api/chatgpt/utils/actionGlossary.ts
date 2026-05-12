@@ -6,6 +6,7 @@ export type PublicChatGptAction =
   | 'dream.createLocation'
   | 'dream.listPublic'
   | 'dream.getPublic'
+  | 'dream.getFull'
   | 'dream.updateMine'
   | 'dream.deleteMine'
   | 'art.createPrompt'

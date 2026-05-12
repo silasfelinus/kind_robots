@@ -117,7 +117,7 @@ export type Reaction = Prisma.ReactionModel
 export type Resource = Prisma.ResourceModel
 /**
  * Model Reward
- * Reward has morphed in intent, it used to be used specifically as a reward for completing a Scenario, and still can be. But in general it is an Item model, and users have the ability to create their own rewards as one shot storytelling prompts in Scenarios. They are designed in the format of the game Equisite Corpse, where storytellers take turns creating a story with a cliffhanger, then expecting the next storyteller to respond. With Scenarios, it's usually user and AI (or multiple users), and the idea was that a reward would be a crazy twist to the narrative, exemplified by our first Reward: The Button that Blows up the World.
+ * 
  */
 export type Reward = Prisma.RewardModel
 /**

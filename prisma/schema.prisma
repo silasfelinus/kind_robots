@@ -288,8 +288,8 @@ model Character {
   skills         String?    @db.VarChar(2048)
   genre          String?    @db.VarChar(256)
   artImageId     Int?
-  isPublic        Boolean         @default(true)
-  isMature        Boolean         @default(false)
+  isPublic       Boolean    @default(true)
+  isMature       Boolean    @default(false)
   userId         Int        @default(10)
   artPrompt      String?
   goalStat1Name  String?    @default("Principled|Chaotic")
@@ -304,16 +304,19 @@ model Character {
   imagePath      String?    @db.VarChar(256)
   designer       String?
   personality    String?
+
   ArtImage       ArtImage?
   User           User       @relation(fields: [userId], references: [id])
   Chats          Chat[]
-  Reactions Reaction[]
+  Reactions      Reaction[]
   Rewards        Reward[]   @relation("CharacterToReward")
   Scenarios      Scenario[] @relation("CharacterToScenario")
-  Butterflies Butterfly[]
+  Dreams         Dream[]    @relation("CharacterToDream")
+  Butterflies    Butterfly[]
 
   @@index([userId], map: "Character_userId_fkey")
 }
+
 
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
 /// originId should always be shared in subsequent messages so we can track the thread via originID and createdAt
@@ -414,6 +417,9 @@ model Dream {
   Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
   ArtImage        ArtImage?      @relation(fields: [artImageId], references: [id])
   ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
+
+  Characters      Character[]    @relation("CharacterToDream")
+  Rewards         Reward[]       @relation("DreamToReward")
 
   Chats           Chat[]
   Reactions       Reaction[]
@@ -690,8 +696,6 @@ enum SupportedServer {
   OPENAI
 }
 
-
-/// Reward has morphed in intent, it used to be used specifically as a reward for completing a Scenario, and still can be. But in general it is an Item model, and users have the ability to create their own rewards as one shot storytelling prompts in Scenarios. They are designed in the format of the game Equisite Corpse, where storytellers take turns creating a story with a cliffhanger, then expecting the next storyteller to respond. With Scenarios, it's usually user and AI (or multiple users), and the idea was that a reward would be a crazy twist to the narrative, exemplified by our first Reward: The Button that Blows up the World.
 model Reward {
   id          Int         @id @default(autoincrement())
   createdAt   DateTime    @default(now())
@@ -706,12 +710,14 @@ model Reward {
   artImageId  Int?
   imagePath   String?
   imagePrompt String?
-  isPublic        Boolean         @default(true)
-  isMature        Boolean         @default(false)
+  isPublic    Boolean     @default(true)
+  isMature    Boolean     @default(false)
+
   ArtImage    ArtImage?
   Reactions   Reaction[]
   User        User?       @relation(fields: [userId], references: [id])
   Characters  Character[] @relation("CharacterToReward")
+  Dreams      Dream[]     @relation("DreamToReward")
   Butterflies Butterfly[]
 
   @@index([userId], map: "Reward_userId_fkey")

@@ -16,4 +16,4 @@ amitip: Uhm, what happens if they eat them? Are we talking silica-gel-packet-bad
 navComponent: 'dashboard-nav'
 ---
 
-:jellybean-counter
+:milestone-interact

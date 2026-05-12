@@ -23,7 +23,9 @@ export default defineEventHandler(async (event) => {
       message: includeUser
         ? `Themes retrieved for user ${user!.id}`
         : 'Public themes retrieved successfully.',
-      themes: rows.map(parseTheme), // parsed values for the client/tests
+      data: {
+        themes: rows.map(parseTheme),
+      },
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

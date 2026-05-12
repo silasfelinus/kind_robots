@@ -1,271 +1,136 @@
 <!-- /components/dreams/dream-list.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3">
-    <header
-      v-if="showHeader"
-      class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
-      <div class="min-w-0">
-        <h2 class="truncate text-lg font-bold text-base-content">
+  <section class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow">
+    <header class="flex items-center justify-between gap-3">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-primary">
           {{ title }}
-        </h2>
-
-        <p v-if="subtitle" class="text-sm text-base-content/60">
-          {{ subtitle }}
         </p>
+        <h3 class="text-xl font-black text-base-content">
+          {{ dreamStore.selectedDream?.title || 'No Dream selected' }}
+        </h3>
       </div>
 
-      <span class="badge badge-ghost shrink-0">
-        {{ visibleChats.length }}
-      </span>
+      <button
+        v-if="listType === 'chats'"
+        class="btn btn-sm btn-secondary rounded-2xl"
+        type="button"
+        :disabled="!dreamStore.selectedDreamId || dreamStore.chatsLoading"
+        @click="loadChats"
+      >
+        <Icon name="kind-icon:refresh" class="h-4 w-4" />
+        Load
+      </button>
     </header>
 
-    <div
-      v-if="dreamStore.chatsLoading"
-      class="flex min-h-40 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
-    >
-      <span class="loading loading-spinner loading-lg text-primary" />
-    </div>
-
-    <div
-      v-else-if="visibleChats.length === 0"
-      class="flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-base-300 bg-base-100 p-4 text-center text-base-content/55"
-    >
-      <Icon :name="emptyIcon" class="h-10 w-10 text-primary/70" />
-
-      <p class="font-bold">
-        {{ emptyTitle }}
-      </p>
-
-      <p class="max-w-sm text-sm">
-        {{ emptyMessage }}
-      </p>
-    </div>
-
-    <div v-else class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+    <div class="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
       <article
-        v-for="chat in visibleChats"
-        :key="chat.id"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
+        v-for="entry in entries"
+        :key="entry.key"
+        class="rounded-2xl border border-base-300 bg-base-200 p-3"
       >
-        <div class="mb-2 flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="truncate text-sm font-bold text-primary">
-                {{ chat.sender || chat.User?.username || 'Dreamer' }}
-              </span>
-
-              <span v-if="chat.type" class="badge badge-outline badge-xs">
-                {{ chat.type }}
-              </span>
-
-              <span
-                v-if="hasImage(chat)"
-                class="badge badge-secondary badge-xs"
-              >
-                Image
-              </span>
-            </div>
-
-            <p
-              v-if="chat.createdAt"
-              class="mt-0.5 text-xs text-base-content/40"
-            >
-              {{ formatDate(chat.createdAt) }}
+        <div class="flex items-start gap-3">
+          <Icon :name="entry.icon" class="h-7 w-7 shrink-0 text-primary" />
+          <div class="min-w-0 flex-1">
+            <h4 class="font-black text-secondary">
+              {{ entry.title }}
+            </h4>
+            <p class="mt-1 line-clamp-4 text-sm text-base-content/70">
+              {{ entry.body }}
             </p>
           </div>
-
-          <span class="shrink-0 text-[10px] text-base-content/40">
-            #{{ chat.id }}
-          </span>
         </div>
-
-        <div
-          v-if="showImages && imageSource(chat)"
-          class="mb-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-        >
-          <img
-            :src="imageSource(chat)"
-            alt="Dream image"
-            class="h-48 w-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        <p
-          v-if="chat.content"
-          :class="[
-            'whitespace-pre-wrap text-sm leading-relaxed text-base-content/75',
-            compact ? 'line-clamp-4' : '',
-          ]"
-        >
-          {{ chat.content }}
-        </p>
-
-        <p
-          v-if="chat.botResponse && chat.botResponse !== chat.content"
-          class="mt-3 whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-sm leading-relaxed text-base-content/75"
-        >
-          {{ chat.botResponse }}
-        </p>
-
-        <div v-if="showMeta" class="mt-3 flex flex-wrap gap-2">
-          <span
-            v-if="chatCurrentPrompt(chat)"
-            class="badge badge-ghost badge-sm"
-          >
-            Prompt
-          </span>
-
-          <span v-if="chatCurrentVibe(chat)" class="badge badge-ghost badge-sm">
-            Vibe
-          </span>
-
-          <span v-if="chatServerName(chat)" class="badge badge-info badge-sm">
-            {{ chatServerName(chat) }}
-          </span>
-
-          <span v-if="chatArtId(chat)" class="badge badge-primary badge-sm">
-            Art {{ chatArtId(chat) }}
-          </span>
-        </div>
-
-        <details
-          v-if="showDebug"
-          class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-2"
-        >
-          <summary
-            class="cursor-pointer text-xs font-bold text-base-content/70"
-          >
-            Debug
-          </summary>
-
-          <pre
-            class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
-            >{{ JSON.stringify(chat, null, 2) }}</pre
-          >
-        </details>
       </article>
+
+      <div
+        v-if="!entries.length"
+        class="rounded-2xl border border-dashed border-base-300 p-4 text-center text-sm text-base-content/60"
+      >
+        {{ emptyMessage }}
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import type { DreamChatWithRelations } from '@/stores/dreamStore'
 import { useDreamStore } from '@/stores/dreamStore'
-
-type DreamChatMeta = DreamChatWithRelations & {
-  currentPrompt?: string | null
-  currentVibe?: string | null
-  artId?: number | null
-  serverName?: string | null
-}
 
 const props = withDefaults(
   defineProps<{
-    title?: string
-    subtitle?: string
-    showHeader?: boolean
-    imageOnly?: boolean
-    showImages?: boolean
-    showMeta?: boolean
-    showDebug?: boolean
-    compact?: boolean
-    limit?: number
+    listType?: 'cast' | 'items' | 'art' | 'chats'
     autoLoad?: boolean
-    emptyTitle?: string
-    emptyMessage?: string
-    emptyIcon?: string
   }>(),
   {
-    title: 'Dream History',
-    subtitle: '',
-    showHeader: false,
-    imageOnly: false,
-    showImages: true,
-    showMeta: true,
-    showDebug: false,
-    compact: false,
-    limit: 50,
+    listType: 'chats',
     autoLoad: true,
-    emptyTitle: 'No dream history yet.',
-    emptyMessage:
-      'Send a nudge, generate an image, or update the prompt to start the trail.',
-    emptyIcon: 'kind-icon:moon',
   },
 )
 
 const dreamStore = useDreamStore()
 
-const visibleChats = computed<DreamChatWithRelations[]>(() => {
-  let chats = [...dreamStore.dreamChats]
-
-  if (props.imageOnly) {
-    chats = chats.filter((chat) => {
-      return Boolean(
-        hasImage(chat) ||
-        chatArtId(chat) ||
-        chatCurrentPrompt(chat) ||
-        chat.content?.toLowerCase().includes('image'),
-      )
-    })
-  }
-
-  return chats.slice(-props.limit).reverse()
+const title = computed(() => {
+  if (props.listType === 'cast') return 'Cast in Location'
+  if (props.listType === 'items') return 'Items in Location'
+  if (props.listType === 'art') return 'Scene Assets'
+  return 'Room History'
 })
 
-function asDreamChatMeta(chat: DreamChatWithRelations): DreamChatMeta {
-  return chat as DreamChatMeta
-}
+const emptyMessage = computed(() => {
+  if (props.listType === 'cast') return 'No Characters linked yet. The room is empty, which is suspiciously peaceful.'
+  if (props.listType === 'items') return 'No Rewards linked yet. Add a cursed teapot. Be brave.'
+  if (props.listType === 'art') return 'No scene art linked yet. The Dream is still wearing placeholder pajamas.'
+  return 'No room history yet. Say something ominous but useful.'
+})
 
-function chatCurrentPrompt(chat: DreamChatWithRelations) {
-  return asDreamChatMeta(chat).currentPrompt ?? null
-}
-
-function chatCurrentVibe(chat: DreamChatWithRelations) {
-  return asDreamChatMeta(chat).currentVibe ?? null
-}
-
-function chatArtId(chat: DreamChatWithRelations) {
-  return asDreamChatMeta(chat).artId ?? null
-}
-
-function chatServerName(chat: DreamChatWithRelations) {
-  return asDreamChatMeta(chat).serverName ?? null
-}
-
-function hasImage(chat: DreamChatWithRelations) {
-  return Boolean(chat.artImageId || chat.ArtImage)
-}
-
-function imageSource(chat: DreamChatWithRelations) {
-  const image = chat.ArtImage
-
-  if (!image) return ''
-
-  if (image.imageData && image.fileType) {
-    return `data:image/${image.fileType};base64,${image.imageData}`
+const entries = computed(() => {
+  if (props.listType === 'cast') {
+    return dreamStore.selectedDreamCast.map((character) => ({
+      key: `character-${character.id}`,
+      title: character.name,
+      body:
+        character.personality ||
+        character.backstory ||
+        character.species ||
+        'A linked Character waiting for narrative mischief.',
+      icon: 'kind-icon:users',
+    }))
   }
 
-  if (image.fileName) {
-    return image.fileName
+  if (props.listType === 'items') {
+    return dreamStore.selectedDreamItems.map((reward) => ({
+      key: `reward-${reward.id}`,
+      title: reward.label || reward.text,
+      body: reward.power || reward.collection || 'A linked Reward with suspicious potential.',
+      icon: reward.icon || 'kind-icon:gift',
+    }))
   }
 
-  return ''
-}
+  if (props.listType === 'art') {
+    return dreamStore.selectedDreamCollectionArt.map((art) => ({
+      key: `art-${art.id}`,
+      title: `Art #${art.id}`,
+      body: art.promptString || art.imagePath || 'Scene asset linked to this Dream.',
+      icon: 'kind-icon:image',
+    }))
+  }
 
-function formatDate(value: Date | string) {
-  const date = value instanceof Date ? value : new Date(value)
-
-  if (Number.isNaN(date.getTime())) return ''
-
-  return date.toLocaleString()
-}
+  return dreamStore.selectedDreamChats.map((chat) => ({
+    key: `chat-${chat.id}`,
+    title: chat.title || chat.sender || chat.type,
+    body: chat.content,
+    icon: chat.type === 'BotResponse' ? 'kind-icon:sparkles' : 'kind-icon:chat',
+  }))
+})
 
 onMounted(async () => {
-  if (!props.autoLoad || !dreamStore.selectedDream?.id) return
-
-  await dreamStore.fetchDreamChats(dreamStore.selectedDream.id)
+  if (props.autoLoad && props.listType === 'chats') {
+    await loadChats()
+  }
 })
+
+async function loadChats() {
+  if (!dreamStore.selectedDreamId) return
+  await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
+}
 </script>

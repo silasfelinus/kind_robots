@@ -1,14 +1,14 @@
 <!-- /components/dreams/dream-manager.vue -->
 <template>
   <dashboard-shell
-    title="Dream Manager"
+    title="Dream Atlas"
     :summary="managerSummary"
     :tabs="tabs"
     :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
-    loading-message="Loading dreams, servers, prompts, and moonlit nonsense..."
-    nav-grid-class="xl:grid-cols-8"
+    loading-message="Mapping dreamhouses, suspicious doors, and plot-adjacent furniture..."
+    nav-grid-class="xl:grid-cols-7"
     @set-tab="setTab"
     @refresh="refreshManagerData"
   >
@@ -17,54 +17,17 @@
         v-if="currentTab === 'overview'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-4">
           <dream-gallery
             variant="dropdown"
             :show-header="false"
-            :show-controls="false"
+            :show-controls="true"
             :show-images="true"
             :show-card-actions="false"
             :show-open-button="false"
-            :show-stats="false"
+            :show-stats="true"
             :show-meta="true"
             :compact="true"
-          />
-
-          <server-gallery
-            mode="art"
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
-          />
-
-          <checkpoint-gallery
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-status="false"
-          />
-
-          <server-gallery
-            mode="text"
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
           />
 
           <scenario-gallery
@@ -80,21 +43,21 @@
           />
         </div>
 
-        <div class="min-h-0 xl:col-span-7">
+        <div class="min-h-0 xl:col-span-8">
           <dream-interact />
         </div>
       </section>
 
+      <add-dream v-else-if="currentTab === 'about'" mode="edit" />
+
       <dream-gallery
-        v-else-if="currentTab === 'dreams'"
+        v-else-if="currentTab === 'atlas'"
         variant="dashboard"
         :show-header="false"
       />
 
-      <dream-prompts v-else-if="currentTab === 'prompts'" />
-
       <section
-        v-else-if="currentTab === 'art'"
+        v-else-if="currentTab === 'scene'"
         class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"
       >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -106,69 +69,53 @@
         </div>
       </section>
 
-      <collection-gallery
-        v-else-if="currentTab === 'collections'"
-        :show-header="false"
-      />
+      <section
+        v-else-if="currentTab === 'cast'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="xl:col-span-7">
+          <character-gallery
+            variant="dashboard"
+            :show-header="false"
+          />
+        </div>
+
+        <div class="xl:col-span-5">
+          <dream-list list-type="cast" />
+        </div>
+      </section>
+
+      <section
+        v-else-if="currentTab === 'items'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="xl:col-span-7">
+          <reward-gallery
+            variant="dashboard"
+            :show-header="false"
+          />
+        </div>
+
+        <div class="xl:col-span-5">
+          <dream-list list-type="items" />
+        </div>
+      </section>
 
       <scenario-gallery
-        v-else-if="currentTab === 'scenarios'"
+        v-else-if="currentTab === 'plot'"
         variant="dashboard"
         :show-header="false"
       />
 
-      <section
-        v-else-if="currentTab === 'servers'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="min-h-0 xl:col-span-6">
-          <server-gallery
-            mode="text"
-            variant="dashboard"
-            :show-header="false"
-            :show-controls="true"
-            :show-card-actions="true"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="true"
-            :show-use-buttons="true"
-            :show-workflow="true"
-            :show-defaults="true"
-            :show-status="true"
-          />
-        </div>
+      <dream-prompts v-else-if="currentTab === 'prompts'" />
 
-        <div class="min-h-0 xl:col-span-6">
-          <server-gallery
-            mode="art"
-            variant="dashboard"
-            :show-header="false"
-            :show-controls="true"
-            :show-card-actions="true"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="true"
-            :show-use-buttons="true"
-            :show-workflow="true"
-            :show-defaults="true"
-            :show-status="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-12">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <server-interact />
-          </div>
-        </div>
-      </section>
-
-      <dream-interact v-else-if="currentTab === 'interact'" />
+      <dream-interact v-else-if="currentTab === 'chat'" />
 
       <div
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
-        Unknown dream tab: {{ currentTab }}
+        Unknown Dream tab: {{ currentTab }}
       </div>
     </template>
   </dashboard-shell>
@@ -176,7 +123,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
@@ -185,7 +131,6 @@ import { useServerStore } from '@/stores/serverStore'
 
 const dashboardKey = 'dream' as const
 
-const checkpointStore = useCheckpointStore()
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
 const promptStore = usePromptStore()
@@ -195,63 +140,38 @@ const serverStore = useServerStore()
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
+const tabs = [
+  { key: 'overview', label: 'Overview', icon: 'kind-icon:map' },
+  { key: 'about', label: 'About', icon: 'kind-icon:scroll' },
+  { key: 'atlas', label: 'Atlas', icon: 'kind-icon:door' },
+  { key: 'scene', label: 'Scene', icon: 'kind-icon:image' },
+  { key: 'cast', label: 'Cast', icon: 'kind-icon:users' },
+  { key: 'items', label: 'Items', icon: 'kind-icon:gift' },
+  { key: 'plot', label: 'Plot', icon: 'kind-icon:story' },
+  { key: 'prompts', label: 'Prompts', icon: 'kind-icon:sparkles' },
+  { key: 'chat', label: 'Chat', icon: 'kind-icon:chat' },
+]
+
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
-
-const selectedDreamName = computed(() => {
-  return dreamStore.selectedDream?.title || 'no dream'
-})
-
-const selectedScenarioName = computed(() => {
-  return scenarioStore.selectedScenario?.title || 'no scenario'
-})
-
-const selectedCheckpointName = computed(() => {
-  return (
-    checkpointStore.selectedCheckpoint?.customLabel ||
-    checkpointStore.selectedCheckpoint?.name ||
-    'no checkpoint'
-  )
-})
-
-const artServerName = computed(() => {
-  return (
-    serverStore.activeArtServer?.label ||
-    serverStore.activeArtServer?.title ||
-    'no art server'
-  )
-})
-
-const textServerName = computed(() => {
-  return (
-    serverStore.activeTextServer?.label ||
-    serverStore.activeTextServer?.title ||
-    'no text server'
-  )
-})
 
 const managerSummary = computed(() => {
   const dreamCount = dreamStore.dreams.length
   const scenarioCount = scenarioStore.scenarios.length
+  const selected = dreamStore.selectedDream?.title || 'no location selected'
 
-  return `${dreamCount} dreams and ${scenarioCount} scenarios loaded. Current setup: ${selectedDreamName.value}, ${artServerName.value}, ${selectedCheckpointName.value}, ${textServerName.value}, ${selectedScenarioName.value}.`
+  return `${dreamCount} Dream locations and ${scenarioCount} Scenarios loaded. Current location: ${selected}.`
 })
 
 function setTab(tab: string) {
   navStore.setDashboardTab(dashboardKey, tab)
 
-  if (tab === 'art') {
+  if (tab === 'scene') {
     serverStore.setCurrentServerMode('art')
     return
   }
 
-  if (tab === 'prompts' || tab === 'interact' || tab === 'overview') {
+  if (tab === 'prompts' || tab === 'chat' || tab === 'overview') {
     serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  if (tab === 'servers') {
-    serverStore.setCurrentServerMode('selected')
     return
   }
 
@@ -277,11 +197,9 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
       }),
     ])
-
-    checkpointStore.initialize()
   } catch (error) {
     managerError.value =
-      error instanceof Error ? error.message : 'Failed to load dream manager.'
+      error instanceof Error ? error.message : 'Failed to load Dream atlas.'
   } finally {
     isLoadingManager.value = false
   }
@@ -293,6 +211,12 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
+
+  if (!activeTab.value) {
+    setTab('overview')
+    return
+  }
+
   setTab(activeTab.value)
 })
 </script>

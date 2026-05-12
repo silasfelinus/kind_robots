@@ -24,6 +24,7 @@ export type ImageUploadModel =
   | 'User'
 
 export type ConnectableModel =
+  | 'ArtCollection'
   | 'Bot'
   | 'Character'
   | 'Dream'
@@ -89,7 +90,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
   const lastArtImage = ref<ArtImage | null>(null)
   const lastArt = ref<Art | null>(null)
 
-  // Batch state
   const uploadProgress = ref(0)
   const uploadTotal = ref(0)
   const lastBatchArts = ref<Art[]>([])
@@ -131,15 +131,76 @@ export const useUploadStore = defineStore('UploadStore', () => {
   }
 
   function validateFile(file: File): string | null {
-    if (!allowedFileTypes.includes(file.type)) {
-      return 'PNG, JPEG, or WebP only'
+    return allowedFileTypes.includes(file.type)
+      ? null
+      : 'PNG, JPEG, or WebP only'
+  }
+
+  // ── Core per-file pipeline ────────────────────────────────────────────────
+  // artStore.uploadImage returns { success, data } where data is the freshly
+  // created ArtImage. We capture that return value directly — the previous bug
+  // used artStore.artImages.at(-1) which returned whatever was already last in
+  // the store array (image 343) instead of the image that was just created.
+  async function uploadSingleFile(
+    file: File,
+    target: ImageUploadTarget,
+    userId: number,
+    username: string,
+    collectionLabel?: string,
+  ): Promise<{ artImage: ArtImage; art: Art }> {
+    const artStore = useArtStore()
+    const collectionStore = useCollectionStore()
+
+    const galleryName = target.galleryName ?? 'userUpload'
+    const galleryId = target.galleryId ?? 21
+
+    // Step 1 — upload and capture the returned ArtImage directly.
+    const formData = new FormData()
+    formData.append('image', file)
+    formData.append('galleryName', galleryName)
+    formData.append('galleryId', String(galleryId))
+    formData.append('userId', String(userId))
+    formData.append('fileType', file.type)
+
+    const uploadResult = await artStore.uploadImage(formData)
+
+    if (!uploadResult.success || !uploadResult.data) {
+      throw new Error(uploadResult.message || 'Image upload failed')
     }
-    return null
+
+    const artImage = uploadResult.data // real ID, not .at(-1)
+
+    // Step 2 — create Art record with the explicit artImageId from step 1.
+    const art = await artStore.createArt({
+      promptString: target.promptString ?? '[UploadedImage]',
+      path: target.path ?? '[UploadedImage]',
+      galleryId,
+      userId,
+      designer: username,
+      artImageId: artImage.id,
+      pitchId: null,
+      promptId: null,
+      seed: null,
+      steps: null,
+    })
+
+    // Step 3 — back-link ArtImage → Art.
+    await artStore.updateArtImageWithArtId(artImage.id, art.id)
+
+    // Step 4 — add to collection if requested.
+    const label = collectionLabel?.trim() || target.collectionLabel
+    if (label) {
+      await collectionStore.addArtToCollection({ artId: art.id, label })
+    }
+
+    // Step 5 — push into store so the gallery updates without a full refresh.
+    artStore.addOrUpdateArt(art)
+
+    return { artImage, art }
   }
 
   async function uploadForActiveTarget(file: File): Promise<ImageUploadResult> {
     const target = activeTarget.value
-
     if (!target) {
       error.value = 'No upload target selected'
       return { success: false, message: error.value }
@@ -156,78 +217,34 @@ export const useUploadStore = defineStore('UploadStore', () => {
     message.value = null
 
     try {
-      const artStore = useArtStore()
       const userStore = useUserStore()
-      const collectionStore = useCollectionStore()
-
       const userId = userStore.userId ?? userStore.user?.id ?? 10
       const username =
         userStore.username ?? userStore.user?.username ?? 'Kind Guest'
 
-      const formData = new FormData()
-      formData.append('image', file)
-      formData.append('galleryName', target.galleryName ?? 'userUpload')
-      formData.append('galleryId', String(target.galleryId ?? 21))
-      formData.append('userId', String(userId))
-      formData.append('fileType', file.type)
-
-      await artStore.uploadImage(formData)
-
-      const uploadedImage = artStore.artImages.at(-1)
-
-      if (!uploadedImage?.id) {
-        throw new Error('Upload returned no ArtImage')
-      }
-
-      lastArtImage.value = uploadedImage
-
-      const createdArt = await artStore.createArt({
-        promptString: target.promptString ?? '[UploadedImage]',
-        path: target.path ?? '[UploadedImage]',
-        seed: null,
-        steps: null,
-        galleryId: target.galleryId ?? 21,
-        promptId: null,
-        pitchId: null,
+      const { artImage, art } = await uploadSingleFile(
+        file,
+        target,
         userId,
-        designer: username,
-        artImageId: uploadedImage.id,
-      })
+        username,
+      )
 
-      if (!createdArt?.id) {
-        throw new Error('Art creation failed')
-      }
-
-      lastArt.value = createdArt
-
-      await artStore.updateArtImageWithArtId(uploadedImage.id, createdArt.id)
-
-      if (target.collectionLabel) {
-        await collectionStore.addArtToCollection({
-          artId: createdArt.id,
-          label: target.collectionLabel,
-        })
-      }
+      lastArtImage.value = artImage
+      lastArt.value = art
 
       if (target.applyImage) {
         await target.applyImage({
-          artImageId: uploadedImage.id,
-          artId: createdArt.id,
-          imageData: uploadedImage.imageData,
-          imagePath: createdArt.path,
-          artImage: uploadedImage,
-          art: createdArt,
+          artImageId: artImage.id,
+          artId: art.id,
+          imageData: artImage.imageData,
+          imagePath: art.path,
+          artImage,
+          art,
         })
       }
 
       message.value = 'Image uploaded'
-
-      return {
-        success: true,
-        message: message.value,
-        artImage: uploadedImage,
-        art: createdArt,
-      }
+      return { success: true, message: message.value, artImage, art }
     } catch (caught) {
       const fallback =
         caught instanceof Error ? caught.message : 'Upload failed'
@@ -245,7 +262,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
     connectedModelId?: number | null,
   ): Promise<BatchUploadResult> {
     const target = activeTarget.value
-
     if (!target) {
       error.value = 'No upload target selected'
       return {
@@ -256,7 +272,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
     }
 
     const validFiles = files.filter((f) => !validateFile(f))
-
     if (validFiles.length === 0) {
       error.value = 'No valid image files to upload'
       return { succeeded: [], failed: [], total: 0 }
@@ -270,10 +285,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
     lastBatchArts.value = []
     lastBatchArtImages.value = []
 
-    const artStore = useArtStore()
     const userStore = useUserStore()
-    const collectionStore = useCollectionStore()
-
     const userId = userStore.userId ?? userStore.user?.id ?? 10
     const username =
       userStore.username ?? userStore.user?.username ?? 'Kind Guest'
@@ -285,51 +297,25 @@ export const useUploadStore = defineStore('UploadStore', () => {
 
     for (const file of validFiles) {
       try {
-        const formData = new FormData()
-        formData.append('image', file)
-        formData.append('galleryName', target.galleryName ?? 'userUpload')
-        formData.append('galleryId', String(target.galleryId ?? 21))
-        formData.append('userId', String(userId))
-        formData.append('fileType', file.type)
-
-        await artStore.uploadImage(formData)
-        const uploadedImage = artStore.artImages.at(-1)
-
-        if (!uploadedImage?.id) throw new Error('Upload returned no ArtImage')
-
-        const createdArt = await artStore.createArt({
-          promptString: target.promptString ?? '[UploadedImage]',
-          path: target.path ?? '[UploadedImage]',
-          seed: null,
-          steps: null,
-          galleryId: target.galleryId ?? 21,
-          promptId: null,
-          pitchId: null,
+        const { artImage, art } = await uploadSingleFile(
+          file,
+          target,
           userId,
-          designer: username,
-          artImageId: uploadedImage.id,
-        })
-
-        if (!createdArt?.id) throw new Error('Art creation failed')
-
-        await artStore.updateArtImageWithArtId(uploadedImage.id, createdArt.id)
-
-        await collectionStore.addArtToCollection({
-          artId: createdArt.id,
+          username,
           label,
-        })
+        )
 
-        lastBatchArts.value.push(createdArt)
-        lastBatchArtImages.value.push(uploadedImage)
-        lastArt.value = createdArt
-        lastArtImage.value = uploadedImage
+        lastBatchArts.value.push(art)
+        lastBatchArtImages.value.push(artImage)
+        lastArt.value = art
+        lastArtImage.value = artImage
 
         succeeded.push({
           success: true,
           message: `${file.name} uploaded`,
           fileName: file.name,
-          artImage: uploadedImage,
-          art: createdArt,
+          artImage,
+          art,
         })
       } catch (caught) {
         const msg = caught instanceof Error ? caught.message : 'Upload failed'

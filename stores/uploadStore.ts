@@ -89,13 +89,13 @@ export const useUploadStore = defineStore('UploadStore', () => {
   const lastArtImage = ref<ArtImage | null>(null)
   const lastArt = ref<Art | null>(null)
 
-  // Batch state
   const uploadProgress = ref(0)
   const uploadTotal = ref(0)
   const lastBatchArts = ref<Art[]>([])
   const lastBatchArtImages = ref<ArtImage[]>([])
 
   const hasActiveTarget = computed(() => Boolean(activeTarget.value?.model))
+
   const uploadPercent = computed(() =>
     uploadTotal.value > 0
       ? Math.round((uploadProgress.value / uploadTotal.value) * 100)
@@ -114,6 +114,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
       showPreview: true,
       ...target,
     }
+
     error.value = null
     message.value = null
   }
@@ -134,7 +135,57 @@ export const useUploadStore = defineStore('UploadStore', () => {
     if (!allowedFileTypes.includes(file.type)) {
       return 'PNG, JPEG, or WebP only'
     }
+
     return null
+  }
+
+  function getUploadUser() {
+    const userStore = useUserStore()
+
+    return {
+      userId: userStore.userId ?? userStore.user?.id ?? 10,
+      username: userStore.username ?? userStore.user?.username ?? 'Kind Guest',
+    }
+  }
+
+  function buildUploadFormData(file: File, target: ImageUploadTarget, userId: number) {
+    const formData = new FormData()
+
+    formData.append('image', file)
+    formData.append('galleryName', target.galleryName ?? 'userUpload')
+    formData.append('galleryId', String(target.galleryId ?? 21))
+    formData.append('userId', String(userId))
+    formData.append('fileType', file.type)
+
+    return formData
+  }
+
+  async function createArtFromUploadedImage(
+    uploadedImage: ArtImage,
+    target: ImageUploadTarget,
+    userId: number,
+    username: string,
+  ) {
+    const artStore = useArtStore()
+
+    const createdArt = await artStore.createArt({
+      promptString: target.promptString ?? '[UploadedImage]',
+      path: target.path ?? '[UploadedImage]',
+      seed: null,
+      steps: null,
+      galleryId: target.galleryId ?? 21,
+      promptId: null,
+      pitchId: null,
+      userId,
+      designer: username,
+      artImageId: uploadedImage.id,
+    })
+
+    if (!createdArt?.id) {
+      throw new Error('Art creation failed')
+    }
+
+    return createdArt
   }
 
   async function uploadForActiveTarget(file: File): Promise<ImageUploadResult> {
@@ -146,6 +197,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
     }
 
     const validationError = validateFile(file)
+
     if (validationError) {
       error.value = validationError
       return { success: false, message: validationError }
@@ -157,19 +209,10 @@ export const useUploadStore = defineStore('UploadStore', () => {
 
     try {
       const artStore = useArtStore()
-      const userStore = useUserStore()
       const collectionStore = useCollectionStore()
+      const { userId, username } = getUploadUser()
 
-      const userId = userStore.userId ?? userStore.user?.id ?? 10
-      const username =
-        userStore.username ?? userStore.user?.username ?? 'Kind Guest'
-
-      const formData = new FormData()
-      formData.append('image', file)
-      formData.append('galleryName', target.galleryName ?? 'userUpload')
-      formData.append('galleryId', String(target.galleryId ?? 21))
-      formData.append('userId', String(userId))
-      formData.append('fileType', file.type)
+      const formData = buildUploadFormData(file, target, userId)
 
       await artStore.uploadImage(formData)
 
@@ -179,28 +222,15 @@ export const useUploadStore = defineStore('UploadStore', () => {
         throw new Error('Upload returned no ArtImage')
       }
 
-      lastArtImage.value = uploadedImage
-
-      const createdArt = await artStore.createArt({
-        promptString: target.promptString ?? '[UploadedImage]',
-        path: target.path ?? '[UploadedImage]',
-        seed: null,
-        steps: null,
-        galleryId: target.galleryId ?? 21,
-        promptId: null,
-        pitchId: null,
+      const createdArt = await createArtFromUploadedImage(
+        uploadedImage,
+        target,
         userId,
-        designer: username,
-        artImageId: uploadedImage.id,
-      })
+        username,
+      )
 
-      if (!createdArt?.id) {
-        throw new Error('Art creation failed')
-      }
-
+      lastArtImage.value = uploadedImage
       lastArt.value = createdArt
-
-      await artStore.updateArtImageWithArtId(uploadedImage.id, createdArt.id)
 
       if (target.collectionLabel) {
         await collectionStore.addArtToCollection({
@@ -225,14 +255,19 @@ export const useUploadStore = defineStore('UploadStore', () => {
       return {
         success: true,
         message: message.value,
+        fileName: file.name,
         artImage: uploadedImage,
         art: createdArt,
       }
     } catch (caught) {
-      const fallback =
-        caught instanceof Error ? caught.message : 'Upload failed'
+      const fallback = caught instanceof Error ? caught.message : 'Upload failed'
       error.value = fallback
-      return { success: false, message: fallback }
+
+      return {
+        success: false,
+        message: fallback,
+        fileName: file.name,
+      }
     } finally {
       isUploading.value = false
     }
@@ -248,6 +283,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
 
     if (!target) {
       error.value = 'No upload target selected'
+
       return {
         succeeded: [],
         failed: [{ success: false, message: 'No upload target' }],
@@ -255,11 +291,17 @@ export const useUploadStore = defineStore('UploadStore', () => {
       }
     }
 
-    const validFiles = files.filter((f) => !validateFile(f))
+    const validFiles = files.filter((file) => !validateFile(file))
+    const skipped = files.length - validFiles.length
 
     if (validFiles.length === 0) {
       error.value = 'No valid image files to upload'
-      return { succeeded: [], failed: [], total: 0 }
+
+      return {
+        succeeded: [],
+        failed: [],
+        total: 0,
+      }
     }
 
     isUploading.value = true
@@ -271,97 +313,123 @@ export const useUploadStore = defineStore('UploadStore', () => {
     lastBatchArtImages.value = []
 
     const artStore = useArtStore()
-    const userStore = useUserStore()
     const collectionStore = useCollectionStore()
+    const { userId, username } = getUploadUser()
 
-    const userId = userStore.userId ?? userStore.user?.id ?? 10
-    const username =
-      userStore.username ?? userStore.user?.username ?? 'Kind Guest'
     const label =
       collectionLabel?.trim() || target.collectionLabel || 'My Uploads'
+
+    const safeConnectedModelType =
+      connectedModelType && connectedModelId ? connectedModelType : null
+
+    const safeConnectedModelId =
+      safeConnectedModelType && connectedModelId ? connectedModelId : null
 
     const succeeded: ImageUploadResult[] = []
     const failed: ImageUploadResult[] = []
 
-    for (const file of validFiles) {
-      try {
-        const formData = new FormData()
-        formData.append('image', file)
-        formData.append('galleryName', target.galleryName ?? 'userUpload')
-        formData.append('galleryId', String(target.galleryId ?? 21))
-        formData.append('userId', String(userId))
-        formData.append('fileType', file.type)
+    try {
+      for (const file of validFiles) {
+        try {
+          const formData = buildUploadFormData(file, target, userId)
 
-        await artStore.uploadImage(formData)
-        const uploadedImage = artStore.artImages.at(-1)
+          await artStore.uploadImage(formData)
 
-        if (!uploadedImage?.id) throw new Error('Upload returned no ArtImage')
+          const uploadedImage = artStore.artImages.at(-1)
 
-        const createdArt = await artStore.createArt({
-          promptString: target.promptString ?? '[UploadedImage]',
-          path: target.path ?? '[UploadedImage]',
-          seed: null,
-          steps: null,
-          galleryId: target.galleryId ?? 21,
-          promptId: null,
-          pitchId: null,
-          userId,
-          designer: username,
-          artImageId: uploadedImage.id,
-        })
+          if (!uploadedImage?.id) {
+            throw new Error('Upload returned no ArtImage')
+          }
 
-        if (!createdArt?.id) throw new Error('Art creation failed')
+          const createdArt = await createArtFromUploadedImage(
+            uploadedImage,
+            target,
+            userId,
+            username,
+          )
 
-        await artStore.updateArtImageWithArtId(uploadedImage.id, createdArt.id)
+          await collectionStore.addArtToCollection({
+            artId: createdArt.id,
+            label,
+          })
 
-        await collectionStore.addArtToCollection({
-          artId: createdArt.id,
-          label,
-        })
+          lastBatchArts.value.push(createdArt)
+          lastBatchArtImages.value.push(uploadedImage)
+          lastArt.value = createdArt
+          lastArtImage.value = uploadedImage
 
-        lastBatchArts.value.push(createdArt)
-        lastBatchArtImages.value.push(uploadedImage)
-        lastArt.value = createdArt
-        lastArtImage.value = uploadedImage
+          succeeded.push({
+            success: true,
+            message: `${file.name} uploaded`,
+            fileName: file.name,
+            artImage: uploadedImage,
+            art: createdArt,
+          })
+        } catch (caught) {
+          const uploadMessage =
+            caught instanceof Error ? caught.message : 'Upload failed'
 
-        succeeded.push({
-          success: true,
-          message: `${file.name} uploaded`,
-          fileName: file.name,
-          artImage: uploadedImage,
-          art: createdArt,
-        })
-      } catch (caught) {
-        const msg = caught instanceof Error ? caught.message : 'Upload failed'
-        failed.push({ success: false, message: msg, fileName: file.name })
-      } finally {
-        uploadProgress.value++
+          failed.push({
+            success: false,
+            message: uploadMessage,
+            fileName: file.name,
+          })
+        } finally {
+          uploadProgress.value++
+        }
       }
+
+      if (target.applyCollection && lastBatchArts.value.length > 0) {
+        await target.applyCollection({
+          artIds: lastBatchArts.value.map((art) => art.id),
+          artImageIds: lastBatchArtImages.value.map((image) => image.id),
+          collectionLabel: label,
+          arts: [...lastBatchArts.value],
+          artImages: [...lastBatchArtImages.value],
+          connectedModelType: safeConnectedModelType,
+          connectedModelId: safeConnectedModelId,
+        })
+      }
+
+      const parts: string[] = [
+        `${succeeded.length} image${succeeded.length !== 1 ? 's' : ''} uploaded to "${label}"`,
+      ]
+
+      if (failed.length) {
+        parts.push(`${failed.length} failed`)
+      }
+
+      if (skipped) {
+        parts.push(`${skipped} skipped invalid type`)
+      }
+
+      message.value = parts.join(' · ')
+
+      return {
+        succeeded,
+        failed,
+        total: validFiles.length,
+      }
+    } catch (caught) {
+      const batchMessage =
+        caught instanceof Error ? caught.message : 'Batch upload failed'
+
+      error.value = batchMessage
+
+      return {
+        succeeded,
+        failed: [
+          ...failed,
+          {
+            success: false,
+            message: batchMessage,
+          },
+        ],
+        total: validFiles.length,
+      }
+    } finally {
+      isUploading.value = false
     }
-
-    if (target.applyCollection && lastBatchArts.value.length > 0) {
-      await target.applyCollection({
-        artIds: lastBatchArts.value.map((a) => a.id),
-        artImageIds: lastBatchArtImages.value.map((i) => i.id),
-        collectionLabel: label,
-        arts: [...lastBatchArts.value],
-        artImages: [...lastBatchArtImages.value],
-        connectedModelType: connectedModelType ?? null,
-        connectedModelId: connectedModelId ?? null,
-      })
-    }
-
-    const skipped = files.length - validFiles.length
-    const parts: string[] = [
-      `${succeeded.length} image${succeeded.length !== 1 ? 's' : ''} uploaded to "${label}"`,
-    ]
-    if (failed.length) parts.push(`${failed.length} failed`)
-    if (skipped) parts.push(`${skipped} skipped (invalid type)`)
-
-    message.value = parts.join(' · ')
-    isUploading.value = false
-
-    return { succeeded, failed, total: validFiles.length }
   }
 
   return {

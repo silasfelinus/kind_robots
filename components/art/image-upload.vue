@@ -54,7 +54,6 @@
           class="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
 
-        <!-- Remove button -->
         <button
           v-if="!isUploading"
           type="button"
@@ -65,7 +64,6 @@
           <Icon name="mdi:close" class="h-3 w-3" />
         </button>
 
-        <!-- Success overlay -->
         <Transition name="fade">
           <div
             v-if="succeededNames.has(item.file.name)"
@@ -78,7 +76,6 @@
           </div>
         </Transition>
 
-        <!-- Failure overlay -->
         <Transition name="fade">
           <div
             v-if="failedNames.has(item.file.name)"
@@ -97,9 +94,9 @@
     <template v-if="queuedFiles.length > 0">
       <!-- Collection name -->
       <label class="flex flex-col gap-1">
-        <span class="text-xs font-medium text-base-content/60"
-          >Collection name</span
-        >
+        <span class="text-xs font-medium text-base-content/60">
+          Collection name
+        </span>
         <input
           v-model="collectionName"
           type="text"
@@ -109,34 +106,116 @@
         />
       </label>
 
-      <!-- Model connection -->
-      <div v-if="showModelConnect" class="flex flex-col gap-1">
+      <!-- Model linker -->
+      <div v-if="showModelConnect" class="flex flex-col gap-2">
         <span class="text-xs font-medium text-base-content/60">
           Link collection to (optional)
         </span>
-        <div class="flex gap-2">
-          <select
-            v-model="connectedModelType"
-            class="select select-bordered select-sm flex-1"
-            :disabled="isUploading"
+
+        <!-- Model type picker -->
+        <select
+          v-model="connectedModelType"
+          class="select select-bordered select-sm w-full"
+          :disabled="isUploading"
+          @change="clearModelSelection"
+        >
+          <option value="">— none —</option>
+          <option v-for="m in connectableModels" :key="m" :value="m">
+            {{ m }}
+          </option>
+        </select>
+
+        <!-- Per-model gallery dropdown -->
+        <Transition name="fade">
+          <div
+            v-if="connectedModelType"
+            class="rounded-xl border border-base-300 bg-base-100 p-2"
           >
-            <option value="">— none —</option>
-            <option v-for="m in connectableModels" :key="m" :value="m">
-              {{ m }}
-            </option>
-          </select>
-          <Transition name="slide">
-            <input
-              v-if="connectedModelType"
-              v-model.number="connectedModelId"
-              type="number"
-              placeholder="ID"
-              min="1"
-              class="input input-bordered input-sm w-24"
-              :disabled="isUploading"
+            <!-- Selected summary badge -->
+            <div
+              v-if="connectedModelId"
+              class="mb-2 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 text-xs"
+            >
+              <Icon name="mdi:link-variant" class="h-3.5 w-3.5 text-primary" />
+              <span class="font-medium text-primary">
+                {{ connectedModelType }} #{{ connectedModelId }}
+              </span>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs ml-auto h-5 min-h-0 px-1"
+                @click="clearModelSelection"
+              >
+                <Icon name="mdi:close" class="h-3 w-3" />
+              </button>
+            </div>
+
+            <LazyBotGallery
+              v-if="connectedModelType === 'Bot'"
+              variant="dropdown"
+              :show-header="true"
+              :show-controls="false"
+              :allow-add="false"
+              :allow-edit="false"
+              :allow-delete="false"
+              :allow-refresh="false"
             />
-          </Transition>
-        </div>
+
+            <LazyCharacterGallery
+              v-else-if="connectedModelType === 'Character'"
+              variant="dropdown"
+              :show-header="true"
+              :show-controls="false"
+              :allow-add="false"
+              :allow-edit="false"
+              :allow-delete="false"
+              :allow-refresh="false"
+            />
+
+            <LazyDreamGallery
+              v-else-if="connectedModelType === 'Dream'"
+              variant="dropdown"
+              :show-header="true"
+              :show-controls="false"
+              :allow-add="false"
+              :allow-edit="false"
+              :allow-delete="false"
+              :allow-refresh="false"
+            />
+
+            <LazyPitchGallery
+              v-else-if="connectedModelType === 'Pitch'"
+              variant="dropdown"
+              :show-header="true"
+              :show-controls="false"
+              :allow-add="false"
+              :allow-edit="false"
+              :allow-delete="false"
+              :allow-refresh="false"
+            />
+
+            <LazyRewardGallery
+              v-else-if="connectedModelType === 'Reward'"
+              variant="dropdown"
+              :show-header="true"
+              :show-controls="false"
+              :allow-add="false"
+              :allow-edit="false"
+              :allow-delete="false"
+              :allow-refresh="false"
+            />
+
+            <LazyScenarioGallery
+              v-else-if="connectedModelType === 'Scenario'"
+              variant="dropdown"
+              :show-header="true"
+              :show-controls="false"
+              :allow-add="false"
+              :allow-edit="false"
+              :allow-delete="false"
+              :allow-refresh="false"
+            />
+          </div>
+        </Transition>
       </div>
     </template>
 
@@ -160,7 +239,6 @@
 
     <!-- Action buttons -->
     <div class="flex gap-2">
-      <!-- Upload batch -->
       <button
         v-if="queuedFiles.length > 0"
         type="button"
@@ -179,7 +257,6 @@
         </span>
       </button>
 
-      <!-- Fallback: open file picker when queue is empty -->
       <button
         v-else
         type="button"
@@ -191,7 +268,6 @@
         <span>{{ buttonLabel }}</span>
       </button>
 
-      <!-- Clear queue -->
       <button
         v-if="queuedFiles.length > 0 && !isUploading"
         type="button"
@@ -221,6 +297,12 @@
 import { computed, onUnmounted, ref } from 'vue'
 import { useUploadStore } from '@/stores/uploadStore'
 import type { ConnectableModel } from '@/stores/uploadStore'
+import { useBotStore } from '@/stores/botStore'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useDreamStore } from '@/stores/dreamStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useRewardStore } from '@/stores/rewardStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 
 withDefaults(
   defineProps<{
@@ -230,11 +312,17 @@ withDefaults(
 )
 
 const uploadStore = useUploadStore()
+const botStore = useBotStore()
+const characterStore = useCharacterStore()
+const dreamStore = useDreamStore()
+const pitchStore = usePitchStore()
+const rewardStore = useRewardStore()
+const scenarioStore = useScenarioStore()
+
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 const collectionName = ref('')
 const connectedModelType = ref<ConnectableModel | ''>('')
-const connectedModelId = ref<number | null>(null)
 
 const connectableModels: ConnectableModel[] = [
   'Bot',
@@ -244,6 +332,40 @@ const connectableModels: ConnectableModel[] = [
   'Reward',
   'Scenario',
 ]
+
+const connectedModelId = computed<number | null>(() => {
+  switch (connectedModelType.value) {
+    case 'Bot':
+      return botStore.currentBot?.id ?? null
+    case 'Character':
+      return characterStore.selectedCharacter?.id ?? null
+    case 'Dream':
+      return dreamStore.selectedDream?.id ?? null
+    case 'Pitch':
+      return pitchStore.selectedPitch?.id ?? null
+    case 'Reward':
+      return rewardStore.selectedReward?.id ?? null
+    case 'Scenario':
+      return scenarioStore.selectedScenario?.id ?? null
+    default:
+      return null
+  }
+})
+
+function clearModelSelection() {
+  botStore.deselectBot()
+  characterStore.deselectCharacter()
+  dreamStore.deselectDream()
+  pitchStore.deselectPitch()
+  rewardStore.deselectReward()
+  scenarioStore.deselectScenario()
+}
+
+function removeFile(index: number) {
+  const removed = queuedFiles.value.splice(index, 1)[0]
+  if (removed) URL.revokeObjectURL(removed.preview)
+}
+// ── Queue management ──────────────────────────────────────────────────────────
 
 interface QueuedFile {
   id: string
@@ -272,17 +394,10 @@ function makeQueuedFile(file: File): QueuedFile {
 }
 
 function addFiles(incoming: FileList | File[]) {
-  const candidates = Array.from(incoming).filter(
-    (f) => !uploadStore.validateFile(f),
-  )
-  queuedFiles.value.push(...candidates.map(makeQueuedFile))
+  const valid = Array.from(incoming).filter((f) => !uploadStore.validateFile(f))
+  queuedFiles.value.push(...valid.map(makeQueuedFile))
   succeededNames.value = new Set()
   failedNames.value = new Set()
-}
-
-function removeFile(index: number) {
-  const [removed] = queuedFiles.value.splice(index, 1)
-  URL.revokeObjectURL(removed.preview)
 }
 
 function clearQueue() {
@@ -292,7 +407,7 @@ function clearQueue() {
   failedNames.value = new Set()
   collectionName.value = ''
   connectedModelType.value = ''
-  connectedModelId.value = null
+  clearModelSelection()
 }
 
 function handleFileSelect(event: Event) {
@@ -317,7 +432,7 @@ async function handleBatchUpload() {
     files,
     label,
     connectedModelType.value || null,
-    connectedModelId.value || null,
+    connectedModelId.value,
   )
 
   succeededNames.value = new Set(result.succeeded.map((r) => r.fileName ?? ''))
@@ -337,18 +452,6 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateX(-6px);
 }
 
 .grid-enter-active,

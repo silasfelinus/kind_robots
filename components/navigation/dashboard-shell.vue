@@ -270,12 +270,6 @@ const channels: ChannelRoute[] = [
     icon: 'kind-icon:paintbrush',
   },
   {
-    key: 'user',
-    label: 'User',
-    path: '/dashboard',
-    icon: 'kind-icon:user',
-  },
-  {
     key: 'lab',
     label: 'Lab',
     path: '/wonderlab',

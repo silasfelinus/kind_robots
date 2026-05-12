@@ -103,7 +103,7 @@
         </div>
       </section>
 
-      <art-interact v-else-if="currentTab === 'selected'" />
+
 
       <div
         v-else

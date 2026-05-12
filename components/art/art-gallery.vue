@@ -297,6 +297,35 @@
       </div>
     </section>
 
+    <section
+      v-if="showSelectedPanel && selectedArt && !isDropdownMode"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
+    >
+      <div class="mb-3 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-xs font-bold uppercase text-primary/70">
+            Selected Art
+          </p>
+
+          <h3 class="truncate text-base font-black text-base-content">
+            Art #{{ selectedArt.id }}
+          </h3>
+        </div>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          title="Clear selected art"
+          @click="clearSelectedArt"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
+        </button>
+      </div>
+
+      <art-interact />
+    </section>
+
     <section class="min-h-0 flex-1 overflow-auto">
       <div
         v-if="isLoading"
@@ -380,7 +409,7 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+              <span v-else class="badge badge-ghost badge-sm">Private</span>
 
               <span
                 v-if="activeCollection.isMature"
@@ -494,6 +523,7 @@
           >
             <art-card
               :art="art"
+              :selected="selectedArt?.id === art.id"
               :compact="true"
               :show-actions="true"
               :show-prompt="false"
@@ -531,6 +561,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/art/art-gallery.vue
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { Art } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
@@ -549,6 +580,7 @@ const props = withDefaults(
     compact?: boolean
     showHeader?: boolean
     showControls?: boolean
+    showSelectedPanel?: boolean
     allowAdd?: boolean
     allowEdit?: boolean
     allowDelete?: boolean
@@ -563,6 +595,7 @@ const props = withDefaults(
     compact: false,
     showHeader: true,
     showControls: true,
+    showSelectedPanel: false,
     allowAdd: true,
     allowEdit: true,
     allowDelete: true,
@@ -601,6 +634,8 @@ const showMergePanel = ref(false)
 const mergeTargetId = ref<number | null>(null)
 const isMerging = ref(false)
 
+const selectedArt = computed(() => artStore.currentArt)
+
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 
 const isCompact = computed(() => {
@@ -626,6 +661,7 @@ const showMature = computed({
 
 const displayCount = computed(() => {
   if (isDropdownMode.value) return visibleCollections.value.length
+
   return mode.value === 'collections'
     ? visibleCollections.value.length
     : currentArtList.value.length
@@ -891,6 +927,10 @@ function clearSelectedCollection() {
   showCollectionForm.value = false
   showMergePanel.value = false
   collectionStore.setCurrentCollection?.(null)
+}
+
+function clearSelectedArt() {
+  artStore.deselectArt?.()
 }
 
 function startAddingCollection() {

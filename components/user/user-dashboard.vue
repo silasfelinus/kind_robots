@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <cache-clear />
+    
   </div>
 </template>
 

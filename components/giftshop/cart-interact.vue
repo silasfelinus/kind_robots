@@ -1,4 +1,4 @@
-<!-- /components/content/shop/cart-display.vue -->
+<!-- /components/giftshop/cart-interact.vue -->
 <template>
   <div class="space-y-4">
     <div class="flex justify-between items-center">

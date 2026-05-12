@@ -24,63 +24,6 @@ const serverStatusTab: DashboardTabConfig = {
 }
 
 export const dashboardConfigs = {
-  user: {
-    key: 'user',
-    label: 'User',
-    defaultTab: 'dashboard',
-    tabs: [
-      {
-        key: 'dashboard',
-        label: 'Dashboard',
-        icon: 'kind-icon:dashboard',
-        title: 'User Dashboard',
-        summary: 'Account, profile, and app settings.',
-      },
-      {
-        key: 'subscription',
-        label: 'Subscription',
-        icon: 'kind-icon:credit-card',
-        title: 'Subscription',
-        summary: 'Manage plans, credits, and billing.',
-      },
-      {
-        key: 'milestones',
-        label: 'Milestones',
-        icon: 'kind-icon:trophy',
-        title: 'Milestones',
-        summary: 'Track achievements, rewards, and progress.',
-      },
-      {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Server Manager',
-        summary: 'Manage AI providers and private endpoints.',
-      },
-      {
-        key: 'themes',
-        label: 'Themes',
-        icon: 'kind-icon:palette',
-        title: 'Theme Gallery',
-        summary: 'Customize the look and vibe of the app.',
-      },
-      {
-        key: 'chats',
-        label: 'Chats',
-        icon: 'kind-icon:chat',
-        title: 'Chats',
-        summary: 'Review conversations and message activity.',
-      },
-      {
-        key: 'galleries',
-        label: 'Galleries',
-        icon: 'kind-icon:gallery',
-        title: 'Galleries',
-        summary: 'Browse generated and curated media.',
-      },
-    ],
-  },
-
   art: {
     key: 'art',
     label: 'Art',
@@ -169,35 +112,6 @@ export const dashboardConfigs = {
     ],
   },
 
-  theme: {
-    key: 'theme',
-    label: 'Theme',
-    defaultTab: 'overview',
-    tabs: [
-      {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:dashboard',
-        title: 'Theme Overview',
-        summary: 'Preview, choose, and manage app themes.',
-      },
-      {
-        key: 'gallery',
-        label: 'Gallery',
-        icon: 'kind-icon:palette',
-        title: 'Theme Gallery',
-        summary: 'Browse and activate themes.',
-      },
-      {
-        key: 'custom',
-        label: 'Custom',
-        icon: 'kind-icon:wrench',
-        title: 'Custom Theme',
-        summary: 'Edit custom theme values.',
-      },
-    ],
-  },
-
   brainstorm: {
     key: 'brainstorm',
     label: 'Brainstorm',
@@ -231,35 +145,6 @@ export const dashboardConfigs = {
         title: 'Brainstorm Interact',
         summary:
           'Generate, accept, edit, reject, save, or overwrite brainstorms.',
-      },
-    ],
-  },
-
-  giftshop: {
-    key: 'giftshop',
-    label: 'Giftshop',
-    defaultTab: 'overview',
-    tabs: [
-      {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:dashboard',
-        title: 'Giftshop Overview',
-        summary: 'Manage giftshop items, swag ideas, and storefront assets.',
-      },
-      {
-        key: 'products',
-        label: 'Products',
-        icon: 'kind-icon:gift',
-        title: 'Products',
-        summary: 'Browse and manage giftshop products.',
-      },
-      {
-        key: 'collections',
-        label: 'Collections',
-        icon: 'kind-icon:folder',
-        title: 'Giftshop Collections',
-        summary: 'Group products and art assets.',
       },
     ],
   },
@@ -388,42 +273,6 @@ export const dashboardConfigs = {
     ],
   },
 
-  wonder: {
-    key: 'wonder',
-    label: 'WonderLab',
-    defaultTab: 'memory-dungeon',
-    tabs: [
-      {
-        key: 'memory-dungeon',
-        label: 'Dungeon',
-        icon: 'kind-icon:castle',
-        title: 'Memory Dungeon',
-        summary: 'Explore the gamified memory adventure.',
-      },
-      {
-        key: 'wonder-lab',
-        label: 'WonderLab',
-        icon: 'kind-icon:flask',
-        title: 'WonderLab',
-        summary: 'Experimental toys, tests, and delightful nonsense.',
-      },
-      {
-        key: 'screen-fx',
-        label: 'Screen FX',
-        icon: 'kind-icon:sparkles',
-        title: 'Screen Effects',
-        summary: 'Control overlays, butterflies, and visual effects.',
-      },
-      {
-        key: 'rebel-button',
-        label: 'Rebel',
-        icon: 'kind-icon:button',
-        title: 'Rebel Button',
-        summary: 'Push the button. Regret is optional.',
-      },
-    ],
-  },
-
   footer: {
     key: 'footer',
     label: 'Footer',
@@ -504,6 +353,115 @@ export const dashboardConfigs = {
     ],
   },
 
+  giftshop: {
+    key: 'giftshop',
+    label: 'Butterfly Giftshop',
+    defaultTab: 'sanctuary',
+    tabs: [
+      {
+        key: 'sanctuary',
+        label: 'Sanctuary',
+        icon: 'kind-icon:butterfly',
+        title: 'Butterfly Sanctuary',
+        summary:
+          'Create, summon, inspect, and interact with the butterflies who absolutely, definitely do not run this entire website.',
+      },
+      {
+        key: 'about',
+        label: 'About',
+        icon: 'kind-icon:sparkles',
+        title: 'About the Swarm',
+        summary:
+          'Meet the humans, robots, butterflies, and suspiciously organized tiny executives behind Kind Robots.',
+      },
+      {
+        key: 'butterfly-lab',
+        label: 'Butterfly Lab',
+        icon: 'kind-icon:flask',
+        title: 'Butterfly Lab',
+        summary:
+          'Tune behind-the-scenes animation controls, test wing chaos, and politely ask cursed perspectives to leave.',
+      },
+      {
+        key: 'giftshop',
+        label: 'Giftshop',
+        icon: 'kind-icon:gift',
+        title: 'Giftshop',
+        summary:
+          'Browse merch, prints, tokens, and swarm-approved artifacts. Every purchase is reviewed by at least three butterflies in tiny clipboards.',
+      },
+      {
+        key: 'cart',
+        label: 'Cart',
+        icon: 'kind-icon:cart',
+        title: 'Cart Nest',
+        summary:
+          'Review your cart, update quantities, release unwanted butterflies, and proceed to checkout.',
+      },
+      {
+        key: 'subscriptions',
+        label: 'Subscriptions',
+        icon: 'kind-icon:credit-card',
+        title: 'Subscriptions',
+        summary:
+          'Manage support plans, credits, billing, and the ceremonial exchange of jellybeans for robot uptime.',
+      },
+      {
+        key: 'sponsor',
+        label: 'Sponsor',
+        icon: 'kind-icon:hand-heart',
+        title: 'Sponsor the Mission',
+        summary:
+          'Support the anti-malaria mission and help AMI turn tiny digital wings into very real-world mosquito-net energy.',
+      },
+    ],
+  },
+
+  reward: {
+    key: 'reward',
+    label: 'Reward',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:sparkles',
+        title: 'Reward Overview',
+        summary:
+          'Pick a reward, choose a text engine, and generate a story encounter.',
+      },
+      {
+        key: 'rewards',
+        label: 'Rewards',
+        icon: 'kind-icon:gift',
+        title: 'Reward Gallery',
+        summary: 'Select, add, edit, or delete story rewards and artifacts.',
+      },
+      {
+        key: 'collections',
+        label: 'Collections',
+        icon: 'kind-icon:folder',
+        title: 'Reward Collections',
+        summary:
+          'Organize rewards by story type, item family, or chaos flavor.',
+      },
+      {
+        key: 'servers',
+        label: 'Servers',
+        icon: 'kind-icon:server',
+        title: 'Server Manager',
+        summary: 'Manage the AI engines behind reward prompts.',
+      },
+      {
+        key: 'interact',
+        label: 'Generate',
+        icon: 'kind-icon:chat',
+        title: 'Reward Generator',
+        summary: 'Turn a selected reward into a story prompt.',
+      },
+    ],
+  },
+
   scenario: {
     key: 'scenario',
     label: 'Scenario',
@@ -568,51 +526,6 @@ export const dashboardConfigs = {
     ],
   },
 
-  reward: {
-    key: 'reward',
-    label: 'Reward',
-    defaultTab: 'overview',
-    tabs: [
-      {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:sparkles',
-        title: 'Reward Overview',
-        summary:
-          'Pick a reward, choose a text engine, and generate a story encounter.',
-      },
-      {
-        key: 'rewards',
-        label: 'Rewards',
-        icon: 'kind-icon:gift',
-        title: 'Reward Gallery',
-        summary: 'Select, add, edit, or delete story rewards and artifacts.',
-      },
-      {
-        key: 'collections',
-        label: 'Collections',
-        icon: 'kind-icon:folder',
-        title: 'Reward Collections',
-        summary:
-          'Organize rewards by story type, item family, or chaos flavor.',
-      },
-      {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Server Manager',
-        summary: 'Manage the AI engines behind reward prompts.',
-      },
-      {
-        key: 'interact',
-        label: 'Generate',
-        icon: 'kind-icon:chat',
-        title: 'Reward Generator',
-        summary: 'Turn a selected reward into a story prompt.',
-      },
-    ],
-  },
-
   server: {
     key: 'server',
     label: 'Server',
@@ -662,6 +575,128 @@ export const dashboardConfigs = {
         icon: 'kind-icon:wrench',
         title: 'Server Tools',
         summary: 'Ping servers, inspect health, and manage active selections.',
+      },
+    ],
+  },
+
+  theme: {
+    key: 'theme',
+    label: 'Theme',
+    defaultTab: 'overview',
+    tabs: [
+      {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'kind-icon:dashboard',
+        title: 'Theme Overview',
+        summary: 'Preview, choose, and manage app themes.',
+      },
+      {
+        key: 'gallery',
+        label: 'Gallery',
+        icon: 'kind-icon:palette',
+        title: 'Theme Gallery',
+        summary: 'Browse and activate themes.',
+      },
+      {
+        key: 'custom',
+        label: 'Custom',
+        icon: 'kind-icon:wrench',
+        title: 'Custom Theme',
+        summary: 'Edit custom theme values.',
+      },
+    ],
+  },
+
+  user: {
+    key: 'user',
+    label: 'User',
+    defaultTab: 'dashboard',
+    tabs: [
+      {
+        key: 'dashboard',
+        label: 'Dashboard',
+        icon: 'kind-icon:dashboard',
+        title: 'User Dashboard',
+        summary: 'Account, profile, and app settings.',
+      },
+      {
+        key: 'subscription',
+        label: 'Subscription',
+        icon: 'kind-icon:credit-card',
+        title: 'Subscription',
+        summary: 'Manage plans, credits, and billing.',
+      },
+      {
+        key: 'milestones',
+        label: 'Milestones',
+        icon: 'kind-icon:trophy',
+        title: 'Milestones',
+        summary: 'Track achievements, rewards, and progress.',
+      },
+      {
+        key: 'servers',
+        label: 'Servers',
+        icon: 'kind-icon:server',
+        title: 'Server Manager',
+        summary: 'Manage AI providers and private endpoints.',
+      },
+      {
+        key: 'themes',
+        label: 'Themes',
+        icon: 'kind-icon:palette',
+        title: 'Theme Gallery',
+        summary: 'Customize the look and vibe of the app.',
+      },
+      {
+        key: 'chats',
+        label: 'Chats',
+        icon: 'kind-icon:chat',
+        title: 'Chats',
+        summary: 'Review conversations and message activity.',
+      },
+      {
+        key: 'galleries',
+        label: 'Galleries',
+        icon: 'kind-icon:gallery',
+        title: 'Galleries',
+        summary: 'Browse generated and curated media.',
+      },
+    ],
+  },
+
+  wonder: {
+    key: 'wonder',
+    label: 'WonderLab',
+    defaultTab: 'memory-dungeon',
+    tabs: [
+      {
+        key: 'memory-dungeon',
+        label: 'Dungeon',
+        icon: 'kind-icon:castle',
+        title: 'Memory Dungeon',
+        summary: 'Explore the gamified memory adventure.',
+      },
+      {
+        key: 'wonder-lab',
+        label: 'WonderLab',
+        icon: 'kind-icon:flask',
+        title: 'WonderLab',
+        summary: 'Experimental toys, tests, and delightful nonsense.',
+      },
+      {
+        key: 'screen-fx',
+        label: 'Screen FX',
+        icon: 'kind-icon:sparkles',
+        title: 'Screen Effects',
+        summary: 'Control overlays, butterflies, and visual effects.',
+      },
+      {
+        key: 'rebel-button',
+        label: 'Rebel',
+        icon: 'kind-icon:button',
+        title: 'Rebel Button',
+        summary: 'Push the button. Regret is optional.',
       },
     ],
   },

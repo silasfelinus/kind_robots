@@ -63,23 +63,102 @@
         </div>
       </div>
 
-      <nav
+      <div
         v-if="tabs.length"
-        class="relative grid grid-cols-2 gap-2 md:grid-cols-3"
-        :class="[navGridClass, navZClass]"
+        ref="channelMenuRef"
+        class="relative flex min-w-0 items-start gap-2"
+        :class="navZClass"
       >
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="btn btn-sm rounded-xl"
-          type="button"
-          :class="normalizedActiveTab === tab.key ? 'btn-primary' : 'btn-ghost'"
-          @click="emit('set-tab', tab.key)"
+        <div class="relative shrink-0">
+          <button
+            class="btn btn-sm rounded-xl border-primary/50 bg-primary/10 text-primary hover:bg-primary hover:text-primary-content"
+            type="button"
+            :aria-expanded="showChannels"
+            aria-label="Toggle channels"
+            title="Channels"
+            @click.stop="toggleChannels"
+          >
+            <Icon name="kind-icon:compass" class="h-4 w-4" />
+            <span class="hidden sm:inline">Channels</span>
+          </button>
+
+          <Transition name="fade-up">
+            <div
+              v-if="showChannels"
+              class="absolute left-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl shadow-base-content/20"
+            >
+              <div
+                class="flex items-center justify-between gap-2 border-b border-base-300 bg-base-200/80 px-3 py-2"
+              >
+                <div class="min-w-0">
+                  <p
+                    class="text-xs font-bold uppercase tracking-[0.2em] text-base-content/50"
+                  >
+                    Channels
+                  </p>
+                  <p class="truncate text-sm font-semibold text-base-content">
+                    {{ activeChannel.label }}
+                  </p>
+                </div>
+
+                <button
+                  class="btn btn-xs btn-ghost rounded-xl"
+                  type="button"
+                  aria-label="Close channels"
+                  title="Close channels"
+                  @click="showChannels = false"
+                >
+                  <Icon name="kind-icon:close" class="h-4 w-4" />
+                </button>
+              </div>
+
+              <div
+                class="grid max-h-[55vh] grid-cols-1 gap-2 overflow-y-auto p-3 sm:grid-cols-2"
+              >
+                <NuxtLink
+                  v-for="channel in channels"
+                  :key="channel.key"
+                  :to="channel.path"
+                  class="group flex min-w-0 items-center gap-2 rounded-2xl border p-3 text-sm font-bold transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
+                  :class="
+                    isChannelActive(channel)
+                      ? 'border-primary bg-primary text-primary-content shadow-md'
+                      : 'border-base-300 bg-base-200 text-base-content'
+                  "
+                  @click="showChannels = false"
+                >
+                  <Icon
+                    :name="channel.icon"
+                    class="h-5 w-5 shrink-0 transition group-hover:scale-110"
+                  />
+                  <span class="min-w-0 truncate">
+                    {{ channel.label }}
+                  </span>
+                </NuxtLink>
+              </div>
+            </div>
+          </Transition>
+        </div>
+
+        <nav
+          class="relative grid min-w-0 flex-1 grid-cols-2 gap-2 md:grid-cols-3"
+          :class="[navGridClass, navZClass]"
         >
-          <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4" />
-          {{ tab.label }}
-        </button>
-      </nav>
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="btn btn-sm rounded-xl"
+            type="button"
+            :class="
+              normalizedActiveTab === tab.key ? 'btn-primary' : 'btn-ghost'
+            "
+            @click="emit('set-tab', tab.key)"
+          >
+            <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4" />
+            {{ tab.label }}
+          </button>
+        </nav>
+      </div>
     </header>
 
     <div
@@ -108,8 +187,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
+
+type ChannelRoute = {
+  key: string
+  label: string
+  path: string
+  icon: string
+}
 
 const fallbackIcon = 'kind-icon:sparkles'
 
@@ -147,6 +234,91 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
+const route = useRoute()
+const showChannels = ref(false)
+const channelMenuRef = ref<HTMLElement | null>(null)
+
+const channels: ChannelRoute[] = [
+  {
+    key: 'home',
+    label: 'Home',
+    path: '/',
+    icon: 'kind-icon:home',
+  },
+  {
+    key: 'screenfx',
+    label: 'Screen FX',
+    path: '/screenfx',
+    icon: 'kind-icon:sparkles',
+  },
+  {
+    key: 'bots',
+    label: 'Bots',
+    path: '/bots',
+    icon: 'kind-icon:robot',
+  },
+  {
+    key: 'art',
+    label: 'Art',
+    path: '/art',
+    icon: 'kind-icon:palette',
+  },
+  {
+    key: 'stories',
+    label: 'Stories',
+    path: '/stories',
+    icon: 'kind-icon:book',
+  },
+  {
+    key: 'themes',
+    label: 'Themes',
+    path: '/themes',
+    icon: 'kind-icon:theme',
+  },
+  {
+    key: 'user',
+    label: 'User',
+    path: '/dashboard',
+    icon: 'kind-icon:user',
+  },
+  {
+    key: 'lab',
+    label: 'Lab',
+    path: '/wonderlab',
+    icon: 'kind-icon:flask',
+  },
+  {
+    key: 'brainstorm',
+    label: 'Brainstorm',
+    path: '/brainstorm',
+    icon: 'kind-icon:brainstorm',
+  },
+  {
+    key: 'giftshop',
+    label: 'Giftshop',
+    path: '/giftshop',
+    icon: 'kind-icon:gift',
+  },
+  {
+    key: 'dreams',
+    label: 'Dreams',
+    path: '/dreams',
+    icon: 'kind-icon:moon',
+  },
+  {
+    key: 'rewards',
+    label: 'Rewards',
+    path: '/rewards',
+    icon: 'kind-icon:trophy',
+  },
+  {
+    key: 'characters',
+    label: 'Characters',
+    path: '/characters',
+    icon: 'kind-icon:users',
+  },
+]
+
 const fallbackTab = computed<DashboardTabConfig>(() => {
   const key = props.activeTab || props.tabs[0]?.key || 'overview'
   const label = props.activeTab || props.tabs[0]?.label || 'Overview'
@@ -176,5 +348,43 @@ const activeTitle = computed(() => {
 
 const activeSummary = computed(() => {
   return activeTabConfig.value.summary || props.summary || ''
+})
+
+const activeChannel = computed(() => {
+  return (
+    channels.find((channel) => isChannelActive(channel)) ??
+    channels[0] ?? {
+      key: 'home',
+      label: 'Home',
+      path: '/',
+      icon: 'kind-icon:home',
+    }
+  )
+})
+
+function isChannelActive(channel: ChannelRoute) {
+  if (route.path === channel.path) return true
+  return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
+}
+
+function toggleChannels() {
+  showChannels.value = !showChannels.value
+}
+
+function handleDocumentClick(event: MouseEvent) {
+  const target = event.target
+
+  if (!(target instanceof Node)) return
+  if (channelMenuRef.value?.contains(target)) return
+
+  showChannels.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
 })
 </script>

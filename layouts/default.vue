@@ -96,7 +96,7 @@
       class="fixed overflow-hidden transition-all duration-300 ease-out"
       :style="displayStore.channelPanelStyle"
     >
-      <channel-selector />
+      <bottom-panel />
     </section>
   </div>
 </template>

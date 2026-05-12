@@ -635,13 +635,6 @@ export const dashboardConfigs = {
         summary: 'Track achievements, rewards, and progress.',
       },
       {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Server Manager',
-        summary: 'Manage AI providers and private endpoints.',
-      },
-      {
         key: 'themes',
         label: 'Themes',
         icon: 'kind-icon:palette',

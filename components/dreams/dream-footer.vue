@@ -207,7 +207,7 @@
           </div>
 
           <dream-gallery
-            variant="row"
+            variant="dashboard"
             title="Dreams"
             subtitle="Choose a shared dream."
             :show-images="true"

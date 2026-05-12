@@ -1,552 +1,335 @@
-<!-- /components/content/dream/add-dream.vue -->
+<!-- /components/dreams/add-dream.vue -->
 <template>
-  <section
-    class="mx-auto flex w-full max-w-7xl flex-col gap-6 rounded-2xl border border-base-300 bg-base-200 p-4 sm:p-6"
-  >
-    <header
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 sm:flex-row sm:items-center sm:justify-between"
+  <section class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12">
+    <form
+      class="space-y-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow xl:col-span-8"
+      @submit.prevent="saveDream"
     >
-      <div class="min-w-0">
-        <h1 class="text-3xl font-black text-primary sm:text-4xl">
-          {{ heading }}
-        </h1>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wide text-primary">
+            Dream Location
+          </p>
+          <h2 class="text-2xl font-black text-base-content">
+            {{ formTitle }}
+          </h2>
+          <p class="max-w-2xl text-sm text-base-content/70">
+            A Dream is now the place layer. Scenario is plot, Character is cast, Reward is item. This is the haunted stage with better lighting.
+          </p>
+        </div>
 
-        <p class="mt-1 text-sm text-base-content/70 sm:text-base">
-          {{ subtitle }}
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="btn btn-secondary rounded-2xl"
+            type="button"
+            @click="startLanternDream"
+          >
+            <Icon name="kind-icon:lamp" class="h-5 w-5" />
+            Lantern Seed
+          </button>
+
+          <button
+            class="btn btn-accent rounded-2xl"
+            type="button"
+            @click="randomizeVibe"
+          >
+            <Icon name="kind-icon:sparkles" class="h-5 w-5" />
+            Random Vibe
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <label class="form-control">
+          <span class="label-text font-bold">Location name</span>
+          <input
+            v-model="dreamStore.dreamForm.title"
+            class="input input-bordered rounded-2xl"
+            type="text"
+            placeholder="The Lantern Greenhouse"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text font-bold">Slug</span>
+          <input
+            v-model="dreamStore.dreamForm.slug"
+            class="input input-bordered rounded-2xl"
+            type="text"
+            placeholder="the-lantern-greenhouse"
+          />
+        </label>
+      </div>
+
+      <label class="form-control">
+        <span class="label-text font-bold">Description</span>
+        <textarea
+          v-model="dreamStore.dreamForm.description"
+          class="textarea textarea-bordered min-h-28 rounded-2xl"
+          placeholder="What is this place? What does the player see first?"
+        />
+      </label>
+
+      <label class="form-control">
+        <span class="label-text font-bold">Current vibe</span>
+        <textarea
+          v-model="dreamStore.dreamForm.currentVibe"
+          class="textarea textarea-bordered min-h-28 rounded-2xl"
+          placeholder="How does the location feel right now?"
+        />
+      </label>
+
+      <label class="form-control">
+        <span class="label-text font-bold">Art and story prompt</span>
+        <textarea
+          v-model="dreamStore.dreamForm.currentPrompt"
+          class="textarea textarea-bordered min-h-28 rounded-2xl"
+          placeholder="Prompt for image generation or narrative setup"
+        />
+      </label>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <label class="form-control">
+          <span class="label-text font-bold">Scenario ID</span>
+          <input
+            v-model.number="dreamStore.dreamForm.scenarioId"
+            class="input input-bordered rounded-2xl"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text font-bold">Art ID</span>
+          <input
+            v-model.number="dreamStore.dreamForm.artId"
+            class="input input-bordered rounded-2xl"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text font-bold">ArtImage ID</span>
+          <input
+            v-model.number="dreamStore.dreamForm.artImageId"
+            class="input input-bordered rounded-2xl"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          />
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <label class="form-control">
+          <span class="label-text font-bold">ArtCollection ID</span>
+          <input
+            v-model.number="dreamStore.dreamForm.artCollectionId"
+            class="input input-bordered rounded-2xl"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text font-bold">Text server ID</span>
+          <input
+            v-model.number="dreamStore.dreamForm.textServerId"
+            class="input input-bordered rounded-2xl"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text font-bold">Art server ID</span>
+          <input
+            v-model.number="dreamStore.dreamForm.artServerId"
+            class="input input-bordered rounded-2xl"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          />
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
+        <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+          <input
+            v-model="dreamStore.dreamForm.isPublic"
+            class="toggle toggle-primary"
+            type="checkbox"
+          />
+          <span class="font-bold">Public</span>
+        </label>
+
+        <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+          <input
+            v-model="dreamStore.dreamForm.isMature"
+            class="toggle toggle-warning"
+            type="checkbox"
+          />
+          <span class="font-bold">Mature</span>
+        </label>
+
+        <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+          <input
+            v-model="dreamStore.dreamForm.isActive"
+            class="toggle toggle-success"
+            type="checkbox"
+          />
+          <span class="font-bold">Active</span>
+        </label>
+
+        <label class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+          <input
+            v-model="dreamStore.dreamForm.createCollection"
+            class="toggle toggle-secondary"
+            type="checkbox"
+          />
+          <span class="font-bold">Collection</span>
+        </label>
+      </div>
+
+      <div
+        v-if="dreamStore.error"
+        class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+      >
+        {{ dreamStore.error }}
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button
+          class="btn btn-primary rounded-2xl"
+          type="submit"
+          :disabled="dreamStore.isSaving || !canSave"
+        >
+          <Icon name="kind-icon:save" class="h-5 w-5" />
+          {{ dreamStore.isSaving ? 'Saving...' : 'Save Dream' }}
+        </button>
+
+        <button
+          class="btn btn-ghost rounded-2xl"
+          type="button"
+          @click="dreamStore.deselectDream"
+        >
+          <Icon name="kind-icon:x" class="h-5 w-5" />
+          Clear
+        </button>
+      </div>
+    </form>
+
+    <aside class="space-y-4 xl:col-span-4">
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow">
+        <p class="text-xs font-bold uppercase tracking-wide text-primary">
+          Preview
+        </p>
+        <h3 class="mt-1 text-xl font-black text-secondary">
+          {{ dreamStore.dreamForm.title || 'Untitled Dream' }}
+        </h3>
+        <p class="mt-3 whitespace-pre-wrap text-sm text-base-content/70">
+          {{ dreamStore.dreamForm.description || dreamStore.dreamForm.currentVibe || 'No location text yet.' }}
         </p>
       </div>
 
-      <div class="flex shrink-0 flex-wrap items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-sm btn-secondary rounded-2xl"
-          @click="seedRandomDream"
-        >
-          <Icon name="kind-icon:dice" class="h-5 w-5" />
-          Random Seed
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-sm btn-ghost rounded-2xl"
-          @click="resetForm"
-        >
-          <Icon name="kind-icon:sparkles" class="h-5 w-5" />
-          {{ mode === 'edit' ? 'Revert' : 'Clear' }}
-        </button>
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow">
+        <p class="text-xs font-bold uppercase tracking-wide text-primary">
+          Linked Context
+        </p>
+        <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+          <div class="rounded-2xl bg-base-200 p-3">
+            Scenario #{{ dreamStore.dreamForm.scenarioId || 'none' }}
+          </div>
+          <div class="rounded-2xl bg-base-200 p-3">
+            Art #{{ dreamStore.dreamForm.artId || 'none' }}
+          </div>
+          <div class="rounded-2xl bg-base-200 p-3">
+            Image #{{ dreamStore.dreamForm.artImageId || 'none' }}
+          </div>
+          <div class="rounded-2xl bg-base-200 p-3">
+            Collection #{{ dreamStore.dreamForm.artCollectionId || 'new' }}
+          </div>
+        </div>
       </div>
-    </header>
-
-    <div
-      v-if="mode === 'edit' && !dreamStore.selectedDream"
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-    >
-      Select a dream before editing.
-    </div>
-
-    <template v-else>
-      <div
-        class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)]"
-      >
-        <form
-          class="flex min-w-0 flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
-          @submit.prevent="handleSubmit"
-        >
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <label class="form-control">
-              <span class="label-text font-bold">Title</span>
-              <input
-                v-model="dreamStore.dreamForm.title"
-                class="input input-bordered rounded-2xl"
-                placeholder="Moonlit Robot Tea Party"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Slug</span>
-              <input
-                v-model="dreamStore.dreamForm.slug"
-                class="input input-bordered rounded-2xl"
-                placeholder="moonlit-robot-tea-party"
-              />
-            </label>
-          </div>
-
-          <label class="form-control">
-            <span class="label-text font-bold">Description</span>
-            <textarea
-              v-model="dreamStore.dreamForm.description"
-              class="textarea textarea-bordered min-h-20 resize-none rounded-2xl"
-              placeholder="Optional summary for this dream."
-            />
-          </label>
-
-          <label class="form-control">
-            <span class="label-text font-bold">Current Vibe</span>
-            <textarea
-              v-model="dreamStore.dreamForm.currentVibe"
-              class="textarea textarea-bordered min-h-36 resize-none rounded-2xl"
-              placeholder="The shared atmosphere, story state, or scene direction."
-            />
-          </label>
-
-          <label class="form-control">
-            <span class="label-text font-bold">Current Prompt</span>
-            <textarea
-              v-model="dreamStore.dreamForm.currentPrompt"
-              class="textarea textarea-bordered min-h-32 resize-none rounded-2xl"
-              placeholder="The model-facing prompt. Defaults to the current vibe."
-            />
-          </label>
-
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <div class="mb-3">
-              <h2 class="text-lg font-bold text-base-content">
-                Inspiration Links
-              </h2>
-
-              <p class="text-sm text-base-content/60">
-                Attach optional source elements, including an uploaded source
-                image. The dream cockpit can refine these later.
-              </p>
-            </div>
-
-            <image-upload class="mb-4" />
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <label class="form-control">
-                <span class="label-text font-bold">Pitch ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.pitchId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Art ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.artId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">ArtImage ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.artImageId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Art Collection ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.artCollectionId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Gallery ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.galleryId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Scenario ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.scenarioId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-            </div>
-          </section>
-
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <div class="mb-3">
-              <h2 class="text-lg font-bold text-base-content">
-                Generation Servers
-              </h2>
-
-              <p class="text-sm text-base-content/60">
-                Pick the active text and art engines for this dream.
-              </p>
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <label class="form-control">
-                <span class="label-text font-bold">Text Server ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.textServerId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Art Server ID</span>
-                <input
-                  v-model.number="dreamStore.dreamForm.artServerId"
-                  type="number"
-                  min="1"
-                  class="input input-bordered rounded-2xl"
-                  placeholder="Optional"
-                />
-              </label>
-            </div>
-          </section>
-
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <label
-              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-            >
-              <span class="label-text font-bold">Public</span>
-              <input
-                v-model="dreamStore.dreamForm.isPublic"
-                type="checkbox"
-                class="toggle toggle-success"
-              />
-            </label>
-
-            <label
-              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-            >
-              <span class="label-text font-bold">Mature</span>
-              <input
-                v-model="dreamStore.dreamForm.isMature"
-                type="checkbox"
-                class="toggle toggle-warning"
-              />
-            </label>
-
-            <label
-              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-            >
-              <span class="label-text font-bold">Create Collection</span>
-              <input
-                v-model="dreamStore.dreamForm.createCollection"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
-            </label>
-          </div>
-
-          <div
-            v-if="dreamStore.error"
-            class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
-          >
-            {{ dreamStore.error }}
-          </div>
-
-          <div
-            v-if="message"
-            class="rounded-2xl border p-3 text-sm"
-            :class="
-              messageType === 'success'
-                ? 'border-success/40 bg-success/10 text-success'
-                : 'border-warning/40 bg-warning/10 text-warning'
-            "
-          >
-            {{ message }}
-          </div>
-
-          <div
-            class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end"
-          >
-            <button
-              type="button"
-              class="btn btn-ghost rounded-2xl"
-              @click="dreamStore.deselectDream"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              class="btn btn-primary rounded-2xl text-white"
-              :disabled="dreamStore.isSaving || !canSave"
-            >
-              <span v-if="dreamStore.isSaving">Saving...</span>
-              <span v-else>{{ saveLabel }}</span>
-            </button>
-          </div>
-        </form>
-
-        <aside class="flex min-h-0 flex-col gap-4">
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-            <div class="mb-2 flex items-center gap-2">
-              <Icon name="kind-icon:moon" class="h-7 w-7 text-primary" />
-              <h2 class="text-lg font-black">Preview</h2>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-              <h3 class="text-xl font-black">
-                {{ dreamStore.dreamForm.title || 'Untitled Dream' }}
-              </h3>
-
-              <p
-                class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-base-content/70"
-              >
-                {{
-                  dreamStore.dreamForm.currentVibe ||
-                  'No vibe yet. The dream is still wearing pajamas.'
-                }}
-              </p>
-
-              <p
-                v-if="dreamStore.dreamForm.artImageId"
-                class="mt-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs text-base-content/60"
-              >
-                Linked ArtImage #{{ dreamStore.dreamForm.artImageId }}
-              </p>
-            </div>
-          </section>
-
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
-            <div class="mb-2 flex items-center justify-between gap-2">
-              <h2 class="text-lg font-black">Seed Bank</h2>
-
-              <button
-                type="button"
-                class="btn btn-xs btn-secondary"
-                @click="refreshSeed"
-              >
-                Reroll
-              </button>
-            </div>
-
-            <p
-              class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm leading-relaxed text-base-content/70"
-            >
-              {{ previewSeed }}
-            </p>
-
-            <button
-              type="button"
-              class="btn btn-sm btn-primary mt-3 w-full rounded-2xl text-white"
-              @click="applySeed"
-            >
-              Use This Seed
-            </button>
-          </section>
-        </aside>
-      </div>
-    </template>
+    </aside>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
-import { useUploadStore } from '@/stores/uploadStore'
 
 const props = withDefaults(
   defineProps<{
-    mode?: 'add' | 'edit'
+    mode?: 'create' | 'edit'
   }>(),
   {
-    mode: 'add',
+    mode: 'edit',
   },
 )
 
 const emit = defineEmits<{
-  saved: []
+  saved: [id: number]
 }>()
 
 const dreamStore = useDreamStore()
-const uploadStore = useUploadStore()
 
-const message = ref('')
-const messageType = ref<'success' | 'warning'>('success')
-const previewSeed = ref('')
+const formTitle = computed(() => {
+  if (dreamStore.dreamForm.id) return 'Edit Dream Location'
+  if (props.mode === 'create') return 'Create Dream Location'
+  return 'Location Setup'
+})
 
-const mode = computed(() => props.mode)
-
-const heading = computed(() =>
-  mode.value === 'edit' ? 'Edit Dream' : 'Start a Dream',
-)
-
-const subtitle = computed(() =>
-  mode.value === 'edit'
-    ? 'Adjust the shared vibe, prompt, source image, servers, and collaboration state.'
-    : 'Begin with a vibe, prompt, image, collection, gallery, scenario, or random spark.',
-)
-
-const saveLabel = computed(() =>
-  mode.value === 'edit' ? 'Update Dream' : 'Create Dream',
-)
-
-const canSave = computed(() =>
-  Boolean(
+const canSave = computed(() => {
+  return Boolean(
     dreamStore.dreamForm.title?.trim() &&
-    dreamStore.dreamForm.currentVibe?.trim(),
-  ),
-)
+      dreamStore.dreamForm.currentVibe?.trim(),
+  )
+})
 
 onMounted(async () => {
   await dreamStore.initialize()
 
-  await prepareForm()
-  refreshSeed()
-  configureDreamImageUpload()
+  if (!dreamStore.dreamForm.title && !dreamStore.selectedDream) {
+    startLanternDream()
+  }
 })
 
-watch(
-  () => props.mode,
-  async () => {
-    await prepareForm()
-    configureDreamImageUpload()
-  },
-)
-
-watch(
-  () => dreamStore.selectedDream?.id,
-  () => {
-    configureDreamImageUpload()
-  },
-)
-
-async function prepareForm() {
-  message.value = ''
-
-  if (mode.value === 'edit') {
-    resetFromSelected()
-    return
-  }
-
-  if (!dreamStore.dreamForm.currentVibe) {
-    seedRandomDream()
-  }
-}
-
-function configureDreamImageUpload() {
-  uploadStore.setTarget({
-    model: 'Dream',
-    modelId: dreamStore.selectedDream?.id ?? dreamStore.dreamForm.id ?? null,
-    galleryName: 'dreamUploads',
-    collectionLabel: 'dreams',
-    promptString:
-      dreamStore.dreamForm.currentPrompt ||
-      dreamStore.dreamForm.currentVibe ||
-      '[DreamImage]',
-    path: '[DreamImage]',
-    buttonLabel: 'Upload dream image',
-    icon: 'kind-icon:moon',
-    showPreview: false,
-    applyImage: async ({ artImageId, artId }) => {
-      dreamStore.setDreamForm({
-        artImageId,
-        artId,
-      })
-
-      if (mode.value === 'edit' && dreamStore.selectedDream?.id) {
-        const result = await dreamStore.saveDream()
-
-        if (!result.success) {
-          messageType.value = 'warning'
-          message.value =
-            result.message || 'Image uploaded, but dream update failed.'
-          return
-        }
-
-        messageType.value = 'success'
-        message.value = 'Dream image updated.'
-        emit('saved')
-        return
-      }
-
-      messageType.value = 'success'
-      message.value = 'Dream image added to form.'
-    },
-  })
-}
-
-function resetForm() {
-  if (mode.value === 'edit') {
-    resetFromSelected()
-    configureDreamImageUpload()
-    return
-  }
-
-  dreamStore.startAddingDream()
-  refreshSeed()
-  configureDreamImageUpload()
-}
-
-function resetFromSelected() {
-  if (!dreamStore.selectedDream) return
-
-  dreamStore.dreamForm = dreamStore.toDreamForm(dreamStore.selectedDream)
-}
-
-function refreshSeed() {
-  previewSeed.value = dreamStore.randomDream()
-}
-
-function applySeed() {
-  dreamStore.setDreamForm({
-    currentVibe: previewSeed.value,
-    currentPrompt: previewSeed.value,
-  })
-
-  configureDreamImageUpload()
-}
-
-function seedRandomDream() {
-  const seed = dreamStore.randomDream()
-
+function startLanternDream() {
   dreamStore.startAddingDream({
-    title: '',
-    currentVibe: seed,
-    currentPrompt: seed,
+    title: 'The Lantern Greenhouse',
+    slug: 'the-lantern-greenhouse',
+    description:
+      'A warm glasshouse floating somewhere between a dream, a garden, and a tiny impossible marketplace. Brass robots tend glowing plants, paper lanterns drift through the rafters, and every doorway seems to lead to a different story.',
+    currentVibe:
+      'Cozy, luminous, gently surreal. The air smells like rain on warm stone, jasmine tea, and old machine oil. The place feels safe, but not ordinary. Something magical is definitely doing paperwork in the back room.',
+    currentPrompt:
+      'A cozy floating lantern greenhouse filled with glowing plants, brass helper robots, warm paper lanterns, whimsical market stalls, dreamy cinematic lighting, soft surreal fantasy atmosphere',
     createCollection: true,
     isPublic: true,
     isMature: false,
+    isActive: true,
   })
-
-  previewSeed.value = seed
-  configureDreamImageUpload()
 }
 
-async function handleSubmit() {
-  message.value = ''
+function randomizeVibe() {
+  const currentVibe = dreamStore.randomDream()
+  dreamStore.setDreamForm({
+    currentVibe,
+    currentPrompt: dreamStore.dreamForm.currentPrompt || currentVibe,
+  })
+}
 
+async function saveDream() {
   const result = await dreamStore.saveDream()
 
-  if (result.success) {
-    messageType.value = 'success'
-    message.value =
-      mode.value === 'edit'
-        ? 'Dream updated successfully.'
-        : 'Dream created successfully.'
-
-    emit('saved')
-    return
+  if (result.success && result.data?.id) {
+    emit('saved', result.data.id)
   }
-
-  messageType.value = 'warning'
-  message.value = result.message || 'Failed to save dream.'
 }
 </script>

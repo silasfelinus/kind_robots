@@ -77,6 +77,22 @@ interface ChatResponse {
   serverId?: number | null
 }
 
+function requireData<T>(body: ApiResponse<T>): T {
+  expect(body.success).to.eq(true)
+  expect(body.data, body.message || 'Expected response data').to.exist
+
+  return body.data as T
+}
+
+function requireArrayData<T>(body: ApiResponse<T[]>): T[] {
+  expect(body.success).to.eq(true)
+  expect(body.data, body.message || 'Expected response array data').to.be.an(
+    'array',
+  )
+
+  return body.data as T[]
+}
+
 describe('Dream API location model tests', () => {
   const API_BASE =
     (Cypress.config('baseUrl') as string) ?? 'https://kind-robots.vercel.app'
@@ -96,7 +112,8 @@ describe('Dream API location model tests', () => {
   let botResponseChatId = 0
 
   const time = Date.now()
-  const code = `lantern-${time}`
+  const originalCode = `lantern-${time}`
+  const updatedCode = `${originalCode}-updated`
 
   const openDreamTitle = `Cypress Lantern Greenhouse ${time}`
   const privateDreamTitle = `Cypress Hidden Dreamhouse ${time}`
@@ -142,7 +159,7 @@ describe('Dream API location model tests', () => {
   }
 
   const hardDeleteDream = (dreamId: number) => {
-    if (!dreamId) return
+    if (!dreamId || !userToken) return
 
     cy.request<ApiResponse<DreamResponse>>({
       method: 'DELETE',
@@ -259,14 +276,16 @@ describe('Dream API location model tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expectDreamLocationShape(res.body.data)
-      expect(res.body.data.title).to.eq(openDreamTitle)
-      expect(res.body.data.accessMode).to.eq('OPEN')
-      expect(res.body.data.isPublic).to.eq(true)
 
-      openDreamId = res.body.data.id
-      createdCollectionId = res.body.data.artCollectionId ?? null
+      const dream = requireData(res.body)
+
+      expectDreamLocationShape(dream)
+      expect(dream.title).to.eq(openDreamTitle)
+      expect(dream.accessMode).to.eq('OPEN')
+      expect(dream.isPublic).to.eq(true)
+
+      openDreamId = dream.id
+      createdCollectionId = dream.artCollectionId ?? null
 
       expect(openDreamId).to.be.a('number')
       expect(createdCollectionId, 'created ArtCollection id').to.be.a('number')
@@ -295,13 +314,16 @@ describe('Dream API location model tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expectDreamLocationShape(res.body.data)
-      expect(res.body.data.title).to.eq(privateDreamTitle)
-      expect(res.body.data.accessMode).to.eq('PRIVATE')
-      expect(res.body.data.isPublic).to.eq(false)
 
-      privateDreamId = res.body.data.id
+      const dream = requireData(res.body)
+
+      expectDreamLocationShape(dream)
+      expect(dream.title).to.eq(privateDreamTitle)
+      expect(dream.accessMode).to.eq('PRIVATE')
+      expect(dream.isPublic).to.eq(false)
+
+      privateDreamId = dream.id
+
       expect(privateDreamId).to.be.a('number')
     })
   })
@@ -322,20 +344,23 @@ describe('Dream API location model tests', () => {
           'coded lantern parlor, secret doors, glowing privacy sigils, cozy mystery fantasy',
         userId: testUserId,
         accessMode: 'CODE',
-        privacyCode: code,
+        privacyCode: originalCode,
         isPublic: false,
         isMature: false,
         isActive: true,
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expectDreamLocationShape(res.body.data)
-      expect(res.body.data.title).to.eq(codeDreamTitle)
-      expect(res.body.data.accessMode).to.eq('CODE')
-      expect(res.body.data.isPublic).to.eq(false)
 
-      codeDreamId = res.body.data.id
+      const dream = requireData(res.body)
+
+      expectDreamLocationShape(dream)
+      expect(dream.title).to.eq(codeDreamTitle)
+      expect(dream.accessMode).to.eq('CODE')
+      expect(dream.isPublic).to.eq(false)
+
+      codeDreamId = dream.id
+
       expect(codeDreamId).to.be.a('number')
     })
   })
@@ -346,10 +371,9 @@ describe('Dream API location model tests', () => {
       url: dreamsUrl,
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data?.find((dream) => dream.id === openDreamId)
+      const dreams = requireArrayData(res.body)
+      const match = dreams.find((dream) => dream.id === openDreamId)
 
       expect(match).to.not.eq(undefined)
       expect(match?.accessMode).to.eq('OPEN')
@@ -362,13 +386,10 @@ describe('Dream API location model tests', () => {
       url: dreamsUrl,
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const privateMatch = res.body.data?.find(
-        (dream) => dream.id === privateDreamId,
-      )
-
-      const codeMatch = res.body.data?.find((dream) => dream.id === codeDreamId)
+      const dreams = requireArrayData(res.body)
+      const privateMatch = dreams.find((dream) => dream.id === privateDreamId)
+      const codeMatch = dreams.find((dream) => dream.id === codeDreamId)
 
       expect(privateMatch).to.eq(undefined)
       expect(codeMatch).to.eq(undefined)
@@ -382,13 +403,11 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const openMatch = res.body.data?.find((dream) => dream.id === openDreamId)
-      const privateMatch = res.body.data?.find(
-        (dream) => dream.id === privateDreamId,
-      )
-      const codeMatch = res.body.data?.find((dream) => dream.id === codeDreamId)
+      const dreams = requireArrayData(res.body)
+      const openMatch = dreams.find((dream) => dream.id === openDreamId)
+      const privateMatch = dreams.find((dream) => dream.id === privateDreamId)
+      const codeMatch = dreams.find((dream) => dream.id === codeDreamId)
 
       expect(openMatch).to.not.eq(undefined)
       expect(privateMatch).to.not.eq(undefined)
@@ -403,13 +422,11 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const openMatch = res.body.data?.find((dream) => dream.id === openDreamId)
-      const privateMatch = res.body.data?.find(
-        (dream) => dream.id === privateDreamId,
-      )
-      const codeMatch = res.body.data?.find((dream) => dream.id === codeDreamId)
+      const dreams = requireArrayData(res.body)
+      const openMatch = dreams.find((dream) => dream.id === openDreamId)
+      const privateMatch = dreams.find((dream) => dream.id === privateDreamId)
+      const codeMatch = dreams.find((dream) => dream.id === codeDreamId)
 
       expect(openMatch).to.not.eq(undefined)
       expect(privateMatch).to.not.eq(undefined)
@@ -426,9 +443,9 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const match = res.body.data?.find((dream) => dream.id === openDreamId)
+      const dreams = requireArrayData(res.body)
+      const match = dreams.find((dream) => dream.id === openDreamId)
 
       expect(match).to.not.eq(undefined)
       expect(match?.artCollectionId).to.eq(createdCollectionId)
@@ -442,9 +459,9 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const match = res.body.data?.find((dream) => dream.id === openDreamId)
+      const dreams = requireArrayData(res.body)
+      const match = dreams.find((dream) => dream.id === openDreamId)
 
       expect(match).to.not.eq(undefined)
     })
@@ -456,11 +473,13 @@ describe('Dream API location model tests', () => {
       url: `${dreamsUrl}/${openDreamId}`,
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expectDreamLocationShape(res.body.data)
-      expect(res.body.data.id).to.eq(openDreamId)
-      expect(res.body.data.title).to.eq(openDreamTitle)
-      expect(res.body.data.accessMode).to.eq('OPEN')
+
+      const dream = requireData(res.body)
+
+      expectDreamLocationShape(dream)
+      expect(dream.id).to.eq(openDreamId)
+      expect(dream.title).to.eq(openDreamTitle)
+      expect(dream.accessMode).to.eq('OPEN')
     })
   })
 
@@ -471,12 +490,14 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expectDreamLocationShape(res.body.data)
-      expect(res.body.data.id).to.eq(privateDreamId)
-      expect(res.body.data.title).to.eq(privateDreamTitle)
-      expect(res.body.data.accessMode).to.eq('PRIVATE')
-      expect(res.body.data.isPublic).to.eq(false)
+
+      const dream = requireData(res.body)
+
+      expectDreamLocationShape(dream)
+      expect(dream.id).to.eq(privateDreamId)
+      expect(dream.title).to.eq(privateDreamTitle)
+      expect(dream.accessMode).to.eq('PRIVATE')
+      expect(dream.isPublic).to.eq(false)
     })
   })
 
@@ -505,7 +526,7 @@ describe('Dream API location model tests', () => {
   it('GET: anonymous user cannot fetch CODE Dream by ID with wrong code', () => {
     cy.request<ApiResponse>({
       method: 'GET',
-      url: `${dreamsUrl}/${codeDreamId}?privacyCode=wrong-${code}`,
+      url: `${dreamsUrl}/${codeDreamId}?privacyCode=wrong-${originalCode}`,
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(403)
@@ -516,14 +537,18 @@ describe('Dream API location model tests', () => {
   it('GET: anonymous user can fetch CODE Dream by ID with correct code', () => {
     cy.request<ApiResponse<DreamResponse>>({
       method: 'GET',
-      url: `${dreamsUrl}/${codeDreamId}?privacyCode=${encodeURIComponent(code)}`,
+      url: `${dreamsUrl}/${codeDreamId}?privacyCode=${encodeURIComponent(
+        originalCode,
+      )}`,
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expectDreamLocationShape(res.body.data)
-      expect(res.body.data.id).to.eq(codeDreamId)
-      expect(res.body.data.accessMode).to.eq('CODE')
+
+      const dream = requireData(res.body)
+
+      expectDreamLocationShape(dream)
+      expect(dream.id).to.eq(codeDreamId)
+      expect(dream.accessMode).to.eq('CODE')
     })
   })
 
@@ -546,41 +571,45 @@ describe('Dream API location model tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.title).to.eq(updatedTitle)
-      expect(res.body.data.currentVibe).to.include('floating lantern market')
-      expect(res.body.data.currentPrompt).to.include('tiny robot philosophers')
+
+      const dream = requireData(res.body)
+
+      expect(dream.title).to.eq(updatedTitle)
+      expect(dream.currentVibe).to.include('floating lantern market')
+      expect(dream.currentPrompt).to.include('tiny robot philosophers')
     })
   })
 
   it('PATCH: updates CODE Dream privacy code', () => {
-    const newCode = `${code}-updated`
-
     cy.request<ApiResponse<DreamResponse>>({
       method: 'PATCH',
       url: `${dreamsUrl}/${codeDreamId}`,
       headers: jsonAuthHeaders(),
       body: {
         accessMode: 'CODE',
-        privacyCode: newCode,
+        privacyCode: updatedCode,
         updateNote: 'Cypress rotated the Dream privacy code.',
       },
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.accessMode).to.eq('CODE')
+
+      const dream = requireData(res.body)
+
+      expect(dream.accessMode).to.eq('CODE')
     })
 
     cy.request<ApiResponse<DreamResponse>>({
       method: 'GET',
       url: `${dreamsUrl}/${codeDreamId}?privacyCode=${encodeURIComponent(
-        newCode,
+        updatedCode,
       )}`,
       failOnStatusCode: false,
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(codeDreamId)
+
+      const dream = requireData(res.body)
+
+      expect(dream.id).to.eq(codeDreamId)
     })
   })
 
@@ -666,13 +695,15 @@ describe('Dream API location model tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.be.a('number')
-      expect(res.body.data.dreamId).to.eq(openDreamId)
-      expect(res.body.data.content).to.include('silver fox')
-      expect(res.body.data.channel).to.eq(`dream-${openDreamId}`)
 
-      chatId = res.body.data.id
+      const chat = requireData(res.body)
+
+      expect(chat.id).to.be.a('number')
+      expect(chat.dreamId).to.eq(openDreamId)
+      expect(chat.content).to.include('silver fox')
+      expect(chat.channel).to.eq(`dream-${openDreamId}`)
+
+      chatId = chat.id
     })
   })
 
@@ -701,12 +732,14 @@ describe('Dream API location model tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.be.a('number')
-      expect(res.body.data.type).to.eq('BotResponse')
-      expect(res.body.data.botResponse).to.include('silver fox')
 
-      botResponseChatId = res.body.data.id
+      const chat = requireData(res.body)
+
+      expect(chat.id).to.be.a('number')
+      expect(chat.type).to.eq('BotResponse')
+      expect(chat.botResponse).to.include('silver fox')
+
+      botResponseChatId = chat.id
     })
 
     cy.request<ApiResponse<DreamResponse>>({
@@ -715,8 +748,11 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.data.currentVibe).to.include('moonlit fox')
-      expect(res.body.data.currentPrompt).to.include('moonlit silver fox')
+
+      const dream = requireData(res.body)
+
+      expect(dream.currentVibe).to.include('moonlit fox')
+      expect(dream.currentPrompt).to.include('moonlit silver fox')
     })
   })
 
@@ -775,8 +811,8 @@ describe('Dream API location model tests', () => {
     })
   })
 
-  it('POST: rejects public user mutating Dream through chat without ownership', () => {
-    cy.request<ApiResponse>({
+  it('POST: allows owner to mutate private Dream through chat', () => {
+    cy.request<ApiResponse<ChatResponse>>({
       method: 'POST',
       url: dreamChatsUrl(privateDreamId),
       headers: jsonAuthHeaders(),
@@ -791,7 +827,11 @@ describe('Dream API location model tests', () => {
       },
     }).then((res) => {
       expect(res.status).to.eq(201)
-      expect(res.body.success).to.eq(true)
+
+      const chat = requireData(res.body)
+
+      expect(chat.dreamId).to.eq(privateDreamId)
+      expect(chat.content).to.include('owner-authenticated')
     })
   })
 
@@ -802,13 +842,10 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
 
-      const firstMatch = res.body.data?.find((chat) => chat.id === chatId)
-      const responseMatch = res.body.data?.find(
-        (chat) => chat.id === botResponseChatId,
-      )
+      const chats = requireArrayData(res.body)
+      const firstMatch = chats.find((chat) => chat.id === chatId)
+      const responseMatch = chats.find((chat) => chat.id === botResponseChatId)
 
       expect(firstMatch).to.not.eq(undefined)
       expect(responseMatch).to.not.eq(undefined)
@@ -822,10 +859,9 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
 
-      const match = res.body.data?.find((chat) => chat.id === chatId)
+      const chats = requireArrayData(res.body)
+      const match = chats.find((chat) => chat.id === chatId)
 
       expect(match).to.not.eq(undefined)
     })
@@ -838,9 +874,10 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data, 'chat history data').to.exist
-      expect(res.body.data ?? []).to.have.length.at.most(2)
+
+      const chats = requireArrayData(res.body)
+
+      expect(chats).to.have.length.at.most(2)
     })
   })
 
@@ -851,10 +888,9 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
 
-      const oldChat = res.body.data?.find((chat) => chat.id === chatId)
+      const chats = requireArrayData(res.body)
+      const oldChat = chats.find((chat) => chat.id === chatId)
 
       expect(oldChat).to.eq(undefined)
     })
@@ -867,12 +903,9 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data).to.be.an('array')
 
-      const allBotResponses = (res.body.data ?? []).every(
-        (chat) => chat.type === 'BotResponse',
-      )
+      const chats = requireArrayData(res.body)
+      const allBotResponses = chats.every((chat) => chat.type === 'BotResponse')
 
       expect(allBotResponses).to.eq(true)
     })
@@ -921,9 +954,11 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(openDreamId)
-      expect(res.body.data.isActive).to.eq(false)
+
+      const dream = requireData(res.body)
+
+      expect(dream.id).to.eq(openDreamId)
+      expect(dream.isActive).to.eq(false)
       expect(res.body.message).to.include('archived')
     })
   })
@@ -935,9 +970,9 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const match = res.body.data?.find((dream) => dream.id === openDreamId)
+      const dreams = requireArrayData(res.body)
+      const match = dreams.find((dream) => dream.id === openDreamId)
 
       expect(match).to.eq(undefined)
     })
@@ -950,16 +985,16 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
 
-      const match = res.body.data?.find((dream) => dream.id === openDreamId)
+      const dreams = requireArrayData(res.body)
+      const match = dreams.find((dream) => dream.id === openDreamId)
 
       expect(match).to.not.eq(undefined)
       expect(match?.isActive).to.eq(false)
     })
   })
 
-  it('POST: archived Dream rejects new public chat from non-owner behavior by remaining owner-only mutable', () => {
+  it('POST: archived Dream owner chat behavior is stable', () => {
     cy.request<ApiResponse<ChatResponse>>({
       method: 'POST',
       url: dreamChatsUrl(openDreamId),
@@ -975,6 +1010,13 @@ describe('Dream API location model tests', () => {
       failOnStatusCode: false,
     }).then((res) => {
       expect([201, 403]).to.include(res.status)
+
+      if (res.status === 201) {
+        const chat = requireData(res.body)
+        expect(chat.dreamId).to.eq(openDreamId)
+      } else {
+        expect(res.body.success).to.eq(false)
+      }
     })
   })
 
@@ -985,8 +1027,10 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(openDreamId)
+
+      const dream = requireData(res.body)
+
+      expect(dream.id).to.eq(openDreamId)
       expect(res.body.message).to.include('permanently deleted')
     })
   })
@@ -1022,8 +1066,10 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(privateDreamId)
+
+      const dream = requireData(res.body)
+
+      expect(dream.id).to.eq(privateDreamId)
     })
   })
 
@@ -1034,8 +1080,10 @@ describe('Dream API location model tests', () => {
       headers: authHeaders(),
     }).then((res) => {
       expect(res.status).to.eq(200)
-      expect(res.body.success).to.eq(true)
-      expect(res.body.data.id).to.eq(codeDreamId)
+
+      const dream = requireData(res.body)
+
+      expect(dream.id).to.eq(codeDreamId)
     })
   })
 

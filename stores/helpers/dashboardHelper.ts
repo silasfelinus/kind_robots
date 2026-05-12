@@ -496,24 +496,10 @@ export const dashboardConfigs = {
         summary: 'Select, add, or edit story powers and plot grenades.',
       },
       {
-        key: 'choices',
-        label: 'Choices',
-        icon: 'kind-icon:list',
-        title: 'Choice Gallery',
-        summary: 'Manage reusable decision points and branching prompts.',
-      },
-      {
-        key: 'genres',
-        label: 'Genres',
-        icon: 'kind-icon:book',
-        title: 'Genre Gallery',
-        summary: 'Manage tone, flavor, setting, and story DNA.',
-      },
-      {
         key: 'servers',
         label: 'Servers',
         icon: 'kind-icon:server',
-        title: 'Server Manager',
+        title: 'Server Gallery',
         summary: 'Manage the AI engines behind the curtain.',
       },
       {
@@ -582,15 +568,8 @@ export const dashboardConfigs = {
   theme: {
     key: 'theme',
     label: 'Theme',
-    defaultTab: 'overview',
+    defaultTab: 'gallery',
     tabs: [
-      {
-        key: 'overview',
-        label: 'Overview',
-        icon: 'kind-icon:dashboard',
-        title: 'Theme Overview',
-        summary: 'Preview, choose, and manage app themes.',
-      },
       {
         key: 'gallery',
         label: 'Gallery',

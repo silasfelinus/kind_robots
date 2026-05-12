@@ -246,12 +246,6 @@ const channels: ChannelRoute[] = [
     icon: 'kind-icon:home',
   },
   {
-    key: 'screenfx',
-    label: 'Screen FX',
-    path: '/screenfx',
-    icon: 'kind-icon:sparkles',
-  },
-  {
     key: 'bots',
     label: 'Bots',
     path: '/bots',

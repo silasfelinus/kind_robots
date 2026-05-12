@@ -6,6 +6,11 @@ import {
   translateCreateInput,
   translateUpdateInput,
 } from './actionGlossary'
+import {
+  listActionContracts,
+  getActionContract,
+  getModelContract,
+} from './metaService'
 import { runRegistryAction } from './actionRegistry'
 import { uploadChatGptAsset } from './assetService'
 import { createArtCollectionFromAction } from './collectionService'
@@ -82,6 +87,15 @@ export async function runPublicAction(
         headers,
       )
     }
+
+    case 'meta.listActions':
+      return listActionContracts()
+
+    case 'meta.getActionContract':
+      return getActionContract(input)
+
+    case 'meta.getModelContract':
+      return getModelContract(input)
 
     case 'art.createPrompt': {
       const translated = translateCreateInput('art.createPrompt', input)

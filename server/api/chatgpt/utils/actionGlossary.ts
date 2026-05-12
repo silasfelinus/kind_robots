@@ -21,6 +21,9 @@ export type PublicChatGptAction =
   | 'asset.uploadImage'
   | 'collection.createArtCollection'
   | 'world.createContentBundle'
+  | 'meta.listActions'
+  | 'meta.getActionContract'
+  | 'meta.getModelContract'
 
 export type GlossaryCreateAction =
   | 'dream.createLocation'

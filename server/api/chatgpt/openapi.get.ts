@@ -1,5 +1,6 @@
 // /server/api/chatgpt/openapi.get.ts
 import { defineEventHandler, setHeader } from 'h3'
+import { ACTION_NAMES } from './utils/contracts'
 
 export default defineEventHandler((event) => {
   setHeader(event, 'content-type', 'application/json')
@@ -8,7 +9,7 @@ export default defineEventHandler((event) => {
     openapi: '3.1.0',
     info: {
       title: 'Kind Robots Actions',
-      version: '2.1.0',
+      version: '2.1.2',
       description:
         'Create and manage Kind Robots content through a semantic action endpoint.',
     },
@@ -26,7 +27,7 @@ export default defineEventHandler((event) => {
             'Runs a semantic action for Kind Robots. Use imageData for generated image uploads.',
           security: [
             {
-              bearerAuth: [],
+              kindRobotsUserToken: [],
             },
           ],
           requestBody: {
@@ -75,27 +76,7 @@ export default defineEventHandler((event) => {
             action: {
               type: 'string',
               description: 'The Kind Robots action to run.',
-              enum: [
-                'dream.createLocation',
-                'dream.listPublic',
-                'dream.getPublic',
-                'dream.getFull',
-                'dream.updateMine',
-                'dream.deleteMine',
-                'art.createPrompt',
-                'art.listPublic',
-                'art.getPublic',
-                'character.create',
-                'character.listPublic',
-                'scenario.create',
-                'scenario.listPublic',
-                'gallery.listPublic',
-                'bot.create',
-                'bot.listPublic',
-                'asset.uploadImage',
-                'collection.createArtCollection',
-                'world.createContentBundle',
-              ],
+              enum: ACTION_NAMES,
             },
             input: {
               type: 'object',
@@ -130,9 +111,10 @@ export default defineEventHandler((event) => {
         },
       },
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
+        kindRobotsUserToken: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-kindrobots-user-token',
         },
       },
     },

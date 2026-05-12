@@ -1,4 +1,4 @@
-// /server/api/chatgpt/_utils/actionRegistry.ts
+// /server/api/chatgpt/utils/actionRegistry.ts
 import prisma from '../../../utils/prisma'
 import {
   type ChatGptActionHeaders,
@@ -10,11 +10,34 @@ import {
   resolveChatGptSession,
 } from './access'
 import { isRecord } from './validate'
+import {
+  publicArtCollectionSelect,
+  publicArtImageSelect,
+  publicArtSelect,
+  publicBotSelect,
+  publicButterflySelect,
+  publicCharacterSelect,
+  publicChatSelect,
+  publicComponentSelect,
+  publicDreamSelect,
+  publicGallerySelect,
+  publicPitchSelect,
+  publicPromptSelect,
+  publicReactionSelect,
+  publicResourceSelect,
+  publicRewardSelect,
+  publicScenarioSelect,
+  publicSmartIconSelect,
+  publicTagSelect,
+  publicThemeSelect,
+} from './contracts'
 
 type ModelKey =
   | 'Art'
+  | 'ArtCollection'
   | 'ArtImage'
   | 'Bot'
+  | 'Butterfly'
   | 'Pitch'
   | 'Prompt'
   | 'Chat'
@@ -80,7 +103,12 @@ function clamp(value: unknown, min: number, max: number, fallback: number) {
 }
 
 function getView(value: unknown, fallback: ViewName): ViewName {
-  if (value === 'minimal' || value === 'card' || value === 'detail') {
+  if (
+    value === 'minimal' ||
+    value === 'card' ||
+    value === 'detail' ||
+    value === 'full'
+  ) {
     return value
   }
 
@@ -127,6 +155,8 @@ function enforceReadableRecord(
 
   if (isOwner) return
 
+  if (!publicField) return
+
   if (publicField in record && record[publicField] === true) return
 
   if (!(publicField in record)) return
@@ -163,6 +193,15 @@ function buildPublicWhere(
   return where
 }
 
+function minimalSelect(fields: string[]) {
+  return {
+    select: fields.reduce<Record<string, true>>((output, field) => {
+      output[field] = true
+      return output
+    }, {}),
+  }
+}
+
 const registry: Record<ModelKey, RegistryItem> = {
   Dream: {
     delegate: prisma.dream,
@@ -172,10 +211,17 @@ const registry: Record<ModelKey, RegistryItem> = {
       'description',
       'currentVibe',
       'currentPrompt',
-      'artCollectionId',
-      'scenarioId',
+      'userId',
+      'pitchId',
+      'artId',
+      'artImageId',
       'textServerId',
       'artServerId',
+      'artCollectionId',
+      'galleryId',
+      'scenarioId',
+      'accessMode',
+      'privacyCode',
       'isPublic',
       'isMature',
       'isActive',
@@ -185,20 +231,19 @@ const registry: Record<ModelKey, RegistryItem> = {
       'userId',
       'slug',
       'title',
+      'pitchId',
+      'artId',
+      'artImageId',
+      'artCollectionId',
+      'galleryId',
+      'scenarioId',
+      'accessMode',
       'isPublic',
       'isMature',
       'isActive',
-      'artCollectionId',
-      'scenarioId',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'title', 'slug']),
       card: {
         select: {
           id: true,
@@ -207,35 +252,19 @@ const registry: Record<ModelKey, RegistryItem> = {
           description: true,
           currentVibe: true,
           currentPrompt: true,
+          artImageId: true,
+          artCollectionId: true,
+          scenarioId: true,
           isPublic: true,
           isMature: true,
           isActive: true,
           userId: true,
-          artCollectionId: true,
-          scenarioId: true,
           createdAt: true,
           updatedAt: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-          currentVibe: true,
-          currentPrompt: true,
-          isPublic: true,
-          isMature: true,
-          isActive: true,
-          userId: true,
-          artCollectionId: true,
-          scenarioId: true,
-          textServerId: true,
-          artServerId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicDreamSelect,
       },
       full: {
         include: {
@@ -247,54 +276,43 @@ const registry: Record<ModelKey, RegistryItem> = {
             },
           },
           Pitch: true,
-          Art: true,
-          ArtImage: true,
+          Art: {
+            select: publicArtSelect,
+          },
+          ArtImage: {
+            select: publicArtImageSelect,
+          },
           ArtCollection: {
             include: {
               art: {
-                select: {
-                  id: true,
-                  artImageId: true,
-                  imagePath: true,
-                  promptString: true,
-                  isPublic: true,
-                  isMature: true,
-                },
+                select: publicArtSelect,
               },
             },
           },
-          Gallery: true,
-          Scenario: true,
-          Characters: true,
-          Rewards: true,
-          Tags: true,
-          Reactions: true,
+          Gallery: {
+            select: publicGallerySelect,
+          },
+          Scenario: {
+            select: publicScenarioSelect,
+          },
+          Characters: {
+            select: publicCharacterSelect,
+          },
+          Rewards: {
+            select: publicRewardSelect,
+          },
+          Tags: {
+            select: publicTagSelect,
+          },
+          Reactions: {
+            select: publicReactionSelect,
+          },
           Chats: {
             take: 20,
             orderBy: {
               createdAt: 'desc',
             },
-            include: {
-              User: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatarImage: true,
-                },
-              },
-              Prompt: true,
-              ArtImage: {
-                select: {
-                  id: true,
-                  fileName: true,
-                  fileType: true,
-                  artId: true,
-                  galleryId: true,
-                  userId: true,
-                },
-              },
-              Reactions: true,
-            },
+            select: publicChatSelect,
           },
           _count: {
             select: {
@@ -317,40 +335,44 @@ const registry: Record<ModelKey, RegistryItem> = {
   Art: {
     delegate: prisma.art,
     allowedWrite: [
-      'promptString',
+      'path',
       'checkpoint',
+      'checkpointResourceId',
       'sampler',
       'seed',
       'steps',
-      'cfg',
-      'cfgHalf',
-      'pitchId',
-      'promptId',
-      'genres',
-      'negativePrompt',
+      'designer',
       'isPublic',
       'isMature',
+      'promptId',
+      'pitchId',
       'galleryId',
-      'path',
-      'imagePath',
-      'designer',
+      'promptString',
+      'cfg',
+      'cfgHalf',
+      'serverId',
+      'serverName',
+      'serverUrl',
       'artImageId',
+      'imagePath',
+      'genres',
+      'negativePrompt',
     ],
     allowedFilter: [
       'id',
       'userId',
       'galleryId',
       'pitchId',
+      'promptId',
+      'serverId',
+      'artImageId',
+      'checkpointResourceId',
       'isPublic',
       'isMature',
       'designer',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-        },
-      },
+      minimal: minimalSelect(['id']),
       card: {
         select: {
           id: true,
@@ -370,30 +392,7 @@ const registry: Record<ModelKey, RegistryItem> = {
         },
       },
       detail: {
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          promptString: true,
-          negativePrompt: true,
-          checkpoint: true,
-          sampler: true,
-          seed: true,
-          steps: true,
-          cfg: true,
-          cfgHalf: true,
-          pitchId: true,
-          promptId: true,
-          genres: true,
-          isPublic: true,
-          isMature: true,
-          galleryId: true,
-          path: true,
-          imagePath: true,
-          designer: true,
-          artImageId: true,
-          userId: true,
-        },
+        select: publicArtSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -409,12 +408,76 @@ const registry: Record<ModelKey, RegistryItem> = {
     },
   },
 
+  ArtCollection: {
+    delegate: prisma.artCollection,
+    allowedWrite: [
+      'userId',
+      'label',
+      'isMature',
+      'isPublic',
+      'description',
+      'username',
+    ],
+    allowedFilter: [
+      'id',
+      'userId',
+      'label',
+      'username',
+      'isPublic',
+      'isMature',
+    ],
+    views: {
+      minimal: minimalSelect(['id', 'label']),
+      card: {
+        select: {
+          id: true,
+          label: true,
+          description: true,
+          username: true,
+          isPublic: true,
+          isMature: true,
+          userId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+      detail: {
+        select: publicArtCollectionSelect,
+      },
+      full: {
+        include: {
+          art: {
+            select: publicArtSelect,
+          },
+          Dreams: {
+            select: publicDreamSelect,
+          },
+          Reactions: {
+            select: publicReactionSelect,
+          },
+        },
+      },
+    },
+    requireAuthOnCreate: true,
+    requireOwnerOnUpdate: true,
+    requireOwnerOnDelete: true,
+    attachUserOnCreate: true,
+    onCreate(data, session) {
+      if (!data.username && session.user) {
+        data.username = session.user.username
+      }
+
+      return data
+    },
+  },
+
   ArtImage: {
     delegate: prisma.artImage,
     allowedWrite: [
       'imageData',
       'fileName',
       'fileType',
+      'rarity',
       'artId',
       'galleryId',
       'userId',
@@ -429,6 +492,7 @@ const registry: Record<ModelKey, RegistryItem> = {
       'tagId',
       'chatId',
       'characterId',
+      'butterflyId',
     ],
     allowedFilter: [
       'id',
@@ -437,6 +501,7 @@ const registry: Record<ModelKey, RegistryItem> = {
       'artId',
       'botId',
       'componentId',
+      'milestoneId',
       'pitchId',
       'promptId',
       'reactionId',
@@ -445,33 +510,17 @@ const registry: Record<ModelKey, RegistryItem> = {
       'tagId',
       'chatId',
       'characterId',
+      'butterflyId',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          artId: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'artId']),
       card: {
-        select: {
-          id: true,
-          fileName: true,
-          fileType: true,
-          artId: true,
-          galleryId: true,
-          createdAt: true,
-        },
+        select: publicArtImageSelect,
       },
       detail: {
         select: {
-          id: true,
+          ...publicArtImageSelect,
           imageData: true,
-          fileName: true,
-          fileType: true,
-          artId: true,
-          galleryId: true,
-          userId: true,
         },
       },
     },
@@ -485,36 +534,50 @@ const registry: Record<ModelKey, RegistryItem> = {
   Bot: {
     delegate: prisma.bot,
     allowedWrite: [
+      'BotType',
       'name',
       'subtitle',
       'description',
-      'personality',
-      'prompt',
-      'avatar',
       'avatarImage',
-      'imagePath',
-      'artImageId',
+      'botIntro',
+      'userIntro',
+      'prompt',
+      'trainingPath',
+      'theme',
+      'personality',
+      'modules',
+      'sampleResponse',
+      'tagline',
       'isPublic',
       'isMature',
+      'underConstruction',
+      'canDelete',
+      'userId',
       'designer',
+      'serverId',
+      'serverName',
+      'artImageId',
     ],
-    allowedFilter: ['id', 'userId', 'name', 'designer', 'isPublic', 'isMature'],
+    allowedFilter: [
+      'id',
+      'userId',
+      'name',
+      'designer',
+      'serverId',
+      'serverName',
+      'isPublic',
+      'isMature',
+      'underConstruction',
+    ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'name']),
       card: {
         select: {
           id: true,
           name: true,
           subtitle: true,
           description: true,
-          avatar: true,
           avatarImage: true,
-          imagePath: true,
           artImageId: true,
           isPublic: true,
           isMature: true,
@@ -524,24 +587,7 @@ const registry: Record<ModelKey, RegistryItem> = {
         },
       },
       detail: {
-        select: {
-          id: true,
-          name: true,
-          subtitle: true,
-          description: true,
-          personality: true,
-          prompt: true,
-          avatar: true,
-          avatarImage: true,
-          imagePath: true,
-          artImageId: true,
-          isPublic: true,
-          isMature: true,
-          userId: true,
-          designer: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicBotSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -557,21 +603,90 @@ const registry: Record<ModelKey, RegistryItem> = {
     },
   },
 
+  Butterfly: {
+    delegate: prisma.butterfly,
+    allowedWrite: [
+      'name',
+      'message',
+      'wingTopColor',
+      'wingBottomColor',
+      'speed',
+      'wingSpeed',
+      'scale',
+      'rarityNumber',
+      'artImageId',
+      'designer',
+      'userId',
+      'isPublic',
+      'artId',
+      'artCollectionId',
+      'botId',
+      'characterId',
+      'pitchId',
+      'promptId',
+      'rewardId',
+      'scenarioId',
+      'tagId',
+    ],
+    allowedFilter: [
+      'id',
+      'name',
+      'userId',
+      'isPublic',
+      'rarityNumber',
+      'artImageId',
+      'artId',
+      'artCollectionId',
+      'botId',
+      'characterId',
+      'pitchId',
+      'promptId',
+      'rewardId',
+      'scenarioId',
+      'tagId',
+    ],
+    views: {
+      minimal: minimalSelect(['id', 'name']),
+      card: {
+        select: {
+          id: true,
+          name: true,
+          message: true,
+          wingTopColor: true,
+          wingBottomColor: true,
+          rarityNumber: true,
+          artImageId: true,
+          isPublic: true,
+        },
+      },
+      detail: {
+        select: publicButterflySelect,
+      },
+    },
+    requireAuthOnCreate: true,
+    requireOwnerOnUpdate: true,
+    requireOwnerOnDelete: true,
+    attachUserOnCreate: true,
+  },
+
   Pitch: {
     delegate: prisma.pitch,
     allowedWrite: [
-      'pitch',
       'title',
+      'pitch',
+      'designer',
       'flavorText',
+      'highlightImage',
       'PitchType',
-      'isPublic',
+      'creationSource',
       'isMature',
+      'isPublic',
+      'userId',
       'imagePrompt',
       'description',
       'artImageId',
       'examples',
       'icon',
-      'designer',
     ],
     allowedFilter: [
       'id',
@@ -580,47 +695,29 @@ const registry: Record<ModelKey, RegistryItem> = {
       'isPublic',
       'isMature',
       'title',
+      'designer',
+      'artImageId',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'title']),
       card: {
         select: {
           id: true,
           title: true,
           pitch: true,
           flavorText: true,
+          highlightImage: true,
           PitchType: true,
           isPublic: true,
           isMature: true,
           artImageId: true,
-          designer: true,
-          userId: true,
-        },
-      },
-      detail: {
-        select: {
-          id: true,
-          title: true,
-          pitch: true,
-          flavorText: true,
-          PitchType: true,
-          isPublic: true,
-          isMature: true,
-          imagePrompt: true,
-          description: true,
-          artImageId: true,
-          examples: true,
-          icon: true,
           designer: true,
           userId: true,
           createdAt: true,
-          updatedAt: true,
         },
+      },
+      detail: {
+        select: publicPitchSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -642,17 +739,25 @@ const registry: Record<ModelKey, RegistryItem> = {
       'prompt',
       'userId',
       'galleryId',
+      'isMature',
+      'isPublic',
+      'creationSource',
       'pitchId',
       'botId',
       'artImageId',
     ],
-    allowedFilter: ['id', 'userId', 'botId', 'pitchId', 'galleryId'],
+    allowedFilter: [
+      'id',
+      'userId',
+      'botId',
+      'pitchId',
+      'galleryId',
+      'isPublic',
+      'isMature',
+      'creationSource',
+    ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-        },
-      },
+      minimal: minimalSelect(['id']),
       card: {
         select: {
           id: true,
@@ -661,33 +766,25 @@ const registry: Record<ModelKey, RegistryItem> = {
           botId: true,
           pitchId: true,
           galleryId: true,
+          isPublic: true,
+          isMature: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          prompt: true,
-          userId: true,
-          galleryId: true,
-          pitchId: true,
-          botId: true,
-          artImageId: true,
-        },
+        select: publicPromptSelect,
       },
     },
     requireAuthOnCreate: true,
     requireOwnerOnUpdate: true,
     requireOwnerOnDelete: true,
     attachUserOnCreate: true,
-    publicField: '',
   },
 
   Chat: {
     delegate: prisma.chat,
     allowedWrite: [
       'type',
+      'sender',
       'recipient',
       'content',
       'title',
@@ -695,6 +792,7 @@ const registry: Record<ModelKey, RegistryItem> = {
       'isFavorite',
       'previousEntryId',
       'originId',
+      'userId',
       'botId',
       'recipientId',
       'artImageId',
@@ -705,6 +803,9 @@ const registry: Record<ModelKey, RegistryItem> = {
       'characterId',
       'isRead',
       'isMature',
+      'dreamId',
+      'serverId',
+      'serverName',
     ],
     allowedFilter: [
       'id',
@@ -713,57 +814,34 @@ const registry: Record<ModelKey, RegistryItem> = {
       'characterId',
       'originId',
       'channel',
+      'dreamId',
+      'serverId',
       'isPublic',
       'isMature',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          createdAt: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'createdAt']),
       card: {
         select: {
           id: true,
           createdAt: true,
           type: true,
+          sender: true,
+          recipient: true,
           content: true,
           title: true,
           originId: true,
           botId: true,
           characterId: true,
           channel: true,
+          dreamId: true,
           isPublic: true,
           isMature: true,
           userId: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          type: true,
-          recipient: true,
-          content: true,
-          title: true,
-          isPublic: true,
-          isFavorite: true,
-          previousEntryId: true,
-          originId: true,
-          botId: true,
-          recipientId: true,
-          artImageId: true,
-          promptId: true,
-          botName: true,
-          channel: true,
-          botResponse: true,
-          characterId: true,
-          isRead: true,
-          isMature: true,
-          userId: true,
-        },
+        select: publicChatSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -796,17 +874,20 @@ const registry: Record<ModelKey, RegistryItem> = {
       'artPrompt',
       'genres',
       'inspirations',
+      'isMature',
+      'isPublic',
+    ],
+    allowedFilter: [
+      'id',
+      'userId',
+      'title',
+      'genres',
+      'artImageId',
       'isPublic',
       'isMature',
     ],
-    allowedFilter: ['id', 'userId', 'title', 'genres', 'isPublic', 'isMature'],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'title']),
       card: {
         select: {
           id: true,
@@ -814,6 +895,7 @@ const registry: Record<ModelKey, RegistryItem> = {
           description: true,
           artImageId: true,
           imagePath: true,
+          genres: true,
           isPublic: true,
           isMature: true,
           userId: true,
@@ -821,23 +903,7 @@ const registry: Record<ModelKey, RegistryItem> = {
         },
       },
       detail: {
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          intros: true,
-          artImageId: true,
-          imagePath: true,
-          locations: true,
-          artPrompt: true,
-          genres: true,
-          inspirations: true,
-          isPublic: true,
-          isMature: true,
-          userId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicScenarioSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -857,17 +923,24 @@ const registry: Record<ModelKey, RegistryItem> = {
       'label',
       'link',
       'component',
+      'isMature',
       'isPublic',
       'description',
+      'category',
+      'modelType',
     ],
-    allowedFilter: ['id', 'userId', 'isPublic', 'type', 'title'],
+    allowedFilter: [
+      'id',
+      'userId',
+      'isPublic',
+      'isMature',
+      'type',
+      'title',
+      'category',
+      'modelType',
+    ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'title']),
       card: {
         select: {
           id: true,
@@ -876,22 +949,15 @@ const registry: Record<ModelKey, RegistryItem> = {
           icon: true,
           label: true,
           link: true,
+          component: true,
+          category: true,
+          modelType: true,
           isPublic: true,
+          isMature: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          title: true,
-          type: true,
-          icon: true,
-          label: true,
-          link: true,
-          component: true,
-          isPublic: true,
-          description: true,
-          userId: true,
-        },
+        select: publicSmartIconSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -914,12 +980,7 @@ const registry: Record<ModelKey, RegistryItem> = {
     ],
     allowedFilter: ['id', 'userId', 'isPublic', 'name', 'colorScheme'],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'name']),
       card: {
         select: {
           id: true,
@@ -927,20 +988,12 @@ const registry: Record<ModelKey, RegistryItem> = {
           colorScheme: true,
           prefersDark: true,
           isPublic: true,
+          tagline: true,
+          room: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          name: true,
-          values: true,
-          tagline: true,
-          room: true,
-          colorScheme: true,
-          prefersDark: true,
-          isPublic: true,
-          userId: true,
-        },
+        select: publicThemeSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -979,6 +1032,8 @@ const registry: Record<ModelKey, RegistryItem> = {
       'genre',
       'artImageId',
       'isPublic',
+      'isMature',
+      'userId',
       'artPrompt',
       'goalStat1Name',
       'goalStat1Value',
@@ -993,14 +1048,18 @@ const registry: Record<ModelKey, RegistryItem> = {
       'designer',
       'personality',
     ],
-    allowedFilter: ['id', 'userId', 'isPublic', 'name', 'genre', 'designer'],
+    allowedFilter: [
+      'id',
+      'userId',
+      'isPublic',
+      'isMature',
+      'name',
+      'genre',
+      'designer',
+      'artImageId',
+    ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'name']),
       card: {
         select: {
           id: true,
@@ -1008,40 +1067,17 @@ const registry: Record<ModelKey, RegistryItem> = {
           class: true,
           species: true,
           genre: true,
+          honorific: true,
           artImageId: true,
           imagePath: true,
           isPublic: true,
+          isMature: true,
           userId: true,
           createdAt: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          name: true,
-          achievements: true,
-          alignment: true,
-          experience: true,
-          level: true,
-          class: true,
-          species: true,
-          backstory: true,
-          drive: true,
-          inventory: true,
-          quirks: true,
-          skills: true,
-          genre: true,
-          artImageId: true,
-          isPublic: true,
-          artPrompt: true,
-          honorific: true,
-          imagePath: true,
-          designer: true,
-          personality: true,
-          userId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicCharacterSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -1070,12 +1106,7 @@ const registry: Record<ModelKey, RegistryItem> = {
       'isBroken',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          componentName: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'componentName']),
       card: {
         select: {
           id: true,
@@ -1084,23 +1115,13 @@ const registry: Record<ModelKey, RegistryItem> = {
           isWorking: true,
           underConstruction: true,
           isBroken: true,
+          title: true,
+          artImageId: true,
           createdAt: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          componentName: true,
-          folderName: true,
-          isWorking: true,
-          underConstruction: true,
-          isBroken: true,
-          title: true,
-          notes: true,
-          artImageId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicComponentSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -1115,20 +1136,26 @@ const registry: Record<ModelKey, RegistryItem> = {
     allowedWrite: [
       'comment',
       'userId',
-      'artId',
-      'pitchId',
-      'componentId',
       'reactionType',
       'reactionCategory',
       'rating',
+      'artId',
       'artImageId',
+      'artCollectionId',
       'botId',
+      'butterflyId',
+      'characterId',
+      'chatId',
+      'componentId',
+      'dreamId',
       'galleryId',
+      'pitchId',
       'promptId',
       'resourceId',
       'rewardId',
+      'scenarioId',
       'tagId',
-      'chatId',
+      'themeId',
     ],
     allowedFilter: [
       'id',
@@ -1136,26 +1163,30 @@ const registry: Record<ModelKey, RegistryItem> = {
       'reactionType',
       'reactionCategory',
       'artId',
-      'pitchId',
+      'artImageId',
+      'artCollectionId',
       'botId',
+      'butterflyId',
+      'characterId',
       'chatId',
+      'componentId',
+      'dreamId',
       'galleryId',
+      'pitchId',
       'promptId',
       'resourceId',
       'rewardId',
+      'scenarioId',
       'tagId',
+      'themeId',
     ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          reactionType: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'reactionType']),
       card: {
         select: {
           id: true,
           reactionType: true,
+          reactionCategory: true,
           rating: true,
           comment: true,
           createdAt: true,
@@ -1163,27 +1194,7 @@ const registry: Record<ModelKey, RegistryItem> = {
         },
       },
       detail: {
-        select: {
-          id: true,
-          comment: true,
-          userId: true,
-          artId: true,
-          pitchId: true,
-          componentId: true,
-          reactionType: true,
-          reactionCategory: true,
-          rating: true,
-          artImageId: true,
-          botId: true,
-          galleryId: true,
-          promptId: true,
-          resourceId: true,
-          rewardId: true,
-          tagId: true,
-          chatId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicReactionSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -1204,56 +1215,47 @@ const registry: Record<ModelKey, RegistryItem> = {
       'huggingUrl',
       'localPath',
       'description',
+      'isPublic',
       'isMature',
       'resourceType',
+      'supportedServer',
       'userId',
       'artImageId',
       'generation',
     ],
-    allowedFilter: ['id', 'userId', 'resourceType', 'isMature', 'name'],
+    allowedFilter: [
+      'id',
+      'userId',
+      'resourceType',
+      'supportedServer',
+      'isPublic',
+      'isMature',
+      'name',
+      'artImageId',
+    ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'name']),
       card: {
         select: {
           id: true,
           name: true,
-          resourceType: true,
-          isMature: true,
           customLabel: true,
           MediaPath: true,
+          resourceType: true,
+          supportedServer: true,
+          isPublic: true,
+          isMature: true,
+          userId: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          name: true,
-          customLabel: true,
-          MediaPath: true,
-          customUrl: true,
-          civitaiUrl: true,
-          huggingUrl: true,
-          localPath: true,
-          description: true,
-          isMature: true,
-          resourceType: true,
-          userId: true,
-          artImageId: true,
-          generation: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicResourceSelect,
       },
     },
     requireAuthOnCreate: true,
     requireOwnerOnUpdate: true,
     requireOwnerOnDelete: true,
     attachUserOnCreate: true,
-    publicField: '',
   },
 
   Reward: {
@@ -1269,15 +1271,21 @@ const registry: Record<ModelKey, RegistryItem> = {
       'artImageId',
       'imagePath',
       'imagePrompt',
+      'isPublic',
+      'isMature',
     ],
-    allowedFilter: ['id', 'userId', 'collection', 'rarity', 'label'],
+    allowedFilter: [
+      'id',
+      'userId',
+      'collection',
+      'rarity',
+      'label',
+      'isPublic',
+      'isMature',
+      'artImageId',
+    ],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          label: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'label']),
       card: {
         select: {
           id: true,
@@ -1286,32 +1294,19 @@ const registry: Record<ModelKey, RegistryItem> = {
           rarity: true,
           collection: true,
           imagePath: true,
+          isPublic: true,
+          isMature: true,
           createdAt: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          icon: true,
-          text: true,
-          power: true,
-          collection: true,
-          rarity: true,
-          label: true,
-          userId: true,
-          artImageId: true,
-          imagePath: true,
-          imagePrompt: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicRewardSelect,
       },
     },
     requireAuthOnCreate: true,
     requireOwnerOnUpdate: true,
     requireOwnerOnDelete: true,
     attachUserOnCreate: true,
-    publicField: '',
   },
 
   Tag: {
@@ -1328,35 +1323,20 @@ const registry: Record<ModelKey, RegistryItem> = {
     ],
     allowedFilter: ['id', 'userId', 'isPublic', 'isMature', 'label', 'title'],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          label: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'label']),
       card: {
         select: {
           id: true,
           label: true,
           title: true,
+          flavorText: true,
           isPublic: true,
           isMature: true,
+          artImageId: true,
         },
       },
       detail: {
-        select: {
-          id: true,
-          label: true,
-          title: true,
-          flavorText: true,
-          pitch: true,
-          isPublic: true,
-          isMature: true,
-          userId: true,
-          artImageId: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicTagSelect,
       },
     },
     requireAuthOnCreate: true,
@@ -1381,12 +1361,7 @@ const registry: Record<ModelKey, RegistryItem> = {
     ],
     allowedFilter: ['id', 'userId', 'isPublic', 'isMature', 'name'],
     views: {
-      minimal: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      minimal: minimalSelect(['id', 'name']),
       card: {
         select: {
           id: true,
@@ -1399,21 +1374,7 @@ const registry: Record<ModelKey, RegistryItem> = {
         },
       },
       detail: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          url: true,
-          custodian: true,
-          content: true,
-          highlightImage: true,
-          imagePaths: true,
-          isMature: true,
-          userId: true,
-          isPublic: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: publicGallerySelect,
       },
     },
     requireAuthOnCreate: true,
@@ -1511,8 +1472,8 @@ async function handleList(session: ChatGptSession, payload: unknown) {
   const cfg = getRegistryItem(payload.model)
   const requestedWhere = isRecord(payload.where) ? payload.where : {}
   const where = buildPublicWhere(session, cfg, requestedWhere)
-  const take = clamp(payload.take, 1, 100, 24)
-  const skip = clamp(payload.skip, 0, 10_000, 0)
+  const take = clamp(payload.take ?? payload.limit, 1, 100, 24)
+  const skip = clamp(payload.skip ?? payload.offset, 0, 10_000, 0)
   const view = getView(payload.view, 'card')
   const selectOrInclude = cfg.views[view] || cfg.views.card
   const orderBy = isRecord(payload.orderBy)
@@ -1540,8 +1501,8 @@ async function handleListMine(session: ChatGptSession, payload: unknown) {
 
   where[ownerField] = session.userId
 
-  const take = clamp(payload.take, 1, 100, 24)
-  const skip = clamp(payload.skip, 0, 10_000, 0)
+  const take = clamp(payload.take ?? payload.limit, 1, 100, 24)
+  const skip = clamp(payload.skip ?? payload.offset, 0, 10_000, 0)
   const view = getView(payload.view, 'card')
   const selectOrInclude = cfg.views[view] || cfg.views.card
   const orderBy = isRecord(payload.orderBy)

@@ -6,16 +6,20 @@ import {
   translateCreateInput,
   translateUpdateInput,
 } from './actionGlossary'
-import {
-  listActionContracts,
-  getActionContract,
-  getModelContract,
-} from './metaService'
+import { getActionContract, getModelContract, listActions } from './metaService'
 import { runRegistryAction } from './actionRegistry'
 import { uploadChatGptAsset } from './assetService'
 import { createArtCollectionFromAction } from './collectionService'
 import { createWorldContentBundle } from './worldBundleService'
 import { isRecord } from './validate'
+
+type RegistryListModel =
+  | 'Art'
+  | 'Bot'
+  | 'Character'
+  | 'Dream'
+  | 'Gallery'
+  | 'Scenario'
 
 function requireInput(input: unknown) {
   if (!isRecord(input)) {
@@ -23,6 +27,118 @@ function requireInput(input: unknown) {
   }
 
   return input
+}
+
+function getOptionalId(input: Record<string, unknown>) {
+  const value = input.id
+  const id = typeof value === 'number' ? value : Number(value)
+
+  return Number.isFinite(id) && id > 0 ? id : null
+}
+
+function getOptionalSlug(input: Record<string, unknown>) {
+  const value = input.slug
+
+  if (typeof value !== 'string') return null
+
+  const slug = value.trim()
+
+  return slug || null
+}
+
+function getView(input: Record<string, unknown>, fallback = 'card') {
+  const value = input.view
+
+  if (
+    value === 'minimal' ||
+    value === 'card' ||
+    value === 'detail' ||
+    value === 'full'
+  ) {
+    return value
+  }
+
+  return fallback
+}
+
+function buildListPayload(
+  model: RegistryListModel,
+  input: Record<string, unknown>,
+  fallbackView = 'card',
+) {
+  const listInput = getListInput(input)
+  const where = {
+    ...listInput.where,
+  }
+
+  if (typeof input.slug === 'string' && input.slug.trim()) {
+    where.slug = input.slug.trim()
+  }
+
+  if (typeof input.title === 'string' && input.title.trim()) {
+    where.title = input.title.trim()
+  }
+
+  if (typeof input.name === 'string' && input.name.trim()) {
+    where.name = input.name.trim()
+  }
+
+  return {
+    model,
+    where,
+    take: listInput.take,
+    skip: listInput.skip,
+    view: getView(input, fallbackView),
+  }
+}
+
+async function getPublicByIdOrSlug(
+  model: RegistryListModel,
+  input: Record<string, unknown>,
+  headers: ChatGptActionHeaders,
+  fallbackView = 'detail',
+) {
+  const id = getOptionalId(input)
+
+  if (id) {
+    return runRegistryAction(
+      'kr.get',
+      {
+        model,
+        id,
+        view: getView(input, fallbackView),
+      },
+      headers,
+    )
+  }
+
+  const slug = getOptionalSlug(input)
+
+  if (slug) {
+    return runRegistryAction(
+      'kr.list',
+      {
+        model,
+        where: {
+          slug,
+        },
+        take: 1,
+        skip: 0,
+        view: getView(input, fallbackView),
+      },
+      headers,
+    )
+  }
+
+  return runRegistryAction(
+    'kr.get',
+    {
+      model,
+      id: getIdInput(input),
+      view: getView(input, fallbackView),
+    },
+    headers,
+  )
 }
 
 export async function runPublicAction(
@@ -33,6 +149,15 @@ export async function runPublicAction(
   const input = requireInput(rawInput)
 
   switch (action) {
+    case 'meta.listActions':
+      return listActions()
+
+    case 'meta.getActionContract':
+      return getActionContract(input)
+
+    case 'meta.getModelContract':
+      return getModelContract(input)
+
     case 'dream.createLocation': {
       const translated = translateCreateInput('dream.createLocation', input)
 
@@ -72,44 +197,15 @@ export async function runPublicAction(
       )
     }
 
-    case 'dream.getPublic': {
-      const id = getIdInput(input)
+    case 'dream.getPublic':
+      return getPublicByIdOrSlug('Dream', input, headers, 'detail')
 
-      return runRegistryAction(
-        'kr.get',
-        {
-          model: 'Dream',
-          id,
-          view: input.view ?? 'detail',
-        },
-        headers,
-      )
-    }
-
-    case 'dream.listPublic': {
-      const listInput = getListInput(input)
-
+    case 'dream.listPublic':
       return runRegistryAction(
         'kr.list',
-        {
-          model: 'Dream',
-          where: listInput.where,
-          take: listInput.take,
-          skip: listInput.skip,
-          view: input.view ?? 'card',
-        },
+        buildListPayload('Dream', input, 'card'),
         headers,
       )
-    }
-
-    case 'meta.listActions':
-      return listActionContracts()
-
-    case 'meta.getActionContract':
-      return getActionContract(input)
-
-    case 'meta.getModelContract':
-      return getModelContract(input)
 
     case 'art.createPrompt': {
       const translated = translateCreateInput('art.createPrompt', input)
@@ -125,27 +221,18 @@ export async function runPublicAction(
         {
           model: 'Art',
           id,
-          view: input.view ?? 'detail',
+          view: getView(input, 'detail'),
         },
         headers,
       )
     }
 
-    case 'art.listPublic': {
-      const listInput = getListInput(input)
-
+    case 'art.listPublic':
       return runRegistryAction(
         'kr.list',
-        {
-          model: 'Art',
-          where: listInput.where,
-          take: listInput.take,
-          skip: listInput.skip,
-          view: input.view ?? 'card',
-        },
+        buildListPayload('Art', input, 'card'),
         headers,
       )
-    }
 
     case 'character.create': {
       const translated = translateCreateInput('character.create', input)
@@ -153,21 +240,12 @@ export async function runPublicAction(
       return runRegistryAction('kr.create', translated, headers)
     }
 
-    case 'character.listPublic': {
-      const listInput = getListInput(input)
-
+    case 'character.listPublic':
       return runRegistryAction(
         'kr.list',
-        {
-          model: 'Character',
-          where: listInput.where,
-          take: listInput.take,
-          skip: listInput.skip,
-          view: input.view ?? 'card',
-        },
+        buildListPayload('Character', input, 'card'),
         headers,
       )
-    }
 
     case 'scenario.create': {
       const translated = translateCreateInput('scenario.create', input)
@@ -175,37 +253,19 @@ export async function runPublicAction(
       return runRegistryAction('kr.create', translated, headers)
     }
 
-    case 'scenario.listPublic': {
-      const listInput = getListInput(input)
-
+    case 'scenario.listPublic':
       return runRegistryAction(
         'kr.list',
-        {
-          model: 'Scenario',
-          where: listInput.where,
-          take: listInput.take,
-          skip: listInput.skip,
-          view: input.view ?? 'card',
-        },
+        buildListPayload('Scenario', input, 'card'),
         headers,
       )
-    }
 
-    case 'gallery.listPublic': {
-      const listInput = getListInput(input)
-
+    case 'gallery.listPublic':
       return runRegistryAction(
         'kr.list',
-        {
-          model: 'Gallery',
-          where: listInput.where,
-          take: listInput.take,
-          skip: listInput.skip,
-          view: input.view ?? 'card',
-        },
+        buildListPayload('Gallery', input, 'card'),
         headers,
       )
-    }
 
     case 'bot.create': {
       const translated = translateCreateInput('bot.create', input)
@@ -213,21 +273,12 @@ export async function runPublicAction(
       return runRegistryAction('kr.create', translated, headers)
     }
 
-    case 'bot.listPublic': {
-      const listInput = getListInput(input)
-
+    case 'bot.listPublic':
       return runRegistryAction(
         'kr.list',
-        {
-          model: 'Bot',
-          where: listInput.where,
-          take: listInput.take,
-          skip: listInput.skip,
-          view: input.view ?? 'card',
-        },
+        buildListPayload('Bot', input, 'card'),
         headers,
       )
-    }
 
     case 'asset.uploadImage':
       return uploadChatGptAsset(input, headers)

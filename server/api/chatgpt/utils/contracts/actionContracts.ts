@@ -404,7 +404,8 @@ export const actionContracts: Record<KindRobotsActionName, ActionContract> = {
     input: {
       id: 'number required, alias artImageId',
       artImageId: 'number optional alias for id',
-      asDataUrl: 'boolean optional, include a dataUrl field for direct rendering',
+      asDataUrl:
+        'boolean optional, include a dataUrl field for direct rendering',
     },
     returns: {
       artImage: 'Private ArtImage including imageData',
@@ -430,7 +431,8 @@ export const actionContracts: Record<KindRobotsActionName, ActionContract> = {
       offset: 'number optional',
       galleryId: 'number optional',
       artId: 'number optional',
-      asDataUrl: 'boolean optional, include dataUrl fields for direct rendering',
+      asDataUrl:
+        'boolean optional, include dataUrl fields for direct rendering',
       includeAllUsers: 'boolean optional admin-only',
     },
     returns: {

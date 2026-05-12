@@ -3,9 +3,12 @@ import prisma from '../../../utils/prisma'
 import {
   type ChatGptActionHeaders,
   fail,
+  isAdmin,
+  requireOwnerOrAdmin,
   requireUser,
   resolveChatGptSession,
 } from './access'
+import { privateArtImageSelect } from './contracts'
 import { isRecord } from './validate'
 
 type AssetUploadInput = {
@@ -271,3 +274,151 @@ export async function uploadChatGptAsset(
     },
   }
 }
+
+export type ChatGptAssetImageResult = {
+  artImage: Record<string, unknown>
+  artImageId: number
+  imageData: string
+  dataUrl: string | null
+  hasImageData: boolean
+}
+
+function getPositiveId(value: unknown, label = 'id') {
+  const id = typeof value === 'number' ? value : Number(value)
+
+  if (!Number.isFinite(id) || id <= 0) {
+    fail(`A valid ${label} is required`, 400)
+  }
+
+  return id
+}
+
+function getLimit(value: unknown, fallback = 5, max = 25) {
+  const limit = typeof value === 'number' ? value : Number(value)
+
+  if (!Number.isFinite(limit)) return fallback
+
+  return Math.min(Math.max(Math.floor(limit), 1), max)
+}
+
+function getOffset(value: unknown) {
+  const offset = typeof value === 'number' ? value : Number(value)
+
+  if (!Number.isFinite(offset)) return 0
+
+  return Math.max(Math.floor(offset), 0)
+}
+
+function imageDataUrl(imageData: string, fileType?: unknown) {
+  if (!imageData) return null
+
+  const trimmed = imageData.trim()
+
+  if (/^data:[^;]+;base64,/i.test(trimmed)) return trimmed
+
+  const mimeType = asString(fileType, 'image/webp') || 'image/webp'
+
+  return `data:${mimeType};base64,${trimmed}`
+}
+
+function mapPrivateArtImage(
+  artImage: Record<string, unknown>,
+  asDataUrl = false,
+): ChatGptAssetImageResult {
+  const imageData = asString(artImage.imageData)
+  const dataUrl = asDataUrl ? imageDataUrl(imageData, artImage.fileType) : null
+
+  return {
+    artImage: {
+      ...artImage,
+      hasImageData: Boolean(imageData),
+      dataUrl,
+    },
+    artImageId: Number(artImage.id),
+    imageData,
+    dataUrl,
+    hasImageData: Boolean(imageData),
+  }
+}
+
+export async function getChatGptAssetImage(
+  rawInput: Record<string, unknown>,
+  headers: ChatGptActionHeaders,
+): Promise<{ ok: true; data: ChatGptAssetImageResult }> {
+  if (!isRecord(rawInput)) {
+    fail('Input must be an object', 400)
+  }
+
+  const session = await resolveChatGptSession(headers)
+  const id = getPositiveId(rawInput.id ?? rawInput.artImageId, 'artImageId')
+  const asDataUrl = asBoolean(rawInput.asDataUrl ?? rawInput.dataUrl, false)
+  const artImage = await getDelegate('artImage').findUnique({
+    where: { id },
+    select: privateArtImageSelect,
+  })
+
+  if (!artImage) {
+    fail('ArtImage not found', 404)
+  }
+
+  requireOwnerOrAdmin(session, artImage.userId)
+
+  return {
+    ok: true,
+    data: mapPrivateArtImage(artImage, asDataUrl),
+  }
+}
+
+export async function listRecentChatGptAssetImages(
+  rawInput: Record<string, unknown>,
+  headers: ChatGptActionHeaders,
+): Promise<{
+  ok: true
+  data: {
+    artImages: Array<Record<string, unknown>>
+    artImageIds: number[]
+    count: number
+  }
+}> {
+  if (!isRecord(rawInput)) {
+    fail('Input must be an object', 400)
+  }
+
+  const session = await resolveChatGptSession(headers)
+  const user = requireUser(session)
+  const take = getLimit(rawInput.limit ?? rawInput.take, 5, 25)
+  const skip = getOffset(rawInput.offset ?? rawInput.skip)
+  const asDataUrl = asBoolean(rawInput.asDataUrl ?? rawInput.dataUrl, false)
+  const includeAllUsers = asBoolean(rawInput.includeAllUsers, false)
+
+  const where: Record<string, unknown> =
+    includeAllUsers && isAdmin(user) ? {} : { userId: user.id }
+
+  const galleryId = asNumber(rawInput.galleryId)
+  const artId = asNumber(rawInput.artId)
+
+  if (galleryId) where.galleryId = galleryId
+  if (artId) where.artId = artId
+
+  const artImages = await getDelegate('artImage').findMany({
+    where,
+    take,
+    skip,
+    orderBy: { createdAt: 'desc' },
+    select: privateArtImageSelect,
+  })
+
+  const mapped = artImages.map((artImage: Record<string, unknown>) =>
+    mapPrivateArtImage(artImage, asDataUrl),
+  )
+
+  return {
+    ok: true,
+    data: {
+      artImages: mapped.map((entry) => entry.artImage),
+      artImageIds: mapped.map((entry) => entry.artImageId),
+      count: mapped.length,
+    },
+  }
+}
+

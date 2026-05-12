@@ -48,7 +48,7 @@ const friendlyAliasesByModel: Partial<
 const notesByModel: Partial<Record<PublicModelName, string[]>> = {
   ArtImage: [
     'Public ArtImage responses intentionally omit imageData to avoid large payloads.',
-    'Use asset-specific actions when imageData is explicitly required.',
+    'Use asset.getImage or asset.listRecentImages when imageData is explicitly required.',
   ],
   Bot: [
     'The Prisma Bot model has avatarImage, not avatar. The response mapper may expose avatar as an alias.',

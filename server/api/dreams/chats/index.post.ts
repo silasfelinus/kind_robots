@@ -4,6 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
+import { assertDreamAccess, getProvidedDreamCode } from '../index'
 
 type CreateDreamChatBody = {
   type?: ChatType
@@ -29,6 +30,7 @@ type CreateDreamChatBody = {
   updateDream?: unknown
   currentVibe?: unknown
   currentPrompt?: unknown
+  privacyCode?: unknown
   isPublic?: unknown
   isFavorite?: unknown
   isRead?: unknown
@@ -144,6 +146,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<CreateDreamChatBody>(event)
     const query = getQuery(event)
+    const providedCode = getProvidedDreamCode(event, body)
 
     dreamId = getDreamIdFromRequest(body, query)
 
@@ -230,17 +233,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const isOwner = dream.userId === user.id
-    const isAdmin = user.Role === 'ADMIN'
-    const canMutateDream = isOwner || isAdmin
-    const canChatInDream = dream.isPublic || canMutateDream
+    assertDreamAccess({
+      dream,
+      userId: user.id,
+      userRole: user.Role,
+      providedCode,
+      action: 'chat',
+    })
 
-    if (!canChatInDream) {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to add chats to this Dream.',
-      })
-    }
+    const canMutateDream = dream.userId === user.id || user.Role === 'ADMIN'
 
     if (!dream.isActive && !canMutateDream) {
       throw createError({

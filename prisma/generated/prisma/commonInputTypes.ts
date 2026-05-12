@@ -259,6 +259,23 @@ export type EnumChatTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumChatTypeFilter<$PrismaModel>
 }
 
+export type EnumDreamAccessModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamAccessMode | Prisma.EnumDreamAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamAccessMode[]
+  notIn?: $Enums.DreamAccessMode[]
+  not?: Prisma.NestedEnumDreamAccessModeFilter<$PrismaModel> | $Enums.DreamAccessMode
+}
+
+export type EnumDreamAccessModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamAccessMode | Prisma.EnumDreamAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamAccessMode[]
+  notIn?: $Enums.DreamAccessMode[]
+  not?: Prisma.NestedEnumDreamAccessModeWithAggregatesFilter<$PrismaModel> | $Enums.DreamAccessMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDreamAccessModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDreamAccessModeFilter<$PrismaModel>
+}
+
 export type EnumPitchTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.PitchType | Prisma.EnumPitchTypeFieldRefInput<$PrismaModel>
   in?: $Enums.PitchType[]
@@ -790,6 +807,23 @@ export type NestedEnumChatTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumChatTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumChatTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumDreamAccessModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamAccessMode | Prisma.EnumDreamAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamAccessMode[]
+  notIn?: $Enums.DreamAccessMode[]
+  not?: Prisma.NestedEnumDreamAccessModeFilter<$PrismaModel> | $Enums.DreamAccessMode
+}
+
+export type NestedEnumDreamAccessModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DreamAccessMode | Prisma.EnumDreamAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.DreamAccessMode[]
+  notIn?: $Enums.DreamAccessMode[]
+  not?: Prisma.NestedEnumDreamAccessModeWithAggregatesFilter<$PrismaModel> | $Enums.DreamAccessMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDreamAccessModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDreamAccessModeFilter<$PrismaModel>
 }
 
 export type NestedEnumPitchTypeFilter<$PrismaModel = never> = {

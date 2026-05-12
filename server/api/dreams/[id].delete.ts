@@ -4,6 +4,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
+import { assertDreamAccess, redactDreamAccess } from './index'
 
 function getDreamId(event: H3Event): number {
   const id = Number(event.context.params?.id)
@@ -66,6 +67,8 @@ export default defineEventHandler(async (event) => {
         isActive: true,
         isPublic: true,
         isMature: true,
+        accessMode: true,
+        privacyCode: true,
       },
     })
 
@@ -76,12 +79,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (dream.userId !== userRecord.id && userRecord.Role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        message: 'You are not authorized to delete this dream.',
-      })
-    }
+    assertDreamAccess({
+      dream,
+      userId: userRecord.id,
+      userRole: userRecord.Role,
+      action: 'mutate',
+    })
 
     const actor = userRecord.username || `User ${userRecord.id}`
 
@@ -149,7 +152,7 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         message: `Dream "${dream.title}" archived successfully by ${actor}.`,
-        data,
+        data: redactDreamAccess(data, true),
         statusCode: 200,
       }
     }
@@ -185,7 +188,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: `Dream "${dream.title}" permanently deleted by ${actor}.`,
-      data,
+      data: redactDreamAccess(data, true),
       statusCode: 200,
     }
   } catch (error) {

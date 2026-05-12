@@ -2651,6 +2651,8 @@ export const DreamScalarFieldEnum = {
   artCollectionId: 'artCollectionId',
   galleryId: 'galleryId',
   scenarioId: 'scenarioId',
+  accessMode: 'accessMode',
+  privacyCode: 'privacyCode',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive'
@@ -3228,7 +3230,8 @@ export const DreamOrderByRelevanceFieldEnum = {
   slug: 'slug',
   description: 'description',
   currentVibe: 'currentVibe',
-  currentPrompt: 'currentPrompt'
+  currentPrompt: 'currentPrompt',
+  privacyCode: 'privacyCode'
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
@@ -3509,6 +3512,13 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'ChatType'
  */
 export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChatType'>
+    
+
+
+/**
+ * Reference to a field of type 'DreamAccessMode'
+ */
+export type EnumDreamAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamAccessMode'>
     
 
 

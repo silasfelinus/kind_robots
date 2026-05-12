@@ -4,6 +4,13 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { Prisma } from '~/prisma/generated/prisma/client'
+import {
+  accessModeToIsPublic,
+  normalizeDreamAccessMode,
+  normalizeDreamPrivacyCode,
+  redactDreamAccess,
+  type DreamAccessMode,
+} from './index'
 
 type DreamCreateBody = {
   title?: string
@@ -19,6 +26,8 @@ type DreamCreateBody = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  accessMode?: DreamAccessMode
+  privacyCode?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -72,6 +81,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const accessMode = normalizeDreamAccessMode(body.accessMode)
+    const privacyCode =
+      accessMode === 'CODE' ? normalizeDreamPrivacyCode(body.privacyCode) : null
+
+    if (accessMode === 'CODE' && !privacyCode) {
+      throw createError({
+        statusCode: 400,
+        message: 'A privacy code is required when accessMode is CODE.',
+      })
+    }
+
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id },
       select: { username: true },
@@ -92,7 +112,7 @@ export default defineEventHandler(async (event) => {
           description: `Curated art for ${title}`,
           userId: user.id,
           username: sender,
-          isPublic: body.isPublic ?? true,
+          isPublic: body.isPublic ?? accessModeToIsPublic(accessMode),
           isMature: body.isMature ?? false,
         },
       })
@@ -115,7 +135,9 @@ export default defineEventHandler(async (event) => {
       artCollectionId,
       galleryId: normalizeNullableId(body.galleryId),
       scenarioId: normalizeNullableId(body.scenarioId),
-      isPublic: body.isPublic ?? true,
+      accessMode,
+      privacyCode,
+      isPublic: body.isPublic ?? accessModeToIsPublic(accessMode),
       isMature: body.isMature ?? false,
       isActive: body.isActive ?? true,
     }
@@ -147,7 +169,17 @@ export default defineEventHandler(async (event) => {
         ArtCollection: true,
         Gallery: true,
         Scenario: true,
+        Characters: true,
+        Rewards: true,
         Tags: true,
+        _count: {
+          select: {
+            Chats: true,
+            Reactions: true,
+            Characters: true,
+            Rewards: true,
+          },
+        },
       },
     })
 
@@ -170,7 +202,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dream created successfully.',
-      data,
+      data: redactDreamAccess(data, true),
       statusCode: 201,
     }
   } catch (error) {

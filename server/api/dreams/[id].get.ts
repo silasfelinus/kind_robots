@@ -5,6 +5,11 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
+import {
+  assertDreamAccess,
+  getProvidedDreamCode,
+  redactDreamAccess,
+} from './index'
 
 const artImageSelect = {
   id: true,
@@ -230,6 +235,8 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const { isValid, user } = await validateApiKey(event)
     const userId = isValid && user ? user.id : null
+    const userRole = isValid && user ? user.Role : null
+    const providedCode = getProvidedDreamCode(event)
 
     const artLimit = parsePositiveInt(query.artLimit, 48, 96)
     const chatLimit = parsePositiveInt(query.chatLimit, 100, 200)
@@ -255,14 +262,15 @@ export default defineEventHandler(async (event) => {
     }
 
     const isOwner = data.userId === userId
-    const isAdmin = user?.Role === 'ADMIN'
+    const isAdmin = userRole === 'ADMIN'
 
-    if (!data.isPublic && !isOwner && !isAdmin) {
-      throw createError({
-        statusCode: 403,
-        message: 'You are not authorized to view this dream.',
-      })
-    }
+    assertDreamAccess({
+      dream: data,
+      userId,
+      userRole,
+      providedCode,
+      action: 'view',
+    })
 
     if (data.isMature && !includeMature && !isOwner && !isAdmin) {
       throw createError({
@@ -276,7 +284,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Dream fetched successfully.',
-      data,
+      data: redactDreamAccess(data, isOwner || isAdmin),
       statusCode: 200,
     }
   } catch (error) {

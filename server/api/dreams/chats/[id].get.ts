@@ -10,6 +10,7 @@ import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
 import type { H3Event } from 'h3'
+import { assertDreamAccess, getProvidedDreamCode } from '../index'
 
 const allowedDreamChatTypes: ChatType[] = [
   'Dream',
@@ -103,6 +104,7 @@ export default defineEventHandler(async (event) => {
     const botId = normalizePositiveInt(query.botId)
     const type = normalizeChatType(query.type)
     const includeMature = normalizeBoolean(query.includeMature)
+    const providedCode = getProvidedDreamCode(event)
 
     const validation = await validateApiKey(event)
     const requesterId =
@@ -119,6 +121,8 @@ export default defineEventHandler(async (event) => {
         isPublic: true,
         isMature: true,
         isActive: true,
+        accessMode: true,
+        privacyCode: true,
       },
     })
 
@@ -131,14 +135,14 @@ export default defineEventHandler(async (event) => {
 
     const isOwner = requesterId === dream.userId
     const isAdmin = requesterRole === 'ADMIN'
-    const canViewDream = dream.isPublic || isOwner || isAdmin
 
-    if (!canViewDream) {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to view this Dream chat history.',
-      })
-    }
+    assertDreamAccess({
+      dream,
+      userId: requesterId,
+      userRole: requesterRole,
+      providedCode,
+      action: 'view',
+    })
 
     if (dream.isMature && !includeMature && !isOwner && !isAdmin) {
       throw createError({

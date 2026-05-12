@@ -75,15 +75,7 @@
         v-else-if="currentTab === 'subscription'"
         class="rounded-2xl border border-base-300 bg-base-200 p-4"
       >
-        <div class="card bg-base-100">
-          <div class="card-body">
-            <h3 class="card-title text-base">Subscription</h3>
-
-            <p class="text-sm text-base-content/60">
-              Plans, credits, and billing coming soon.
-            </p>
-          </div>
-        </div>
+        <subscription-manager />>
       </section>
 
       <section

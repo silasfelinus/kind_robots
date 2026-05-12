@@ -1,10 +1,11 @@
 // /server/api/dreams/[id].delete.ts
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler, createError, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import type { H3Event } from 'h3'
 
-function getDreamId(event: any): number {
+function getDreamId(event: H3Event): number {
   const id = Number(event.context.params?.id)
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -17,11 +18,18 @@ function getDreamId(event: any): number {
   return id
 }
 
+function parseBoolean(value: unknown): boolean {
+  return value === true || value === 'true'
+}
+
 export default defineEventHandler(async (event) => {
   let id = 0
 
   try {
     id = getDreamId(event)
+
+    const query = getQuery(event)
+    const hardDelete = parseBoolean(query.hard)
 
     const { isValid, user } = await validateApiKey(event)
 
@@ -54,6 +62,10 @@ export default defineEventHandler(async (event) => {
         id: true,
         title: true,
         userId: true,
+        artImageId: true,
+        isActive: true,
+        isPublic: true,
+        isMature: true,
       },
     })
 
@@ -71,14 +83,108 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await prisma.dream.delete({
-      where: { id },
+    const actor = userRecord.username || `User ${userRecord.id}`
+
+    if (!hardDelete) {
+      const data = await prisma.dream.update({
+        where: { id },
+        data: {
+          isActive: false,
+        },
+        include: {
+          User: {
+            select: {
+              id: true,
+              username: true,
+              avatarImage: true,
+            },
+          },
+          Pitch: true,
+          Art: true,
+          ArtImage: {
+            select: {
+              id: true,
+              fileName: true,
+              fileType: true,
+              createdAt: true,
+              updatedAt: true,
+              userId: true,
+              artId: true,
+              galleryId: true,
+            },
+          },
+          ArtCollection: true,
+          Gallery: true,
+          Scenario: true,
+          Tags: true,
+          Characters: true,
+          Rewards: true,
+          _count: {
+            select: {
+              Chats: true,
+              Reactions: true,
+              Characters: true,
+              Rewards: true,
+            },
+          },
+        },
+      })
+
+      await prisma.chat.create({
+        data: {
+          type: 'Dream',
+          sender: actor,
+          content: `Dream archived: ${dream.title}`,
+          title: dream.title,
+          userId: userRecord.id,
+          dreamId: id,
+          artImageId: dream.artImageId ?? undefined,
+          isPublic: dream.isPublic,
+          isMature: dream.isMature,
+          channel: `dream-${id}`,
+        },
+      })
+
+      event.node.res.statusCode = 200
+      return {
+        success: true,
+        message: `Dream "${dream.title}" archived successfully by ${actor}.`,
+        data,
+        statusCode: 200,
+      }
+    }
+
+    const data = await prisma.$transaction(async (tx) => {
+      await tx.reaction.deleteMany({
+        where: {
+          dreamId: id,
+        },
+      })
+
+      await tx.dream.update({
+        where: { id },
+        data: {
+          Tags: {
+            set: [],
+          },
+          Characters: {
+            set: [],
+          },
+          Rewards: {
+            set: [],
+          },
+        },
+      })
+
+      return tx.dream.delete({
+        where: { id },
+      })
     })
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      message: `Dream "${dream.title}" deleted successfully by ${userRecord.username || `User ${userRecord.id}`}.`,
+      message: `Dream "${dream.title}" permanently deleted by ${actor}.`,
       data,
       statusCode: 200,
     }

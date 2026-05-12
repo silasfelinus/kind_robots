@@ -3,6 +3,34 @@ import { defineEventHandler, getQuery, setResponseStatus } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import type { ChatType, Prisma } from '~/prisma/generated/prisma/client'
+
+const userSelect = {
+  id: true,
+  username: true,
+  avatarImage: true,
+} satisfies Prisma.UserSelect
+
+const artImageSelect = {
+  id: true,
+  fileName: true,
+  fileType: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+  artId: true,
+  galleryId: true,
+} satisfies Prisma.ArtImageSelect
+
+const allowedDreamChatTypes: ChatType[] = [
+  'Dream',
+  'BotResponse',
+  'ToBot',
+  'ToCharacter',
+  'Scenario',
+  'Reward',
+  'Story',
+]
 
 function normalizePositiveInt(value: unknown): number | null {
   const rawValue = Array.isArray(value) ? value[0] : value
@@ -16,6 +44,30 @@ function normalizePositiveInt(value: unknown): number | null {
   }
 
   return parsedValue
+}
+
+function normalizeLimit(value: unknown): number {
+  const parsed = normalizePositiveInt(value)
+
+  if (!parsed) return 100
+
+  return Math.min(parsed, 200)
+}
+
+function normalizeBoolean(value: unknown): boolean {
+  const rawValue = Array.isArray(value) ? value[0] : value
+
+  return rawValue === true || rawValue === 'true'
+}
+
+function normalizeChatType(value: unknown): ChatType | null {
+  const rawValue = Array.isArray(value) ? value[0] : value
+
+  if (typeof rawValue !== 'string') return null
+
+  return allowedDreamChatTypes.includes(rawValue as ChatType)
+    ? (rawValue as ChatType)
+    : null
 }
 
 function fail(
@@ -37,7 +89,13 @@ export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
     const dreamId = normalizePositiveInt(query.dreamId)
-    const limit = normalizePositiveInt(query.limit)
+    const limit = normalizeLimit(query.limit)
+    const beforeId = normalizePositiveInt(query.beforeId)
+    const afterId = normalizePositiveInt(query.afterId)
+    const characterId = normalizePositiveInt(query.characterId)
+    const botId = normalizePositiveInt(query.botId)
+    const type = normalizeChatType(query.type)
+    const includeMature = normalizeBoolean(query.includeMature)
 
     if (!dreamId) {
       return fail(
@@ -47,13 +105,21 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    const validation = await validateApiKey(event)
+    const requesterId =
+      validation.isValid && validation.user?.id ? validation.user.id : null
+    const requesterRole =
+      validation.isValid && validation.user?.Role ? validation.user.Role : null
+
     const dream = await prisma.dream.findUnique({
       where: { id: dreamId },
       select: {
         id: true,
+        title: true,
         userId: true,
         isPublic: true,
         isMature: true,
+        isActive: true,
       },
     })
 
@@ -61,16 +127,9 @@ export default defineEventHandler(async (event) => {
       return fail(event, 404, `Dream with ID ${dreamId} not found.`)
     }
 
-    const validation = await validateApiKey(event)
-    const requesterId =
-      validation.isValid && validation.user?.id ? validation.user.id : null
-    const requesterRole =
-      validation.isValid && validation.user?.Role ? validation.user.Role : null
-
-    const canViewDream =
-      dream.isPublic ||
-      requesterId === dream.userId ||
-      requesterRole === 'ADMIN'
+    const isOwner = requesterId === dream.userId
+    const isAdmin = requesterRole === 'ADMIN'
+    const canViewDream = dream.isPublic || isOwner || isAdmin
 
     if (!canViewDream) {
       return fail(
@@ -80,21 +139,84 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    if (dream.isMature && !includeMature && !isOwner && !isAdmin) {
+      return fail(
+        event,
+        403,
+        'This Dream is marked mature and cannot be viewed with the current filters.',
+      )
+    }
+
+    const where: Prisma.ChatWhereInput = {
+      dreamId,
+      ...(includeMature || isOwner || isAdmin ? {} : { isMature: false }),
+      ...(beforeId ? { id: { lt: beforeId } } : {}),
+      ...(afterId ? { id: { gt: afterId } } : {}),
+      ...(characterId ? { characterId } : {}),
+      ...(botId ? { botId } : {}),
+      ...(type ? { type } : {}),
+    }
+
     const chats = await prisma.chat.findMany({
-      where: {
-        dreamId,
-      },
+      where,
       orderBy: {
         createdAt: 'asc',
       },
-      take: limit ?? undefined,
+      take: limit,
+      include: {
+        User: {
+          select: userSelect,
+        },
+        Bot: {
+          select: {
+            id: true,
+            name: true,
+            subtitle: true,
+            avatarImage: true,
+            personality: true,
+            isPublic: true,
+            isMature: true,
+            userId: true,
+          },
+        },
+        Character: {
+          select: {
+            id: true,
+            name: true,
+            honorific: true,
+            species: true,
+            class: true,
+            personality: true,
+            imagePath: true,
+            artImageId: true,
+            isPublic: true,
+            isMature: true,
+            userId: true,
+          },
+        },
+        Prompt: true,
+        ArtImage: {
+          select: artImageSelect,
+        },
+        Reactions: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 12,
+          include: {
+            User: {
+              select: userSelect,
+            },
+          },
+        },
+      },
     })
 
     setResponseStatus(event, 200)
 
     return {
       success: true,
-      message: `Dream chat history for Dream ID ${dreamId} retrieved successfully.`,
+      message: `Dream chat history for "${dream.title}" retrieved successfully.`,
       data: chats,
       statusCode: 200,
     }

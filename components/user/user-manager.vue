@@ -82,45 +82,7 @@
         v-else-if="currentTab === 'milestones'"
         class="rounded-2xl border border-base-300 bg-base-200 p-4"
       >
-        <div class="card bg-base-100">
-          <div class="card-body">
-            <h3 class="card-title text-base">Milestones</h3>
-
-            <p class="text-sm text-base-content/60">
-              Achievements and progress tracking coming soon.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentTab === 'servers'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="min-h-0 xl:col-span-7">
-          <server-gallery
-            mode="all"
-            variant="dashboard"
-            :show-header="false"
-            :show-controls="true"
-            :show-card-actions="true"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="true"
-            :show-use-buttons="true"
-            :show-workflow="true"
-            :show-defaults="true"
-            :show-status="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-5">
-          <div
-            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <server-interact />
-          </div>
-        </div>
+        <milestone-gallery />>
       </section>
 
       <theme-gallery v-else-if="currentTab === 'themes'" :show-header="false" />

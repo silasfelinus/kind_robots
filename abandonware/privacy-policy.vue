@@ -21,8 +21,8 @@
     <section class="mb-10">
       <h2 class="text-xl font-semibold mb-2">Who We Are</h2>
       <p>
-        Kind Robots (<a href="https://kindrobots.org" class="link"
-          >kindrobots.org</a
+        Kind Robots (<a href="https://kind-robots.vercel.app" class="link"
+          >kind-robots.vercel.app</a
         >) is an independent, socially conscious platform built to encourage
         creative collaboration between humans and AI tools. We are not a
         corporation. We are not advertising to you. We're trying to make

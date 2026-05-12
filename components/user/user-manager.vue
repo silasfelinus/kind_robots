@@ -27,47 +27,10 @@
 
     <template #default="{ activeTab: currentTab }">
       <section v-if="currentTab === 'dashboard'" class="flex flex-col gap-4">
-        <div class="card rounded-2xl border border-base-300 bg-base-200">
-          <div class="card-body gap-3">
-            <div class="flex items-center gap-3">
-              <user-avatar class="size-14" />
+        <user-dashboard />
 
-              <div>
-                <h2 class="text-xl font-semibold">{{ username }}</h2>
-
-                <p class="text-sm text-base-content/60">
-                  {{ userStatus }}
-                </p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              <div
-                v-for="stat in stats"
-                :key="stat.label"
-                class="stat rounded-box bg-base-100 p-3"
-              >
-                <div class="stat-title text-xs">{{ stat.label }}</div>
-
-                <div class="stat-value text-lg" :class="stat.className">
-                  {{ stat.value }}
-                </div>
-              </div>
-            </div>
-
-            <div class="divider my-1" />
-
-            <ul class="space-y-2">
-              <li
-                v-for="detail in accountDetails"
-                :key="detail.label"
-                class="flex justify-between gap-3 text-sm"
-              >
-                <span class="text-base-content/60">{{ detail.label }}</span>
-                <span class="text-right font-medium">{{ detail.value }}</span>
-              </li>
-            </ul>
-          </div>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <cache-clear />
         </div>
       </section>
 
@@ -75,14 +38,14 @@
         v-else-if="currentTab === 'subscription'"
         class="rounded-2xl border border-base-300 bg-base-200 p-4"
       >
-        <subscription-manager />>
+        <subscription-manager />
       </section>
 
       <section
         v-else-if="currentTab === 'milestones'"
         class="rounded-2xl border border-base-300 bg-base-200 p-4"
       >
-        <milestone-gallery />>
+        <milestone-gallery />
       </section>
 
       <theme-gallery v-else-if="currentTab === 'themes'" :show-header="false" />
@@ -93,6 +56,8 @@
         v-else-if="currentTab === 'galleries'"
         :show-header="false"
       />
+
+      <server-manager v-else-if="currentTab === 'servers'" />
 
       <div
         v-else
@@ -123,63 +88,12 @@ const managerError = ref<string | null>(null)
 const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
 const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
-const username = computed(() => {
-  return userStore.username || 'Kind Guest'
-})
+const username = computed(() => userStore.username || 'Kind Guest')
 
 const userStatus = computed(() => {
   if (!userStore.isLoggedIn) return 'Guest mode'
 
   return `${userStore.role} · User #${userStore.userId}`
-})
-
-const stats = computed(() => {
-  return [
-    {
-      label: 'Karma',
-      value: userStore.karma,
-      className: 'text-primary',
-    },
-    {
-      label: 'Mana',
-      value: userStore.mana,
-      className: 'text-secondary',
-    },
-    {
-      label: 'Record',
-      value: userStore.matchRecord,
-      className: 'text-accent',
-    },
-  ]
-})
-
-const accountDetails = computed(() => {
-  return [
-    {
-      label: 'Username',
-      value: userStore.username || 'Kind Guest',
-    },
-    {
-      label: 'Email',
-      value: userStore.user?.email || 'Not set',
-    },
-    {
-      label: 'Role',
-      value: userStore.role,
-    },
-    {
-      label: 'User ID',
-      value: userStore.userId,
-    },
-    {
-      label: 'Mature Content',
-      value: userStore.showMature ? 'Enabled' : 'Disabled',
-    },
-    {
-      label: 'Click Record',
-      value: userStore.clickRecord,
-    },
-  ]
 })
 
 const managerSummary = computed(() => {

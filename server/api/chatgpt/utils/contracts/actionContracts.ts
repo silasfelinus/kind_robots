@@ -20,6 +20,8 @@ export const ACTION_NAMES = [
   'bot.create',
   'bot.listPublic',
   'asset.uploadImage',
+  'asset.getImage',
+  'asset.listRecentImages',
   'collection.createArtCollection',
   'world.createContentBundle',
   'meta.listActions',
@@ -391,6 +393,54 @@ export const actionContracts: Record<KindRobotsActionName, ActionContract> = {
       artImageId: 'number',
       artId: 'number optional',
     },
+  },
+
+  'asset.getImage': {
+    action: 'asset.getImage',
+    summary: 'Get one owned ArtImage by id, including imageData.',
+    primaryModel: 'ArtImage',
+    relatedModels: ['Art'],
+    requiresAuth: true,
+    input: {
+      id: 'number required, alias artImageId',
+      artImageId: 'number optional alias for id',
+      asDataUrl: 'boolean optional, include a dataUrl field for direct rendering',
+    },
+    returns: {
+      artImage: 'Private ArtImage including imageData',
+      artImageId: 'number',
+      imageData: 'string raw base64',
+      dataUrl: 'string optional data URL',
+      hasImageData: 'boolean',
+    },
+    notes: [
+      'Requires the authenticated user to own the ArtImage, unless the user is an admin.',
+      'Use this after art.listPublic returns an artImageId.',
+    ],
+  },
+
+  'asset.listRecentImages': {
+    action: 'asset.listRecentImages',
+    summary: 'List recent owned ArtImages, including imageData.',
+    primaryModel: 'ArtImage',
+    relatedModels: ['Art'],
+    requiresAuth: true,
+    input: {
+      limit: 'number optional, default 5, max 25',
+      offset: 'number optional',
+      galleryId: 'number optional',
+      artId: 'number optional',
+      asDataUrl: 'boolean optional, include dataUrl fields for direct rendering',
+      includeAllUsers: 'boolean optional admin-only',
+    },
+    returns: {
+      artImages: 'Private ArtImage[] including imageData',
+      artImageIds: 'number[]',
+    },
+    notes: [
+      'Defaults to the authenticated user’s own images.',
+      'Admins may pass includeAllUsers=true to inspect all recent ArtImages.',
+    ],
   },
 
   'collection.createArtCollection': {

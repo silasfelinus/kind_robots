@@ -9,7 +9,7 @@ export default defineEventHandler((event) => {
     openapi: '3.1.0',
     info: {
       title: 'Kind Robots Actions',
-      version: '2.1.2',
+      version: '2.2.0',
       description:
         'Create and manage Kind Robots content through a semantic action endpoint.',
     },
@@ -24,7 +24,7 @@ export default defineEventHandler((event) => {
           operationId: 'runKindRobotsAction',
           summary: 'Run a Kind Robots action',
           description:
-            'Runs a semantic action for Kind Robots. Use imageData for generated image uploads.',
+            'Runs a semantic action for Kind Robots. Use imageData for generated image uploads. Pass action-specific arguments in the input object.',
           security: [
             {
               kindRobotsUserToken: [],
@@ -71,7 +71,7 @@ export default defineEventHandler((event) => {
       schemas: {
         KindRobotsActionRequest: {
           type: 'object',
-          required: ['action', 'input'],
+          required: ['action'],
           properties: {
             action: {
               type: 'string',
@@ -81,7 +81,7 @@ export default defineEventHandler((event) => {
             input: {
               type: 'object',
               description:
-                'Action-specific input. For generated images, include imageData as raw base64 or a data URL.',
+                'Action-specific input. For generated images, include imageData as raw base64 or a data URL. Example: {"id":459,"asDataUrl":true} for asset.getImage.',
               properties: {},
               additionalProperties: true,
             },

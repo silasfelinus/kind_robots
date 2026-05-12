@@ -8,13 +8,18 @@ import {
 } from './actionGlossary'
 import { getActionContract, getModelContract, listActions } from './metaService'
 import { runRegistryAction } from './actionRegistry'
-import { uploadChatGptAsset } from './assetService'
+import {
+  getChatGptAssetImage,
+  listRecentChatGptAssetImages,
+  uploadChatGptAsset,
+} from './assetService'
 import { createArtCollectionFromAction } from './collectionService'
 import { createWorldContentBundle } from './worldBundleService'
 import { isRecord } from './validate'
 
 type RegistryListModel =
   | 'Art'
+  | 'ArtImage'
   | 'Bot'
   | 'Character'
   | 'Dream'
@@ -282,6 +287,12 @@ export async function runPublicAction(
 
     case 'asset.uploadImage':
       return uploadChatGptAsset(input, headers)
+
+    case 'asset.getImage':
+      return getChatGptAssetImage(input, headers)
+
+    case 'asset.listRecentImages':
+      return listRecentChatGptAssetImages(input, headers)
 
     case 'collection.createArtCollection':
       return createArtCollectionFromAction(input, headers)

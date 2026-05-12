@@ -9,7 +9,7 @@
       <div
         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100"
       >
-        <icon name="kind-icon:theme" class="h-4 w-4" />
+        <icon name="kind-icon:paintbrush" class="h-4 w-4" />
       </div>
 
       <select

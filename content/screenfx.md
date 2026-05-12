@@ -20,3 +20,5 @@ theme: winter
 dashboard: 'screenfx'
 footer: 'lab-footer'
 ---
+
+:screen-fx

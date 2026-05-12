@@ -255,7 +255,7 @@ const channels: ChannelRoute[] = [
     key: 'bots',
     label: 'Bots',
     path: '/bots',
-    icon: 'kind-icon:robot',
+    icon: 'kind-icon:robot-color',
   },
   {
     key: 'art',

@@ -6,6 +6,7 @@ import type { Prisma, Character } from '~/prisma/generated/prisma/client'
 
 export default defineEventHandler(async (event) => {
   try {
+    console.log('[OLD CHARACTER CREATE ROUTE] hit character create')
     // Authenticate using API key
     const { isValid, user } = await validateApiKey(event)
     if (!isValid || !user) {
@@ -78,6 +79,7 @@ export default defineEventHandler(async (event) => {
       artImageId: characterData.artImageId || null,
       Rewards: rewardsConnect ? { connect: rewardsConnect } : undefined, // Add rewards
       imagePath: characterData.imagePath || null,
+      isActive: characterData.isActive ?? true,
     }
 
     // Create the character and return a success response

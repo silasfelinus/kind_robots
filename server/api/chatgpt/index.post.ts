@@ -10,6 +10,7 @@ import {
 } from '~/server/chatgpt/services/contentService'
 
 export default defineEventHandler(async (event) => {
+  console.log('[CHATGPT INDEX POST] hit /api/chatgpt')
   const actor = await resolveChatGptActor(event)
   const body = await readBody(event)
   const request = ChatGptOperationSchema.parse(body)

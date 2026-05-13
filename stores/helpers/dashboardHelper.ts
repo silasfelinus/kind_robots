@@ -45,6 +45,14 @@ export const dashboardConfigs = {
         summary: 'Browse, select, upload, collect, and inspect generated art.',
       },
       {
+        key: 'doctor',
+        label: 'Doctor',
+        icon: 'kind-icon:image',
+        title: 'Art Doctor',
+        summary:
+          'Admin page to update art to the latest art image model for consistent interactions',
+      },
+      {
         key: 'checkpoints',
         label: 'Models',
         icon: 'kind-icon:blueprint',

@@ -21,6 +21,7 @@ model Art {
   designer             String?         @db.VarChar(764)
   isPublic             Boolean?        @default(false)
   isMature             Boolean?        @default(false)
+  isActive             Boolean        @default(true)
   promptId             Int?
   userId               Int?            @default(10)
   pitchId              Int?
@@ -66,10 +67,11 @@ model ArtImage {
   userId               Int?            @default(10)
 
   // Image data
-  imageData            String          @db.LongText
+  imageData            String?          @db.LongText
   thumbnailData        String?         @db.MediumText
   fileName             String?         @db.VarChar(764)
   fileType             String          @default("png")
+  
   imagePath            String?
   rarity               Int?
 
@@ -90,6 +92,7 @@ model ArtImage {
   // Content flags
   isPublic             Boolean?        @default(false)
   isMature             Boolean?        @default(false)
+  isActive             Boolean        @default(true)
 
   // Server info
   serverId             Int?
@@ -151,8 +154,11 @@ model ArtCollection {
   updatedAt   DateTime? @default(now()) @updatedAt
   userId      Int       @default(10)
   label       String?
+
   isMature    Boolean   @default(false)
   isPublic    Boolean   @default(true)
+  isActive             Boolean        @default(true)
+
   description String?
   username    String?
   User        User      @relation(fields: [userId], references: [id])
@@ -183,8 +189,11 @@ model Bot {
   modules           String?    @db.VarChar(764)
   sampleResponse    String?    @db.VarChar(764)
   tagline           String?    @db.VarChar(764)
+
   isPublic        Boolean         @default(true)
   isMature        Boolean         @default(false)
+  isActive             Boolean        @default(true)
+
   underConstruction Boolean    @default(false)
   canDelete         Boolean    @default(false)
   userId            Int?       @default(1)
@@ -330,8 +339,11 @@ model Character {
   skills         String?    @db.VarChar(2048)
   genre          String?    @db.VarChar(256)
   artImageId     Int?
+
   isPublic       Boolean    @default(true)
   isMature       Boolean    @default(false)
+  isActive       Boolean    @default(true)
+
   userId         Int        @default(10)
   artPrompt      String?
   goalStat1Name  String?    @default("Principled|Chaotic")
@@ -372,7 +384,6 @@ model Chat {
   recipient       String?    @db.VarChar(255)
   content         String     @db.Text
   title           String?    @db.VarChar(255)
-  isPublic        Boolean    @default(true)
   isFavorite      Boolean    @default(false)
   previousEntryId Int?
   originId        Int?
@@ -386,7 +397,11 @@ model Chat {
   botResponse     String?
   characterId     Int?
   isRead          Boolean    @default(false)
+
+  isPublic        Boolean    @default(true)
+  isActive        Boolean    @default(true)
   isMature        Boolean    @default(false)
+
   dreamId         Int?
   serverId        Int?
   serverName      String?    @db.VarChar(256)
@@ -496,9 +511,12 @@ model Gallery {
   content        String     @db.VarChar(764)
   highlightImage String?    @db.VarChar(256)
   imagePaths     String?    @db.Text
-  isMature       Boolean    @default(false)
   userId         Int?       @default(1)
+
   isPublic       Boolean    @default(true)
+  isActive             Boolean        @default(true)
+  isMature             Boolean        @default(false)
+
   Art            Art[]
   ArtImage       ArtImage[]
   User           User?      @relation(fields: [userId], references: [id])
@@ -570,8 +588,11 @@ model Pitch {
   highlightImage String?    @db.VarChar(256)
   PitchType      PitchType  @default(ARTPITCH)
   creationSource CreationSource @default(HUMAN)
+
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
+  isActive             Boolean        @default(true)
+
   userId         Int?       @default(1)
   imagePrompt    String?    @db.VarChar(256)
   description    String?    @db.VarChar(256)
@@ -598,8 +619,11 @@ model Prompt {
   prompt     String     @db.Text
   userId     Int?       @default(1)
   galleryId  Int?       @default(21)
+
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
+  isActive       Boolean    @default(true)
+
   creationSource CreationSource @default(HUMAN)
   pitchId    Int?
   botId      Int?
@@ -701,8 +725,11 @@ model Resource {
   huggingUrl      String?         @db.VarChar(764)
   localPath       String?         @db.VarChar(764)
   description     String?         @db.Text
+
   isPublic        Boolean         @default(false)
   isMature        Boolean         @default(false)
+  isActive        Boolean         @default(true)
+
   resourceType    ResourceType    @default(EMBEDDING)
   supportedServer SupportedServer @default(SDXL)
   userId          Int?            @default(1)
@@ -757,8 +784,10 @@ model Reward {
   artImageId  Int?
   imagePath   String?
   imagePrompt String?
+
   isPublic    Boolean     @default(true)
   isMature    Boolean     @default(false)
+  isActive             Boolean        @default(true)
 
   ArtImage    ArtImage?
   Reactions   Reaction[]
@@ -786,8 +815,10 @@ model Scenario {
   artPrompt    String?     @db.Text
   genres       String?
   inspirations String?     @db.Text
+
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
+  isActive             Boolean        @default(true)
 
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
   User         User        @relation(fields: [userId], references: [id])
@@ -813,24 +844,27 @@ model Server {
   endpointPath               String?
   healthPath                 String?
   userId                     Int?
-  isMature       Boolean    @default(false)
-  isPublic       Boolean    @default(true)
+
+  
+  isActive                   Boolean    @default(true)
+  isMature                   Boolean    @default(false)
+  isPublic                   Boolean    @default(true)
   isOfficial                 Boolean            @default(false)
   isDefault                  Boolean            @default(false)
-  isActive                   Boolean            @default(true)
-  isEditable                 Boolean            @default(true)
-  browserBaseUrl            String?
-  backendBaseUrl            String?
 
-  workflowPath              String?
-  workflowJson              Json?
-  workflowVersion           String?
-  defaultWidth              Int     @default(512)
-  defaultHeight             Int     @default(512)
-  defaultSteps              Int?
-  defaultCfg                Float?
-  defaultSampler            String?
-  defaultScheduler          String?
+  isEditable                 Boolean            @default(true)
+  browserBaseUrl             String?
+  backendBaseUrl             String?
+
+  workflowPath               String?
+  workflowJson               Json?
+  workflowVersion            String?
+  defaultWidth               Int     @default(512)
+  defaultHeight              Int     @default(512)
+  defaultSteps               Int?
+  defaultCfg                 Float?
+  defaultSampler             String?
+  defaultScheduler           String?
 
   accessMode                 ServerAccessMode   @default(LOCAL)
   requiresClientSideCheck    Boolean            @default(false)
@@ -854,13 +888,13 @@ model Server {
   supportsSeed               Boolean            @default(false)
   supportsSteps              Boolean            @default(false)
   supportsVideo              Boolean            @default(false)
-  supportsFlux              Boolean @default(false)
-  supportsKontext           Boolean @default(false)
-  supportsInpaint           Boolean @default(false)
-  supportsOutpaint          Boolean @default(false)
-  supportsImageEdit         Boolean @default(false)
-  supportsWorkflowUpload    Boolean @default(false)
-  supportsBatch             Boolean @default(false)
+  supportsFlux               Boolean @default(false)
+  supportsKontext            Boolean @default(false)
+  supportsInpaint            Boolean @default(false)
+  supportsOutpaint           Boolean @default(false)
+  supportsImageEdit          Boolean @default(false)
+  supportsWorkflowUpload     Boolean @default(false)
+  supportsBatch              Boolean @default(false)
 
   apiLink                    String?
   model                      String?
@@ -878,8 +912,8 @@ model Server {
   Resources                  Resource[]
   user                       User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  generationEngine          ServerGenerationEngine @default(A1111)
-  defaultTransport          ServerTransport        @default(BROWSER)
+  generationEngine           ServerGenerationEngine @default(A1111)
+  defaultTransport           ServerTransport        @default(BROWSER)
 
   @@index([serverType])
   @@index([isPublic])
@@ -942,8 +976,11 @@ model Tag {
   title      String      @db.VarChar(256)
   flavorText String?     @db.VarChar(764)
   pitch      String?     @db.VarChar(764)
-  isPublic   Boolean?    @default(false)
+
+  isPublic   Boolean?    @default(true)
   isMature   Boolean     @default(false)
+  isActive             Boolean        @default(true)
+
   userId     Int?        @default(1)
   artImageId Int? @unique
 
@@ -968,7 +1005,10 @@ model Theme {
   name        String   @unique
   values      String   @db.LongText
   userId      Int?
+
   isPublic    Boolean  @default(false)
+  isActive             Boolean        @default(true)
+
   createdAt   DateTime @default(now())
   tagline     String?
   room        String?
@@ -1020,7 +1060,10 @@ model User {
   googleEmail           String?           @db.VarChar(255)
   googleId              String?
   blockList             String?
+
   isPublic              Boolean           @default(true)
+  isActive             Boolean        @default(true)
+
   smartBar              String?           @db.Text
   customIcons           Boolean           @default(false)
   isMember              Boolean           @default(false)

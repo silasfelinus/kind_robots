@@ -54,6 +54,7 @@ export type ScenarioMinAggregateOutputType = {
   inspirations: string | null
   isMature: boolean | null
   isPublic: boolean | null
+  isActive: boolean | null
 }
 
 export type ScenarioMaxAggregateOutputType = {
@@ -72,6 +73,7 @@ export type ScenarioMaxAggregateOutputType = {
   inspirations: string | null
   isMature: boolean | null
   isPublic: boolean | null
+  isActive: boolean | null
 }
 
 export type ScenarioCountAggregateOutputType = {
@@ -90,6 +92,7 @@ export type ScenarioCountAggregateOutputType = {
   inspirations: number
   isMature: number
   isPublic: number
+  isActive: number
   _all: number
 }
 
@@ -122,6 +125,7 @@ export type ScenarioMinAggregateInputType = {
   inspirations?: true
   isMature?: true
   isPublic?: true
+  isActive?: true
 }
 
 export type ScenarioMaxAggregateInputType = {
@@ -140,6 +144,7 @@ export type ScenarioMaxAggregateInputType = {
   inspirations?: true
   isMature?: true
   isPublic?: true
+  isActive?: true
 }
 
 export type ScenarioCountAggregateInputType = {
@@ -158,6 +163,7 @@ export type ScenarioCountAggregateInputType = {
   inspirations?: true
   isMature?: true
   isPublic?: true
+  isActive?: true
   _all?: true
 }
 
@@ -263,6 +269,7 @@ export type ScenarioGroupByOutputType = {
   inspirations: string | null
   isMature: boolean
   isPublic: boolean
+  isActive: boolean
   _count: ScenarioCountAggregateOutputType | null
   _avg: ScenarioAvgAggregateOutputType | null
   _sum: ScenarioSumAggregateOutputType | null
@@ -304,6 +311,7 @@ export type ScenarioWhereInput = {
   inspirations?: Prisma.StringNullableFilter<"Scenario"> | string | null
   isMature?: Prisma.BoolFilter<"Scenario"> | boolean
   isPublic?: Prisma.BoolFilter<"Scenario"> | boolean
+  isActive?: Prisma.BoolFilter<"Scenario"> | boolean
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Characters?: Prisma.CharacterListRelationFilter
@@ -328,6 +336,7 @@ export type ScenarioOrderByWithRelationInput = {
   inspirations?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
@@ -356,6 +365,7 @@ export type ScenarioWhereUniqueInput = Prisma.AtLeast<{
   inspirations?: Prisma.StringNullableFilter<"Scenario"> | string | null
   isMature?: Prisma.BoolFilter<"Scenario"> | boolean
   isPublic?: Prisma.BoolFilter<"Scenario"> | boolean
+  isActive?: Prisma.BoolFilter<"Scenario"> | boolean
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Characters?: Prisma.CharacterListRelationFilter
@@ -380,6 +390,7 @@ export type ScenarioOrderByWithAggregationInput = {
   inspirations?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   _count?: Prisma.ScenarioCountOrderByAggregateInput
   _avg?: Prisma.ScenarioAvgOrderByAggregateInput
   _max?: Prisma.ScenarioMaxOrderByAggregateInput
@@ -406,6 +417,7 @@ export type ScenarioScalarWhereWithAggregatesInput = {
   inspirations?: Prisma.StringNullableWithAggregatesFilter<"Scenario"> | string | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Scenario"> | boolean
   isPublic?: Prisma.BoolWithAggregatesFilter<"Scenario"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Scenario"> | boolean
 }
 
 export type ScenarioCreateInput = {
@@ -421,6 +433,7 @@ export type ScenarioCreateInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
@@ -445,6 +458,7 @@ export type ScenarioUncheckedCreateInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutScenarioInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
@@ -464,6 +478,7 @@ export type ScenarioUpdateInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
@@ -488,6 +503,7 @@ export type ScenarioUncheckedUpdateInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutScenarioNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
@@ -510,6 +526,7 @@ export type ScenarioCreateManyInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
 }
 
 export type ScenarioUpdateManyMutationInput = {
@@ -525,6 +542,7 @@ export type ScenarioUpdateManyMutationInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ScenarioUncheckedUpdateManyInput = {
@@ -543,6 +561,7 @@ export type ScenarioUncheckedUpdateManyInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ScenarioListRelationFilter = {
@@ -582,6 +601,7 @@ export type ScenarioCountOrderByAggregateInput = {
   inspirations?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
 }
 
 export type ScenarioAvgOrderByAggregateInput = {
@@ -606,6 +626,7 @@ export type ScenarioMaxOrderByAggregateInput = {
   inspirations?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
 }
 
 export type ScenarioMinOrderByAggregateInput = {
@@ -624,6 +645,7 @@ export type ScenarioMinOrderByAggregateInput = {
   inspirations?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
 }
 
 export type ScenarioSumOrderByAggregateInput = {
@@ -815,6 +837,7 @@ export type ScenarioCreateWithoutArtImageInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutScenarioInput
@@ -837,6 +860,7 @@ export type ScenarioUncheckedCreateWithoutArtImageInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutScenarioInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
@@ -888,6 +912,7 @@ export type ScenarioScalarWhereInput = {
   inspirations?: Prisma.StringNullableFilter<"Scenario"> | string | null
   isMature?: Prisma.BoolFilter<"Scenario"> | boolean
   isPublic?: Prisma.BoolFilter<"Scenario"> | boolean
+  isActive?: Prisma.BoolFilter<"Scenario"> | boolean
 }
 
 export type ScenarioCreateWithoutButterfliesInput = {
@@ -903,6 +928,7 @@ export type ScenarioCreateWithoutButterfliesInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
@@ -926,6 +952,7 @@ export type ScenarioUncheckedCreateWithoutButterfliesInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
@@ -960,6 +987,7 @@ export type ScenarioUpdateWithoutButterfliesInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
@@ -983,6 +1011,7 @@ export type ScenarioUncheckedUpdateWithoutButterfliesInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
@@ -1001,6 +1030,7 @@ export type ScenarioCreateWithoutCharactersInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutScenarioInput
@@ -1024,6 +1054,7 @@ export type ScenarioUncheckedCreateWithoutCharactersInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutScenarioInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
@@ -1063,6 +1094,7 @@ export type ScenarioCreateWithoutDreamsInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
@@ -1086,6 +1118,7 @@ export type ScenarioUncheckedCreateWithoutDreamsInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
@@ -1120,6 +1153,7 @@ export type ScenarioUpdateWithoutDreamsInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
@@ -1143,6 +1177,7 @@ export type ScenarioUncheckedUpdateWithoutDreamsInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
@@ -1161,6 +1196,7 @@ export type ScenarioCreateWithoutReactionsInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
@@ -1184,6 +1220,7 @@ export type ScenarioUncheckedCreateWithoutReactionsInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutScenarioInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
@@ -1218,6 +1255,7 @@ export type ScenarioUpdateWithoutReactionsInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
@@ -1241,6 +1279,7 @@ export type ScenarioUncheckedUpdateWithoutReactionsInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutScenarioNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
@@ -1259,6 +1298,7 @@ export type ScenarioCreateWithoutUserInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutScenarioInput
@@ -1281,6 +1321,7 @@ export type ScenarioUncheckedCreateWithoutUserInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutScenarioInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
@@ -1328,6 +1369,7 @@ export type ScenarioCreateManyArtImageInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
 }
 
 export type ScenarioUpdateWithoutArtImageInput = {
@@ -1343,6 +1385,7 @@ export type ScenarioUpdateWithoutArtImageInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutScenarioNestedInput
@@ -1365,6 +1408,7 @@ export type ScenarioUncheckedUpdateWithoutArtImageInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutScenarioNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
@@ -1386,6 +1430,7 @@ export type ScenarioUncheckedUpdateManyWithoutArtImageInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ScenarioUpdateWithoutCharactersInput = {
@@ -1401,6 +1446,7 @@ export type ScenarioUpdateWithoutCharactersInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutScenarioNestedInput
@@ -1424,6 +1470,7 @@ export type ScenarioUncheckedUpdateWithoutCharactersInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutScenarioNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
@@ -1445,6 +1492,7 @@ export type ScenarioUncheckedUpdateManyWithoutCharactersInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ScenarioCreateManyUserInput = {
@@ -1462,6 +1510,7 @@ export type ScenarioCreateManyUserInput = {
   inspirations?: string | null
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
 }
 
 export type ScenarioUpdateWithoutUserInput = {
@@ -1477,6 +1526,7 @@ export type ScenarioUpdateWithoutUserInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutScenarioNestedInput
@@ -1499,6 +1549,7 @@ export type ScenarioUncheckedUpdateWithoutUserInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutScenarioNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
@@ -1520,6 +1571,7 @@ export type ScenarioUncheckedUpdateManyWithoutUserInput = {
   inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -1596,6 +1648,7 @@ export type ScenarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   inspirations?: boolean
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
   ArtImage?: boolean | Prisma.Scenario$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Characters?: boolean | Prisma.Scenario$CharactersArgs<ExtArgs>
@@ -1623,9 +1676,10 @@ export type ScenarioSelectScalar = {
   inspirations?: boolean
   isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
 }
 
-export type ScenarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "intros" | "userId" | "artImageId" | "imagePath" | "locations" | "artPrompt" | "genres" | "inspirations" | "isMature" | "isPublic", ExtArgs["result"]["scenario"]>
+export type ScenarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "description" | "intros" | "userId" | "artImageId" | "imagePath" | "locations" | "artPrompt" | "genres" | "inspirations" | "isMature" | "isPublic" | "isActive", ExtArgs["result"]["scenario"]>
 export type ScenarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Scenario$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1662,6 +1716,7 @@ export type $ScenarioPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     inspirations: string | null
     isMature: boolean
     isPublic: boolean
+    isActive: boolean
   }, ExtArgs["result"]["scenario"]>
   composites: {}
 }
@@ -2052,6 +2107,7 @@ export interface ScenarioFieldRefs {
   readonly inspirations: Prisma.FieldRef<"Scenario", 'String'>
   readonly isMature: Prisma.FieldRef<"Scenario", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"Scenario", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Scenario", 'Boolean'>
 }
     
 

@@ -1,50 +1,61 @@
-// /server/api/chatgpt/index.post.ts
+import { defineEventHandler, readBody } from 'h3'
+import { resolveChatGptActor } from '~/server/chatgpt/auth/resolveActor'
+import { ChatGptOperationSchema } from '~/server/chatgpt/schemas/operationSchemas'
 import {
-  defineEventHandler,
-  getRequestHeader,
-  readBody,
-  setResponseStatus,
-} from 'h3'
-import {
-  expectRecord,
-  expectString,
-  optional,
-  validateShape,
-} from './utils/validate'
-import { runPublicAction } from './utils/actionRunner'
+  createContent,
+  getContent,
+  listContent,
+  updateContent,
+  setContentActive,
+} from '~/server/chatgpt/services/contentService'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const envelope = await readBody(event)
+  const actor = await resolveChatGptActor(event)
+  const body = await readBody(event)
+  const request = ChatGptOperationSchema.parse(body)
 
-    const { action, input } = validateShape(envelope, {
-      action: expectString,
-      input: optional(expectRecord),
-    })
+  switch (request.operation) {
+    case 'content.create':
+      return createContent({
+        resource: request.resource,
+        data: request.data,
+        actor,
+      })
 
-    const authorization = getRequestHeader(event, 'authorization') || ''
-    const apiKey = getRequestHeader(event, 'x-api-key') || ''
-    const userToken = getRequestHeader(event, 'x-kindrobots-user-token') || ''
+    case 'content.get':
+      return getContent({
+        resource: request.resource,
+        id: request.id,
+        actor,
+      })
 
-    const output = await runPublicAction(action, input ?? {}, {
-      authorization,
-      'x-api-key': apiKey,
-      'x-kindrobots-user-token': userToken,
-    })
+    case 'content.list':
+      return listContent({
+        resource: request.resource,
+        filter: request.filter,
+        actor,
+      })
 
-    return {
-      success: true,
-      action,
-      data: output,
-    }
-  } catch (error: any) {
-    const statusCode = Number(error?.statusCode || error?.status || 500)
-    setResponseStatus(event, statusCode)
+    case 'content.update':
+      return updateContent({
+        resource: request.resource,
+        id: request.id,
+        data: request.data,
+        actor,
+      })
 
-    return {
-      success: false,
-      message: String(error?.statusMessage || error?.message || error),
-      statusCode,
-    }
+    case 'content.setActive':
+      return setContentActive({
+        resource: request.resource,
+        id: request.id,
+        isActive: request.isActive,
+        actor,
+      })
+
+    default:
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Operation not implemented yet: ${request.operation}`,
+      })
   }
 })

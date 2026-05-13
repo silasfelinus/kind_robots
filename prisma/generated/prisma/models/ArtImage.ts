@@ -98,6 +98,7 @@ export type ArtImageMinAggregateOutputType = {
   genres: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   serverId: number | null
   serverName: string | null
   serverUrl: string | null
@@ -140,6 +141,7 @@ export type ArtImageMaxAggregateOutputType = {
   genres: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   serverId: number | null
   serverName: string | null
   serverUrl: string | null
@@ -182,6 +184,7 @@ export type ArtImageCountAggregateOutputType = {
   genres: number
   isPublic: number
   isMature: number
+  isActive: number
   serverId: number
   serverName: number
   serverUrl: number
@@ -272,6 +275,7 @@ export type ArtImageMinAggregateInputType = {
   genres?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   serverId?: true
   serverName?: true
   serverUrl?: true
@@ -314,6 +318,7 @@ export type ArtImageMaxAggregateInputType = {
   genres?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   serverId?: true
   serverName?: true
   serverUrl?: true
@@ -356,6 +361,7 @@ export type ArtImageCountAggregateInputType = {
   genres?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   serverId?: true
   serverName?: true
   serverUrl?: true
@@ -465,7 +471,7 @@ export type ArtImageGroupByOutputType = {
   updatedAt: Date | null
   galleryId: number | null
   userId: number | null
-  imageData: string
+  imageData: string | null
   thumbnailData: string | null
   fileName: string | null
   fileType: string
@@ -485,6 +491,7 @@ export type ArtImageGroupByOutputType = {
   genres: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean
   serverId: number | null
   serverName: string | null
   serverUrl: string | null
@@ -530,7 +537,7 @@ export type ArtImageWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ArtImage"> | Date | string | null
   galleryId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   userId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
-  imageData?: Prisma.StringFilter<"ArtImage"> | string
+  imageData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringFilter<"ArtImage"> | string
@@ -550,6 +557,7 @@ export type ArtImageWhereInput = {
   genres?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   isMature?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
+  isActive?: Prisma.BoolFilter<"ArtImage"> | boolean
   serverId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   serverName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   serverUrl?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -593,7 +601,7 @@ export type ArtImageOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  imageData?: Prisma.SortOrder
+  imageData?: Prisma.SortOrderInput | Prisma.SortOrder
   thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -613,6 +621,7 @@ export type ArtImageOrderByWithRelationInput = {
   genres?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
   serverUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -671,7 +680,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"ArtImage"> | Date | string | null
   galleryId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   userId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
-  imageData?: Prisma.StringFilter<"ArtImage"> | string
+  imageData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringFilter<"ArtImage"> | string
@@ -691,6 +700,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   genres?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   isMature?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
+  isActive?: Prisma.BoolFilter<"ArtImage"> | boolean
   serverId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   serverName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   serverUrl?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -723,7 +733,7 @@ export type ArtImageOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  imageData?: Prisma.SortOrder
+  imageData?: Prisma.SortOrderInput | Prisma.SortOrder
   thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -743,6 +753,7 @@ export type ArtImageOrderByWithAggregationInput = {
   genres?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
   serverUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -773,7 +784,7 @@ export type ArtImageScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ArtImage"> | Date | string | null
   galleryId?: Prisma.IntNullableWithAggregatesFilter<"ArtImage"> | number | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"ArtImage"> | number | null
-  imageData?: Prisma.StringWithAggregatesFilter<"ArtImage"> | string
+  imageData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   thumbnailData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringWithAggregatesFilter<"ArtImage"> | string
@@ -793,6 +804,7 @@ export type ArtImageScalarWhereWithAggregatesInput = {
   genres?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   isPublic?: Prisma.BoolNullableWithAggregatesFilter<"ArtImage"> | boolean | null
   isMature?: Prisma.BoolNullableWithAggregatesFilter<"ArtImage"> | boolean | null
+  isActive?: Prisma.BoolWithAggregatesFilter<"ArtImage"> | boolean
   serverId?: Prisma.IntNullableWithAggregatesFilter<"ArtImage"> | number | null
   serverName?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   serverUrl?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
@@ -812,7 +824,7 @@ export type ArtImageScalarWhereWithAggregatesInput = {
 export type ArtImageCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -831,6 +843,7 @@ export type ArtImageCreateInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -863,7 +876,7 @@ export type ArtImageUncheckedCreateInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -883,6 +896,7 @@ export type ArtImageUncheckedCreateInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -909,7 +923,7 @@ export type ArtImageUncheckedCreateInput = {
 export type ArtImageUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -928,6 +942,7 @@ export type ArtImageUpdateInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -960,7 +975,7 @@ export type ArtImageUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -980,6 +995,7 @@ export type ArtImageUncheckedUpdateInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1009,7 +1025,7 @@ export type ArtImageCreateManyInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -1029,6 +1045,7 @@ export type ArtImageCreateManyInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -1048,7 +1065,7 @@ export type ArtImageCreateManyInput = {
 export type ArtImageUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1067,6 +1084,7 @@ export type ArtImageUpdateManyMutationInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1078,7 +1096,7 @@ export type ArtImageUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1098,6 +1116,7 @@ export type ArtImageUncheckedUpdateManyInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1151,6 +1170,7 @@ export type ArtImageCountOrderByAggregateInput = {
   genres?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   serverUrl?: Prisma.SortOrder
@@ -1216,6 +1236,7 @@ export type ArtImageMaxOrderByAggregateInput = {
   genres?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   serverUrl?: Prisma.SortOrder
@@ -1258,6 +1279,7 @@ export type ArtImageMinOrderByAggregateInput = {
   genres?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   serverUrl?: Prisma.SortOrder
@@ -1958,7 +1980,7 @@ export type ArtImageUncheckedUpdateManyWithoutUserNestedInput = {
 export type ArtImageCreateWithoutArtInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -1977,6 +1999,7 @@ export type ArtImageCreateWithoutArtInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -2008,7 +2031,7 @@ export type ArtImageUncheckedCreateWithoutArtInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2028,6 +2051,7 @@ export type ArtImageUncheckedCreateWithoutArtInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -2069,7 +2093,7 @@ export type ArtImageUpdateToOneWithWhereWithoutArtInput = {
 export type ArtImageUpdateWithoutArtInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2088,6 +2112,7 @@ export type ArtImageUpdateWithoutArtInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2119,7 +2144,7 @@ export type ArtImageUncheckedUpdateWithoutArtInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2139,6 +2164,7 @@ export type ArtImageUncheckedUpdateWithoutArtInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2164,7 +2190,7 @@ export type ArtImageUncheckedUpdateWithoutArtInput = {
 export type ArtImageCreateWithoutArtCollectionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2183,6 +2209,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -2214,7 +2241,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2234,6 +2261,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -2286,7 +2314,7 @@ export type ArtImageScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ArtImage"> | Date | string | null
   galleryId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   userId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
-  imageData?: Prisma.StringFilter<"ArtImage"> | string
+  imageData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringFilter<"ArtImage"> | string
@@ -2306,6 +2334,7 @@ export type ArtImageScalarWhereInput = {
   genres?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
   isMature?: Prisma.BoolNullableFilter<"ArtImage"> | boolean | null
+  isActive?: Prisma.BoolFilter<"ArtImage"> | boolean
   serverId?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   serverName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   serverUrl?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -2325,7 +2354,7 @@ export type ArtImageScalarWhereInput = {
 export type ArtImageCreateWithoutBotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2344,6 +2373,7 @@ export type ArtImageCreateWithoutBotInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -2375,7 +2405,7 @@ export type ArtImageUncheckedCreateWithoutBotInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2395,6 +2425,7 @@ export type ArtImageUncheckedCreateWithoutBotInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -2436,7 +2467,7 @@ export type ArtImageUpdateToOneWithWhereWithoutBotInput = {
 export type ArtImageUpdateWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2455,6 +2486,7 @@ export type ArtImageUpdateWithoutBotInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2486,7 +2518,7 @@ export type ArtImageUncheckedUpdateWithoutBotInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2506,6 +2538,7 @@ export type ArtImageUncheckedUpdateWithoutBotInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2531,7 +2564,7 @@ export type ArtImageUncheckedUpdateWithoutBotInput = {
 export type ArtImageCreateWithoutButterfliesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2550,6 +2583,7 @@ export type ArtImageCreateWithoutButterfliesInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -2581,7 +2615,7 @@ export type ArtImageUncheckedCreateWithoutButterfliesInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2601,6 +2635,7 @@ export type ArtImageUncheckedCreateWithoutButterfliesInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -2642,7 +2677,7 @@ export type ArtImageUpdateToOneWithWhereWithoutButterfliesInput = {
 export type ArtImageUpdateWithoutButterfliesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2661,6 +2696,7 @@ export type ArtImageUpdateWithoutButterfliesInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2692,7 +2728,7 @@ export type ArtImageUncheckedUpdateWithoutButterfliesInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2712,6 +2748,7 @@ export type ArtImageUncheckedUpdateWithoutButterfliesInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2737,7 +2774,7 @@ export type ArtImageUncheckedUpdateWithoutButterfliesInput = {
 export type ArtImageCreateWithoutCharacterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2756,6 +2793,7 @@ export type ArtImageCreateWithoutCharacterInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -2787,7 +2825,7 @@ export type ArtImageUncheckedCreateWithoutCharacterInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2807,6 +2845,7 @@ export type ArtImageUncheckedCreateWithoutCharacterInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -2848,7 +2887,7 @@ export type ArtImageUpdateToOneWithWhereWithoutCharacterInput = {
 export type ArtImageUpdateWithoutCharacterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2867,6 +2906,7 @@ export type ArtImageUpdateWithoutCharacterInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2898,7 +2938,7 @@ export type ArtImageUncheckedUpdateWithoutCharacterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2918,6 +2958,7 @@ export type ArtImageUncheckedUpdateWithoutCharacterInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2943,7 +2984,7 @@ export type ArtImageUncheckedUpdateWithoutCharacterInput = {
 export type ArtImageCreateWithoutChatInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -2962,6 +3003,7 @@ export type ArtImageCreateWithoutChatInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -2993,7 +3035,7 @@ export type ArtImageUncheckedCreateWithoutChatInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3013,6 +3055,7 @@ export type ArtImageUncheckedCreateWithoutChatInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -3054,7 +3097,7 @@ export type ArtImageUpdateToOneWithWhereWithoutChatInput = {
 export type ArtImageUpdateWithoutChatInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3073,6 +3116,7 @@ export type ArtImageUpdateWithoutChatInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3104,7 +3148,7 @@ export type ArtImageUncheckedUpdateWithoutChatInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3124,6 +3168,7 @@ export type ArtImageUncheckedUpdateWithoutChatInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3149,7 +3194,7 @@ export type ArtImageUncheckedUpdateWithoutChatInput = {
 export type ArtImageCreateWithoutComponentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3168,6 +3213,7 @@ export type ArtImageCreateWithoutComponentInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -3199,7 +3245,7 @@ export type ArtImageUncheckedCreateWithoutComponentInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3219,6 +3265,7 @@ export type ArtImageUncheckedCreateWithoutComponentInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -3260,7 +3307,7 @@ export type ArtImageUpdateToOneWithWhereWithoutComponentInput = {
 export type ArtImageUpdateWithoutComponentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3279,6 +3326,7 @@ export type ArtImageUpdateWithoutComponentInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3310,7 +3358,7 @@ export type ArtImageUncheckedUpdateWithoutComponentInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3330,6 +3378,7 @@ export type ArtImageUncheckedUpdateWithoutComponentInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3355,7 +3404,7 @@ export type ArtImageUncheckedUpdateWithoutComponentInput = {
 export type ArtImageCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3374,6 +3423,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -3405,7 +3455,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3425,6 +3475,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -3466,7 +3517,7 @@ export type ArtImageUpdateToOneWithWhereWithoutDreamsInput = {
 export type ArtImageUpdateWithoutDreamsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3485,6 +3536,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3516,7 +3568,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3536,6 +3588,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3561,7 +3614,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
 export type ArtImageCreateWithoutGalleryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3580,6 +3633,7 @@ export type ArtImageCreateWithoutGalleryInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -3610,7 +3664,7 @@ export type ArtImageUncheckedCreateWithoutGalleryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3630,6 +3684,7 @@ export type ArtImageUncheckedCreateWithoutGalleryInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -3682,7 +3737,7 @@ export type ArtImageUpdateManyWithWhereWithoutGalleryInput = {
 export type ArtImageCreateWithoutMilestoneInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3701,6 +3756,7 @@ export type ArtImageCreateWithoutMilestoneInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -3732,7 +3788,7 @@ export type ArtImageUncheckedCreateWithoutMilestoneInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3752,6 +3808,7 @@ export type ArtImageUncheckedCreateWithoutMilestoneInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -3793,7 +3850,7 @@ export type ArtImageUpdateToOneWithWhereWithoutMilestoneInput = {
 export type ArtImageUpdateWithoutMilestoneInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3812,6 +3869,7 @@ export type ArtImageUpdateWithoutMilestoneInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3843,7 +3901,7 @@ export type ArtImageUncheckedUpdateWithoutMilestoneInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3863,6 +3921,7 @@ export type ArtImageUncheckedUpdateWithoutMilestoneInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3888,7 +3947,7 @@ export type ArtImageUncheckedUpdateWithoutMilestoneInput = {
 export type ArtImageCreateWithoutPitchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3907,6 +3966,7 @@ export type ArtImageCreateWithoutPitchInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -3938,7 +3998,7 @@ export type ArtImageUncheckedCreateWithoutPitchInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -3958,6 +4018,7 @@ export type ArtImageUncheckedCreateWithoutPitchInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -3999,7 +4060,7 @@ export type ArtImageUpdateToOneWithWhereWithoutPitchInput = {
 export type ArtImageUpdateWithoutPitchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4018,6 +4079,7 @@ export type ArtImageUpdateWithoutPitchInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4049,7 +4111,7 @@ export type ArtImageUncheckedUpdateWithoutPitchInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4069,6 +4131,7 @@ export type ArtImageUncheckedUpdateWithoutPitchInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4094,7 +4157,7 @@ export type ArtImageUncheckedUpdateWithoutPitchInput = {
 export type ArtImageCreateWithoutPromptInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4113,6 +4176,7 @@ export type ArtImageCreateWithoutPromptInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -4144,7 +4208,7 @@ export type ArtImageUncheckedCreateWithoutPromptInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4164,6 +4228,7 @@ export type ArtImageUncheckedCreateWithoutPromptInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -4205,7 +4270,7 @@ export type ArtImageUpdateToOneWithWhereWithoutPromptInput = {
 export type ArtImageUpdateWithoutPromptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4224,6 +4289,7 @@ export type ArtImageUpdateWithoutPromptInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4255,7 +4321,7 @@ export type ArtImageUncheckedUpdateWithoutPromptInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4275,6 +4341,7 @@ export type ArtImageUncheckedUpdateWithoutPromptInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4300,7 +4367,7 @@ export type ArtImageUncheckedUpdateWithoutPromptInput = {
 export type ArtImageCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4319,6 +4386,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -4350,7 +4418,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4370,6 +4438,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -4411,7 +4480,7 @@ export type ArtImageUpdateToOneWithWhereWithoutReactionsInput = {
 export type ArtImageUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4430,6 +4499,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4461,7 +4531,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4481,6 +4551,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4506,7 +4577,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
 export type ArtImageCreateWithoutResourceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4525,6 +4596,7 @@ export type ArtImageCreateWithoutResourceInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -4556,7 +4628,7 @@ export type ArtImageUncheckedCreateWithoutResourceInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4576,6 +4648,7 @@ export type ArtImageUncheckedCreateWithoutResourceInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -4606,7 +4679,7 @@ export type ArtImageCreateOrConnectWithoutResourceInput = {
 export type ArtImageCreateWithoutCheckpointResourceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4625,6 +4698,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -4656,7 +4730,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4675,6 +4749,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -4722,7 +4797,7 @@ export type ArtImageUpdateToOneWithWhereWithoutResourceInput = {
 export type ArtImageUpdateWithoutResourceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4741,6 +4816,7 @@ export type ArtImageUpdateWithoutResourceInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4772,7 +4848,7 @@ export type ArtImageUncheckedUpdateWithoutResourceInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4792,6 +4868,7 @@ export type ArtImageUncheckedUpdateWithoutResourceInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4833,7 +4910,7 @@ export type ArtImageUpdateManyWithWhereWithoutCheckpointResourceInput = {
 export type ArtImageCreateWithoutRewardInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4852,6 +4929,7 @@ export type ArtImageCreateWithoutRewardInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -4883,7 +4961,7 @@ export type ArtImageUncheckedCreateWithoutRewardInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -4903,6 +4981,7 @@ export type ArtImageUncheckedCreateWithoutRewardInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -4944,7 +5023,7 @@ export type ArtImageUpdateToOneWithWhereWithoutRewardInput = {
 export type ArtImageUpdateWithoutRewardInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4963,6 +5042,7 @@ export type ArtImageUpdateWithoutRewardInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4994,7 +5074,7 @@ export type ArtImageUncheckedUpdateWithoutRewardInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5014,6 +5094,7 @@ export type ArtImageUncheckedUpdateWithoutRewardInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5039,7 +5120,7 @@ export type ArtImageUncheckedUpdateWithoutRewardInput = {
 export type ArtImageCreateWithoutScenariosInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5058,6 +5139,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -5089,7 +5171,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5109,6 +5191,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -5150,7 +5233,7 @@ export type ArtImageUpdateToOneWithWhereWithoutScenariosInput = {
 export type ArtImageUpdateWithoutScenariosInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5169,6 +5252,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5200,7 +5284,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5220,6 +5304,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5245,7 +5330,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
 export type ArtImageCreateWithoutServerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5264,6 +5349,7 @@ export type ArtImageCreateWithoutServerInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -5295,7 +5381,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5315,6 +5401,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   artId?: number | null
@@ -5366,7 +5453,7 @@ export type ArtImageUpdateManyWithWhereWithoutServerInput = {
 export type ArtImageCreateWithoutTagOwnerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5385,6 +5472,7 @@ export type ArtImageCreateWithoutTagOwnerInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -5416,7 +5504,7 @@ export type ArtImageUncheckedCreateWithoutTagOwnerInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5436,6 +5524,7 @@ export type ArtImageUncheckedCreateWithoutTagOwnerInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -5466,7 +5555,7 @@ export type ArtImageCreateOrConnectWithoutTagOwnerInput = {
 export type ArtImageCreateWithoutTagsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5485,6 +5574,7 @@ export type ArtImageCreateWithoutTagsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -5516,7 +5606,7 @@ export type ArtImageUncheckedCreateWithoutTagsInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5536,6 +5626,7 @@ export type ArtImageUncheckedCreateWithoutTagsInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -5577,7 +5668,7 @@ export type ArtImageUpdateToOneWithWhereWithoutTagOwnerInput = {
 export type ArtImageUpdateWithoutTagOwnerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5596,6 +5687,7 @@ export type ArtImageUpdateWithoutTagOwnerInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5627,7 +5719,7 @@ export type ArtImageUncheckedUpdateWithoutTagOwnerInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5647,6 +5739,7 @@ export type ArtImageUncheckedUpdateWithoutTagOwnerInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5688,7 +5781,7 @@ export type ArtImageUpdateManyWithWhereWithoutTagsInput = {
 export type ArtImageCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5707,6 +5800,7 @@ export type ArtImageCreateWithoutUserInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   butterflyId?: number | null
@@ -5737,7 +5831,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   galleryId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5757,6 +5851,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -5809,7 +5904,7 @@ export type ArtImageUpdateManyWithWhereWithoutUserInput = {
 export type ArtImageUpdateWithoutArtCollectionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5828,6 +5923,7 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5859,7 +5955,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5879,6 +5975,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5907,7 +6004,7 @@ export type ArtImageUncheckedUpdateManyWithoutArtCollectionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5927,6 +6024,7 @@ export type ArtImageUncheckedUpdateManyWithoutArtCollectionsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5948,7 +6046,7 @@ export type ArtImageCreateManyGalleryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -5968,6 +6066,7 @@ export type ArtImageCreateManyGalleryInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -5987,7 +6086,7 @@ export type ArtImageCreateManyGalleryInput = {
 export type ArtImageUpdateWithoutGalleryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6006,6 +6105,7 @@ export type ArtImageUpdateWithoutGalleryInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6036,7 +6136,7 @@ export type ArtImageUncheckedUpdateWithoutGalleryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6056,6 +6156,7 @@ export type ArtImageUncheckedUpdateWithoutGalleryInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6084,7 +6185,7 @@ export type ArtImageUncheckedUpdateManyWithoutGalleryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6104,6 +6205,7 @@ export type ArtImageUncheckedUpdateManyWithoutGalleryInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6126,7 +6228,7 @@ export type ArtImageCreateManyCheckpointResourceInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -6145,6 +6247,7 @@ export type ArtImageCreateManyCheckpointResourceInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -6164,7 +6267,7 @@ export type ArtImageCreateManyCheckpointResourceInput = {
 export type ArtImageUpdateWithoutCheckpointResourceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6183,6 +6286,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6214,7 +6318,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6233,6 +6337,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6262,7 +6367,7 @@ export type ArtImageUncheckedUpdateManyWithoutCheckpointResourceInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6281,6 +6386,7 @@ export type ArtImageUncheckedUpdateManyWithoutCheckpointResourceInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6303,7 +6409,7 @@ export type ArtImageCreateManyServerInput = {
   updatedAt?: Date | string | null
   galleryId?: number | null
   userId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -6323,6 +6429,7 @@ export type ArtImageCreateManyServerInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverName?: string | null
   serverUrl?: string | null
   artId?: number | null
@@ -6341,7 +6448,7 @@ export type ArtImageCreateManyServerInput = {
 export type ArtImageUpdateWithoutServerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6360,6 +6467,7 @@ export type ArtImageUpdateWithoutServerInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6391,7 +6499,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6411,6 +6519,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6439,7 +6548,7 @@ export type ArtImageUncheckedUpdateManyWithoutServerInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6459,6 +6568,7 @@ export type ArtImageUncheckedUpdateManyWithoutServerInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6477,7 +6587,7 @@ export type ArtImageUncheckedUpdateManyWithoutServerInput = {
 export type ArtImageUpdateWithoutTagsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6496,6 +6606,7 @@ export type ArtImageUpdateWithoutTagsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6527,7 +6638,7 @@ export type ArtImageUncheckedUpdateWithoutTagsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6547,6 +6658,7 @@ export type ArtImageUncheckedUpdateWithoutTagsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6575,7 +6687,7 @@ export type ArtImageUncheckedUpdateManyWithoutTagsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6595,6 +6707,7 @@ export type ArtImageUncheckedUpdateManyWithoutTagsInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6616,7 +6729,7 @@ export type ArtImageCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   galleryId?: number | null
-  imageData: string
+  imageData?: string | null
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
@@ -6636,6 +6749,7 @@ export type ArtImageCreateManyUserInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
@@ -6655,7 +6769,7 @@ export type ArtImageCreateManyUserInput = {
 export type ArtImageUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6674,6 +6788,7 @@ export type ArtImageUpdateWithoutUserInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -6704,7 +6819,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6724,6 +6839,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6752,7 +6868,7 @@ export type ArtImageUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imageData?: Prisma.StringFieldUpdateOperationsInput | string
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6772,6 +6888,7 @@ export type ArtImageUncheckedUpdateManyWithoutUserInput = {
   genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6890,6 +7007,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   genres?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   serverId?: boolean
   serverName?: boolean
   serverUrl?: boolean
@@ -6956,6 +7074,7 @@ export type ArtImageSelectScalar = {
   genres?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   serverId?: boolean
   serverName?: boolean
   serverUrl?: boolean
@@ -6972,7 +7091,7 @@ export type ArtImageSelectScalar = {
   butterflyId?: boolean
 }
 
-export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "galleryId" | "userId" | "imageData" | "thumbnailData" | "fileName" | "fileType" | "imagePath" | "rarity" | "path" | "promptString" | "negativePrompt" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "cfg" | "cfgHalf" | "designer" | "genres" | "isPublic" | "isMature" | "serverId" | "serverName" | "serverUrl" | "artId" | "botId" | "componentId" | "milestoneId" | "pitchId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "characterId" | "butterflyId", ExtArgs["result"]["artImage"]>
+export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "galleryId" | "userId" | "imageData" | "thumbnailData" | "fileName" | "fileType" | "imagePath" | "rarity" | "path" | "promptString" | "negativePrompt" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "cfg" | "cfgHalf" | "designer" | "genres" | "isPublic" | "isMature" | "isActive" | "serverId" | "serverName" | "serverUrl" | "artId" | "botId" | "componentId" | "milestoneId" | "pitchId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "characterId" | "butterflyId", ExtArgs["result"]["artImage"]>
 export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.ArtImage$ArtArgs<ExtArgs>
   Bot?: boolean | Prisma.ArtImage$BotArgs<ExtArgs>
@@ -7029,7 +7148,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     updatedAt: Date | null
     galleryId: number | null
     userId: number | null
-    imageData: string
+    imageData: string | null
     thumbnailData: string | null
     fileName: string | null
     fileType: string
@@ -7049,6 +7168,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     genres: string | null
     isPublic: boolean | null
     isMature: boolean | null
+    isActive: boolean
     serverId: number | null
     serverName: string | null
     serverUrl: string | null
@@ -7478,6 +7598,7 @@ export interface ArtImageFieldRefs {
   readonly genres: Prisma.FieldRef<"ArtImage", 'String'>
   readonly isPublic: Prisma.FieldRef<"ArtImage", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"ArtImage", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"ArtImage", 'Boolean'>
   readonly serverId: Prisma.FieldRef<"ArtImage", 'Int'>
   readonly serverName: Prisma.FieldRef<"ArtImage", 'String'>
   readonly serverUrl: Prisma.FieldRef<"ArtImage", 'String'>
@@ -7715,7 +7836,7 @@ export type ArtImageCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * The data needed to create a ArtImage.
    */
-  data: Prisma.XOR<Prisma.ArtImageCreateInput, Prisma.ArtImageUncheckedCreateInput>
+  data?: Prisma.XOR<Prisma.ArtImageCreateInput, Prisma.ArtImageUncheckedCreateInput>
 }
 
 /**

@@ -48,6 +48,7 @@ export type TagMinAggregateOutputType = {
   pitch: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   userId: number | null
   artImageId: number | null
 }
@@ -62,6 +63,7 @@ export type TagMaxAggregateOutputType = {
   pitch: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   userId: number | null
   artImageId: number | null
 }
@@ -76,6 +78,7 @@ export type TagCountAggregateOutputType = {
   pitch: number
   isPublic: number
   isMature: number
+  isActive: number
   userId: number
   artImageId: number
   _all: number
@@ -104,6 +107,7 @@ export type TagMinAggregateInputType = {
   pitch?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   userId?: true
   artImageId?: true
 }
@@ -118,6 +122,7 @@ export type TagMaxAggregateInputType = {
   pitch?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   userId?: true
   artImageId?: true
 }
@@ -132,6 +137,7 @@ export type TagCountAggregateInputType = {
   pitch?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   userId?: true
   artImageId?: true
   _all?: true
@@ -233,6 +239,7 @@ export type TagGroupByOutputType = {
   pitch: string | null
   isPublic: boolean | null
   isMature: boolean
+  isActive: boolean
   userId: number | null
   artImageId: number | null
   _count: TagCountAggregateOutputType | null
@@ -270,6 +277,7 @@ export type TagWhereInput = {
   pitch?: Prisma.StringNullableFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolFilter<"Tag"> | boolean
+  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableFilter<"Tag"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Tag"> | number | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
@@ -293,6 +301,7 @@ export type TagOrderByWithRelationInput = {
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
@@ -321,6 +330,7 @@ export type TagWhereUniqueInput = Prisma.AtLeast<{
   pitch?: Prisma.StringNullableFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolFilter<"Tag"> | boolean
+  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableFilter<"Tag"> | number | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   ArtImages?: Prisma.ArtImageListRelationFilter
@@ -343,6 +353,7 @@ export type TagOrderByWithAggregationInput = {
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TagCountOrderByAggregateInput
@@ -365,6 +376,7 @@ export type TagScalarWhereWithAggregatesInput = {
   pitch?: Prisma.StringNullableWithAggregatesFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableWithAggregatesFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Tag"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Tag"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Tag"> | number | null
 }
@@ -378,6 +390,7 @@ export type TagCreateInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -399,6 +412,7 @@ export type TagUncheckedCreateInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -419,6 +433,7 @@ export type TagUpdateInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -440,6 +455,7 @@ export type TagUncheckedUpdateInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -461,6 +477,7 @@ export type TagCreateManyInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
 }
@@ -474,6 +491,7 @@ export type TagUpdateManyMutationInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type TagUncheckedUpdateManyInput = {
@@ -486,6 +504,7 @@ export type TagUncheckedUpdateManyInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -521,6 +540,7 @@ export type TagCountOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
 }
@@ -541,6 +561,7 @@ export type TagMaxOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
 }
@@ -555,6 +576,7 @@ export type TagMinOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
 }
@@ -870,6 +892,7 @@ export type TagCreateWithoutArtsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -890,6 +913,7 @@ export type TagUncheckedCreateWithoutArtsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -934,6 +958,7 @@ export type TagScalarWhereInput = {
   pitch?: Prisma.StringNullableFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolFilter<"Tag"> | boolean
+  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableFilter<"Tag"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Tag"> | number | null
 }
@@ -947,6 +972,7 @@ export type TagCreateWithoutArtImagesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
   User?: Prisma.UserCreateNestedOneWithoutTagsInput
@@ -967,6 +993,7 @@ export type TagUncheckedCreateWithoutArtImagesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
@@ -991,6 +1018,7 @@ export type TagCreateWithoutArtImageInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
   User?: Prisma.UserCreateNestedOneWithoutTagsInput
@@ -1011,6 +1039,7 @@ export type TagUncheckedCreateWithoutArtImageInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
@@ -1062,6 +1091,7 @@ export type TagUpdateWithoutArtImageInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
   User?: Prisma.UserUpdateOneWithoutTagsNestedInput
@@ -1082,6 +1112,7 @@ export type TagUncheckedUpdateWithoutArtImageInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
@@ -1101,6 +1132,7 @@ export type TagCreateWithoutButterfliesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -1121,6 +1153,7 @@ export type TagUncheckedCreateWithoutButterfliesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -1156,6 +1189,7 @@ export type TagUpdateWithoutButterfliesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -1176,6 +1210,7 @@ export type TagUncheckedUpdateWithoutButterfliesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -1195,6 +1230,7 @@ export type TagCreateWithoutComponentsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -1215,6 +1251,7 @@ export type TagUncheckedCreateWithoutComponentsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -1255,6 +1292,7 @@ export type TagCreateWithoutDreamsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -1275,6 +1313,7 @@ export type TagUncheckedCreateWithoutDreamsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -1315,6 +1354,7 @@ export type TagCreateWithoutPitchesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -1335,6 +1375,7 @@ export type TagUncheckedCreateWithoutPitchesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -1375,6 +1416,7 @@ export type TagCreateWithoutReactionsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   User?: Prisma.UserCreateNestedOneWithoutTagsInput
@@ -1395,6 +1437,7 @@ export type TagUncheckedCreateWithoutReactionsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
@@ -1430,6 +1473,7 @@ export type TagUpdateWithoutReactionsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   User?: Prisma.UserUpdateOneWithoutTagsNestedInput
@@ -1450,6 +1494,7 @@ export type TagUncheckedUpdateWithoutReactionsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -1469,6 +1514,7 @@ export type TagCreateWithoutUserInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
@@ -1489,6 +1535,7 @@ export type TagUncheckedCreateWithoutUserInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   artImageId?: number | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
@@ -1534,6 +1581,7 @@ export type TagUpdateWithoutArtsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -1554,6 +1602,7 @@ export type TagUncheckedUpdateWithoutArtsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -1574,6 +1623,7 @@ export type TagUncheckedUpdateManyWithoutArtsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1587,6 +1637,7 @@ export type TagUpdateWithoutArtImagesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
   User?: Prisma.UserUpdateOneWithoutTagsNestedInput
@@ -1607,6 +1658,7 @@ export type TagUncheckedUpdateWithoutArtImagesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
@@ -1627,6 +1679,7 @@ export type TagUncheckedUpdateManyWithoutArtImagesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1640,6 +1693,7 @@ export type TagUpdateWithoutComponentsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -1660,6 +1714,7 @@ export type TagUncheckedUpdateWithoutComponentsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -1680,6 +1735,7 @@ export type TagUncheckedUpdateManyWithoutComponentsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1693,6 +1749,7 @@ export type TagUpdateWithoutDreamsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -1713,6 +1770,7 @@ export type TagUncheckedUpdateWithoutDreamsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -1733,6 +1791,7 @@ export type TagUncheckedUpdateManyWithoutDreamsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1746,6 +1805,7 @@ export type TagUpdateWithoutPitchesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -1766,6 +1826,7 @@ export type TagUncheckedUpdateWithoutPitchesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
@@ -1786,6 +1847,7 @@ export type TagUncheckedUpdateManyWithoutPitchesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1800,6 +1862,7 @@ export type TagCreateManyUserInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  isActive?: boolean
   artImageId?: number | null
 }
 
@@ -1812,6 +1875,7 @@ export type TagUpdateWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
@@ -1832,6 +1896,7 @@ export type TagUncheckedUpdateWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
@@ -1852,6 +1917,7 @@ export type TagUncheckedUpdateManyWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -1950,6 +2016,7 @@ export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   pitch?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   userId?: boolean
   artImageId?: boolean
   ArtImage?: boolean | Prisma.Tag$ArtImageArgs<ExtArgs>
@@ -1976,11 +2043,12 @@ export type TagSelectScalar = {
   pitch?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   userId?: boolean
   artImageId?: boolean
 }
 
-export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "label" | "title" | "flavorText" | "pitch" | "isPublic" | "isMature" | "userId" | "artImageId", ExtArgs["result"]["tag"]>
+export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "label" | "title" | "flavorText" | "pitch" | "isPublic" | "isMature" | "isActive" | "userId" | "artImageId", ExtArgs["result"]["tag"]>
 export type TagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Tag$ArtImageArgs<ExtArgs>
   ArtImages?: boolean | Prisma.Tag$ArtImagesArgs<ExtArgs>
@@ -2017,6 +2085,7 @@ export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     pitch: string | null
     isPublic: boolean | null
     isMature: boolean
+    isActive: boolean
     userId: number | null
     artImageId: number | null
   }, ExtArgs["result"]["tag"]>
@@ -2406,6 +2475,7 @@ export interface TagFieldRefs {
   readonly pitch: Prisma.FieldRef<"Tag", 'String'>
   readonly isPublic: Prisma.FieldRef<"Tag", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"Tag", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Tag", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Tag", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Tag", 'Int'>
 }

@@ -22,20 +22,180 @@
             </p>
           </div>
         </div>
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="isScanning"
-          @click="runScan"
-        >
-          <span v-if="isScanning" class="loading loading-spinner loading-xs" />
-          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-          {{ isScanning ? 'Scanning…' : hasScanned ? 'Re-scan' : 'Scan' }}
-        </button>
+        <div class="flex items-center gap-2">
+          <span
+            v-if="isScanning"
+            class="font-mono text-xs text-base-content/50"
+            >{{ scanStatus }}</span
+          >
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isScanning"
+            @click="runScan"
+          >
+            <span
+              v-if="isScanning"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            {{ isScanning ? 'Scanning…' : hasScanned ? 'Re-scan' : 'Scan' }}
+          </button>
+        </div>
       </div>
 
-      <!-- stat cards -->
-      <div v-if="hasScanned" class="grid grid-cols-3 gap-2 sm:grid-cols-5">
+      <div
+        v-if="!hasScanned && !isScanning"
+        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center text-sm text-base-content/50"
+      >
+        Click Scan to diagnose Art ↔ ArtImage health
+      </div>
+    </header>
+
+    <!-- ── Error ─────────────────────────────────────────────────────────── -->
+    <div
+      v-if="scanError"
+      class="shrink-0 rounded-2xl bg-error/10 p-3 text-sm text-error"
+    >
+      {{ scanError }}
+    </div>
+
+    <!-- ── Top-down summary ──────────────────────────────────────────────── -->
+    <div v-if="hasScanned" class="shrink-0 flex flex-col gap-3">
+      <!-- Raw totals row -->
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
+        >
+          <p class="font-mono text-3xl font-black text-base-content">
+            {{ allArt.length }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">Total Art records</p>
+        </div>
+        <div
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
+        >
+          <p class="font-mono text-3xl font-black text-base-content">
+            {{ allArtImages.length }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">
+            Total ArtImage records
+          </p>
+        </div>
+        <div
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
+        >
+          <p
+            class="font-mono text-3xl font-black"
+            :class="
+              topStats.artWithArtImageId === 0 ? 'text-error' : 'text-warning'
+            "
+          >
+            {{ topStats.artWithArtImageId }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">Art with artImageId</p>
+          <p class="text-xs text-base-content/40">of {{ allArt.length }}</p>
+        </div>
+        <div
+          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
+        >
+          <p
+            class="font-mono text-3xl font-black"
+            :class="
+              topStats.artImagesWithArtId === 0 ? 'text-error' : 'text-warning'
+            "
+          >
+            {{ topStats.artImagesWithArtId }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">ArtImages with artId</p>
+          <p class="text-xs text-base-content/40">
+            of {{ allArtImages.length }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Link breakdown row -->
+      <div class="grid grid-cols-3 gap-3">
+        <div
+          class="rounded-2xl border border-success/30 bg-success/5 p-3 text-center"
+        >
+          <p class="font-mono text-2xl font-black text-success">
+            {{ topStats.bidirectional }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">↔ Bidirectional</p>
+          <p class="text-xs text-base-content/40">both sides set</p>
+        </div>
+        <div
+          class="rounded-2xl border border-warning/30 bg-warning/5 p-3 text-center"
+        >
+          <p class="font-mono text-2xl font-black text-warning">
+            {{ topStats.onewayArtToImage + topStats.onewayImageToArt }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">→ One-way links</p>
+          <p class="text-xs text-base-content/40">
+            {{ topStats.onewayArtToImage }} art→img ·
+            {{ topStats.onewayImageToArt }} img→art
+          </p>
+        </div>
+        <div
+          class="rounded-2xl border border-error/30 bg-error/5 p-3 text-center"
+        >
+          <p class="font-mono text-2xl font-black text-error">
+            {{ orphanedArt.length }}
+          </p>
+          <p class="mt-1 text-xs text-base-content/60">✗ No link at all</p>
+          <p class="text-xs text-base-content/40">orphaned Art records</p>
+        </div>
+      </div>
+
+      <!-- Health bar -->
+      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="mb-2 flex items-baseline justify-between">
+          <span class="text-xs font-bold text-base-content/60"
+            >Collection health</span
+          >
+          <span
+            class="font-mono text-sm font-black"
+            :class="
+              healthPct > 75
+                ? 'text-success'
+                : healthPct > 40
+                  ? 'text-warning'
+                  : 'text-error'
+            "
+          >
+            {{ healthPct }}%
+          </span>
+        </div>
+        <div class="flex h-2.5 w-full overflow-hidden rounded-full bg-base-300">
+          <div
+            v-for="seg in healthSegments.filter((s) => s.count > 0)"
+            :key="seg.label"
+            class="h-full transition-all"
+            :style="{ flex: seg.count, background: seg.color }"
+            :title="`${seg.label}: ${seg.count}`"
+          />
+        </div>
+        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+          <span
+            v-for="seg in healthSegments.filter((s) => s.count > 0)"
+            :key="seg.label"
+            class="flex items-center gap-1.5 text-xs text-base-content/60"
+          >
+            <span
+              class="inline-block h-2 w-2 shrink-0 rounded-sm"
+              :style="{ background: seg.color }"
+            />
+            {{ seg.label }}
+            <span class="font-mono font-bold text-base-content">{{
+              seg.count
+            }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Category stat cards -->
+      <div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
         <button
           v-for="cat in categories"
           :key="cat.key"
@@ -65,69 +225,6 @@
             {{ matchedNeedingThumbnail.length }} need thumbnail
           </span>
         </button>
-      </div>
-
-      <div
-        v-else-if="!isScanning"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center text-sm text-base-content/50"
-      >
-        Click Scan to diagnose Art ↔ ArtImage health
-      </div>
-    </header>
-
-    <!-- ── Error ─────────────────────────────────────────────────────────── -->
-    <div
-      v-if="scanError"
-      class="shrink-0 rounded-2xl bg-error/10 p-3 text-sm text-error"
-    >
-      {{ scanError }}
-    </div>
-
-    <!-- ── Health Bar ─────────────────────────────────────────────────────── -->
-    <div
-      v-if="hasScanned"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
-      <div class="mb-2 flex items-baseline justify-between">
-        <span class="text-xs font-bold text-base-content/60"
-          >Collection health</span
-        >
-        <span
-          class="font-mono text-sm font-black"
-          :class="
-            healthPct > 75
-              ? 'text-success'
-              : healthPct > 40
-                ? 'text-warning'
-                : 'text-error'
-          "
-        >
-          {{ healthPct }}%
-        </span>
-      </div>
-      <div class="flex h-2 w-full overflow-hidden rounded-full bg-base-300">
-        <div
-          v-for="seg in healthSegments"
-          :key="seg.label"
-          class="h-full min-w-0.5 transition-all"
-          :style="{ flex: seg.count, background: seg.color }"
-        />
-      </div>
-      <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-        <span
-          v-for="seg in healthSegments.filter((s) => s.count > 0)"
-          :key="seg.label"
-          class="flex items-center gap-1.5 text-xs text-base-content/60"
-        >
-          <span
-            class="inline-block h-2 w-2 rounded-sm"
-            :style="{ background: seg.color }"
-          />
-          {{ seg.label }}
-          <span class="font-mono font-bold text-base-content">{{
-            seg.count
-          }}</span>
-        </span>
       </div>
     </div>
 
@@ -497,9 +594,8 @@
                     <span
                       v-if="item.artImage.checkpoint"
                       class="badge badge-ghost badge-xs font-mono"
+                      >{{ item.artImage.checkpoint.split('.')[0] }}</span
                     >
-                      {{ item.artImage.checkpoint.split('.')[0] }}
-                    </span>
                   </div>
                   <p class="mt-1 truncate text-sm text-base-content">
                     {{
@@ -578,199 +674,6 @@
         </p>
       </div>
     </details>
-
-    <!-- ── Debug panel (remove once data model is confirmed) ─────────────── -->
-    <details
-      v-if="hasScanned"
-      class="shrink-0 rounded-2xl border border-warning/40 bg-warning/5 p-3"
-      @click.stop
-    >
-      <summary class="cursor-pointer text-xs font-bold text-warning">
-        🔬 Link diagnostics — remove when done
-      </summary>
-      <div class="mt-3 flex flex-col gap-3">
-        <!-- raw counts -->
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div
-            v-for="stat in debugStats"
-            :key="stat.label"
-            class="rounded-xl border border-base-300 bg-base-100 p-2 text-center"
-          >
-            <p class="font-mono text-lg font-black" :class="stat.color">
-              {{ stat.value }}
-            </p>
-            <p class="text-xs text-base-content/60">{{ stat.label }}</p>
-          </div>
-        </div>
-
-        <!-- link breakdown -->
-        <div
-          class="rounded-xl border border-base-300 bg-base-100 p-3 text-xs space-y-1"
-        >
-          <p class="mb-2 font-bold text-base-content/70">
-            Link direction breakdown
-          </p>
-          <p class="font-mono text-base-content/60">
-            Art with artImageId set:
-            <span
-              class="font-bold"
-              :class="
-                debugLinkStats.artWithArtImageId === 0
-                  ? 'text-error'
-                  : 'text-base-content'
-              "
-              >{{ debugLinkStats.artWithArtImageId }}</span
-            >
-          </p>
-          <p class="font-mono text-base-content/60">
-            …resolving to a real ArtImage:
-            <span
-              class="font-bold"
-              :class="
-                debugLinkStats.artImageIdResolved === 0
-                  ? 'text-error'
-                  : 'text-success'
-              "
-              >{{ debugLinkStats.artImageIdResolved }}</span
-            >
-          </p>
-          <p class="font-mono text-base-content/60">
-            ArtImages with artId set:
-            <span
-              class="font-bold"
-              :class="
-                debugLinkStats.artImagesWithArtId === 0
-                  ? 'text-error'
-                  : 'text-base-content'
-              "
-              >{{ debugLinkStats.artImagesWithArtId }}</span
-            >
-          </p>
-          <p class="font-mono text-base-content/60">
-            …resolving to a real Art:
-            <span
-              class="font-bold"
-              :class="
-                debugLinkStats.artIdResolved === 0
-                  ? 'text-error'
-                  : 'text-success'
-              "
-              >{{ debugLinkStats.artIdResolved }}</span
-            >
-          </p>
-          <div class="divider my-1" />
-          <p class="font-mono text-base-content/60">
-            Bidirectional pairs (both sides set):
-            <span class="font-bold text-success">{{
-              debugLinkStats.bidirectional
-            }}</span>
-          </p>
-          <p class="font-mono text-base-content/60">
-            One-way Art→Image only (artImageId set, no artId back-ref):
-            <span class="font-bold text-warning">{{
-              debugLinkStats.onewayArtToImage
-            }}</span>
-          </p>
-          <p class="font-mono text-base-content/60">
-            One-way Image→Art only (artId set, no artImageId on Art):
-            <span class="font-bold text-warning">{{
-              debugLinkStats.onewayImageToArt
-            }}</span>
-          </p>
-        </div>
-
-        <!-- sample Art records -->
-        <div class="rounded-xl border border-base-300 bg-base-100 p-3">
-          <p class="mb-2 text-xs font-bold text-base-content/70">
-            First 5 Art records — raw fields
-          </p>
-          <div class="overflow-x-auto">
-            <table class="w-full font-mono text-xs">
-              <thead>
-                <tr class="text-base-content/50">
-                  <th class="pr-4 text-left">id</th>
-                  <th class="pr-4 text-left">artImageId</th>
-                  <th class="pr-4 text-left">imagePath</th>
-                  <th class="pr-4 text-left">path</th>
-                  <th class="text-left">prompt (40ch)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="art in allArt.slice(0, 5)"
-                  :key="art.id"
-                  class="border-t border-base-300"
-                >
-                  <td class="py-1 pr-4 text-base-content">{{ art.id }}</td>
-                  <td
-                    class="py-1 pr-4"
-                    :class="art.artImageId ? 'text-success' : 'text-error'"
-                  >
-                    {{ art.artImageId ?? 'null' }}
-                  </td>
-                  <td class="py-1 pr-4 max-w-30 truncate text-base-content/60">
-                    {{ art.imagePath ?? '–' }}
-                  </td>
-                  <td class="py-1 pr-4 max-w-30 truncate text-base-content/60">
-                    {{ art.path ?? '–' }}
-                  </td>
-                  <td class="py-1 max-w-40 truncate text-base-content/60">
-                    {{ art.promptString?.slice(0, 40) ?? '–' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- sample ArtImage records -->
-        <div class="rounded-xl border border-base-300 bg-base-100 p-3">
-          <p class="mb-2 text-xs font-bold text-base-content/70">
-            First 5 ArtImage records — raw fields
-          </p>
-          <div class="overflow-x-auto">
-            <table class="w-full font-mono text-xs">
-              <thead>
-                <tr class="text-base-content/50">
-                  <th class="pr-4 text-left">id</th>
-                  <th class="pr-4 text-left">artId</th>
-                  <th class="pr-4 text-left">thumbnailData</th>
-                  <th class="pr-4 text-left">fileName</th>
-                  <th class="text-left">prompt (40ch)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="img in allArtImages.slice(0, 5)"
-                  :key="img.id"
-                  class="border-t border-base-300"
-                >
-                  <td class="py-1 pr-4 text-base-content">{{ img.id }}</td>
-                  <td
-                    class="py-1 pr-4"
-                    :class="img.artId ? 'text-success' : 'text-error'"
-                  >
-                    {{ img.artId ?? 'null' }}
-                  </td>
-                  <td
-                    class="py-1 pr-4"
-                    :class="img.thumbnailData ? 'text-success' : 'text-error'"
-                  >
-                    {{ img.thumbnailData ? '(set)' : 'null' }}
-                  </td>
-                  <td class="py-1 pr-4 max-w-30 truncate text-base-content/60">
-                    {{ img.fileName ?? '–' }}
-                  </td>
-                  <td class="py-1 max-w-40 truncate text-base-content/60">
-                    {{ img.promptString?.slice(0, 40) ?? '–' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </details>
   </section>
 </template>
 
@@ -813,6 +716,7 @@ const artStore = useArtStore()
 const isScanning = ref(false)
 const hasScanned = ref(false)
 const scanError = ref('')
+const scanStatus = ref('') // live progress label shown in header while scanning
 const activeCategory = ref<CategoryKey>('orphaned')
 const isBatchRunning = ref(false)
 const fixingIds = ref<Set<number>>(new Set())
@@ -838,10 +742,44 @@ const matchedFilterOptions: [MatchedFilter, string][] = [
   ['healthy', 'Fully healthy'],
 ]
 
+// ─── Computed — top-level stats ───────────────────────────────────────────────
+
+const topStats = computed(() => {
+  const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
+  const imageByArtId = new Map(
+    allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
+  )
+
+  const artWithArtImageId = allArt.value.filter(
+    (a) => a.artImageId != null,
+  ).length
+  const artImagesWithArtId = allArtImages.value.filter(
+    (i) => i.artId != null,
+  ).length
+
+  let bidirectional = 0,
+    onewayArtToImage = 0,
+    onewayImageToArt = 0
+  for (const art of allArt.value) {
+    const hasForward = !!art.artImageId && imageById.has(art.artImageId)
+    const hasBack = imageByArtId.has(art.id)
+    if (hasForward && hasBack) bidirectional++
+    else if (hasForward) onewayArtToImage++
+    else if (hasBack) onewayImageToArt++
+  }
+
+  return {
+    artWithArtImageId,
+    artImagesWithArtId,
+    bidirectional,
+    onewayArtToImage,
+    onewayImageToArt,
+  }
+})
+
 // ─── Computed — problem categories ───────────────────────────────────────────
 
 const orphanedArt = computed<Art[]>(() => {
-  // Orphaned = neither direction of the link exists
   const imageArtIds = new Set(
     allArtImages.value.map((i) => i.artId).filter(Boolean),
   )
@@ -903,33 +841,19 @@ const unlinkedImages = computed<ArtImage[]>(() =>
   ),
 )
 
-/**
- * Matched pairs — uses EITHER direction of the link.
- *
- * The old computed required BOTH art.artImageId AND artImage.artId to be set,
- * which returns zero results when only one direction was ever populated.
- *
- * New logic:
- *   • Walk every Art record
- *   • Check if any ArtImage has artId === art.id  (image→art, the more common direction)
- *   • OR if Art.artImageId points at a real ArtImage  (art→image)
- *   • Record which direction(s) are present so one-way links can be repaired
- */
 const matchedArt = computed<MatchedItem[]>(() => {
   const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
   const imageByArtId = new Map(
     allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
   )
-
   const seen = new Set<string>()
   const items: MatchedItem[] = []
 
   for (const art of allArt.value) {
-    const viaArtId = imageByArtId.get(art.id) // image claims this art
+    const viaArtId = imageByArtId.get(art.id)
     const viaArtImageId = art.artImageId
       ? imageById.get(art.artImageId)
-      : undefined // art claims an image
-
+      : undefined
     const artImage = viaArtId ?? viaArtImageId
     if (!artImage) continue
 
@@ -1090,116 +1014,105 @@ const healthPct = computed(() => {
   return Math.round((healthyMatchedCount.value / total) * 100)
 })
 
-// ─── Debug computed ───────────────────────────────────────────────────────────
-
-const debugStats = computed(() => {
-  const artWithArtImageId = allArt.value.filter(
-    (a) => a.artImageId != null,
-  ).length
-  const imagesWithArtId = allArtImages.value.filter(
-    (i) => i.artId != null,
-  ).length
-  return [
-    {
-      label: 'Art records loaded',
-      value: allArt.value.length,
-      color: 'text-base-content',
-    },
-    {
-      label: 'ArtImage records loaded',
-      value: allArtImages.value.length,
-      color: 'text-base-content',
-    },
-    {
-      label: 'Art with artImageId',
-      value: artWithArtImageId,
-      color: artWithArtImageId === 0 ? 'text-error' : 'text-success',
-    },
-    {
-      label: 'ArtImages with artId',
-      value: imagesWithArtId,
-      color: imagesWithArtId === 0 ? 'text-error' : 'text-success',
-    },
-  ]
-})
-
-const debugLinkStats = computed(() => {
-  const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
-  const imageByArtId = new Map(
-    allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
-  )
-  const artIds = new Set(allArt.value.map((a) => a.id))
-
-  const artWithArtImageId = allArt.value.filter(
-    (a) => a.artImageId != null,
-  ).length
-  const artImageIdResolved = allArt.value.filter(
-    (a) => a.artImageId != null && imageById.has(a.artImageId),
-  ).length
-  const artImagesWithArtId = allArtImages.value.filter(
-    (i) => i.artId != null,
-  ).length
-  const artIdResolved = allArtImages.value.filter(
-    (i) => i.artId != null && artIds.has(i.artId),
-  ).length
-
-  let bidirectional = 0,
-    onewayArtToImage = 0,
-    onewayImageToArt = 0
-  for (const art of allArt.value) {
-    const hasForward = !!art.artImageId && imageById.has(art.artImageId)
-    const hasBack = imageByArtId.has(art.id)
-    if (hasForward && hasBack) bidirectional++
-    else if (hasForward) onewayArtToImage++
-    else if (hasBack) onewayImageToArt++
-  }
-
-  return {
-    artWithArtImageId,
-    artImageIdResolved,
-    artImagesWithArtId,
-    artIdResolved,
-    bidirectional,
-    onewayArtToImage,
-    onewayImageToArt,
-  }
-})
-
-// ─── Scan ─────────────────────────────────────────────────────────────────────
+// ─── Scan — fetches ALL pages of both Art and ArtImage ────────────────────────
 
 async function runScan() {
   isScanning.value = true
   scanError.value = ''
   scanLog.value = []
   fixResults.value = new Map()
+  allArt.value = []
+  allArtImages.value = []
 
   try {
-    log('Fetching Art records…')
-    await artStore.fetchArtPage(1, 500, true)
-    allArt.value = [...artStore.art]
-    log(`Loaded ${allArt.value.length} Art records`, 'info')
+    // ── Art: paginate until we have everything ──
+    const PAGE_SIZE = 500
+    let artPage = 1
+    let artDone = false
+    while (!artDone) {
+      scanStatus.value = `Fetching Art page ${artPage}…`
+      log(`Fetching Art page ${artPage} (${PAGE_SIZE}/page)…`)
+      await artStore.fetchArtPage(artPage, PAGE_SIZE, artPage === 1)
+      const batch = artStore.art
+      allArt.value = artPage === 1 ? [...batch] : [...allArt.value, ...batch]
+      if (batch.length < PAGE_SIZE) {
+        artDone = true
+      } else {
+        artPage++
+      }
+    }
+    log(`Loaded ${allArt.value.length} Art records total`, 'success')
 
-    log('Fetching ArtImage metadata (no imageData)…')
-    const response = await performFetch<ArtImage[]>('/api/art/images/meta')
-    if (response.success && Array.isArray(response.data)) {
-      allArtImages.value = response.data
-      log(`Loaded ${allArtImages.value.length} ArtImage records`, 'info')
-    } else {
-      allArtImages.value = artStore.artImages.map(stripImageData)
+    // ── ArtImage: paginate the meta endpoint until exhausted ──
+    // The meta endpoint MUST support ?page=N&limit=N or we'll only get the first chunk.
+    // If it doesn't support pagination yet, we'll detect truncation and warn loudly.
+    const IMG_PAGE_SIZE = 500
+    let imgPage = 1
+    let imgDone = false
+    const collectedImages: ArtImage[] = []
+
+    while (!imgDone) {
+      scanStatus.value = `Fetching ArtImage page ${imgPage}…`
+      log(`Fetching ArtImage metadata page ${imgPage} (${IMG_PAGE_SIZE}/page)…`)
+
+      const response = await performFetch<ArtImage[]>(
+        `/api/art/images/meta?page=${imgPage}&limit=${IMG_PAGE_SIZE}`,
+      )
+
+      if (
+        response.success &&
+        Array.isArray(response.data) &&
+        response.data.length > 0
+      ) {
+        collectedImages.push(...response.data)
+        if (response.data.length < IMG_PAGE_SIZE) {
+          imgDone = true // last page
+        } else {
+          imgPage++
+        }
+      } else if (imgPage === 1) {
+        // First page failed — fall back to artStore cache
+        log(
+          'Meta endpoint failed or returned nothing — falling back to artStore cache',
+          'error',
+        )
+        const cached = artStore.artImages.map(stripImageData)
+        collectedImages.push(...cached)
+        imgDone = true
+
+        if (cached.length < 50 && allArt.value.length > 200) {
+          log(
+            `⚠️  Only ${cached.length} ArtImages in cache but ${allArt.value.length} Art records loaded. ` +
+              `The /api/art/images/meta endpoint may not exist or may be paginating silently. ` +
+              `Check that the endpoint returns all records or supports ?page=&limit= params.`,
+            'error',
+          )
+        }
+        imgDone = true
+      } else {
+        // Subsequent page returned empty — we're done
+        imgDone = true
+      }
+    }
+
+    allArtImages.value = collectedImages
+    log(`Loaded ${allArtImages.value.length} ArtImage records total`, 'success')
+
+    // ── Sanity check: warn if counts look suspicious ──
+    if (
+      allArtImages.value.length < allArt.value.length * 0.05 &&
+      allArt.value.length > 100
+    ) {
       log(
-        `Fallback: used ${allArtImages.value.length} cached ArtImage records`,
-        'info',
+        `⚠️  ArtImage count (${allArtImages.value.length}) is less than 5% of Art count (${allArt.value.length}). ` +
+          `The meta endpoint is almost certainly truncating results. ` +
+          `Add pagination support or a "return all" mode to /api/art/images/meta.`,
+        'error',
       )
     }
 
-    const artWithId = allArt.value.filter((a) => a.artImageId != null).length
-    const imgWithId = allArtImages.value.filter((i) => i.artId != null).length
-    log(
-      `Link check — Art with artImageId: ${artWithId} / ArtImages with artId: ${imgWithId}`,
-      'info',
-    )
-
     hasScanned.value = true
+    scanStatus.value = ''
     log(
       `Scan complete — ${orphanedArt.value.length} orphaned, ${staleMetadata.value.length} stale, ` +
         `${missingThumbnails.value.length} no thumbnail, ${unlinkedImages.value.length} unlinked, ` +
@@ -1209,6 +1122,7 @@ async function runScan() {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Scan failed'
     scanError.value = msg
+    scanStatus.value = ''
     log(msg, 'error')
   } finally {
     isScanning.value = false
@@ -1359,11 +1273,6 @@ async function generateAndSaveThumbnail(artImage: ArtImage, maxSize = 200) {
   }
 }
 
-/**
- * Write the missing direction of a one-way link.
- *   art→image only  → write artImage.artId = art.id
- *   image→art only  → write art.artImageId = artImage.id
- */
 async function repairLinkDirection(item: MatchedItem) {
   markFixing(item.art.id)
   try {

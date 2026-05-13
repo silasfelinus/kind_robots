@@ -69,7 +69,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm">Private</span>
+        <span v-else class="badge badge-warning badge-sm"> Private </span>
 
         <span v-if="art.isMature" class="badge badge-error badge-sm">
           Mature
@@ -82,6 +82,34 @@
         >
           Model 18+
         </span>
+
+        <span
+          v-if="displayArtImage?.id"
+          class="badge badge-info badge-sm"
+          :title="`ArtImage #${displayArtImage.id}`"
+        >
+          Image #{{ displayArtImage.id }}
+        </span>
+
+        <span
+          v-if="displayArtImage?.imageData"
+          class="badge badge-success badge-sm"
+        >
+          imageData
+        </span>
+
+        <span
+          v-else-if="displayArtImage?.imagePath"
+          class="badge badge-warning badge-sm"
+        >
+          imagePath
+        </span>
+
+        <span v-else-if="legacyPathSource" class="badge badge-ghost badge-sm">
+          legacy path
+        </span>
+
+        <span v-else class="badge badge-error badge-sm"> no image </span>
       </div>
 
       <div
@@ -192,7 +220,31 @@
         <div>
           <p class="font-bold uppercase text-base-content/45">Image</p>
           <p class="truncate text-base-content/75">
-            {{ art.artImageId ? `#${art.artImageId}` : 'path only' }}
+            {{ imageMetaDisplay }}
+          </p>
+        </div>
+
+        <div>
+          <p class="font-bold uppercase text-base-content/45">Image Data</p>
+          <p class="truncate text-base-content/75">
+            {{ displayArtImage?.imageData ? 'yes' : 'no' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="font-bold uppercase text-base-content/45">Image Path</p>
+          <p
+            class="truncate text-base-content/75"
+            :title="
+              displayArtImage?.imagePath || art.imagePath || art.path || ''
+            "
+          >
+            {{
+              displayArtImage?.imagePath ||
+              art.imagePath ||
+              legacyPathSource ||
+              'n/a'
+            }}
           </p>
         </div>
 
@@ -239,7 +291,8 @@
 <script setup lang="ts">
 // /components/content/art/art-card.vue
 import { computed, onMounted, ref, watch } from 'vue'
-import type { Art, ArtImage, Resource } from '~/prisma/generated/prisma/client'
+import type { Art, ArtImage } from '@/stores/artStore'
+import type { Resource } from '@/stores/resourceStore'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useResourceStore } from '@/stores/resourceStore'
@@ -292,6 +345,7 @@ const emit = defineEmits<{
   edit: [id: number]
   delete: [id: number]
   copied: [value: string]
+  loaded: [artImage: ArtImage]
 }>()
 
 const artStore = useArtStore()
@@ -306,6 +360,10 @@ const imageLoadFailed = ref(false)
 
 const activeSelected = computed(() => {
   return props.selected || artStore.currentArt?.id === props.art.id
+})
+
+const displayArtImage = computed(() => {
+  return localArtImage.value || props.artImage || null
 })
 
 const checkpointResource = computed(() => {
@@ -332,13 +390,44 @@ const imageLoadingMode = computed<'eager' | 'lazy'>(() => {
   return props.compact ? 'eager' : 'lazy'
 })
 
+const legacyPathSource = computed(() => {
+  if (!props.art.path || props.art.path === 'UNDEFINED') return ''
+
+  return normalizeImagePath(props.art.path)
+})
+
+const artImagePathSource = computed(() => {
+  if (displayArtImage.value?.imagePath) {
+    return normalizeImagePath(displayArtImage.value.imagePath)
+  }
+
+  if (props.art.imagePath) {
+    return normalizeImagePath(props.art.imagePath)
+  }
+
+  return legacyPathSource.value
+})
+
 const imageKey = computed(() => {
   return [
     props.art.id,
     props.art.artImageId || 'no-image-id',
-    props.artImage?.id || 'no-prop-image',
+    displayArtImage.value?.id || 'no-display-image',
+    displayArtImage.value?.imageData ? 'data' : 'no-data',
+    displayArtImage.value?.imagePath ||
+      props.art.imagePath ||
+      legacyPathSource.value ||
+      'no-path',
     imageLoadFailed.value ? 'fallback' : 'primary',
   ].join('-')
+})
+
+const imageMetaDisplay = computed(() => {
+  if (displayArtImage.value?.id) return `ArtImage #${displayArtImage.value.id}`
+  if (props.art.artImageId) return `Missing ArtImage #${props.art.artImageId}`
+  if (props.art.imagePath || legacyPathSource.value) return 'path only'
+
+  return 'none'
 })
 
 const checkpointDisplay = computed(() => {
@@ -387,19 +476,11 @@ const computedArtImage = computed(() => {
     return props.fallbackImage
   }
 
-  const localImage = createImageDataUrl(localArtImage.value)
+  const localImage = createImageDataUrl(displayArtImage.value)
+
   if (localImage) return localImage
 
-  const propImage = createImageDataUrl(props.artImage)
-  if (propImage) return propImage
-
-  if (props.art.imagePath) {
-    return props.art.imagePath
-  }
-
-  if (!props.art.artImageId && props.art.path) {
-    return props.art.path
-  }
+  if (artImagePathSource.value) return artImagePathSource.value
 
   return props.fallbackImage
 })
@@ -411,7 +492,12 @@ const debugArt = computed(() => {
     localImageFileType: localArtImage.value?.fileType,
     propImageId: props.artImage?.id,
     propImageFileType: props.artImage?.fileType,
+    displayImageId: displayArtImage.value?.id,
+    displayImageHasData: Boolean(displayArtImage.value?.imageData),
+    displayImageHasPath: Boolean(displayArtImage.value?.imagePath),
     resolvedImageSourceStart: computedArtImage.value.slice(0, 120),
+    artImagePathSource: artImagePathSource.value,
+    legacyPathSource: legacyPathSource.value,
     imageLoadFailed: imageLoadFailed.value,
     imageLoadingMode: imageLoadingMode.value,
     resolvedCheckpointResource: checkpointResource.value,
@@ -419,34 +505,66 @@ const debugArt = computed(() => {
   }
 })
 
+watch(
+  () => props.artImage,
+  () => {
+    if (!props.artImage) return
+
+    if (
+      displayArtImage.value?.id &&
+      props.artImage.id !== displayArtImage.value.id
+    ) {
+      return
+    }
+
+    localArtImage.value = {
+      ...displayArtImage.value,
+      ...props.artImage,
+      imageData:
+        displayArtImage.value?.imageData || props.artImage.imageData || '',
+      thumbnailData:
+        displayArtImage.value?.thumbnailData ||
+        props.artImage.thumbnailData ||
+        null,
+    } as ArtImage
+  },
+)
+
+watch(
+  () => [props.art.id, props.art.artImageId, props.artImage?.id],
+  async (
+    [artId, artImageId, artImagePropId],
+    [previousArtId, previousArtImageId, previousArtImagePropId],
+  ) => {
+    if (
+      artId === previousArtId &&
+      artImageId === previousArtImageId &&
+      artImagePropId === previousArtImagePropId
+    ) {
+      return
+    }
+
+    localArtImage.value = props.artImage || null
+    imageLoadFailed.value = false
+    await loadArtImage()
+  },
+)
+
+onMounted(async () => {
+  await Promise.all([loadArtImage(), loadCheckpointResource()])
+})
+
 function normalizeImageMimeType(fileType?: string | null) {
   if (!fileType) return 'image/png'
 
   const cleaned = fileType.trim().toLowerCase()
 
-  if (cleaned.startsWith('image/')) {
-    return cleaned
-  }
-
-  if (cleaned === 'jpg') {
-    return 'image/jpeg'
-  }
-
-  if (cleaned === 'jpeg') {
-    return 'image/jpeg'
-  }
-
-  if (cleaned === 'png') {
-    return 'image/png'
-  }
-
-  if (cleaned === 'webp') {
-    return 'image/webp'
-  }
-
-  if (cleaned === 'gif') {
-    return 'image/gif'
-  }
+  if (cleaned.startsWith('image/')) return cleaned
+  if (cleaned === 'jpg') return 'image/jpeg'
+  if (cleaned === 'jpeg') return 'image/jpeg'
+  if (cleaned === 'png') return 'image/png'
+  if (cleaned === 'webp') return 'image/webp'
+  if (cleaned === 'gif') return 'image/gif'
 
   return `image/${cleaned}`
 }
@@ -454,9 +572,35 @@ function normalizeImageMimeType(fileType?: string | null) {
 function createImageDataUrl(image?: ArtImage | null) {
   if (!image?.imageData) return ''
 
+  if (image.imageData.startsWith('data:image/')) {
+    return image.imageData
+  }
+
   const mimeType = normalizeImageMimeType(image.fileType)
 
   return `data:${mimeType};base64,${image.imageData}`
+}
+
+function normalizeImagePath(value?: string | null) {
+  if (!value) return ''
+
+  const trimmed = value.trim()
+
+  if (!trimmed || trimmed === 'UNDEFINED') return ''
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('data:')
+  ) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith('/images/')) return trimmed
+  if (trimmed.startsWith('images/')) return `/${trimmed}`
+  if (trimmed.startsWith('/')) return trimmed
+
+  return `/images/${trimmed}`
 }
 
 function cleanCheckpointName(value: string) {
@@ -481,25 +625,48 @@ async function loadArtImage() {
     return
   }
 
-  if (!props.art.artImageId) {
-    localArtImage.value = null
+  const targetImageId =
+    props.art.artImageId ||
+    props.artImage?.id ||
+    artStore.getArtImageByArtId?.(props.art.id)?.id ||
+    null
+
+  if (!targetImageId) {
+    localArtImage.value = props.artImage || null
     return
   }
 
   loadingImage.value = true
-  localArtImage.value = null
 
   try {
-    const fetched = await artStore.getArtImageById(props.art.artImageId)
+    const fetched = await artStore.getArtImageById(targetImageId, {
+      includeImageData: true,
+      includeThumbnailData: true,
+    })
 
-    if (fetched?.imageData) {
+    if (fetched) {
       localArtImage.value = fetched
+      emit('loaded', fetched)
+
+      if (
+        !fetched.imageData &&
+        !fetched.imagePath &&
+        !props.art.imagePath &&
+        !legacyPathSource.value
+      ) {
+        imageLoadFailed.value = true
+      }
+
       return
     }
 
-    imageLoadFailed.value = true
+    if (!props.art.imagePath && !legacyPathSource.value) {
+      imageLoadFailed.value = true
+    }
   } catch {
-    imageLoadFailed.value = true
+    if (!props.art.imagePath && !legacyPathSource.value) {
+      imageLoadFailed.value = true
+    }
   } finally {
     loadingImage.value = false
   }
@@ -578,28 +745,6 @@ async function copyCheckpoint() {
   await navigator.clipboard.writeText(checkpoint)
   emit('copied', checkpoint)
 }
-
-onMounted(async () => {
-  await Promise.all([loadArtImage(), loadCheckpointResource()])
-})
-
-watch(
-  () => [props.art.id, props.art.artImageId, props.artImage?.id],
-  async (
-    [artId, artImageId, artImagePropId],
-    [previousArtId, previousArtImageId, previousArtImagePropId],
-  ) => {
-    if (
-      artId === previousArtId &&
-      artImageId === previousArtImageId &&
-      artImagePropId === previousArtImagePropId
-    ) {
-      return
-    }
-
-    await loadArtImage()
-  },
-)
 
 watch(
   () => props.art.checkpointResourceId,

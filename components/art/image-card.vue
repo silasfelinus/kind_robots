@@ -4,7 +4,7 @@
     :selected="selected"
     :compact="compact"
     :show-reaction="showReaction"
-    :target-id="artImage.id"
+    :target-id="displayImage.id"
     target-type="artImage"
     reaction-category="ART"
     :target-title="cardTitle"
@@ -16,7 +16,7 @@
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
         title="Edit Image"
-        @click.stop="emit('edit', artImage.id)"
+        @click.stop="emit('edit', displayImage.id)"
       >
         <Icon name="kind-icon:pencil" class="h-4 w-4" />
       </button>
@@ -25,7 +25,7 @@
         v-if="
           showActions &&
           allowCopyPrompt &&
-          artImage.promptString &&
+          displayImage.promptString &&
           (selected || compact)
         "
         class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
@@ -41,7 +41,7 @@
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
         title="Delete Image"
-        @click.stop="emit('delete', artImage.id)"
+        @click.stop="emit('delete', displayImage.id)"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
       </button>
@@ -71,19 +71,22 @@
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
         <span
-          v-if="artImage.artId"
+          v-if="displayImage.artId"
           class="badge badge-info badge-sm"
-          :title="`Linked Art #${artImage.artId}`"
+          :title="`Linked Art #${displayImage.artId}`"
         >
-          Art #{{ artImage.artId }}
+          Art #{{ displayImage.artId }}
         </span>
 
-        <span v-if="artImage.imageData" class="badge badge-success badge-sm">
+        <span
+          v-if="displayImage.imageData"
+          class="badge badge-success badge-sm"
+        >
           imageData
         </span>
 
         <span
-          v-else-if="artImage.imagePath"
+          v-else-if="displayImage.imagePath"
           class="badge badge-warning badge-sm"
         >
           imagePath
@@ -91,13 +94,13 @@
 
         <span v-else class="badge badge-error badge-sm"> no image </span>
 
-        <span v-if="artImage.isPublic" class="badge badge-success badge-sm">
+        <span v-if="displayImage.isPublic" class="badge badge-success badge-sm">
           Public
         </span>
 
         <span v-else class="badge badge-warning badge-sm"> Private </span>
 
-        <span v-if="artImage.isMature" class="badge badge-error badge-sm">
+        <span v-if="displayImage.isMature" class="badge badge-error badge-sm">
           Mature
         </span>
       </div>
@@ -133,46 +136,52 @@
         </h2>
 
         <p
-          v-if="showNegativePrompt && artImage.negativePrompt"
+          v-if="showNegativePrompt && displayImage.negativePrompt"
           class="mt-1 line-clamp-2 text-xs text-base-content/50"
         >
-          Negative: {{ artImage.negativePrompt }}
+          Negative: {{ displayImage.negativePrompt }}
         </p>
       </div>
 
       <div
-        v-if="artImage.artId || showImageStatus"
+        v-if="displayImage.artId || showImageStatus"
         class="rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
       >
         <div class="flex flex-wrap gap-2">
-          <span v-if="artImage.artId" class="badge badge-info badge-sm">
-            Linked to Art #{{ artImage.artId }}
+          <span
+            v-if="displayImage.artId"
+            class="badge badge-info badge-sm"
+            :title="`Linked Art #${displayImage.artId}`"
+          >
+            Linked to Art #{{ displayImage.artId }}
           </span>
 
           <span v-else class="badge badge-ghost badge-sm"> No Art link </span>
 
           <span class="badge badge-sm" :class="imageDataBadgeClass">
-            imageData: {{ artImage.imageData ? 'yes' : 'no' }}
+            imageData: {{ displayImage.imageData ? 'yes' : 'no' }}
           </span>
 
           <span
             class="badge badge-sm"
-            :class="artImage.imagePath ? 'badge-info' : 'badge-ghost'"
+            :class="displayImage.imagePath ? 'badge-info' : 'badge-ghost'"
           >
-            imagePath: {{ artImage.imagePath ? 'yes' : 'no' }}
+            imagePath: {{ displayImage.imagePath ? 'yes' : 'no' }}
           </span>
 
           <span
             class="badge badge-sm"
-            :class="artImage.thumbnailData ? 'badge-success' : 'badge-ghost'"
+            :class="
+              displayImage.thumbnailData ? 'badge-success' : 'badge-ghost'
+            "
           >
-            thumbnail: {{ artImage.thumbnailData ? 'yes' : 'no' }}
+            thumbnail: {{ displayImage.thumbnailData ? 'yes' : 'no' }}
           </span>
         </div>
 
-        <p v-if="artImage.artId" class="mt-2 text-xs text-base-content/50">
-          This ArtImage is attached to Art #{{ artImage.artId }}. Good little
-          payload. Very official.
+        <p v-if="displayImage.artId" class="mt-2 text-xs text-base-content/50">
+          This ArtImage is attached to Art #{{ displayImage.artId }}. Good
+          little payload. Very official.
         </p>
 
         <p v-else class="mt-2 text-xs text-base-content/50">
@@ -193,24 +202,27 @@
           <span class="truncate">{{ checkpointDisplay }}</span>
         </button>
 
-        <span v-if="artImage.genres" class="badge badge-accent badge-sm">
-          {{ artImage.genres }}
+        <span v-if="displayImage.genres" class="badge badge-accent badge-sm">
+          {{ displayImage.genres }}
         </span>
 
-        <span v-if="artImage.sampler" class="badge badge-ghost badge-sm">
-          {{ artImage.sampler }}
+        <span v-if="displayImage.sampler" class="badge badge-ghost badge-sm">
+          {{ displayImage.sampler }}
         </span>
 
-        <span v-if="artImage.designer" class="badge badge-primary badge-sm">
-          {{ artImage.designer }}
+        <span v-if="displayImage.designer" class="badge badge-primary badge-sm">
+          {{ displayImage.designer }}
         </span>
 
-        <span v-if="artImage.serverName" class="badge badge-secondary badge-sm">
-          {{ artImage.serverName }}
+        <span
+          v-if="displayImage.serverName"
+          class="badge badge-secondary badge-sm"
+        >
+          {{ displayImage.serverName }}
         </span>
 
-        <span v-if="artImage.fileType" class="badge badge-ghost badge-sm">
-          {{ artImage.fileType }}
+        <span v-if="displayImage.fileType" class="badge badge-ghost badge-sm">
+          {{ displayImage.fileType }}
         </span>
       </div>
 
@@ -220,20 +232,20 @@
       >
         <div>
           <p class="font-bold uppercase text-base-content/45">Image ID</p>
-          <p class="truncate text-base-content/75">#{{ artImage.id }}</p>
+          <p class="truncate text-base-content/75">#{{ displayImage.id }}</p>
         </div>
 
         <div>
           <p class="font-bold uppercase text-base-content/45">Art ID</p>
           <p class="truncate text-base-content/75">
-            {{ artImage.artId ? `#${artImage.artId}` : 'n/a' }}
+            {{ displayImage.artId ? `#${displayImage.artId}` : 'n/a' }}
           </p>
         </div>
 
         <div>
           <p class="font-bold uppercase text-base-content/45">Steps</p>
           <p class="truncate text-base-content/75">
-            {{ artImage.steps ?? 'n/a' }}
+            {{ displayImage.steps ?? 'n/a' }}
           </p>
         </div>
 
@@ -247,25 +259,25 @@
         <button
           class="rounded-xl text-left transition hover:bg-base-200 disabled:hover:bg-transparent"
           type="button"
-          :disabled="!artImage.seed"
+          :disabled="!displayImage.seed"
           title="Copy seed"
           @click.stop="copySeed"
         >
           <p class="font-bold uppercase text-base-content/45">Seed</p>
           <p class="truncate text-base-content/75">
-            {{ artImage.seed ?? 'n/a' }}
+            {{ displayImage.seed ?? 'n/a' }}
           </p>
         </button>
 
         <div>
           <p class="font-bold uppercase text-base-content/45">Gallery</p>
           <p class="truncate text-base-content/75">
-            {{ artImage.galleryId ? `#${artImage.galleryId}` : 'n/a' }}
+            {{ displayImage.galleryId ? `#${displayImage.galleryId}` : 'n/a' }}
           </p>
         </div>
 
         <div
-          v-if="artImage.checkpointResourceId || artImage.checkpoint"
+          v-if="displayImage.checkpointResourceId || displayImage.checkpoint"
           class="col-span-2"
         >
           <p class="font-bold uppercase text-base-content/45">Checkpoint</p>
@@ -274,17 +286,23 @@
           </p>
         </div>
 
-        <div v-if="artImage.imagePath" class="col-span-2">
+        <div v-if="displayImage.imagePath" class="col-span-2">
           <p class="font-bold uppercase text-base-content/45">Image Path</p>
-          <p class="truncate text-base-content/75" :title="artImage.imagePath">
-            {{ artImage.imagePath }}
+          <p
+            class="truncate text-base-content/75"
+            :title="displayImage.imagePath"
+          >
+            {{ displayImage.imagePath }}
           </p>
         </div>
 
-        <div v-if="artImage.fileName" class="col-span-2">
+        <div v-if="displayImage.fileName" class="col-span-2">
           <p class="font-bold uppercase text-base-content/45">File Name</p>
-          <p class="truncate text-base-content/75" :title="artImage.fileName">
-            {{ artImage.fileName }}
+          <p
+            class="truncate text-base-content/75"
+            :title="displayImage.fileName"
+          >
+            {{ displayImage.fileName }}
           </p>
         </div>
       </div>
@@ -321,7 +339,7 @@
 <script setup lang="ts">
 // /components/content/art/image-card.vue
 import { computed, ref, watch } from 'vue'
-import type { ArtImage } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '@/stores/artStore'
 import { useArtStore } from '@/stores/artStore'
 
 const props = withDefaults(
@@ -459,13 +477,30 @@ const debugImage = computed(() => {
 })
 
 watch(
-  () => props.artImage,
+  () => props.artImage.id,
   async () => {
     localImage.value = props.artImage
     imageLoadFailed.value = false
     await loadFullImage()
   },
   { immediate: true },
+)
+
+watch(
+  () => props.artImage,
+  () => {
+    if (props.artImage.id !== displayImage.value.id) return
+
+    localImage.value = {
+      ...displayImage.value,
+      ...props.artImage,
+      imageData: displayImage.value.imageData || props.artImage.imageData || '',
+      thumbnailData:
+        displayImage.value.thumbnailData ||
+        props.artImage.thumbnailData ||
+        null,
+    }
+  },
 )
 
 async function loadFullImage() {
@@ -481,7 +516,10 @@ async function loadFullImage() {
   loadingImage.value = true
 
   try {
-    const fetched = await artStore.getArtImageById(props.artImage.id)
+    const fetched = await artStore.getArtImageById(props.artImage.id, {
+      includeImageData: true,
+      includeThumbnailData: true,
+    })
 
     if (fetched) {
       localImage.value = fetched
@@ -543,29 +581,12 @@ function normalizeImageMimeType(fileType?: string | null) {
 
   const cleaned = fileType.trim().toLowerCase()
 
-  if (cleaned.startsWith('image/')) {
-    return cleaned
-  }
-
-  if (cleaned === 'jpg') {
-    return 'image/jpeg'
-  }
-
-  if (cleaned === 'jpeg') {
-    return 'image/jpeg'
-  }
-
-  if (cleaned === 'png') {
-    return 'image/png'
-  }
-
-  if (cleaned === 'webp') {
-    return 'image/webp'
-  }
-
-  if (cleaned === 'gif') {
-    return 'image/gif'
-  }
+  if (cleaned.startsWith('image/')) return cleaned
+  if (cleaned === 'jpg') return 'image/jpeg'
+  if (cleaned === 'jpeg') return 'image/jpeg'
+  if (cleaned === 'png') return 'image/png'
+  if (cleaned === 'webp') return 'image/webp'
+  if (cleaned === 'gif') return 'image/gif'
 
   return `image/${cleaned}`
 }
@@ -597,17 +618,9 @@ function normalizeImagePath(value?: string | null) {
     return trimmed
   }
 
-  if (trimmed.startsWith('/images/')) {
-    return trimmed
-  }
-
-  if (trimmed.startsWith('images/')) {
-    return `/${trimmed}`
-  }
-
-  if (trimmed.startsWith('/')) {
-    return trimmed
-  }
+  if (trimmed.startsWith('/images/')) return trimmed
+  if (trimmed.startsWith('images/')) return `/${trimmed}`
+  if (trimmed.startsWith('/')) return trimmed
 
   return `/images/${trimmed}`
 }

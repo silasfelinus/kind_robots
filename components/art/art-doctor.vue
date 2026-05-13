@@ -1,0 +1,938 @@
+<!-- /components/content/art/art-doctor.vue -->
+<!--
+  Art Doctor — diagnostic and repair tool for Art ↔ ArtImage consistency.
+
+  Four problem categories:
+    1. Orphaned Art      — Art records with no linked ArtImage (artImageId is null)
+    2. Stale Metadata    — ArtImages linked to an Art but missing generation fields
+                          (promptString, checkpoint, seed, cfg, etc.)
+    3. Missing Thumbnail — ArtImages that have imageData but no thumbnailData
+    4. Unlinked Images   — ArtImages with no artId (floating, unowned)
+
+  Requires an extended PATCH endpoint: server/api/art/image/[id].patch.ts
+  must accept the full ArtImage metadata payload, not just imageData/fileName/fileType.
+  See bottom of this file for required endpoint additions.
+-->
+<template>
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-4"
+  >
+    <!-- Header -->
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-2xl bg-error/10"
+          >
+            <Icon name="kind-icon:activity" class="h-5 w-5 text-error" />
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-base-content">Art Doctor</h2>
+            <p class="text-sm text-base-content/60">
+              Diagnose and repair Art ↔ ArtImage inconsistencies
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isScanning"
+            @click="runScan"
+          >
+            <span
+              v-if="isScanning"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            {{ isScanning ? 'Scanning…' : 'Scan' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary strip -->
+      <div v-if="hasScanned" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <button
+          v-for="cat in categories"
+          :key="cat.key"
+          class="flex cursor-pointer flex-col items-center rounded-2xl border p-3 transition"
+          :class="[
+            activeCategory === cat.key
+              ? `border-${cat.color}/50 bg-${cat.color}/10`
+              : 'border-base-300 bg-base-100 hover:bg-base-200',
+          ]"
+          type="button"
+          @click="activeCategory = cat.key"
+        >
+          <span class="text-2xl font-black" :class="`text-${cat.color}`">
+            {{ cat.items.length }}
+          </span>
+          <span class="text-center text-xs text-base-content/60">{{
+            cat.label
+          }}</span>
+        </button>
+      </div>
+
+      <div
+        v-else-if="!isScanning"
+        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center text-sm text-base-content/50"
+      >
+        Click Scan to diagnose Art ↔ ArtImage health
+      </div>
+    </header>
+
+    <!-- Error -->
+    <div
+      v-if="scanError"
+      class="shrink-0 rounded-2xl bg-error/10 p-3 text-sm text-error"
+    >
+      {{ scanError }}
+    </div>
+
+    <!-- Category detail -->
+    <section
+      v-if="hasScanned"
+      class="flex min-h-0 flex-1 flex-col gap-3 overflow-auto"
+    >
+      <!-- Category tabs -->
+      <div class="flex shrink-0 flex-wrap gap-2">
+        <button
+          v-for="cat in categories"
+          :key="cat.key"
+          class="btn btn-sm rounded-xl"
+          :class="activeCategory === cat.key ? `btn-${cat.color}` : 'btn-ghost'"
+          type="button"
+          @click="activeCategory = cat.key"
+        >
+          <Icon :name="cat.icon" class="h-4 w-4" />
+          {{ cat.label }}
+          <span
+            class="badge badge-sm ml-1"
+            :class="activeCategory === cat.key ? 'badge-ghost' : ''"
+          >
+            {{ cat.items.length }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Active category panel -->
+      <div v-if="activeCategory" class="flex min-h-0 flex-1 flex-col gap-3">
+        <!-- Category description + batch action -->
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <p class="text-sm text-base-content/70">
+            {{ activeCategoryMeta?.description }}
+          </p>
+
+          <div class="flex gap-2">
+            <button
+              v-if="activeCategoryMeta?.batchLabel"
+              class="btn btn-sm rounded-xl"
+              :class="`btn-${activeCategoryMeta.color}`"
+              type="button"
+              :disabled="
+                isBatchRunning || activeCategoryMeta.items.length === 0
+              "
+              @click="runBatch(activeCategory)"
+            >
+              <span
+                v-if="isBatchRunning"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+              {{ activeCategoryMeta?.batchLabel }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress bar for batch -->
+        <div
+          v-if="isBatchRunning"
+          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="mb-1 flex justify-between text-xs text-base-content/60">
+            <span>{{ batchProgress.label }}</span>
+            <span>{{ batchProgress.done }} / {{ batchProgress.total }}</span>
+          </div>
+          <progress
+            class="progress progress-primary w-full"
+            :value="batchProgress.done"
+            :max="batchProgress.total"
+          />
+        </div>
+
+        <!-- Empty state -->
+        <div
+          v-if="activeCategoryMeta?.items.length === 0"
+          class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-8 text-center"
+        >
+          <Icon name="kind-icon:check" class="h-10 w-10 text-success" />
+          <p class="mt-2 font-bold text-success">All clear in this category</p>
+        </div>
+
+        <!-- Item list -->
+        <div v-else class="flex-1 overflow-auto">
+          <div class="flex flex-col gap-2">
+            <!-- ORPHANED ART items -->
+            <template v-if="activeCategory === 'orphaned'">
+              <div
+                v-for="art in orphanedArt"
+                :key="art.id"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-base-content/50">
+                    Art #{{ art.id }}
+                  </p>
+                  <p class="truncate text-sm text-base-content">
+                    {{ art.promptString?.slice(0, 80) || '(no prompt)' }}
+                  </p>
+                  <div class="mt-1 flex flex-wrap gap-1">
+                    <span v-if="art.imagePath" class="badge badge-info badge-xs"
+                      >has imagePath</span
+                    >
+                    <span
+                      v-if="art.path && art.path !== 'UNDEFINED'"
+                      class="badge badge-ghost badge-xs"
+                      >has path</span
+                    >
+                    <span v-if="art.serverId" class="badge badge-ghost badge-xs"
+                      >server #{{ art.serverId }}</span
+                    >
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    v-if="
+                      art.imagePath || (art.path && art.path !== 'UNDEFINED')
+                    "
+                    class="btn btn-warning btn-xs rounded-xl"
+                    type="button"
+                    :disabled="fixingIds.has(art.id)"
+                    @click="promotePathToArtImage(art)"
+                  >
+                    <span
+                      v-if="fixingIds.has(art.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Promote path → ArtImage
+                  </button>
+                  <span v-else class="badge badge-ghost badge-sm"
+                    >No image source</span
+                  >
+                  <span
+                    v-if="fixResults.get(art.id)"
+                    class="badge badge-success badge-sm"
+                  >
+                    {{ fixResults.get(art.id) }}
+                  </span>
+                </div>
+              </div>
+            </template>
+
+            <!-- STALE METADATA items -->
+            <template v-else-if="activeCategory === 'stale'">
+              <div
+                v-for="item in staleMetadata"
+                :key="item.artImage.id"
+                class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-xs font-bold text-base-content/50">
+                      ArtImage #{{ item.artImage.id }} ← Art #{{ item.art.id }}
+                    </p>
+                    <p class="truncate text-sm text-base-content">
+                      {{
+                        item.art.promptString?.slice(0, 80) ||
+                        '(no prompt on art)'
+                      }}
+                    </p>
+                  </div>
+                  <button
+                    class="btn btn-primary btn-xs rounded-xl"
+                    type="button"
+                    :disabled="fixingIds.has(item.artImage.id)"
+                    @click="syncArtMetadataToImage(item)"
+                  >
+                    <span
+                      v-if="fixingIds.has(item.artImage.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Sync metadata
+                  </button>
+                </div>
+                <!-- Missing fields -->
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="field in item.missingFields"
+                    :key="field"
+                    class="badge badge-warning badge-xs"
+                  >
+                    {{ field }}
+                  </span>
+                </div>
+                <span
+                  v-if="fixResults.get(item.artImage.id)"
+                  class="badge badge-success badge-sm self-start"
+                >
+                  {{ fixResults.get(item.artImage.id) }}
+                </span>
+              </div>
+            </template>
+
+            <!-- MISSING THUMBNAIL items -->
+            <template v-else-if="activeCategory === 'thumbs'">
+              <div
+                v-for="artImage in missingThumbnails"
+                :key="artImage.id"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-base-content/50">
+                    ArtImage #{{ artImage.id }}
+                  </p>
+                  <p class="truncate text-sm text-base-content/70">
+                    {{
+                      artImage.promptString?.slice(0, 60) ||
+                      artImage.fileName ||
+                      '(untitled)'
+                    }}
+                  </p>
+                  <p class="text-xs text-base-content/40">
+                    {{ artImage.fileType || 'png' }} · artId:
+                    {{ artImage.artId ?? 'none' }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    class="btn btn-secondary btn-xs rounded-xl"
+                    type="button"
+                    :disabled="fixingIds.has(artImage.id)"
+                    @click="generateAndSaveThumbnail(artImage)"
+                  >
+                    <span
+                      v-if="fixingIds.has(artImage.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Generate thumbnail
+                  </button>
+                  <span
+                    v-if="fixResults.get(artImage.id)"
+                    class="badge badge-success badge-sm"
+                  >
+                    {{ fixResults.get(artImage.id) }}
+                  </span>
+                </div>
+              </div>
+            </template>
+
+            <!-- UNLINKED IMAGES items -->
+            <template v-else-if="activeCategory === 'unlinked'">
+              <div
+                v-for="artImage in unlinkedImages"
+                :key="artImage.id"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+              >
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-base-content/50">
+                    ArtImage #{{ artImage.id }}
+                  </p>
+                  <p class="truncate text-sm text-base-content/70">
+                    {{
+                      artImage.promptString?.slice(0, 60) ||
+                      artImage.fileName ||
+                      '(no metadata)'
+                    }}
+                  </p>
+                  <div class="mt-1 flex flex-wrap gap-1">
+                    <span
+                      v-if="artImage.pitchId"
+                      class="badge badge-ghost badge-xs"
+                      >pitch #{{ artImage.pitchId }}</span
+                    >
+                    <span
+                      v-if="artImage.botId"
+                      class="badge badge-ghost badge-xs"
+                      >bot #{{ artImage.botId }}</span
+                    >
+                    <span
+                      v-if="artImage.userId"
+                      class="badge badge-ghost badge-xs"
+                      >user #{{ artImage.userId }}</span
+                    >
+                    <span class="badge badge-error badge-xs">no artId</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <!-- Could link to an art record, or just flag for review -->
+                  <span class="badge badge-ghost badge-sm"
+                    >Manual review needed</span
+                  >
+                  <span
+                    v-if="fixResults.get(artImage.id)"
+                    class="badge badge-success badge-sm"
+                  >
+                    {{ fixResults.get(artImage.id) }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scan log -->
+    <details
+      v-if="scanLog.length"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+      @click.stop
+    >
+      <summary class="cursor-pointer text-xs font-bold text-base-content/60">
+        Operation log ({{ scanLog.length }})
+      </summary>
+      <div class="mt-2 max-h-40 overflow-auto space-y-1">
+        <p
+          v-for="(entry, i) in scanLog"
+          :key="i"
+          class="text-xs"
+          :class="
+            entry.type === 'error'
+              ? 'text-error'
+              : entry.type === 'success'
+                ? 'text-success'
+                : 'text-base-content/60'
+          "
+        >
+          {{ entry.msg }}
+        </p>
+      </div>
+    </details>
+  </section>
+</template>
+
+<script setup lang="ts">
+// /components/content/art/art-doctor.vue
+import { computed, ref } from 'vue'
+import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
+import { useArtStore } from '@/stores/artStore'
+import { performFetch } from '@/stores/utils'
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type CategoryKey = 'orphaned' | 'stale' | 'thumbs' | 'unlinked'
+
+interface StaleItem {
+  art: Art
+  artImage: ArtImage
+  missingFields: string[]
+}
+
+interface LogEntry {
+  msg: string
+  type: 'info' | 'success' | 'error'
+}
+
+// ─── State ───────────────────────────────────────────────────────────────────
+
+const artStore = useArtStore()
+
+const isScanning = ref(false)
+const hasScanned = ref(false)
+const scanError = ref('')
+const activeCategory = ref<CategoryKey>('orphaned')
+const isBatchRunning = ref(false)
+const fixingIds = ref<Set<number>>(new Set())
+const fixResults = ref<Map<number, string>>(new Map())
+const scanLog = ref<LogEntry[]>([])
+
+// Scan results
+const allArt = ref<Art[]>([])
+const allArtImages = ref<ArtImage[]>([]) // metadata only, no imageData
+
+const batchProgress = ref({ label: '', done: 0, total: 0 })
+
+// ─── Computed — problem categories ───────────────────────────────────────────
+
+/**
+ * Art records with no artImageId pointing at an ArtImage row.
+ */
+const orphanedArt = computed<Art[]>(() => {
+  const imageArtIds = new Set(
+    allArtImages.value.map((i) => i.artId).filter(Boolean),
+  )
+  return allArt.value.filter((art) => {
+    // No artImageId stored on Art, and no ArtImage that claims this Art's id
+    return !art.artImageId && !imageArtIds.has(art.id)
+  })
+})
+
+/**
+ * ArtImages that have an artId, but are missing key metadata that exists on the Art record.
+ */
+const staleMetadata = computed<StaleItem[]>(() => {
+  const artMap = new Map(allArt.value.map((a) => [a.id, a]))
+  const items: StaleItem[] = []
+
+  for (const artImage of allArtImages.value) {
+    if (!artImage.artId) continue
+    const art = artMap.get(artImage.artId)
+    if (!art) continue
+
+    const missing: string[] = []
+
+    if (!artImage.promptString && art.promptString) missing.push('promptString')
+    if (!artImage.negativePrompt && art.negativePrompt)
+      missing.push('negativePrompt')
+    if (!artImage.checkpoint && art.checkpoint) missing.push('checkpoint')
+    if (!artImage.sampler && art.sampler) missing.push('sampler')
+    if (!artImage.seed && art.seed && art.seed !== -1) missing.push('seed')
+    if (!artImage.steps && art.steps) missing.push('steps')
+    if (!artImage.cfg && art.cfg) missing.push('cfg')
+    if (!artImage.designer && art.designer) missing.push('designer')
+    if (!artImage.genres && art.genres) missing.push('genres')
+    if (!artImage.serverId && art.serverId) missing.push('serverId')
+    if (!artImage.serverName && art.serverName) missing.push('serverName')
+    if (artImage.isPublic == null && art.isPublic != null)
+      missing.push('isPublic')
+    if (artImage.isMature == null && art.isMature != null)
+      missing.push('isMature')
+
+    if (missing.length > 0) {
+      items.push({ art, artImage, missingFields: missing })
+    }
+  }
+
+  return items
+})
+
+/**
+ * ArtImages with no thumbnailData. We can only confirm imageData existence
+ * from the metadata scan — thumbnailData null is the signal.
+ */
+const missingThumbnails = computed<ArtImage[]>(() => {
+  return allArtImages.value.filter((i) => !i.thumbnailData)
+})
+
+/**
+ * ArtImages with no artId — not owned by any Art record.
+ * These might be bot avatars, pitch images, etc. — surfaced for review.
+ */
+const unlinkedImages = computed<ArtImage[]>(() => {
+  return allArtImages.value.filter(
+    (i) =>
+      !i.artId &&
+      !i.botId &&
+      !i.pitchId &&
+      !i.characterId &&
+      !i.promptId &&
+      !i.componentId &&
+      !i.milestoneId &&
+      !i.rewardId &&
+      !i.chatId &&
+      !i.butterflyId,
+  )
+})
+
+const categories = computed(() => [
+  {
+    key: 'orphaned' as CategoryKey,
+    label: 'Orphaned Art',
+    icon: 'kind-icon:image',
+    color: 'warning',
+    description:
+      'Art records with no linked ArtImage. If the Art has an imagePath or path, it can be promoted to a proper ArtImage row.',
+    batchLabel: 'Promote all paths',
+    items: orphanedArt.value,
+  },
+  {
+    key: 'stale' as CategoryKey,
+    label: 'Stale Metadata',
+    icon: 'kind-icon:edit',
+    color: 'info',
+    description:
+      'ArtImages linked to an Art record but missing generation metadata. Syncing copies promptString, checkpoint, seed, cfg, etc. from Art into ArtImage.',
+    batchLabel: 'Sync all metadata',
+    items: staleMetadata.value,
+  },
+  {
+    key: 'thumbs' as CategoryKey,
+    label: 'No Thumbnail',
+    icon: 'kind-icon:image',
+    color: 'secondary',
+    description:
+      'ArtImages that have imageData but no thumbnailData. Thumbnails are generated client-side at 200×200 and saved back.',
+    batchLabel: 'Generate all thumbnails',
+    items: missingThumbnails.value,
+  },
+  {
+    key: 'unlinked' as CategoryKey,
+    label: 'Unlinked Images',
+    icon: 'kind-icon:warning',
+    color: 'error',
+    description:
+      'ArtImages with no owner FK at all — not attached to any Art, Bot, Pitch, Character, etc. These need manual review.',
+    batchLabel: undefined,
+    items: unlinkedImages.value,
+  },
+])
+
+const activeCategoryMeta = computed(() =>
+  categories.value.find((c) => c.key === activeCategory.value),
+)
+
+// ─── Scan ─────────────────────────────────────────────────────────────────────
+
+async function runScan() {
+  isScanning.value = true
+  scanError.value = ''
+  scanLog.value = []
+  fixResults.value = new Map()
+
+  try {
+    log('Fetching art records…')
+    // Use artStore for art — it already handles pagination
+    await artStore.fetchArtPage(1, 500, true)
+    allArt.value = [...artStore.art]
+    log(`Loaded ${allArt.value.length} Art records`, 'info')
+
+    log('Fetching ArtImage metadata (no imageData)…')
+    // Fetch artImage metadata list — assumes an endpoint that strips imageData
+    const response = await performFetch<ArtImage[]>('/api/art/images/meta')
+
+    if (response.success && Array.isArray(response.data)) {
+      allArtImages.value = response.data
+      log(`Loaded ${allArtImages.value.length} ArtImage records`, 'info')
+    } else {
+      // Fallback: use whatever artStore already has cached (no imageData)
+      allArtImages.value = artStore.artImages.map(stripImageData)
+      log(
+        `Fallback: used ${allArtImages.value.length} cached ArtImage records`,
+        'info',
+      )
+    }
+
+    hasScanned.value = true
+    log(
+      `Scan complete — ${orphanedArt.value.length} orphaned, ${staleMetadata.value.length} stale, ${missingThumbnails.value.length} no thumbnail, ${unlinkedImages.value.length} unlinked`,
+      'success',
+    )
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Scan failed'
+    scanError.value = msg
+    log(msg, 'error')
+  } finally {
+    isScanning.value = false
+  }
+}
+
+// ─── Fixes ────────────────────────────────────────────────────────────────────
+
+/**
+ * For an Art with an imagePath/path but no ArtImage, create a stub ArtImage
+ * that records the path and links back to the Art record, then update Art.artImageId.
+ * Note: this only stores the imagePath, not base64 data.
+ */
+async function promotePathToArtImage(art: Art) {
+  markFixing(art.id)
+  try {
+    const imagePath =
+      art.imagePath || (art.path !== 'UNDEFINED' ? art.path : null)
+    if (!imagePath) throw new Error('No image source on this Art record')
+
+    // Create a new ArtImage referencing this Art
+    const createRes = await performFetch<ArtImage>('/api/art/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        artId: art.id,
+        userId: art.userId,
+        galleryId: art.galleryId,
+        imagePath,
+        // No imageData — this is a path-only record until someone fetches and encodes it
+        imageData: '', // required field; endpoint should accept empty for path-only
+        fileType: guessFileType(imagePath),
+        promptString: art.promptString,
+        negativePrompt: art.negativePrompt,
+        checkpoint: art.checkpoint,
+        sampler: art.sampler,
+        seed: art.seed,
+        steps: art.steps,
+        cfg: art.cfg,
+        cfgHalf: art.cfgHalf,
+        designer: art.designer,
+        genres: art.genres,
+        serverId: art.serverId,
+        serverName: art.serverName,
+        serverUrl: art.serverUrl,
+        isPublic: art.isPublic,
+        isMature: art.isMature,
+      }),
+    })
+
+    if (!createRes.success || !createRes.data) {
+      throw new Error(createRes.message || 'Failed to create ArtImage')
+    }
+
+    // Update Art.artImageId to point at new ArtImage
+    await performFetch(`/api/art/${art.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artImageId: createRes.data.id }),
+    })
+
+    setResult(art.id, `→ ArtImage #${createRes.data.id}`)
+    log(`Art #${art.id} promoted to ArtImage #${createRes.data.id}`, 'success')
+
+    // Refresh local art
+    allArt.value = allArt.value.map((a) =>
+      a.id === art.id ? { ...a, artImageId: createRes.data!.id } : a,
+    )
+    allArtImages.value = [...allArtImages.value, stripImageData(createRes.data)]
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Failed'
+    setResult(art.id, `Error: ${msg}`)
+    log(`Art #${art.id}: ${msg}`, 'error')
+  } finally {
+    unmarkFixing(art.id)
+  }
+}
+
+/**
+ * Copy generation metadata from Art into the linked ArtImage.
+ * Requires the PATCH endpoint to accept full metadata fields (see note below).
+ */
+async function syncArtMetadataToImage(item: StaleItem) {
+  const id = item.artImage.id
+  markFixing(id)
+  try {
+    const payload: Partial<ArtImage> = {}
+
+    if (!item.artImage.promptString && item.art.promptString)
+      payload.promptString = item.art.promptString
+    if (!item.artImage.negativePrompt && item.art.negativePrompt)
+      payload.negativePrompt = item.art.negativePrompt
+    if (!item.artImage.checkpoint && item.art.checkpoint)
+      payload.checkpoint = item.art.checkpoint
+    if (!item.artImage.sampler && item.art.sampler)
+      payload.sampler = item.art.sampler
+    if (!item.artImage.seed && item.art.seed) payload.seed = item.art.seed
+    if (!item.artImage.steps && item.art.steps) payload.steps = item.art.steps
+    if (!item.artImage.cfg && item.art.cfg) payload.cfg = item.art.cfg
+    if (item.artImage.cfgHalf == null && item.art.cfgHalf != null)
+      payload.cfgHalf = item.art.cfgHalf
+    if (!item.artImage.designer && item.art.designer)
+      payload.designer = item.art.designer
+    if (!item.artImage.genres && item.art.genres)
+      payload.genres = item.art.genres
+    if (!item.artImage.serverId && item.art.serverId)
+      payload.serverId = item.art.serverId
+    if (!item.artImage.serverName && item.art.serverName)
+      payload.serverName = item.art.serverName
+    if (item.artImage.isPublic == null && item.art.isPublic != null)
+      payload.isPublic = item.art.isPublic
+    if (item.artImage.isMature == null && item.art.isMature != null)
+      payload.isMature = item.art.isMature
+
+    const res = await performFetch<ArtImage>(`/api/art/image/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.success) throw new Error(res.message || 'Patch failed')
+
+    setResult(id, 'Synced ✓')
+    log(`ArtImage #${id}: synced ${Object.keys(payload).join(', ')}`, 'success')
+
+    // Update local metadata
+    allArtImages.value = allArtImages.value.map((img) =>
+      img.id === id ? { ...img, ...payload } : img,
+    )
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Failed'
+    setResult(id, `Error: ${msg}`)
+    log(`ArtImage #${id}: ${msg}`, 'error')
+  } finally {
+    unmarkFixing(id)
+  }
+}
+
+/**
+ * Fetch the full imageData for an ArtImage, generate a thumbnail client-side
+ * via Canvas, then PATCH thumbnailData back to the server.
+ */
+async function generateAndSaveThumbnail(artImage: ArtImage, maxSize = 200) {
+  const id = artImage.id
+  markFixing(id)
+  try {
+    // Fetch full image (with imageData)
+    const res = await performFetch<ArtImage>(`/api/art/image/${id}`)
+    if (!res.success || !res.data?.imageData) {
+      throw new Error('Could not fetch imageData for this ArtImage')
+    }
+
+    const imageData = res.data.imageData
+    const fileType = res.data.fileType ?? 'png'
+    const thumbnailData = await createThumbnailFromBase64(
+      imageData,
+      fileType,
+      maxSize,
+    )
+
+    const patchRes = await performFetch<ArtImage>(`/api/art/image/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ thumbnailData }),
+    })
+
+    if (!patchRes.success) throw new Error(patchRes.message || 'Patch failed')
+
+    setResult(id, `Thumbnail saved (${maxSize}px)`)
+    log(`ArtImage #${id}: thumbnail generated at ${maxSize}px`, 'success')
+
+    allArtImages.value = allArtImages.value.map((img) =>
+      img.id === id ? { ...img, thumbnailData: '(set)' } : img,
+    )
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Failed'
+    setResult(id, `Error: ${msg}`)
+    log(`ArtImage #${id}: ${msg}`, 'error')
+  } finally {
+    unmarkFixing(id)
+  }
+}
+
+// ─── Batch runners ────────────────────────────────────────────────────────────
+
+async function runBatch(category: CategoryKey) {
+  isBatchRunning.value = true
+  batchProgress.value = { label: '', done: 0, total: 0 }
+
+  try {
+    if (category === 'orphaned') {
+      const items = orphanedArt.value.filter(
+        (a) => a.imagePath || (a.path && a.path !== 'UNDEFINED'),
+      )
+      batchProgress.value = {
+        label: 'Promoting paths…',
+        done: 0,
+        total: items.length,
+      }
+      for (const art of items) {
+        await promotePathToArtImage(art)
+        batchProgress.value.done++
+      }
+    }
+
+    if (category === 'stale') {
+      const items = staleMetadata.value
+      batchProgress.value = {
+        label: 'Syncing metadata…',
+        done: 0,
+        total: items.length,
+      }
+      for (const item of items) {
+        await syncArtMetadataToImage(item)
+        batchProgress.value.done++
+      }
+    }
+
+    if (category === 'thumbs') {
+      const items = missingThumbnails.value
+      batchProgress.value = {
+        label: 'Generating thumbnails…',
+        done: 0,
+        total: items.length,
+      }
+      for (const img of items) {
+        await generateAndSaveThumbnail(img)
+        batchProgress.value.done++
+      }
+    }
+
+    log(
+      `Batch complete: ${batchProgress.value.done} / ${batchProgress.value.total}`,
+      'success',
+    )
+  } finally {
+    isBatchRunning.value = false
+  }
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function createThumbnailFromBase64(
+  base64: string,
+  fileType: string,
+  maxSize: number,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const mimeType = fileType.startsWith('image/')
+      ? fileType
+      : `image/${fileType}`
+    const img = new Image()
+    img.onload = () => {
+      const scale = Math.min(maxSize / img.width, maxSize / img.height, 1)
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return reject(new Error('Canvas context unavailable'))
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      const dataUrl = canvas.toDataURL(mimeType, 0.82)
+      resolve(dataUrl.split(',')[1]) // strip the data: prefix
+    }
+    img.onerror = () => reject(new Error('Failed to load image for thumbnail'))
+    img.src = `data:${mimeType};base64,${base64}`
+  })
+}
+
+function stripImageData(img: ArtImage): ArtImage {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {
+    imageData: _imageData,
+    thumbnailData: _thumbData,
+    ...meta
+  } = img as ArtImage & { imageData: string; thumbnailData?: string }
+  return {
+    ...meta,
+    imageData: '',
+    thumbnailData: _thumbData ? '(set)' : null,
+  } as unknown as ArtImage
+}
+
+function guessFileType(path: string): string {
+  const ext = path.split('.').pop()?.toLowerCase()
+  if (ext === 'jpg' || ext === 'jpeg') return 'jpeg'
+  if (ext === 'webp') return 'webp'
+  if (ext === 'gif') return 'gif'
+  return 'png'
+}
+
+function markFixing(id: number) {
+  fixingIds.value = new Set([...fixingIds.value, id])
+}
+
+function unmarkFixing(id: number) {
+  const next = new Set(fixingIds.value)
+  next.delete(id)
+  fixingIds.value = next
+}
+
+function setResult(id: number, msg: string) {
+  fixResults.value = new Map([...fixResults.value, [id, msg]])
+}
+
+function log(msg: string, type: LogEntry['type'] = 'info') {
+  scanLog.value.push({
+    msg: `[${new Date().toLocaleTimeString()}] ${msg}`,
+    type,
+  })
+}
+</script>

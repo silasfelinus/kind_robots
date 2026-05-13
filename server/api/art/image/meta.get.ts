@@ -1,6 +1,4 @@
-// server/api/art/image/index.get.ts
-// Returns all ArtImage rows — metadata only, no imageData or thumbnailData blobs.
-// The individual [id].get.ts is the correct place to fetch full image data.
+// server/api/art/images/meta.get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -47,16 +45,11 @@ export default defineEventHandler(async () => {
         characterId: true,
         butterflyId: true,
         tagId: true,
-        // imageData excluded — fetch via /api/art/image/[id] when needed
-        // thumbnailData excluded — meta endpoint surfaces existence only
+        // imageData and thumbnailData deliberately excluded
       },
     })
 
-    if (!data || data.length === 0) {
-      return { success: false, message: 'No art images found.' }
-    }
-
-    // Flag thumbnail existence without sending the blob
+    // Surface whether thumbnailData exists without sending the blob
     const thumbFlags = await prisma.$queryRaw<
       { id: number; hasThumb: number }[]
     >`

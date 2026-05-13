@@ -1,1467 +1,1199 @@
-<!-- /components/content/art/art-doctor.vue -->
+<!-- /components/content/art/art-gallery.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-4"
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
-    <!-- ── Header ───────────────────────────────────────────────────────── -->
     <header
-      class="relative flex shrink-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
-      :class="{ 'scan-active': isScanning }"
+      v-if="showHeader"
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
-      <div class="flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-2xl bg-error/10"
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-2">
+          <button
+            v-if="mode === 'arts' && !isDropdownMode"
+            class="btn btn-ghost btn-sm shrink-0 rounded-xl"
+            type="button"
+            title="Back to collections"
+            @click="exitCollection"
           >
-            <Icon name="kind-icon:activity" class="h-5 w-5 text-error" />
-          </div>
-          <div>
-            <h2 class="text-lg font-black text-base-content">Art Doctor</h2>
-            <p class="text-sm text-base-content/60">
-              Diagnose and repair Art ↔ ArtImage inconsistencies
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+          </button>
+
+          <div class="min-w-0">
+            <h2 class="truncate text-lg font-bold text-base-content">
+              {{ headerTitle }}
+            </h2>
+
+            <p class="truncate text-sm text-base-content/60">
+              {{ headerSubtitle }}
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <span
-            v-if="isScanning"
-            class="font-mono text-xs text-base-content/50"
-            >{{ scanStatus }}</span
-          >
+
+        <div class="flex shrink-0 items-center gap-2">
+          <span v-if="!isLoading" class="badge badge-ghost">
+            {{ displayCount }}
+          </span>
+
           <button
+            v-if="allowAdd && !isDropdownMode && mode === 'collections'"
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="startAddingCollection"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            <span class="hidden sm:inline">Add</span>
+          </button>
+
+          <button
+            v-if="allowRefresh && !isDropdownMode"
             class="btn btn-ghost btn-sm rounded-xl"
             type="button"
-            :disabled="isScanning"
-            @click="runScan"
+            :disabled="isLoading"
+            @click="refresh"
           >
-            <span
-              v-if="isScanning"
-              class="loading loading-spinner loading-xs"
-            />
+            <span v-if="isLoading" class="loading loading-spinner loading-xs" />
             <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-            {{ isScanning ? 'Scanning…' : hasScanned ? 'Re-scan' : 'Scan' }}
+            <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </div>
 
       <div
-        v-if="!hasScanned && !isScanning"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center text-sm text-base-content/50"
+        v-if="showControls && !isDropdownMode"
+        class="grid grid-cols-1 gap-2 md:grid-cols-[auto_minmax(0,1fr)_auto]"
       >
-        Click Scan to diagnose Art ↔ ArtImage health
+        <label
+          v-if="userStore.isAdmin"
+          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+        >
+          <span class="label-text font-bold">Show Mature</span>
+
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-accent toggle-sm"
+          />
+        </label>
+
+        <input
+          v-model="searchQuery"
+          type="search"
+          :placeholder="
+            mode === 'collections'
+              ? 'Search collections...'
+              : 'Search prompts, checkpoints...'
+          "
+          class="input input-bordered input-sm w-full bg-base-100"
+        />
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="!activeCollection"
+          @click="clearSelectedCollection"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Clear
+        </button>
+      </div>
+
+      <div
+        v-if="mode === 'arts' && !isDropdownMode && canEditActive"
+        class="flex flex-wrap gap-2"
+      >
+        <button
+          v-if="allowEdit"
+          class="btn btn-secondary btn-sm rounded-xl"
+          type="button"
+          @click="startEditingActiveCollection"
+        >
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          Edit
+        </button>
+
+        <button
+          v-if="allowMerge && mergeTargetOptions.length > 0"
+          class="btn btn-accent btn-sm rounded-xl"
+          type="button"
+          @click="toggleMergePanel"
+        >
+          <Icon name="kind-icon:gallery" class="h-4 w-4" />
+          Merge Into...
+        </button>
+
+        <button
+          v-if="allowDelete"
+          class="btn btn-error btn-sm rounded-xl text-white"
+          type="button"
+          @click="confirmDeleteCollection"
+        >
+          <Icon name="kind-icon:trash" class="h-4 w-4" />
+          Delete
+        </button>
       </div>
     </header>
 
-    <!-- ── Error ─────────────────────────────────────────────────────────── -->
-    <div
-      v-if="scanError"
-      class="shrink-0 rounded-2xl bg-error/10 p-3 text-sm text-error"
+    <section
+      v-if="showCollectionForm"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
     >
-      {{ scanError }}
-    </div>
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="truncate text-base font-black text-primary">
+            {{ collectionFormTitle }}
+          </h3>
 
-    <!-- ── Top-down summary ──────────────────────────────────────────────── -->
-    <div v-if="hasScanned" class="shrink-0 flex flex-col gap-3">
-      <!-- Raw totals row -->
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p class="font-mono text-3xl font-black text-base-content">
-            {{ allArt.length }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">Total Art records</p>
-        </div>
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p class="font-mono text-3xl font-black text-base-content">
-            {{ allArtImages.length }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">
-            Total ArtImage records
+          <p class="text-sm text-base-content/60">
+            {{ collectionFormSubtitle }}
           </p>
         </div>
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          @click="closeCollectionForm"
         >
-          <p
-            class="font-mono text-3xl font-black"
-            :class="
-              topStats.artWithArtImageId === 0 ? 'text-error' : 'text-warning'
-            "
-          >
-            {{ topStats.artWithArtImageId }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">Art with artImageId</p>
-          <p class="text-xs text-base-content/40">of {{ allArt.length }}</p>
-        </div>
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p
-            class="font-mono text-3xl font-black"
-            :class="
-              topStats.artImagesWithArtId === 0 ? 'text-error' : 'text-warning'
-            "
-          >
-            {{ topStats.artImagesWithArtId }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">ArtImages with artId</p>
-          <p class="text-xs text-base-content/40">
-            of {{ allArtImages.length }}
-          </p>
-        </div>
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
+        </button>
       </div>
 
-      <!-- Link breakdown row -->
-      <div class="grid grid-cols-3 gap-3">
-        <div
-          class="rounded-2xl border border-success/30 bg-success/5 p-3 text-center"
-        >
-          <p class="font-mono text-2xl font-black text-success">
-            {{ topStats.bidirectional }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">↔ Bidirectional</p>
-          <p class="text-xs text-base-content/40">both sides set</p>
-        </div>
-        <div
-          class="rounded-2xl border border-warning/30 bg-warning/5 p-3 text-center"
-        >
-          <p class="font-mono text-2xl font-black text-warning">
-            {{ topStats.onewayArtToImage + topStats.onewayImageToArt }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">→ One-way links</p>
-          <p class="text-xs text-base-content/40">
-            {{ topStats.onewayArtToImage }} art→img ·
-            {{ topStats.onewayImageToArt }} img→art
-          </p>
-        </div>
-        <div
-          class="rounded-2xl border border-error/30 bg-error/5 p-3 text-center"
-        >
-          <p class="font-mono text-2xl font-black text-error">
-            {{ orphanedArt.length }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">✗ No link at all</p>
-          <p class="text-xs text-base-content/40">orphaned Art records</p>
-        </div>
-      </div>
-
-      <!-- Health bar -->
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="mb-2 flex items-baseline justify-between">
-          <span class="text-xs font-bold text-base-content/60"
-            >Collection health</span
-          >
-          <span
-            class="font-mono text-sm font-black"
-            :class="
-              healthPct > 75
-                ? 'text-success'
-                : healthPct > 40
-                  ? 'text-warning'
-                  : 'text-error'
-            "
-          >
-            {{ healthPct }}%
+      <div class="grid gap-3">
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Label</span>
           </span>
-        </div>
-        <div class="flex h-2.5 w-full overflow-hidden rounded-full bg-base-300">
-          <div
-            v-for="seg in healthSegments.filter((s) => s.count > 0)"
-            :key="seg.label"
-            class="h-full transition-all"
-            :style="{ flex: seg.count, background: seg.color }"
-            :title="`${seg.label}: ${seg.count}`"
+
+          <input
+            v-model="collectionForm.label"
+            class="input input-bordered bg-base-200"
+            placeholder="Collection name"
           />
+        </label>
+
+        <label class="form-control">
+          <span class="label">
+            <span class="label-text font-bold">Description</span>
+          </span>
+
+          <textarea
+            v-model="collectionForm.description"
+            class="textarea textarea-bordered min-h-24 bg-base-200"
+            placeholder="What belongs in this collection?"
+          />
+        </label>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label
+            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+          >
+            <span class="label-text font-bold">Public</span>
+
+            <input
+              v-model="collectionForm.isPublic"
+              type="checkbox"
+              class="toggle toggle-success"
+            />
+          </label>
+
+          <label
+            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+          >
+            <span class="label-text font-bold">Mature</span>
+
+            <input
+              v-model="collectionForm.isMature"
+              type="checkbox"
+              class="toggle toggle-warning"
+            />
+          </label>
         </div>
-        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-          <span
-            v-for="seg in healthSegments.filter((s) => s.count > 0)"
-            :key="seg.label"
-            class="flex items-center gap-1.5 text-xs text-base-content/60"
+
+        <div
+          v-if="formMessage"
+          class="rounded-2xl border p-3 text-sm"
+          :class="
+            formTone === 'error'
+              ? 'border-error/40 bg-error/10 text-error'
+              : 'border-success/40 bg-success/10 text-success'
+          "
+        >
+          {{ formMessage }}
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-ghost rounded-xl"
+            type="button"
+            @click="closeCollectionForm"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="btn btn-primary rounded-xl text-white"
+            type="button"
+            :disabled="isSavingCollection || !collectionForm.label?.trim()"
+            @click="saveCollectionForm"
           >
             <span
-              class="inline-block h-2 w-2 shrink-0 rounded-sm"
-              :style="{ background: seg.color }"
+              v-if="isSavingCollection"
+              class="loading loading-spinner loading-sm"
             />
-            {{ seg.label }}
-            <span class="font-mono font-bold text-base-content">{{
-              seg.count
-            }}</span>
-          </span>
+            Save Collection
+          </button>
         </div>
       </div>
+    </section>
 
-      <!-- Category stat cards -->
-      <div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
-        <button
-          v-for="cat in categories"
-          :key="cat.key"
-          class="flex cursor-pointer flex-col items-start rounded-2xl border p-3 transition"
-          :class="
-            activeCategory === cat.key
-              ? `border-${cat.color}/50 bg-${cat.color}/10`
-              : 'border-base-300 bg-base-100 hover:bg-base-200'
-          "
-          type="button"
-          @click="activeCategory = cat.key"
-        >
-          <span
-            class="font-mono text-2xl font-black leading-none"
-            :class="`text-${cat.color}`"
-          >
-            {{ cat.items.length }}
-          </span>
-          <span
-            class="mt-1 text-left text-xs leading-tight text-base-content/60"
-            >{{ cat.label }}</span
-          >
-          <span
-            v-if="cat.key === 'matched' && matchedNeedingThumbnail.length > 0"
-            class="mt-1 text-xs text-warning"
-          >
-            {{ matchedNeedingThumbnail.length }} need thumbnail
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ── Category detail ───────────────────────────────────────────────── -->
     <section
-      v-if="hasScanned"
-      class="flex min-h-0 flex-1 flex-col gap-3 overflow-auto"
+      v-if="showMergePanel && activeCollection"
+      class="shrink-0 rounded-2xl border border-accent/40 bg-accent/10 p-3 shadow-md"
     >
-      <!-- tabs -->
-      <div class="flex shrink-0 flex-wrap gap-2">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <h3 class="text-sm font-bold text-accent">
+          Merge "{{ activeCollection.label || 'Untitled' }}" into...
+        </h3>
+
         <button
-          v-for="cat in categories"
-          :key="cat.key"
-          class="btn btn-sm rounded-xl"
-          :class="activeCategory === cat.key ? `btn-${cat.color}` : 'btn-ghost'"
+          class="btn btn-ghost btn-xs rounded-xl"
           type="button"
-          @click="activeCategory = cat.key"
+          @click="showMergePanel = false"
         >
-          <Icon :name="cat.icon" class="h-4 w-4" />
-          {{ cat.label }}
-          <span
-            class="badge badge-sm ml-1"
-            :class="activeCategory === cat.key ? 'badge-ghost' : ''"
-          >
-            {{ cat.items.length }}
-          </span>
+          <Icon name="kind-icon:x" class="h-4 w-4" />
         </button>
       </div>
 
-      <!-- active panel -->
-      <div v-if="activeCategory" class="flex min-h-0 flex-1 flex-col gap-3">
-        <!-- description + batch + sub-filters -->
-        <div
-          class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
+      <p class="mb-3 text-xs text-base-content/60">
+        All art moves to the target collection. This collection is then deleted.
+      </p>
+
+      <div class="flex gap-2">
+        <select
+          v-model="mergeTargetId"
+          class="select select-bordered select-sm flex-1 bg-base-100"
         >
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm text-base-content/70">
-              {{ activeCategoryMeta?.description }}
+          <option :value="null">Select target...</option>
+
+          <option
+            v-for="collection in mergeTargetOptions"
+            :key="collection.id"
+            :value="collection.id"
+          >
+            {{ collection.label || `Collection #${collection.id}` }}
+          </option>
+        </select>
+
+        <button
+          class="btn btn-accent btn-sm rounded-xl"
+          type="button"
+          :disabled="!mergeTargetId || isMerging"
+          @click="executeMerge"
+        >
+          <span v-if="isMerging" class="loading loading-spinner loading-xs" />
+          Confirm Merge
+        </button>
+      </div>
+    </section>
+
+    <section
+      v-if="showSelectedPanel && selectedArt && !isDropdownMode"
+      class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
+    >
+      <div class="mb-3 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-xs font-bold uppercase text-primary/70">
+            Selected Art
+          </p>
+
+          <h3 class="truncate text-base font-black text-base-content">
+            Art #{{ selectedArt.id }}
+          </h3>
+        </div>
+
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          title="Clear selected art"
+          @click="clearSelectedArt"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          <span class="hidden sm:inline">Close</span>
+        </button>
+      </div>
+
+      <art-interact />
+    </section>
+
+    <section class="min-h-0 flex-1 overflow-auto">
+      <div
+        v-if="isLoading"
+        class="flex h-full items-center justify-center py-12"
+      >
+        <span class="loading loading-spinner loading-lg text-primary" />
+      </div>
+
+      <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-base-300 bg-primary/10"
+              >
+                <Icon name="kind-icon:gallery" class="h-6 w-6 text-primary" />
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase text-base-content/50">
+                  Current Collection
+                </p>
+
+                <h3 class="truncate text-base font-black text-base-content">
+                  {{ selectedCollectionLabel }}
+                </h3>
+
+                <p class="truncate text-sm text-base-content/60">
+                  {{ selectedCollectionSubtitle }}
+                </p>
+              </div>
+            </div>
+
+            <button
+              v-if="canEditActive"
+              class="btn btn-secondary btn-sm rounded-xl"
+              type="button"
+              @click="startEditingActiveCollection"
+            >
+              <Icon name="kind-icon:pencil" class="h-4 w-4" />
+              <span class="hidden sm:inline">Edit</span>
+            </button>
+          </div>
+
+          <select
+            class="select select-bordered w-full bg-base-200"
+            :value="activeCollection?.id ?? ''"
+            aria-label="Select collection"
+            @change="selectCollectionFromEvent"
+          >
+            <option value="">Choose a collection</option>
+
+            <option
+              v-for="collection in visibleCollections"
+              :key="collection.id"
+              :value="collection.id"
+            >
+              {{ collection.label || `Collection #${collection.id}` }}
+            </option>
+
+            <option v-if="allowAdd" disabled>──────────</option>
+
+            <option v-if="allowAdd" value="__add__">Add Collection</option>
+          </select>
+
+          <div
+            v-if="activeCollection"
+            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+          >
+            <p class="line-clamp-3">
+              {{ activeCollection.description || 'No description yet.' }}
             </p>
-            <button
-              v-if="activeCategoryMeta?.batchLabel && batchableCount > 0"
-              class="btn btn-sm rounded-xl"
-              :class="`btn-${activeCategoryMeta?.color}`"
-              type="button"
-              :disabled="isBatchRunning"
-              @click="runBatch(activeCategory)"
-            >
+
+            <div class="mt-3 flex flex-wrap gap-2">
               <span
-                v-if="isBatchRunning"
-                class="loading loading-spinner loading-xs"
-              />
-              <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
-              {{ activeCategoryMeta?.batchLabel }}
-            </button>
-          </div>
+                v-if="activeCollection.isPublic"
+                class="badge badge-info badge-sm"
+              >
+                Public
+              </span>
 
-          <div
-            v-if="activeCategory === 'thumbs'"
-            class="flex flex-wrap gap-1.5"
-          >
-            <button
-              v-for="[val, label] in thumbFilterOptions"
-              :key="val"
-              class="btn btn-xs rounded-xl"
-              :class="thumbFilter === val ? 'btn-secondary' : 'btn-ghost'"
-              type="button"
-              @click="thumbFilter = val as ThumbFilter"
-            >
-              {{ label }}
-            </button>
-          </div>
+              <span v-else class="badge badge-ghost badge-sm">Private</span>
 
-          <div
-            v-if="activeCategory === 'matched'"
-            class="flex flex-wrap gap-1.5"
-          >
-            <button
-              v-for="[val, label] in matchedFilterOptions"
-              :key="val"
-              class="btn btn-xs rounded-xl"
-              :class="matchedFilter === val ? 'btn-success' : 'btn-ghost'"
-              type="button"
-              @click="matchedFilter = val as MatchedFilter"
-            >
-              {{ label }}
-            </button>
+              <span
+                v-if="activeCollection.isMature"
+                class="badge badge-warning badge-sm"
+              >
+                Mature
+              </span>
+
+              <span class="badge badge-secondary badge-sm">
+                {{ selectedCollectionArtCount }} art
+              </span>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- batch progress -->
+      <div v-else-if="mode === 'collections'">
         <div
-          v-if="isBatchRunning"
-          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+          v-if="visibleCollections.length === 0"
+          class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
         >
-          <div class="mb-1 flex justify-between text-xs text-base-content/60">
-            <span>{{ batchProgress.label }}</span>
-            <span class="font-mono"
-              >{{ batchProgress.done }} / {{ batchProgress.total }}</span
-            >
-          </div>
-          <progress
-            class="progress progress-primary w-full"
-            :value="batchProgress.done"
-            :max="batchProgress.total"
-          />
+          <Icon name="kind-icon:gallery" class="h-12 w-12 text-primary" />
+
+          <p class="mt-2 text-lg font-bold">No collections found.</p>
+
+          <p class="mt-1 text-sm">
+            No public or owned collections match this gallery.
+          </p>
+
+          <button
+            v-if="allowAdd"
+            class="btn btn-primary btn-sm mt-4 rounded-xl"
+            type="button"
+            @click="startAddingCollection"
+          >
+            <Icon name="kind-icon:plus" class="h-4 w-4" />
+            Create Collection
+          </button>
         </div>
 
-        <!-- empty state -->
+        <div v-else :class="layoutClass">
+          <button
+            v-for="collection in visibleCollections"
+            :key="collection.id"
+            class="cursor-pointer text-left"
+            type="button"
+            @click="enterCollection(collection)"
+          >
+            <collection-card
+              :collection="collection"
+              :compact="isCompact"
+              :show-mature="showMature"
+              :show-stats="false"
+              :show-select-button="false"
+              :show-actions="false"
+            />
+          </button>
+        </div>
+      </div>
+
+      <div v-else class="flex flex-col gap-3">
         <div
-          v-if="activeDisplayItems.length === 0"
-          class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-8 text-center"
+          v-if="activeCollection && canEditActive"
+          class="flex flex-wrap items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
-          <Icon name="kind-icon:check" class="h-10 w-10 text-success" />
-          <p class="mt-2 font-bold text-success">All clear in this view</p>
+          <label
+            class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+          >
+            <span class="label-text text-xs font-bold">Public</span>
+
+            <input
+              v-model="activeCollection.isPublic"
+              type="checkbox"
+              class="toggle toggle-success toggle-xs"
+              @change="saveActiveCollectionFlags"
+            />
+          </label>
+
+          <label
+            class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+          >
+            <span class="label-text text-xs font-bold">Mature</span>
+
+            <input
+              v-model="activeCollection.isMature"
+              type="checkbox"
+              class="toggle toggle-warning toggle-xs"
+              @change="saveActiveCollectionFlags"
+            />
+          </label>
         </div>
 
-        <!-- item list -->
-        <div v-else class="flex-1 overflow-auto">
-          <div class="flex flex-col gap-2">
-            <!-- ORPHANED -->
-            <template v-if="activeCategory === 'orphaned'">
-              <div
-                v-for="art in activeDisplayItems as Art[]"
-                :key="art.id"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <div class="min-w-0">
-                  <p class="font-mono text-xs font-bold text-base-content/50">
-                    Art #{{ art.id }}
-                  </p>
-                  <p class="truncate text-sm text-base-content">
-                    {{ art.promptString?.slice(0, 80) || '(no prompt)' }}
-                  </p>
-                  <div class="mt-1 flex flex-wrap gap-1">
-                    <span v-if="art.imagePath" class="badge badge-info badge-xs"
-                      >imagePath</span
-                    >
-                    <span
-                      v-if="art.path && art.path !== 'UNDEFINED'"
-                      class="badge badge-ghost badge-xs"
-                      >path</span
-                    >
-                    <span v-if="art.serverId" class="badge badge-ghost badge-xs"
-                      >server #{{ art.serverId }}</span
-                    >
-                    <span
-                      v-if="
-                        !art.imagePath &&
-                        !(art.path && art.path !== 'UNDEFINED')
-                      "
-                      class="badge badge-error badge-xs"
-                      >no source</span
-                    >
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button
-                    v-if="
-                      art.imagePath || (art.path && art.path !== 'UNDEFINED')
-                    "
-                    class="btn btn-warning btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(art.id)"
-                    @click="promotePathToArtImage(art)"
-                  >
-                    <span
-                      v-if="fixingIds.has(art.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Promote path
-                  </button>
-                  <span v-else class="badge badge-ghost badge-sm"
-                    >no source</span
-                  >
-                  <span
-                    v-if="fixResults.get(art.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(art.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
+        <div
+          v-if="currentArtList.length === 0"
+          class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
+        >
+          <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
 
-            <!-- STALE METADATA -->
-            <template v-else-if="activeCategory === 'stale'">
-              <div
-                v-for="item in activeDisplayItems as StaleItem[]"
-                :key="item.artImage.id"
-                class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <p class="font-mono text-xs font-bold text-base-content/50">
-                      ArtImage #{{ item.artImage.id }} ← Art #{{ item.art.id }}
-                    </p>
-                    <p class="truncate text-sm text-base-content">
-                      {{
-                        item.art.promptString?.slice(0, 80) ||
-                        '(no prompt on art)'
-                      }}
-                    </p>
-                  </div>
-                  <button
-                    class="btn btn-info btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(item.artImage.id)"
-                    @click="syncArtMetadataToImage(item)"
-                  >
-                    <span
-                      v-if="fixingIds.has(item.artImage.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Sync metadata
-                  </button>
-                </div>
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="field in item.missingFields"
-                    :key="field"
-                    class="badge badge-warning badge-xs"
-                    >{{ field }}</span
-                  >
-                </div>
-                <span
-                  v-if="fixResults.get(item.artImage.id)"
-                  class="badge badge-success badge-sm self-start"
-                  >{{ fixResults.get(item.artImage.id) }}</span
-                >
-              </div>
-            </template>
+          <p class="mt-2 text-lg font-bold">No art here.</p>
 
-            <!-- MISSING THUMBNAILS -->
-            <template v-else-if="activeCategory === 'thumbs'">
-              <div
-                v-for="artImage in activeDisplayItems as ArtImage[]"
-                :key="artImage.id"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <div class="min-w-0">
-                  <p class="font-mono text-xs font-bold text-base-content/50">
-                    ArtImage #{{ artImage.id }}
-                  </p>
-                  <p class="truncate text-sm text-base-content/70">
-                    {{
-                      artImage.promptString?.slice(0, 60) ||
-                      artImage.fileName ||
-                      '(untitled)'
-                    }}
-                  </p>
-                  <p class="text-xs text-base-content/40">
-                    {{ artImage.fileType || 'png' }} · artId:
-                    {{ artImage.artId ?? 'none' }}
-                  </p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button
-                    class="btn btn-secondary btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(artImage.id)"
-                    @click="generateAndSaveThumbnail(artImage)"
-                  >
-                    <span
-                      v-if="fixingIds.has(artImage.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Generate thumbnail
-                  </button>
-                  <span
-                    v-if="fixResults.get(artImage.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(artImage.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
+          <p class="mt-1 text-sm">
+            The gallery goblin found only vibes and lint.
+          </p>
+        </div>
 
-            <!-- UNLINKED IMAGES -->
-            <template v-else-if="activeCategory === 'unlinked'">
-              <div
-                v-for="artImage in activeDisplayItems as ArtImage[]"
-                :key="artImage.id"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <div class="min-w-0">
-                  <p class="font-mono text-xs font-bold text-base-content/50">
-                    ArtImage #{{ artImage.id }}
-                  </p>
-                  <p class="truncate text-sm text-base-content/70">
-                    {{
-                      artImage.promptString?.slice(0, 60) ||
-                      artImage.fileName ||
-                      '(no metadata)'
-                    }}
-                  </p>
-                  <div class="mt-1 flex flex-wrap gap-1">
-                    <span
-                      v-if="artImage.pitchId"
-                      class="badge badge-ghost badge-xs"
-                      >pitch #{{ artImage.pitchId }}</span
-                    >
-                    <span
-                      v-if="artImage.botId"
-                      class="badge badge-ghost badge-xs"
-                      >bot #{{ artImage.botId }}</span
-                    >
-                    <span
-                      v-if="artImage.userId"
-                      class="badge badge-ghost badge-xs"
-                      >user #{{ artImage.userId }}</span
-                    >
-                    <span class="badge badge-error badge-xs">no artId</span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="badge badge-ghost badge-sm"
-                    >Manual review needed</span
-                  >
-                  <span
-                    v-if="fixResults.get(artImage.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(artImage.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
+        <div v-else class="art-grid">
+          <div
+            v-for="art in currentArtList"
+            :key="art.id"
+            class="group relative"
+          >
+            <art-card
+              :art="art"
+              :selected="selectedArt?.id === art.id"
+              :compact="true"
+              :show-actions="true"
+              :show-prompt="false"
+              :show-meta="false"
+              :show-select-button="false"
+              :allow-delete="canDeleteArt(art)"
+              :allow-edit="canDeleteArt(art)"
+              @edit="startEditingArt"
+              @delete="handleArtDeleted"
+            />
 
-            <!-- MATCHED -->
-            <template v-else-if="activeCategory === 'matched'">
-              <div
-                v-for="item in activeDisplayItems as MatchedItem[]"
-                :key="item.art.id"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-base-100 p-3 transition"
-                :class="
-                  item.needsThumbnail
-                    ? 'border-warning/40'
-                    : 'border-success/30'
-                "
-              >
-                <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <p class="font-mono text-xs font-bold text-base-content/50">
-                      Art #{{ item.art.id }} ↔ ArtImage #{{ item.artImage.id }}
-                    </p>
-                    <span
-                      v-if="item.linkDirection === 'both'"
-                      class="badge badge-success badge-xs"
-                      >↔ both</span
-                    >
-                    <span
-                      v-else-if="item.linkDirection === 'art→image'"
-                      class="badge badge-warning badge-xs"
-                      >→ one-way</span
-                    >
-                    <span
-                      v-else-if="item.linkDirection === 'image→art'"
-                      class="badge badge-warning badge-xs"
-                      >← one-way</span
-                    >
-                    <span
-                      v-if="item.needsThumbnail"
-                      class="badge badge-warning badge-xs"
-                      >needs thumbnail</span
-                    >
-                    <span v-else class="badge badge-success badge-xs"
-                      >fully healthy</span
-                    >
-                    <span
-                      v-if="item.artImage.checkpoint"
-                      class="badge badge-ghost badge-xs font-mono"
-                      >{{ item.artImage.checkpoint.split('.')[0] }}</span
-                    >
-                  </div>
-                  <p class="mt-1 truncate text-sm text-base-content">
-                    {{
-                      item.artImage.promptString?.slice(0, 80) || '(no prompt)'
-                    }}
-                  </p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button
-                    v-if="item.linkDirection !== 'both'"
-                    class="btn btn-warning btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(item.art.id)"
-                    @click="repairLinkDirection(item)"
-                  >
-                    <span
-                      v-if="fixingIds.has(item.art.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Repair link
-                  </button>
-                  <button
-                    v-if="item.needsThumbnail"
-                    class="btn btn-success btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(item.artImage.id)"
-                    @click="generateAndSaveThumbnail(item.artImage)"
-                  >
-                    <span
-                      v-if="fixingIds.has(item.artImage.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Thumbnail
-                  </button>
-                  <Icon
-                    v-else-if="item.linkDirection === 'both'"
-                    name="kind-icon:check"
-                    class="h-4 w-4 text-success"
-                  />
-                  <span
-                    v-if="fixResults.get(item.artImage.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(item.artImage.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
+            <button
+              v-if="
+                activeCollection && activeCollection.id !== -1 && canEditActive
+              "
+              class="absolute right-2 top-2 z-10 rounded-full bg-base-100/90 p-1.5 opacity-0 shadow transition-opacity group-hover:opacity-100"
+              type="button"
+              title="Remove from collection"
+              @click.stop="removeArtFromCollection(art.id)"
+            >
+              <Icon name="kind-icon:x" class="h-3 w-3 text-base-content/70" />
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── Scan log ───────────────────────────────────────────────────────── -->
-    <details
-      v-if="scanLog.length"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
-      @click.stop
+    <div
+      v-if="localError"
+      class="shrink-0 rounded-2xl bg-warning/10 p-2 text-xs text-warning"
     >
-      <summary class="cursor-pointer text-xs font-bold text-base-content/60">
-        Operation log ({{ scanLog.length }})
-      </summary>
-      <div class="mt-2 max-h-40 overflow-auto space-y-1">
-        <p
-          v-for="(entry, i) in scanLog"
-          :key="i"
-          class="font-mono text-xs"
-          :class="
-            entry.type === 'error'
-              ? 'text-error'
-              : entry.type === 'success'
-                ? 'text-success'
-                : 'text-base-content/60'
-          "
-        >
-          {{ entry.msg }}
-        </p>
-      </div>
-    </details>
+      {{ localError }}
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/content/art/art-doctor.vue
-import { computed, ref } from 'vue'
-import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
+// /components/content/art/art-gallery.vue
+import { computed, onMounted, reactive, ref } from 'vue'
+import type { Art } from '~/prisma/generated/prisma/client'
+import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
-import { performFetch } from '@/stores/utils'
+import { ErrorType, useErrorStore } from '@/stores/errorStore'
+import { useCollectionStore } from '@/stores/collectionStore'
+import { useUserStore } from '@/stores/userStore'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+type CollectionGalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
-type CategoryKey = 'orphaned' | 'stale' | 'thumbs' | 'unlinked' | 'matched'
-type ThumbFilter = 'all' | 'matched' | 'unmatched'
-type MatchedFilter = 'all' | 'needs' | 'healthy'
-type LinkDirection = 'both' | 'art→image' | 'image→art'
-
-interface StaleItem {
-  art: Art
-  artImage: ArtImage
-  missingFields: string[]
-}
-
-interface MatchedItem {
-  art: Art
-  artImage: ArtImage
-  needsThumbnail: boolean
-  linkDirection: LinkDirection
-}
-
-interface LogEntry {
-  msg: string
-  type: 'info' | 'success' | 'error'
-}
-
-// ─── State ────────────────────────────────────────────────────────────────────
+const props = withDefaults(
+  defineProps<{
+    variant?: CollectionGalleryVariant
+    title?: string
+    subtitle?: string
+    compact?: boolean
+    showHeader?: boolean
+    showControls?: boolean
+    showSelectedPanel?: boolean
+    allowAdd?: boolean
+    allowEdit?: boolean
+    allowDelete?: boolean
+    allowMerge?: boolean
+    allowRefresh?: boolean
+    autoLoad?: boolean
+  }>(),
+  {
+    variant: 'dashboard',
+    title: 'Collections',
+    subtitle: 'Browse, create, edit, merge, and inspect art collections.',
+    compact: false,
+    showHeader: true,
+    showControls: true,
+    showSelectedPanel: false,
+    allowAdd: true,
+    allowEdit: true,
+    allowDelete: true,
+    allowMerge: true,
+    allowRefresh: true,
+    autoLoad: true,
+  },
+)
 
 const artStore = useArtStore()
+const collectionStore = useCollectionStore()
+const errorStore = useErrorStore()
+const userStore = useUserStore()
 
-const isScanning = ref(false)
-const hasScanned = ref(false)
-const scanError = ref('')
-const scanStatus = ref('') // live progress label shown in header while scanning
-const activeCategory = ref<CategoryKey>('orphaned')
-const isBatchRunning = ref(false)
-const fixingIds = ref<Set<number>>(new Set())
-const fixResults = ref<Map<number, string>>(new Map())
-const scanLog = ref<LogEntry[]>([])
+const mode = ref<'collections' | 'arts'>('collections')
+const activeCollection = ref<ArtCollection | null>(null)
 
-const allArt = ref<Art[]>([])
-const allArtImages = ref<ArtImage[]>([])
+const isLoading = ref(false)
+const localError = ref('')
+const searchQuery = ref('')
 
-const batchProgress = ref({ label: '', done: 0, total: 0 })
+const showCollectionForm = ref(false)
+const isSavingCollection = ref(false)
+const editingCollectionId = ref<number | null>(null)
+const formMessage = ref('')
+const formTone = ref<'success' | 'error'>('success')
 
-const thumbFilter = ref<ThumbFilter>('all')
-const matchedFilter = ref<MatchedFilter>('all')
-
-const thumbFilterOptions: [ThumbFilter, string][] = [
-  ['all', 'All'],
-  ['matched', 'Matched only'],
-  ['unmatched', 'Unmatched only'],
-]
-const matchedFilterOptions: [MatchedFilter, string][] = [
-  ['all', 'All'],
-  ['needs', 'Needs thumbnail'],
-  ['healthy', 'Fully healthy'],
-]
-
-// ─── Computed — top-level stats ───────────────────────────────────────────────
-
-const topStats = computed(() => {
-  const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
-  const imageByArtId = new Map(
-    allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
-  )
-
-  const artWithArtImageId = allArt.value.filter(
-    (a) => a.artImageId != null,
-  ).length
-  const artImagesWithArtId = allArtImages.value.filter(
-    (i) => i.artId != null,
-  ).length
-
-  let bidirectional = 0,
-    onewayArtToImage = 0,
-    onewayImageToArt = 0
-  for (const art of allArt.value) {
-    const hasForward = !!art.artImageId && imageById.has(art.artImageId)
-    const hasBack = imageByArtId.has(art.id)
-    if (hasForward && hasBack) bidirectional++
-    else if (hasForward) onewayArtToImage++
-    else if (hasBack) onewayImageToArt++
-  }
-
-  return {
-    artWithArtImageId,
-    artImagesWithArtId,
-    bidirectional,
-    onewayArtToImage,
-    onewayImageToArt,
-  }
+const collectionForm = reactive<Partial<ArtCollection>>({
+  label: '',
+  description: '',
+  isPublic: true,
+  isMature: false,
 })
 
-// ─── Computed — problem categories ───────────────────────────────────────────
+const showMergePanel = ref(false)
+const mergeTargetId = ref<number | null>(null)
+const isMerging = ref(false)
 
-const orphanedArt = computed<Art[]>(() => {
-  const imageArtIds = new Set(
-    allArtImages.value.map((i) => i.artId).filter(Boolean),
+const selectedArt = computed(() => artStore.currentArt)
+
+const isDropdownMode = computed(() => props.variant === 'dropdown')
+
+const isCompact = computed(() => {
+  return props.compact || props.variant === 'row' || isDropdownMode.value
+})
+
+const layoutClass = computed(() => {
+  return props.variant === 'row' ? 'collection-row' : 'collection-grid'
+})
+
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const showMature = computed({
+  get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
+  set: async (value: boolean) => {
+    if (!userStore.user) return
+
+    await userStore.updateUser({ showMature: value })
+  },
+})
+
+const displayCount = computed(() => {
+  if (isDropdownMode.value) return visibleCollections.value.length
+
+  return mode.value === 'collections'
+    ? visibleCollections.value.length
+    : currentArtList.value.length
+})
+
+const headerTitle = computed(() => {
+  if (
+    mode.value === 'arts' &&
+    activeCollection.value &&
+    !isDropdownMode.value
+  ) {
+    return activeCollection.value.label || 'Untitled Collection'
+  }
+
+  return props.title
+})
+
+const headerSubtitle = computed(() => {
+  if (
+    mode.value === 'arts' &&
+    activeCollection.value &&
+    !isDropdownMode.value
+  ) {
+    return (
+      activeCollection.value.description ||
+      'Browse and manage art in this collection.'
+    )
+  }
+
+  if (activeCollection.value) {
+    return activeCollection.value.label || props.subtitle
+  }
+
+  return props.subtitle
+})
+
+const selectedCollectionLabel = computed(() => {
+  return activeCollection.value?.label || 'No collection selected'
+})
+
+const selectedCollectionSubtitle = computed(() => {
+  return (
+    activeCollection.value?.description ||
+    'Choose a collection or add a new one.'
   )
-  const imageIds = new Set(allArtImages.value.map((i) => i.id))
-  return allArt.value.filter((art) => {
-    const hasForward = !!art.artImageId && imageIds.has(art.artImageId)
-    const hasBackRef = imageArtIds.has(art.id)
-    return !hasForward && !hasBackRef
+})
+
+const selectedCollectionArtCount = computed(() => {
+  if (!activeCollection.value) return 0
+
+  if (activeCollection.value.id === -1) {
+    return allUnassignedArt.value.length
+  }
+
+  return activeCollection.value.art?.length ?? 0
+})
+
+const collectionFormTitle = computed(() => {
+  return editingCollectionId.value ? 'Edit Collection' : 'Add Collection'
+})
+
+const collectionFormSubtitle = computed(() => {
+  return editingCollectionId.value
+    ? 'Update this collection without waking the gallery goblin.'
+    : 'Create a new destination for generated art.'
+})
+
+const canEditActive = computed(() => {
+  return canEdit(activeCollection.value)
+})
+
+const allUnassignedArt = computed<Art[]>(() => {
+  const assignedIds = new Set<number>(
+    collectionStore.collections.flatMap((collection) => {
+      return (collection.art ?? [])
+        .map((art) => art.id)
+        .filter((id): id is number => typeof id === 'number')
+    }),
+  )
+
+  return artStore.art.filter((art) => {
+    return typeof art.id === 'number' && !assignedIds.has(art.id)
   })
 })
 
-const staleMetadata = computed<StaleItem[]>(() => {
-  const artMap = new Map(allArt.value.map((a) => [a.id, a]))
-  const items: StaleItem[] = []
-  for (const artImage of allArtImages.value) {
-    if (!artImage.artId) continue
-    const art = artMap.get(artImage.artId)
-    if (!art) continue
-    const missing: string[] = []
-    if (!artImage.promptString && art.promptString) missing.push('promptString')
-    if (!artImage.negativePrompt && art.negativePrompt)
-      missing.push('negativePrompt')
-    if (!artImage.checkpoint && art.checkpoint) missing.push('checkpoint')
-    if (!artImage.sampler && art.sampler) missing.push('sampler')
-    if (!artImage.seed && art.seed && art.seed !== -1) missing.push('seed')
-    if (!artImage.steps && art.steps) missing.push('steps')
-    if (!artImage.cfg && art.cfg) missing.push('cfg')
-    if (!artImage.designer && art.designer) missing.push('designer')
-    if (!artImage.genres && art.genres) missing.push('genres')
-    if (!artImage.serverId && art.serverId) missing.push('serverId')
-    if (!artImage.serverName && art.serverName) missing.push('serverName')
-    if (artImage.isPublic == null && art.isPublic != null)
-      missing.push('isPublic')
-    if (artImage.isMature == null && art.isMature != null)
-      missing.push('isMature')
-    if (missing.length > 0)
-      items.push({ art, artImage, missingFields: missing })
+const unassignedCollection = computed<ArtCollection>(() => {
+  return {
+    id: -1,
+    label: 'Unassigned Art',
+    description: 'Art not currently assigned to any collection.',
+    userId: currentUserId.value || 10,
+    username: userStore.username || 'Kind Guest',
+    isPublic: false,
+    isMature: false,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+    art: allUnassignedArt.value,
   }
-  return items
 })
 
-const missingThumbnails = computed<ArtImage[]>(() =>
-  allArtImages.value.filter((i) => !i.thumbnailData),
-)
+const baseCollections = computed<ArtCollection[]>(() => {
+  const realCollections = collectionStore.collections || []
 
-const unlinkedImages = computed<ArtImage[]>(() =>
-  allArtImages.value.filter(
-    (i) =>
-      !i.artId &&
-      !i.botId &&
-      !i.pitchId &&
-      !i.characterId &&
-      !i.promptId &&
-      !i.componentId &&
-      !i.milestoneId &&
-      !i.rewardId &&
-      !i.chatId &&
-      !i.butterflyId,
-  ),
-)
+  const visibleRealCollections = realCollections.filter((collection) => {
+    if (userStore.isAdmin) return true
 
-const matchedArt = computed<MatchedItem[]>(() => {
-  const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
-  const imageByArtId = new Map(
-    allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
-  )
-  const seen = new Set<string>()
-  const items: MatchedItem[] = []
+    return collection.isPublic || collection.userId === currentUserId.value
+  })
 
-  for (const art of allArt.value) {
-    const viaArtId = imageByArtId.get(art.id)
-    const viaArtImageId = art.artImageId
-      ? imageById.get(art.artImageId)
-      : undefined
-    const artImage = viaArtId ?? viaArtImageId
-    if (!artImage) continue
+  return [unassignedCollection.value, ...visibleRealCollections]
+})
 
-    const key = `${art.id}-${artImage.id}`
-    if (seen.has(key)) continue
-    seen.add(key)
+const visibleCollections = computed<ArtCollection[]>(() => {
+  let collections = baseCollections.value
 
-    const hasForward = !!viaArtImageId
-    const hasBack = !!viaArtId
-    const linkDirection: LinkDirection =
-      hasForward && hasBack ? 'both' : hasForward ? 'art→image' : 'image→art'
+  if (!showMature.value) {
+    collections = collections.filter((collection) => !collection.isMature)
+  }
 
-    items.push({
-      art,
-      artImage,
-      needsThumbnail: !artImage.thumbnailData,
-      linkDirection,
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (query) {
+    collections = collections.filter((collection) => {
+      return [
+        collection.label,
+        collection.description,
+        collection.username,
+        String(collection.id),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
     })
   }
-  return items
+
+  return collections
 })
 
-const matchedNeedingThumbnail = computed(() =>
-  matchedArt.value.filter((m) => m.needsThumbnail),
-)
+const currentArtList = computed<Art[]>(() => {
+  if (!activeCollection.value) return []
 
-// ─── Filtered display lists ───────────────────────────────────────────────────
+  const base =
+    activeCollection.value.id === -1
+      ? allUnassignedArt.value
+      : (activeCollection.value.art || []).filter((art) => Boolean(art?.id))
 
-const filteredThumbs = computed<ArtImage[]>(() => {
-  if (thumbFilter.value === 'matched')
-    return missingThumbnails.value.filter((i) => i.artId != null)
-  if (thumbFilter.value === 'unmatched')
-    return missingThumbnails.value.filter((i) => i.artId == null)
-  return missingThumbnails.value
+  let artList = [...base]
+
+  if (!showMature.value) {
+    artList = artList.filter((art) => !art.isMature)
+  }
+
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (query) {
+    artList = artList.filter((art) => {
+      return [
+        art.promptString,
+        art.negativePrompt,
+        art.designer,
+        art.checkpoint,
+        art.sampler,
+        String(art.id),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
+    })
+  }
+
+  return artList
 })
 
-const filteredMatched = computed<MatchedItem[]>(() => {
-  if (matchedFilter.value === 'needs')
-    return matchedArt.value.filter((m) => m.needsThumbnail)
-  if (matchedFilter.value === 'healthy')
-    return matchedArt.value.filter((m) => !m.needsThumbnail)
-  return matchedArt.value
+const mergeTargetOptions = computed<ArtCollection[]>(() => {
+  return collectionStore.collections.filter((collection) => {
+    return collection.id !== activeCollection.value?.id
+  })
 })
 
-const activeDisplayItems = computed(() => {
-  switch (activeCategory.value) {
-    case 'orphaned':
-      return orphanedArt.value
-    case 'stale':
-      return staleMetadata.value
-    case 'thumbs':
-      return filteredThumbs.value
-    case 'unlinked':
-      return unlinkedImages.value
-    case 'matched':
-      return filteredMatched.value
-    default:
-      return []
+onMounted(async () => {
+  if (props.autoLoad) {
+    await refresh()
   }
 })
 
-// ─── Categories meta ─────────────────────────────────────────────────────────
+function canEdit(collection: ArtCollection | null): boolean {
+  if (!collection || collection.id === -1) return false
 
-const categories = computed(() => [
-  {
-    key: 'orphaned' as CategoryKey,
-    label: 'Orphaned Art',
-    icon: 'kind-icon:image',
-    color: 'warning',
-    description:
-      'Art records with no linked ArtImage in either direction. If the Art has an imagePath or path, it can be promoted to a proper ArtImage row.',
-    batchLabel: 'Promote all paths',
-    items: orphanedArt.value,
-  },
-  {
-    key: 'stale' as CategoryKey,
-    label: 'Stale Metadata',
-    icon: 'kind-icon:edit',
-    color: 'info',
-    description:
-      'ArtImages linked to an Art record but missing generation metadata.',
-    batchLabel: 'Sync all metadata',
-    items: staleMetadata.value,
-  },
-  {
-    key: 'thumbs' as CategoryKey,
-    label: 'No Thumbnail',
-    icon: 'kind-icon:image',
-    color: 'secondary',
-    description:
-      'ArtImages that have imageData but no thumbnailData — includes both matched and unmatched records.',
-    batchLabel: 'Generate all thumbnails',
-    items: missingThumbnails.value,
-  },
-  {
-    key: 'unlinked' as CategoryKey,
-    label: 'Unlinked Images',
-    icon: 'kind-icon:warning',
-    color: 'error',
-    description:
-      'ArtImages with no owner FK at all — not attached to any Art, Bot, Pitch, Character, etc.',
-    batchLabel: undefined,
-    items: unlinkedImages.value,
-  },
-  {
-    key: 'matched' as CategoryKey,
-    label: 'Matched',
-    icon: 'kind-icon:check',
-    color: 'success',
-    description:
-      'Art ↔ ArtImage pairs found via either direction of the link. One-way links are flagged and can be repaired here.',
-    batchLabel: 'Generate missing thumbnails',
-    items: matchedArt.value,
-  },
-])
+  return userStore.isAdmin || collection.userId === currentUserId.value
+}
 
-const activeCategoryMeta = computed(() =>
-  categories.value.find((c) => c.key === activeCategory.value),
-)
+function canDeleteArt(art: Art): boolean {
+  return userStore.isAdmin || art.userId === currentUserId.value
+}
 
-const batchableCount = computed(() => {
-  if (activeCategory.value === 'orphaned')
-    return orphanedArt.value.filter(
-      (a) => a.imagePath || (a.path && a.path !== 'UNDEFINED'),
-    ).length
-  if (activeCategory.value === 'matched')
-    return matchedNeedingThumbnail.value.length
-  return activeCategoryMeta.value?.items.length ?? 0
-})
-
-// ─── Health bar ───────────────────────────────────────────────────────────────
-
-const healthyMatchedCount = computed(
-  () => matchedArt.value.filter((m) => !m.needsThumbnail).length,
-)
-
-const healthSegments = computed(() => [
-  { label: 'Healthy', color: '#639922', count: healthyMatchedCount.value },
-  {
-    label: 'Needs thumbnail',
-    color: '#FAC775',
-    count:
-      matchedNeedingThumbnail.value.length +
-      missingThumbnails.value.filter((i) => i.artId == null).length,
-  },
-  {
-    label: 'Stale metadata',
-    color: '#85B7EB',
-    count: staleMetadata.value.length,
-  },
-  { label: 'Orphaned', color: '#EF9F27', count: orphanedArt.value.length },
-  { label: 'Unlinked', color: '#F09595', count: unlinkedImages.value.length },
-])
-
-const healthPct = computed(() => {
-  const total = healthSegments.value.reduce((s, seg) => s + seg.count, 0)
-  if (total === 0) return 0
-  return Math.round((healthyMatchedCount.value / total) * 100)
-})
-
-// ─── Scan — fetches ALL pages of both Art and ArtImage ────────────────────────
-
-async function runScan() {
-  isScanning.value = true
-  scanError.value = ''
-  scanLog.value = []
-  fixResults.value = new Map()
-  allArt.value = []
-  allArtImages.value = []
+async function refresh() {
+  isLoading.value = true
+  localError.value = ''
 
   try {
-    // ── Art: paginate until we have everything ──
-    const PAGE_SIZE = 500
-    let artPage = 1
-    let artDone = false
-    while (!artDone) {
-      scanStatus.value = `Fetching Art page ${artPage}…`
-      log(`Fetching Art page ${artPage} (${PAGE_SIZE}/page)…`)
-      await artStore.fetchArtPage(artPage, PAGE_SIZE, artPage === 1)
-      const batch = artStore.art
-      allArt.value = artPage === 1 ? [...batch] : [...allArt.value, ...batch]
-      if (batch.length < PAGE_SIZE) {
-        artDone = true
-      } else {
-        artPage++
-      }
-    }
-    log(`Loaded ${allArt.value.length} Art records total`, 'success')
-
-    // ── ArtImage: paginate the meta endpoint until exhausted ──
-    // The meta endpoint MUST support ?page=N&limit=N or we'll only get the first chunk.
-    // If it doesn't support pagination yet, we'll detect truncation and warn loudly.
-    const IMG_PAGE_SIZE = 500
-    let imgPage = 1
-    let imgDone = false
-    const collectedImages: ArtImage[] = []
-
-    while (!imgDone) {
-      scanStatus.value = `Fetching ArtImage page ${imgPage}…`
-      log(`Fetching ArtImage metadata page ${imgPage} (${IMG_PAGE_SIZE}/page)…`)
-
-      const response = await performFetch<ArtImage[]>(
-        `/api/art/images/meta?page=${imgPage}&limit=${IMG_PAGE_SIZE}`,
-      )
-
-      if (
-        response.success &&
-        Array.isArray(response.data) &&
-        response.data.length > 0
-      ) {
-        collectedImages.push(...response.data)
-        if (response.data.length < IMG_PAGE_SIZE) {
-          imgDone = true // last page
-        } else {
-          imgPage++
-        }
-      } else if (imgPage === 1) {
-        // First page failed — fall back to artStore cache
-        log(
-          'Meta endpoint failed or returned nothing — falling back to artStore cache',
-          'error',
-        )
-        const cached = artStore.artImages.map(stripImageData)
-        collectedImages.push(...cached)
-        imgDone = true
-
-        if (cached.length < 50 && allArt.value.length > 200) {
-          log(
-            `⚠️  Only ${cached.length} ArtImages in cache but ${allArt.value.length} Art records loaded. ` +
-              `The /api/art/images/meta endpoint may not exist or may be paginating silently. ` +
-              `Check that the endpoint returns all records or supports ?page=&limit= params.`,
-            'error',
-          )
-        }
-        imgDone = true
-      } else {
-        // Subsequent page returned empty — we're done
-        imgDone = true
-      }
-    }
-
-    allArtImages.value = collectedImages
-    log(`Loaded ${allArtImages.value.length} ArtImage records total`, 'success')
-
-    // ── Sanity check: warn if counts look suspicious ──
-    if (
-      allArtImages.value.length < allArt.value.length * 0.05 &&
-      allArt.value.length > 100
-    ) {
-      log(
-        `⚠️  ArtImage count (${allArtImages.value.length}) is less than 5% of Art count (${allArt.value.length}). ` +
-          `The meta endpoint is almost certainly truncating results. ` +
-          `Add pagination support or a "return all" mode to /api/art/images/meta.`,
-        'error',
-      )
-    }
-
-    hasScanned.value = true
-    scanStatus.value = ''
-    log(
-      `Scan complete — ${orphanedArt.value.length} orphaned, ${staleMetadata.value.length} stale, ` +
-        `${missingThumbnails.value.length} no thumbnail, ${unlinkedImages.value.length} unlinked, ` +
-        `${matchedArt.value.length} matched (${healthyMatchedCount.value} fully healthy)`,
-      'success',
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Scan failed'
-    scanError.value = msg
-    scanStatus.value = ''
-    log(msg, 'error')
+    await Promise.all([
+      artStore.initialize({ fetchRemote: true, hydrateImages: false }),
+      collectionStore.fetchCollections?.(),
+    ])
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to load data')
+    localError.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {
-    isScanning.value = false
+    isLoading.value = false
   }
 }
 
-// ─── Fixes ────────────────────────────────────────────────────────────────────
+function selectCollectionFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
 
-async function promotePathToArtImage(art: Art) {
-  markFixing(art.id)
-  try {
-    const imagePath =
-      art.imagePath || (art.path !== 'UNDEFINED' ? art.path : null)
-    if (!imagePath) throw new Error('No image source on this Art record')
-
-    const createRes = await performFetch<ArtImage>('/api/art/image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        artId: art.id,
-        userId: art.userId,
-        galleryId: art.galleryId,
-        imagePath,
-        imageData: '',
-        fileType: guessFileType(imagePath),
-        promptString: art.promptString,
-        negativePrompt: art.negativePrompt,
-        checkpoint: art.checkpoint,
-        sampler: art.sampler,
-        seed: art.seed,
-        steps: art.steps,
-        cfg: art.cfg,
-        cfgHalf: art.cfgHalf,
-        designer: art.designer,
-        genres: art.genres,
-        serverId: art.serverId,
-        serverName: art.serverName,
-        serverUrl: art.serverUrl,
-        isPublic: art.isPublic,
-        isMature: art.isMature,
-      }),
-    })
-    if (!createRes.success || !createRes.data)
-      throw new Error(createRes.message || 'Failed to create ArtImage')
-
-    await performFetch(`/api/art/${art.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ artImageId: createRes.data.id }),
-    })
-
-    setResult(art.id, `→ ArtImage #${createRes.data.id}`)
-    log(`Art #${art.id} promoted to ArtImage #${createRes.data.id}`, 'success')
-    allArt.value = allArt.value.map((a) =>
-      a.id === art.id ? { ...a, artImageId: createRes.data!.id } : a,
-    )
-    allArtImages.value = [...allArtImages.value, stripImageData(createRes.data)]
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(art.id, `Error: ${msg}`)
-    log(`Art #${art.id}: ${msg}`, 'error')
-  } finally {
-    unmarkFixing(art.id)
+  if (target.value === '__add__') {
+    startAddingCollection()
+    return
   }
+
+  const id = Number(target.value)
+
+  if (!Number.isInteger(id)) {
+    clearSelectedCollection()
+    return
+  }
+
+  const collection = visibleCollections.value.find((item) => item.id === id)
+
+  if (!collection) return
+
+  activeCollection.value =
+    collection.id === -1 ? unassignedCollection.value : collection
+
+  collectionStore.setCurrentCollection?.(collection.id)
 }
 
-async function syncArtMetadataToImage(item: StaleItem) {
-  const id = item.artImage.id
-  markFixing(id)
-  try {
-    const payload: Partial<ArtImage> = {}
-    if (!item.artImage.promptString && item.art.promptString)
-      payload.promptString = item.art.promptString
-    if (!item.artImage.negativePrompt && item.art.negativePrompt)
-      payload.negativePrompt = item.art.negativePrompt
-    if (!item.artImage.checkpoint && item.art.checkpoint)
-      payload.checkpoint = item.art.checkpoint
-    if (!item.artImage.sampler && item.art.sampler)
-      payload.sampler = item.art.sampler
-    if (!item.artImage.seed && item.art.seed) payload.seed = item.art.seed
-    if (!item.artImage.steps && item.art.steps) payload.steps = item.art.steps
-    if (!item.artImage.cfg && item.art.cfg) payload.cfg = item.art.cfg
-    if (item.artImage.cfgHalf == null && item.art.cfgHalf != null)
-      payload.cfgHalf = item.art.cfgHalf
-    if (!item.artImage.designer && item.art.designer)
-      payload.designer = item.art.designer
-    if (!item.artImage.genres && item.art.genres)
-      payload.genres = item.art.genres
-    if (!item.artImage.serverId && item.art.serverId)
-      payload.serverId = item.art.serverId
-    if (!item.artImage.serverName && item.art.serverName)
-      payload.serverName = item.art.serverName
-    if (item.artImage.isPublic == null && item.art.isPublic != null)
-      payload.isPublic = item.art.isPublic
-    if (item.artImage.isMature == null && item.art.isMature != null)
-      payload.isMature = item.art.isMature
+function enterCollection(collection: ArtCollection) {
+  activeCollection.value =
+    collection.id === -1 ? unassignedCollection.value : collection
 
-    const res = await performFetch<ArtImage>(`/api/art/image/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!res.success) throw new Error(res.message || 'Patch failed')
-    setResult(id, 'Synced ✓')
-    log(`ArtImage #${id}: synced ${Object.keys(payload).join(', ')}`, 'success')
-    allArtImages.value = allArtImages.value.map((img) =>
-      img.id === id ? { ...img, ...payload } : img,
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(id, `Error: ${msg}`)
-    log(`ArtImage #${id}: ${msg}`, 'error')
-  } finally {
-    unmarkFixing(id)
-  }
+  mode.value = 'arts'
+  searchQuery.value = ''
+  showMergePanel.value = false
+  showCollectionForm.value = false
+  collectionStore.setCurrentCollection?.(collection.id)
 }
 
-async function generateAndSaveThumbnail(artImage: ArtImage, maxSize = 200) {
-  const id = artImage.id
-  markFixing(id)
-  try {
-    const res = await performFetch<ArtImage>(`/api/art/image/${id}`)
-    if (!res.success || !res.data?.imageData)
-      throw new Error('Could not fetch imageData for this ArtImage')
-
-    const thumbnailData = await createThumbnailFromBase64(
-      res.data.imageData,
-      res.data.fileType ?? 'png',
-      maxSize,
-    )
-    const patchRes = await performFetch<ArtImage>(`/api/art/image/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ thumbnailData }),
-    })
-    if (!patchRes.success) throw new Error(patchRes.message || 'Patch failed')
-    setResult(id, `Thumbnail saved (${maxSize}px)`)
-    log(`ArtImage #${id}: thumbnail generated at ${maxSize}px`, 'success')
-    allArtImages.value = allArtImages.value.map((img) =>
-      img.id === id ? { ...img, thumbnailData: '(set)' } : img,
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(id, `Error: ${msg}`)
-    log(`ArtImage #${id}: ${msg}`, 'error')
-  } finally {
-    unmarkFixing(id)
-  }
+function exitCollection() {
+  activeCollection.value = null
+  mode.value = 'collections'
+  searchQuery.value = ''
+  showMergePanel.value = false
+  showCollectionForm.value = false
 }
 
-async function repairLinkDirection(item: MatchedItem) {
-  markFixing(item.art.id)
+function clearSelectedCollection() {
+  activeCollection.value = null
+  mode.value = 'collections'
+  showCollectionForm.value = false
+  showMergePanel.value = false
+  collectionStore.setCurrentCollection?.(null)
+}
+
+function clearSelectedArt() {
+  artStore.deselectArt?.()
+}
+
+function startAddingCollection() {
+  editingCollectionId.value = null
+  formMessage.value = ''
+
+  Object.assign(collectionForm, {
+    label: '',
+    description: '',
+    isPublic: true,
+    isMature: false,
+  })
+
+  showCollectionForm.value = true
+}
+
+function startEditingActiveCollection() {
+  const target = activeCollection.value
+
+  if (!target || !canEdit(target)) return
+
+  editingCollectionId.value = target.id
+  formMessage.value = ''
+
+  Object.assign(collectionForm, {
+    label: target.label || '',
+    description: target.description || '',
+    isPublic: target.isPublic,
+    isMature: target.isMature,
+  })
+
+  showCollectionForm.value = true
+}
+
+function closeCollectionForm() {
+  showCollectionForm.value = false
+  editingCollectionId.value = null
+  formMessage.value = ''
+}
+
+async function saveCollectionForm() {
+  isSavingCollection.value = true
+  formMessage.value = ''
+
   try {
-    if (item.linkDirection === 'art→image') {
-      await performFetch(`/api/art/image/${item.artImage.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artId: item.art.id }),
-      })
-      allArtImages.value = allArtImages.value.map((img) =>
-        img.id === item.artImage.id ? { ...img, artId: item.art.id } : img,
-      )
+    if (editingCollectionId.value) {
+      await saveExistingCollection(editingCollectionId.value)
     } else {
-      await performFetch(`/api/art/${item.art.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artImageId: item.artImage.id }),
-      })
-      allArt.value = allArt.value.map((a) =>
-        a.id === item.art.id ? { ...a, artImageId: item.artImage.id } : a,
-      )
+      await createNewCollection()
     }
-    setResult(item.art.id, 'Link repaired ✓')
-    log(
-      `Art #${item.art.id} ↔ ArtImage #${item.artImage.id}: repaired (was ${item.linkDirection})`,
-      'success',
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(item.art.id, `Error: ${msg}`)
-    log(`Repair failed for Art #${item.art.id}: ${msg}`, 'error')
+
+    formTone.value = 'success'
+    formMessage.value = 'Saved.'
+    await refresh()
+    closeCollectionForm()
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to save collection')
+    formTone.value = 'error'
+    formMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
   } finally {
-    unmarkFixing(item.art.id)
+    isSavingCollection.value = false
   }
 }
 
-// ─── Batch runners ────────────────────────────────────────────────────────────
+async function createNewCollection() {
+  const label = collectionForm.label?.trim() || 'Untitled Collection'
+  const userId = currentUserId.value || 10
 
-async function runBatch(category: CategoryKey) {
-  isBatchRunning.value = true
-  batchProgress.value = { label: '', done: 0, total: 0 }
+  const created = await collectionStore.createCollection(
+    label,
+    userId,
+    Boolean(collectionForm.isPublic),
+    Boolean(collectionForm.isMature),
+  )
+
+  if (!created?.id) {
+    throw new Error('Failed to create collection.')
+  }
+
+  const description = collectionForm.description?.trim() || ''
+
+  if (description) {
+    const updated = await collectionStore.updateCollectionDetails(created.id, {
+      description,
+    })
+
+    if (!updated) {
+      throw new Error('Collection created but description not saved.')
+    }
+  }
+
+  activeCollection.value = created
+  collectionStore.setCurrentCollection?.(created.id)
+}
+
+async function saveExistingCollection(id: number) {
+  const result = await collectionStore.updateCollectionDetails(id, {
+    label: collectionForm.label?.trim() || 'Untitled Collection',
+    description: collectionForm.description || '',
+    isPublic: Boolean(collectionForm.isPublic),
+    isMature: Boolean(collectionForm.isMature),
+  })
+
+  if (!result) {
+    throw new Error('Failed to update collection.')
+  }
+
+  activeCollection.value = result
+  collectionStore.setCurrentCollection?.(result.id)
+}
+
+async function confirmDeleteCollection() {
+  const collection = activeCollection.value
+
+  if (!collection || !canEdit(collection)) return
+
+  const label = collection.label || 'Untitled Collection'
+
+  if (
+    !confirm(
+      `Delete "${label}"? The collection is removed, but the art inside is kept.`,
+    )
+  ) {
+    return
+  }
+
   try {
-    if (category === 'orphaned') {
-      const items = orphanedArt.value.filter(
-        (a) => a.imagePath || (a.path && a.path !== 'UNDEFINED'),
-      )
-      batchProgress.value = {
-        label: 'Promoting paths…',
-        done: 0,
-        total: items.length,
-      }
-      for (const art of items) {
-        await promotePathToArtImage(art)
-        batchProgress.value.done++
-      }
+    const result = await collectionStore.deleteCollectionById(collection.id)
+
+    if (result) {
+      exitCollection()
+      await refresh()
     }
-    if (category === 'stale') {
-      batchProgress.value = {
-        label: 'Syncing metadata…',
-        done: 0,
-        total: staleMetadata.value.length,
-      }
-      for (const item of staleMetadata.value) {
-        await syncArtMetadataToImage(item)
-        batchProgress.value.done++
-      }
-    }
-    if (category === 'thumbs') {
-      batchProgress.value = {
-        label: 'Generating thumbnails…',
-        done: 0,
-        total: missingThumbnails.value.length,
-      }
-      for (const img of missingThumbnails.value) {
-        await generateAndSaveThumbnail(img)
-        batchProgress.value.done++
-      }
-    }
-    if (category === 'matched') {
-      const items = matchedNeedingThumbnail.value
-      batchProgress.value = {
-        label: 'Generating thumbnails for matched…',
-        done: 0,
-        total: items.length,
-      }
-      for (const item of items) {
-        await generateAndSaveThumbnail(item.artImage)
-        batchProgress.value.done++
-      }
-    }
-    log(
-      `Batch complete: ${batchProgress.value.done} / ${batchProgress.value.total}`,
-      'success',
-    )
-  } finally {
-    isBatchRunning.value = false
+  } catch (error) {
+    localError.value = getErrorMessage(error, 'Failed to delete collection')
+    errorStore.setError(ErrorType.GENERAL_ERROR, localError.value)
   }
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+async function saveActiveCollectionFlags() {
+  const collection = activeCollection.value
 
-function createThumbnailFromBase64(
-  base64: string,
-  fileType: string,
-  maxSize: number,
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const mimeType = fileType.startsWith('image/')
-      ? fileType
-      : `image/${fileType}`
-    const img = new Image()
-    img.onload = () => {
-      const scale = Math.min(maxSize / img.width, maxSize / img.height, 1)
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.round(img.width * scale)
-      canvas.height = Math.round(img.height * scale)
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return reject(new Error('Canvas context unavailable'))
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      const dataUrl = canvas.toDataURL(mimeType, 0.82)
-      const b64 = dataUrl.split(',')[1]
-      if (!b64) return reject(new Error('Canvas produced empty data URL'))
-      resolve(b64)
-    }
-    img.onerror = () => reject(new Error('Failed to load image for thumbnail'))
-    img.src = `data:${mimeType};base64,${base64}`
-  })
+  if (!collection || !canEdit(collection)) return
+
+  try {
+    await collectionStore.updateCollectionFlags?.(collection.id, {
+      isPublic: collection.isPublic,
+      isMature: collection.isMature,
+    })
+  } catch (error) {
+    errorStore.setError(
+      ErrorType.GENERAL_ERROR,
+      getErrorMessage(error, 'Failed to update collection flags'),
+    )
+  }
 }
 
-function stripImageData(img: ArtImage): ArtImage {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {
-    imageData: _imageData,
-    thumbnailData: _thumbData,
-    ...meta
-  } = img as ArtImage & { imageData: string; thumbnailData?: string }
-  return {
-    ...meta,
-    imageData: '',
-    thumbnailData: _thumbData ? '(set)' : null,
-  } as unknown as ArtImage
+function removeArtFromCollection(artId: number) {
+  const collection = activeCollection.value
+
+  if (!collection || collection.id === -1) return
+
+  collectionStore.removeArtFromLocalCollection?.(collection, artId)
 }
 
-function guessFileType(path: string): string {
-  const ext = path.split('.').pop()?.toLowerCase()
-  if (ext === 'jpg' || ext === 'jpeg') return 'jpeg'
-  if (ext === 'webp') return 'webp'
-  if (ext === 'gif') return 'gif'
-  return 'png'
+function handleArtDeleted(artId: number) {
+  if (artStore.currentArt?.id === artId) {
+    artStore.deselectArt?.()
+  }
 }
 
-function markFixing(id: number) {
-  fixingIds.value = new Set([...fixingIds.value, id])
+function startEditingArt(artId: number) {
+  void artStore.selectArt(artId)
 }
-function unmarkFixing(id: number) {
-  const n = new Set(fixingIds.value)
-  n.delete(id)
-  fixingIds.value = n
+
+function toggleMergePanel() {
+  showMergePanel.value = !showMergePanel.value
+  mergeTargetId.value = null
 }
-function setResult(id: number, msg: string) {
-  fixResults.value = new Map([...fixResults.value, [id, msg]])
+
+async function executeMerge() {
+  const source = activeCollection.value
+  const targetId = mergeTargetId.value
+
+  if (!source || !targetId || !canEdit(source)) return
+
+  isMerging.value = true
+  localError.value = ''
+
+  try {
+    const artIds = (source.art || [])
+      .map((art) => art.id)
+      .filter((id): id is number => typeof id === 'number')
+
+    await Promise.all(
+      artIds.map((artId) => {
+        return collectionStore.addArtToCollection({
+          artId,
+          collectionId: targetId,
+        })
+      }),
+    )
+
+    await collectionStore.deleteCollectionById(source.id)
+    exitCollection()
+    await refresh()
+  } catch (error) {
+    localError.value = getErrorMessage(error, 'Merge failed')
+    errorStore.setError(ErrorType.GENERAL_ERROR, localError.value)
+  } finally {
+    isMerging.value = false
+  }
 }
-function log(msg: string, type: LogEntry['type'] = 'info') {
-  scanLog.value.push({
-    msg: `[${new Date().toLocaleTimeString()}] ${msg}`,
-    type,
-  })
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  if (typeof error === 'string' && error.trim()) {
+    return error
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const record = error as { message?: unknown; statusMessage?: unknown }
+
+    const message =
+      typeof record.message === 'string'
+        ? record.message.trim()
+        : typeof record.statusMessage === 'string'
+          ? record.statusMessage.trim()
+          : ''
+
+    if (message) return message
+  }
+
+  return fallback
 }
 </script>
 
 <style scoped>
-.scan-active::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    oklch(var(--su)),
-    transparent
-  );
-  animation: scan-sweep 1.6s ease-in-out infinite;
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 1rem;
 }
-@keyframes scan-sweep {
-  to {
-    left: 200%;
-  }
+
+.collection-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.collection-row > * {
+  min-width: min(220px, 85vw);
+  max-width: 340px;
+}
+
+.art-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 1rem;
 }
 </style>

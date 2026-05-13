@@ -1,103 +1,171 @@
-// server/api/art/[id].patch.ts
-import { defineEventHandler, createError, readBody } from 'h3'
-import type { Art } from '~/prisma/generated/prisma/client'
+// /server/api/art/[id].patch.ts
+import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
+import type { Art, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
+import { validateApiKey } from '../../utils/validateKey'
+
+type ValidatedUser = {
+  id?: number | null
+  Role?: string | null
+  role?: string | null
+  isAdmin?: boolean | null
+}
+
+type PatchUser = {
+  id: number
+  isAdmin: boolean
+}
+
+const ART_PATCH_FIELDS = new Set<keyof Prisma.ArtUncheckedUpdateInput>([
+  'path',
+  'checkpoint',
+  'checkpointResourceId',
+  'sampler',
+  'seed',
+  'steps',
+  'designer',
+  'isPublic',
+  'isMature',
+  'promptId',
+  'userId',
+  'pitchId',
+  'galleryId',
+  'promptString',
+  'cfg',
+  'cfgHalf',
+  'serverId',
+  'serverName',
+  'serverUrl',
+  'artImageId',
+  'imagePath',
+  'genres',
+  'negativePrompt',
+])
+
+function isAdminUser(user: ValidatedUser | null | undefined): boolean {
+  if (!user) return false
+
+  const role = String(user.Role || user.role || '').toLowerCase()
+
+  return Boolean(user.isAdmin || role === 'admin' || role === 'system')
+}
+
+async function requirePatchUser(event: H3Event): Promise<PatchUser> {
+  const auth = await validateApiKey(event)
+  const user = auth.user as ValidatedUser | null | undefined
+
+  if (!auth.isValid || typeof user?.id !== 'number') {
+    throw createError({
+      statusCode: 401,
+      message: 'Valid authorization token required.',
+    })
+  }
+
+  return {
+    id: Number(user.id),
+    isAdmin: isAdminUser(user),
+  }
+}
+
+function sanitizeArtPatch(
+  body: Record<string, unknown>,
+  user: PatchUser,
+): Prisma.ArtUncheckedUpdateInput {
+  const updateData: Prisma.ArtUncheckedUpdateInput = {}
+
+  for (const [key, value] of Object.entries(body)) {
+    if (!ART_PATCH_FIELDS.has(key as keyof Prisma.ArtUncheckedUpdateInput)) {
+      continue
+    }
+
+    if (value === undefined) {
+      continue
+    }
+
+    if (key === 'userId' && !user.isAdmin) {
+      continue
+    }
+
+    updateData[key as keyof Prisma.ArtUncheckedUpdateInput] = value as never
+  }
+
+  return updateData
+}
 
 export default defineEventHandler(async (event) => {
+  const id = Number(event.context.params?.id)
+
   try {
-    // Validate the Art ID
-    const id = Number(event.context.params?.id) // `id` is now consistently defined as `const`
-    if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid Art ID. It must be a positive integer.',
       })
     }
 
-    // Extract and verify the authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
+    const user = await requirePatchUser(event)
 
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
-      event.node.res.statusCode = 401
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const userId = user.id
-
-    // Fetch the art entry and verify ownership
-    const artEntry = await prisma.art.findUnique({
+    const existing = await prisma.art.findUnique({
       where: { id },
-      select: { userId: true },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
 
-    if (!artEntry) {
-      event.node.res.statusCode = 404
+    if (!existing) {
       throw createError({
         statusCode: 404,
         message: `Art entry with ID ${id} does not exist.`,
       })
     }
 
-    if (artEntry.userId !== userId) {
-      event.node.res.statusCode = 403
+    if (!user.isAdmin && existing.userId !== user.id) {
       throw createError({
         statusCode: 403,
-        message: 'User is not authorized to update this art entry.',
+        message: 'You are not allowed to update this art entry.',
       })
     }
 
-    // Retrieve and validate update data
-    const updatedArtData: Partial<Art> = await readBody(event)
-    if (!updatedArtData || Object.keys(updatedArtData).length === 0) {
-      event.node.res.statusCode = 400
+    const body = await readBody<Record<string, unknown>>(event)
+
+    if (!body || typeof body !== 'object' || Object.keys(body).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    // Update the art entry in the database
-    const data = await prisma.art.update({
+    const updateData = sanitizeArtPatch(body, user)
+
+    if (Object.keys(updateData).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No valid Art fields provided for update.',
+      })
+    }
+
+    const data: Art = await prisma.art.update({
       where: { id },
-      data: updatedArtData,
+      data: updateData,
     })
 
-    // Successful update response
     event.node.res.statusCode = 200
+
     return {
       success: true,
+      message: `Art #${id} updated successfully.`,
       data,
     }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    console.log('Error Handled:', handledError)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
 
-    // Set the status code based on the handled error
-    event.node.res.statusCode = handledError.statusCode || 500
     return {
       success: false,
-      message:
-        handledError.message ||
-        `Failed to update art entry with ID ${event.context.params?.id}.`,
+      message: handled.message || `Failed to update Art #${id}.`,
+      data: null,
     }
   }
 })

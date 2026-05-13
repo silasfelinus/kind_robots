@@ -52,6 +52,7 @@ export type ResourceMinAggregateOutputType = {
   description: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   resourceType: $Enums.ResourceType | null
   supportedServer: $Enums.SupportedServer | null
   userId: number | null
@@ -73,6 +74,7 @@ export type ResourceMaxAggregateOutputType = {
   description: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   resourceType: $Enums.ResourceType | null
   supportedServer: $Enums.SupportedServer | null
   userId: number | null
@@ -94,6 +96,7 @@ export type ResourceCountAggregateOutputType = {
   description: number
   isPublic: number
   isMature: number
+  isActive: number
   resourceType: number
   supportedServer: number
   userId: number
@@ -129,6 +132,7 @@ export type ResourceMinAggregateInputType = {
   description?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   resourceType?: true
   supportedServer?: true
   userId?: true
@@ -150,6 +154,7 @@ export type ResourceMaxAggregateInputType = {
   description?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   resourceType?: true
   supportedServer?: true
   userId?: true
@@ -171,6 +176,7 @@ export type ResourceCountAggregateInputType = {
   description?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   resourceType?: true
   supportedServer?: true
   userId?: true
@@ -279,6 +285,7 @@ export type ResourceGroupByOutputType = {
   description: string | null
   isPublic: boolean
   isMature: boolean
+  isActive: boolean
   resourceType: $Enums.ResourceType
   supportedServer: $Enums.SupportedServer
   userId: number | null
@@ -323,6 +330,7 @@ export type ResourceWhereInput = {
   description?: Prisma.StringNullableFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolFilter<"Resource"> | boolean
   isMature?: Prisma.BoolFilter<"Resource"> | boolean
+  isActive?: Prisma.BoolFilter<"Resource"> | boolean
   resourceType?: Prisma.EnumResourceTypeFilter<"Resource"> | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFilter<"Resource"> | $Enums.SupportedServer
   userId?: Prisma.IntNullableFilter<"Resource"> | number | null
@@ -350,6 +358,7 @@ export type ResourceOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   resourceType?: Prisma.SortOrder
   supportedServer?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -381,6 +390,7 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolFilter<"Resource"> | boolean
   isMature?: Prisma.BoolFilter<"Resource"> | boolean
+  isActive?: Prisma.BoolFilter<"Resource"> | boolean
   resourceType?: Prisma.EnumResourceTypeFilter<"Resource"> | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFilter<"Resource"> | $Enums.SupportedServer
   userId?: Prisma.IntNullableFilter<"Resource"> | number | null
@@ -408,6 +418,7 @@ export type ResourceOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   resourceType?: Prisma.SortOrder
   supportedServer?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -437,6 +448,7 @@ export type ResourceScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
   isMature?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
   resourceType?: Prisma.EnumResourceTypeWithAggregatesFilter<"Resource"> | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerWithAggregatesFilter<"Resource"> | $Enums.SupportedServer
   userId?: Prisma.IntNullableWithAggregatesFilter<"Resource"> | number | null
@@ -457,6 +469,7 @@ export type ResourceCreateInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -483,6 +496,7 @@ export type ResourceUncheckedCreateInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -508,6 +522,7 @@ export type ResourceUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -534,6 +549,7 @@ export type ResourceUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -560,6 +576,7 @@ export type ResourceCreateManyInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -580,6 +597,7 @@ export type ResourceUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -600,6 +618,7 @@ export type ResourceUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -632,6 +651,7 @@ export type ResourceCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   resourceType?: Prisma.SortOrder
   supportedServer?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -659,6 +679,7 @@ export type ResourceMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   resourceType?: Prisma.SortOrder
   supportedServer?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -680,6 +701,7 @@ export type ResourceMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   resourceType?: Prisma.SortOrder
   supportedServer?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -868,6 +890,7 @@ export type ResourceCreateWithoutArtsAsCheckpointInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -893,6 +916,7 @@ export type ResourceUncheckedCreateWithoutArtsAsCheckpointInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -933,6 +957,7 @@ export type ResourceUpdateWithoutArtsAsCheckpointInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -958,6 +983,7 @@ export type ResourceUncheckedUpdateWithoutArtsAsCheckpointInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -982,6 +1008,7 @@ export type ResourceCreateWithoutArtImageInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1007,6 +1034,7 @@ export type ResourceUncheckedCreateWithoutArtImageInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -1036,6 +1064,7 @@ export type ResourceCreateWithoutArtImagesInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1061,6 +1090,7 @@ export type ResourceUncheckedCreateWithoutArtImagesInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -1101,6 +1131,7 @@ export type ResourceUpdateWithoutArtImageInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1126,6 +1157,7 @@ export type ResourceUncheckedUpdateWithoutArtImageInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1161,6 +1193,7 @@ export type ResourceUpdateWithoutArtImagesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1186,6 +1219,7 @@ export type ResourceUncheckedUpdateWithoutArtImagesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1210,6 +1244,7 @@ export type ResourceCreateWithoutReactionsInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1235,6 +1270,7 @@ export type ResourceUncheckedCreateWithoutReactionsInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -1275,6 +1311,7 @@ export type ResourceUpdateWithoutReactionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1300,6 +1337,7 @@ export type ResourceUncheckedUpdateWithoutReactionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1324,6 +1362,7 @@ export type ResourceCreateWithoutServersInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1349,6 +1388,7 @@ export type ResourceUncheckedCreateWithoutServersInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   userId?: number | null
@@ -1398,6 +1438,7 @@ export type ResourceScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolFilter<"Resource"> | boolean
   isMature?: Prisma.BoolFilter<"Resource"> | boolean
+  isActive?: Prisma.BoolFilter<"Resource"> | boolean
   resourceType?: Prisma.EnumResourceTypeFilter<"Resource"> | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFilter<"Resource"> | $Enums.SupportedServer
   userId?: Prisma.IntNullableFilter<"Resource"> | number | null
@@ -1418,6 +1459,7 @@ export type ResourceCreateWithoutUserInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1443,6 +1485,7 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1493,6 +1536,7 @@ export type ResourceUpdateWithoutServersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1518,6 +1562,7 @@ export type ResourceUncheckedUpdateWithoutServersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1543,6 +1588,7 @@ export type ResourceUncheckedUpdateManyWithoutServersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1564,6 +1610,7 @@ export type ResourceCreateManyUserInput = {
   description?: string | null
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: $Enums.ResourceType
   supportedServer?: $Enums.SupportedServer
   artImageId?: number | null
@@ -1583,6 +1630,7 @@ export type ResourceUpdateWithoutUserInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1608,6 +1656,7 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1633,6 +1682,7 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resourceType?: Prisma.EnumResourceTypeFieldUpdateOperationsInput | $Enums.ResourceType
   supportedServer?: Prisma.EnumSupportedServerFieldUpdateOperationsInput | $Enums.SupportedServer
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1711,6 +1761,7 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   description?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: boolean
   supportedServer?: boolean
   userId?: boolean
@@ -1741,6 +1792,7 @@ export type ResourceSelectScalar = {
   description?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   resourceType?: boolean
   supportedServer?: boolean
   userId?: boolean
@@ -1748,7 +1800,7 @@ export type ResourceSelectScalar = {
   generation?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isPublic" | "isMature" | "resourceType" | "supportedServer" | "userId" | "artImageId" | "generation", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isPublic" | "isMature" | "isActive" | "resourceType" | "supportedServer" | "userId" | "artImageId" | "generation", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Resource$ArtImageArgs<ExtArgs>
   Reactions?: boolean | Prisma.Resource$ReactionsArgs<ExtArgs>
@@ -1783,6 +1835,7 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     description: string | null
     isPublic: boolean
     isMature: boolean
+    isActive: boolean
     resourceType: $Enums.ResourceType
     supportedServer: $Enums.SupportedServer
     userId: number | null
@@ -2176,6 +2229,7 @@ export interface ResourceFieldRefs {
   readonly description: Prisma.FieldRef<"Resource", 'String'>
   readonly isPublic: Prisma.FieldRef<"Resource", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"Resource", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Resource", 'Boolean'>
   readonly resourceType: Prisma.FieldRef<"Resource", 'ResourceType'>
   readonly supportedServer: Prisma.FieldRef<"Resource", 'SupportedServer'>
   readonly userId: Prisma.FieldRef<"Resource", 'Int'>

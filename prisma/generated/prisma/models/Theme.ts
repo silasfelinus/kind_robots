@@ -42,6 +42,7 @@ export type ThemeMinAggregateOutputType = {
   values: string | null
   userId: number | null
   isPublic: boolean | null
+  isActive: boolean | null
   createdAt: Date | null
   tagline: string | null
   room: string | null
@@ -55,6 +56,7 @@ export type ThemeMaxAggregateOutputType = {
   values: string | null
   userId: number | null
   isPublic: boolean | null
+  isActive: boolean | null
   createdAt: Date | null
   tagline: string | null
   room: string | null
@@ -68,6 +70,7 @@ export type ThemeCountAggregateOutputType = {
   values: number
   userId: number
   isPublic: number
+  isActive: number
   createdAt: number
   tagline: number
   room: number
@@ -93,6 +96,7 @@ export type ThemeMinAggregateInputType = {
   values?: true
   userId?: true
   isPublic?: true
+  isActive?: true
   createdAt?: true
   tagline?: true
   room?: true
@@ -106,6 +110,7 @@ export type ThemeMaxAggregateInputType = {
   values?: true
   userId?: true
   isPublic?: true
+  isActive?: true
   createdAt?: true
   tagline?: true
   room?: true
@@ -119,6 +124,7 @@ export type ThemeCountAggregateInputType = {
   values?: true
   userId?: true
   isPublic?: true
+  isActive?: true
   createdAt?: true
   tagline?: true
   room?: true
@@ -219,6 +225,7 @@ export type ThemeGroupByOutputType = {
   values: string
   userId: number | null
   isPublic: boolean
+  isActive: boolean
   createdAt: Date
   tagline: string | null
   room: string | null
@@ -255,6 +262,7 @@ export type ThemeWhereInput = {
   values?: Prisma.StringFilter<"Theme"> | string
   userId?: Prisma.IntNullableFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableFilter<"Theme"> | string | null
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
@@ -270,6 +278,7 @@ export type ThemeOrderByWithRelationInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   room?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -289,6 +298,7 @@ export type ThemeWhereUniqueInput = Prisma.AtLeast<{
   values?: Prisma.StringFilter<"Theme"> | string
   userId?: Prisma.IntNullableFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableFilter<"Theme"> | string | null
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
@@ -304,6 +314,7 @@ export type ThemeOrderByWithAggregationInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   room?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -325,6 +336,7 @@ export type ThemeScalarWhereWithAggregatesInput = {
   values?: Prisma.StringWithAggregatesFilter<"Theme"> | string
   userId?: Prisma.IntNullableWithAggregatesFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
   room?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
@@ -336,6 +348,7 @@ export type ThemeCreateInput = {
   name: string
   values: string
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -351,6 +364,7 @@ export type ThemeUncheckedCreateInput = {
   values: string
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -363,6 +377,7 @@ export type ThemeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -378,6 +393,7 @@ export type ThemeUncheckedUpdateInput = {
   values?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -392,6 +408,7 @@ export type ThemeCreateManyInput = {
   values: string
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -403,6 +420,7 @@ export type ThemeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -416,6 +434,7 @@ export type ThemeUncheckedUpdateManyInput = {
   values?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -440,6 +459,7 @@ export type ThemeCountOrderByAggregateInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   room?: Prisma.SortOrder
@@ -458,6 +478,7 @@ export type ThemeMaxOrderByAggregateInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   room?: Prisma.SortOrder
@@ -471,6 +492,7 @@ export type ThemeMinOrderByAggregateInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   room?: Prisma.SortOrder
@@ -555,6 +577,7 @@ export type ThemeCreateWithoutReactionsInput = {
   name: string
   values: string
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -569,6 +592,7 @@ export type ThemeUncheckedCreateWithoutReactionsInput = {
   values: string
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -596,6 +620,7 @@ export type ThemeUpdateWithoutReactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -610,6 +635,7 @@ export type ThemeUncheckedUpdateWithoutReactionsInput = {
   values?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -621,6 +647,7 @@ export type ThemeCreateWithoutUserInput = {
   name: string
   values: string
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -634,6 +661,7 @@ export type ThemeUncheckedCreateWithoutUserInput = {
   name: string
   values: string
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -677,6 +705,7 @@ export type ThemeScalarWhereInput = {
   values?: Prisma.StringFilter<"Theme"> | string
   userId?: Prisma.IntNullableFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableFilter<"Theme"> | string | null
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
@@ -689,6 +718,7 @@ export type ThemeCreateManyUserInput = {
   name: string
   values: string
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
@@ -700,6 +730,7 @@ export type ThemeUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -713,6 +744,7 @@ export type ThemeUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -726,6 +758,7 @@ export type ThemeUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -770,6 +803,7 @@ export type ThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   values?: boolean
   userId?: boolean
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: boolean
   tagline?: boolean
   room?: boolean
@@ -788,6 +822,7 @@ export type ThemeSelectScalar = {
   values?: boolean
   userId?: boolean
   isPublic?: boolean
+  isActive?: boolean
   createdAt?: boolean
   tagline?: boolean
   room?: boolean
@@ -795,7 +830,7 @@ export type ThemeSelectScalar = {
   prefersDark?: boolean
 }
 
-export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark", ExtArgs["result"]["theme"]>
+export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "isActive" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark", ExtArgs["result"]["theme"]>
 export type ThemeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
@@ -814,6 +849,7 @@ export type $ThemePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     values: string
     userId: number | null
     isPublic: boolean
+    isActive: boolean
     createdAt: Date
     tagline: string | null
     room: string | null
@@ -1195,6 +1231,7 @@ export interface ThemeFieldRefs {
   readonly values: Prisma.FieldRef<"Theme", 'String'>
   readonly userId: Prisma.FieldRef<"Theme", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Theme", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Theme", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Theme", 'DateTime'>
   readonly tagline: Prisma.FieldRef<"Theme", 'String'>
   readonly room: Prisma.FieldRef<"Theme", 'String'>

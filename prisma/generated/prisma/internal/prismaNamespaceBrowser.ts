@@ -111,6 +111,7 @@ export const ArtScalarFieldEnum = {
   designer: 'designer',
   isPublic: 'isPublic',
   isMature: 'isMature',
+  isActive: 'isActive',
   promptId: 'promptId',
   userId: 'userId',
   pitchId: 'pitchId',
@@ -156,6 +157,7 @@ export const ArtImageScalarFieldEnum = {
   genres: 'genres',
   isPublic: 'isPublic',
   isMature: 'isMature',
+  isActive: 'isActive',
   serverId: 'serverId',
   serverName: 'serverName',
   serverUrl: 'serverUrl',
@@ -183,6 +185,7 @@ export const ArtCollectionScalarFieldEnum = {
   label: 'label',
   isMature: 'isMature',
   isPublic: 'isPublic',
+  isActive: 'isActive',
   description: 'description',
   username: 'username'
 } as const
@@ -210,6 +213,7 @@ export const BotScalarFieldEnum = {
   tagline: 'tagline',
   isPublic: 'isPublic',
   isMature: 'isMature',
+  isActive: 'isActive',
   underConstruction: 'underConstruction',
   canDelete: 'canDelete',
   userId: 'userId',
@@ -295,6 +299,7 @@ export const CharacterScalarFieldEnum = {
   artImageId: 'artImageId',
   isPublic: 'isPublic',
   isMature: 'isMature',
+  isActive: 'isActive',
   userId: 'userId',
   artPrompt: 'artPrompt',
   goalStat1Name: 'goalStat1Name',
@@ -323,7 +328,6 @@ export const ChatScalarFieldEnum = {
   recipient: 'recipient',
   content: 'content',
   title: 'title',
-  isPublic: 'isPublic',
   isFavorite: 'isFavorite',
   previousEntryId: 'previousEntryId',
   originId: 'originId',
@@ -337,6 +341,8 @@ export const ChatScalarFieldEnum = {
   botResponse: 'botResponse',
   characterId: 'characterId',
   isRead: 'isRead',
+  isPublic: 'isPublic',
+  isActive: 'isActive',
   isMature: 'isMature',
   dreamId: 'dreamId',
   serverId: 'serverId',
@@ -402,9 +408,10 @@ export const GalleryScalarFieldEnum = {
   content: 'content',
   highlightImage: 'highlightImage',
   imagePaths: 'imagePaths',
-  isMature: 'isMature',
   userId: 'userId',
-  isPublic: 'isPublic'
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  isMature: 'isMature'
 } as const
 
 export type GalleryScalarFieldEnum = (typeof GalleryScalarFieldEnum)[keyof typeof GalleryScalarFieldEnum]
@@ -467,6 +474,7 @@ export const PitchScalarFieldEnum = {
   creationSource: 'creationSource',
   isMature: 'isMature',
   isPublic: 'isPublic',
+  isActive: 'isActive',
   userId: 'userId',
   imagePrompt: 'imagePrompt',
   description: 'description',
@@ -487,6 +495,7 @@ export const PromptScalarFieldEnum = {
   galleryId: 'galleryId',
   isMature: 'isMature',
   isPublic: 'isPublic',
+  isActive: 'isActive',
   creationSource: 'creationSource',
   pitchId: 'pitchId',
   botId: 'botId',
@@ -541,6 +550,7 @@ export const ResourceScalarFieldEnum = {
   description: 'description',
   isPublic: 'isPublic',
   isMature: 'isMature',
+  isActive: 'isActive',
   resourceType: 'resourceType',
   supportedServer: 'supportedServer',
   userId: 'userId',
@@ -566,7 +576,8 @@ export const RewardScalarFieldEnum = {
   imagePath: 'imagePath',
   imagePrompt: 'imagePrompt',
   isPublic: 'isPublic',
-  isMature: 'isMature'
+  isMature: 'isMature',
+  isActive: 'isActive'
 } as const
 
 export type RewardScalarFieldEnum = (typeof RewardScalarFieldEnum)[keyof typeof RewardScalarFieldEnum]
@@ -587,7 +598,8 @@ export const ScenarioScalarFieldEnum = {
   genres: 'genres',
   inspirations: 'inspirations',
   isMature: 'isMature',
-  isPublic: 'isPublic'
+  isPublic: 'isPublic',
+  isActive: 'isActive'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
@@ -606,11 +618,11 @@ export const ServerScalarFieldEnum = {
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
   userId: 'userId',
+  isActive: 'isActive',
   isMature: 'isMature',
   isPublic: 'isPublic',
   isOfficial: 'isOfficial',
   isDefault: 'isDefault',
-  isActive: 'isActive',
   isEditable: 'isEditable',
   browserBaseUrl: 'browserBaseUrl',
   backendBaseUrl: 'backendBaseUrl',
@@ -696,6 +708,7 @@ export const TagScalarFieldEnum = {
   pitch: 'pitch',
   isPublic: 'isPublic',
   isMature: 'isMature',
+  isActive: 'isActive',
   userId: 'userId',
   artImageId: 'artImageId'
 } as const
@@ -709,6 +722,7 @@ export const ThemeScalarFieldEnum = {
   values: 'values',
   userId: 'userId',
   isPublic: 'isPublic',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   tagline: 'tagline',
   room: 'room',
@@ -759,6 +773,7 @@ export const UserScalarFieldEnum = {
   googleId: 'googleId',
   blockList: 'blockList',
   isPublic: 'isPublic',
+  isActive: 'isActive',
   smartBar: 'smartBar',
   customIcons: 'customIcons',
   isMember: 'isMember',

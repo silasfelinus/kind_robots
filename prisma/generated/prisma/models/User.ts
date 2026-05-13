@@ -90,6 +90,7 @@ export type UserMinAggregateOutputType = {
   googleId: string | null
   blockList: string | null
   isPublic: boolean | null
+  isActive: boolean | null
   smartBar: string | null
   customIcons: boolean | null
   isMember: boolean | null
@@ -143,6 +144,7 @@ export type UserMaxAggregateOutputType = {
   googleId: string | null
   blockList: string | null
   isPublic: boolean | null
+  isActive: boolean | null
   smartBar: string | null
   customIcons: boolean | null
   isMember: boolean | null
@@ -196,6 +198,7 @@ export type UserCountAggregateOutputType = {
   googleId: number
   blockList: number
   isPublic: number
+  isActive: number
   smartBar: number
   customIcons: number
   isMember: number
@@ -276,6 +279,7 @@ export type UserMinAggregateInputType = {
   googleId?: true
   blockList?: true
   isPublic?: true
+  isActive?: true
   smartBar?: true
   customIcons?: true
   isMember?: true
@@ -329,6 +333,7 @@ export type UserMaxAggregateInputType = {
   googleId?: true
   blockList?: true
   isPublic?: true
+  isActive?: true
   smartBar?: true
   customIcons?: true
   isMember?: true
@@ -382,6 +387,7 @@ export type UserCountAggregateInputType = {
   googleId?: true
   blockList?: true
   isPublic?: true
+  isActive?: true
   smartBar?: true
   customIcons?: true
   isMember?: true
@@ -523,6 +529,7 @@ export type UserGroupByOutputType = {
   googleId: string | null
   blockList: string | null
   isPublic: boolean
+  isActive: boolean
   smartBar: string | null
   customIcons: boolean
   isMember: boolean
@@ -600,6 +607,7 @@ export type UserWhereInput = {
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   blockList?: Prisma.StringNullableFilter<"User"> | string | null
   isPublic?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
   smartBar?: Prisma.StringNullableFilter<"User"> | string | null
   customIcons?: Prisma.BoolFilter<"User"> | boolean
   isMember?: Prisma.BoolFilter<"User"> | boolean
@@ -676,6 +684,7 @@ export type UserOrderByWithRelationInput = {
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   blockList?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrderInput | Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
@@ -756,6 +765,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   blockList?: Prisma.StringNullableFilter<"User"> | string | null
   isPublic?: Prisma.BoolFilter<"User"> | boolean
+  isActive?: Prisma.BoolFilter<"User"> | boolean
   smartBar?: Prisma.StringNullableFilter<"User"> | string | null
   customIcons?: Prisma.BoolFilter<"User"> | boolean
   isMember?: Prisma.BoolFilter<"User"> | boolean
@@ -832,6 +842,7 @@ export type UserOrderByWithAggregationInput = {
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   blockList?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrderInput | Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
@@ -894,6 +905,7 @@ export type UserScalarWhereWithAggregatesInput = {
   googleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   blockList?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   smartBar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   customIcons?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isMember?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -947,6 +959,7 @@ export type UserCreateInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -1023,6 +1036,7 @@ export type UserUncheckedCreateInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -1098,6 +1112,7 @@ export type UserUpdateInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1174,6 +1189,7 @@ export type UserUncheckedUpdateInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1250,6 +1266,7 @@ export type UserCreateManyInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -1303,6 +1320,7 @@ export type UserUpdateManyMutationInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1357,6 +1375,7 @@ export type UserUncheckedUpdateManyInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1427,6 +1446,7 @@ export type UserCountOrderByAggregateInput = {
   googleId?: Prisma.SortOrder
   blockList?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
@@ -1493,6 +1513,7 @@ export type UserMaxOrderByAggregateInput = {
   googleId?: Prisma.SortOrder
   blockList?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
@@ -1546,6 +1567,7 @@ export type UserMinOrderByAggregateInput = {
   googleId?: Prisma.SortOrder
   blockList?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrder
   customIcons?: Prisma.SortOrder
   isMember?: Prisma.SortOrder
@@ -1952,6 +1974,7 @@ export type UserCreateWithoutArtInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2027,6 +2050,7 @@ export type UserUncheckedCreateWithoutArtInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2117,6 +2141,7 @@ export type UserUpdateWithoutArtInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2192,6 +2217,7 @@ export type UserUncheckedUpdateWithoutArtInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2266,6 +2292,7 @@ export type UserCreateWithoutArtImagesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2341,6 +2368,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2431,6 +2459,7 @@ export type UserUpdateWithoutArtImagesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2506,6 +2535,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2580,6 +2610,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2655,6 +2686,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2745,6 +2777,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2820,6 +2853,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2894,6 +2928,7 @@ export type UserCreateWithoutBotsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -2969,6 +3004,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -3059,6 +3095,7 @@ export type UserUpdateWithoutBotsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3134,6 +3171,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3208,6 +3246,7 @@ export type UserCreateWithoutButterfliesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -3283,6 +3322,7 @@ export type UserUncheckedCreateWithoutButterfliesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -3373,6 +3413,7 @@ export type UserUpdateWithoutButterfliesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3448,6 +3489,7 @@ export type UserUncheckedUpdateWithoutButterfliesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3522,6 +3564,7 @@ export type UserCreateWithoutButterflyRecordsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -3597,6 +3640,7 @@ export type UserUncheckedCreateWithoutButterflyRecordsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -3687,6 +3731,7 @@ export type UserUpdateWithoutButterflyRecordsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3762,6 +3807,7 @@ export type UserUncheckedUpdateWithoutButterflyRecordsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3836,6 +3882,7 @@ export type UserCreateWithoutCharactersInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -3911,6 +3958,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4001,6 +4049,7 @@ export type UserUpdateWithoutCharactersInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4076,6 +4125,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4150,6 +4200,7 @@ export type UserCreateWithoutChatsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4225,6 +4276,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4315,6 +4367,7 @@ export type UserUpdateWithoutChatsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4390,6 +4443,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4464,6 +4518,7 @@ export type UserCreateWithoutDreamsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4539,6 +4594,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4629,6 +4685,7 @@ export type UserUpdateWithoutDreamsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4704,6 +4761,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4778,6 +4836,7 @@ export type UserCreateWithoutGalleriesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4853,6 +4912,7 @@ export type UserUncheckedCreateWithoutGalleriesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -4943,6 +5003,7 @@ export type UserUpdateWithoutGalleriesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5018,6 +5079,7 @@ export type UserUncheckedUpdateWithoutGalleriesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5092,6 +5154,7 @@ export type UserCreateWithoutLogsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -5167,6 +5230,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -5257,6 +5321,7 @@ export type UserUpdateWithoutLogsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5332,6 +5397,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5406,6 +5472,7 @@ export type UserCreateWithoutMilestonesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -5481,6 +5548,7 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -5571,6 +5639,7 @@ export type UserUpdateWithoutMilestonesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5646,6 +5715,7 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5720,6 +5790,7 @@ export type UserCreateWithoutPitchesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -5795,6 +5866,7 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -5885,6 +5957,7 @@ export type UserUpdateWithoutPitchesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5960,6 +6033,7 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6034,6 +6108,7 @@ export type UserCreateWithoutPromptsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -6109,6 +6184,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -6199,6 +6275,7 @@ export type UserUpdateWithoutPromptsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6274,6 +6351,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6348,6 +6426,7 @@ export type UserCreateWithoutReactionsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -6423,6 +6502,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -6513,6 +6593,7 @@ export type UserUpdateWithoutReactionsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6588,6 +6669,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6662,6 +6744,7 @@ export type UserCreateWithoutResourcesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -6737,6 +6820,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -6827,6 +6911,7 @@ export type UserUpdateWithoutResourcesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6902,6 +6987,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6976,6 +7062,7 @@ export type UserCreateWithoutRewardsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7051,6 +7138,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7141,6 +7229,7 @@ export type UserUpdateWithoutRewardsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7216,6 +7305,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7290,6 +7380,7 @@ export type UserCreateWithoutScenariosInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7365,6 +7456,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7455,6 +7547,7 @@ export type UserUpdateWithoutScenariosInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7530,6 +7623,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7604,6 +7698,7 @@ export type UserCreateWithoutServersInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7679,6 +7774,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7769,6 +7865,7 @@ export type UserUpdateWithoutServersInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7844,6 +7941,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7918,6 +8016,7 @@ export type UserCreateWithoutSmartIconsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -7993,6 +8092,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -8083,6 +8183,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8158,6 +8259,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8232,6 +8334,7 @@ export type UserCreateWithoutTagsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -8307,6 +8410,7 @@ export type UserUncheckedCreateWithoutTagsInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -8397,6 +8501,7 @@ export type UserUpdateWithoutTagsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8472,6 +8577,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8546,6 +8652,7 @@ export type UserCreateWithoutThemesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -8621,6 +8728,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   googleId?: string | null
   blockList?: string | null
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: string | null
   customIcons?: boolean
   isMember?: boolean
@@ -8711,6 +8819,7 @@ export type UserUpdateWithoutThemesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8786,6 +8895,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9081,6 +9191,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   googleId?: boolean
   blockList?: boolean
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: boolean
   customIcons?: boolean
   isMember?: boolean
@@ -9160,6 +9271,7 @@ export type UserSelectScalar = {
   googleId?: boolean
   blockList?: boolean
   isPublic?: boolean
+  isActive?: boolean
   smartBar?: boolean
   customIcons?: boolean
   isMember?: boolean
@@ -9174,7 +9286,7 @@ export type UserSelectScalar = {
   hiddenServerIds?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "isActive" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.User$ArtArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -9267,6 +9379,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     googleId: string | null
     blockList: string | null
     isPublic: boolean
+    isActive: boolean
     smartBar: string | null
     customIcons: boolean
     isMember: boolean
@@ -9709,6 +9822,7 @@ export interface UserFieldRefs {
   readonly googleId: Prisma.FieldRef<"User", 'String'>
   readonly blockList: Prisma.FieldRef<"User", 'String'>
   readonly isPublic: Prisma.FieldRef<"User", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly smartBar: Prisma.FieldRef<"User", 'String'>
   readonly customIcons: Prisma.FieldRef<"User", 'Boolean'>
   readonly isMember: Prisma.FieldRef<"User", 'Boolean'>

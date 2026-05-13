@@ -67,6 +67,7 @@ export type ArtMinAggregateOutputType = {
   designer: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   promptId: number | null
   userId: number | null
   pitchId: number | null
@@ -96,6 +97,7 @@ export type ArtMaxAggregateOutputType = {
   designer: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean | null
   promptId: number | null
   userId: number | null
   pitchId: number | null
@@ -125,6 +127,7 @@ export type ArtCountAggregateOutputType = {
   designer: number
   isPublic: number
   isMature: number
+  isActive: number
   promptId: number
   userId: number
   pitchId: number
@@ -184,6 +187,7 @@ export type ArtMinAggregateInputType = {
   designer?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   promptId?: true
   userId?: true
   pitchId?: true
@@ -213,6 +217,7 @@ export type ArtMaxAggregateInputType = {
   designer?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   promptId?: true
   userId?: true
   pitchId?: true
@@ -242,6 +247,7 @@ export type ArtCountAggregateInputType = {
   designer?: true
   isPublic?: true
   isMature?: true
+  isActive?: true
   promptId?: true
   userId?: true
   pitchId?: true
@@ -358,6 +364,7 @@ export type ArtGroupByOutputType = {
   designer: string | null
   isPublic: boolean | null
   isMature: boolean | null
+  isActive: boolean
   promptId: number | null
   userId: number | null
   pitchId: number | null
@@ -410,6 +417,7 @@ export type ArtWhereInput = {
   designer?: Prisma.StringNullableFilter<"Art"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Art"> | boolean | null
   isMature?: Prisma.BoolNullableFilter<"Art"> | boolean | null
+  isActive?: Prisma.BoolFilter<"Art"> | boolean
   promptId?: Prisma.IntNullableFilter<"Art"> | number | null
   userId?: Prisma.IntNullableFilter<"Art"> | number | null
   pitchId?: Prisma.IntNullableFilter<"Art"> | number | null
@@ -451,6 +459,7 @@ export type ArtOrderByWithRelationInput = {
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   promptId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -496,6 +505,7 @@ export type ArtWhereUniqueInput = Prisma.AtLeast<{
   designer?: Prisma.StringNullableFilter<"Art"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Art"> | boolean | null
   isMature?: Prisma.BoolNullableFilter<"Art"> | boolean | null
+  isActive?: Prisma.BoolFilter<"Art"> | boolean
   promptId?: Prisma.IntNullableFilter<"Art"> | number | null
   userId?: Prisma.IntNullableFilter<"Art"> | number | null
   pitchId?: Prisma.IntNullableFilter<"Art"> | number | null
@@ -537,6 +547,7 @@ export type ArtOrderByWithAggregationInput = {
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   promptId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -574,6 +585,7 @@ export type ArtScalarWhereWithAggregatesInput = {
   designer?: Prisma.StringNullableWithAggregatesFilter<"Art"> | string | null
   isPublic?: Prisma.BoolNullableWithAggregatesFilter<"Art"> | boolean | null
   isMature?: Prisma.BoolNullableWithAggregatesFilter<"Art"> | boolean | null
+  isActive?: Prisma.BoolWithAggregatesFilter<"Art"> | boolean
   promptId?: Prisma.IntNullableWithAggregatesFilter<"Art"> | number | null
   userId?: Prisma.IntNullableWithAggregatesFilter<"Art"> | number | null
   pitchId?: Prisma.IntNullableWithAggregatesFilter<"Art"> | number | null
@@ -601,6 +613,7 @@ export type ArtCreateInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -637,6 +650,7 @@ export type ArtUncheckedCreateInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -670,6 +684,7 @@ export type ArtUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -706,6 +721,7 @@ export type ArtUncheckedUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -741,6 +757,7 @@ export type ArtCreateManyInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -768,6 +785,7 @@ export type ArtUpdateManyMutationInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -792,6 +810,7 @@ export type ArtUncheckedUpdateManyInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -827,6 +846,7 @@ export type ArtCountOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
@@ -870,6 +890,7 @@ export type ArtMaxOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
@@ -899,6 +920,7 @@ export type ArtMinOrderByAggregateInput = {
   designer?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
@@ -962,6 +984,10 @@ export type NullableIntFieldUpdateOperationsInput = {
 
 export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -1379,6 +1405,7 @@ export type ArtCreateWithoutArtImageInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -1414,6 +1441,7 @@ export type ArtUncheckedCreateWithoutArtImageInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -1462,6 +1490,7 @@ export type ArtUpdateWithoutArtImageInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1497,6 +1526,7 @@ export type ArtUncheckedUpdateWithoutArtImageInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1529,6 +1559,7 @@ export type ArtCreateWithoutArtCollectionInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -1564,6 +1595,7 @@ export type ArtUncheckedCreateWithoutArtCollectionInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -1622,6 +1654,7 @@ export type ArtScalarWhereInput = {
   designer?: Prisma.StringNullableFilter<"Art"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Art"> | boolean | null
   isMature?: Prisma.BoolNullableFilter<"Art"> | boolean | null
+  isActive?: Prisma.BoolFilter<"Art"> | boolean
   promptId?: Prisma.IntNullableFilter<"Art"> | number | null
   userId?: Prisma.IntNullableFilter<"Art"> | number | null
   pitchId?: Prisma.IntNullableFilter<"Art"> | number | null
@@ -1649,6 +1682,7 @@ export type ArtCreateWithoutButterfliesInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -1684,6 +1718,7 @@ export type ArtUncheckedCreateWithoutButterfliesInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -1732,6 +1767,7 @@ export type ArtUpdateWithoutButterfliesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1767,6 +1803,7 @@ export type ArtUncheckedUpdateWithoutButterfliesInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1799,6 +1836,7 @@ export type ArtCreateWithoutDreamsInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -1834,6 +1872,7 @@ export type ArtUncheckedCreateWithoutDreamsInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -1882,6 +1921,7 @@ export type ArtUpdateWithoutDreamsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1917,6 +1957,7 @@ export type ArtUncheckedUpdateWithoutDreamsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1949,6 +1990,7 @@ export type ArtCreateWithoutGalleryInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -1984,6 +2026,7 @@ export type ArtUncheckedCreateWithoutGalleryInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -2042,6 +2085,7 @@ export type ArtCreateWithoutPitchInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2077,6 +2121,7 @@ export type ArtUncheckedCreateWithoutPitchInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   galleryId?: number | null
@@ -2135,6 +2180,7 @@ export type ArtCreateWithoutPromptInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2170,6 +2216,7 @@ export type ArtUncheckedCreateWithoutPromptInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   userId?: number | null
   pitchId?: number | null
   galleryId?: number | null
@@ -2228,6 +2275,7 @@ export type ArtCreateWithoutReactionInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2263,6 +2311,7 @@ export type ArtUncheckedCreateWithoutReactionInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -2311,6 +2360,7 @@ export type ArtUpdateWithoutReactionInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2346,6 +2396,7 @@ export type ArtUncheckedUpdateWithoutReactionInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2378,6 +2429,7 @@ export type ArtCreateWithoutCheckpointResourceInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2412,6 +2464,7 @@ export type ArtUncheckedCreateWithoutCheckpointResourceInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -2471,6 +2524,7 @@ export type ArtCreateWithoutServerInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2506,6 +2560,7 @@ export type ArtUncheckedCreateWithoutServerInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -2564,6 +2619,7 @@ export type ArtCreateWithoutTagsInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2599,6 +2655,7 @@ export type ArtUncheckedCreateWithoutTagsInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -2652,6 +2709,7 @@ export type ArtCreateWithoutUserInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptString: string
   cfg?: number | null
   cfgHalf?: boolean | null
@@ -2687,6 +2745,7 @@ export type ArtUncheckedCreateWithoutUserInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   pitchId?: number | null
   galleryId?: number | null
@@ -2745,6 +2804,7 @@ export type ArtUpdateWithoutArtCollectionInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2780,6 +2840,7 @@ export type ArtUncheckedUpdateWithoutArtCollectionInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2814,6 +2875,7 @@ export type ArtUncheckedUpdateManyWithoutArtCollectionInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2843,6 +2905,7 @@ export type ArtCreateManyGalleryInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -2869,6 +2932,7 @@ export type ArtUpdateWithoutGalleryInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -2904,6 +2968,7 @@ export type ArtUncheckedUpdateWithoutGalleryInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2938,6 +3003,7 @@ export type ArtUncheckedUpdateManyWithoutGalleryInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2966,6 +3032,7 @@ export type ArtCreateManyPitchInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   galleryId?: number | null
@@ -2992,6 +3059,7 @@ export type ArtUpdateWithoutPitchInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3027,6 +3095,7 @@ export type ArtUncheckedUpdateWithoutPitchInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3061,6 +3130,7 @@ export type ArtUncheckedUpdateManyWithoutPitchInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3089,6 +3159,7 @@ export type ArtCreateManyPromptInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   userId?: number | null
   pitchId?: number | null
   galleryId?: number | null
@@ -3115,6 +3186,7 @@ export type ArtUpdateWithoutPromptInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3150,6 +3222,7 @@ export type ArtUncheckedUpdateWithoutPromptInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3184,6 +3257,7 @@ export type ArtUncheckedUpdateManyWithoutPromptInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3211,6 +3285,7 @@ export type ArtCreateManyCheckpointResourceInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -3238,6 +3313,7 @@ export type ArtUpdateWithoutCheckpointResourceInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3272,6 +3348,7 @@ export type ArtUncheckedUpdateWithoutCheckpointResourceInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3306,6 +3383,7 @@ export type ArtUncheckedUpdateManyWithoutCheckpointResourceInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3335,6 +3413,7 @@ export type ArtCreateManyServerInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   userId?: number | null
   pitchId?: number | null
@@ -3361,6 +3440,7 @@ export type ArtUpdateWithoutServerInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3396,6 +3476,7 @@ export type ArtUncheckedUpdateWithoutServerInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3430,6 +3511,7 @@ export type ArtUncheckedUpdateManyWithoutServerInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3456,6 +3538,7 @@ export type ArtUpdateWithoutTagsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3491,6 +3574,7 @@ export type ArtUncheckedUpdateWithoutTagsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3525,6 +3609,7 @@ export type ArtUncheckedUpdateManyWithoutTagsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3554,6 +3639,7 @@ export type ArtCreateManyUserInput = {
   designer?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
+  isActive?: boolean
   promptId?: number | null
   pitchId?: number | null
   galleryId?: number | null
@@ -3580,6 +3666,7 @@ export type ArtUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptString?: Prisma.StringFieldUpdateOperationsInput | string
   cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -3615,6 +3702,7 @@ export type ArtUncheckedUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3649,6 +3737,7 @@ export type ArtUncheckedUpdateManyWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3744,6 +3833,7 @@ export type ArtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   designer?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   promptId?: boolean
   userId?: boolean
   pitchId?: boolean
@@ -3788,6 +3878,7 @@ export type ArtSelectScalar = {
   designer?: boolean
   isPublic?: boolean
   isMature?: boolean
+  isActive?: boolean
   promptId?: boolean
   userId?: boolean
   pitchId?: boolean
@@ -3804,7 +3895,7 @@ export type ArtSelectScalar = {
   negativePrompt?: boolean
 }
 
-export type ArtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "path" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "designer" | "isPublic" | "isMature" | "promptId" | "userId" | "pitchId" | "galleryId" | "promptString" | "cfg" | "cfgHalf" | "serverId" | "serverName" | "serverUrl" | "artImageId" | "imagePath" | "genres" | "negativePrompt", ExtArgs["result"]["art"]>
+export type ArtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "path" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "designer" | "isPublic" | "isMature" | "isActive" | "promptId" | "userId" | "pitchId" | "galleryId" | "promptString" | "cfg" | "cfgHalf" | "serverId" | "serverName" | "serverUrl" | "artImageId" | "imagePath" | "genres" | "negativePrompt", ExtArgs["result"]["art"]>
 export type ArtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   CheckpointResource?: boolean | Prisma.Art$CheckpointResourceArgs<ExtArgs>
   Gallery?: boolean | Prisma.Art$GalleryArgs<ExtArgs>
@@ -3850,6 +3941,7 @@ export type $ArtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     designer: string | null
     isPublic: boolean | null
     isMature: boolean | null
+    isActive: boolean
     promptId: number | null
     userId: number | null
     pitchId: number | null
@@ -4257,6 +4349,7 @@ export interface ArtFieldRefs {
   readonly designer: Prisma.FieldRef<"Art", 'String'>
   readonly isPublic: Prisma.FieldRef<"Art", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"Art", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Art", 'Boolean'>
   readonly promptId: Prisma.FieldRef<"Art", 'Int'>
   readonly userId: Prisma.FieldRef<"Art", 'Int'>
   readonly pitchId: Prisma.FieldRef<"Art", 'Int'>

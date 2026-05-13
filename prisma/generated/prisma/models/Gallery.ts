@@ -47,9 +47,10 @@ export type GalleryMinAggregateOutputType = {
   content: string | null
   highlightImage: string | null
   imagePaths: string | null
-  isMature: boolean | null
   userId: number | null
   isPublic: boolean | null
+  isActive: boolean | null
+  isMature: boolean | null
 }
 
 export type GalleryMaxAggregateOutputType = {
@@ -63,9 +64,10 @@ export type GalleryMaxAggregateOutputType = {
   content: string | null
   highlightImage: string | null
   imagePaths: string | null
-  isMature: boolean | null
   userId: number | null
   isPublic: boolean | null
+  isActive: boolean | null
+  isMature: boolean | null
 }
 
 export type GalleryCountAggregateOutputType = {
@@ -79,9 +81,10 @@ export type GalleryCountAggregateOutputType = {
   content: number
   highlightImage: number
   imagePaths: number
-  isMature: number
   userId: number
   isPublic: number
+  isActive: number
+  isMature: number
   _all: number
 }
 
@@ -107,9 +110,10 @@ export type GalleryMinAggregateInputType = {
   content?: true
   highlightImage?: true
   imagePaths?: true
-  isMature?: true
   userId?: true
   isPublic?: true
+  isActive?: true
+  isMature?: true
 }
 
 export type GalleryMaxAggregateInputType = {
@@ -123,9 +127,10 @@ export type GalleryMaxAggregateInputType = {
   content?: true
   highlightImage?: true
   imagePaths?: true
-  isMature?: true
   userId?: true
   isPublic?: true
+  isActive?: true
+  isMature?: true
 }
 
 export type GalleryCountAggregateInputType = {
@@ -139,9 +144,10 @@ export type GalleryCountAggregateInputType = {
   content?: true
   highlightImage?: true
   imagePaths?: true
-  isMature?: true
   userId?: true
   isPublic?: true
+  isActive?: true
+  isMature?: true
   _all?: true
 }
 
@@ -242,9 +248,10 @@ export type GalleryGroupByOutputType = {
   content: string
   highlightImage: string | null
   imagePaths: string | null
-  isMature: boolean
   userId: number | null
   isPublic: boolean
+  isActive: boolean
+  isMature: boolean
   _count: GalleryCountAggregateOutputType | null
   _avg: GalleryAvgAggregateOutputType | null
   _sum: GallerySumAggregateOutputType | null
@@ -281,9 +288,10 @@ export type GalleryWhereInput = {
   content?: Prisma.StringFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableFilter<"Gallery"> | string | null
-  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolFilter<"Gallery"> | boolean
+  isActive?: Prisma.BoolFilter<"Gallery"> | boolean
+  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   Art?: Prisma.ArtListRelationFilter
   ArtImage?: Prisma.ArtImageListRelationFilter
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -303,9 +311,10 @@ export type GalleryOrderByWithRelationInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePaths?: Prisma.SortOrderInput | Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   Art?: Prisma.ArtOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByRelationAggregateInput
   User?: Prisma.UserOrderByWithRelationInput
@@ -329,9 +338,10 @@ export type GalleryWhereUniqueInput = Prisma.AtLeast<{
   content?: Prisma.StringFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableFilter<"Gallery"> | string | null
-  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolFilter<"Gallery"> | boolean
+  isActive?: Prisma.BoolFilter<"Gallery"> | boolean
+  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   Art?: Prisma.ArtListRelationFilter
   ArtImage?: Prisma.ArtImageListRelationFilter
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -351,9 +361,10 @@ export type GalleryOrderByWithAggregationInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePaths?: Prisma.SortOrderInput | Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   _count?: Prisma.GalleryCountOrderByAggregateInput
   _avg?: Prisma.GalleryAvgOrderByAggregateInput
   _max?: Prisma.GalleryMaxOrderByAggregateInput
@@ -375,9 +386,10 @@ export type GalleryScalarWhereWithAggregatesInput = {
   content?: Prisma.StringWithAggregatesFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableWithAggregatesFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableWithAggregatesFilter<"Gallery"> | string | null
-  isMature?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
+  isMature?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
 }
 
 export type GalleryCreateInput = {
@@ -390,8 +402,9 @@ export type GalleryCreateInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageCreateNestedManyWithoutGalleryInput
   User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
@@ -411,9 +424,10 @@ export type GalleryUncheckedCreateInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
@@ -431,8 +445,9 @@ export type GalleryUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUpdateManyWithoutGalleryNestedInput
   User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
@@ -452,9 +467,10 @@ export type GalleryUncheckedUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUncheckedUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUncheckedUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
@@ -473,9 +489,10 @@ export type GalleryCreateManyInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
 }
 
 export type GalleryUpdateManyMutationInput = {
@@ -488,8 +505,9 @@ export type GalleryUpdateManyMutationInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GalleryUncheckedUpdateManyInput = {
@@ -503,9 +521,10 @@ export type GalleryUncheckedUpdateManyInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GalleryNullableScalarRelationFilter = {
@@ -530,9 +549,10 @@ export type GalleryCountOrderByAggregateInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   imagePaths?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
 }
 
 export type GalleryAvgOrderByAggregateInput = {
@@ -551,9 +571,10 @@ export type GalleryMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   imagePaths?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
 }
 
 export type GalleryMinOrderByAggregateInput = {
@@ -567,9 +588,10 @@ export type GalleryMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   imagePaths?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
 }
 
 export type GallerySumOrderByAggregateInput = {
@@ -719,8 +741,9 @@ export type GalleryCreateWithoutArtInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   ArtImage?: Prisma.ArtImageCreateNestedManyWithoutGalleryInput
   User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
@@ -739,9 +762,10 @@ export type GalleryUncheckedCreateWithoutArtInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
@@ -774,8 +798,9 @@ export type GalleryUpdateWithoutArtInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUpdateManyWithoutGalleryNestedInput
   User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
@@ -794,9 +819,10 @@ export type GalleryUncheckedUpdateWithoutArtInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArtImage?: Prisma.ArtImageUncheckedUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
@@ -813,8 +839,9 @@ export type GalleryCreateWithoutArtImageInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtCreateNestedManyWithoutGalleryInput
   User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
@@ -833,9 +860,10 @@ export type GalleryUncheckedCreateWithoutArtImageInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
@@ -868,8 +896,9 @@ export type GalleryUpdateWithoutArtImageInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUpdateManyWithoutGalleryNestedInput
   User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
@@ -888,9 +917,10 @@ export type GalleryUncheckedUpdateWithoutArtImageInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUncheckedUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
@@ -907,8 +937,9 @@ export type GalleryCreateWithoutDreamsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageCreateNestedManyWithoutGalleryInput
   User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
@@ -927,9 +958,10 @@ export type GalleryUncheckedCreateWithoutDreamsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
@@ -962,8 +994,9 @@ export type GalleryUpdateWithoutDreamsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUpdateManyWithoutGalleryNestedInput
   User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
@@ -982,9 +1015,10 @@ export type GalleryUncheckedUpdateWithoutDreamsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUncheckedUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUncheckedUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
@@ -1001,8 +1035,9 @@ export type GalleryCreateWithoutPromptsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageCreateNestedManyWithoutGalleryInput
   User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
@@ -1021,9 +1056,10 @@ export type GalleryUncheckedCreateWithoutPromptsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedManyWithoutGalleryInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
@@ -1056,8 +1092,9 @@ export type GalleryUpdateWithoutPromptsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUpdateManyWithoutGalleryNestedInput
   User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
@@ -1076,9 +1113,10 @@ export type GalleryUncheckedUpdateWithoutPromptsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUncheckedUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUncheckedUpdateManyWithoutGalleryNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
@@ -1095,8 +1133,9 @@ export type GalleryCreateWithoutReactionsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageCreateNestedManyWithoutGalleryInput
   User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
@@ -1115,9 +1154,10 @@ export type GalleryUncheckedCreateWithoutReactionsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
@@ -1150,8 +1190,9 @@ export type GalleryUpdateWithoutReactionsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUpdateManyWithoutGalleryNestedInput
   User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
@@ -1170,9 +1211,10 @@ export type GalleryUncheckedUpdateWithoutReactionsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUncheckedUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUncheckedUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
@@ -1189,8 +1231,9 @@ export type GalleryCreateWithoutUserInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
@@ -1209,8 +1252,9 @@ export type GalleryUncheckedCreateWithoutUserInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: Prisma.ArtUncheckedCreateNestedManyWithoutGalleryInput
   ArtImage?: Prisma.ArtImageUncheckedCreateNestedManyWithoutGalleryInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
@@ -1258,9 +1302,10 @@ export type GalleryScalarWhereInput = {
   content?: Prisma.StringFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableFilter<"Gallery"> | string | null
-  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolFilter<"Gallery"> | boolean
+  isActive?: Prisma.BoolFilter<"Gallery"> | boolean
+  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
 }
 
 export type GalleryCreateManyUserInput = {
@@ -1274,8 +1319,9 @@ export type GalleryCreateManyUserInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
-  isMature?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
 }
 
 export type GalleryUpdateWithoutUserInput = {
@@ -1288,8 +1334,9 @@ export type GalleryUpdateWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
@@ -1308,8 +1355,9 @@ export type GalleryUncheckedUpdateWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Art?: Prisma.ArtUncheckedUpdateManyWithoutGalleryNestedInput
   ArtImage?: Prisma.ArtImageUncheckedUpdateManyWithoutGalleryNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
@@ -1328,8 +1376,9 @@ export type GalleryUncheckedUpdateManyWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -1410,9 +1459,10 @@ export type GallerySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   content?: boolean
   highlightImage?: boolean
   imagePaths?: boolean
-  isMature?: boolean
   userId?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
   Art?: boolean | Prisma.Gallery$ArtArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Gallery$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Gallery$UserArgs<ExtArgs>
@@ -1435,12 +1485,13 @@ export type GallerySelectScalar = {
   content?: boolean
   highlightImage?: boolean
   imagePaths?: boolean
-  isMature?: boolean
   userId?: boolean
   isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
 }
 
-export type GalleryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "description" | "url" | "custodian" | "content" | "highlightImage" | "imagePaths" | "isMature" | "userId" | "isPublic", ExtArgs["result"]["gallery"]>
+export type GalleryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "description" | "url" | "custodian" | "content" | "highlightImage" | "imagePaths" | "userId" | "isPublic" | "isActive" | "isMature", ExtArgs["result"]["gallery"]>
 export type GalleryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.Gallery$ArtArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Gallery$ArtImageArgs<ExtArgs>
@@ -1472,9 +1523,10 @@ export type $GalleryPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     content: string
     highlightImage: string | null
     imagePaths: string | null
-    isMature: boolean
     userId: number | null
     isPublic: boolean
+    isActive: boolean
+    isMature: boolean
   }, ExtArgs["result"]["gallery"]>
   composites: {}
 }
@@ -1860,9 +1912,10 @@ export interface GalleryFieldRefs {
   readonly content: Prisma.FieldRef<"Gallery", 'String'>
   readonly highlightImage: Prisma.FieldRef<"Gallery", 'String'>
   readonly imagePaths: Prisma.FieldRef<"Gallery", 'String'>
-  readonly isMature: Prisma.FieldRef<"Gallery", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Gallery", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Gallery", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Gallery", 'Boolean'>
+  readonly isMature: Prisma.FieldRef<"Gallery", 'Boolean'>
 }
     
 

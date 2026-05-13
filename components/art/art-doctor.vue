@@ -1,4 +1,4 @@
-<!-- /components/content/art/art-doctor.vue -->
+<!-- /components/art/art-doctor.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-4"
@@ -118,7 +118,7 @@
         <div
           class="rounded-2xl border border-success/30 bg-success/5 p-3 text-center"
         >
-          <p class="font-mono text-2xl font-blshrink-0ess">
+          <p class="font-mono text-2xl font-black text-success">
             {{ topStats.bidirectional }}
           </p>
           <p class="mt-1 text-xs text-base-content/60">↔ Bidirectional</p>

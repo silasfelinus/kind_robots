@@ -1,4 +1,4 @@
-<!-- /components/art/art-doctor.vue -->
+<!-- /components/content/art/art-doctor.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-4"
@@ -182,7 +182,7 @@
             class="flex items-center gap-1.5 text-xs text-base-content/60"
           >
             <span
-              class="inline-block h-2 w-2 shrink-0 rounded-sm"
+              class="inline-block h-2 w-2 flex-shrink-0 rounded-sm"
               :style="{ background: seg.color }"
             />
             {{ seg.label }}
@@ -381,7 +381,7 @@
                   </div>
                 </div>
                 <!-- actions -->
-                <div class="flex shrink-0 items-center gap-2">
+                <div class="flex flex-shrink-0 items-center gap-2">
                   <button
                     v-if="
                       art.imagePath || (art.path && art.path !== 'UNDEFINED')
@@ -489,7 +489,7 @@
                     {{ artImage.artId ?? 'none' }}
                   </p>
                 </div>
-                <div class="flex shrink-0 items-center gap-2">
+                <div class="flex flex-shrink-0 items-center gap-2">
                   <button
                     class="btn btn-secondary btn-xs rounded-xl"
                     type="button"
@@ -549,7 +549,7 @@
                     <span class="badge badge-error badge-xs">no artId</span>
                   </div>
                 </div>
-                <div class="flex shrink-0 items-center gap-2">
+                <div class="flex flex-shrink-0 items-center gap-2">
                   <span class="badge badge-ghost badge-sm"
                     >Manual review needed</span
                   >
@@ -615,7 +615,7 @@
                     }}
                   </p>
                 </div>
-                <div class="flex shrink-0 items-center gap-2">
+                <div class="flex flex-shrink-0 items-center gap-2">
                   <button
                     v-if="item.linkDirection !== 'both'"
                     class="btn btn-warning btn-xs rounded-xl"
@@ -1163,66 +1163,40 @@ async function runScan() {
   thumbCache.value = new Map() // clear thumb cache on re-scan
 
   try {
-    const PAGE_SIZE = 500
-    let artPage = 1
-    let artDone = false
-    while (!artDone) {
-      scanStatus.value = `Fetching Art page ${artPage}…`
-      log(`Fetching Art page ${artPage}…`)
-      await artStore.fetchArtPage(artPage, PAGE_SIZE, artPage === 1)
-      const batch = artStore.art
-      allArt.value = artPage === 1 ? [...batch] : [...allArt.value, ...batch]
-      artDone = batch.length < PAGE_SIZE
-      if (!artDone) artPage++
-    }
-    log(`Loaded ${allArt.value.length} Art records total`, 'success')
+    // ── Art — one call, returns everything ────────────────────────────────
+    scanStatus.value = 'Fetching Art records…'
+    log('Fetching Art records…')
+    const art = await artStore.fetchAllArt(true)
+    allArt.value = [...art]
+    log(`Loaded ${allArt.value.length} Art records`, 'success')
 
-    const IMG_PAGE_SIZE = 500
-    let imgPage = 1
-    let imgDone = false
-    const collected: ArtImage[] = []
+    // ── ArtImage metadata — one call, no imageData ────────────────────────
+    // /api/art/image returns all records; imageData is excluded by default.
+    scanStatus.value = 'Fetching ArtImage metadata…'
+    log('Fetching ArtImage metadata…')
+    const imgResponse = await performFetch<ArtImage[]>('/api/art/image')
 
-    while (!imgDone) {
-      scanStatus.value = `Fetching ArtImage page ${imgPage}…`
-      log(`Fetching ArtImage metadata page ${imgPage}…`)
-      const response = await performFetch<ArtImage[]>(
-        `/api/art/images/meta?page=${imgPage}&limit=${IMG_PAGE_SIZE}`,
+    if (
+      imgResponse.success &&
+      Array.isArray(imgResponse.data) &&
+      imgResponse.data.length > 0
+    ) {
+      allArtImages.value = imgResponse.data.map(stripImageData)
+      log(`Loaded ${allArtImages.value.length} ArtImage records`, 'success')
+    } else {
+      allArtImages.value = artStore.artImages.map(stripImageData)
+      log(
+        `ArtImage endpoint returned nothing — using ${allArtImages.value.length} cached records`,
+        'error',
       )
-      if (
-        response.success &&
-        Array.isArray(response.data) &&
-        response.data.length > 0
-      ) {
-        collected.push(...response.data)
-        imgDone = response.data.length < IMG_PAGE_SIZE
-        if (!imgDone) imgPage++
-      } else if (imgPage === 1) {
-        const cached = artStore.artImages.map(stripImageData)
-        collected.push(...cached)
-        log(
-          `Meta endpoint failed — fell back to ${cached.length} cached ArtImage records`,
-          'error',
-        )
-        imgDone = true
-        if (cached.length < 50 && allArt.value.length > 200)
-          log(
-            `⚠️  Only ${cached.length} ArtImages vs ${allArt.value.length} Art records — meta endpoint may be truncating or missing. Add ?page=&limit= support.`,
-            'error',
-          )
-      } else {
-        imgDone = true
-      }
     }
-
-    allArtImages.value = collected
-    log(`Loaded ${allArtImages.value.length} ArtImage records total`, 'success')
 
     if (
       allArtImages.value.length < allArt.value.length * 0.05 &&
       allArt.value.length > 100
     )
       log(
-        `⚠️  ArtImage count (${allArtImages.value.length}) is <5% of Art count (${allArt.value.length}) — meta endpoint is almost certainly truncating.`,
+        `⚠️  Only ${allArtImages.value.length} ArtImages vs ${allArt.value.length} Art records — check /api/art/image.`,
         'error',
       )
 

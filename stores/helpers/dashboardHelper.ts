@@ -47,7 +47,7 @@ export const dashboardConfigs = {
       {
         key: 'doctor',
         label: 'Doctor',
-        icon: 'kind-icon:image',
+        icon: 'kind-icon:doctor',
         title: 'Art Doctor',
         summary:
           'Admin page to update art to the latest art image model for consistent interactions',

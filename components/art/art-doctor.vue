@@ -182,7 +182,7 @@
             class="flex items-center gap-1.5 text-xs text-base-content/60"
           >
             <span
-              class="inline-block h-2 w-2 flex-shrink-0 rounded-sm"
+              class="inline-block h-2 w-2 shrink-0 rounded-sm"
               :style="{ background: seg.color }"
             />
             {{ seg.label }}
@@ -381,7 +381,7 @@
                   </div>
                 </div>
                 <!-- actions -->
-                <div class="flex flex-shrink-0 items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                   <button
                     v-if="
                       art.imagePath || (art.path && art.path !== 'UNDEFINED')
@@ -489,7 +489,7 @@
                     {{ artImage.artId ?? 'none' }}
                   </p>
                 </div>
-                <div class="flex flex-shrink-0 items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                   <button
                     class="btn btn-secondary btn-xs rounded-xl"
                     type="button"
@@ -549,7 +549,7 @@
                     <span class="badge badge-error badge-xs">no artId</span>
                   </div>
                 </div>
-                <div class="flex flex-shrink-0 items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                   <span class="badge badge-ghost badge-sm"
                     >Manual review needed</span
                   >
@@ -615,7 +615,7 @@
                     }}
                   </p>
                 </div>
-                <div class="flex flex-shrink-0 items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                   <button
                     v-if="item.linkDirection !== 'both'"
                     class="btn btn-warning btn-xs rounded-xl"

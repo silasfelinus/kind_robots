@@ -59,49 +59,90 @@ model Art {
 
 /// ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
 model ArtImage {
-  id          Int        @id @default(autoincrement())
-  galleryId   Int?       @default(21)
-  imageData   String     @db.LongText
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime?  @default(now()) @updatedAt
-  userId      Int?       @default(10)
-  artId       Int?       @unique
-  fileName    String?    @db.VarChar(764)
-  fileType    String     @default("png")
-  rarity      Int?
-  botId       Int?       @unique
-  componentId Int?       @unique
-  milestoneId Int?       @unique
-  pitchId     Int?       @unique
-  promptId    Int?       @unique
-  reactionId  Int?       @unique
-  resourceId  Int?       @unique
-  rewardId    Int?       @unique
-  tagId       Int?       @unique
-  chatId      Int?       @unique
-  characterId Int?       @unique
-  butterflyId Int?       @unique
-  Art         Art?       @relation(fields: [artId], references: [id])
-  Bot         Bot?       @relation(fields: [botId], references: [id])
-  Character   Character? @relation(fields: [characterId], references: [id])
-  Chat        Chat?      @relation(fields: [chatId], references: [id])
-  Component   Component? @relation(fields: [componentId], references: [id])
-  Gallery     Gallery?   @relation(fields: [galleryId], references: [id])
-  Milestone   Milestone? @relation(fields: [milestoneId], references: [id])
-  Pitch       Pitch?     @relation(fields: [pitchId], references: [id])
-  Prompt      Prompt?    @relation(fields: [promptId], references: [id])
-  Resource    Resource?  @relation(fields: [resourceId], references: [id])
-  Reward      Reward?    @relation(fields: [rewardId], references: [id])
-  Tag         Tag?       @relation(fields: [tagId], references: [id])
-  User        User?      @relation(fields: [userId], references: [id])
-  Butterflies Butterfly[]
-  Scenarios   Scenario[]
-  Dreams      Dream[]
-  Reactions   Reaction[]
+  id                   Int             @id @default(autoincrement())
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime?       @default(now()) @updatedAt
+  galleryId            Int?            @default(21)
+  userId               Int?            @default(10)
 
+  // Image data
+  imageData            String          @db.LongText
+  thumbnailData        String?         @db.MediumText
+  fileName             String?         @db.VarChar(764)
+  fileType             String          @default("png")
+  imagePath            String?
+  rarity               Int?
 
-  @@index([galleryId], map: "ArtImage_galleryId_fkey")
-  @@index([userId], map: "ArtImage_userId_fkey")
+  // Generation metadata (migrated from Art)
+  path                 String?         @db.VarChar(764)
+  promptString         String?         @db.Text
+  negativePrompt       String?         @db.Text
+  checkpoint           String?         @db.VarChar(256)
+  checkpointResourceId Int?
+  sampler              String?         @db.VarChar(764)
+  seed                 Int?            @default(-1)
+  steps                Int?
+  cfg                  Int?            @default(3)
+  cfgHalf              Boolean?        @default(false)
+  designer             String?         @db.VarChar(764)
+  genres               String?
+
+  // Content flags
+  isPublic             Boolean?        @default(false)
+  isMature             Boolean?        @default(false)
+
+  // Server info
+  serverId             Int?
+  serverName           String?         @db.VarChar(256)
+  serverUrl            String?         @db.VarChar(764)
+
+  // Foreign keys (one-to-one ownership: this image belongs to one of these)
+  artId                Int?            @unique
+  botId                Int?            @unique
+  componentId          Int?            @unique
+  milestoneId          Int?            @unique
+  pitchId              Int?            @unique
+  promptId             Int?            @unique
+  resourceId           Int?            @unique
+  rewardId             Int?            @unique
+  chatId               Int?            @unique
+  characterId          Int?            @unique
+  butterflyId          Int?            @unique
+
+  // Relations — one-to-one owners
+  Art                  Art?            @relation(fields: [artId], references: [id])
+  Bot                  Bot?            @relation(fields: [botId], references: [id])
+  Character            Character?      @relation(fields: [characterId], references: [id])
+  Chat                 Chat?           @relation(fields: [chatId], references: [id])
+  Component            Component?      @relation(fields: [componentId], references: [id])
+  Gallery              Gallery?        @relation(fields: [galleryId], references: [id])
+  Milestone            Milestone?      @relation(fields: [milestoneId], references: [id])
+  Pitch                Pitch?          @relation(fields: [pitchId], references: [id])
+  Prompt               Prompt?         @relation(fields: [promptId], references: [id])
+  Resource             Resource?       @relation(fields: [resourceId], references: [id])
+  Reward               Reward?         @relation(fields: [rewardId], references: [id])
+  User                 User?           @relation(fields: [userId], references: [id])
+  Server               Server?         @relation(fields: [serverId], references: [id])
+  CheckpointResource   Resource?       @relation("ArtImageCheckpointResource", fields: [checkpointResourceId], references: [id])
+
+  // Relations — one-to-many (this image appears in many)
+  Butterflies          Butterfly[]
+  Scenarios            Scenario[]
+  Dreams               Dream[]
+  Reactions            Reaction[]
+  Tags                 Tag[]           @relation("ArtImageToTag")
+ // back-reference: which Tag claims this image as its representative
+  TagOwner             Tag?            @relation("TagRepresentativeImage") 
+  // Implicit M2M — an image can belong to many collections
+  ArtCollections       ArtCollection[]
+
+  @@index([galleryId],            map: "ArtImage_galleryId_fkey")
+  @@index([userId],               map: "ArtImage_userId_fkey")
+  @@index([artId],                map: "ArtImage_artId_fkey")
+  @@index([serverId],             map: "ArtImage_serverId_fkey")
+  @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
+  @@index([pitchId],              map: "ArtImage_pitchId_fkey")
+  @@index([promptId],             map: "ArtImage_promptId_fkey")
 }
 
 model ArtCollection {
@@ -119,6 +160,7 @@ model ArtCollection {
   Dreams       Dream[]
   Butterflies Butterfly[]
   Reactions Reaction[]
+  ArtImages   ArtImage[]
 
   @@index([userId], map: "ArtCollection_userId_fkey")
 }
@@ -674,6 +716,7 @@ model Resource {
   User            User?           @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "Resource_userId_fkey")
+  artImages ArtImage[] @relation("ArtImageCheckpointResource")
 }
 
 enum ResourceType {
@@ -829,6 +872,7 @@ model Server {
   lastStatus                 ServerStatus?
 
   Arts                       Art[]
+  ArtImages                 ArtImage[]
   Bots                       Bot[]
   Chats                      Chat[]
   Resources                  Resource[]
@@ -890,7 +934,6 @@ model SmartIcon {
   @@index([userId], map: "SmartIcon_userId_fkey")
 }
 
-/// tags are used to sort Pitches, Reactions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
 model Tag {
   id         Int         @id @default(autoincrement())
   createdAt  DateTime    @default(now())
@@ -902,15 +945,20 @@ model Tag {
   isPublic   Boolean?    @default(false)
   isMature   Boolean     @default(false)
   userId     Int?        @default(1)
-  artImageId Int?
-  ArtImage   ArtImage?
-  Reactions  Reaction[]
-  User       User?       @relation(fields: [userId], references: [id])
-  Components Component[] @relation("ComponentToTag")
-  Pitches    Pitch[]     @relation("PitchToTag")
+  artImageId Int? @unique
+
+  // Tag's representative image — Tag owns this FK, same pattern as Bot/Pitch/Character
+  ArtImage      ArtImage?   @relation("TagRepresentativeImage", fields: [artImageId], references: [id])
+  // M2M — images that carry this tag
+  ArtImages     ArtImage[]  @relation("ArtImageToTag")
+
+  Reactions   Reaction[]
+  User        User?       @relation(fields: [userId], references: [id])
+  Components  Component[] @relation("ComponentToTag")
+  Pitches     Pitch[]     @relation("PitchToTag")
   Butterflies Butterfly[]
-  Dreams      Dream[]    @relation("DreamToTag")
-  Arts        Art[]     @relation("ArtToTag")
+  Dreams      Dream[]     @relation("DreamToTag")
+  Arts        Art[]       @relation("ArtToTag")
 
   @@index([userId], map: "Tag_userId_fkey")
 }

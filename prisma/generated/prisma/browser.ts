@@ -137,7 +137,7 @@ export type Server = Prisma.ServerModel
 export type SmartIcon = Prisma.SmartIconModel
 /**
  * Model Tag
- * tags are used to sort Pitches, Reactions, or Components. They can be expanded to other Models but haven't. ArtImage is used to represent the Tag on the front end.
+ * 
  */
 export type Tag = Prisma.TagModel
 /**

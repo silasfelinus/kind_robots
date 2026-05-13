@@ -282,7 +282,7 @@ const channels: ChannelRoute[] = [
     icon: 'kind-icon:brain',
   },
   {
-    key: 'Sanctuary',
+    key: 'sanctuary',
     label: 'Sanctuary',
     path: '/sanctuary',
     icon: 'kind-icon:butterfly',

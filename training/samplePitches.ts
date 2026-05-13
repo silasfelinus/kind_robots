@@ -22,6 +22,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 2,
@@ -42,6 +43,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 3,
@@ -62,6 +64,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 4,
@@ -82,6 +85,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 5,
@@ -102,6 +106,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 6,
@@ -122,6 +127,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 7,
@@ -142,6 +148,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 8,
@@ -162,6 +169,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 9,
@@ -182,6 +190,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 10,
@@ -202,6 +211,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 11,
@@ -222,6 +232,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 12,
@@ -242,6 +253,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 13,
@@ -262,6 +274,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 14,
@@ -282,6 +295,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 15,
@@ -302,6 +316,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 16,
@@ -322,6 +337,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 17,
@@ -342,6 +358,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 18,
@@ -362,6 +379,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 19,
@@ -382,6 +400,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 20,
@@ -402,6 +421,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 21,
@@ -422,6 +442,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 22,
@@ -442,6 +463,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 23,
@@ -462,6 +484,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 24,
@@ -482,6 +505,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 25,
@@ -502,6 +526,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 26,
@@ -522,6 +547,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 27,
@@ -542,6 +568,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 28,
@@ -562,6 +589,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 29,
@@ -582,6 +610,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 30,
@@ -602,6 +631,7 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
   {
     id: 31,
@@ -622,5 +652,6 @@ export const samplePitches: Pitch[] = [
     examples: null,
     icon: '',
     creationSource: CreationSource.AI,
+    isActive: true,
   },
 ]

@@ -63,6 +63,7 @@ watch([customTitle, selectedTitle], ([newCustom, newSelected]) => {
       flavorText: null,
       highlightImage: null,
       isPublic: true,
+      isActive: true,
       userId: userStore.userId,
       artImageId: null,
       creationSource: 'AI',

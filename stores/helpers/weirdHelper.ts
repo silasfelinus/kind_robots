@@ -53,5 +53,6 @@ export function fromSeedScenario(
     artImageId: scenario.artImageId ?? null,
     isPublic: scenario.isPublic ?? true,
     isMature: scenario.isMature ?? false,
+    isActive: scenario.isActive ?? true,
   }
 }

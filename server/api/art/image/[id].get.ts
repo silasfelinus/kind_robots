@@ -80,8 +80,10 @@ function canReadArtImage(
   image: Pick<ArtImage, 'userId' | 'isPublic' | 'isMature'>,
   access: AccessContext,
 ): boolean {
-  if (!access.showMature && image.isMature) return false
   if (access.isAdmin) return true
+
+  if (!access.showMature && image.isMature) return false
+
   if (image.isPublic) return true
 
   if (

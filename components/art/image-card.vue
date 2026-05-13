@@ -1,0 +1,626 @@
+<!-- /components/content/art/image-card.vue -->
+<template>
+  <reactable-card
+    :selected="selected"
+    :compact="compact"
+    :show-reaction="showReaction"
+    :target-id="artImage.id"
+    target-type="artImage"
+    reaction-category="ART"
+    :target-title="cardTitle"
+    @select="selectImage"
+  >
+    <template #actions>
+      <button
+        v-if="showActions && allowEdit && (selected || compact)"
+        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
+        type="button"
+        title="Edit Image"
+        @click.stop="emit('edit', artImage.id)"
+      >
+        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+      </button>
+
+      <button
+        v-if="
+          showActions &&
+          allowCopyPrompt &&
+          artImage.promptString &&
+          (selected || compact)
+        "
+        class="rounded-full bg-base-100 p-2 text-secondary shadow transition hover:bg-secondary hover:text-secondary-content"
+        type="button"
+        title="Copy Prompt"
+        @click.stop="copyPrompt"
+      >
+        <Icon name="kind-icon:copy" class="h-4 w-4" />
+      </button>
+
+      <button
+        v-if="showActions && allowDelete && (selected || compact)"
+        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
+        type="button"
+        title="Delete Image"
+        @click.stop="emit('delete', artImage.id)"
+      >
+        <Icon name="kind-icon:trash" class="h-4 w-4" />
+      </button>
+    </template>
+
+    <div
+      v-if="showImage"
+      class="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+    >
+      <div
+        v-if="loadingImage"
+        class="flex h-full w-full items-center justify-center"
+      >
+        <span class="loading loading-spinner loading-lg text-primary" />
+      </div>
+
+      <img
+        v-else
+        :key="imageKey"
+        :src="resolvedImageSource"
+        :alt="imageAltText"
+        class="h-full w-full object-cover transition-transform hover:scale-105"
+        :loading="imageLoadingMode"
+        decoding="async"
+        @error="handleImageError"
+      />
+
+      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+        <span
+          v-if="artImage.artId"
+          class="badge badge-info badge-sm"
+          :title="`Linked Art #${artImage.artId}`"
+        >
+          Art #{{ artImage.artId }}
+        </span>
+
+        <span v-if="artImage.imageData" class="badge badge-success badge-sm">
+          imageData
+        </span>
+
+        <span
+          v-else-if="artImage.imagePath"
+          class="badge badge-warning badge-sm"
+        >
+          imagePath
+        </span>
+
+        <span v-else class="badge badge-error badge-sm"> no image </span>
+
+        <span v-if="artImage.isPublic" class="badge badge-success badge-sm">
+          Public
+        </span>
+
+        <span v-else class="badge badge-warning badge-sm"> Private </span>
+
+        <span v-if="artImage.isMature" class="badge badge-error badge-sm">
+          Mature
+        </span>
+      </div>
+
+      <div
+        v-if="selected"
+        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+      >
+        <Icon name="kind-icon:check" class="h-4 w-4" />
+      </div>
+
+      <button
+        v-if="imageLoadFailed && showDebug"
+        class="absolute bottom-2 left-2 rounded-full bg-warning px-3 py-1 text-xs font-bold text-warning-content shadow"
+        type="button"
+        title="Retry image"
+        @click.stop="loadFullImage"
+      >
+        Retry image
+      </button>
+    </div>
+
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <div v-if="showPrompt" class="min-w-0">
+        <h2
+          :class="[
+            'font-black leading-tight text-base-content',
+            compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-base',
+          ]"
+          :title="cardTitle"
+        >
+          {{ cardTitle }}
+        </h2>
+
+        <p
+          v-if="showNegativePrompt && artImage.negativePrompt"
+          class="mt-1 line-clamp-2 text-xs text-base-content/50"
+        >
+          Negative: {{ artImage.negativePrompt }}
+        </p>
+      </div>
+
+      <div
+        v-if="artImage.artId || showImageStatus"
+        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+      >
+        <div class="flex flex-wrap gap-2">
+          <span v-if="artImage.artId" class="badge badge-info badge-sm">
+            Linked to Art #{{ artImage.artId }}
+          </span>
+
+          <span v-else class="badge badge-ghost badge-sm"> No Art link </span>
+
+          <span class="badge badge-sm" :class="imageDataBadgeClass">
+            imageData: {{ artImage.imageData ? 'yes' : 'no' }}
+          </span>
+
+          <span
+            class="badge badge-sm"
+            :class="artImage.imagePath ? 'badge-info' : 'badge-ghost'"
+          >
+            imagePath: {{ artImage.imagePath ? 'yes' : 'no' }}
+          </span>
+
+          <span
+            class="badge badge-sm"
+            :class="artImage.thumbnailData ? 'badge-success' : 'badge-ghost'"
+          >
+            thumbnail: {{ artImage.thumbnailData ? 'yes' : 'no' }}
+          </span>
+        </div>
+
+        <p v-if="artImage.artId" class="mt-2 text-xs text-base-content/50">
+          This ArtImage is attached to Art #{{ artImage.artId }}. Good little
+          payload. Very official.
+        </p>
+
+        <p v-else class="mt-2 text-xs text-base-content/50">
+          This ArtImage is not attached to an Art record. That may be fine for
+          Bot, Character, Pitch, or other owner models.
+        </p>
+      </div>
+
+      <div v-if="showMeta" class="flex flex-wrap gap-2">
+        <button
+          v-if="checkpointDisplay"
+          class="badge badge-outline badge-sm max-w-full cursor-copy gap-1 truncate"
+          type="button"
+          :title="checkpointTitle"
+          @click.stop="copyCheckpoint"
+        >
+          <Icon name="kind-icon:checkpoint" class="h-3 w-3" />
+          <span class="truncate">{{ checkpointDisplay }}</span>
+        </button>
+
+        <span v-if="artImage.genres" class="badge badge-accent badge-sm">
+          {{ artImage.genres }}
+        </span>
+
+        <span v-if="artImage.sampler" class="badge badge-ghost badge-sm">
+          {{ artImage.sampler }}
+        </span>
+
+        <span v-if="artImage.designer" class="badge badge-primary badge-sm">
+          {{ artImage.designer }}
+        </span>
+
+        <span v-if="artImage.serverName" class="badge badge-secondary badge-sm">
+          {{ artImage.serverName }}
+        </span>
+
+        <span v-if="artImage.fileType" class="badge badge-ghost badge-sm">
+          {{ artImage.fileType }}
+        </span>
+      </div>
+
+      <div
+        v-if="showGenerationMeta"
+        class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+      >
+        <div>
+          <p class="font-bold uppercase text-base-content/45">Image ID</p>
+          <p class="truncate text-base-content/75">#{{ artImage.id }}</p>
+        </div>
+
+        <div>
+          <p class="font-bold uppercase text-base-content/45">Art ID</p>
+          <p class="truncate text-base-content/75">
+            {{ artImage.artId ? `#${artImage.artId}` : 'n/a' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="font-bold uppercase text-base-content/45">Steps</p>
+          <p class="truncate text-base-content/75">
+            {{ artImage.steps ?? 'n/a' }}
+          </p>
+        </div>
+
+        <div>
+          <p class="font-bold uppercase text-base-content/45">CFG</p>
+          <p class="truncate text-base-content/75">
+            {{ cfgDisplay }}
+          </p>
+        </div>
+
+        <button
+          class="rounded-xl text-left transition hover:bg-base-200 disabled:hover:bg-transparent"
+          type="button"
+          :disabled="!artImage.seed"
+          title="Copy seed"
+          @click.stop="copySeed"
+        >
+          <p class="font-bold uppercase text-base-content/45">Seed</p>
+          <p class="truncate text-base-content/75">
+            {{ artImage.seed ?? 'n/a' }}
+          </p>
+        </button>
+
+        <div>
+          <p class="font-bold uppercase text-base-content/45">Gallery</p>
+          <p class="truncate text-base-content/75">
+            {{ artImage.galleryId ? `#${artImage.galleryId}` : 'n/a' }}
+          </p>
+        </div>
+
+        <div
+          v-if="artImage.checkpointResourceId || artImage.checkpoint"
+          class="col-span-2"
+        >
+          <p class="font-bold uppercase text-base-content/45">Checkpoint</p>
+          <p class="truncate text-base-content/75" :title="checkpointTitle">
+            {{ checkpointDisplay || 'n/a' }}
+          </p>
+        </div>
+
+        <div v-if="artImage.imagePath" class="col-span-2">
+          <p class="font-bold uppercase text-base-content/45">Image Path</p>
+          <p class="truncate text-base-content/75" :title="artImage.imagePath">
+            {{ artImage.imagePath }}
+          </p>
+        </div>
+
+        <div v-if="artImage.fileName" class="col-span-2">
+          <p class="font-bold uppercase text-base-content/45">File Name</p>
+          <p class="truncate text-base-content/75" :title="artImage.fileName">
+            {{ artImage.fileName }}
+          </p>
+        </div>
+      </div>
+
+      <div v-if="showSelectButton" class="mt-auto grid grid-cols-1 gap-2 pt-1">
+        <button
+          class="btn btn-sm rounded-xl"
+          :class="selected ? 'btn-primary text-white' : 'btn-outline'"
+          type="button"
+          @click.stop="selectImage"
+        >
+          <Icon name="kind-icon:check" class="h-4 w-4" />
+          {{ selected ? 'Selected' : 'Select' }}
+        </button>
+      </div>
+
+      <details
+        v-if="showDebug"
+        class="rounded-2xl border border-base-300 bg-base-100 p-2"
+        @click.stop
+      >
+        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
+          Debug
+        </summary>
+
+        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
+          JSON.stringify(debugImage, null, 2)
+        }}</pre>
+      </details>
+    </div>
+  </reactable-card>
+</template>
+
+<script setup lang="ts">
+// /components/content/art/image-card.vue
+import { computed, ref, watch } from 'vue'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
+import { useArtStore } from '@/stores/artStore'
+
+const props = withDefaults(
+  defineProps<{
+    artImage: ArtImage
+    selected?: boolean
+    compact?: boolean
+    showImage?: boolean
+    showActions?: boolean
+    showPrompt?: boolean
+    showNegativePrompt?: boolean
+    showMeta?: boolean
+    showGenerationMeta?: boolean
+    showImageStatus?: boolean
+    showSelectButton?: boolean
+    showReaction?: boolean
+    showDebug?: boolean
+    allowEdit?: boolean
+    allowDelete?: boolean
+    allowCopyPrompt?: boolean
+    autoLoadImage?: boolean
+    fallbackImage?: string
+  }>(),
+  {
+    selected: false,
+    compact: false,
+    showImage: true,
+    showActions: true,
+    showPrompt: true,
+    showNegativePrompt: false,
+    showMeta: true,
+    showGenerationMeta: false,
+    showImageStatus: true,
+    showSelectButton: false,
+    showReaction: true,
+    showDebug: false,
+    allowEdit: true,
+    allowDelete: true,
+    allowCopyPrompt: true,
+    autoLoadImage: true,
+    fallbackImage: '/images/backtree.webp',
+  },
+)
+
+const emit = defineEmits<{
+  select: [artImage: ArtImage]
+  edit: [id: number]
+  delete: [id: number]
+  copied: [value: string]
+  loaded: [artImage: ArtImage]
+}>()
+
+const artStore = useArtStore()
+
+const localImage = ref<ArtImage | null>(props.artImage)
+const loadingImage = ref(false)
+const imageLoadFailed = ref(false)
+
+const displayImage = computed(() => {
+  return localImage.value || props.artImage
+})
+
+const cardTitle = computed(() => {
+  return (
+    displayImage.value.promptString ||
+    displayImage.value.fileName ||
+    `ArtImage #${displayImage.value.id}`
+  )
+})
+
+const imageAltText = computed(() => {
+  return displayImage.value.promptString || `Image ${displayImage.value.id}`
+})
+
+const imageLoadingMode = computed<'eager' | 'lazy'>(() => {
+  return props.compact ? 'eager' : 'lazy'
+})
+
+const imageKey = computed(() => {
+  return [
+    displayImage.value.id,
+    displayImage.value.imageData ? 'data' : 'no-data',
+    displayImage.value.imagePath || 'no-path',
+    imageLoadFailed.value ? 'fallback' : 'primary',
+  ].join('-')
+})
+
+const cfgDisplay = computed(() => {
+  const cfg = displayImage.value.cfg ?? 0
+
+  return displayImage.value.cfgHalf ? `${cfg}.5` : String(cfg)
+})
+
+const checkpointDisplay = computed(() => {
+  if (!displayImage.value.checkpoint) return ''
+
+  return cleanCheckpointName(displayImage.value.checkpoint)
+})
+
+const checkpointTitle = computed(() => {
+  return displayImage.value.checkpoint || checkpointDisplay.value
+})
+
+const resolvedImageSource = computed(() => {
+  if (imageLoadFailed.value) {
+    return props.fallbackImage
+  }
+
+  const dataUrl = createImageDataUrl(displayImage.value)
+  if (dataUrl) return dataUrl
+
+  const normalizedPath = normalizeImagePath(displayImage.value.imagePath)
+  if (normalizedPath) return normalizedPath
+
+  return props.fallbackImage
+})
+
+const imageDataBadgeClass = computed(() => {
+  return displayImage.value.imageData ? 'badge-success' : 'badge-warning'
+})
+
+const debugImage = computed(() => {
+  return {
+    ...displayImage.value,
+    imageData: displayImage.value.imageData
+      ? `[${displayImage.value.imageData.length} chars]`
+      : '',
+    thumbnailData: displayImage.value.thumbnailData
+      ? `[${displayImage.value.thumbnailData.length} chars]`
+      : null,
+    resolvedImageSourceStart: resolvedImageSource.value.slice(0, 120),
+    imageLoadFailed: imageLoadFailed.value,
+    loadingImage: loadingImage.value,
+  }
+})
+
+watch(
+  () => props.artImage,
+  async () => {
+    localImage.value = props.artImage
+    imageLoadFailed.value = false
+    await loadFullImage()
+  },
+  { immediate: true },
+)
+
+async function loadFullImage() {
+  imageLoadFailed.value = false
+
+  if (!props.autoLoadImage) return
+
+  if (props.artImage.imageData) {
+    localImage.value = props.artImage
+    return
+  }
+
+  loadingImage.value = true
+
+  try {
+    const fetched = await artStore.getArtImageById(props.artImage.id)
+
+    if (fetched) {
+      localImage.value = fetched
+      emit('loaded', fetched)
+
+      if (!fetched.imageData && !fetched.imagePath) {
+        imageLoadFailed.value = true
+      }
+
+      return
+    }
+
+    if (!props.artImage.imagePath) {
+      imageLoadFailed.value = true
+    }
+  } catch {
+    if (!props.artImage.imagePath) {
+      imageLoadFailed.value = true
+    }
+  } finally {
+    loadingImage.value = false
+  }
+}
+
+function handleImageError() {
+  if (resolvedImageSource.value === props.fallbackImage) return
+
+  imageLoadFailed.value = true
+}
+
+function selectImage() {
+  emit('select', displayImage.value)
+}
+
+async function copyPrompt() {
+  if (!displayImage.value.promptString) return
+
+  await navigator.clipboard.writeText(displayImage.value.promptString)
+  emit('copied', displayImage.value.promptString)
+}
+
+async function copySeed() {
+  if (!displayImage.value.seed) return
+
+  const seed = String(displayImage.value.seed)
+  await navigator.clipboard.writeText(seed)
+  emit('copied', seed)
+}
+
+async function copyCheckpoint() {
+  if (!displayImage.value.checkpoint) return
+
+  await navigator.clipboard.writeText(displayImage.value.checkpoint)
+  emit('copied', displayImage.value.checkpoint)
+}
+
+function normalizeImageMimeType(fileType?: string | null) {
+  if (!fileType) return 'image/png'
+
+  const cleaned = fileType.trim().toLowerCase()
+
+  if (cleaned.startsWith('image/')) {
+    return cleaned
+  }
+
+  if (cleaned === 'jpg') {
+    return 'image/jpeg'
+  }
+
+  if (cleaned === 'jpeg') {
+    return 'image/jpeg'
+  }
+
+  if (cleaned === 'png') {
+    return 'image/png'
+  }
+
+  if (cleaned === 'webp') {
+    return 'image/webp'
+  }
+
+  if (cleaned === 'gif') {
+    return 'image/gif'
+  }
+
+  return `image/${cleaned}`
+}
+
+function createImageDataUrl(image?: ArtImage | null) {
+  if (!image?.imageData) return ''
+
+  if (image.imageData.startsWith('data:image/')) {
+    return image.imageData
+  }
+
+  const mimeType = normalizeImageMimeType(image.fileType)
+
+  return `data:${mimeType};base64,${image.imageData}`
+}
+
+function normalizeImagePath(value?: string | null) {
+  if (!value) return ''
+
+  const trimmed = value.trim()
+
+  if (!trimmed || trimmed === 'UNDEFINED') return ''
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('data:')
+  ) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith('/images/')) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith('images/')) {
+    return `/${trimmed}`
+  }
+
+  if (trimmed.startsWith('/')) {
+    return trimmed
+  }
+
+  return `/images/${trimmed}`
+}
+
+function cleanCheckpointName(value: string) {
+  return (
+    value
+      .split('/')
+      .at(-1)
+      ?.replace(/\.(safetensors|ckpt|pt|bin)$/i, '')
+      .replace(/\s*\[[^\]]+\]\s*$/g, '')
+      .replace(/[_-]+/g, ' ')
+      .trim() || value
+  )
+}
+</script>

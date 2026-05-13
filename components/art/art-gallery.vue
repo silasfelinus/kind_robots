@@ -503,7 +503,7 @@
         </div>
 
         <div
-          v-if="currentArtList.length === 0"
+          v-if="currentGalleryItems.length === 0"
           class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
         >
           <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
@@ -514,26 +514,51 @@
             The gallery goblin found only vibes and lint.
           </p>
         </div>
-
         <div v-else class="art-grid">
           <div
-            v-for="art in currentArtList"
-            :key="art.id"
+            v-for="item in currentGalleryItems"
+            :key="item.key"
             class="group relative"
           >
+            <ImageCard
+              v-if="item.artImage"
+              :art-image="item.artImage"
+              :selected="artStore.currentArtImage?.id === item.artImage.id"
+              :compact="true"
+              :show-actions="true"
+              :show-prompt="false"
+              :show-meta="false"
+              :show-generation-meta="false"
+              :show-select-button="false"
+              :allow-delete="item.canDelete"
+              :allow-edit="item.canEdit"
+              @select="selectImage"
+              @edit="startEditingImage"
+              @delete="handleImageDeleted"
+            />
+
             <art-card
-              :art="art"
-              :selected="selectedArt?.id === art.id"
+              v-else
+              :art="item.art"
+              :selected="selectedArt?.id === item.art.id"
               :compact="true"
               :show-actions="true"
               :show-prompt="false"
               :show-meta="false"
               :show-select-button="false"
-              :allow-delete="canDeleteArt(art)"
-              :allow-edit="canDeleteArt(art)"
+              :allow-delete="item.canDelete"
+              :allow-edit="item.canEdit"
               @edit="startEditingArt"
               @delete="handleArtDeleted"
             />
+
+            <div
+              v-if="!item.artImage"
+              class="absolute left-2 top-2 z-10 rounded-full bg-warning px-2 py-1 text-xs font-bold text-warning-content shadow"
+              title="This Art record does not have a resolved ArtImage yet"
+            >
+              Legacy Art
+            </div>
 
             <button
               v-if="
@@ -542,7 +567,7 @@
               class="absolute right-2 top-2 z-10 rounded-full bg-base-100/90 p-1.5 opacity-0 shadow transition-opacity group-hover:opacity-100"
               type="button"
               title="Remove from collection"
-              @click.stop="removeArtFromCollection(art.id)"
+              @click.stop="removeArtFromCollection(item.art.id)"
             >
               <Icon name="kind-icon:x" class="h-3 w-3 text-base-content/70" />
             </button>
@@ -563,14 +588,21 @@
 <script setup lang="ts">
 // /components/content/art/art-gallery.vue
 import { computed, onMounted, reactive, ref } from 'vue'
-import type { Art } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
+import type { Art, ArtImage } from '@/stores/artStore'
 import { useArtStore } from '@/stores/artStore'
-import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
 
 type CollectionGalleryVariant = 'dashboard' | 'row' | 'dropdown'
+
+type GalleryArtItem = {
+  art: Art
+  artImage: ArtImage | null
+  key: string
+  canEdit: boolean
+  canDelete: boolean
+}
 
 const props = withDefaults(
   defineProps<{
@@ -664,7 +696,7 @@ const displayCount = computed(() => {
 
   return mode.value === 'collections'
     ? visibleCollections.value.length
-    : currentArtList.value.length
+    : currentGalleryItems.value.length
 })
 
 const headerTitle = computed(() => {
@@ -837,6 +869,50 @@ const currentArtList = computed<Art[]>(() => {
   return artList
 })
 
+const artImageById = computed(() => {
+  return new Map(
+    artStore.artImages
+      .filter((image): image is ArtImage => Boolean(image?.id))
+      .map((image) => [image.id, image]),
+  )
+})
+
+const artImageByArtId = computed(() => {
+  const map = new Map<number, ArtImage>()
+
+  for (const image of artStore.artImages) {
+    if (image.artId) {
+      map.set(image.artId, image)
+    }
+  }
+
+  return map
+})
+
+const currentGalleryItems = computed<GalleryArtItem[]>(() => {
+  return currentArtList.value.map((art) => {
+    const artImage = getImageForArt(art)
+
+    return {
+      art,
+      artImage,
+      key: artImage ? `image-${artImage.id}` : `art-${art.id}`,
+      canEdit: canDeleteArt(art),
+      canDelete: canDeleteArt(art),
+    }
+  })
+})
+
+function getImageForArt(art: Art): ArtImage | null {
+  if (art.artImageId) {
+    const directImage = artImageById.value.get(art.artImageId)
+
+    if (directImage) return directImage
+  }
+
+  return artImageByArtId.value.get(art.id) || null
+}
+
 const mergeTargetOptions = computed<ArtCollection[]>(() => {
   return collectionStore.collections.filter((collection) => {
     return collection.id !== activeCollection.value?.id
@@ -866,6 +942,9 @@ async function refresh() {
   try {
     await Promise.all([
       artStore.initialize({ fetchRemote: true, hydrateImages: false }),
+      artStore.fetchAllArtImages({
+        includeThumbnailData: true,
+      }),
       collectionStore.fetchCollections?.(),
     ])
   } catch (error) {
@@ -1105,6 +1184,25 @@ function handleArtDeleted(artId: number) {
 
 function startEditingArt(artId: number) {
   void artStore.selectArt(artId)
+}
+
+async function startEditingImage(imageId: number) {
+  const image = await artStore.getArtImageById(imageId, {
+    includeImageData: true,
+  })
+
+  if (image) {
+    await artStore.selectArtImageRecord(image)
+  }
+}
+function selectImage(image: ArtImage) {
+  void artStore.selectArtImageRecord(image)
+}
+
+function handleImageDeleted(imageId: number) {
+  if (artStore.currentArtImage?.id === imageId) {
+    artStore.deselectArtImage()
+  }
 }
 
 function toggleMergePanel() {

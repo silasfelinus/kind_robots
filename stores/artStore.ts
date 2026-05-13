@@ -1439,6 +1439,56 @@ export const useArtStore = defineStore('artStore', () => {
     })
   }
 
+  async function selectArtImageRecord(
+    artImageRecord: ArtImage,
+  ): Promise<ApiResponse<ArtImage>> {
+    state.loading = true
+
+    try {
+      clearError()
+
+      state.currentArtImage = artImageRecord
+      addOrUpdateArtImages([artImageRecord])
+
+      if (artImageRecord.artId) {
+        const linkedArt = artById.value.get(artImageRecord.artId)
+
+        if (linkedArt) {
+          state.currentArt = linkedArt
+        } else {
+          const response = await selectArt(artImageRecord.artId)
+
+          if (response.success && response.data) {
+            state.currentArt = response.data
+          }
+        }
+      }
+
+      return {
+        success: true,
+        message: `Selected ArtImage #${artImageRecord.id}.`,
+        data: artImageRecord,
+      }
+    } catch (error) {
+      handleError(error, 'selecting art image record')
+      setError(error, 'Failed to select art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to select art image.',
+      }
+    } finally {
+      state.loading = false
+    }
+  }
+
+  function deselectArtImage(): void {
+    state.currentArtImage = null
+  }
+
   async function fetchArtImageThumbnail(
     id: number,
   ): Promise<ArtImage | undefined> {
@@ -2307,6 +2357,8 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImageWithArtId,
 
     selectArtRecord,
+    selectArtImageRecord,
+    deselectArtImage,
 
     updateArt,
     updateArtTags,

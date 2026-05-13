@@ -3,31 +3,36 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-4"
   >
-    <!-- ── Header ───────────────────────────────────────────────────────── -->
     <header
       class="relative flex shrink-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
       :class="{ 'scan-active': isScanning }"
     >
-      <div class="flex items-center justify-between gap-3">
+      <div
+        class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+      >
         <div class="flex items-center gap-3">
           <div
             class="flex h-10 w-10 items-center justify-center rounded-2xl bg-error/10"
           >
             <Icon name="kind-icon:activity" class="h-5 w-5 text-error" />
           </div>
+
           <div>
             <h2 class="text-lg font-black text-base-content">Art Doctor</h2>
             <p class="text-sm text-base-content/60">
-              Diagnose and repair Art ↔ ArtImage inconsistencies
+              Compare Art shells against canonical ArtImage payloads
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
+
+        <div class="flex flex-wrap items-center gap-2">
           <span
             v-if="isScanning"
             class="font-mono text-xs text-base-content/50"
-            >{{ scanStatus }}</span
           >
+            {{ scanStatus }}
+          </span>
+
           <button
             class="btn btn-ghost btn-sm rounded-xl"
             type="button"
@@ -43,15 +48,16 @@
           </button>
         </div>
       </div>
+
       <div
         v-if="!hasScanned && !isScanning"
         class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center text-sm text-base-content/50"
       >
-        Click Scan to diagnose Art ↔ ArtImage health
+        Click Scan to inspect Art.imagePath, Art.artImageId, linked
+        ArtImage.imagePath, and ArtImage.imageData.
       </div>
     </header>
 
-    <!-- ── Error ─────────────────────────────────────────────────────────── -->
     <div
       v-if="scanError"
       class="shrink-0 rounded-2xl bg-error/10 p-3 text-sm text-error"
@@ -59,608 +65,511 @@
       {{ scanError }}
     </div>
 
-    <!-- ── Top-down summary ──────────────────────────────────────────────── -->
-    <div v-if="hasScanned" class="shrink-0 flex flex-col gap-3">
-      <!-- Raw totals -->
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p class="font-mono text-3xl font-black text-base-content">
-            {{ allArt.length }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">Total Art records</p>
-        </div>
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p class="font-mono text-3xl font-black text-base-content">
-            {{ allArtImages.length }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">
-            Total ArtImage records
-          </p>
-        </div>
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p
-            class="font-mono text-3xl font-black"
-            :class="
-              topStats.artWithArtImageId === 0 ? 'text-error' : 'text-warning'
-            "
-          >
-            {{ topStats.artWithArtImageId }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">Art with artImageId</p>
-          <p class="text-xs text-base-content/40">of {{ allArt.length }}</p>
-        </div>
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-center"
-        >
-          <p
-            class="font-mono text-3xl font-black"
-            :class="
-              topStats.artImagesWithArtId === 0 ? 'text-error' : 'text-warning'
-            "
-          >
-            {{ topStats.artImagesWithArtId }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">ArtImages with artId</p>
-          <p class="text-xs text-base-content/40">
-            of {{ allArtImages.length }}
-          </p>
-        </div>
+    <div v-if="hasScanned" class="flex shrink-0 flex-col gap-3">
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
+        <StatCard label="Art records" :value="allArt.length" tone="base" />
+        <StatCard
+          label="ArtImage records"
+          :value="allArtImages.length"
+          tone="base"
+        />
+        <StatCard
+          label="Art with imagePath"
+          :value="summary.artWithImagePath"
+          tone="info"
+        />
+        <StatCard
+          label="Art with artImageId"
+          :value="summary.artWithArtImageId"
+          tone="secondary"
+        />
+        <StatCard
+          label="ArtImage with imagePath"
+          :value="summary.artImagesWithPath"
+          tone="info"
+        />
+        <StatCard
+          label="Bidirectional links"
+          :value="summary.bidirectional"
+          tone="success"
+        />
+        <StatCard
+          label="One-way links"
+          :value="summary.oneWay"
+          tone="warning"
+        />
+        <StatCard
+          label="Needs review"
+          :value="summary.needsReview"
+          tone="error"
+        />
       </div>
 
-      <!-- Link breakdown -->
-      <div class="grid grid-cols-3 gap-3">
-        <div
-          class="rounded-2xl border border-success/30 bg-success/5 p-3 text-center"
-        >
-          <p class="font-mono text-2xl font-black text-success">
-            {{ topStats.bidirectional }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">↔ Bidirectional</p>
-          <p class="text-xs text-base-content/40">both sides set</p>
-        </div>
-        <div
-          class="rounded-2xl border border-warning/30 bg-warning/5 p-3 text-center"
-        >
-          <p class="font-mono text-2xl font-black text-warning">
-            {{ topStats.onewayArtToImage + topStats.onewayImageToArt }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">→ One-way links</p>
-          <p class="text-xs text-base-content/40">
-            {{ topStats.onewayArtToImage }} art→img ·
-            {{ topStats.onewayImageToArt }} img→art
-          </p>
-        </div>
-        <div
-          class="rounded-2xl border border-error/30 bg-error/5 p-3 text-center"
-        >
-          <p class="font-mono text-2xl font-black text-error">
-            {{ orphanedArt.length }}
-          </p>
-          <p class="mt-1 text-xs text-base-content/60">✗ No link at all</p>
-          <p class="text-xs text-base-content/40">orphaned Art records</p>
-        </div>
-      </div>
-
-      <!-- Health bar -->
       <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="mb-2 flex items-baseline justify-between">
-          <span class="text-xs font-bold text-base-content/60"
-            >Collection health</span
-          >
-          <span
-            class="font-mono text-sm font-black"
-            :class="
-              healthPct > 75
-                ? 'text-success'
-                : healthPct > 40
-                  ? 'text-warning'
-                  : 'text-error'
-            "
-          >
-            {{ healthPct }}%
-          </span>
-        </div>
-        <div class="flex h-2.5 w-full overflow-hidden rounded-full bg-base-300">
-          <div
-            v-for="seg in healthSegments.filter((s) => s.count > 0)"
-            :key="seg.label"
-            class="h-full transition-all"
-            :style="{ flex: seg.count, background: seg.color }"
-            :title="`${seg.label}: ${seg.count}`"
-          />
-        </div>
-        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-          <span
-            v-for="seg in healthSegments.filter((s) => s.count > 0)"
-            :key="seg.label"
-            class="flex items-center gap-1.5 text-xs text-base-content/60"
-          >
-            <span
-              class="inline-block h-2 w-2 shrink-0 rounded-sm"
-              :style="{ background: seg.color }"
-            />
-            {{ seg.label }}
-            <span class="font-mono font-bold text-base-content">{{
-              seg.count
-            }}</span>
-          </span>
-        </div>
-      </div>
-
-      <!-- Category stat cards -->
-      <div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
-        <button
-          v-for="cat in categories"
-          :key="cat.key"
-          class="flex cursor-pointer flex-col items-start rounded-2xl border p-3 transition"
-          :class="
-            activeCategory === cat.key
-              ? `border-${cat.color}/50 bg-${cat.color}/10`
-              : 'border-base-300 bg-base-100 hover:bg-base-200'
-          "
-          type="button"
-          @click="activeCategory = cat.key"
-        >
-          <span
-            class="font-mono text-2xl font-black leading-none"
-            :class="`text-${cat.color}`"
-          >
-            {{ cat.items.length }}
-          </span>
-          <span
-            class="mt-1 text-left text-xs leading-tight text-base-content/60"
-            >{{ cat.label }}</span
-          >
-          <span
-            v-if="cat.key === 'matched' && matchedNeedingThumbnail.length > 0"
-            class="mt-1 text-xs text-warning"
-          >
-            {{ matchedNeedingThumbnail.length }} need thumbnail
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ── Category detail ───────────────────────────────────────────────── -->
-    <section
-      v-if="hasScanned"
-      class="flex min-h-0 flex-1 flex-col gap-3 overflow-auto"
-    >
-      <!-- tabs -->
-      <div class="flex shrink-0 flex-wrap gap-2">
-        <button
-          v-for="cat in categories"
-          :key="cat.key"
-          class="btn btn-sm rounded-xl"
-          :class="activeCategory === cat.key ? `btn-${cat.color}` : 'btn-ghost'"
-          type="button"
-          @click="activeCategory = cat.key"
-        >
-          <Icon :name="cat.icon" class="h-4 w-4" />
-          {{ cat.label }}
-          <span
-            class="badge badge-sm ml-1"
-            :class="activeCategory === cat.key ? 'badge-ghost' : ''"
-          >
-            {{ cat.items.length }}
-          </span>
-        </button>
-      </div>
-
-      <!-- active panel -->
-      <div v-if="activeCategory" class="flex min-h-0 flex-1 flex-col gap-3">
-        <!-- description + batch + sub-filters -->
-        <div
-          class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm text-base-content/70">
-              {{ activeCategoryMeta?.description }}
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p class="text-sm font-black text-base-content">Audit view</p>
+            <p class="text-xs text-base-content/50">
+              Art view starts from generation shells. ArtImage view starts from
+              image payloads.
             </p>
+          </div>
+
+          <div class="join">
             <button
-              v-if="activeCategoryMeta?.batchLabel && batchableCount > 0"
-              class="btn btn-sm rounded-xl"
-              :class="`btn-${activeCategoryMeta?.color}`"
+              class="btn join-item btn-sm"
+              :class="auditMode === 'art' ? 'btn-primary' : 'btn-ghost'"
               type="button"
-              :disabled="isBatchRunning"
-              @click="runBatch(activeCategory)"
+              @click="auditMode = 'art'"
+            >
+              <Icon name="kind-icon:palette" class="h-4 w-4" />
+              Art
+            </button>
+
+            <button
+              class="btn join-item btn-sm"
+              :class="auditMode === 'artImage' ? 'btn-primary' : 'btn-ghost'"
+              type="button"
+              @click="auditMode = 'artImage'"
+            >
+              <Icon name="kind-icon:image" class="h-4 w-4" />
+              ArtImage
+            </button>
+          </div>
+        </div>
+
+        <div class="grid gap-2 lg:grid-cols-[1fr_auto]">
+          <label
+            class="input input-sm input-bordered flex items-center gap-2 rounded-xl"
+          >
+            <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
+            <input
+              v-model.trim="searchText"
+              class="grow"
+              type="search"
+              placeholder="Search id, prompt, path, checkpoint, status..."
+            />
+          </label>
+
+          <div class="flex flex-wrap gap-2">
+            <select
+              v-model="activeStatusFilter"
+              class="select select-bordered select-sm rounded-xl"
+            >
+              <option
+                v-for="option in statusFilterOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+
+            <select
+              v-model="sortMode"
+              class="select select-bordered select-sm rounded-xl"
+            >
+              <option value="severity">Severity</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="id-desc">ID descending</option>
+              <option value="id-asc">ID ascending</option>
+            </select>
+
+            <button
+              class="btn btn-sm rounded-xl"
+              type="button"
+              :disabled="visibleRows.length === 0 || isHydratingVisible"
+              @click="hydrateVisibleRows"
             >
               <span
-                v-if="isBatchRunning"
+                v-if="isHydratingVisible"
                 class="loading loading-spinner loading-xs"
               />
               <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
-              {{ activeCategoryMeta?.batchLabel }}
+              Check visible imageData
             </button>
           </div>
-          <div
-            v-if="activeCategory === 'thumbs'"
-            class="flex flex-wrap gap-1.5"
+        </div>
+      </div>
+    </div>
+
+    <section
+      v-if="hasScanned"
+      class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
+      <div class="flex shrink-0 flex-wrap items-center justify-between gap-2">
+        <p class="text-sm text-base-content/60">
+          Showing
+          <span class="font-mono font-bold text-base-content">{{
+            visibleRows.length
+          }}</span>
+          of
+          <span class="font-mono font-bold text-base-content">{{
+            activeRows.length
+          }}</span>
+          {{ auditMode === 'art' ? 'Art' : 'ArtImage' }} rows
+        </p>
+
+        <div class="flex flex-wrap gap-1.5">
+          <button
+            v-for="option in quickFilters"
+            :key="option.value"
+            class="btn btn-xs rounded-xl"
+            :class="
+              activeStatusFilter === option.value
+                ? 'btn-secondary'
+                : 'btn-ghost'
+            "
+            type="button"
+            @click="activeStatusFilter = option.value"
           >
-            <button
-              v-for="[val, label] in thumbFilterOptions"
-              :key="val"
-              class="btn btn-xs rounded-xl"
-              :class="thumbFilter === val ? 'btn-secondary' : 'btn-ghost'"
-              type="button"
-              @click="thumbFilter = val as ThumbFilter"
-            >
-              {{ label }}
-            </button>
-          </div>
-          <div
-            v-if="activeCategory === 'matched'"
-            class="flex flex-wrap gap-1.5"
+            {{ option.label }}
+            <span class="badge badge-xs">{{
+              countRowsByStatus(option.value)
+            }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="visibleRows.length === 0"
+        class="flex min-h-0 flex-1 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-8 text-center"
+      >
+        <Icon name="kind-icon:check" class="h-10 w-10 text-success" />
+        <p class="mt-2 font-black text-success">No rows match this view</p>
+        <p class="mt-1 text-sm text-base-content/50">
+          Either everything is behaving, or the goblins learned filtering.
+        </p>
+      </div>
+
+      <div v-else class="min-h-0 flex-1 overflow-auto pr-1">
+        <div class="flex flex-col gap-3">
+          <article
+            v-for="row in visibleRows"
+            :key="row.key"
+            class="rounded-2xl border bg-base-100 p-3 shadow-sm"
+            :class="rowShellClass(row)"
           >
-            <button
-              v-for="[val, label] in matchedFilterOptions"
-              :key="val"
-              class="btn btn-xs rounded-xl"
-              :class="matchedFilter === val ? 'btn-success' : 'btn-ghost'"
-              type="button"
-              @click="matchedFilter = val as MatchedFilter"
+            <div
+              class="mb-3 flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between"
             >
-              {{ label }}
-            </button>
-          </div>
-        </div>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="badge badge-sm" :class="modeBadgeClass(row)">
+                    {{ row.mode === 'art' ? 'Art first' : 'ArtImage first' }}
+                  </span>
 
-        <!-- batch progress -->
-        <div
-          v-if="isBatchRunning"
-          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
-          <div class="mb-1 flex justify-between text-xs text-base-content/60">
-            <span>{{ batchProgress.label }}</span>
-            <span class="font-mono"
-              >{{ batchProgress.done }} / {{ batchProgress.total }}</span
-            >
-          </div>
-          <progress
-            class="progress progress-primary w-full"
-            :value="batchProgress.done"
-            :max="batchProgress.total"
-          />
-        </div>
-
-        <!-- empty state -->
-        <div
-          v-if="activeDisplayItems.length === 0"
-          class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-8 text-center"
-        >
-          <Icon name="kind-icon:check" class="h-10 w-10 text-success" />
-          <p class="mt-2 font-bold text-success">All clear in this view</p>
-        </div>
-
-        <!-- item list -->
-        <div v-else class="flex-1 overflow-auto">
-          <div class="flex flex-col gap-2">
-            <!-- ORPHANED -->
-            <template v-if="activeCategory === 'orphaned'">
-              <div
-                v-for="art in activeDisplayItems as Art[]"
-                :key="art.id"
-                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <!-- thumbnail -->
-                <ArtThumb :art="art" />
-                <!-- info -->
-                <div class="min-w-0 flex-1">
-                  <p class="font-mono text-xs font-bold text-base-content/50">
-                    Art #{{ art.id }}
-                  </p>
-                  <p class="truncate text-sm text-base-content">
-                    {{ art.promptString?.slice(0, 80) || '(no prompt)' }}
-                  </p>
-                  <div class="mt-1 flex flex-wrap gap-1">
-                    <span v-if="art.imagePath" class="badge badge-info badge-xs"
-                      >imagePath</span
-                    >
-                    <span
-                      v-if="art.path && art.path !== 'UNDEFINED'"
-                      class="badge badge-ghost badge-xs"
-                      >path</span
-                    >
-                    <span v-if="art.serverId" class="badge badge-ghost badge-xs"
-                      >server #{{ art.serverId }}</span
-                    >
-                    <span
-                      v-if="
-                        !art.imagePath &&
-                        !(art.path && art.path !== 'UNDEFINED')
-                      "
-                      class="badge badge-error badge-xs"
-                      >no source</span
-                    >
-                  </div>
-                </div>
-                <!-- actions -->
-                <div class="flex shrink-0 items-center gap-2">
-                  <button
-                    v-if="
-                      art.imagePath || (art.path && art.path !== 'UNDEFINED')
-                    "
-                    class="btn btn-warning btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(art.id)"
-                    @click="promotePathToArtImage(art)"
-                  >
-                    <span
-                      v-if="fixingIds.has(art.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Promote path
-                  </button>
-                  <span v-else class="badge badge-ghost badge-sm"
-                    >no source</span
-                  >
                   <span
-                    v-if="fixResults.get(art.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(art.id) }}</span
+                    class="font-mono text-xs font-bold text-base-content/50"
                   >
+                    {{ row.primaryLabel }}
+                  </span>
+
+                  <span
+                    class="badge badge-sm"
+                    :class="severityBadgeClass(row.severity)"
+                  >
+                    {{ row.statusLabel }}
+                  </span>
+
+                  <span
+                    class="badge badge-sm"
+                    :class="linkBadgeClass(row.linkStatus)"
+                  >
+                    {{ linkStatusLabel(row.linkStatus) }}
+                  </span>
+
+                  <span
+                    class="badge badge-sm"
+                    :class="dataBadgeClass(row.artImageDataStatus)"
+                  >
+                    imageData:
+                    {{ imageDataStatusLabel(row.artImageDataStatus) }}
+                  </span>
+                </div>
+
+                <p class="mt-2 line-clamp-2 text-sm text-base-content/70">
+                  {{ row.promptText || 'No prompt text available' }}
+                </p>
+              </div>
+
+              <div class="flex shrink-0 flex-wrap gap-2">
+                <button
+                  v-if="row.artImage?.id"
+                  class="btn btn-info btn-xs rounded-xl"
+                  type="button"
+                  :disabled="hydratingImageIds.has(row.artImage.id)"
+                  @click="hydrateArtImage(row.artImage.id)"
+                >
+                  <span
+                    v-if="hydratingImageIds.has(row.artImage.id)"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  Check imageData
+                </button>
+
+                <button
+                  v-if="row.canRepairLink"
+                  class="btn btn-warning btn-xs rounded-xl"
+                  type="button"
+                  :disabled="fixingKeys.has(row.key)"
+                  @click="repairRowLink(row)"
+                >
+                  <span
+                    v-if="fixingKeys.has(row.key)"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  Repair link
+                </button>
+
+                <button
+                  v-if="row.canPromotePath"
+                  class="btn btn-secondary btn-xs rounded-xl"
+                  type="button"
+                  :disabled="fixingKeys.has(row.key)"
+                  @click="promoteArtPath(row)"
+                >
+                  <span
+                    v-if="fixingKeys.has(row.key)"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  Promote path
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="grid gap-3 xl:grid-cols-[minmax(260px,340px)_minmax(260px,340px)_1fr]"
+            >
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-2">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <p
+                    class="text-xs font-black uppercase tracking-wide text-base-content/50"
+                  >
+                    Art card
+                  </p>
+
+                  <span v-if="row.art" class="badge badge-ghost badge-xs">
+                    Art #{{ row.art.id }}
+                  </span>
+
+                  <span v-else class="badge badge-error badge-xs">
+                    Missing
+                  </span>
+                </div>
+
+                <ArtCard
+                  v-if="row.art"
+                  :art="row.art"
+                  :art-image="row.artImage"
+                  compact
+                  :show-actions="false"
+                  :show-reaction="false"
+                  :show-generation-meta="true"
+                  :show-select-button="false"
+                />
+
+                <div
+                  v-else
+                  class="flex min-h-72 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/50"
+                >
+                  No linked Art shell found.
                 </div>
               </div>
-            </template>
 
-            <!-- STALE METADATA -->
-            <template v-else-if="activeCategory === 'stale'">
-              <div
-                v-for="item in activeDisplayItems as StaleItem[]"
-                :key="item.artImage.id"
-                class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <!-- thumbnail — prefer artImage, fall back to art -->
-                <ArtThumb :art-image="item.artImage" :art="item.art" />
-                <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div class="min-w-0">
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-2">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <p
+                    class="text-xs font-black uppercase tracking-wide text-base-content/50"
+                  >
+                    Image card
+                  </p>
+
+                  <span v-if="row.artImage" class="badge badge-ghost badge-xs">
+                    ArtImage #{{ row.artImage.id }}
+                  </span>
+
+                  <span v-else class="badge badge-error badge-xs">
+                    Missing
+                  </span>
+                </div>
+
+                <ImageCard
+                  v-if="row.artImage"
+                  :art-image="hydratedImage(row.artImage.id) || row.artImage"
+                  compact
+                  :show-actions="false"
+                  :show-reaction="false"
+                  :show-generation-meta="true"
+                  :show-select-button="false"
+                />
+
+                <div
+                  v-else
+                  class="flex min-h-72 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/50"
+                >
+                  No linked ArtImage payload found.
+                </div>
+              </div>
+
+              <div class="grid gap-3">
+                <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                  <EvidenceTile
+                    label="Art.imagePath"
+                    :value="row.artImagePathFromArt || 'none'"
+                    :state="row.hasArtImagePathFromArt ? 'success' : 'warning'"
+                  />
+
+                  <EvidenceTile
+                    label="Art.artImageId"
+                    :value="
+                      row.art?.artImageId ? `#${row.art.artImageId}` : 'none'
+                    "
+                    :state="row.art?.artImageId ? 'success' : 'warning'"
+                  />
+
+                  <EvidenceTile
+                    label="ArtImage.imagePath"
+                    :value="row.artImage?.imagePath || 'none'"
+                    :state="row.artImage?.imagePath ? 'success' : 'info'"
+                  />
+
+                  <EvidenceTile
+                    label="ArtImage.imageData"
+                    :value="imageDataStatusLabel(row.artImageDataStatus)"
+                    :state="imageDataTileState(row.artImageDataStatus)"
+                  />
+                </div>
+
+                <div class="grid gap-3 lg:grid-cols-2">
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200 p-3"
+                  >
+                    <div class="mb-2 flex items-center justify-between gap-2">
                       <p
-                        class="font-mono text-xs font-bold text-base-content/50"
+                        class="text-xs font-black uppercase tracking-wide text-base-content/50"
                       >
-                        ArtImage #{{ item.artImage.id }} ← Art #{{
-                          item.art.id
-                        }}
+                        Path preview
                       </p>
-                      <p class="truncate text-sm text-base-content">
-                        {{
-                          item.art.promptString?.slice(0, 80) ||
-                          '(no prompt on art)'
-                        }}
-                      </p>
+
+                      <span
+                        class="badge badge-xs"
+                        :class="row.previewUrl ? 'badge-info' : 'badge-ghost'"
+                      >
+                        {{ row.previewUrl ? 'available' : 'none' }}
+                      </span>
                     </div>
-                    <button
-                      class="btn btn-info btn-xs rounded-xl"
-                      type="button"
-                      :disabled="fixingIds.has(item.artImage.id)"
-                      @click="syncArtMetadataToImage(item)"
+
+                    <div
+                      class="flex aspect-video items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+                    >
+                      <img
+                        v-if="row.previewUrl"
+                        :src="row.previewUrl"
+                        :alt="row.promptText || row.primaryLabel"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+
+                      <span v-else class="text-sm text-base-content/40">
+                        No path preview
+                      </span>
+                    </div>
+
+                    <p
+                      v-if="row.previewUrl"
+                      class="mt-2 break-all font-mono text-xs text-base-content/50"
+                    >
+                      {{ row.previewUrl }}
+                    </p>
+                  </div>
+
+                  <div
+                    class="rounded-2xl border border-base-300 bg-base-200 p-3"
+                  >
+                    <div class="mb-2 flex items-center justify-between gap-2">
+                      <p
+                        class="text-xs font-black uppercase tracking-wide text-base-content/50"
+                      >
+                        Assessment
+                      </p>
+
+                      <Icon
+                        :name="assessmentIcon(row.severity)"
+                        class="h-4 w-4"
+                        :class="assessmentIconClass(row.severity)"
+                      />
+                    </div>
+
+                    <p class="text-sm font-semibold text-base-content">
+                      {{ row.assessment }}
+                    </p>
+
+                    <div
+                      v-if="row.repairHints.length"
+                      class="mt-3 flex flex-wrap gap-1.5"
                     >
                       <span
-                        v-if="fixingIds.has(item.artImage.id)"
-                        class="loading loading-spinner loading-xs"
-                      />
-                      Sync metadata
-                    </button>
-                  </div>
-                  <div class="mt-1.5 flex flex-wrap gap-1">
-                    <span
-                      v-for="field in item.missingFields"
-                      :key="field"
-                      class="badge badge-warning badge-xs"
-                      >{{ field }}</span
-                    >
-                  </div>
-                  <span
-                    v-if="fixResults.get(item.artImage.id)"
-                    class="badge badge-success badge-sm mt-1"
-                    >{{ fixResults.get(item.artImage.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
+                        v-for="hint in row.repairHints"
+                        :key="hint"
+                        class="badge badge-outline badge-sm"
+                      >
+                        {{ hint }}
+                      </span>
+                    </div>
 
-            <!-- MISSING THUMBNAILS -->
-            <template v-else-if="activeCategory === 'thumbs'">
-              <div
-                v-for="artImage in activeDisplayItems as ArtImage[]"
-                :key="artImage.id"
-                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <ArtThumb :art-image="artImage" />
-                <div class="min-w-0 flex-1">
-                  <p class="font-mono text-xs font-bold text-base-content/50">
-                    ArtImage #{{ artImage.id }}
-                  </p>
-                  <p class="truncate text-sm text-base-content/70">
-                    {{
-                      artImage.promptString?.slice(0, 60) ||
-                      artImage.fileName ||
-                      '(untitled)'
-                    }}
-                  </p>
-                  <p class="text-xs text-base-content/40">
-                    {{ artImage.fileType || 'png' }} · artId:
-                    {{ artImage.artId ?? 'none' }}
-                  </p>
-                </div>
-                <div class="flex shrink-0 items-center gap-2">
-                  <button
-                    class="btn btn-secondary btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(artImage.id)"
-                    @click="generateAndSaveThumbnail(artImage)"
-                  >
-                    <span
-                      v-if="fixingIds.has(artImage.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Generate thumbnail
-                  </button>
-                  <span
-                    v-if="fixResults.get(artImage.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(artImage.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
-
-            <!-- UNLINKED IMAGES -->
-            <template v-else-if="activeCategory === 'unlinked'">
-              <div
-                v-for="artImage in activeDisplayItems as ArtImage[]"
-                :key="artImage.id"
-                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-              >
-                <ArtThumb :art-image="artImage" />
-                <div class="min-w-0 flex-1">
-                  <p class="font-mono text-xs font-bold text-base-content/50">
-                    ArtImage #{{ artImage.id }}
-                  </p>
-                  <p class="truncate text-sm text-base-content/70">
-                    {{
-                      artImage.promptString?.slice(0, 60) ||
-                      artImage.fileName ||
-                      '(no metadata)'
-                    }}
-                  </p>
-                  <div class="mt-1 flex flex-wrap gap-1">
-                    <span
-                      v-if="artImage.pitchId"
-                      class="badge badge-ghost badge-xs"
-                      >pitch #{{ artImage.pitchId }}</span
+                    <div
+                      v-if="fixResults.get(row.key)"
+                      class="mt-3 rounded-xl bg-success/10 p-2 text-sm text-success"
                     >
-                    <span
-                      v-if="artImage.botId"
-                      class="badge badge-ghost badge-xs"
-                      >bot #{{ artImage.botId }}</span
-                    >
-                    <span
-                      v-if="artImage.userId"
-                      class="badge badge-ghost badge-xs"
-                      >user #{{ artImage.userId }}</span
-                    >
-                    <span class="badge badge-error badge-xs">no artId</span>
+                      {{ fixResults.get(row.key) }}
+                    </div>
                   </div>
                 </div>
-                <div class="flex shrink-0 items-center gap-2">
-                  <span class="badge badge-ghost badge-sm"
-                    >Manual review needed</span
-                  >
-                  <span
-                    v-if="fixResults.get(artImage.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(artImage.id) }}</span
-                  >
-                </div>
-              </div>
-            </template>
 
-            <!-- MATCHED -->
-            <template v-else-if="activeCategory === 'matched'">
-              <div
-                v-for="item in activeDisplayItems as MatchedItem[]"
-                :key="item.art.id"
-                class="flex items-center gap-3 rounded-2xl border bg-base-100 p-3 transition"
-                :class="
-                  item.needsThumbnail
-                    ? 'border-warning/40'
-                    : 'border-success/30'
-                "
-              >
-                <ArtThumb :art-image="item.artImage" :art="item.art" />
-                <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <p class="font-mono text-xs font-bold text-base-content/50">
-                      Art #{{ item.art.id }} ↔ ArtImage #{{ item.artImage.id }}
-                    </p>
-                    <span
-                      v-if="item.linkDirection === 'both'"
-                      class="badge badge-success badge-xs"
-                      >↔ both</span
-                    >
-                    <span
-                      v-else-if="item.linkDirection === 'art→image'"
-                      class="badge badge-warning badge-xs"
-                      >→ one-way</span
-                    >
-                    <span
-                      v-else-if="item.linkDirection === 'image→art'"
-                      class="badge badge-warning badge-xs"
-                      >← one-way</span
-                    >
-                    <span
-                      v-if="item.needsThumbnail"
-                      class="badge badge-warning badge-xs"
-                      >needs thumbnail</span
-                    >
-                    <span v-else class="badge badge-success badge-xs"
-                      >fully healthy</span
-                    >
-                    <span
-                      v-if="item.artImage.checkpoint"
-                      class="badge badge-ghost badge-xs font-mono"
-                      >{{ item.artImage.checkpoint.split('.')[0] }}</span
-                    >
+                <details
+                  class="rounded-2xl border border-base-300 bg-base-200 p-3"
+                  @click.stop
+                >
+                  <summary
+                    class="cursor-pointer text-xs font-bold uppercase tracking-wide text-base-content/50"
+                  >
+                    Raw details
+                  </summary>
+
+                  <div class="mt-3 grid gap-3 lg:grid-cols-2">
+                    <div>
+                      <p class="mb-1 text-xs font-bold text-base-content/50">
+                        Art
+                      </p>
+                      <pre
+                        class="max-h-72 overflow-auto rounded-xl bg-base-300 p-3 text-xs text-base-content/70"
+                        >{{ JSON.stringify(row.art, null, 2) }}</pre
+                      >
+                    </div>
+
+                    <div>
+                      <p class="mb-1 text-xs font-bold text-base-content/50">
+                        ArtImage
+                      </p>
+                      <pre
+                        class="max-h-72 overflow-auto rounded-xl bg-base-300 p-3 text-xs text-base-content/70"
+                        >{{
+                          JSON.stringify(debugArtImage(row.artImage), null, 2)
+                        }}</pre
+                      >
+                    </div>
                   </div>
-                  <p class="mt-1 truncate text-sm text-base-content">
-                    {{
-                      item.artImage.promptString?.slice(0, 80) || '(no prompt)'
-                    }}
-                  </p>
-                </div>
-                <div class="flex shrink-0 items-center gap-2">
-                  <button
-                    v-if="item.linkDirection !== 'both'"
-                    class="btn btn-warning btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(item.art.id)"
-                    @click="repairLinkDirection(item)"
-                  >
-                    <span
-                      v-if="fixingIds.has(item.art.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Repair link
-                  </button>
-                  <button
-                    v-if="item.needsThumbnail"
-                    class="btn btn-success btn-xs rounded-xl"
-                    type="button"
-                    :disabled="fixingIds.has(item.artImage.id)"
-                    @click="generateAndSaveThumbnail(item.artImage)"
-                  >
-                    <span
-                      v-if="fixingIds.has(item.artImage.id)"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Thumbnail
-                  </button>
-                  <Icon
-                    v-else-if="item.linkDirection === 'both'"
-                    name="kind-icon:check"
-                    class="h-4 w-4 text-success"
-                  />
-                  <span
-                    v-if="fixResults.get(item.artImage.id)"
-                    class="badge badge-success badge-sm"
-                    >{{ fixResults.get(item.artImage.id) }}</span
-                  >
-                </div>
+                </details>
               </div>
-            </template>
-          </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- ── Scan log ───────────────────────────────────────────────────────── -->
     <details
       v-if="scanLog.length"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
@@ -669,20 +578,15 @@
       <summary class="cursor-pointer text-xs font-bold text-base-content/60">
         Operation log ({{ scanLog.length }})
       </summary>
-      <div class="mt-2 max-h-40 overflow-auto space-y-1">
+
+      <div class="mt-2 max-h-40 space-y-1 overflow-auto">
         <p
-          v-for="(entry, i) in scanLog"
-          :key="i"
+          v-for="(entry, index) in scanLog"
+          :key="index"
           class="font-mono text-xs"
-          :class="
-            entry.type === 'error'
-              ? 'text-error'
-              : entry.type === 'success'
-                ? 'text-success'
-                : 'text-base-content/60'
-          "
+          :class="logClass(entry.type)"
         >
-          {{ entry.msg }}
+          {{ entry.message }}
         </p>
       </div>
     </details>
@@ -691,844 +595,1124 @@
 
 <script setup lang="ts">
 // /components/content/art/art-doctor.vue
-import { computed, defineComponent, h, onMounted, onUnmounted, ref } from 'vue'
+import { computed, defineComponent, h, ref } from 'vue'
 import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { performFetch } from '@/stores/utils'
 
-// ─── ArtThumb inline component ────────────────────────────────────────────────
-//
-// Renders a 64×64 image preview for any Art or ArtImage record.
-//
-// Priority order:
-//   1. artImage.imagePath  → direct URL, zero cost
-//   2. art.imagePath       → direct URL, zero cost
-//   3. art.path            → direct URL if not 'UNDEFINED'
-//   4. Lazy-fetch ArtImage thumbnail via /api/art/image/[id]
-//      (queued, max THUMB_CONCURRENCY concurrent requests)
-//
-// Results are stored in the shared `thumbCache` below so re-renders are free.
-
-const THUMB_CONCURRENCY = 6
-
-// Shared cache: `img:${artImageId}` → data URI or null (failed)
-const thumbCache = ref(new Map<string, string | null>())
-const thumbActive = new Set<string>()
-const thumbQueue: Array<() => Promise<void>> = []
-
-function thumbDrain() {
-  while (thumbActive.size < THUMB_CONCURRENCY && thumbQueue.length > 0) {
-    const task = thumbQueue.shift()!
-    task()
-  }
-}
-
-function enqueueThumb(key: string, fetcher: () => Promise<string | null>) {
-  if (thumbCache.value.has(key) || thumbActive.has(key)) return
-  thumbActive.add(key)
-
-  const run = async () => {
-    try {
-      const src = await fetcher()
-      thumbCache.value = new Map(thumbCache.value).set(key, src)
-    } catch {
-      thumbCache.value = new Map(thumbCache.value).set(key, null)
-    } finally {
-      thumbActive.delete(key)
-      thumbDrain()
-    }
-  }
-
-  if (thumbActive.size <= THUMB_CONCURRENCY) {
-    run()
-  } else {
-    thumbQueue.push(run)
-  }
-}
-
-async function fetchArtImageThumb(id: number): Promise<string | null> {
-  const res = await performFetch<ArtImage>(`/api/art/image/${id}`)
-  if (!res.success || !res.data) return null
-  if (res.data.thumbnailData)
-    return `data:image/png;base64,${res.data.thumbnailData}`
-  if ((res.data as any).imagePath) return (res.data as any).imagePath as string
-  return null
-}
-
-// The component itself — defined inline so it can close over thumbCache
-const ArtThumb = defineComponent({
-  name: 'ArtThumb',
-  props: {
-    art: { type: Object as () => Art | undefined, default: undefined },
-    artImage: {
-      type: Object as () => ArtImage | undefined,
-      default: undefined,
-    },
-  },
-  setup(props) {
-    // Resolve best immediate src (no API call)
-    function immediateSrc(): string | null {
-      const ai = props.artImage as any
-      const a = props.art as any
-      if (ai?.imagePath) return ai.imagePath
-      if (a?.imagePath) return a.imagePath
-      if (a?.path && a.path !== 'UNDEFINED') return a.path
-      return null
-    }
-
-    // Queue a lazy fetch if we have an ArtImage id and no immediate src
-    onMounted(() => {
-      if (immediateSrc()) return
-      const id = props.artImage?.id ?? props.art?.artImageId
-      if (!id) return
-      const key = `img:${id}`
-      enqueueThumb(key, () => fetchArtImageThumb(id))
-    })
-
-    return () => {
-      const immediate = immediateSrc()
-      const id = props.artImage?.id ?? props.art?.artImageId
-      const cacheKey = id ? `img:${id}` : null
-      const cached = cacheKey ? (thumbCache.value.get(cacheKey) ?? null) : null
-      const src = immediate ?? cached
-
-      const imgClasses =
-        'h-full w-full object-cover transition-opacity duration-300'
-      const boxClasses =
-        'art-thumb flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-base-300'
-
-      if (src) {
-        return h('div', { class: boxClasses }, [
-          h('img', {
-            src,
-            class: imgClasses,
-            loading: 'lazy',
-            onError: (e: Event) => {
-              // Hide broken image; mark cache as failed so we don't retry
-              ;(e.target as HTMLImageElement).style.display = 'none'
-              if (cacheKey)
-                thumbCache.value = new Map(thumbCache.value).set(cacheKey, null)
-            },
-          }),
-        ])
-      }
-
-      // Loading or no source available
-      const isLoading = id && !thumbCache.value.has(cacheKey!)
-      if (isLoading) {
-        return h('div', { class: `${boxClasses} animate-pulse` }, [
-          h('div', { class: 'h-full w-full bg-base-content/10' }),
-        ])
-      }
-
-      // No image at all
-      return h('div', { class: boxClasses }, [
-        h(
-          'span',
-          { class: 'text-xs text-base-content/20 font-mono select-none' },
-          '?',
-        ),
-      ])
-    }
-  },
-})
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type CategoryKey = 'orphaned' | 'stale' | 'thumbs' | 'unlinked' | 'matched'
-type ThumbFilter = 'all' | 'matched' | 'unmatched'
-type MatchedFilter = 'all' | 'needs' | 'healthy'
-type LinkDirection = 'both' | 'art→image' | 'image→art'
-
-interface StaleItem {
-  art: Art
-  artImage: ArtImage
-  missingFields: string[]
-}
-
-interface MatchedItem {
-  art: Art
-  artImage: ArtImage
-  needsThumbnail: boolean
-  linkDirection: LinkDirection
-}
+type AuditMode = 'art' | 'artImage'
+type SortMode = 'severity' | 'newest' | 'oldest' | 'id-desc' | 'id-asc'
+type Severity = 'healthy' | 'info' | 'warning' | 'error'
+type LinkStatus =
+  | 'bidirectional'
+  | 'art-to-image-only'
+  | 'image-to-art-only'
+  | 'unlinked'
+  | 'conflict'
+type ImageDataStatus = 'present' | 'missing' | 'unchecked' | 'not-applicable'
+type StatusFilter =
+  | 'all'
+  | 'canonical'
+  | 'unchecked-image-data'
+  | 'missing-image-data'
+  | 'missing-art-image'
+  | 'missing-art'
+  | 'path-only'
+  | 'one-way-link'
+  | 'conflict'
+  | 'needs-review'
 
 interface LogEntry {
-  msg: string
+  message: string
   type: 'info' | 'success' | 'error'
 }
 
-// ─── State ────────────────────────────────────────────────────────────────────
+interface AuditRow {
+  key: string
+  mode: AuditMode
+  primaryId: number
+  primaryLabel: string
+  art: Art | null
+  artImage: ArtImage | null
+  artImageDataStatus: ImageDataStatus
+  linkStatus: LinkStatus
+  severity: Severity
+  status: StatusFilter
+  statusLabel: string
+  promptText: string
+  previewUrl: string
+  artImagePathFromArt: string
+  hasArtImagePathFromArt: boolean
+  canRepairLink: boolean
+  canPromotePath: boolean
+  assessment: string
+  repairHints: string[]
+  createdAtValue: number
+}
+
+const StatCard = defineComponent({
+  name: 'StatCard',
+  props: {
+    label: { type: String, required: true },
+    value: { type: Number, required: true },
+    tone: { type: String, default: 'base' },
+  },
+  setup(props) {
+    const valueClass = computed(() => {
+      if (props.tone === 'success') return 'text-success'
+      if (props.tone === 'warning') return 'text-warning'
+      if (props.tone === 'error') return 'text-error'
+      if (props.tone === 'info') return 'text-info'
+      if (props.tone === 'secondary') return 'text-secondary'
+      return 'text-base-content'
+    })
+
+    return () =>
+      h(
+        'div',
+        {
+          class:
+            'rounded-2xl border border-base-300 bg-base-100 p-3 text-center',
+        },
+        [
+          h(
+            'p',
+            {
+              class: `font-mono text-3xl font-black ${valueClass.value}`,
+            },
+            String(props.value),
+          ),
+          h(
+            'p',
+            {
+              class: 'mt-1 text-xs text-base-content/60',
+            },
+            props.label,
+          ),
+        ],
+      )
+  },
+})
+
+const EvidenceTile = defineComponent({
+  name: 'EvidenceTile',
+  props: {
+    label: { type: String, required: true },
+    value: { type: String, required: true },
+    state: { type: String, default: 'info' },
+  },
+  setup(props) {
+    const stateClass = computed(() => {
+      if (props.state === 'success') return 'border-success/30 bg-success/5'
+      if (props.state === 'warning') return 'border-warning/30 bg-warning/5'
+      if (props.state === 'error') return 'border-error/30 bg-error/5'
+      return 'border-info/30 bg-info/5'
+    })
+
+    return () =>
+      h(
+        'div',
+        {
+          class: `rounded-2xl border p-3 ${stateClass.value}`,
+        },
+        [
+          h(
+            'p',
+            {
+              class:
+                'text-xs font-bold uppercase tracking-wide text-base-content/45',
+            },
+            props.label,
+          ),
+          h(
+            'p',
+            {
+              class: 'mt-1 break-all font-mono text-xs text-base-content/75',
+              title: props.value,
+            },
+            props.value,
+          ),
+        ],
+      )
+  },
+})
 
 const artStore = useArtStore()
 
 const isScanning = ref(false)
+const isHydratingVisible = ref(false)
 const hasScanned = ref(false)
 const scanError = ref('')
 const scanStatus = ref('')
-const activeCategory = ref<CategoryKey>('orphaned')
-const isBatchRunning = ref(false)
-const fixingIds = ref<Set<number>>(new Set())
-const fixResults = ref<Map<number, string>>(new Map())
-const scanLog = ref<LogEntry[]>([])
-
+const searchText = ref('')
+const auditMode = ref<AuditMode>('art')
+const sortMode = ref<SortMode>('severity')
+const activeStatusFilter = ref<StatusFilter>('all')
 const allArt = ref<Art[]>([])
 const allArtImages = ref<ArtImage[]>([])
+const hydratedImageMap = ref(new Map<number, ArtImage>())
+const hydratingImageIds = ref(new Set<number>())
+const fixingKeys = ref(new Set<string>())
+const fixResults = ref(new Map<string, string>())
+const scanLog = ref<LogEntry[]>([])
 
-const batchProgress = ref({ label: '', done: 0, total: 0 })
-const thumbFilter = ref<ThumbFilter>('all')
-const matchedFilter = ref<MatchedFilter>('all')
-
-const thumbFilterOptions: [ThumbFilter, string][] = [
-  ['all', 'All'],
-  ['matched', 'Matched only'],
-  ['unmatched', 'Unmatched only'],
+const statusFilterOptions: Array<{ value: StatusFilter; label: string }> = [
+  { value: 'all', label: 'All statuses' },
+  { value: 'canonical', label: 'Canonical' },
+  { value: 'unchecked-image-data', label: 'Unchecked imageData' },
+  { value: 'missing-image-data', label: 'Missing imageData' },
+  { value: 'missing-art-image', label: 'Missing ArtImage' },
+  { value: 'missing-art', label: 'Missing Art' },
+  { value: 'path-only', label: 'Path only' },
+  { value: 'one-way-link', label: 'One-way link' },
+  { value: 'conflict', label: 'Conflict' },
+  { value: 'needs-review', label: 'Needs review' },
 ]
-const matchedFilterOptions: [MatchedFilter, string][] = [
-  ['all', 'All'],
-  ['needs', 'Needs thumbnail'],
-  ['healthy', 'Fully healthy'],
+
+const quickFilters: Array<{ value: StatusFilter; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'canonical', label: 'Good' },
+  { value: 'unchecked-image-data', label: 'Unchecked' },
+  { value: 'missing-image-data', label: 'No data' },
+  { value: 'one-way-link', label: 'One-way' },
+  { value: 'path-only', label: 'Path only' },
+  { value: 'needs-review', label: 'Review' },
 ]
 
-// ─── Computed — top-level stats ───────────────────────────────────────────────
+const artById = computed(
+  () => new Map(allArt.value.map((art) => [art.id, art])),
+)
 
-const topStats = computed(() => {
-  const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
-  const imageByArtId = new Map(
-    allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
-  )
-  const artWithArtImageId = allArt.value.filter(
-    (a) => a.artImageId != null,
-  ).length
-  const artImagesWithArtId = allArtImages.value.filter(
-    (i) => i.artId != null,
-  ).length
-  let bidirectional = 0,
-    onewayArtToImage = 0,
-    onewayImageToArt = 0
-  for (const art of allArt.value) {
-    const hasForward = !!art.artImageId && imageById.has(art.artImageId)
-    const hasBack = imageByArtId.has(art.id)
-    if (hasForward && hasBack) bidirectional++
-    else if (hasForward) onewayArtToImage++
-    else if (hasBack) onewayImageToArt++
+const artImageById = computed(() => {
+  return new Map(allArtImages.value.map((image) => [image.id, image]))
+})
+
+const artImageByArtId = computed(() => {
+  const map = new Map<number, ArtImage>()
+
+  for (const image of allArtImages.value) {
+    if (image.artId) {
+      map.set(image.artId, image)
+    }
   }
+
+  return map
+})
+
+const artByArtImageId = computed(() => {
+  const map = new Map<number, Art>()
+
+  for (const art of allArt.value) {
+    if (art.artImageId) {
+      map.set(art.artImageId, art)
+    }
+  }
+
+  return map
+})
+
+const summary = computed(() => {
+  const artRows = artAuditRows.value
+  const imageRows = artImageAuditRows.value
+
   return {
-    artWithArtImageId,
-    artImagesWithArtId,
-    bidirectional,
-    onewayArtToImage,
-    onewayImageToArt,
+    artWithImagePath: allArt.value.filter((art) => Boolean(primaryArtPath(art)))
+      .length,
+    artWithArtImageId: allArt.value.filter((art) => Boolean(art.artImageId))
+      .length,
+    artImagesWithPath: allArtImages.value.filter((image) =>
+      Boolean(image.imagePath),
+    ).length,
+    bidirectional: artRows.filter((row) => row.linkStatus === 'bidirectional')
+      .length,
+    oneWay: artRows.filter((row) => {
+      return (
+        row.linkStatus === 'art-to-image-only' ||
+        row.linkStatus === 'image-to-art-only'
+      )
+    }).length,
+    needsReview: [...artRows, ...imageRows].filter(
+      (row) => row.severity === 'error',
+    ).length,
   }
 })
 
-// ─── Computed — categories ────────────────────────────────────────────────────
-
-const orphanedArt = computed<Art[]>(() => {
-  const imageArtIds = new Set(
-    allArtImages.value.map((i) => i.artId).filter(Boolean),
-  )
-  const imageIds = new Set(allArtImages.value.map((i) => i.id))
-  return allArt.value.filter((art) => {
-    const hasForward = !!art.artImageId && imageIds.has(art.artImageId)
-    const hasBackRef = imageArtIds.has(art.id)
-    return !hasForward && !hasBackRef
-  })
+const artAuditRows = computed<AuditRow[]>(() => {
+  return allArt.value.map((art) => buildArtRow(art))
 })
 
-const staleMetadata = computed<StaleItem[]>(() => {
-  const artMap = new Map(allArt.value.map((a) => [a.id, a]))
-  const items: StaleItem[] = []
-  for (const artImage of allArtImages.value) {
-    if (!artImage.artId) continue
-    const art = artMap.get(artImage.artId)
-    if (!art) continue
-    const missing: string[] = []
-    if (!artImage.promptString && art.promptString) missing.push('promptString')
-    if (!artImage.negativePrompt && art.negativePrompt)
-      missing.push('negativePrompt')
-    if (!artImage.checkpoint && art.checkpoint) missing.push('checkpoint')
-    if (!artImage.sampler && art.sampler) missing.push('sampler')
-    if (!artImage.seed && art.seed && art.seed !== -1) missing.push('seed')
-    if (!artImage.steps && art.steps) missing.push('steps')
-    if (!artImage.cfg && art.cfg) missing.push('cfg')
-    if (!artImage.designer && art.designer) missing.push('designer')
-    if (!artImage.genres && art.genres) missing.push('genres')
-    if (!artImage.serverId && art.serverId) missing.push('serverId')
-    if (!artImage.serverName && art.serverName) missing.push('serverName')
-    if (artImage.isPublic == null && art.isPublic != null)
-      missing.push('isPublic')
-    if (artImage.isMature == null && art.isMature != null)
-      missing.push('isMature')
-    if (missing.length > 0)
-      items.push({ art, artImage, missingFields: missing })
-  }
-  return items
+const artImageAuditRows = computed<AuditRow[]>(() => {
+  return allArtImages.value.map((artImage) => buildArtImageRow(artImage))
 })
 
-const missingThumbnails = computed<ArtImage[]>(() =>
-  allArtImages.value.filter((i) => !i.thumbnailData),
-)
+const activeRows = computed(() => {
+  return auditMode.value === 'art'
+    ? artAuditRows.value
+    : artImageAuditRows.value
+})
 
-const unlinkedImages = computed<ArtImage[]>(() =>
-  allArtImages.value.filter(
-    (i) =>
-      !i.artId &&
-      !i.botId &&
-      !i.pitchId &&
-      !i.characterId &&
-      !i.promptId &&
-      !i.componentId &&
-      !i.milestoneId &&
-      !i.rewardId &&
-      !i.chatId &&
-      !i.butterflyId,
-  ),
-)
+const visibleRows = computed(() => {
+  const needle = searchText.value.toLowerCase().trim()
 
-const matchedArt = computed<MatchedItem[]>(() => {
-  const imageById = new Map(allArtImages.value.map((i) => [i.id, i]))
-  const imageByArtId = new Map(
-    allArtImages.value.filter((i) => i.artId != null).map((i) => [i.artId!, i]),
-  )
-  const seen = new Set<string>()
-  const items: MatchedItem[] = []
-  for (const art of allArt.value) {
-    const viaArtId = imageByArtId.get(art.id)
-    const viaArtImageId = art.artImageId
-      ? imageById.get(art.artImageId)
-      : undefined
-    const artImage = viaArtId ?? viaArtImageId
-    if (!artImage) continue
-    const key = `${art.id}-${artImage.id}`
-    if (seen.has(key)) continue
-    seen.add(key)
-    const hasForward = !!viaArtImageId
-    const hasBack = !!viaArtId
-    const linkDirection: LinkDirection =
-      hasForward && hasBack ? 'both' : hasForward ? 'art→image' : 'image→art'
-    items.push({
-      art,
-      artImage,
-      needsThumbnail: !artImage.thumbnailData,
-      linkDirection,
+  return activeRows.value
+    .filter((row) => {
+      if (
+        activeStatusFilter.value !== 'all' &&
+        row.status !== activeStatusFilter.value
+      ) {
+        return false
+      }
+
+      if (!needle) return true
+
+      const searchable = [
+        row.primaryLabel,
+        row.statusLabel,
+        row.assessment,
+        row.promptText,
+        row.previewUrl,
+        row.art?.id,
+        row.art?.imagePath,
+        row.art?.path,
+        row.art?.artImageId,
+        row.art?.checkpoint,
+        row.art?.serverName,
+        row.artImage?.id,
+        row.artImage?.imagePath,
+        row.artImage?.fileName,
+        row.artImage?.fileType,
+        row.artImage?.checkpoint,
+        row.artImage?.serverName,
+      ]
+        .filter((value) => value !== null && value !== undefined)
+        .join(' ')
+        .toLowerCase()
+
+      return searchable.includes(needle)
     })
+    .sort(sortRows)
+})
+
+function buildArtRow(art: Art): AuditRow {
+  const forwardImage = art.artImageId
+    ? artImageById.value.get(art.artImageId) || null
+    : null
+  const reverseImage = artImageByArtId.value.get(art.id) || null
+  const artImage = forwardImage || reverseImage
+  const linkStatus = getArtLinkStatus(art, forwardImage, reverseImage)
+  const detail = artImage
+    ? hydratedImageMap.value.get(artImage.id) || null
+    : null
+  const imageDataStatus = getImageDataStatus(artImage, detail)
+  const artPath = primaryArtPath(art)
+  const previewUrl = normalizeImagePath(artPath || artImage?.imagePath || '')
+  const createdAtValue = toTimestamp(art.createdAt)
+
+  const base: AuditRow = {
+    key: `art-${art.id}`,
+    mode: 'art',
+    primaryId: art.id,
+    primaryLabel: `Art #${art.id}`,
+    art,
+    artImage,
+    artImageDataStatus: imageDataStatus,
+    linkStatus,
+    severity: 'info',
+    status: 'needs-review',
+    statusLabel: 'Review',
+    promptText: art.promptString || artImage?.promptString || '',
+    previewUrl,
+    artImagePathFromArt: normalizeImagePath(artPath),
+    hasArtImagePathFromArt: Boolean(artPath),
+    canRepairLink: Boolean(
+      artImage && linkStatus !== 'bidirectional' && linkStatus !== 'conflict',
+    ),
+    canPromotePath: Boolean(!artImage && artPath),
+    assessment: '',
+    repairHints: [],
+    createdAtValue,
   }
-  return items
-})
 
-const matchedNeedingThumbnail = computed(() =>
-  matchedArt.value.filter((m) => m.needsThumbnail),
-)
+  return assessRow(base)
+}
 
-const filteredThumbs = computed<ArtImage[]>(() => {
-  if (thumbFilter.value === 'matched')
-    return missingThumbnails.value.filter((i) => i.artId != null)
-  if (thumbFilter.value === 'unmatched')
-    return missingThumbnails.value.filter((i) => i.artId == null)
-  return missingThumbnails.value
-})
+function buildArtImageRow(artImage: ArtImage): AuditRow {
+  const hydrated = hydratedImageMap.value.get(artImage.id) || null
+  const imageWithDetail = hydrated || artImage
+  const directArt = artImage.artId
+    ? artById.value.get(artImage.artId) || null
+    : null
+  const reverseArt = artByArtImageId.value.get(artImage.id) || null
+  const art = directArt || reverseArt
+  const linkStatus = getArtImageLinkStatus(artImage, directArt, reverseArt)
+  const imageDataStatus = getImageDataStatus(artImage, hydrated)
+  const previewUrl = normalizeImagePath(
+    artImage.imagePath || primaryArtPath(art) || '',
+  )
+  const createdAtValue = toTimestamp(artImage.createdAt)
 
-const filteredMatched = computed<MatchedItem[]>(() => {
-  if (matchedFilter.value === 'needs')
-    return matchedArt.value.filter((m) => m.needsThumbnail)
-  if (matchedFilter.value === 'healthy')
-    return matchedArt.value.filter((m) => !m.needsThumbnail)
-  return matchedArt.value
-})
-
-const activeDisplayItems = computed(() => {
-  switch (activeCategory.value) {
-    case 'orphaned':
-      return orphanedArt.value
-    case 'stale':
-      return staleMetadata.value
-    case 'thumbs':
-      return filteredThumbs.value
-    case 'unlinked':
-      return unlinkedImages.value
-    case 'matched':
-      return filteredMatched.value
-    default:
-      return []
+  const base: AuditRow = {
+    key: `artImage-${artImage.id}`,
+    mode: 'artImage',
+    primaryId: artImage.id,
+    primaryLabel: `ArtImage #${artImage.id}`,
+    art,
+    artImage: imageWithDetail,
+    artImageDataStatus: imageDataStatus,
+    linkStatus,
+    severity: 'info',
+    status: 'needs-review',
+    statusLabel: 'Review',
+    promptText: artImage.promptString || art?.promptString || '',
+    previewUrl,
+    artImagePathFromArt: normalizeImagePath(primaryArtPath(art)),
+    hasArtImagePathFromArt: Boolean(primaryArtPath(art)),
+    canRepairLink: Boolean(
+      art && linkStatus !== 'bidirectional' && linkStatus !== 'conflict',
+    ),
+    canPromotePath: false,
+    assessment: '',
+    repairHints: [],
+    createdAtValue,
   }
-})
 
-const categories = computed(() => [
-  {
-    key: 'orphaned' as CategoryKey,
-    label: 'Orphaned Art',
-    icon: 'kind-icon:image',
-    color: 'warning',
-    description:
-      'Art records with no linked ArtImage in either direction. If the Art has an imagePath or path, it can be promoted to a proper ArtImage row.',
-    batchLabel: 'Promote all paths',
-    items: orphanedArt.value,
-  },
-  {
-    key: 'stale' as CategoryKey,
-    label: 'Stale Metadata',
-    icon: 'kind-icon:edit',
-    color: 'info',
-    description:
-      'ArtImages linked to an Art record but missing generation metadata.',
-    batchLabel: 'Sync all metadata',
-    items: staleMetadata.value,
-  },
-  {
-    key: 'thumbs' as CategoryKey,
-    label: 'No Thumbnail',
-    icon: 'kind-icon:image',
-    color: 'secondary',
-    description:
-      'ArtImages that have imageData but no thumbnailData — includes both matched and unmatched records.',
-    batchLabel: 'Generate all thumbnails',
-    items: missingThumbnails.value,
-  },
-  {
-    key: 'unlinked' as CategoryKey,
-    label: 'Unlinked Images',
-    icon: 'kind-icon:warning',
-    color: 'error',
-    description:
-      'ArtImages with no owner FK at all — not attached to any Art, Bot, Pitch, Character, etc.',
-    batchLabel: undefined,
-    items: unlinkedImages.value,
-  },
-  {
-    key: 'matched' as CategoryKey,
-    label: 'Matched',
-    icon: 'kind-icon:check',
-    color: 'success',
-    description:
-      'Art ↔ ArtImage pairs found via either direction of the link. One-way links are flagged and can be repaired here.',
-    batchLabel: 'Generate missing thumbnails',
-    items: matchedArt.value,
-  },
-])
+  return assessRow(base)
+}
 
-const activeCategoryMeta = computed(() =>
-  categories.value.find((c) => c.key === activeCategory.value),
-)
+function assessRow(row: AuditRow): AuditRow {
+  const art = row.art
+  const artImage = row.artImage
+  const hasArt = Boolean(art)
+  const hasArtImage = Boolean(artImage)
+  const hasArtImageId = Boolean(art?.artImageId)
+  const hasArtPath = Boolean(primaryArtPath(art))
+  const hasArtImagePath = Boolean(artImage?.imagePath)
+  const hasImageData = row.artImageDataStatus === 'present'
+  const imageDataMissing = row.artImageDataStatus === 'missing'
+  const imageDataUnchecked = row.artImageDataStatus === 'unchecked'
+  const repairHints: string[] = []
 
-const batchableCount = computed(() => {
-  if (activeCategory.value === 'orphaned')
-    return orphanedArt.value.filter(
-      (a) => a.imagePath || (a.path && a.path !== 'UNDEFINED'),
-    ).length
-  if (activeCategory.value === 'matched')
-    return matchedNeedingThumbnail.value.length
-  return activeCategoryMeta.value?.items.length ?? 0
-})
+  if (row.linkStatus === 'conflict') {
+    repairHints.push('choose correct ArtImage')
+    repairHints.push('patch mismatched ids')
 
-// ─── Health bar ───────────────────────────────────────────────────────────────
+    return {
+      ...row,
+      severity: 'error',
+      status: 'conflict',
+      statusLabel: 'Link conflict',
+      assessment:
+        'This row has conflicting forward and reverse links. Pick the true ArtImage, then patch the incorrect side before trusting either card.',
+      repairHints,
+    }
+  }
 
-const healthyMatchedCount = computed(
-  () => matchedArt.value.filter((m) => !m.needsThumbnail).length,
-)
+  if (
+    hasArt &&
+    hasArtImage &&
+    row.linkStatus === 'bidirectional' &&
+    hasImageData
+  ) {
+    if (!hasArtImagePath) {
+      repairHints.push('optional imagePath backfill')
 
-const healthSegments = computed(() => [
-  { label: 'Healthy', color: '#639922', count: healthyMatchedCount.value },
-  {
-    label: 'Needs thumbnail',
-    color: '#FAC775',
-    count:
-      matchedNeedingThumbnail.value.length +
-      missingThumbnails.value.filter((i) => i.artId == null).length,
-  },
-  {
-    label: 'Stale metadata',
-    color: '#85B7EB',
-    count: staleMetadata.value.length,
-  },
-  { label: 'Orphaned', color: '#EF9F27', count: orphanedArt.value.length },
-  { label: 'Unlinked', color: '#F09595', count: unlinkedImages.value.length },
-])
+      return {
+        ...row,
+        severity: 'info',
+        status: 'canonical',
+        statusLabel: 'Canonical, no imagePath',
+        assessment:
+          'The Art and ArtImage agree, and ArtImage has imageData. It is usable, but ArtImage.imagePath is missing for lightweight display.',
+        repairHints,
+      }
+    }
 
-const healthPct = computed(() => {
-  const total = healthSegments.value.reduce((s, seg) => s + seg.count, 0)
-  if (total === 0) return 0
-  return Math.round((healthyMatchedCount.value / total) * 100)
-})
+    return {
+      ...row,
+      severity: 'healthy',
+      status: 'canonical',
+      statusLabel: 'Canonical',
+      assessment:
+        'The Art and ArtImage agree. ArtImage has imageData and imagePath. This is the clean target state.',
+      repairHints,
+    }
+  }
 
-// ─── Scan ─────────────────────────────────────────────────────────────────────
+  if (
+    hasArt &&
+    hasArtImage &&
+    row.linkStatus === 'bidirectional' &&
+    imageDataUnchecked
+  ) {
+    repairHints.push('check imageData')
+
+    return {
+      ...row,
+      severity: 'info',
+      status: 'unchecked-image-data',
+      statusLabel: 'Unchecked imageData',
+      assessment:
+        'The Art and ArtImage link correctly, but imageData has not been fetched yet. Run Check imageData to confirm the payload.',
+      repairHints,
+    }
+  }
+
+  if (hasArt && hasArtImage && imageDataMissing) {
+    repairHints.push('reupload imageData')
+    repairHints.push('regenerate asset if needed')
+
+    return {
+      ...row,
+      severity: 'error',
+      status: 'missing-image-data',
+      statusLabel: 'Missing imageData',
+      assessment:
+        'A linked ArtImage exists, but its full record does not contain imageData. Since ArtImage is the desired output, this needs repair.',
+      repairHints,
+    }
+  }
+
+  if (hasArt && hasArtImage && row.linkStatus !== 'bidirectional') {
+    repairHints.push('repair missing relationship side')
+
+    if (imageDataUnchecked) {
+      repairHints.push('check imageData')
+    }
+
+    return {
+      ...row,
+      severity: 'warning',
+      status: 'one-way-link',
+      statusLabel:
+        row.linkStatus === 'art-to-image-only'
+          ? 'Art points to ArtImage'
+          : 'ArtImage points to Art',
+      assessment:
+        'These records appear related, but only one side of the Art to ArtImage link is set. Repair the missing side to make the pair canonical.',
+      repairHints,
+    }
+  }
+
+  if (hasArt && !hasArtImage && hasArtPath) {
+    repairHints.push('promote Art path')
+    repairHints.push('create ArtImage shell')
+
+    return {
+      ...row,
+      severity: 'warning',
+      status: 'path-only',
+      statusLabel: 'Path only',
+      assessment:
+        'This Art has imagePath or path, but no ArtImage. It is a legacy-style Art shell and can be promoted into an ArtImage.',
+      repairHints,
+    }
+  }
+
+  if (hasArt && !hasArtImage && hasArtImageId) {
+    repairHints.push('find missing ArtImage')
+    repairHints.push('clear stale artImageId if deleted')
+
+    return {
+      ...row,
+      severity: 'error',
+      status: 'missing-art-image',
+      statusLabel: 'Missing ArtImage',
+      assessment:
+        'This Art has an artImageId, but the matching ArtImage was not found in the scan. This is a stale pointer unless the endpoint is filtering it out.',
+      repairHints,
+    }
+  }
+
+  if (hasArt && !hasArtImage) {
+    repairHints.push('attach or create ArtImage')
+
+    return {
+      ...row,
+      severity: 'error',
+      status: 'missing-art-image',
+      statusLabel: 'No ArtImage',
+      assessment:
+        'This Art has no imagePath and no linked ArtImage. There is not enough image evidence to display or repair automatically.',
+      repairHints,
+    }
+  }
+
+  if (!hasArt && hasArtImage && imageDataMissing) {
+    repairHints.push('restore imageData')
+    repairHints.push('create Art shell if this should appear in Art gallery')
+
+    return {
+      ...row,
+      severity: 'error',
+      status: 'missing-image-data',
+      statusLabel: 'ImageData missing',
+      assessment:
+        'This ArtImage has no linked Art shell and does not prove it has imageData. That is a lonely little database potato.',
+      repairHints,
+    }
+  }
+
+  if (!hasArt && hasArtImage && imageDataUnchecked) {
+    repairHints.push('check imageData')
+    repairHints.push('create Art shell if needed')
+
+    return {
+      ...row,
+      severity: 'info',
+      status: 'missing-art',
+      statusLabel: 'No Art shell',
+      assessment:
+        'This ArtImage may be valid for another model, but it is not linked to an Art shell. Check imageData, then decide if it belongs in Art.',
+      repairHints,
+    }
+  }
+
+  if (!hasArt && hasArtImage && hasImageData) {
+    repairHints.push('optional Art shell creation')
+
+    return {
+      ...row,
+      severity: 'info',
+      status: 'missing-art',
+      statusLabel: 'Image only',
+      assessment:
+        'This ArtImage has imageData but no linked Art shell. Valid as a standalone image payload, but not a complete Art gallery pair.',
+      repairHints,
+    }
+  }
+
+  return {
+    ...row,
+    severity: 'error',
+    status: 'needs-review',
+    statusLabel: 'Needs review',
+    assessment:
+      'This row does not have enough reliable link or image evidence to classify cleanly. Manual review recommended.',
+    repairHints: ['manual review'],
+  }
+}
 
 async function runScan() {
   isScanning.value = true
   scanError.value = ''
+  scanStatus.value = 'Starting scan…'
   scanLog.value = []
   fixResults.value = new Map()
-  allArt.value = []
-  allArtImages.value = []
-  thumbCache.value = new Map() // clear thumb cache on re-scan
+  hydratedImageMap.value = new Map()
 
   try {
-    // ── Art — one call, returns everything ────────────────────────────────
     scanStatus.value = 'Fetching Art records…'
     log('Fetching Art records…')
+
     const art = await artStore.fetchAllArt(true)
     allArt.value = [...art]
+
     log(`Loaded ${allArt.value.length} Art records`, 'success')
 
-    // ── ArtImage metadata — one call, no imageData ────────────────────────
-    // /api/art/image returns all records; imageData is excluded by default.
     scanStatus.value = 'Fetching ArtImage metadata…'
     log('Fetching ArtImage metadata…')
-    const imgResponse = await performFetch<ArtImage[]>('/api/art/image')
 
-    if (
-      imgResponse.success &&
-      Array.isArray(imgResponse.data) &&
-      imgResponse.data.length > 0
-    ) {
-      allArtImages.value = imgResponse.data.map(stripImageData)
+    const imageResponse = await performFetch<ArtImage[]>('/api/art/image')
+
+    if (imageResponse.success && Array.isArray(imageResponse.data)) {
+      allArtImages.value = imageResponse.data.map(stripHeavyImageFields)
       log(`Loaded ${allArtImages.value.length} ArtImage records`, 'success')
     } else {
-      allArtImages.value = artStore.artImages.map(stripImageData)
+      allArtImages.value = artStore.artImages.map(stripHeavyImageFields)
       log(
-        `ArtImage endpoint returned nothing — using ${allArtImages.value.length} cached records`,
+        `ArtImage endpoint did not return an array. Used ${allArtImages.value.length} cached ArtImage records instead.`,
         'error',
       )
     }
 
-    if (
-      allArtImages.value.length < allArt.value.length * 0.05 &&
-      allArt.value.length > 100
-    )
-      log(
-        `⚠️  Only ${allArtImages.value.length} ArtImages vs ${allArt.value.length} Art records — check /api/art/image.`,
-        'error',
-      )
-
     hasScanned.value = true
     scanStatus.value = ''
-    log(
-      `Scan complete — ${orphanedArt.value.length} orphaned, ${staleMetadata.value.length} stale, ` +
-        `${missingThumbnails.value.length} no thumbnail, ${unlinkedImages.value.length} unlinked, ` +
-        `${matchedArt.value.length} matched (${healthyMatchedCount.value} fully healthy)`,
-      'success',
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Scan failed'
-    scanError.value = msg
+    log('Scan complete', 'success')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Scan failed'
+    scanError.value = message
     scanStatus.value = ''
-    log(msg, 'error')
+    log(message, 'error')
   } finally {
     isScanning.value = false
   }
 }
 
-// ─── Fixes ────────────────────────────────────────────────────────────────────
+async function hydrateVisibleRows() {
+  isHydratingVisible.value = true
 
-async function promotePathToArtImage(art: Art) {
-  markFixing(art.id)
   try {
-    const imagePath =
-      art.imagePath || (art.path !== 'UNDEFINED' ? art.path : null)
-    if (!imagePath) throw new Error('No image source on this Art record')
-    const createRes = await performFetch<ArtImage>('/api/art/image', {
+    const ids = visibleRows.value
+      .map((row) => row.artImage?.id)
+      .filter((id): id is number => Boolean(id))
+      .filter((id) => !hydratedImageMap.value.has(id))
+
+    for (const id of ids) {
+      await hydrateArtImage(id)
+    }
+  } finally {
+    isHydratingVisible.value = false
+  }
+}
+
+async function hydrateArtImage(id: number) {
+  if (hydratedImageMap.value.has(id) || hydratingImageIds.value.has(id)) {
+    return hydratedImageMap.value.get(id) || null
+  }
+
+  hydratingImageIds.value = new Set([...hydratingImageIds.value, id])
+
+  try {
+    const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || `Could not fetch ArtImage #${id}`)
+    }
+
+    hydratedImageMap.value = new Map(hydratedImageMap.value).set(
+      id,
+      response.data,
+    )
+
+    log(
+      `Checked ArtImage #${id}: imageData ${response.data.imageData ? 'present' : 'missing'}`,
+      response.data.imageData ? 'success' : 'error',
+    )
+
+    return response.data
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : `Could not fetch ArtImage #${id}`
+    log(message, 'error')
+    return null
+  } finally {
+    const next = new Set(hydratingImageIds.value)
+    next.delete(id)
+    hydratingImageIds.value = next
+  }
+}
+
+async function repairRowLink(row: AuditRow) {
+  if (!row.art || !row.artImage) return
+
+  markFixing(row.key)
+
+  try {
+    if (row.linkStatus === 'art-to-image-only') {
+      const response = await performFetch<ArtImage>(
+        `/api/art/image/${row.artImage.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ artId: row.art.id }),
+        },
+      )
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to patch ArtImage.artId')
+      }
+
+      allArtImages.value = allArtImages.value.map((image) => {
+        if (image.id !== row.artImage?.id) return image
+        return { ...image, artId: row.art?.id || null }
+      })
+    }
+
+    if (row.linkStatus === 'image-to-art-only') {
+      const response = await performFetch<Art>(`/api/art/${row.art.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artImageId: row.artImage.id }),
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to patch Art.artImageId')
+      }
+
+      allArt.value = allArt.value.map((art) => {
+        if (art.id !== row.art?.id) return art
+        return { ...art, artImageId: row.artImage?.id || null }
+      })
+    }
+
+    setFixResult(row.key, 'Link repaired')
+    log(`${row.primaryLabel}: repaired Art to ArtImage link`, 'success')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Repair failed'
+    setFixResult(row.key, message)
+    log(`${row.primaryLabel}: ${message}`, 'error')
+  } finally {
+    unmarkFixing(row.key)
+  }
+}
+
+async function promoteArtPath(row: AuditRow) {
+  if (!row.art) return
+
+  const imagePath = primaryArtPath(row.art)
+
+  if (!imagePath) return
+
+  markFixing(row.key)
+
+  try {
+    const response = await performFetch<ArtImage>('/api/art/image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        artId: art.id,
-        userId: art.userId,
-        galleryId: art.galleryId,
+        artId: row.art.id,
+        userId: row.art.userId,
+        galleryId: row.art.galleryId,
         imagePath,
         imageData: '',
         fileType: guessFileType(imagePath),
-        promptString: art.promptString,
-        negativePrompt: art.negativePrompt,
-        checkpoint: art.checkpoint,
-        sampler: art.sampler,
-        seed: art.seed,
-        steps: art.steps,
-        cfg: art.cfg,
-        cfgHalf: art.cfgHalf,
-        designer: art.designer,
-        genres: art.genres,
-        serverId: art.serverId,
-        serverName: art.serverName,
-        serverUrl: art.serverUrl,
-        isPublic: art.isPublic,
-        isMature: art.isMature,
+        path: row.art.path,
+        promptString: row.art.promptString,
+        negativePrompt: row.art.negativePrompt,
+        checkpoint: row.art.checkpoint,
+        checkpointResourceId: row.art.checkpointResourceId,
+        sampler: row.art.sampler,
+        seed: row.art.seed,
+        steps: row.art.steps,
+        cfg: row.art.cfg,
+        cfgHalf: row.art.cfgHalf,
+        designer: row.art.designer,
+        genres: row.art.genres,
+        serverId: row.art.serverId,
+        serverName: row.art.serverName,
+        serverUrl: row.art.serverUrl,
+        isPublic: row.art.isPublic,
+        isMature: row.art.isMature,
       }),
     })
-    if (!createRes.success || !createRes.data)
-      throw new Error(createRes.message || 'Failed to create ArtImage')
-    await performFetch(`/api/art/${art.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ artImageId: createRes.data.id }),
-    })
-    setResult(art.id, `→ ArtImage #${createRes.data.id}`)
-    log(`Art #${art.id} promoted to ArtImage #${createRes.data.id}`, 'success')
-    allArt.value = allArt.value.map((a) =>
-      a.id === art.id ? { ...a, artImageId: createRes.data!.id } : a,
-    )
-    allArtImages.value = [...allArtImages.value, stripImageData(createRes.data)]
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(art.id, `Error: ${msg}`)
-    log(`Art #${art.id}: ${msg}`, 'error')
-  } finally {
-    unmarkFixing(art.id)
-  }
-}
 
-async function syncArtMetadataToImage(item: StaleItem) {
-  const id = item.artImage.id
-  markFixing(id)
-  try {
-    const payload: Partial<ArtImage> = {}
-    if (!item.artImage.promptString && item.art.promptString)
-      payload.promptString = item.art.promptString
-    if (!item.artImage.negativePrompt && item.art.negativePrompt)
-      payload.negativePrompt = item.art.negativePrompt
-    if (!item.artImage.checkpoint && item.art.checkpoint)
-      payload.checkpoint = item.art.checkpoint
-    if (!item.artImage.sampler && item.art.sampler)
-      payload.sampler = item.art.sampler
-    if (!item.artImage.seed && item.art.seed) payload.seed = item.art.seed
-    if (!item.artImage.steps && item.art.steps) payload.steps = item.art.steps
-    if (!item.artImage.cfg && item.art.cfg) payload.cfg = item.art.cfg
-    if (item.artImage.cfgHalf == null && item.art.cfgHalf != null)
-      payload.cfgHalf = item.art.cfgHalf
-    if (!item.artImage.designer && item.art.designer)
-      payload.designer = item.art.designer
-    if (!item.artImage.genres && item.art.genres)
-      payload.genres = item.art.genres
-    if (!item.artImage.serverId && item.art.serverId)
-      payload.serverId = item.art.serverId
-    if (!item.artImage.serverName && item.art.serverName)
-      payload.serverName = item.art.serverName
-    if (item.artImage.isPublic == null && item.art.isPublic != null)
-      payload.isPublic = item.art.isPublic
-    if (item.artImage.isMature == null && item.art.isMature != null)
-      payload.isMature = item.art.isMature
-    const res = await performFetch<ArtImage>(`/api/art/image/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!res.success) throw new Error(res.message || 'Patch failed')
-    setResult(id, 'Synced ✓')
-    log(`ArtImage #${id}: synced ${Object.keys(payload).join(', ')}`, 'success')
-    allArtImages.value = allArtImages.value.map((img) =>
-      img.id === id ? { ...img, ...payload } : img,
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(id, `Error: ${msg}`)
-    log(`ArtImage #${id}: ${msg}`, 'error')
-  } finally {
-    unmarkFixing(id)
-  }
-}
-
-async function generateAndSaveThumbnail(artImage: ArtImage, maxSize = 200) {
-  const id = artImage.id
-  markFixing(id)
-  try {
-    const res = await performFetch<ArtImage>(`/api/art/image/${id}`)
-    if (!res.success || !res.data?.imageData)
-      throw new Error('Could not fetch imageData for this ArtImage')
-    const thumbnailData = await createThumbnailFromBase64(
-      res.data.imageData,
-      res.data.fileType ?? 'png',
-      maxSize,
-    )
-    const patchRes = await performFetch<ArtImage>(`/api/art/image/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ thumbnailData }),
-    })
-    if (!patchRes.success) throw new Error(patchRes.message || 'Patch failed')
-    setResult(id, `Thumbnail saved (${maxSize}px)`)
-    log(`ArtImage #${id}: thumbnail generated at ${maxSize}px`, 'success')
-    allArtImages.value = allArtImages.value.map((img) =>
-      img.id === id ? { ...img, thumbnailData: '(set)' } : img,
-    )
-    // Update thumb cache with the freshly generated thumbnail
-    thumbCache.value = new Map(thumbCache.value).set(
-      `img:${id}`,
-      `data:image/png;base64,${thumbnailData}`,
-    )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(id, `Error: ${msg}`)
-    log(`ArtImage #${id}: ${msg}`, 'error')
-  } finally {
-    unmarkFixing(id)
-  }
-}
-
-async function repairLinkDirection(item: MatchedItem) {
-  markFixing(item.art.id)
-  try {
-    if (item.linkDirection === 'art→image') {
-      await performFetch(`/api/art/image/${item.artImage.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artId: item.art.id }),
-      })
-      allArtImages.value = allArtImages.value.map((img) =>
-        img.id === item.artImage.id ? { ...img, artId: item.art.id } : img,
-      )
-    } else {
-      await performFetch(`/api/art/${item.art.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artImageId: item.artImage.id }),
-      })
-      allArt.value = allArt.value.map((a) =>
-        a.id === item.art.id ? { ...a, artImageId: item.artImage.id } : a,
-      )
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to create ArtImage')
     }
-    setResult(item.art.id, 'Link repaired ✓')
+
+    const patchResponse = await performFetch<Art>(`/api/art/${row.art.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artImageId: response.data.id }),
+    })
+
+    if (!patchResponse.success) {
+      throw new Error(patchResponse.message || 'Failed to patch Art.artImageId')
+    }
+
+    allArt.value = allArt.value.map((art) => {
+      if (art.id !== row.art?.id) return art
+      return { ...art, artImageId: response.data?.id || null }
+    })
+
+    allArtImages.value = [
+      ...allArtImages.value,
+      stripHeavyImageFields(response.data),
+    ]
+
+    setFixResult(row.key, `Promoted to ArtImage #${response.data.id}`)
     log(
-      `Art #${item.art.id} ↔ ArtImage #${item.artImage.id}: repaired (was ${item.linkDirection})`,
+      `Art #${row.art.id}: promoted path to ArtImage #${response.data.id}`,
       'success',
     )
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed'
-    setResult(item.art.id, `Error: ${msg}`)
-    log(`Repair failed for Art #${item.art.id}: ${msg}`, 'error')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Promotion failed'
+    setFixResult(row.key, message)
+    log(`${row.primaryLabel}: ${message}`, 'error')
   } finally {
-    unmarkFixing(item.art.id)
+    unmarkFixing(row.key)
   }
 }
 
-// ─── Batch runners ────────────────────────────────────────────────────────────
-
-async function runBatch(category: CategoryKey) {
-  isBatchRunning.value = true
-  batchProgress.value = { label: '', done: 0, total: 0 }
-  try {
-    if (category === 'orphaned') {
-      const items = orphanedArt.value.filter(
-        (a) => a.imagePath || (a.path && a.path !== 'UNDEFINED'),
-      )
-      batchProgress.value = {
-        label: 'Promoting paths…',
-        done: 0,
-        total: items.length,
-      }
-      for (const art of items) {
-        await promotePathToArtImage(art)
-        batchProgress.value.done++
-      }
-    }
-    if (category === 'stale') {
-      batchProgress.value = {
-        label: 'Syncing metadata…',
-        done: 0,
-        total: staleMetadata.value.length,
-      }
-      for (const item of staleMetadata.value) {
-        await syncArtMetadataToImage(item)
-        batchProgress.value.done++
-      }
-    }
-    if (category === 'thumbs') {
-      batchProgress.value = {
-        label: 'Generating thumbnails…',
-        done: 0,
-        total: missingThumbnails.value.length,
-      }
-      for (const img of missingThumbnails.value) {
-        await generateAndSaveThumbnail(img)
-        batchProgress.value.done++
-      }
-    }
-    if (category === 'matched') {
-      const items = matchedNeedingThumbnail.value
-      batchProgress.value = {
-        label: 'Generating thumbnails for matched…',
-        done: 0,
-        total: items.length,
-      }
-      for (const item of items) {
-        await generateAndSaveThumbnail(item.artImage)
-        batchProgress.value.done++
-      }
-    }
-    log(
-      `Batch complete: ${batchProgress.value.done} / ${batchProgress.value.total}`,
-      'success',
-    )
-  } finally {
-    isBatchRunning.value = false
+function getArtLinkStatus(
+  art: Art,
+  forwardImage: ArtImage | null,
+  reverseImage: ArtImage | null,
+): LinkStatus {
+  if (forwardImage && reverseImage && forwardImage.id !== reverseImage.id) {
+    return 'conflict'
   }
+
+  if (forwardImage && reverseImage) {
+    return 'bidirectional'
+  }
+
+  if (forwardImage) {
+    return 'art-to-image-only'
+  }
+
+  if (reverseImage) {
+    return 'image-to-art-only'
+  }
+
+  if (art.artImageId && !forwardImage) {
+    return 'unlinked'
+  }
+
+  return 'unlinked'
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+function getArtImageLinkStatus(
+  artImage: ArtImage,
+  directArt: Art | null,
+  reverseArt: Art | null,
+): LinkStatus {
+  if (directArt && reverseArt && directArt.id !== reverseArt.id) {
+    return 'conflict'
+  }
 
-function createThumbnailFromBase64(
-  base64: string,
-  fileType: string,
-  maxSize: number,
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const mimeType = fileType.startsWith('image/')
-      ? fileType
-      : `image/${fileType}`
-    const img = new Image()
-    img.onload = () => {
-      const scale = Math.min(maxSize / img.width, maxSize / img.height, 1)
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.round(img.width * scale)
-      canvas.height = Math.round(img.height * scale)
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return reject(new Error('Canvas context unavailable'))
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      const dataUrl = canvas.toDataURL(mimeType, 0.82)
-      const b64 = dataUrl.split(',')[1]
-      if (!b64) return reject(new Error('Canvas produced empty data URL'))
-      resolve(b64)
-    }
-    img.onerror = () => reject(new Error('Failed to load image for thumbnail'))
-    img.src = `data:${mimeType};base64,${base64}`
-  })
+  if (directArt && reverseArt) {
+    return 'bidirectional'
+  }
+
+  if (reverseArt) {
+    return 'art-to-image-only'
+  }
+
+  if (directArt) {
+    return 'image-to-art-only'
+  }
+
+  if (artImage.artId && !directArt) {
+    return 'unlinked'
+  }
+
+  return 'unlinked'
 }
 
-function stripImageData(img: ArtImage): ArtImage {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {
-    imageData: _id,
-    thumbnailData: _td,
-    ...meta
-  } = img as ArtImage & { imageData: string; thumbnailData?: string }
+function getImageDataStatus(
+  artImage: ArtImage | null,
+  detail: ArtImage | null,
+): ImageDataStatus {
+  if (!artImage) return 'not-applicable'
+
+  if (detail) {
+    return detail.imageData ? 'present' : 'missing'
+  }
+
+  if (artImage.imageData && artImage.imageData !== '(set)') {
+    return 'present'
+  }
+
+  return 'unchecked'
+}
+
+function hydratedImage(id: number) {
+  return hydratedImageMap.value.get(id) || null
+}
+
+function stripHeavyImageFields(image: ArtImage): ArtImage {
   return {
-    ...meta,
+    ...image,
     imageData: '',
-    thumbnailData: _td ? '(set)' : null,
-  } as unknown as ArtImage
+    thumbnailData: image.thumbnailData ? '(set)' : null,
+  }
 }
 
-function guessFileType(path: string): string {
-  const ext = path.split('.').pop()?.toLowerCase()
-  if (ext === 'jpg' || ext === 'jpeg') return 'jpeg'
-  if (ext === 'webp') return 'webp'
-  if (ext === 'gif') return 'gif'
+function primaryArtPath(art?: Art | null) {
+  if (!art) return ''
+
+  if (art.imagePath) return art.imagePath
+
+  if (art.path && art.path !== 'UNDEFINED') {
+    return art.path
+  }
+
+  return ''
+}
+
+function normalizeImagePath(value?: string | null) {
+  if (!value) return ''
+
+  const trimmed = value.trim()
+
+  if (!trimmed || trimmed === 'UNDEFINED') return ''
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('data:')
+  ) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith('/images/')) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith('images/')) {
+    return `/${trimmed}`
+  }
+
+  if (trimmed.startsWith('/')) {
+    return trimmed
+  }
+
+  return `/images/${trimmed}`
+}
+
+function guessFileType(path: string) {
+  const extension = path.split('.').pop()?.toLowerCase()
+
+  if (extension === 'jpg' || extension === 'jpeg') return 'jpeg'
+  if (extension === 'webp') return 'webp'
+  if (extension === 'gif') return 'gif'
+
   return 'png'
 }
 
-function markFixing(id: number) {
-  fixingIds.value = new Set([...fixingIds.value, id])
+function toTimestamp(value: Date | string | null | undefined) {
+  if (!value) return 0
+
+  const date = value instanceof Date ? value : new Date(value)
+
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime()
 }
-function unmarkFixing(id: number) {
-  const n = new Set(fixingIds.value)
-  n.delete(id)
-  fixingIds.value = n
+
+function sortRows(a: AuditRow, b: AuditRow) {
+  if (sortMode.value === 'newest') {
+    return b.createdAtValue - a.createdAtValue
+  }
+
+  if (sortMode.value === 'oldest') {
+    return a.createdAtValue - b.createdAtValue
+  }
+
+  if (sortMode.value === 'id-desc') {
+    return b.primaryId - a.primaryId
+  }
+
+  if (sortMode.value === 'id-asc') {
+    return a.primaryId - b.primaryId
+  }
+
+  return (
+    severityRank(b.severity) - severityRank(a.severity) ||
+    b.primaryId - a.primaryId
+  )
 }
-function setResult(id: number, msg: string) {
-  fixResults.value = new Map([...fixResults.value, [id, msg]])
+
+function severityRank(severity: Severity) {
+  if (severity === 'error') return 4
+  if (severity === 'warning') return 3
+  if (severity === 'info') return 2
+  return 1
 }
-function log(msg: string, type: LogEntry['type'] = 'info') {
-  scanLog.value.push({
-    msg: `[${new Date().toLocaleTimeString()}] ${msg}`,
-    type,
-  })
+
+function countRowsByStatus(status: StatusFilter) {
+  if (status === 'all') return activeRows.value.length
+
+  return activeRows.value.filter((row) => row.status === status).length
+}
+
+function imageDataStatusLabel(status: ImageDataStatus) {
+  if (status === 'present') return 'present'
+  if (status === 'missing') return 'missing'
+  if (status === 'unchecked') return 'unchecked'
+  return 'n/a'
+}
+
+function linkStatusLabel(status: LinkStatus) {
+  if (status === 'bidirectional') return 'both linked'
+  if (status === 'art-to-image-only') return 'Art to ArtImage'
+  if (status === 'image-to-art-only') return 'ArtImage to Art'
+  if (status === 'conflict') return 'conflict'
+  return 'unlinked'
+}
+
+function imageDataTileState(status: ImageDataStatus) {
+  if (status === 'present') return 'success'
+  if (status === 'missing') return 'error'
+  if (status === 'unchecked') return 'warning'
+  return 'info'
+}
+
+function debugArtImage(image: ArtImage | null) {
+  if (!image) return null
+
+  return {
+    ...image,
+    imageData: image.imageData ? `[${image.imageData.length} chars]` : '',
+    thumbnailData: image.thumbnailData
+      ? `[${image.thumbnailData.length} chars]`
+      : null,
+  }
+}
+
+function rowShellClass(row: AuditRow) {
+  if (row.severity === 'healthy') return 'border-success/30'
+  if (row.severity === 'info') return 'border-info/30'
+  if (row.severity === 'warning') return 'border-warning/40'
+  return 'border-error/40'
+}
+
+function severityBadgeClass(severity: Severity) {
+  if (severity === 'healthy') return 'badge-success'
+  if (severity === 'info') return 'badge-info'
+  if (severity === 'warning') return 'badge-warning'
+  return 'badge-error'
+}
+
+function modeBadgeClass(row: AuditRow) {
+  return row.mode === 'art' ? 'badge-primary' : 'badge-secondary'
+}
+
+function linkBadgeClass(status: LinkStatus) {
+  if (status === 'bidirectional') return 'badge-success'
+  if (status === 'conflict') return 'badge-error'
+  if (status === 'unlinked') return 'badge-ghost'
+  return 'badge-warning'
+}
+
+function dataBadgeClass(status: ImageDataStatus) {
+  if (status === 'present') return 'badge-success'
+  if (status === 'missing') return 'badge-error'
+  if (status === 'unchecked') return 'badge-warning'
+  return 'badge-ghost'
+}
+
+function assessmentIcon(severity: Severity) {
+  if (severity === 'healthy') return 'kind-icon:check'
+  if (severity === 'info') return 'kind-icon:info'
+  if (severity === 'warning') return 'kind-icon:warning'
+  return 'kind-icon:skull'
+}
+
+function assessmentIconClass(severity: Severity) {
+  if (severity === 'healthy') return 'text-success'
+  if (severity === 'info') return 'text-info'
+  if (severity === 'warning') return 'text-warning'
+  return 'text-error'
+}
+
+function logClass(type: LogEntry['type']) {
+  if (type === 'success') return 'text-success'
+  if (type === 'error') return 'text-error'
+  return 'text-base-content/60'
+}
+
+function markFixing(key: string) {
+  fixingKeys.value = new Set([...fixingKeys.value, key])
+}
+
+function unmarkFixing(key: string) {
+  const next = new Set(fixingKeys.value)
+  next.delete(key)
+  fixingKeys.value = next
+}
+
+function setFixResult(key: string, message: string) {
+  fixResults.value = new Map(fixResults.value).set(key, message)
+}
+
+function log(message: string, type: LogEntry['type'] = 'info') {
+  scanLog.value = [
+    ...scanLog.value,
+    {
+      message: `[${new Date().toLocaleTimeString()}] ${message}`,
+      type,
+    },
+  ]
 }
 </script>
 
@@ -1548,13 +1732,10 @@ function log(msg: string, type: LogEntry['type'] = 'info') {
   );
   animation: scan-sweep 1.6s ease-in-out infinite;
 }
+
 @keyframes scan-sweep {
   to {
     left: 200%;
   }
-}
-
-.art-thumb {
-  aspect-ratio: 1;
 }
 </style>

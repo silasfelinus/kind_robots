@@ -2,24 +2,28 @@
 <!--
   Art Doctor — diagnostic and repair tool for Art ↔ ArtImage consistency.
 
-  Four problem categories:
-    1. Orphaned Art      — Art records with no linked ArtImage (artImageId is null)
+  Five categories:
+    1. Orphaned Art      — Art records with no linked ArtImage (artImageId is null,
+                          and no ArtImage claims this Art via artId)
     2. Stale Metadata    — ArtImages linked to an Art but missing generation fields
-                          (promptString, checkpoint, seed, cfg, etc.)
     3. Missing Thumbnail — ArtImages that have imageData but no thumbnailData
-    4. Unlinked Images   — ArtImages with no artId (floating, unowned)
+                          (all ArtImages regardless of match status)
+    4. Unlinked Images   — ArtImages with no FK at all (not Art, Bot, Pitch, etc.)
+    5. Matched           — Art ↔ ArtImage pairs that are properly linked;
+                          flagged subset still needs thumbnails
 
-  Requires an extended PATCH endpoint: server/api/art/image/[id].patch.ts
-  must accept the full ArtImage metadata payload, not just imageData/fileName/fileType.
-  See bottom of this file for required endpoint additions.
+  Sub-filters:
+    - Thumbs:   All / Matched only / Unmatched only
+    - Matched:  All / Needs thumbnail / Fully healthy
 -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-4"
   >
-    <!-- Header -->
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
     <header
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+      class="relative flex shrink-0 flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
+      :class="{ 'scan-active': isScanning }"
     >
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -35,44 +39,48 @@
             </p>
           </div>
         </div>
-
-        <div class="flex items-center gap-2">
-          <button
-            class="btn btn-ghost btn-sm rounded-xl"
-            type="button"
-            :disabled="isScanning"
-            @click="runScan"
-          >
-            <span
-              v-if="isScanning"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-            {{ isScanning ? 'Scanning…' : 'Scan' }}
-          </button>
-        </div>
+        <button
+          class="btn btn-ghost btn-sm rounded-xl"
+          type="button"
+          :disabled="isScanning"
+          @click="runScan"
+        >
+          <span v-if="isScanning" class="loading loading-spinner loading-xs" />
+          <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+          {{ isScanning ? 'Scanning…' : hasScanned ? 'Re-scan' : 'Scan' }}
+        </button>
       </div>
 
-      <!-- Summary strip -->
-      <div v-if="hasScanned" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <!-- stat cards -->
+      <div v-if="hasScanned" class="grid grid-cols-3 gap-2 sm:grid-cols-5">
         <button
           v-for="cat in categories"
           :key="cat.key"
-          class="flex cursor-pointer flex-col items-center rounded-2xl border p-3 transition"
-          :class="[
+          class="flex cursor-pointer flex-col items-start rounded-2xl border p-3 transition"
+          :class="
             activeCategory === cat.key
               ? `border-${cat.color}/50 bg-${cat.color}/10`
-              : 'border-base-300 bg-base-100 hover:bg-base-200',
-          ]"
+              : 'border-base-300 bg-base-100 hover:bg-base-200'
+          "
           type="button"
           @click="activeCategory = cat.key"
         >
-          <span class="text-2xl font-black" :class="`text-${cat.color}`">
+          <span
+            class="font-mono text-2xl font-black leading-none"
+            :class="`text-${cat.color}`"
+          >
             {{ cat.items.length }}
           </span>
-          <span class="text-center text-xs text-base-content/60">{{
-            cat.label
-          }}</span>
+          <span
+            class="mt-1 text-left text-xs leading-tight text-base-content/60"
+            >{{ cat.label }}</span
+          >
+          <span
+            v-if="cat.key === 'matched' && matchedNeedingThumbnail.length > 0"
+            class="mt-1 text-xs text-warning"
+          >
+            {{ matchedNeedingThumbnail.length }} need thumbnail
+          </span>
         </button>
       </div>
 
@@ -84,7 +92,7 @@
       </div>
     </header>
 
-    <!-- Error -->
+    <!-- ── Error ─────────────────────────────────────────────────────────── -->
     <div
       v-if="scanError"
       class="shrink-0 rounded-2xl bg-error/10 p-3 text-sm text-error"
@@ -92,12 +100,60 @@
       {{ scanError }}
     </div>
 
-    <!-- Category detail -->
+    <!-- ── Health Bar ─────────────────────────────────────────────────────── -->
+    <div
+      v-if="hasScanned"
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
+    >
+      <div class="mb-2 flex items-baseline justify-between">
+        <span class="text-xs font-bold text-base-content/60"
+          >Collection health</span
+        >
+        <span
+          class="font-mono text-sm font-black"
+          :class="
+            healthPct > 75
+              ? 'text-success'
+              : healthPct > 40
+                ? 'text-warning'
+                : 'text-error'
+          "
+        >
+          {{ healthPct }}%
+        </span>
+      </div>
+      <div class="flex h-2 w-full overflow-hidden rounded-full bg-base-300">
+        <div
+          v-for="seg in healthSegments"
+          :key="seg.label"
+          class="h-full min-w-0.5 transition-all"
+          :style="{ flex: seg.count, background: seg.color }"
+        />
+      </div>
+      <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+        <span
+          v-for="seg in healthSegments.filter((s) => s.count > 0)"
+          :key="seg.label"
+          class="flex items-center gap-1.5 text-xs text-base-content/60"
+        >
+          <span
+            class="inline-block h-2 w-2 rounded-sm"
+            :style="{ background: seg.color }"
+          />
+          {{ seg.label }}
+          <span class="font-mono font-bold text-base-content">{{
+            seg.count
+          }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- ── Category detail ───────────────────────────────────────────────── -->
     <section
       v-if="hasScanned"
       class="flex min-h-0 flex-1 flex-col gap-3 overflow-auto"
     >
-      <!-- Category tabs -->
+      <!-- tabs -->
       <div class="flex shrink-0 flex-wrap gap-2">
         <button
           v-for="cat in categories"
@@ -118,25 +174,22 @@
         </button>
       </div>
 
-      <!-- Active category panel -->
+      <!-- active panel -->
       <div v-if="activeCategory" class="flex min-h-0 flex-1 flex-col gap-3">
-        <!-- Category description + batch action -->
+        <!-- description + batch -->
         <div
-          class="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <p class="text-sm text-base-content/70">
-            {{ activeCategoryMeta?.description }}
-          </p>
-
-          <div class="flex gap-2">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm text-base-content/70">
+              {{ activeCategoryMeta?.description }}
+            </p>
             <button
-              v-if="activeCategoryMeta?.batchLabel"
+              v-if="activeCategoryMeta?.batchLabel && batchableCount > 0"
               class="btn btn-sm rounded-xl"
-              :class="`btn-${activeCategoryMeta.color}`"
+              :class="`btn-${activeCategoryMeta?.color}`"
               type="button"
-              :disabled="
-                isBatchRunning || activeCategoryMeta.items.length === 0
-              "
+              :disabled="isBatchRunning"
               @click="runBatch(activeCategory)"
             >
               <span
@@ -147,16 +200,52 @@
               {{ activeCategoryMeta?.batchLabel }}
             </button>
           </div>
+
+          <!-- sub-filters: thumbs -->
+          <div
+            v-if="activeCategory === 'thumbs'"
+            class="flex flex-wrap gap-1.5"
+          >
+            <button
+              v-for="[val, label] in thumbFilterOptions"
+              :key="val"
+              class="btn btn-xs rounded-xl"
+              :class="thumbFilter === val ? 'btn-secondary' : 'btn-ghost'"
+              type="button"
+              @click="thumbFilter = val as ThumbFilter"
+            >
+              {{ label }}
+            </button>
+          </div>
+
+          <!-- sub-filters: matched -->
+          <div
+            v-if="activeCategory === 'matched'"
+            class="flex flex-wrap gap-1.5"
+          >
+            <button
+              v-for="[val, label] in matchedFilterOptions"
+              :key="val"
+              class="btn btn-xs rounded-xl"
+              :class="matchedFilter === val ? 'btn-success' : 'btn-ghost'"
+              type="button"
+              @click="matchedFilter = val as MatchedFilter"
+            >
+              {{ label }}
+            </button>
+          </div>
         </div>
 
-        <!-- Progress bar for batch -->
+        <!-- batch progress -->
         <div
           v-if="isBatchRunning"
           class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
         >
           <div class="mb-1 flex justify-between text-xs text-base-content/60">
             <span>{{ batchProgress.label }}</span>
-            <span>{{ batchProgress.done }} / {{ batchProgress.total }}</span>
+            <span class="font-mono"
+              >{{ batchProgress.done }} / {{ batchProgress.total }}</span
+            >
           </div>
           <progress
             class="progress progress-primary w-full"
@@ -165,27 +254,27 @@
           />
         </div>
 
-        <!-- Empty state -->
+        <!-- empty state -->
         <div
-          v-if="activeCategoryMeta?.items.length === 0"
+          v-if="activeDisplayItems.length === 0"
           class="flex flex-1 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-8 text-center"
         >
           <Icon name="kind-icon:check" class="h-10 w-10 text-success" />
-          <p class="mt-2 font-bold text-success">All clear in this category</p>
+          <p class="mt-2 font-bold text-success">All clear in this view</p>
         </div>
 
-        <!-- Item list -->
+        <!-- item list -->
         <div v-else class="flex-1 overflow-auto">
           <div class="flex flex-col gap-2">
-            <!-- ORPHANED ART items -->
+            <!-- ORPHANED -->
             <template v-if="activeCategory === 'orphaned'">
               <div
-                v-for="art in orphanedArt"
+                v-for="art in activeDisplayItems as Art[]"
                 :key="art.id"
                 class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
               >
                 <div class="min-w-0">
-                  <p class="text-xs font-bold text-base-content/50">
+                  <p class="font-mono text-xs font-bold text-base-content/50">
                     Art #{{ art.id }}
                   </p>
                   <p class="truncate text-sm text-base-content">
@@ -193,19 +282,27 @@
                   </p>
                   <div class="mt-1 flex flex-wrap gap-1">
                     <span v-if="art.imagePath" class="badge badge-info badge-xs"
-                      >has imagePath</span
+                      >imagePath</span
                     >
                     <span
                       v-if="art.path && art.path !== 'UNDEFINED'"
                       class="badge badge-ghost badge-xs"
-                      >has path</span
+                      >path</span
                     >
                     <span v-if="art.serverId" class="badge badge-ghost badge-xs"
                       >server #{{ art.serverId }}</span
                     >
+                    <span
+                      v-if="
+                        !art.imagePath &&
+                        !(art.path && art.path !== 'UNDEFINED')
+                      "
+                      class="badge badge-error badge-xs"
+                      >no source</span
+                    >
                   </div>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2">
                   <button
                     v-if="
                       art.imagePath || (art.path && art.path !== 'UNDEFINED')
@@ -219,10 +316,10 @@
                       v-if="fixingIds.has(art.id)"
                       class="loading loading-spinner loading-xs"
                     />
-                    Promote path → ArtImage
+                    Promote path
                   </button>
                   <span v-else class="badge badge-ghost badge-sm"
-                    >No image source</span
+                    >no source</span
                   >
                   <span
                     v-if="fixResults.get(art.id)"
@@ -234,16 +331,16 @@
               </div>
             </template>
 
-            <!-- STALE METADATA items -->
+            <!-- STALE METADATA -->
             <template v-else-if="activeCategory === 'stale'">
               <div
-                v-for="item in staleMetadata"
+                v-for="item in activeDisplayItems as StaleItem[]"
                 :key="item.artImage.id"
                 class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
               >
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <p class="text-xs font-bold text-base-content/50">
+                    <p class="font-mono text-xs font-bold text-base-content/50">
                       ArtImage #{{ item.artImage.id }} ← Art #{{ item.art.id }}
                     </p>
                     <p class="truncate text-sm text-base-content">
@@ -254,7 +351,7 @@
                     </p>
                   </div>
                   <button
-                    class="btn btn-primary btn-xs rounded-xl"
+                    class="btn btn-info btn-xs rounded-xl"
                     type="button"
                     :disabled="fixingIds.has(item.artImage.id)"
                     @click="syncArtMetadataToImage(item)"
@@ -266,7 +363,6 @@
                     Sync metadata
                   </button>
                 </div>
-                <!-- Missing fields -->
                 <div class="flex flex-wrap gap-1">
                   <span
                     v-for="field in item.missingFields"
@@ -285,15 +381,15 @@
               </div>
             </template>
 
-            <!-- MISSING THUMBNAIL items -->
+            <!-- MISSING THUMBNAILS -->
             <template v-else-if="activeCategory === 'thumbs'">
               <div
-                v-for="artImage in missingThumbnails"
+                v-for="artImage in activeDisplayItems as ArtImage[]"
                 :key="artImage.id"
                 class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
               >
                 <div class="min-w-0">
-                  <p class="text-xs font-bold text-base-content/50">
+                  <p class="font-mono text-xs font-bold text-base-content/50">
                     ArtImage #{{ artImage.id }}
                   </p>
                   <p class="truncate text-sm text-base-content/70">
@@ -331,15 +427,15 @@
               </div>
             </template>
 
-            <!-- UNLINKED IMAGES items -->
+            <!-- UNLINKED IMAGES -->
             <template v-else-if="activeCategory === 'unlinked'">
               <div
-                v-for="artImage in unlinkedImages"
+                v-for="artImage in activeDisplayItems as ArtImage[]"
                 :key="artImage.id"
                 class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
               >
                 <div class="min-w-0">
-                  <p class="text-xs font-bold text-base-content/50">
+                  <p class="font-mono text-xs font-bold text-base-content/50">
                     ArtImage #{{ artImage.id }}
                   </p>
                   <p class="truncate text-sm text-base-content/70">
@@ -369,7 +465,6 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <!-- Could link to an art record, or just flag for review -->
                   <span class="badge badge-ghost badge-sm"
                     >Manual review needed</span
                   >
@@ -382,12 +477,79 @@
                 </div>
               </div>
             </template>
+
+            <!-- MATCHED -->
+            <template v-else-if="activeCategory === 'matched'">
+              <div
+                v-for="item in activeDisplayItems as MatchedItem[]"
+                :key="item.art.id"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-base-100 p-3 transition"
+                :class="
+                  item.needsThumbnail
+                    ? 'border-warning/40 bg-warning/5'
+                    : 'border-success/30'
+                "
+              >
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <p class="font-mono text-xs font-bold text-base-content/50">
+                      Art #{{ item.art.id }} ↔ ArtImage #{{ item.artImage.id }}
+                    </p>
+                    <span
+                      v-if="item.needsThumbnail"
+                      class="badge badge-warning badge-xs"
+                      >needs thumbnail</span
+                    >
+                    <span v-else class="badge badge-success badge-xs"
+                      >fully healthy</span
+                    >
+                    <span
+                      v-if="item.artImage.checkpoint"
+                      class="badge badge-ghost badge-xs font-mono"
+                    >
+                      {{ item.artImage.checkpoint.split('.')[0] }}
+                    </span>
+                  </div>
+                  <p class="mt-1 truncate text-sm text-base-content">
+                    {{
+                      item.artImage.promptString?.slice(0, 80) || '(no prompt)'
+                    }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    v-if="item.needsThumbnail"
+                    class="btn btn-success btn-xs rounded-xl"
+                    type="button"
+                    :disabled="fixingIds.has(item.artImage.id)"
+                    @click="generateAndSaveThumbnail(item.artImage)"
+                  >
+                    <span
+                      v-if="fixingIds.has(item.artImage.id)"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Generate thumbnail
+                  </button>
+                  <Icon
+                    v-else
+                    name="kind-icon:check"
+                    class="h-4 w-4 text-success"
+                  />
+                  <span
+                    v-if="fixResults.get(item.artImage.id)"
+                    class="badge badge-success badge-sm"
+                  >
+                    {{ fixResults.get(item.artImage.id) }}
+                  </span>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Scan log -->
+    <!-- ── Scan log ───────────────────────────────────────────────────────── -->
     <details
       v-if="scanLog.length"
       class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
@@ -400,7 +562,7 @@
         <p
           v-for="(entry, i) in scanLog"
           :key="i"
-          class="text-xs"
+          class="font-mono text-xs"
           :class="
             entry.type === 'error'
               ? 'text-error'
@@ -423,9 +585,11 @@ import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { performFetch } from '@/stores/utils'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-type CategoryKey = 'orphaned' | 'stale' | 'thumbs' | 'unlinked'
+type CategoryKey = 'orphaned' | 'stale' | 'thumbs' | 'unlinked' | 'matched'
+type ThumbFilter = 'all' | 'matched' | 'unmatched'
+type MatchedFilter = 'all' | 'needs' | 'healthy'
 
 interface StaleItem {
   art: Art
@@ -433,12 +597,18 @@ interface StaleItem {
   missingFields: string[]
 }
 
+interface MatchedItem {
+  art: Art
+  artImage: ArtImage
+  needsThumbnail: boolean
+}
+
 interface LogEntry {
   msg: string
   type: 'info' | 'success' | 'error'
 }
 
-// ─── State ───────────────────────────────────────────────────────────────────
+// ─── State ────────────────────────────────────────────────────────────────────
 
 const artStore = useArtStore()
 
@@ -451,29 +621,42 @@ const fixingIds = ref<Set<number>>(new Set())
 const fixResults = ref<Map<number, string>>(new Map())
 const scanLog = ref<LogEntry[]>([])
 
-// Scan results
 const allArt = ref<Art[]>([])
 const allArtImages = ref<ArtImage[]>([]) // metadata only, no imageData
 
 const batchProgress = ref({ label: '', done: 0, total: 0 })
 
+// sub-filter state
+const thumbFilter = ref<ThumbFilter>('all')
+const matchedFilter = ref<MatchedFilter>('all')
+
+const thumbFilterOptions: [ThumbFilter, string][] = [
+  ['all', 'All'],
+  ['matched', 'Matched only'],
+  ['unmatched', 'Unmatched only'],
+]
+const matchedFilterOptions: [MatchedFilter, string][] = [
+  ['all', 'All'],
+  ['needs', 'Needs thumbnail'],
+  ['healthy', 'Fully healthy'],
+]
+
 // ─── Computed — problem categories ───────────────────────────────────────────
 
 /**
- * Art records with no artImageId pointing at an ArtImage row.
+ * Art records with no artImageId AND no ArtImage that back-references them via artId.
  */
 const orphanedArt = computed<Art[]>(() => {
   const imageArtIds = new Set(
     allArtImages.value.map((i) => i.artId).filter(Boolean),
   )
-  return allArt.value.filter((art) => {
-    // No artImageId stored on Art, and no ArtImage that claims this Art's id
-    return !art.artImageId && !imageArtIds.has(art.id)
-  })
+  return allArt.value.filter(
+    (art) => !art.artImageId && !imageArtIds.has(art.id),
+  )
 })
 
 /**
- * ArtImages that have an artId, but are missing key metadata that exists on the Art record.
+ * ArtImages that have an artId but are missing key metadata that exists on the Art record.
  */
 const staleMetadata = computed<StaleItem[]>(() => {
   const artMap = new Map(allArt.value.map((a) => [a.id, a]))
@@ -485,7 +668,6 @@ const staleMetadata = computed<StaleItem[]>(() => {
     if (!art) continue
 
     const missing: string[] = []
-
     if (!artImage.promptString && art.promptString) missing.push('promptString')
     if (!artImage.negativePrompt && art.negativePrompt)
       missing.push('negativePrompt')
@@ -503,28 +685,24 @@ const staleMetadata = computed<StaleItem[]>(() => {
     if (artImage.isMature == null && art.isMature != null)
       missing.push('isMature')
 
-    if (missing.length > 0) {
+    if (missing.length > 0)
       items.push({ art, artImage, missingFields: missing })
-    }
   }
-
   return items
 })
 
 /**
- * ArtImages with no thumbnailData. We can only confirm imageData existence
- * from the metadata scan — thumbnailData null is the signal.
+ * All ArtImages with no thumbnailData — regardless of match status.
  */
-const missingThumbnails = computed<ArtImage[]>(() => {
-  return allArtImages.value.filter((i) => !i.thumbnailData)
-})
+const missingThumbnails = computed<ArtImage[]>(() =>
+  allArtImages.value.filter((i) => !i.thumbnailData),
+)
 
 /**
- * ArtImages with no artId — not owned by any Art record.
- * These might be bot avatars, pitch images, etc. — surfaced for review.
+ * ArtImages with no owner FK at all.
  */
-const unlinkedImages = computed<ArtImage[]>(() => {
-  return allArtImages.value.filter(
+const unlinkedImages = computed<ArtImage[]>(() =>
+  allArtImages.value.filter(
     (i) =>
       !i.artId &&
       !i.botId &&
@@ -536,8 +714,72 @@ const unlinkedImages = computed<ArtImage[]>(() => {
       !i.rewardId &&
       !i.chatId &&
       !i.butterflyId,
+  ),
+)
+
+/**
+ * Art records that have artImageId set AND an ArtImage that back-references them.
+ * These are properly linked pairs — but may still need thumbnails.
+ */
+const matchedArt = computed<MatchedItem[]>(() => {
+  const imageByArtId = new Map(
+    allArtImages.value.filter((i) => i.artId).map((i) => [i.artId!, i]),
   )
+  const items: MatchedItem[] = []
+
+  for (const art of allArt.value) {
+    if (!art.artImageId) continue
+    const artImage = imageByArtId.get(art.id)
+    if (!artImage) continue
+    items.push({
+      art,
+      artImage,
+      needsThumbnail: !artImage.thumbnailData,
+    })
+  }
+  return items
 })
+
+const matchedNeedingThumbnail = computed(() =>
+  matchedArt.value.filter((m) => m.needsThumbnail),
+)
+
+// ─── Filtered display lists ───────────────────────────────────────────────────
+
+const filteredThumbs = computed<ArtImage[]>(() => {
+  if (thumbFilter.value === 'matched')
+    return missingThumbnails.value.filter((i) => i.artId != null)
+  if (thumbFilter.value === 'unmatched')
+    return missingThumbnails.value.filter((i) => i.artId == null)
+  return missingThumbnails.value
+})
+
+const filteredMatched = computed<MatchedItem[]>(() => {
+  if (matchedFilter.value === 'needs')
+    return matchedArt.value.filter((m) => m.needsThumbnail)
+  if (matchedFilter.value === 'healthy')
+    return matchedArt.value.filter((m) => !m.needsThumbnail)
+  return matchedArt.value
+})
+
+const activeDisplayItems = computed(() => {
+  switch (activeCategory.value) {
+    case 'orphaned':
+      return orphanedArt.value
+    case 'stale':
+      return staleMetadata.value
+    case 'thumbs':
+      return filteredThumbs.value
+    case 'unlinked':
+      return unlinkedImages.value
+    case 'matched':
+      return filteredMatched.value
+    default:
+      return []
+  }
+})
+
+// ─── Categories meta ─────────────────────────────────────────────────────────
 
 const categories = computed(() => [
   {
@@ -566,7 +808,7 @@ const categories = computed(() => [
     icon: 'kind-icon:image',
     color: 'secondary',
     description:
-      'ArtImages that have imageData but no thumbnailData. Thumbnails are generated client-side at 200×200 and saved back.',
+      'ArtImages that have imageData but no thumbnailData — includes both matched and unmatched records. Use the sub-filters to narrow the list. Thumbnails are generated client-side at 200×200 and saved back.',
     batchLabel: 'Generate all thumbnails',
     items: missingThumbnails.value,
   },
@@ -580,11 +822,69 @@ const categories = computed(() => [
     batchLabel: undefined,
     items: unlinkedImages.value,
   },
+  {
+    key: 'matched' as CategoryKey,
+    label: 'Matched',
+    icon: 'kind-icon:check',
+    color: 'success',
+    description:
+      'Art records properly linked to an ArtImage with back-references intact. Use the sub-filters to find pairs still needing thumbnails.',
+    batchLabel: 'Generate missing thumbnails',
+    items: matchedArt.value,
+  },
 ])
 
 const activeCategoryMeta = computed(() =>
   categories.value.find((c) => c.key === activeCategory.value),
 )
+
+/**
+ * How many items will actually be acted on by the batch button.
+ * For 'matched' we only batch the thumbnail-needing subset.
+ * For 'orphaned' we only batch ones that have a path.
+ */
+const batchableCount = computed(() => {
+  switch (activeCategory.value) {
+    case 'orphaned':
+      return orphanedArt.value.filter(
+        (a) => a.imagePath || (a.path && a.path !== 'UNDEFINED'),
+      ).length
+    case 'matched':
+      return matchedNeedingThumbnail.value.length
+    default:
+      return activeCategoryMeta.value?.items.length ?? 0
+  }
+})
+
+// ─── Health bar ───────────────────────────────────────────────────────────────
+
+const healthyMatchedCount = computed(
+  () => matchedArt.value.filter((m) => !m.needsThumbnail).length,
+)
+
+const healthSegments = computed(() => [
+  { label: 'Healthy', color: '#639922', count: healthyMatchedCount.value },
+  {
+    label: 'Needs thumbnail',
+    color: '#FAC775',
+    count:
+      matchedNeedingThumbnail.value.length +
+      missingThumbnails.value.filter((i) => i.artId == null).length,
+  },
+  {
+    label: 'Stale metadata',
+    color: '#85B7EB',
+    count: staleMetadata.value.length,
+  },
+  { label: 'Orphaned', color: '#EF9F27', count: orphanedArt.value.length },
+  { label: 'Unlinked', color: '#F09595', count: unlinkedImages.value.length },
+])
+
+const healthPct = computed(() => {
+  const total = healthSegments.value.reduce((s, seg) => s + seg.count, 0)
+  if (total === 0) return 0
+  return Math.round((healthyMatchedCount.value / total) * 100)
+})
 
 // ─── Scan ─────────────────────────────────────────────────────────────────────
 
@@ -595,21 +895,18 @@ async function runScan() {
   fixResults.value = new Map()
 
   try {
-    log('Fetching art records…')
-    // Use artStore for art — it already handles pagination
+    log('Fetching Art records…')
     await artStore.fetchArtPage(1, 500, true)
     allArt.value = [...artStore.art]
     log(`Loaded ${allArt.value.length} Art records`, 'info')
 
     log('Fetching ArtImage metadata (no imageData)…')
-    // Fetch artImage metadata list — assumes an endpoint that strips imageData
     const response = await performFetch<ArtImage[]>('/api/art/images/meta')
 
     if (response.success && Array.isArray(response.data)) {
       allArtImages.value = response.data
       log(`Loaded ${allArtImages.value.length} ArtImage records`, 'info')
     } else {
-      // Fallback: use whatever artStore already has cached (no imageData)
       allArtImages.value = artStore.artImages.map(stripImageData)
       log(
         `Fallback: used ${allArtImages.value.length} cached ArtImage records`,
@@ -619,7 +916,9 @@ async function runScan() {
 
     hasScanned.value = true
     log(
-      `Scan complete — ${orphanedArt.value.length} orphaned, ${staleMetadata.value.length} stale, ${missingThumbnails.value.length} no thumbnail, ${unlinkedImages.value.length} unlinked`,
+      `Scan complete — ${orphanedArt.value.length} orphaned, ${staleMetadata.value.length} stale, ` +
+        `${missingThumbnails.value.length} no thumbnail, ${unlinkedImages.value.length} unlinked, ` +
+        `${matchedArt.value.length} matched (${healthyMatchedCount.value} healthy)`,
       'success',
     )
   } catch (err) {
@@ -633,11 +932,6 @@ async function runScan() {
 
 // ─── Fixes ────────────────────────────────────────────────────────────────────
 
-/**
- * For an Art with an imagePath/path but no ArtImage, create a stub ArtImage
- * that records the path and links back to the Art record, then update Art.artImageId.
- * Note: this only stores the imagePath, not base64 data.
- */
 async function promotePathToArtImage(art: Art) {
   markFixing(art.id)
   try {
@@ -645,7 +939,6 @@ async function promotePathToArtImage(art: Art) {
       art.imagePath || (art.path !== 'UNDEFINED' ? art.path : null)
     if (!imagePath) throw new Error('No image source on this Art record')
 
-    // Create a new ArtImage referencing this Art
     const createRes = await performFetch<ArtImage>('/api/art/image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -654,8 +947,7 @@ async function promotePathToArtImage(art: Art) {
         userId: art.userId,
         galleryId: art.galleryId,
         imagePath,
-        // No imageData — this is a path-only record until someone fetches and encodes it
-        imageData: '', // required field; endpoint should accept empty for path-only
+        imageData: '',
         fileType: guessFileType(imagePath),
         promptString: art.promptString,
         negativePrompt: art.negativePrompt,
@@ -675,11 +967,9 @@ async function promotePathToArtImage(art: Art) {
       }),
     })
 
-    if (!createRes.success || !createRes.data) {
+    if (!createRes.success || !createRes.data)
       throw new Error(createRes.message || 'Failed to create ArtImage')
-    }
 
-    // Update Art.artImageId to point at new ArtImage
     await performFetch(`/api/art/${art.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -689,7 +979,6 @@ async function promotePathToArtImage(art: Art) {
     setResult(art.id, `→ ArtImage #${createRes.data.id}`)
     log(`Art #${art.id} promoted to ArtImage #${createRes.data.id}`, 'success')
 
-    // Refresh local art
     allArt.value = allArt.value.map((a) =>
       a.id === art.id ? { ...a, artImageId: createRes.data!.id } : a,
     )
@@ -703,16 +992,11 @@ async function promotePathToArtImage(art: Art) {
   }
 }
 
-/**
- * Copy generation metadata from Art into the linked ArtImage.
- * Requires the PATCH endpoint to accept full metadata fields (see note below).
- */
 async function syncArtMetadataToImage(item: StaleItem) {
   const id = item.artImage.id
   markFixing(id)
   try {
     const payload: Partial<ArtImage> = {}
-
     if (!item.artImage.promptString && item.art.promptString)
       payload.promptString = item.art.promptString
     if (!item.artImage.negativePrompt && item.art.negativePrompt)
@@ -749,8 +1033,6 @@ async function syncArtMetadataToImage(item: StaleItem) {
 
     setResult(id, 'Synced ✓')
     log(`ArtImage #${id}: synced ${Object.keys(payload).join(', ')}`, 'success')
-
-    // Update local metadata
     allArtImages.value = allArtImages.value.map((img) =>
       img.id === id ? { ...img, ...payload } : img,
     )
@@ -763,25 +1045,17 @@ async function syncArtMetadataToImage(item: StaleItem) {
   }
 }
 
-/**
- * Fetch the full imageData for an ArtImage, generate a thumbnail client-side
- * via Canvas, then PATCH thumbnailData back to the server.
- */
 async function generateAndSaveThumbnail(artImage: ArtImage, maxSize = 200) {
   const id = artImage.id
   markFixing(id)
   try {
-    // Fetch full image (with imageData)
     const res = await performFetch<ArtImage>(`/api/art/image/${id}`)
-    if (!res.success || !res.data?.imageData) {
+    if (!res.success || !res.data?.imageData)
       throw new Error('Could not fetch imageData for this ArtImage')
-    }
 
-    const imageData = res.data.imageData
-    const fileType = res.data.fileType ?? 'png'
     const thumbnailData = await createThumbnailFromBase64(
-      imageData,
-      fileType,
+      res.data.imageData,
+      res.data.fileType ?? 'png',
       maxSize,
     )
 
@@ -795,7 +1069,6 @@ async function generateAndSaveThumbnail(artImage: ArtImage, maxSize = 200) {
 
     setResult(id, `Thumbnail saved (${maxSize}px)`)
     log(`ArtImage #${id}: thumbnail generated at ${maxSize}px`, 'success')
-
     allArtImages.value = allArtImages.value.map((img) =>
       img.id === id ? { ...img, thumbnailData: '(set)' } : img,
     )
@@ -852,6 +1125,19 @@ async function runBatch(category: CategoryKey) {
       }
       for (const img of items) {
         await generateAndSaveThumbnail(img)
+        batchProgress.value.done++
+      }
+    }
+
+    if (category === 'matched') {
+      const items = matchedNeedingThumbnail.value
+      batchProgress.value = {
+        label: 'Generating thumbnails for matched…',
+        done: 0,
+        total: items.length,
+      }
+      for (const item of items) {
+        await generateAndSaveThumbnail(item.artImage)
         batchProgress.value.done++
       }
     }
@@ -938,3 +1224,28 @@ function log(msg: string, type: LogEntry['type'] = 'info') {
   })
 }
 </script>
+
+<style scoped>
+/* Scan sweep animation on the header */
+.scan-active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(var(--su)),
+    transparent
+  );
+  animation: scan-sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes scan-sweep {
+  to {
+    left: 200%;
+  }
+}
+</style>

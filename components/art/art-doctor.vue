@@ -886,7 +886,9 @@ function createThumbnailFromBase64(
       if (!ctx) return reject(new Error('Canvas context unavailable'))
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
       const dataUrl = canvas.toDataURL(mimeType, 0.82)
-      resolve(dataUrl.split(',')[1]) // strip the data: prefix
+      const b64 = dataUrl.split(',')[1]
+      if (!b64) return reject(new Error('Canvas produced empty data URL'))
+      resolve(b64)
     }
     img.onerror = () => reject(new Error('Failed to load image for thumbnail'))
     img.src = `data:${mimeType};base64,${base64}`

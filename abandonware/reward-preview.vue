@@ -123,7 +123,7 @@ const loadArtImage = async () => {
       if (result) {
         artImage.value = {
           fileType: result.fileType,
-          imageData: result.imageData,
+          imageData: result.imageData || ' ',
         }
       } else {
         artImage.value = null

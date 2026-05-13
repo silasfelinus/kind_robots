@@ -55,6 +55,7 @@ export function buildNewChat(
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,
     dreamId: input.dreamId ?? null,
+    isActive: false,
   }
 }
 

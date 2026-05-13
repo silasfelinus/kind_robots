@@ -73,6 +73,8 @@
         :show-header="false"
       />
 
+      <art-doctor v-else-if="currentTab === 'doctor'" />
+
       <section
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
@@ -102,8 +104,6 @@
           </div>
         </div>
       </section>
-
-
 
       <div
         v-else

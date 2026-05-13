@@ -61,12 +61,6 @@
         :show-selected-panel="true"
       />
 
-      <collection-gallery
-        v-else-if="currentTab === 'collections'"
-        variant="dashboard"
-        :show-header="false"
-      />
-
       <checkpoint-gallery
         v-else-if="currentTab === 'checkpoints'"
         variant="dashboard"
@@ -122,6 +116,7 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
+import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
 
 const dashboardKey = 'art' as const
 
@@ -174,10 +169,24 @@ const managerSummary = computed(() => {
   return `${artCount} art records and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Selected: ${selectedArtLabel.value}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
+function setTab(tab: string | DashboardTabConfig) {
+  const tabKey = typeof tab === 'string' ? tab : tab.key
 
-  if (tab === 'generate' || tab === 'checkpoints' || tab === 'servers') {
+  const tabExists = tabs.value.some((entry) => entry.key === tabKey)
+
+  if (!tabExists) {
+    navStore.setDashboardTab(dashboardKey, 'generate')
+    serverStore.setCurrentServerMode('art')
+    return
+  }
+
+  navStore.setDashboardTab(dashboardKey, tabKey)
+
+  if (
+    tabKey === 'generate' ||
+    tabKey === 'checkpoints' ||
+    tabKey === 'servers'
+  ) {
     serverStore.setCurrentServerMode('art')
     return
   }

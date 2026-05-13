@@ -119,6 +119,110 @@ type CreateArtInput = {
   genres?: string | null
 }
 
+type ArtImageFetchOptions = {
+  force?: boolean
+  includeImageData?: boolean
+  includeThumbnailData?: boolean
+  includeTags?: boolean
+}
+
+type ArtImagePatchInput = Partial<
+  Pick<
+    ArtImage,
+    | 'galleryId'
+    | 'userId'
+    | 'imageData'
+    | 'thumbnailData'
+    | 'fileName'
+    | 'fileType'
+    | 'imagePath'
+    | 'rarity'
+    | 'path'
+    | 'promptString'
+    | 'negativePrompt'
+    | 'checkpoint'
+    | 'checkpointResourceId'
+    | 'sampler'
+    | 'seed'
+    | 'steps'
+    | 'cfg'
+    | 'cfgHalf'
+    | 'designer'
+    | 'genres'
+    | 'isPublic'
+    | 'isMature'
+    | 'serverId'
+    | 'serverName'
+    | 'serverUrl'
+    | 'artId'
+    | 'botId'
+    | 'componentId'
+    | 'milestoneId'
+    | 'pitchId'
+    | 'promptId'
+    | 'resourceId'
+    | 'rewardId'
+    | 'chatId'
+    | 'characterId'
+    | 'butterflyId'
+  >
+>
+
+type ArtPatchInput = Partial<
+  Pick<
+    Art,
+    | 'path'
+    | 'checkpoint'
+    | 'checkpointResourceId'
+    | 'sampler'
+    | 'seed'
+    | 'steps'
+    | 'designer'
+    | 'isPublic'
+    | 'isMature'
+    | 'promptId'
+    | 'userId'
+    | 'pitchId'
+    | 'galleryId'
+    | 'promptString'
+    | 'cfg'
+    | 'cfgHalf'
+    | 'serverId'
+    | 'serverName'
+    | 'serverUrl'
+    | 'artImageId'
+    | 'imagePath'
+    | 'genres'
+    | 'negativePrompt'
+  >
+>
+
+type ArtImageSyncFields = Partial<
+  Pick<
+    ArtImage,
+    | 'galleryId'
+    | 'userId'
+    | 'path'
+    | 'promptString'
+    | 'negativePrompt'
+    | 'checkpoint'
+    | 'checkpointResourceId'
+    | 'sampler'
+    | 'seed'
+    | 'steps'
+    | 'cfg'
+    | 'cfgHalf'
+    | 'designer'
+    | 'genres'
+    | 'isPublic'
+    | 'isMature'
+    | 'serverId'
+    | 'serverName'
+    | 'serverUrl'
+    | 'artId'
+  >
+>
+
 type ArtStoreState = {
   art: Art[]
   artImages: ArtImage[]
@@ -148,6 +252,7 @@ const artStorageKey = 'art'
 const artImagesStorageKey = 'artImages'
 const maxStoredImages = 150
 const maxStoredArt = 300
+const fetchAllArtImagesPromise = ref<Promise<ArtImage[]> | null>(null)
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -262,11 +367,20 @@ export const useArtStore = defineStore('artStore', () => {
   const hasCachedImages = computed(() => state.artImages.length > 0)
 
   const currentImagePath = computed(() => {
-    if (state.currentArtImage) {
-      return `data:image/${state.currentArtImage.fileType};base64,${state.currentArtImage.imageData}`
+    const image = state.currentArtImage as
+      | (ArtImage & { imageData?: string | null })
+      | null
+
+    if (image?.imageData) {
+      return `data:image/${image.fileType || 'png'};base64,${image.imageData}`
     }
 
-    return state.currentArt?.imagePath || state.currentArt?.path || ''
+    return (
+      image?.imagePath ||
+      state.currentArt?.imagePath ||
+      state.currentArt?.path ||
+      ''
+    )
   })
 
   const generatedArtCount = computed(() => state.generatedArt.length)
@@ -301,6 +415,110 @@ export const useArtStore = defineStore('artStore', () => {
     ]
       .filter(Boolean)
       .join(', ')
+  })
+
+  const artImageByArtId = computed(() => {
+    const map = new Map<number, ArtImage>()
+
+    for (const image of state.artImages) {
+      if (image.artId) {
+        map.set(image.artId, image)
+      }
+    }
+
+    return map
+  })
+
+  const artByImageId = computed(() => {
+    const map = new Map<number, Art>()
+
+    for (const art of state.art) {
+      if (art.artImageId) {
+        map.set(art.artImageId, art)
+      }
+    }
+
+    return map
+  })
+
+  const publicArt = computed(() => {
+    return state.art.filter((art) => art.isPublic)
+  })
+
+  const matureArt = computed(() => {
+    return state.art.filter((art) => art.isMature)
+  })
+
+  const safeArt = computed(() => {
+    return state.art.filter((art) => !art.isMature)
+  })
+
+  const artWithImages = computed(() => {
+    return state.art.filter((art) => {
+      if (art.artImageId) return true
+      return artImageByArtId.value.has(art.id)
+    })
+  })
+
+  const artWithoutImages = computed(() => {
+    return state.art.filter((art) => {
+      if (art.artImageId) return false
+      return !artImageByArtId.value.has(art.id)
+    })
+  })
+
+  const publicArtImages = computed(() => {
+    return state.artImages.filter((image) => image.isPublic)
+  })
+
+  const matureArtImages = computed(() => {
+    return state.artImages.filter((image) => image.isMature)
+  })
+
+  const safeArtImages = computed(() => {
+    return state.artImages.filter((image) => !image.isMature)
+  })
+
+  const linkedArtImages = computed(() => {
+    return state.artImages.filter((image) => image.artId)
+  })
+
+  const unlinkedArtImages = computed(() => {
+    return state.artImages.filter((image) => {
+      return (
+        !image.artId &&
+        !image.botId &&
+        !image.componentId &&
+        !image.milestoneId &&
+        !image.pitchId &&
+        !image.promptId &&
+        !image.resourceId &&
+        !image.rewardId &&
+        !image.chatId &&
+        !image.characterId &&
+        !image.butterflyId
+      )
+    })
+  })
+
+  const artImagePairs = computed(() => {
+    return state.art
+      .map((art) => {
+        const viaForward = art.artImageId
+          ? imageById.value.get(art.artImageId)
+          : undefined
+        const viaBack = artImageByArtId.value.get(art.id)
+        const artImage = viaForward || viaBack || null
+
+        return {
+          art,
+          artImage,
+          hasForwardLink: Boolean(viaForward),
+          hasBackLink: Boolean(viaBack),
+          isBidirectional: Boolean(viaForward && viaBack),
+        }
+      })
+      .filter((pair) => pair.artImage)
   })
 
   const getNegativePromptString = computed<string>(() => {
@@ -523,11 +741,11 @@ export const useArtStore = defineStore('artStore', () => {
         }
 
         if (shouldFetchRemote) {
-          await fetchArtPage(
-            state.currentPage,
-            state.pageSize,
-            Boolean(options.force),
-          )
+          await fetchAllArt(Boolean(options.force))
+          await fetchAllArtImages({
+            force: Boolean(options.force),
+            includeThumbnailData: options.hydrateImages !== false,
+          })
         }
 
         if (!state.artForm.userId) {
@@ -626,62 +844,104 @@ export const useArtStore = defineStore('artStore', () => {
     pageSize = state.pageSize,
     force = false,
   ): Promise<Art[]> {
-    const key = `${page}:${pageSize}`
+    state.currentPage = page
+    state.pageSize = pageSize
 
-    if (fetchArtPagePromise.value[key] && !force) {
-      return fetchArtPagePromise.value[key]
+    const art = await fetchAllArt(force)
+    state.totalArtCount = art.length
+
+    return art
+  }
+
+  function buildArtImageQuery(options: ArtImageFetchOptions = {}): string {
+    const params = new URLSearchParams()
+
+    if (options.includeImageData) {
+      params.set('includeImageData', 'true')
     }
 
-    fetchArtPagePromise.value[key] = (async () => {
+    if (options.includeThumbnailData) {
+      params.set('includeThumbnailData', 'true')
+    }
+
+    if (options.includeTags) {
+      params.set('includeTags', 'true')
+    }
+
+    const query = params.toString()
+
+    return query ? `?${query}` : ''
+  }
+
+  function cachedImageSatisfiesOptions(
+    image: ArtImage | undefined,
+    options: ArtImageFetchOptions = {},
+  ): image is ArtImage {
+    if (!image) return false
+
+    const withOptionalData = image as ArtImage & {
+      imageData?: string | null
+      thumbnailData?: string | null
+      Tags?: unknown[]
+      TagOwner?: unknown
+    }
+
+    if (options.includeImageData && !withOptionalData.imageData) return false
+
+    if (
+      options.includeThumbnailData &&
+      typeof withOptionalData.thumbnailData === 'undefined'
+    ) {
+      return false
+    }
+
+    if (options.includeTags && typeof withOptionalData.Tags === 'undefined') {
+      return false
+    }
+
+    return true
+  }
+
+  async function fetchAllArtImages(
+    options: ArtImageFetchOptions = {},
+  ): Promise<ArtImage[]> {
+    if (!options.force && state.artImages.length) {
+      return state.artImages
+    }
+
+    if (fetchAllArtImagesPromise.value && !options.force) {
+      return fetchAllArtImagesPromise.value
+    }
+
+    fetchAllArtImagesPromise.value = (async () => {
       state.loading = true
 
       try {
         clearError()
 
-        const response = await performFetch<unknown>(
-          `/api/art?page=${page}&pageSize=${pageSize}`,
+        const query = buildArtImageQuery(options)
+        const response = await performFetch<ArtImage[]>(
+          `/api/art/image${query}`,
         )
 
-        if (!response.success) {
-          throw new Error(response.message || 'Failed to fetch art page.')
+        if (!response.success || !response.data) {
+          throw new Error(response.message || 'Failed to fetch art images.')
         }
 
-        const normalized = normalizeFetchedArtPage(response)
+        addOrUpdateArtImages(response.data)
 
-        if (!normalized.art.length) {
-          const message =
-            response.message &&
-            response.message !== 'Request completed successfully'
-              ? response.message
-              : 'Failed to fetch art page. The API response did not include art data.'
-
-          throw new Error(message)
-        }
-
-        state.currentPage = page
-        state.pageSize = pageSize
-        state.totalArtCount = normalized.total ?? state.totalArtCount
-        state.art = mergeUniqueArt(state.art, normalized.art)
-        persistArt()
-
-        return normalized.art
+        return state.artImages
       } catch (error) {
-        handleError(error, 'fetching art page')
-
-        const message =
-          error instanceof Error && error.message
-            ? error.message
-            : 'Failed to fetch art page.'
-
-        setError(message, 'Failed to fetch art page.')
-        return []
+        handleError(error, 'fetching all art images')
+        setError(error, 'Failed to fetch art images.')
+        return state.artImages
       } finally {
         state.loading = false
-        delete fetchArtPagePromise.value[key]
+        fetchAllArtImagesPromise.value = null
       }
     })()
 
-    return fetchArtPagePromise.value[key]
+    return fetchAllArtImagesPromise.value
   }
 
   async function loadArtImagesInChunks(
@@ -761,35 +1021,56 @@ export const useArtStore = defineStore('artStore', () => {
     setHoverArt(null)
   }
 
-  async function getArtImageById(id: number): Promise<ArtImage | undefined> {
-    const cached = imageById.value.get(id)
-    if (cached) return cached
+  async function getArtImageById(
+    id: number,
+    options: ArtImageFetchOptions = {},
+  ): Promise<ArtImage | undefined> {
+    const imageId = Number(id)
 
-    const existingRequest = artImageRequestMap.value[id]
-    if (existingRequest) return existingRequest
+    if (!isValidId(imageId)) {
+      setError('Invalid ArtImage ID.', 'Invalid ArtImage ID.')
+      return undefined
+    }
 
-    artImageRequestMap.value[id] = (async () => {
+    const cached = imageById.value.get(imageId)
+
+    if (!options.force && cachedImageSatisfiesOptions(cached, options)) {
+      return cached
+    }
+
+    const existingRequest = artImageRequestMap.value[imageId]
+
+    if (existingRequest && !options.force) {
+      return existingRequest
+    }
+
+    artImageRequestMap.value[imageId] = (async () => {
       try {
         clearError()
 
-        const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
+        const query = buildArtImageQuery(options)
+        const response = await performFetch<ArtImage>(
+          `/api/art/image/${imageId}${query}`,
+        )
 
         if (response.success && response.data) {
           addOrUpdateArtImages([response.data])
           return response.data
         }
 
-        throw new Error(response.message || `Failed to fetch art image ${id}.`)
+        throw new Error(
+          response.message || `Failed to fetch art image ${imageId}.`,
+        )
       } catch (error) {
         handleError(error, 'fetching single art image')
-        setError(error, `Failed to fetch art image ${id}.`)
+        setError(error, `Failed to fetch art image ${imageId}.`)
         return undefined
       } finally {
-        delete artImageRequestMap.value[id]
+        delete artImageRequestMap.value[imageId]
       }
     })()
 
-    return artImageRequestMap.value[id]
+    return artImageRequestMap.value[imageId]
   }
 
   function getArtImageByArtId(
@@ -944,7 +1225,7 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function updateArt(
     id: number,
-    updates: Partial<Art>,
+    updates: ArtPatchInput,
   ): Promise<ApiResponse<Art>> {
     try {
       clearError()
@@ -980,6 +1261,198 @@ export const useArtStore = defineStore('artStore', () => {
           error instanceof Error ? error.message : 'Failed to update art.',
       }
     }
+  }
+
+  async function updateArtImage(
+    id: number,
+    updates: ArtImagePatchInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>(`/api/art/image/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update art image.')
+      }
+
+      addOrUpdateArtImages([response.data])
+
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art image updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating art image')
+      setError(error, 'Failed to update art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update art image.',
+      }
+    }
+  }
+
+  function buildArtImageSyncFields(art: Art): ArtImageSyncFields {
+    return {
+      galleryId: art.galleryId ?? null,
+      userId: art.userId ?? null,
+      path: art.path ?? null,
+      promptString: art.promptString ?? null,
+      negativePrompt: art.negativePrompt ?? null,
+      checkpoint: art.checkpoint ?? null,
+      checkpointResourceId: art.checkpointResourceId ?? null,
+      sampler: art.sampler ?? null,
+      seed: art.seed ?? null,
+      steps: art.steps ?? null,
+      cfg: art.cfg ?? null,
+      cfgHalf: art.cfgHalf ?? null,
+      designer: art.designer ?? null,
+      genres: art.genres ?? null,
+      isPublic: art.isPublic ?? null,
+      isMature: art.isMature ?? null,
+      serverId: art.serverId ?? null,
+      serverName: art.serverName ?? null,
+      serverUrl: art.serverUrl ?? null,
+      artId: art.id,
+    }
+  }
+
+  async function syncArtToArtImage(
+    artId: number,
+    artImageId?: number | null,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const art = artById.value.get(artId) || (await selectArt(artId)).data
+
+      if (!art) {
+        throw new Error(`Art #${artId} was not found.`)
+      }
+
+      const targetImageId =
+        artImageId || art.artImageId || getArtImageByArtId(art.id)?.id || null
+
+      if (!targetImageId) {
+        throw new Error(`Art #${artId} does not have a linked ArtImage.`)
+      }
+
+      const response = await updateArtImage(
+        targetImageId,
+        buildArtImageSyncFields(art),
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to sync Art to ArtImage.')
+      }
+
+      if (art.artImageId !== targetImageId) {
+        await updateArt(art.id, {
+          artImageId: targetImageId,
+        })
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: `Art #${artId} synced to ArtImage #${targetImageId}.`,
+      }
+    } catch (error) {
+      handleError(error, 'syncing art to art image')
+      setError(error, 'Failed to sync art to art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to sync art to art image.',
+      }
+    }
+  }
+
+  async function repairArtImageLink(
+    artId: number,
+    artImageId: number,
+  ): Promise<ApiResponse<{ art: Art; artImage: ArtImage }>> {
+    try {
+      clearError()
+
+      const artResponse = await updateArt(artId, {
+        artImageId,
+      })
+
+      if (!artResponse.success || !artResponse.data) {
+        throw new Error(artResponse.message || 'Failed to update Art link.')
+      }
+
+      const imageResponse = await updateArtImage(artImageId, {
+        artId,
+      })
+
+      if (!imageResponse.success || !imageResponse.data) {
+        throw new Error(
+          imageResponse.message || 'Failed to update ArtImage link.',
+        )
+      }
+
+      return {
+        success: true,
+        data: {
+          art: artResponse.data,
+          artImage: imageResponse.data,
+        },
+        message: `Art #${artId} linked with ArtImage #${artImageId}.`,
+      }
+    } catch (error) {
+      handleError(error, 'repairing art image link')
+      setError(error, 'Failed to repair art image link.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to repair art image link.',
+      }
+    }
+  }
+
+  async function fetchArtImageForDisplay(
+    id: number,
+  ): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, {
+      includeImageData: true,
+    })
+  }
+
+  async function fetchArtImageThumbnail(
+    id: number,
+  ): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, {
+      includeThumbnailData: true,
+    })
+  }
+
+  async function fetchArtImageWithTags(
+    id: number,
+  ): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, {
+      includeTags: true,
+    })
   }
 
   async function updateArtTags(
@@ -1757,6 +2230,7 @@ export const useArtStore = defineStore('artStore', () => {
     fetchAllArtPromise.value = null
     fetchArtPagePromise.value = {}
     artImageRequestMap.value = {}
+    fetchAllArtImagesPromise.value = null
     state.error = ''
   }
 
@@ -1778,6 +2252,22 @@ export const useArtStore = defineStore('artStore', () => {
     imageById,
     getPromptString,
     getNegativePromptString,
+    fetchAllArtImagesPromise,
+
+    artImageByArtId,
+    artByImageId,
+    publicArt,
+    matureArt,
+    safeArt,
+    artWithImages,
+    artWithoutImages,
+    publicArtImages,
+    matureArtImages,
+    safeArtImages,
+    linkedArtImages,
+    unlinkedArtImages,
+    artImagePairs,
+    artListPresets,
 
     initialize,
     resetInitialization,
@@ -1816,13 +2306,20 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImageId,
     updateArtImageWithArtId,
 
-    artListPresets,
     selectArtRecord,
 
     updateArt,
     updateArtTags,
     addArtToCollection,
     removeArtFromCollection,
+    fetchAllArtImages,
+    updateArtImage,
+    syncArtToArtImage,
+    repairArtImageLink,
+    fetchArtImageForDisplay,
+    fetchArtImageThumbnail,
+    fetchArtImageWithTags,
+    buildArtImageSyncFields,
   }
 })
 

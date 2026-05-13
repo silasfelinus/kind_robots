@@ -1,22 +1,38 @@
-// server/api/art/image/[id].patch.ts
-// EXTENDED version — replaces the existing stub-only implementation.
-// Now accepts the full ArtImage metadata payload needed by art-doctor.vue.
-
-import { defineEventHandler, createError, readBody } from 'h3'
+// /server/api/art/image/[id].patch.ts
+import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
+import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
+import { validateApiKey } from '../../../utils/validateKey'
 
-// Fields that art-doctor is allowed to sync from Art into ArtImage.
-// imageData and thumbnailData are handled separately (they're bulk data).
-const ALLOWED_META_FIELDS = new Set([
-  'imageData', // still allowed for direct image updates
-  'thumbnailData', // art-doctor thumbnail generation
+type ValidatedUser = {
+  id?: number | null
+  Role?: string | null
+  role?: string | null
+  isAdmin?: boolean | null
+}
+
+type PatchUser = {
+  id: number
+  isAdmin: boolean
+}
+
+const ART_IMAGE_PATCH_FIELDS = new Set<
+  keyof Prisma.ArtImageUncheckedUpdateInput
+>([
+  'galleryId',
+  'userId',
+  'imageData',
+  'thumbnailData',
   'fileName',
   'fileType',
   'imagePath',
+  'rarity',
+  'path',
   'promptString',
   'negativePrompt',
   'checkpoint',
+  'checkpointResourceId',
   'sampler',
   'seed',
   'steps',
@@ -24,100 +40,152 @@ const ALLOWED_META_FIELDS = new Set([
   'cfgHalf',
   'designer',
   'genres',
+  'isPublic',
+  'isMature',
   'serverId',
   'serverName',
   'serverUrl',
-  'isPublic',
-  'isMature',
-  'galleryId',
   'artId',
-  'rarity',
+  'botId',
+  'componentId',
+  'milestoneId',
+  'pitchId',
+  'promptId',
+  'resourceId',
+  'rewardId',
+  'chatId',
+  'characterId',
+  'butterflyId',
 ])
 
+function isAdminUser(user: ValidatedUser | null | undefined): boolean {
+  if (!user) return false
+
+  const role = String(user.Role || user.role || '').toLowerCase()
+
+  return Boolean(user.isAdmin || role === 'admin' || role === 'system')
+}
+
+async function requirePatchUser(event: H3Event): Promise<PatchUser> {
+  const auth = await validateApiKey(event)
+  const user = auth.user as ValidatedUser | null | undefined
+
+  if (!auth.isValid || typeof user?.id !== 'number') {
+    throw createError({
+      statusCode: 401,
+      message: 'Valid authorization token required.',
+    })
+  }
+
+  return {
+    id: Number(user.id),
+    isAdmin: isAdminUser(user),
+  }
+}
+
+function sanitizeArtImagePatch(
+  body: Record<string, unknown>,
+  user: PatchUser,
+): Prisma.ArtImageUncheckedUpdateInput {
+  const updateData: Prisma.ArtImageUncheckedUpdateInput = {}
+
+  for (const [key, value] of Object.entries(body)) {
+    if (
+      !ART_IMAGE_PATCH_FIELDS.has(
+        key as keyof Prisma.ArtImageUncheckedUpdateInput,
+      )
+    ) {
+      continue
+    }
+
+    if (value === undefined) {
+      continue
+    }
+
+    if (key === 'userId' && !user.isAdmin) {
+      continue
+    }
+
+    updateData[key as keyof Prisma.ArtImageUncheckedUpdateInput] =
+      value as never
+  }
+
+  return updateData
+}
+
 export default defineEventHandler(async (event) => {
-  let response
-  let imageId: number | null = null
+  const id = Number(event.context.params?.id)
 
   try {
-    imageId = Number(event.context.params?.id)
-    if (isNaN(imageId) || imageId <= 0) {
-      throw createError({ statusCode: 400, message: 'Invalid image ID.' })
-    }
-
-    // Auth
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader?.startsWith('Bearer ')) {
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
-        statusCode: 401,
-        message: 'Authorization token required.',
+        statusCode: 400,
+        message: 'Invalid ArtImage ID. It must be a positive integer.',
       })
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true, Role: true },
+    const user = await requirePatchUser(event)
+
+    const existing = await prisma.artImage.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
 
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired token.',
-      })
-    }
-
-    const artImage = await prisma.artImage.findUnique({
-      where: { id: imageId },
-    })
-    if (!artImage) {
+    if (!existing) {
       throw createError({
         statusCode: 404,
-        message: `ArtImage #${imageId} not found.`,
+        message: `ArtImage #${id} not found.`,
       })
     }
 
-    // Admins can patch any image; others must own it
-    const isAdmin = user.Role === 'ADMIN' || user.Role === 'SYSTEM'
-    if (!isAdmin && artImage.userId !== user.id) {
-      throw createError({ statusCode: 403, message: 'Permission denied.' })
+    if (!user.isAdmin && existing.userId !== user.id) {
+      throw createError({
+        statusCode: 403,
+        message: 'You are not allowed to update this art image.',
+      })
     }
 
-    const body = await readBody(event)
+    const body = await readBody<Record<string, unknown>>(event)
 
     if (!body || typeof body !== 'object' || Object.keys(body).length === 0) {
-      throw createError({ statusCode: 400, message: 'Request body is empty.' })
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
     }
 
-    // Filter to only allowed fields
-    const updateData: Record<string, unknown> = {}
-    for (const [key, value] of Object.entries(body)) {
-      if (ALLOWED_META_FIELDS.has(key)) {
-        updateData[key] = value
-      }
-    }
+    const updateData = sanitizeArtImagePatch(body, user)
 
     if (Object.keys(updateData).length === 0) {
       throw createError({
         statusCode: 400,
-        message: 'No valid fields provided.',
+        message: 'No valid ArtImage fields provided for update.',
       })
     }
 
-    const data = await prisma.artImage.update({
-      where: { id: imageId },
+    const data: ArtImage = await prisma.artImage.update({
+      where: { id },
       data: updateData,
     })
 
-    response = { success: true, data, message: 'ArtImage updated.' }
     event.node.res.statusCode = 200
+
+    return {
+      success: true,
+      message: `ArtImage #${id} updated successfully.`,
+      data,
+    }
   } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+
+    return {
       success: false,
-      message: handledError.message || `Failed to update ArtImage #${imageId}.`,
+      message: handled.message || `Failed to update ArtImage #${id}.`,
+      data: null,
     }
   }
-
-  return response
 })

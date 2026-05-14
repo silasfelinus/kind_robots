@@ -1,18 +1,93 @@
+// /server/chatgpt/services/contentService.ts
 import { createError } from 'h3'
+import { z } from 'zod'
 import { prisma } from '~/server/utils/prisma'
 import type { ChatGptActor } from '../auth/resolveActor'
 import type { ChatGptResource } from '../schemas/operationSchemas'
 import { getModelConfig } from '../registry/models'
 
-const DEFAULT_GUEST_USER_ID = 10
+const CURRENT_ADMIN_USER_ID = 1
+const DEFAULT_LIMIT = 20
+const MAX_LIMIT = 100
 
-function getActorUserId(actor: ChatGptActor) {
-  return actor.userId || DEFAULT_GUEST_USER_ID
+const ListFilterSchema = z
+  .object({
+    limit: z.number().int().min(1).max(MAX_LIMIT).optional(),
+    offset: z.number().int().min(0).optional(),
+    page: z.number().int().min(1).optional(),
+    isActive: z.boolean().optional(),
+    isPublic: z.boolean().optional(),
+    isMature: z.boolean().optional(),
+    userId: z.number().int().positive().optional(),
+    ids: z.array(z.number().int().positive()).optional(),
+    q: z.string().trim().min(1).optional(),
+    orderBy: z.string().trim().min(1).optional(),
+    orderDirection: z.enum(['asc', 'desc']).optional(),
+  })
+  .catchall(z.unknown())
+
+type ListFilter = z.infer<typeof ListFilterSchema>
+
+type PrismaDelegate = {
+  create(args: Record<string, unknown>): Promise<Record<string, unknown>>
+  findUnique(
+    args: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null>
+  findMany(args: Record<string, unknown>): Promise<Record<string, unknown>[]>
+  update(args: Record<string, unknown>): Promise<Record<string, unknown>>
+  count(args: Record<string, unknown>): Promise<number>
 }
 
-function getDelegate(resource: ChatGptResource) {
-  const config = getModelConfig(resource)
-  const delegate = (prisma as any)[config.prisma]
+type RuntimeModelConfig = {
+  prisma: string
+  ownerField?: string
+  activeField?: string
+  createSchema: z.ZodTypeAny
+  updateSchema: z.ZodTypeAny
+  publicSelect: Record<string, boolean>
+  searchableFields?: string[]
+  filterFields?: string[]
+  defaultOrderBy?: Record<string, 'asc' | 'desc'>
+}
+
+type ContentServiceResponse<TData = unknown> = {
+  success: true
+  operation:
+    | 'content.create'
+    | 'content.get'
+    | 'content.list'
+    | 'content.update'
+    | 'content.setActive'
+  resource: ChatGptResource
+  data: TData
+  message?: string
+  meta?: {
+    limit?: number
+    offset?: number
+    count?: number
+  }
+}
+
+function getActorUserId(actor: ChatGptActor): number {
+  return actor.userId || CURRENT_ADMIN_USER_ID
+}
+
+function isAdminActor(actor: ChatGptActor): boolean {
+  return actor.role === 'admin' || actor.userId === CURRENT_ADMIN_USER_ID
+}
+
+function getRuntimeModelConfig(resource: ChatGptResource): RuntimeModelConfig {
+  return getModelConfig(resource) as RuntimeModelConfig
+}
+
+function getDelegate(resource: ChatGptResource): {
+  config: RuntimeModelConfig
+  delegate: PrismaDelegate
+} {
+  const config = getRuntimeModelConfig(resource)
+  const delegate = (
+    prisma as unknown as Record<string, PrismaDelegate | undefined>
+  )[config.prisma]
 
   if (!delegate) {
     throw createError({
@@ -27,20 +102,141 @@ function getDelegate(resource: ChatGptResource) {
   }
 }
 
-async function assertCanUpdate(
-  actor: ChatGptActor,
-  resource: ChatGptResource,
-  id: number,
-) {
-  if (actor.role === 'admin') return
+function getOwnerField(config: RuntimeModelConfig): string | undefined {
+  if (!config.ownerField) return undefined
+  if (config.ownerField === 'id') return undefined
+
+  return config.ownerField
+}
+
+function getActiveField(config: RuntimeModelConfig): string | undefined {
+  return config.activeField || undefined
+}
+
+function getSelectWithOwner(
+  config: RuntimeModelConfig,
+): Record<string, boolean> {
+  const ownerField = getOwnerField(config)
+
+  if (!ownerField) return config.publicSelect
+
+  return {
+    ...config.publicSelect,
+    [ownerField]: true,
+  }
+}
+
+function removeProtectedFields(
+  data: Record<string, unknown>,
+  config: RuntimeModelConfig,
+): Record<string, unknown> {
+  const ownerField = getOwnerField(config)
+
+  const protectedFields = new Set([
+    'id',
+    'createdAt',
+    'updatedAt',
+    ...(ownerField ? [ownerField] : []),
+  ])
+
+  return Object.fromEntries(
+    Object.entries(data).filter(([key]) => !protectedFields.has(key)),
+  )
+}
+
+function applyDefaults({
+  data,
+  config,
+  actor,
+}: {
+  data: Record<string, unknown>
+  config: RuntimeModelConfig
+  actor: ChatGptActor
+}): Record<string, unknown> {
+  const ownerField = getOwnerField(config)
+  const activeField = getActiveField(config)
+
+  const createData: Record<string, unknown> = {
+    ...data,
+  }
+
+  if (ownerField) {
+    createData[ownerField] = getActorUserId(actor)
+  }
+
+  if (activeField) {
+    createData[activeField] =
+      typeof data[activeField] === 'boolean' ? data[activeField] : true
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(config.publicSelect, 'isPublic') &&
+    typeof createData.isPublic !== 'boolean'
+  ) {
+    createData.isPublic = true
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(config.publicSelect, 'isMature') &&
+    typeof createData.isMature !== 'boolean'
+  ) {
+    createData.isMature = false
+  }
+
+  return createData
+}
+
+function assertReadableRecord({
+  actor,
+  config,
+  resource,
+  record,
+}: {
+  actor: ChatGptActor
+  config: RuntimeModelConfig
+  resource: ChatGptResource
+  record: Record<string, unknown>
+}) {
+  if (isAdminActor(actor)) return
+
+  const ownerField = getOwnerField(config)
+
+  if (!ownerField) return
+  if (record[ownerField] === getActorUserId(actor)) return
+  if (record.isPublic === true) return
+
+  throw createError({
+    statusCode: 403,
+    statusMessage: `You cannot read this ${resource}`,
+  })
+}
+
+async function assertWritableRecord({
+  actor,
+  resource,
+  id,
+}: {
+  actor: ChatGptActor
+  resource: ChatGptResource
+  id: number
+}) {
+  if (isAdminActor(actor)) return
 
   const { config, delegate } = getDelegate(resource)
+  const ownerField = getOwnerField(config)
+
+  if (!ownerField) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: `You cannot update this ${resource}`,
+    })
+  }
 
   const record = await delegate.findUnique({
     where: { id },
     select: {
       id: true,
-      [config.ownerField]: true,
+      [ownerField]: true,
     },
   })
 
@@ -51,11 +247,140 @@ async function assertCanUpdate(
     })
   }
 
-  if (record[config.ownerField] !== getActorUserId(actor)) {
+  if (record[ownerField] !== getActorUserId(actor)) {
     throw createError({
       statusCode: 403,
       statusMessage: `You do not own this ${resource}`,
     })
+  }
+}
+
+function buildSearchWhere(
+  config: RuntimeModelConfig,
+  query: string | undefined,
+): Record<string, unknown> | undefined {
+  if (!query) return undefined
+
+  const searchableFields = config.searchableFields ?? []
+
+  if (!searchableFields.length) return undefined
+
+  return {
+    OR: searchableFields.map((field) => ({
+      [field]: {
+        contains: query,
+      },
+    })),
+  }
+}
+
+function buildBaseWhere({
+  actor,
+  config,
+  filter,
+}: {
+  actor: ChatGptActor
+  config: RuntimeModelConfig
+  filter: ListFilter
+}): Record<string, unknown> {
+  const where: Record<string, unknown> = {}
+  const ownerField = getOwnerField(config)
+  const activeField = getActiveField(config)
+
+  if (filter.ids?.length) {
+    where.id = {
+      in: filter.ids,
+    }
+  }
+
+  if (activeField) {
+    where[activeField] =
+      typeof filter.isActive === 'boolean' ? filter.isActive : true
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(config.publicSelect, 'isPublic') &&
+    typeof filter.isPublic === 'boolean'
+  ) {
+    where.isPublic = filter.isPublic
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(config.publicSelect, 'isMature') &&
+    typeof filter.isMature === 'boolean'
+  ) {
+    where.isMature = filter.isMature
+  }
+
+  if (ownerField && typeof filter.userId === 'number') {
+    where[ownerField] = filter.userId
+  }
+
+  if (!isAdminActor(actor) && ownerField) {
+    where.OR = [{ isPublic: true }, { [ownerField]: getActorUserId(actor) }]
+  }
+
+  const allowedFilterFields = new Set(config.filterFields ?? [])
+
+  for (const [key, value] of Object.entries(filter)) {
+    if (!allowedFilterFields.has(key)) continue
+    if (value === undefined || value === null || value === '') continue
+
+    where[key] = value
+  }
+
+  const searchWhere = buildSearchWhere(config, filter.q)
+
+  if (!searchWhere) return where
+
+  if (where.OR) {
+    return {
+      AND: [where, searchWhere],
+    }
+  }
+
+  return {
+    ...where,
+    ...searchWhere,
+  }
+}
+
+function getPagination(filter: ListFilter): {
+  limit: number
+  offset: number
+} {
+  const limit = filter.limit ?? DEFAULT_LIMIT
+  const offset =
+    typeof filter.page === 'number'
+      ? (filter.page - 1) * limit
+      : (filter.offset ?? 0)
+
+  return {
+    limit,
+    offset,
+  }
+}
+
+function getOrderBy(
+  config: RuntimeModelConfig,
+  filter: ListFilter,
+): Record<string, 'asc' | 'desc'> {
+  if (filter.orderBy) {
+    return {
+      [filter.orderBy]: filter.orderDirection ?? 'desc',
+    }
+  }
+
+  if (config.defaultOrderBy) return config.defaultOrderBy
+
+  if (Object.prototype.hasOwnProperty.call(config.publicSelect, 'updatedAt')) {
+    return {
+      updatedAt: 'desc',
+    }
+  }
+
+  return {
+    id: 'desc',
   }
 }
 
@@ -67,60 +392,27 @@ export async function createContent({
   resource: ChatGptResource
   data: unknown
   actor: ChatGptActor
-}) {
+}): Promise<ContentServiceResponse<Record<string, unknown>>> {
   const { config, delegate } = getDelegate(resource)
+  const parsed = config.createSchema.parse(data) as Record<string, unknown>
 
-  console.log('[contentService createContent input]', {
-    resource,
-    data,
-    actor: {
-      userId: actor.userId,
-      role: actor.role,
-    },
+  const createData = applyDefaults({
+    data: parsed,
+    config,
+    actor,
   })
 
-  const parsed = config.createSchema.parse(data) as Record<string, any>
-
-  const createData: Record<string, any> = {
-    ...parsed,
-    [config.ownerField]: getActorUserId(actor),
-  }
-
-  if (config.activeField) {
-    createData[config.activeField] = parsed[config.activeField] ?? true
-  }
-
-  console.log('[contentService createContent createData]', {
-    resource,
-    createData,
+  const record = await delegate.create({
+    data: createData,
+    select: config.publicSelect,
   })
 
-  try {
-    const record = await delegate.create({
-      data: createData,
-      select: config.publicSelect,
-    })
-
-    console.log('[contentService createContent result]', {
-      resource,
-      id: record?.id,
-    })
-
-    return {
-      ok: true,
-      operation: 'content.create',
-      resource,
-      data: record,
-      message: `${resource} created successfully.`,
-    }
-  } catch (error) {
-    console.error('[contentService createContent error]', {
-      resource,
-      createData,
-      error,
-    })
-
-    throw error
+  return {
+    success: true,
+    operation: 'content.create',
+    resource,
+    data: record,
+    message: `${resource} created successfully.`,
   }
 }
 
@@ -132,12 +424,12 @@ export async function getContent({
   resource: ChatGptResource
   id: number
   actor: ChatGptActor
-}) {
+}): Promise<ContentServiceResponse<Record<string, unknown>>> {
   const { config, delegate } = getDelegate(resource)
 
   const record = await delegate.findUnique({
     where: { id },
-    select: config.publicSelect,
+    select: getSelectWithOwner(config),
   })
 
   if (!record) {
@@ -147,22 +439,15 @@ export async function getContent({
     })
   }
 
-  const ownerId = record[config.ownerField]
-  const isPublic = record.isPublic
-
-  if (
-    actor.role !== 'admin' &&
-    ownerId !== getActorUserId(actor) &&
-    isPublic === false
-  ) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: `You cannot read this ${resource}`,
-    })
-  }
+  assertReadableRecord({
+    actor,
+    config,
+    resource,
+    record,
+  })
 
   return {
-    ok: true,
+    success: true,
     operation: 'content.get',
     resource,
     data: record,
@@ -177,51 +462,40 @@ export async function listContent({
   resource: ChatGptResource
   filter?: Record<string, unknown>
   actor: ChatGptActor
-}) {
+}): Promise<ContentServiceResponse<Record<string, unknown>[]>> {
   const { config, delegate } = getDelegate(resource)
+  const parsedFilter = ListFilterSchema.parse(filter)
+  const { limit, offset } = getPagination(parsedFilter)
 
-  const limit =
-    typeof filter.limit === 'number'
-      ? Math.min(Math.max(filter.limit, 1), 100)
-      : 20
-
-  const offset = typeof filter.offset === 'number' ? filter.offset : 0
-
-  const where: Record<string, any> = {}
-
-  if (config.activeField) {
-    where[config.activeField] =
-      typeof filter.isActive === 'boolean' ? filter.isActive : true
-  }
-
-  if (typeof filter.isPublic === 'boolean') {
-    where.isPublic = filter.isPublic
-  }
-
-  if (typeof filter.userId === 'number') {
-    where[config.ownerField] = filter.userId
-  }
-
-  if (actor.role !== 'admin') {
-    where.OR = [
-      { isPublic: true },
-      { [config.ownerField]: getActorUserId(actor) },
-    ]
-  }
-
-  const records = await delegate.findMany({
-    where,
-    select: config.publicSelect,
-    take: limit,
-    skip: offset,
-    orderBy: { updatedAt: 'desc' },
+  const where = buildBaseWhere({
+    actor,
+    config,
+    filter: parsedFilter,
   })
 
+  const [records, count] = await Promise.all([
+    delegate.findMany({
+      where,
+      select: config.publicSelect,
+      take: limit,
+      skip: offset,
+      orderBy: getOrderBy(config, parsedFilter),
+    }),
+    delegate.count({
+      where,
+    }),
+  ])
+
   return {
-    ok: true,
+    success: true,
     operation: 'content.list',
     resource,
     data: records,
+    meta: {
+      limit,
+      offset,
+      count,
+    },
   }
 }
 
@@ -235,20 +509,32 @@ export async function updateContent({
   id: number
   data: unknown
   actor: ChatGptActor
-}) {
-  await assertCanUpdate(actor, resource, id)
+}): Promise<ContentServiceResponse<Record<string, unknown>>> {
+  await assertWritableRecord({
+    actor,
+    resource,
+    id,
+  })
 
   const { config, delegate } = getDelegate(resource)
-  const parsed = config.updateSchema.parse(data) as Record<string, any>
+  const parsed = config.updateSchema.parse(data) as Record<string, unknown>
+  const updateData = removeProtectedFields(parsed, config)
+
+  if (!Object.keys(updateData).length) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `No editable fields were provided for ${resource}`,
+    })
+  }
 
   const record = await delegate.update({
     where: { id },
-    data: parsed,
+    data: updateData,
     select: config.publicSelect,
   })
 
   return {
-    ok: true,
+    success: true,
     operation: 'content.update',
     resource,
     data: record,
@@ -266,12 +552,17 @@ export async function setContentActive({
   id: number
   isActive: boolean
   actor: ChatGptActor
-}) {
-  await assertCanUpdate(actor, resource, id)
+}): Promise<ContentServiceResponse<Record<string, unknown>>> {
+  await assertWritableRecord({
+    actor,
+    resource,
+    id,
+  })
 
   const { config, delegate } = getDelegate(resource)
+  const activeField = getActiveField(config)
 
-  if (!config.activeField) {
+  if (!activeField) {
     throw createError({
       statusCode: 400,
       statusMessage: `${resource} does not support isActive`,
@@ -281,18 +572,18 @@ export async function setContentActive({
   const record = await delegate.update({
     where: { id },
     data: {
-      [config.activeField]: isActive,
+      [activeField]: isActive,
     },
     select: config.publicSelect,
   })
 
   return {
-    ok: true,
+    success: true,
     operation: 'content.setActive',
     resource,
     data: record,
     message: isActive
       ? `${resource} restored successfully.`
-      : `${resource} archived successfully.`,
+      : `${resource} deactivated successfully.`,
   }
 }

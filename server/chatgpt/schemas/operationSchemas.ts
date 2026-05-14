@@ -1,3 +1,4 @@
+// /server/chatgpt/schemas/operationSchemas.ts
 import { z } from 'zod'
 
 export const ChatGptResourceSchema = z.enum([
@@ -20,17 +21,6 @@ export const ChatGptResourceSchema = z.enum([
 
 export type ChatGptResource = z.infer<typeof ChatGptResourceSchema>
 
-export const ChatGptGeneratorSchema = z.enum([
-  'brainstorm',
-  'botcafe',
-  'storymaker',
-  'chat',
-  'scenario',
-  'image',
-])
-
-export type ChatGptGenerator = z.infer<typeof ChatGptGeneratorSchema>
-
 export const ChatGptImageFormatSchema = z.enum(['metadata', 'dataUrl', 'path'])
 
 export type ChatGptImageFormat = z.infer<typeof ChatGptImageFormatSchema>
@@ -38,8 +28,6 @@ export type ChatGptImageFormat = z.infer<typeof ChatGptImageFormatSchema>
 const PositiveIntSchema = z.number().int().positive()
 
 const FlexibleObjectSchema = z.object({}).catchall(z.unknown())
-
-const OptionalFlexibleObjectSchema = FlexibleObjectSchema.optional()
 
 const FilterSchema = FlexibleObjectSchema.optional().default({})
 
@@ -52,11 +40,21 @@ export const ContentRefSchema = z
 
 export type ContentRef = z.infer<typeof ContentRefSchema>
 
-export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
-  /**
-   * Content operations
-   */
+export const ImageUploadDataSchema = z
+  .object({
+    imageData: z.string().trim().min(1),
+    fileName: z.string().trim().min(1).optional(),
+    fileType: z.string().trim().min(1).optional(),
+    promptString: z.string().trim().min(1).optional(),
+    designer: z.string().trim().min(1).optional(),
+    tags: z.array(z.string().trim().min(1)).optional(),
+    connectTo: z.array(ContentRefSchema).optional(),
+  })
+  .catchall(z.unknown())
 
+export type ImageUploadData = z.infer<typeof ImageUploadDataSchema>
+
+export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
   z
     .object({
       operation: z.literal('content.create'),
@@ -99,9 +97,20 @@ export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
     })
     .strict(),
 
-  /**
-   * Relation operations
-   */
+  z
+    .object({
+      operation: z.literal('image.upload'),
+      data: ImageUploadDataSchema,
+    })
+    .strict(),
+
+  z
+    .object({
+      operation: z.literal('image.get'),
+      id: PositiveIntSchema,
+      format: ChatGptImageFormatSchema.optional().default('metadata'),
+    })
+    .strict(),
 
   z
     .object({
@@ -121,84 +130,11 @@ export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
 
   z
     .object({
-      operation: z.literal('relation.set'),
-      from: ContentRefSchema,
-      toResource: ChatGptResourceSchema,
-      ids: z.array(PositiveIntSchema).min(1),
-    })
-    .strict(),
-
-  z
-    .object({
       operation: z.literal('relation.list'),
       from: ContentRefSchema,
       toResource: ChatGptResourceSchema.optional(),
     })
     .strict(),
-
-  /**
-   * Image operations
-   */
-
-  z
-    .object({
-      operation: z.literal('image.upload'),
-      data: FlexibleObjectSchema,
-    })
-    .strict(),
-
-  z
-    .object({
-      operation: z.literal('image.get'),
-      id: PositiveIntSchema,
-      format: ChatGptImageFormatSchema.optional().default('metadata'),
-    })
-    .strict(),
-
-  /**
-   * User operations
-   */
-
-  z
-    .object({
-      operation: z.literal('user.me'),
-    })
-    .strict(),
-
-  z
-    .object({
-      operation: z.literal('user.register'),
-      data: FlexibleObjectSchema,
-    })
-    .strict(),
-
-  /**
-   * Generator operations
-   */
-
-  z
-    .object({
-      operation: z.literal('generator.run'),
-      generator: ChatGptGeneratorSchema,
-      input: FlexibleObjectSchema,
-      save: OptionalFlexibleObjectSchema,
-    })
-    .strict(),
-
-  /**
-   * Bundle operations
-   */
-
-  z
-    .object({
-      operation: z.literal('bundle.create'),
-      data: FlexibleObjectSchema,
-    })
-    .strict(),
-
-  /**
-   * Meta operations
-   */
 
   z
     .object({
@@ -208,6 +144,8 @@ export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
 ])
 
 export type ChatGptOperation = z.infer<typeof ChatGptOperationSchema>
+
+export type ChatGptOperationName = ChatGptOperation['operation']
 
 export type ContentCreateOperation = Extract<
   ChatGptOperation,
@@ -232,4 +170,34 @@ export type ContentUpdateOperation = Extract<
 export type ContentSetActiveOperation = Extract<
   ChatGptOperation,
   { operation: 'content.setActive' }
+>
+
+export type ImageUploadOperation = Extract<
+  ChatGptOperation,
+  { operation: 'image.upload' }
+>
+
+export type ImageGetOperation = Extract<
+  ChatGptOperation,
+  { operation: 'image.get' }
+>
+
+export type RelationAddOperation = Extract<
+  ChatGptOperation,
+  { operation: 'relation.add' }
+>
+
+export type RelationRemoveOperation = Extract<
+  ChatGptOperation,
+  { operation: 'relation.remove' }
+>
+
+export type RelationListOperation = Extract<
+  ChatGptOperation,
+  { operation: 'relation.list' }
+>
+
+export type MetaDescribeOperation = Extract<
+  ChatGptOperation,
+  { operation: 'meta.describe' }
 >

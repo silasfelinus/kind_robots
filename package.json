@@ -72,6 +72,7 @@
     "nuxt-oidc-auth": "^1.0.0-beta.11",
     "open-simplex-noise": "^2.5.0",
     "pinia": "^3.0.4",
+    "sharp": "^0.34.5",
     "stripe": "^22.0.1"
   },
   "overrides": {

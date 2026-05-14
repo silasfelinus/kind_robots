@@ -1,5 +1,6 @@
 // /server/chatgpt/services/imageService.ts
 import { createError } from 'h3'
+import sharp from 'sharp'
 import { z } from 'zod'
 import { prisma } from '~/server/utils/prisma'
 import type { ChatGptActor } from '../auth/resolveActor'
@@ -10,6 +11,9 @@ import {
 
 const CURRENT_ADMIN_USER_ID = 1
 const DEFAULT_FILE_TYPE = 'png'
+const DEFAULT_MIME = 'image/png'
+const DEFAULT_THUMBNAIL_SIZE = 256
+const DEFAULT_QUALITY = 75
 const DATA_URL_PATTERN = /^data:([^;,]+)?(;base64)?,(.*)$/s
 
 const ImageConnectResourceSchema = z.enum([
@@ -74,6 +78,13 @@ const ImageUploadSchema = z
   .strict()
 
 type ImageUploadInput = z.infer<typeof ImageUploadSchema>
+
+type ImageDisplayInput = {
+  thumbnail?: boolean
+  maxWidth?: number
+  maxHeight?: number
+  quality?: number
+}
 
 type ImageServiceResponse<TData = unknown> = {
   success: true
@@ -240,7 +251,7 @@ function getArtImageDelegate(): ArtImageDelegate {
   return delegate
 }
 
-function normalizeFileType(input?: string): string {
+function normalizeFileType(input?: string | null): string {
   if (!input) return DEFAULT_FILE_TYPE
 
   return input
@@ -248,6 +259,21 @@ function normalizeFileType(input?: string): string {
     .replace(/^\./, '')
     .trim()
     .toLowerCase()
+}
+
+function normalizeMime(fileType?: string | null): string {
+  const normalized = normalizeFileType(fileType)
+
+  if (!normalized) return DEFAULT_MIME
+  if (normalized === 'jpg') return 'image/jpeg'
+  if (normalized === 'jpeg') return 'image/jpeg'
+  if (normalized === 'png') return 'image/png'
+  if (normalized === 'webp') return 'image/webp'
+  if (normalized === 'gif') return 'image/gif'
+  if (normalized === 'avif') return 'image/avif'
+  if (normalized === 'svg') return 'image/svg+xml'
+
+  return normalized.startsWith('image/') ? normalized : `image/${normalized}`
 }
 
 function inferFileTypeFromDataUrl(imageData: string): string | undefined {
@@ -259,14 +285,167 @@ function inferFileTypeFromDataUrl(imageData: string): string | undefined {
   return normalizeFileType(mime)
 }
 
+function inferMimeFromDataUrl(imageData: string): string | undefined {
+  const match = imageData.match(DATA_URL_PATTERN)
+  const mime = match?.[1]?.trim()
+
+  if (!mime) return undefined
+
+  return mime
+}
+
+function stripDataUrlPrefix(imageData: string): {
+  base64: string
+  mime?: string
+} {
+  const match = imageData.match(DATA_URL_PATTERN)
+
+  if (!match) {
+    return {
+      base64: imageData.trim(),
+    }
+  }
+
+  const base64 = match[3]
+  const mime = match[1]
+
+  if (!base64) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'Image data URL is missing base64 content',
+    })
+  }
+
+  return {
+    base64: base64.trim(),
+    mime: mime?.trim(),
+  }
+}
+
 function normalizeDataUrl(imageData: string, fileType: string): string {
   if (DATA_URL_PATTERN.test(imageData)) return imageData
 
-  return `data:image/${fileType};base64,${imageData}`
+  return `data:${normalizeMime(fileType)};base64,${imageData}`
 }
 
 function createDefaultFileName(fileType: string): string {
   return `kind-robots-image-${Date.now()}.${fileType}`
+}
+
+function getBase64Bytes(imageData?: string | null): number {
+  if (!imageData) return 0
+
+  const { base64 } = stripDataUrlPrefix(imageData)
+  const cleanBase64 = base64.replace(/\s/g, '')
+
+  if (!cleanBase64) return 0
+
+  return Buffer.byteLength(cleanBase64, 'base64')
+}
+
+function getStorageMode(
+  image: Record<string, unknown>,
+): 'imageData' | 'path' | 'unknown' {
+  const imageData = typeof image.imageData === 'string' ? image.imageData : ''
+  const imagePath = typeof image.imagePath === 'string' ? image.imagePath : ''
+  const path = typeof image.path === 'string' ? image.path : ''
+
+  if (imageData.trim()) return 'imageData'
+  if (imagePath.trim() || path.trim()) return 'path'
+
+  return 'unknown'
+}
+
+function clampQuality(quality?: number): number {
+  if (typeof quality !== 'number' || Number.isNaN(quality)) {
+    return DEFAULT_QUALITY
+  }
+
+  return Math.min(100, Math.max(1, Math.round(quality)))
+}
+
+function normalizeDimension(value?: number): number | undefined {
+  if (typeof value !== 'number' || Number.isNaN(value)) return undefined
+
+  const normalized = Math.floor(value)
+
+  if (normalized <= 0) return undefined
+
+  return normalized
+}
+
+async function makeDisplayDataUrl({
+  imageData,
+  fileType,
+  maxWidth,
+  maxHeight,
+  quality,
+  thumbnail,
+}: {
+  imageData: string
+  fileType?: string | null
+  maxWidth?: number
+  maxHeight?: number
+  quality?: number
+  thumbnail?: boolean
+}) {
+  const dataInfo = stripDataUrlPrefix(imageData)
+  const inputBuffer = Buffer.from(dataInfo.base64, 'base64')
+  const requestedQuality = clampQuality(quality)
+  const width = thumbnail
+    ? DEFAULT_THUMBNAIL_SIZE
+    : normalizeDimension(maxWidth)
+  const height = thumbnail
+    ? DEFAULT_THUMBNAIL_SIZE
+    : normalizeDimension(maxHeight)
+  const shouldResize = Boolean(thumbnail || width || height)
+
+  if (!inputBuffer.byteLength) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'Image data could not be decoded',
+    })
+  }
+
+  if (!shouldResize) {
+    const mime = dataInfo.mime || normalizeMime(fileType)
+    const dataUrl = DATA_URL_PATTERN.test(imageData)
+      ? imageData
+      : `data:${mime};base64,${dataInfo.base64}`
+
+    return {
+      dataUrl,
+      mime,
+      bytes: inputBuffer.byteLength,
+      resized: false,
+      maxWidth: width,
+      maxHeight: height,
+      thumbnail: Boolean(thumbnail),
+    }
+  }
+
+  const outputBuffer = await sharp(inputBuffer)
+    .rotate()
+    .resize({
+      width,
+      height,
+      fit: 'inside',
+      withoutEnlargement: true,
+    })
+    .webp({
+      quality: requestedQuality,
+    })
+    .toBuffer()
+
+  return {
+    dataUrl: `data:image/webp;base64,${outputBuffer.toString('base64')}`,
+    mime: 'image/webp',
+    bytes: outputBuffer.byteLength,
+    resized: true,
+    maxWidth: width,
+    maxHeight: height,
+    thumbnail: Boolean(thumbnail),
+  }
 }
 
 function assertReadableImage({
@@ -537,20 +716,37 @@ function buildCreateData({
   }
 }
 
+function toMetadataResponse(image: Record<string, unknown>) {
+  const imageData = typeof image.imageData === 'string' ? image.imageData : null
+  const metadata = Object.fromEntries(
+    Object.entries(image).filter(
+      ([key]) => key !== 'imageData' && key !== 'thumbnailData',
+    ),
+  )
+
+  return {
+    ...metadata,
+    hasImageData: Boolean(imageData?.trim()),
+    imageDataBytes: getBase64Bytes(imageData),
+    storageMode: getStorageMode(image),
+    supportsDisplayCap: true,
+  }
+}
+
 function toPathResponse(image: Record<string, unknown>) {
   return {
     id: image.id,
     fileName: image.fileName,
     fileType: image.fileType,
     imagePath: image.imagePath,
-    path: image.imagePath || image.path,
+    path: image.path,
   }
 }
 
-function toDataUrlResponse(image: Record<string, unknown>) {
-  const fileType = normalizeFileType(
-    String(image.fileType || DEFAULT_FILE_TYPE),
-  )
+async function toDataUrlResponse(
+  image: Record<string, unknown>,
+  displayOptions: ImageDisplayInput = {},
+) {
   const imageData = typeof image.imageData === 'string' ? image.imageData : null
 
   if (!imageData) {
@@ -560,23 +756,47 @@ function toDataUrlResponse(image: Record<string, unknown>) {
     })
   }
 
+  const dataUrlMime = inferMimeFromDataUrl(imageData)
+  const fileTypeFromData = inferFileTypeFromDataUrl(imageData)
+  const fallbackFileType = normalizeFileType(
+    fileTypeFromData || String(image.fileType || DEFAULT_FILE_TYPE),
+  )
+  const displayData = await makeDisplayDataUrl({
+    imageData,
+    fileType: dataUrlMime || fallbackFileType,
+    maxWidth: displayOptions.maxWidth,
+    maxHeight: displayOptions.maxHeight,
+    quality: displayOptions.quality,
+    thumbnail: displayOptions.thumbnail,
+  })
+
   return {
-    ...image,
-    dataUrl: normalizeDataUrl(imageData, fileType),
+    id: image.id,
+    fileName: image.fileName,
+    fileType: image.fileType,
+    dataUrl: displayData.dataUrl,
+    mime: displayData.mime,
+    bytes: displayData.bytes,
+    resized: displayData.resized,
+    maxWidth: displayData.maxWidth,
+    maxHeight: displayData.maxHeight,
+    thumbnail: displayData.thumbnail,
   }
 }
 
-function toImageResponse({
+async function toImageResponse({
   image,
   format,
+  displayOptions,
 }: {
   image: Record<string, unknown>
   format: ChatGptImageFormat
+  displayOptions?: ImageDisplayInput
 }) {
   if (format === 'path') return toPathResponse(image)
-  if (format === 'dataUrl') return toDataUrlResponse(image)
+  if (format === 'dataUrl') return toDataUrlResponse(image, displayOptions)
 
-  return image
+  return toMetadataResponse(image)
 }
 
 export async function uploadImage({
@@ -640,10 +860,18 @@ export async function getImage({
   id,
   format = 'metadata',
   actor,
+  thumbnail,
+  maxWidth,
+  maxHeight,
+  quality,
 }: {
   id: number
   format?: ChatGptImageFormat
   actor: ChatGptActor
+  thumbnail?: boolean
+  maxWidth?: number
+  maxHeight?: number
+  quality?: number
 }): Promise<ImageServiceResponse<Record<string, unknown>>> {
   const parsedFormat = ChatGptImageFormatSchema.parse(format)
   const artImageDelegate = getArtImageDelegate()
@@ -651,7 +879,7 @@ export async function getImage({
   const image = await artImageDelegate.findUnique({
     where: { id },
     select:
-      parsedFormat === 'dataUrl' ? artImageFullSelect : artImageMetadataSelect,
+      parsedFormat === 'path' ? artImageMetadataSelect : artImageFullSelect,
   })
 
   if (!image) {
@@ -669,9 +897,15 @@ export async function getImage({
   return {
     success: true,
     operation: 'image.get',
-    data: toImageResponse({
+    data: await toImageResponse({
       image,
       format: parsedFormat,
+      displayOptions: {
+        thumbnail,
+        maxWidth,
+        maxHeight,
+        quality,
+      },
     }),
   }
 }

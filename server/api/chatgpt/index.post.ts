@@ -19,27 +19,67 @@ export default defineEventHandler(async (event) => {
 
     const request = ChatGptOperationSchema.parse(body)
 
+    console.log('[chatgpt parsed request]', JSON.stringify(request, null, 2))
+    console.log('[chatgpt actor]', {
+      userId: actor?.userId,
+      role: actor?.role,
+      isGuest: actor?.isGuest,
+    })
+
     switch (request.operation) {
-      case 'content.create':
-        return createContent({
+      case 'content.create': {
+        console.log('[chatgpt content.create input]', {
           resource: request.resource,
           data: request.data,
           actor,
         })
 
-      case 'content.get':
-        return getContent({
+        const result = await createContent({
+          resource: request.resource,
+          data: request.data,
+          actor,
+        })
+
+        console.log('[chatgpt content.create result]', JSON.stringify(result, null, 2))
+
+        return result
+      }
+
+      case 'content.get': {
+        console.log('[chatgpt content.get input]', {
           resource: request.resource,
           id: request.id,
           actor,
         })
 
-      case 'content.list':
-        return listContent({
+        const result = await getContent({
+          resource: request.resource,
+          id: request.id,
+          actor,
+        })
+
+        console.log('[chatgpt content.get result]', JSON.stringify(result, null, 2))
+
+        return result
+      }
+
+      case 'content.list': {
+        console.log('[chatgpt content.list input]', {
           resource: request.resource,
           filter: request.filter,
           actor,
         })
+
+        const result = await listContent({
+          resource: request.resource,
+          filter: request.filter,
+          actor,
+        })
+
+        console.log('[chatgpt content.list result]', JSON.stringify(result, null, 2))
+
+        return result
+      }
 
       case 'meta.describe':
         return {
@@ -101,21 +141,45 @@ export default defineEventHandler(async (event) => {
           ],
         }
 
-      case 'content.update':
-        return updateContent({
+      case 'content.update': {
+        console.log('[chatgpt content.update input]', {
           resource: request.resource,
           id: request.id,
           data: request.data,
           actor,
         })
 
-      case 'content.setActive':
-        return setContentActive({
+        const result = await updateContent({
+          resource: request.resource,
+          id: request.id,
+          data: request.data,
+          actor,
+        })
+
+        console.log('[chatgpt content.update result]', JSON.stringify(result, null, 2))
+
+        return result
+      }
+
+      case 'content.setActive': {
+        console.log('[chatgpt content.setActive input]', {
           resource: request.resource,
           id: request.id,
           isActive: request.isActive,
           actor,
         })
+
+        const result = await setContentActive({
+          resource: request.resource,
+          id: request.id,
+          isActive: request.isActive,
+          actor,
+        })
+
+        console.log('[chatgpt content.setActive result]', JSON.stringify(result, null, 2))
+
+        return result
+      }
 
       default:
         throw createError({
@@ -127,6 +191,8 @@ export default defineEventHandler(async (event) => {
     console.error('[chatgpt api error]', error)
 
     if (error instanceof ZodError) {
+      console.error('[chatgpt zod issues]', JSON.stringify(error.issues, null, 2))
+
       throw createError({
         statusCode: 400,
         statusMessage: 'Invalid ChatGPT operation request',

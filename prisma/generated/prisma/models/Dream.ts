@@ -324,7 +324,7 @@ export type DreamGroupByOutputType = {
   title: string
   slug: string | null
   description: string | null
-  currentVibe: string
+  currentVibe: string | null
   currentPrompt: string | null
   userId: number
   pitchId: number | null
@@ -372,7 +372,7 @@ export type DreamWhereInput = {
   title?: Prisma.StringFilter<"Dream"> | string
   slug?: Prisma.StringNullableFilter<"Dream"> | string | null
   description?: Prisma.StringNullableFilter<"Dream"> | string | null
-  currentVibe?: Prisma.StringFilter<"Dream"> | string
+  currentVibe?: Prisma.StringNullableFilter<"Dream"> | string | null
   currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   userId?: Prisma.IntFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
@@ -409,7 +409,7 @@ export type DreamOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  currentVibe?: Prisma.SortOrder
+  currentVibe?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -450,7 +450,7 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"Dream"> | Date | string | null
   title?: Prisma.StringFilter<"Dream"> | string
   description?: Prisma.StringNullableFilter<"Dream"> | string | null
-  currentVibe?: Prisma.StringFilter<"Dream"> | string
+  currentVibe?: Prisma.StringNullableFilter<"Dream"> | string | null
   currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   userId?: Prisma.IntFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
@@ -487,7 +487,7 @@ export type DreamOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  currentVibe?: Prisma.SortOrder
+  currentVibe?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -520,7 +520,7 @@ export type DreamScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Dream"> | string
   slug?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
-  currentVibe?: Prisma.StringWithAggregatesFilter<"Dream"> | string
+  currentVibe?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   currentPrompt?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   userId?: Prisma.IntWithAggregatesFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
@@ -544,7 +544,7 @@ export type DreamCreateInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -574,7 +574,7 @@ export type DreamUncheckedCreateInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -603,7 +603,7 @@ export type DreamUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -633,7 +633,7 @@ export type DreamUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -663,7 +663,7 @@ export type DreamCreateManyInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -687,7 +687,7 @@ export type DreamUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -705,7 +705,7 @@ export type DreamUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1295,7 +1295,7 @@ export type DreamCreateWithoutArtInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1324,7 +1324,7 @@ export type DreamUncheckedCreateWithoutArtInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -1382,7 +1382,7 @@ export type DreamScalarWhereInput = {
   title?: Prisma.StringFilter<"Dream"> | string
   slug?: Prisma.StringNullableFilter<"Dream"> | string | null
   description?: Prisma.StringNullableFilter<"Dream"> | string | null
-  currentVibe?: Prisma.StringFilter<"Dream"> | string
+  currentVibe?: Prisma.StringNullableFilter<"Dream"> | string | null
   currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   userId?: Prisma.IntFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
@@ -1406,7 +1406,7 @@ export type DreamCreateWithoutArtImageInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1435,7 +1435,7 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -1489,7 +1489,7 @@ export type DreamCreateWithoutArtCollectionInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1518,7 +1518,7 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -1572,7 +1572,7 @@ export type DreamCreateWithoutCharactersInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1601,7 +1601,7 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -1650,7 +1650,7 @@ export type DreamCreateWithoutChatsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1679,7 +1679,7 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -1723,7 +1723,7 @@ export type DreamUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1752,7 +1752,7 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1780,7 +1780,7 @@ export type DreamCreateWithoutGalleryInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1809,7 +1809,7 @@ export type DreamUncheckedCreateWithoutGalleryInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -1863,7 +1863,7 @@ export type DreamCreateWithoutPitchInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1892,7 +1892,7 @@ export type DreamUncheckedCreateWithoutPitchInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   artId?: number | null
@@ -1946,7 +1946,7 @@ export type DreamCreateWithoutReactionsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1975,7 +1975,7 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2019,7 +2019,7 @@ export type DreamUpdateWithoutReactionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2048,7 +2048,7 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2076,7 +2076,7 @@ export type DreamCreateWithoutRewardsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2105,7 +2105,7 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2154,7 +2154,7 @@ export type DreamCreateWithoutScenarioInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2183,7 +2183,7 @@ export type DreamUncheckedCreateWithoutScenarioInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2237,7 +2237,7 @@ export type DreamCreateWithoutTagsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2266,7 +2266,7 @@ export type DreamUncheckedCreateWithoutTagsInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2315,7 +2315,7 @@ export type DreamCreateWithoutUserInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2344,7 +2344,7 @@ export type DreamUncheckedCreateWithoutUserInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   pitchId?: number | null
   artId?: number | null
@@ -2399,7 +2399,7 @@ export type DreamCreateManyArtInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2422,7 +2422,7 @@ export type DreamUpdateWithoutArtInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2451,7 +2451,7 @@ export type DreamUncheckedUpdateWithoutArtInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2480,7 +2480,7 @@ export type DreamUncheckedUpdateManyWithoutArtInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2504,7 +2504,7 @@ export type DreamCreateManyArtImageInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2527,7 +2527,7 @@ export type DreamUpdateWithoutArtImageInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2556,7 +2556,7 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2585,7 +2585,7 @@ export type DreamUncheckedUpdateManyWithoutArtImageInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2609,7 +2609,7 @@ export type DreamCreateManyArtCollectionInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2632,7 +2632,7 @@ export type DreamUpdateWithoutArtCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2661,7 +2661,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2690,7 +2690,7 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2713,7 +2713,7 @@ export type DreamUpdateWithoutCharactersInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2742,7 +2742,7 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2771,7 +2771,7 @@ export type DreamUncheckedUpdateManyWithoutCharactersInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2796,7 +2796,7 @@ export type DreamCreateManyGalleryInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -2819,7 +2819,7 @@ export type DreamUpdateWithoutGalleryInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2848,7 +2848,7 @@ export type DreamUncheckedUpdateWithoutGalleryInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2877,7 +2877,7 @@ export type DreamUncheckedUpdateManyWithoutGalleryInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2901,7 +2901,7 @@ export type DreamCreateManyPitchInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   artId?: number | null
@@ -2924,7 +2924,7 @@ export type DreamUpdateWithoutPitchInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2953,7 +2953,7 @@ export type DreamUncheckedUpdateWithoutPitchInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2982,7 +2982,7 @@ export type DreamUncheckedUpdateManyWithoutPitchInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3005,7 +3005,7 @@ export type DreamUpdateWithoutRewardsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3034,7 +3034,7 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3063,7 +3063,7 @@ export type DreamUncheckedUpdateManyWithoutRewardsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3088,7 +3088,7 @@ export type DreamCreateManyScenarioInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
@@ -3111,7 +3111,7 @@ export type DreamUpdateWithoutScenarioInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3140,7 +3140,7 @@ export type DreamUncheckedUpdateWithoutScenarioInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3169,7 +3169,7 @@ export type DreamUncheckedUpdateManyWithoutScenarioInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3192,7 +3192,7 @@ export type DreamUpdateWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3221,7 +3221,7 @@ export type DreamUncheckedUpdateWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3250,7 +3250,7 @@ export type DreamUncheckedUpdateManyWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3275,7 +3275,7 @@ export type DreamCreateManyUserInput = {
   title: string
   slug?: string | null
   description?: string | null
-  currentVibe: string
+  currentVibe?: string | null
   currentPrompt?: string | null
   pitchId?: number | null
   artId?: number | null
@@ -3298,7 +3298,7 @@ export type DreamUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3327,7 +3327,7 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3356,7 +3356,7 @@ export type DreamUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3545,7 +3545,7 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     title: string
     slug: string | null
     description: string | null
-    currentVibe: string
+    currentVibe: string | null
     currentPrompt: string | null
     userId: number
     pitchId: number | null

@@ -125,43 +125,43 @@
           class="input input-bordered input-sm w-full bg-base-100"
         />
       </div>
-
-      <!-- Collection action buttons (arts mode) -->
-      <div
-        v-if="mode === 'arts' && !isDropdownMode && canEditActive"
-        class="flex flex-wrap gap-2"
-      >
-        <button
-          v-if="allowEdit"
-          class="btn btn-secondary btn-sm rounded-xl"
-          type="button"
-          @click="startEditingActiveCollection"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-          Edit
-        </button>
-
-        <button
-          v-if="allowMerge && mergeTargetOptions.length > 0"
-          class="btn btn-accent btn-sm rounded-xl"
-          type="button"
-          @click="toggleMergePanel"
-        >
-          <Icon name="kind-icon:gallery" class="h-4 w-4" />
-          Merge Into…
-        </button>
-
-        <button
-          v-if="allowDelete"
-          class="btn btn-error btn-sm rounded-xl text-white"
-          type="button"
-          @click="confirmDeleteCollection"
-        >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
-          Delete
-        </button>
-      </div>
     </header>
+
+    <!-- ── Collection action buttons (arts mode) ── -->
+    <div
+      v-if="mode === 'arts' && !isDropdownMode && canEditActive"
+      class="flex shrink-0 flex-wrap gap-2"
+    >
+      <button
+        v-if="allowEdit"
+        class="btn btn-secondary btn-sm rounded-xl"
+        type="button"
+        @click="startEditingActiveCollection"
+      >
+        <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        Edit
+      </button>
+
+      <button
+        v-if="allowMerge && mergeTargetOptions.length > 0"
+        class="btn btn-accent btn-sm rounded-xl"
+        type="button"
+        @click="toggleMergePanel"
+      >
+        <Icon name="kind-icon:gallery" class="h-4 w-4" />
+        Merge Into…
+      </button>
+
+      <button
+        v-if="allowDelete"
+        class="btn btn-error btn-sm rounded-xl text-white"
+        type="button"
+        @click="confirmDeleteCollection"
+      >
+        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        Delete
+      </button>
+    </div>
 
     <!-- ── Collection form ── -->
     <section
@@ -592,6 +592,7 @@
               :show-select-button="false"
               :allow-delete="item.canDelete"
               :allow-edit="item.canEdit"
+              @select="artStore.selectArtRecord(item.art, item.artImage)"
               @edit="startEditingArt"
               @delete="handleArtDeleted"
             />
@@ -939,7 +940,10 @@ onMounted(async () => {
 
 function canEdit(collection: ArtCollection | null): boolean {
   if (!collection || collection.id === -1) return false
-  return userStore.isAdmin || collection.userId === currentUserId.value
+  return (
+    userStore.isAdmin ||
+    Number(collection.userId) === Number(currentUserId.value)
+  )
 }
 
 function canDeleteArt(art: Art): boolean {

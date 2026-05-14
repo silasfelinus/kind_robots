@@ -2428,6 +2428,7 @@ export const ArtImageScalarFieldEnum = {
   thumbnailData: 'thumbnailData',
   fileName: 'fileName',
   fileType: 'fileType',
+  artPrompt: 'artPrompt',
   imagePath: 'imagePath',
   rarity: 'rarity',
   path: 'path',
@@ -2473,6 +2474,7 @@ export const ArtCollectionScalarFieldEnum = {
   isMature: 'isMature',
   isPublic: 'isPublic',
   isActive: 'isActive',
+  artPrompt: 'artPrompt',
   description: 'description',
   username: 'username'
 } as const
@@ -2498,6 +2500,7 @@ export const BotScalarFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
+  artPrompt: 'artPrompt',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
@@ -2674,6 +2677,7 @@ export const DreamScalarFieldEnum = {
   artCollectionId: 'artCollectionId',
   galleryId: 'galleryId',
   scenarioId: 'scenarioId',
+  artPrompt: 'artPrompt',
   accessMode: 'accessMode',
   privacyCode: 'privacyCode',
   isPublic: 'isPublic',
@@ -2729,6 +2733,7 @@ export const MilestoneScalarFieldEnum = {
   tooltip: 'tooltip',
   isActive: 'isActive',
   isRepeatable: 'isRepeatable',
+  artPrompt: 'artPrompt',
   artImageId: 'artImageId'
 } as const
 
@@ -2759,11 +2764,11 @@ export const PitchScalarFieldEnum = {
   highlightImage: 'highlightImage',
   PitchType: 'PitchType',
   creationSource: 'creationSource',
+  artPrompt: 'artPrompt',
   isMature: 'isMature',
   isPublic: 'isPublic',
   isActive: 'isActive',
   userId: 'userId',
-  imagePrompt: 'imagePrompt',
   description: 'description',
   artImageId: 'artImageId',
   examples: 'examples',
@@ -2780,6 +2785,7 @@ export const PromptScalarFieldEnum = {
   prompt: 'prompt',
   userId: 'userId',
   galleryId: 'galleryId',
+  artPrompt: 'artPrompt',
   isMature: 'isMature',
   isPublic: 'isPublic',
   isActive: 'isActive',
@@ -2835,6 +2841,7 @@ export const ResourceScalarFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
+  artPrompt: 'artPrompt',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
@@ -2861,7 +2868,7 @@ export const RewardScalarFieldEnum = {
   userId: 'userId',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
-  imagePrompt: 'imagePrompt',
+  artPrompt: 'artPrompt',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive'
@@ -2905,6 +2912,7 @@ export const ServerScalarFieldEnum = {
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
   userId: 'userId',
+  artPrompt: 'artPrompt',
   isActive: 'isActive',
   isMature: 'isMature',
   isPublic: 'isPublic',
@@ -2997,7 +3005,8 @@ export const TagScalarFieldEnum = {
   isMature: 'isMature',
   isActive: 'isActive',
   userId: 'userId',
-  artImageId: 'artImageId'
+  artImageId: 'artImageId',
+  artPrompt: 'artPrompt'
 } as const
 
 export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
@@ -3014,7 +3023,8 @@ export const ThemeScalarFieldEnum = {
   tagline: 'tagline',
   room: 'room',
   colorScheme: 'colorScheme',
-  prefersDark: 'prefersDark'
+  prefersDark: 'prefersDark',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ThemeScalarFieldEnum = (typeof ThemeScalarFieldEnum)[keyof typeof ThemeScalarFieldEnum]
@@ -3059,6 +3069,7 @@ export const UserScalarFieldEnum = {
   googleEmail: 'googleEmail',
   googleId: 'googleId',
   blockList: 'blockList',
+  artPrompt: 'artPrompt',
   isPublic: 'isPublic',
   isActive: 'isActive',
   smartBar: 'smartBar',
@@ -3155,6 +3166,7 @@ export const ArtImageOrderByRelevanceFieldEnum = {
   thumbnailData: 'thumbnailData',
   fileName: 'fileName',
   fileType: 'fileType',
+  artPrompt: 'artPrompt',
   imagePath: 'imagePath',
   path: 'path',
   promptString: 'promptString',
@@ -3172,6 +3184,7 @@ export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevance
 
 export const ArtCollectionOrderByRelevanceFieldEnum = {
   label: 'label',
+  artPrompt: 'artPrompt',
   description: 'description',
   username: 'username'
 } as const
@@ -3194,6 +3207,7 @@ export const BotOrderByRelevanceFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
+  artPrompt: 'artPrompt',
   designer: 'designer',
   serverName: 'serverName'
 } as const
@@ -3274,6 +3288,7 @@ export const DreamOrderByRelevanceFieldEnum = {
   description: 'description',
   currentVibe: 'currentVibe',
   currentPrompt: 'currentPrompt',
+  artPrompt: 'artPrompt',
   privacyCode: 'privacyCode'
 } as const
 
@@ -3308,7 +3323,8 @@ export const MilestoneOrderByRelevanceFieldEnum = {
   pageHint: 'pageHint',
   subtleHint: 'subtleHint',
   triggerCode: 'triggerCode',
-  tooltip: 'tooltip'
+  tooltip: 'tooltip',
+  artPrompt: 'artPrompt'
 } as const
 
 export type MilestoneOrderByRelevanceFieldEnum = (typeof MilestoneOrderByRelevanceFieldEnum)[keyof typeof MilestoneOrderByRelevanceFieldEnum]
@@ -3327,7 +3343,7 @@ export const PitchOrderByRelevanceFieldEnum = {
   designer: 'designer',
   flavorText: 'flavorText',
   highlightImage: 'highlightImage',
-  imagePrompt: 'imagePrompt',
+  artPrompt: 'artPrompt',
   description: 'description',
   examples: 'examples',
   icon: 'icon'
@@ -3337,7 +3353,8 @@ export type PitchOrderByRelevanceFieldEnum = (typeof PitchOrderByRelevanceFieldE
 
 
 export const PromptOrderByRelevanceFieldEnum = {
-  prompt: 'prompt'
+  prompt: 'prompt',
+  artPrompt: 'artPrompt'
 } as const
 
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
@@ -3359,6 +3376,7 @@ export const ResourceOrderByRelevanceFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
+  artPrompt: 'artPrompt',
   generation: 'generation'
 } as const
 
@@ -3372,7 +3390,7 @@ export const RewardOrderByRelevanceFieldEnum = {
   collection: 'collection',
   label: 'label',
   imagePath: 'imagePath',
-  imagePrompt: 'imagePrompt'
+  artPrompt: 'artPrompt'
 } as const
 
 export type RewardOrderByRelevanceFieldEnum = (typeof RewardOrderByRelevanceFieldEnum)[keyof typeof RewardOrderByRelevanceFieldEnum]
@@ -3417,6 +3435,7 @@ export const ServerOrderByRelevanceFieldEnum = {
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
+  artPrompt: 'artPrompt',
   browserBaseUrl: 'browserBaseUrl',
   backendBaseUrl: 'backendBaseUrl',
   workflowPath: 'workflowPath',
@@ -3456,7 +3475,8 @@ export const TagOrderByRelevanceFieldEnum = {
   label: 'label',
   title: 'title',
   flavorText: 'flavorText',
-  pitch: 'pitch'
+  pitch: 'pitch',
+  artPrompt: 'artPrompt'
 } as const
 
 export type TagOrderByRelevanceFieldEnum = (typeof TagOrderByRelevanceFieldEnum)[keyof typeof TagOrderByRelevanceFieldEnum]
@@ -3467,7 +3487,8 @@ export const ThemeOrderByRelevanceFieldEnum = {
   values: 'values',
   tagline: 'tagline',
   room: 'room',
-  colorScheme: 'colorScheme'
+  colorScheme: 'colorScheme',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ThemeOrderByRelevanceFieldEnum = (typeof ThemeOrderByRelevanceFieldEnum)[keyof typeof ThemeOrderByRelevanceFieldEnum]
@@ -3499,6 +3520,7 @@ export const UserOrderByRelevanceFieldEnum = {
   googleEmail: 'googleEmail',
   googleId: 'googleId',
   blockList: 'blockList',
+  artPrompt: 'artPrompt',
   smartBar: 'smartBar',
   stripeCustomerId: 'stripeCustomerId',
   artModels: 'artModels',

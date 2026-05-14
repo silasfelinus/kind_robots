@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
       PitchType: pitchData.PitchType || 'ARTPITCH',
       isMature: pitchData.isMature ?? false,
       isPublic: pitchData.isPublic ?? true,
-      imagePrompt: pitchData.imagePrompt || null,
+      artPrompt: pitchData.artPrompt || null,
       description: pitchData.description || null,
       examples: pitchData.examples || null,
       artImageId: pitchData.artImageId || null,

@@ -13,7 +13,7 @@ export interface ApiPitch {
   description?: string | null
   flavorText?: string | null
   highlightImage?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   examples?: string | null
   designer?: string | null
   isPublic?: boolean | null
@@ -35,7 +35,7 @@ export interface VibeDef {
   description?: string
   flavorText?: string | null
   highlightImage?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   examples?: string | null
   designer?: string | null
   isPublic?: boolean
@@ -81,7 +81,7 @@ interface CreatePitchBody {
   artImageId: number | null
   flavorText: string | null
   highlightImage: string | null
-  imagePrompt: string | null
+  artPrompt: string | null
   examples: string | null
   isMature: boolean
 }
@@ -98,7 +98,7 @@ type UpdatePitchBody = Partial<
     | 'artImageId'
     | 'flavorText'
     | 'highlightImage'
-    | 'imagePrompt'
+    | 'artPrompt'
     | 'examples'
     | 'designer'
   >
@@ -179,7 +179,7 @@ export const useVibeStore = defineStore('vibeStore', {
         description: p?.description ?? p?.flavorText ?? '',
         flavorText: p?.flavorText ?? null,
         highlightImage: p?.highlightImage ?? null,
-        imagePrompt: p?.imagePrompt ?? null,
+        artPrompt: p?.artPrompt ?? null,
         examples: p?.examples ?? null,
         designer: p?.designer ?? null,
         isPublic: typeof p?.isPublic === 'boolean' ? p.isPublic : true,
@@ -228,7 +228,7 @@ export const useVibeStore = defineStore('vibeStore', {
       artImageId?: number | null
       flavorText?: string | null
       highlightImage?: string | null
-      imagePrompt?: string | null
+      artPrompt?: string | null
       examples?: string | null
       isMature?: boolean
     }): Promise<ApiPitch> {
@@ -251,7 +251,7 @@ export const useVibeStore = defineStore('vibeStore', {
           artImageId: input.artImageId ?? null,
           flavorText: input.flavorText ?? null,
           highlightImage: input.highlightImage ?? null,
-          imagePrompt: input.imagePrompt ?? null,
+          artPrompt: input.artPrompt ?? null,
           examples: input.examples ?? null,
           isMature:
             typeof input.isMature === 'boolean' ? input.isMature : false,
@@ -314,8 +314,8 @@ export const useVibeStore = defineStore('vibeStore', {
           ...(updates.highlightImage !== undefined
             ? { highlightImage: updates.highlightImage }
             : {}),
-          ...(updates.imagePrompt !== undefined
-            ? { imagePrompt: updates.imagePrompt }
+          ...(updates.artPrompt !== undefined
+            ? { artPrompt: updates.artPrompt }
             : {}),
           ...(updates.examples !== undefined
             ? { examples: updates.examples }

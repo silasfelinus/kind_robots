@@ -528,7 +528,7 @@ const filteredPitches = computed<Pitch[]>(() => {
         pitch.description,
         pitch.flavorText,
         pitch.designer,
-        pitch.imagePrompt,
+        pitch.artPrompt,
         pitch.examples,
         pitch.PitchType,
         pitch.creationSource,

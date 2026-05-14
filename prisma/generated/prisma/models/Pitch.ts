@@ -49,11 +49,11 @@ export type PitchMinAggregateOutputType = {
   highlightImage: string | null
   PitchType: $Enums.PitchType | null
   creationSource: $Enums.CreationSource | null
+  artPrompt: string | null
   isMature: boolean | null
   isPublic: boolean | null
   isActive: boolean | null
   userId: number | null
-  imagePrompt: string | null
   description: string | null
   artImageId: number | null
   examples: string | null
@@ -71,11 +71,11 @@ export type PitchMaxAggregateOutputType = {
   highlightImage: string | null
   PitchType: $Enums.PitchType | null
   creationSource: $Enums.CreationSource | null
+  artPrompt: string | null
   isMature: boolean | null
   isPublic: boolean | null
   isActive: boolean | null
   userId: number | null
-  imagePrompt: string | null
   description: string | null
   artImageId: number | null
   examples: string | null
@@ -93,11 +93,11 @@ export type PitchCountAggregateOutputType = {
   highlightImage: number
   PitchType: number
   creationSource: number
+  artPrompt: number
   isMature: number
   isPublic: number
   isActive: number
   userId: number
-  imagePrompt: number
   description: number
   artImageId: number
   examples: number
@@ -129,11 +129,11 @@ export type PitchMinAggregateInputType = {
   highlightImage?: true
   PitchType?: true
   creationSource?: true
+  artPrompt?: true
   isMature?: true
   isPublic?: true
   isActive?: true
   userId?: true
-  imagePrompt?: true
   description?: true
   artImageId?: true
   examples?: true
@@ -151,11 +151,11 @@ export type PitchMaxAggregateInputType = {
   highlightImage?: true
   PitchType?: true
   creationSource?: true
+  artPrompt?: true
   isMature?: true
   isPublic?: true
   isActive?: true
   userId?: true
-  imagePrompt?: true
   description?: true
   artImageId?: true
   examples?: true
@@ -173,11 +173,11 @@ export type PitchCountAggregateInputType = {
   highlightImage?: true
   PitchType?: true
   creationSource?: true
+  artPrompt?: true
   isMature?: true
   isPublic?: true
   isActive?: true
   userId?: true
-  imagePrompt?: true
   description?: true
   artImageId?: true
   examples?: true
@@ -282,11 +282,11 @@ export type PitchGroupByOutputType = {
   highlightImage: string | null
   PitchType: $Enums.PitchType
   creationSource: $Enums.CreationSource
+  artPrompt: string | null
   isMature: boolean
   isPublic: boolean
   isActive: boolean
   userId: number | null
-  imagePrompt: string | null
   description: string | null
   artImageId: number | null
   examples: string | null
@@ -327,11 +327,11 @@ export type PitchWhereInput = {
   highlightImage?: Prisma.StringNullableFilter<"Pitch"> | string | null
   PitchType?: Prisma.EnumPitchTypeFilter<"Pitch"> | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFilter<"Pitch"> | $Enums.CreationSource
+  artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
   isMature?: Prisma.BoolFilter<"Pitch"> | boolean
   isPublic?: Prisma.BoolFilter<"Pitch"> | boolean
   isActive?: Prisma.BoolFilter<"Pitch"> | boolean
   userId?: Prisma.IntNullableFilter<"Pitch"> | number | null
-  imagePrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
   description?: Prisma.StringNullableFilter<"Pitch"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Pitch"> | number | null
   examples?: Prisma.StringNullableFilter<"Pitch"> | string | null
@@ -357,11 +357,11 @@ export type PitchOrderByWithRelationInput = {
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   PitchType?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   examples?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -391,11 +391,11 @@ export type PitchWhereUniqueInput = Prisma.AtLeast<{
   highlightImage?: Prisma.StringNullableFilter<"Pitch"> | string | null
   PitchType?: Prisma.EnumPitchTypeFilter<"Pitch"> | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFilter<"Pitch"> | $Enums.CreationSource
+  artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
   isMature?: Prisma.BoolFilter<"Pitch"> | boolean
   isPublic?: Prisma.BoolFilter<"Pitch"> | boolean
   isActive?: Prisma.BoolFilter<"Pitch"> | boolean
   userId?: Prisma.IntNullableFilter<"Pitch"> | number | null
-  imagePrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
   description?: Prisma.StringNullableFilter<"Pitch"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Pitch"> | number | null
   examples?: Prisma.StringNullableFilter<"Pitch"> | string | null
@@ -421,11 +421,11 @@ export type PitchOrderByWithAggregationInput = {
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   PitchType?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   examples?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -451,11 +451,11 @@ export type PitchScalarWhereWithAggregatesInput = {
   highlightImage?: Prisma.StringNullableWithAggregatesFilter<"Pitch"> | string | null
   PitchType?: Prisma.EnumPitchTypeWithAggregatesFilter<"Pitch"> | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceWithAggregatesFilter<"Pitch"> | $Enums.CreationSource
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Pitch"> | string | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Pitch"> | boolean
   isPublic?: Prisma.BoolWithAggregatesFilter<"Pitch"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Pitch"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Pitch"> | number | null
-  imagePrompt?: Prisma.StringNullableWithAggregatesFilter<"Pitch"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Pitch"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Pitch"> | number | null
   examples?: Prisma.StringNullableWithAggregatesFilter<"Pitch"> | string | null
@@ -472,10 +472,10 @@ export type PitchCreateInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -501,11 +501,11 @@ export type PitchUncheckedCreateInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -529,10 +529,10 @@ export type PitchUpdateInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -558,11 +558,11 @@ export type PitchUncheckedUpdateInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -587,11 +587,11 @@ export type PitchCreateManyInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -608,10 +608,10 @@ export type PitchUpdateManyMutationInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -629,11 +629,11 @@ export type PitchUncheckedUpdateManyInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -662,11 +662,11 @@ export type PitchCountOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   PitchType?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrder
   description?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   examples?: Prisma.SortOrder
@@ -690,11 +690,11 @@ export type PitchMaxOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   PitchType?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrder
   description?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   examples?: Prisma.SortOrder
@@ -712,11 +712,11 @@ export type PitchMinOrderByAggregateInput = {
   highlightImage?: Prisma.SortOrder
   PitchType?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrder
   description?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   examples?: Prisma.SortOrder
@@ -933,10 +933,10 @@ export type PitchCreateWithoutArtInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -961,11 +961,11 @@ export type PitchUncheckedCreateWithoutArtInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1004,10 +1004,10 @@ export type PitchUpdateWithoutArtInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1032,11 +1032,11 @@ export type PitchUncheckedUpdateWithoutArtInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1059,10 +1059,10 @@ export type PitchCreateWithoutArtImageInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1087,11 +1087,11 @@ export type PitchUncheckedCreateWithoutArtImageInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1130,10 +1130,10 @@ export type PitchUpdateWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1158,11 +1158,11 @@ export type PitchUncheckedUpdateWithoutArtImageInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1185,10 +1185,10 @@ export type PitchCreateWithoutButterfliesInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1213,11 +1213,11 @@ export type PitchUncheckedCreateWithoutButterfliesInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1256,10 +1256,10 @@ export type PitchUpdateWithoutButterfliesInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1284,11 +1284,11 @@ export type PitchUncheckedUpdateWithoutButterfliesInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1311,10 +1311,10 @@ export type PitchCreateWithoutDreamsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1339,11 +1339,11 @@ export type PitchUncheckedCreateWithoutDreamsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1382,10 +1382,10 @@ export type PitchUpdateWithoutDreamsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1410,11 +1410,11 @@ export type PitchUncheckedUpdateWithoutDreamsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1437,10 +1437,10 @@ export type PitchCreateWithoutPromptsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1465,11 +1465,11 @@ export type PitchUncheckedCreateWithoutPromptsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1508,10 +1508,10 @@ export type PitchUpdateWithoutPromptsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1536,11 +1536,11 @@ export type PitchUncheckedUpdateWithoutPromptsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1563,10 +1563,10 @@ export type PitchCreateWithoutReactionsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1591,11 +1591,11 @@ export type PitchUncheckedCreateWithoutReactionsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1634,10 +1634,10 @@ export type PitchUpdateWithoutReactionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1662,11 +1662,11 @@ export type PitchUncheckedUpdateWithoutReactionsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1689,10 +1689,10 @@ export type PitchCreateWithoutTagsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1717,11 +1717,11 @@ export type PitchUncheckedCreateWithoutTagsInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: number | null
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1769,11 +1769,11 @@ export type PitchScalarWhereInput = {
   highlightImage?: Prisma.StringNullableFilter<"Pitch"> | string | null
   PitchType?: Prisma.EnumPitchTypeFilter<"Pitch"> | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFilter<"Pitch"> | $Enums.CreationSource
+  artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
   isMature?: Prisma.BoolFilter<"Pitch"> | boolean
   isPublic?: Prisma.BoolFilter<"Pitch"> | boolean
   isActive?: Prisma.BoolFilter<"Pitch"> | boolean
   userId?: Prisma.IntNullableFilter<"Pitch"> | number | null
-  imagePrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
   description?: Prisma.StringNullableFilter<"Pitch"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Pitch"> | number | null
   examples?: Prisma.StringNullableFilter<"Pitch"> | string | null
@@ -1790,10 +1790,10 @@ export type PitchCreateWithoutUserInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1818,10 +1818,10 @@ export type PitchUncheckedCreateWithoutUserInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1871,10 +1871,10 @@ export type PitchUpdateWithoutTagsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1899,11 +1899,11 @@ export type PitchUncheckedUpdateWithoutTagsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1927,11 +1927,11 @@ export type PitchUncheckedUpdateManyWithoutTagsInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1949,10 +1949,10 @@ export type PitchCreateManyUserInput = {
   highlightImage?: string | null
   PitchType?: $Enums.PitchType
   creationSource?: $Enums.CreationSource
+  artPrompt?: string | null
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  imagePrompt?: string | null
   description?: string | null
   artImageId?: number | null
   examples?: string | null
@@ -1969,10 +1969,10 @@ export type PitchUpdateWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1997,10 +1997,10 @@ export type PitchUncheckedUpdateWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2025,10 +2025,10 @@ export type PitchUncheckedUpdateManyWithoutUserInput = {
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2122,11 +2122,11 @@ export type PitchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   highlightImage?: boolean
   PitchType?: boolean
   creationSource?: boolean
+  artPrompt?: boolean
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: boolean
-  imagePrompt?: boolean
   description?: boolean
   artImageId?: boolean
   examples?: boolean
@@ -2155,18 +2155,18 @@ export type PitchSelectScalar = {
   highlightImage?: boolean
   PitchType?: boolean
   creationSource?: boolean
+  artPrompt?: boolean
   isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
   userId?: boolean
-  imagePrompt?: boolean
   description?: boolean
   artImageId?: boolean
   examples?: boolean
   icon?: boolean
 }
 
-export type PitchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "pitch" | "designer" | "flavorText" | "highlightImage" | "PitchType" | "creationSource" | "isMature" | "isPublic" | "isActive" | "userId" | "imagePrompt" | "description" | "artImageId" | "examples" | "icon", ExtArgs["result"]["pitch"]>
+export type PitchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "pitch" | "designer" | "flavorText" | "highlightImage" | "PitchType" | "creationSource" | "artPrompt" | "isMature" | "isPublic" | "isActive" | "userId" | "description" | "artImageId" | "examples" | "icon", ExtArgs["result"]["pitch"]>
 export type PitchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.Pitch$ArtArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Pitch$ArtImageArgs<ExtArgs>
@@ -2202,11 +2202,11 @@ export type $PitchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     highlightImage: string | null
     PitchType: $Enums.PitchType
     creationSource: $Enums.CreationSource
+    artPrompt: string | null
     isMature: boolean
     isPublic: boolean
     isActive: boolean
     userId: number | null
-    imagePrompt: string | null
     description: string | null
     artImageId: number | null
     examples: string | null
@@ -2598,11 +2598,11 @@ export interface PitchFieldRefs {
   readonly highlightImage: Prisma.FieldRef<"Pitch", 'String'>
   readonly PitchType: Prisma.FieldRef<"Pitch", 'PitchType'>
   readonly creationSource: Prisma.FieldRef<"Pitch", 'CreationSource'>
+  readonly artPrompt: Prisma.FieldRef<"Pitch", 'String'>
   readonly isMature: Prisma.FieldRef<"Pitch", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"Pitch", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Pitch", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Pitch", 'Int'>
-  readonly imagePrompt: Prisma.FieldRef<"Pitch", 'String'>
   readonly description: Prisma.FieldRef<"Pitch", 'String'>
   readonly artImageId: Prisma.FieldRef<"Pitch", 'Int'>
   readonly examples: Prisma.FieldRef<"Pitch", 'String'>

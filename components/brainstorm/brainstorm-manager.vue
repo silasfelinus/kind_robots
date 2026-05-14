@@ -160,7 +160,7 @@
 
                 <div class="grid gap-2">
                   <textarea
-                    v-model="pitchForm.imagePrompt"
+                    v-model="pitchForm.artPrompt"
                     class="textarea textarea-bordered min-h-32 rounded-2xl bg-base-200"
                     placeholder="Optional art prompt..."
                     @input="markEdited"
@@ -170,7 +170,7 @@
                     type="button"
                     class="btn btn-accent rounded-2xl"
                     :disabled="
-                      isGeneratingArt || !pitchForm.imagePrompt?.trim()
+                      isGeneratingArt || !pitchForm.artPrompt?.trim()
                     "
                     @click="generateArtImage"
                   >
@@ -676,7 +676,7 @@ const defaultBrainstormSeed = {
     'Vanderbilt Lacrosse is an absurdly wealthy person completely disconnected from reality and normal human experience.',
   description:
     "Create short one-liner humor bits describing Vanderbilt Lacrosse's life. Keep them punchy, specific, surreal, and easy to edit.",
-  imagePrompt:
+  artPrompt:
     'A satirical portrait of Vanderbilt Lacrosse, an absurdly wealthy aristocrat surrounded by impossible luxury, surreal comedy, gilded nonsense, cinematic lighting',
   flavorText:
     'A billionaire so disconnected from reality that reality sends him invoices.',
@@ -707,7 +707,7 @@ const pitchForm = reactive<Partial<Pitch>>({
   pitch: defaultBrainstormSeed.pitch,
   description: defaultBrainstormSeed.description,
   flavorText: defaultBrainstormSeed.flavorText,
-  imagePrompt: defaultBrainstormSeed.imagePrompt,
+  artPrompt: defaultBrainstormSeed.artPrompt,
   PitchType: PitchType.TITLE,
   isPublic: true,
   isMature: false,
@@ -813,7 +813,7 @@ watch(
     pitchForm.pitch = pitch.pitch ?? ''
     pitchForm.description = pitch.description ?? ''
     pitchForm.flavorText = pitch.flavorText ?? ''
-    pitchForm.imagePrompt = pitch.imagePrompt ?? ''
+    pitchForm.artPrompt = pitch.artPrompt ?? ''
     pitchForm.PitchType = pitch.PitchType
     pitchForm.isPublic = pitch.isPublic
     pitchForm.isMature = pitch.isMature
@@ -844,7 +844,7 @@ function startFreshPitch() {
     pitch: defaultBrainstormSeed.pitch,
     description: defaultBrainstormSeed.description,
     flavorText: defaultBrainstormSeed.flavorText,
-    imagePrompt: defaultBrainstormSeed.imagePrompt,
+    artPrompt: defaultBrainstormSeed.artPrompt,
     PitchType: PitchType.TITLE,
     isPublic: true,
     isMature: false,
@@ -852,7 +852,7 @@ function startFreshPitch() {
 
   examples.value = defaultExamples()
   pitchStore.apiResponse = ''
-  promptStore.currentPrompt = defaultBrainstormSeed.imagePrompt
+  promptStore.currentPrompt = defaultBrainstormSeed.artPrompt
   promptStore.setPromptsFromString(buildPromptFragmentString())
   activeCreationSource.value = 'HUMAN'
   statusMessage.value = ''
@@ -1065,7 +1065,7 @@ async function saveLinesAsPitch() {
 }
 
 async function generateArtImage() {
-  const prompt = pitchForm.imagePrompt?.trim()
+  const prompt = pitchForm.artPrompt?.trim()
 
   if (!prompt) return
 
@@ -1096,7 +1096,7 @@ async function generateArtImage() {
     if (selectedPitch.value && artImageId) {
       await pitchStore.updatePitch(selectedPitch.value.id, {
         artImageId,
-        imagePrompt: prompt,
+        artPrompt: prompt,
       })
     }
 
@@ -1185,7 +1185,7 @@ function buildPitchPayload(): Partial<Pitch> {
     pitch: pitchForm.pitch?.trim(),
     description: pitchForm.description?.trim() || undefined,
     flavorText: pitchForm.flavorText?.trim() || undefined,
-    imagePrompt: pitchForm.imagePrompt?.trim() || undefined,
+    artPrompt: pitchForm.artPrompt?.trim() || undefined,
     PitchType: pitchForm.PitchType ?? PitchType.TITLE,
     isPublic: pitchForm.isPublic ?? true,
     isMature: pitchForm.isMature ?? false,

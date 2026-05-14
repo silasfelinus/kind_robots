@@ -48,6 +48,7 @@ export type ThemeMinAggregateOutputType = {
   room: string | null
   colorScheme: string | null
   prefersDark: boolean | null
+  artPrompt: string | null
 }
 
 export type ThemeMaxAggregateOutputType = {
@@ -62,6 +63,7 @@ export type ThemeMaxAggregateOutputType = {
   room: string | null
   colorScheme: string | null
   prefersDark: boolean | null
+  artPrompt: string | null
 }
 
 export type ThemeCountAggregateOutputType = {
@@ -76,6 +78,7 @@ export type ThemeCountAggregateOutputType = {
   room: number
   colorScheme: number
   prefersDark: number
+  artPrompt: number
   _all: number
 }
 
@@ -102,6 +105,7 @@ export type ThemeMinAggregateInputType = {
   room?: true
   colorScheme?: true
   prefersDark?: true
+  artPrompt?: true
 }
 
 export type ThemeMaxAggregateInputType = {
@@ -116,6 +120,7 @@ export type ThemeMaxAggregateInputType = {
   room?: true
   colorScheme?: true
   prefersDark?: true
+  artPrompt?: true
 }
 
 export type ThemeCountAggregateInputType = {
@@ -130,6 +135,7 @@ export type ThemeCountAggregateInputType = {
   room?: true
   colorScheme?: true
   prefersDark?: true
+  artPrompt?: true
   _all?: true
 }
 
@@ -231,6 +237,7 @@ export type ThemeGroupByOutputType = {
   room: string | null
   colorScheme: string
   prefersDark: boolean
+  artPrompt: string | null
   _count: ThemeCountAggregateOutputType | null
   _avg: ThemeAvgAggregateOutputType | null
   _sum: ThemeSumAggregateOutputType | null
@@ -268,6 +275,7 @@ export type ThemeWhereInput = {
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Theme"> | string | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
 }
@@ -284,6 +292,7 @@ export type ThemeOrderByWithRelationInput = {
   room?: Prisma.SortOrderInput | Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.ThemeOrderByRelevanceInput
@@ -304,6 +313,7 @@ export type ThemeWhereUniqueInput = Prisma.AtLeast<{
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Theme"> | string | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
 }, "id" | "name">
@@ -320,6 +330,7 @@ export type ThemeOrderByWithAggregationInput = {
   room?: Prisma.SortOrderInput | Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ThemeCountOrderByAggregateInput
   _avg?: Prisma.ThemeAvgOrderByAggregateInput
   _max?: Prisma.ThemeMaxOrderByAggregateInput
@@ -342,6 +353,7 @@ export type ThemeScalarWhereWithAggregatesInput = {
   room?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringWithAggregatesFilter<"Theme"> | string
   prefersDark?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
 }
 
 export type ThemeCreateInput = {
@@ -354,6 +366,7 @@ export type ThemeCreateInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
   user?: Prisma.UserCreateNestedOneWithoutThemesInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutThemeInput
 }
@@ -370,6 +383,7 @@ export type ThemeUncheckedCreateInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutThemeInput
 }
 
@@ -383,6 +397,7 @@ export type ThemeUpdateInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutThemesNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutThemeNestedInput
 }
@@ -399,6 +414,7 @@ export type ThemeUncheckedUpdateInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutThemeNestedInput
 }
 
@@ -414,6 +430,7 @@ export type ThemeCreateManyInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
 }
 
 export type ThemeUpdateManyMutationInput = {
@@ -426,6 +443,7 @@ export type ThemeUpdateManyMutationInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ThemeUncheckedUpdateManyInput = {
@@ -440,6 +458,7 @@ export type ThemeUncheckedUpdateManyInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ThemeNullableScalarRelationFilter = {
@@ -465,6 +484,7 @@ export type ThemeCountOrderByAggregateInput = {
   room?: Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type ThemeAvgOrderByAggregateInput = {
@@ -484,6 +504,7 @@ export type ThemeMaxOrderByAggregateInput = {
   room?: Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type ThemeMinOrderByAggregateInput = {
@@ -498,6 +519,7 @@ export type ThemeMinOrderByAggregateInput = {
   room?: Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type ThemeSumOrderByAggregateInput = {
@@ -583,6 +605,7 @@ export type ThemeCreateWithoutReactionsInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
   user?: Prisma.UserCreateNestedOneWithoutThemesInput
 }
 
@@ -598,6 +621,7 @@ export type ThemeUncheckedCreateWithoutReactionsInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
 }
 
 export type ThemeCreateOrConnectWithoutReactionsInput = {
@@ -626,6 +650,7 @@ export type ThemeUpdateWithoutReactionsInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutThemesNestedInput
 }
 
@@ -641,6 +666,7 @@ export type ThemeUncheckedUpdateWithoutReactionsInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ThemeCreateWithoutUserInput = {
@@ -653,6 +679,7 @@ export type ThemeCreateWithoutUserInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
   Reactions?: Prisma.ReactionCreateNestedManyWithoutThemeInput
 }
 
@@ -667,6 +694,7 @@ export type ThemeUncheckedCreateWithoutUserInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutThemeInput
 }
 
@@ -711,6 +739,7 @@ export type ThemeScalarWhereInput = {
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Theme"> | string | null
 }
 
 export type ThemeCreateManyUserInput = {
@@ -724,6 +753,7 @@ export type ThemeCreateManyUserInput = {
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  artPrompt?: string | null
 }
 
 export type ThemeUpdateWithoutUserInput = {
@@ -736,6 +766,7 @@ export type ThemeUpdateWithoutUserInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUpdateManyWithoutThemeNestedInput
 }
 
@@ -750,6 +781,7 @@ export type ThemeUncheckedUpdateWithoutUserInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutThemeNestedInput
 }
 
@@ -764,6 +796,7 @@ export type ThemeUncheckedUpdateManyWithoutUserInput = {
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -809,6 +842,7 @@ export type ThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   room?: boolean
   colorScheme?: boolean
   prefersDark?: boolean
+  artPrompt?: boolean
   user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ThemeCountOutputTypeDefaultArgs<ExtArgs>
@@ -828,9 +862,10 @@ export type ThemeSelectScalar = {
   room?: boolean
   colorScheme?: boolean
   prefersDark?: boolean
+  artPrompt?: boolean
 }
 
-export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "isActive" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark", ExtArgs["result"]["theme"]>
+export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "isActive" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark" | "artPrompt", ExtArgs["result"]["theme"]>
 export type ThemeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
@@ -855,6 +890,7 @@ export type $ThemePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     room: string | null
     colorScheme: string
     prefersDark: boolean
+    artPrompt: string | null
   }, ExtArgs["result"]["theme"]>
   composites: {}
 }
@@ -1237,6 +1273,7 @@ export interface ThemeFieldRefs {
   readonly room: Prisma.FieldRef<"Theme", 'String'>
   readonly colorScheme: Prisma.FieldRef<"Theme", 'String'>
   readonly prefersDark: Prisma.FieldRef<"Theme", 'Boolean'>
+  readonly artPrompt: Prisma.FieldRef<"Theme", 'String'>
 }
     
 

@@ -107,7 +107,7 @@ function toRewardPayload(form: RewardForm): Partial<Reward> {
     userId: form.userId ?? null,
     artImageId: form.artImageId ?? null,
     imagePath: form.imagePath ?? null,
-    imagePrompt: form.imagePrompt ?? null,
+    artPrompt: form.artPrompt ?? null,
   }
 }
 
@@ -122,7 +122,7 @@ function createDefaultRewardForm(): RewardForm {
     userId: null,
     artImageId: null,
     imagePath: null,
-    imagePrompt: '',
+    artPrompt: '',
   }
 }
 

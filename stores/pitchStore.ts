@@ -134,7 +134,7 @@ function defaultPitchForm(
     isMature: false,
     isPublic: true,
     userId: userId || 10,
-    imagePrompt: '',
+    artPrompt: '',
     description: '',
     examples: '',
     icon: 'kind-icon:idea',

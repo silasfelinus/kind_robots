@@ -89,6 +89,7 @@ export type UserMinAggregateOutputType = {
   googleEmail: string | null
   googleId: string | null
   blockList: string | null
+  artPrompt: string | null
   isPublic: boolean | null
   isActive: boolean | null
   smartBar: string | null
@@ -143,6 +144,7 @@ export type UserMaxAggregateOutputType = {
   googleEmail: string | null
   googleId: string | null
   blockList: string | null
+  artPrompt: string | null
   isPublic: boolean | null
   isActive: boolean | null
   smartBar: string | null
@@ -197,6 +199,7 @@ export type UserCountAggregateOutputType = {
   googleEmail: number
   googleId: number
   blockList: number
+  artPrompt: number
   isPublic: number
   isActive: number
   smartBar: number
@@ -278,6 +281,7 @@ export type UserMinAggregateInputType = {
   googleEmail?: true
   googleId?: true
   blockList?: true
+  artPrompt?: true
   isPublic?: true
   isActive?: true
   smartBar?: true
@@ -332,6 +336,7 @@ export type UserMaxAggregateInputType = {
   googleEmail?: true
   googleId?: true
   blockList?: true
+  artPrompt?: true
   isPublic?: true
   isActive?: true
   smartBar?: true
@@ -386,6 +391,7 @@ export type UserCountAggregateInputType = {
   googleEmail?: true
   googleId?: true
   blockList?: true
+  artPrompt?: true
   isPublic?: true
   isActive?: true
   smartBar?: true
@@ -528,6 +534,7 @@ export type UserGroupByOutputType = {
   googleEmail: string | null
   googleId: string | null
   blockList: string | null
+  artPrompt: string | null
   isPublic: boolean
   isActive: boolean
   smartBar: string | null
@@ -606,6 +613,7 @@ export type UserWhereInput = {
   googleEmail?: Prisma.StringNullableFilter<"User"> | string | null
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   blockList?: Prisma.StringNullableFilter<"User"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"User"> | string | null
   isPublic?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   smartBar?: Prisma.StringNullableFilter<"User"> | string | null
@@ -683,6 +691,7 @@ export type UserOrderByWithRelationInput = {
   googleEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   blockList?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -764,6 +773,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   googleEmail?: Prisma.StringNullableFilter<"User"> | string | null
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   blockList?: Prisma.StringNullableFilter<"User"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"User"> | string | null
   isPublic?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   smartBar?: Prisma.StringNullableFilter<"User"> | string | null
@@ -841,6 +851,7 @@ export type UserOrderByWithAggregationInput = {
   googleEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   blockList?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -904,6 +915,7 @@ export type UserScalarWhereWithAggregatesInput = {
   googleEmail?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   googleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   blockList?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   smartBar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -958,6 +970,7 @@ export type UserCreateInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -1035,6 +1048,7 @@ export type UserUncheckedCreateInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -1111,6 +1125,7 @@ export type UserUpdateInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1188,6 +1203,7 @@ export type UserUncheckedUpdateInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1265,6 +1281,7 @@ export type UserCreateManyInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -1319,6 +1336,7 @@ export type UserUpdateManyMutationInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1374,6 +1392,7 @@ export type UserUncheckedUpdateManyInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1445,6 +1464,7 @@ export type UserCountOrderByAggregateInput = {
   googleEmail?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   blockList?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrder
@@ -1512,6 +1532,7 @@ export type UserMaxOrderByAggregateInput = {
   googleEmail?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   blockList?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrder
@@ -1566,6 +1587,7 @@ export type UserMinOrderByAggregateInput = {
   googleEmail?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   blockList?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   smartBar?: Prisma.SortOrder
@@ -1973,6 +1995,7 @@ export type UserCreateWithoutArtInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -2049,6 +2072,7 @@ export type UserUncheckedCreateWithoutArtInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -2140,6 +2164,7 @@ export type UserUpdateWithoutArtInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2216,6 +2241,7 @@ export type UserUncheckedUpdateWithoutArtInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2291,6 +2317,7 @@ export type UserCreateWithoutArtImagesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -2367,6 +2394,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -2458,6 +2486,7 @@ export type UserUpdateWithoutArtImagesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2534,6 +2563,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2609,6 +2639,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -2685,6 +2716,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -2776,6 +2808,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2852,6 +2885,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2927,6 +2961,7 @@ export type UserCreateWithoutBotsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3003,6 +3038,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3094,6 +3130,7 @@ export type UserUpdateWithoutBotsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3170,6 +3207,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3245,6 +3283,7 @@ export type UserCreateWithoutButterfliesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3321,6 +3360,7 @@ export type UserUncheckedCreateWithoutButterfliesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3412,6 +3452,7 @@ export type UserUpdateWithoutButterfliesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3488,6 +3529,7 @@ export type UserUncheckedUpdateWithoutButterfliesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3563,6 +3605,7 @@ export type UserCreateWithoutButterflyRecordsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3639,6 +3682,7 @@ export type UserUncheckedCreateWithoutButterflyRecordsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3730,6 +3774,7 @@ export type UserUpdateWithoutButterflyRecordsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3806,6 +3851,7 @@ export type UserUncheckedUpdateWithoutButterflyRecordsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3881,6 +3927,7 @@ export type UserCreateWithoutCharactersInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -3957,6 +4004,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -4048,6 +4096,7 @@ export type UserUpdateWithoutCharactersInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4124,6 +4173,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4199,6 +4249,7 @@ export type UserCreateWithoutChatsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -4275,6 +4326,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -4366,6 +4418,7 @@ export type UserUpdateWithoutChatsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4442,6 +4495,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4517,6 +4571,7 @@ export type UserCreateWithoutDreamsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -4593,6 +4648,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -4684,6 +4740,7 @@ export type UserUpdateWithoutDreamsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4760,6 +4817,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4835,6 +4893,7 @@ export type UserCreateWithoutGalleriesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -4911,6 +4970,7 @@ export type UserUncheckedCreateWithoutGalleriesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5002,6 +5062,7 @@ export type UserUpdateWithoutGalleriesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5078,6 +5139,7 @@ export type UserUncheckedUpdateWithoutGalleriesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5153,6 +5215,7 @@ export type UserCreateWithoutLogsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5229,6 +5292,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5320,6 +5384,7 @@ export type UserUpdateWithoutLogsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5396,6 +5461,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5471,6 +5537,7 @@ export type UserCreateWithoutMilestonesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5547,6 +5614,7 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5638,6 +5706,7 @@ export type UserUpdateWithoutMilestonesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5714,6 +5783,7 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5789,6 +5859,7 @@ export type UserCreateWithoutPitchesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5865,6 +5936,7 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -5956,6 +6028,7 @@ export type UserUpdateWithoutPitchesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6032,6 +6105,7 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6107,6 +6181,7 @@ export type UserCreateWithoutPromptsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -6183,6 +6258,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -6274,6 +6350,7 @@ export type UserUpdateWithoutPromptsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6350,6 +6427,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6425,6 +6503,7 @@ export type UserCreateWithoutReactionsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -6501,6 +6580,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -6592,6 +6672,7 @@ export type UserUpdateWithoutReactionsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6668,6 +6749,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6743,6 +6825,7 @@ export type UserCreateWithoutResourcesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -6819,6 +6902,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -6910,6 +6994,7 @@ export type UserUpdateWithoutResourcesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6986,6 +7071,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7061,6 +7147,7 @@ export type UserCreateWithoutRewardsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -7137,6 +7224,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -7228,6 +7316,7 @@ export type UserUpdateWithoutRewardsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7304,6 +7393,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7379,6 +7469,7 @@ export type UserCreateWithoutScenariosInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -7455,6 +7546,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -7546,6 +7638,7 @@ export type UserUpdateWithoutScenariosInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7622,6 +7715,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7697,6 +7791,7 @@ export type UserCreateWithoutServersInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -7773,6 +7868,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -7864,6 +7960,7 @@ export type UserUpdateWithoutServersInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7940,6 +8037,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8015,6 +8113,7 @@ export type UserCreateWithoutSmartIconsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -8091,6 +8190,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -8182,6 +8282,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8258,6 +8359,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8333,6 +8435,7 @@ export type UserCreateWithoutTagsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -8409,6 +8512,7 @@ export type UserUncheckedCreateWithoutTagsInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -8500,6 +8604,7 @@ export type UserUpdateWithoutTagsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8576,6 +8681,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8651,6 +8757,7 @@ export type UserCreateWithoutThemesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -8727,6 +8834,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   googleEmail?: string | null
   googleId?: string | null
   blockList?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isActive?: boolean
   smartBar?: string | null
@@ -8818,6 +8926,7 @@ export type UserUpdateWithoutThemesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8894,6 +9003,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -9190,6 +9300,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   googleEmail?: boolean
   googleId?: boolean
   blockList?: boolean
+  artPrompt?: boolean
   isPublic?: boolean
   isActive?: boolean
   smartBar?: boolean
@@ -9270,6 +9381,7 @@ export type UserSelectScalar = {
   googleEmail?: boolean
   googleId?: boolean
   blockList?: boolean
+  artPrompt?: boolean
   isPublic?: boolean
   isActive?: boolean
   smartBar?: boolean
@@ -9286,7 +9398,7 @@ export type UserSelectScalar = {
   hiddenServerIds?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "isActive" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "artPrompt" | "isPublic" | "isActive" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.User$ArtArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
@@ -9378,6 +9490,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     googleEmail: string | null
     googleId: string | null
     blockList: string | null
+    artPrompt: string | null
     isPublic: boolean
     isActive: boolean
     smartBar: string | null
@@ -9821,6 +9934,7 @@ export interface UserFieldRefs {
   readonly googleEmail: Prisma.FieldRef<"User", 'String'>
   readonly googleId: Prisma.FieldRef<"User", 'String'>
   readonly blockList: Prisma.FieldRef<"User", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"User", 'String'>
   readonly isPublic: Prisma.FieldRef<"User", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly smartBar: Prisma.FieldRef<"User", 'String'>

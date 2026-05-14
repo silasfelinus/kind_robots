@@ -683,7 +683,7 @@ const filteredPitches = computed(() => {
       pitch.description,
       pitch.examples,
       pitch.flavorText,
-      pitch.imagePrompt,
+      pitch.artPrompt,
       pitch.PitchType,
       getPitchSource(pitch),
     ]

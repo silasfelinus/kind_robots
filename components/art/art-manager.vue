@@ -54,12 +54,17 @@
         </div>
       </section>
 
+      <!-- Gallery: collections → arts. Clicking an art card navigates to 'selected'. -->
       <art-gallery
         v-else-if="currentTab === 'gallery'"
         variant="dashboard"
         :show-header="false"
-        :show-selected-panel="true"
+        :show-selected-panel="false"
       />
+
+      <!-- Selected: full art-interact, back button in art-interact restores previous tab. -->
+      <art-interact v-else-if="currentTab === 'selected'" />
+
       <image-upload v-else-if="currentTab === 'upload'" />
 
       <checkpoint-gallery

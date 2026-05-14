@@ -41,6 +41,66 @@ export default defineEventHandler(async (event) => {
           actor,
         })
 
+      case 'meta.describe':
+        return {
+          ok: true,
+          operation: 'meta.describe',
+          message: 'Kind Robots ChatGPT API capabilities.',
+          implementedOperations: [
+            'content.create',
+            'content.get',
+            'content.list',
+            'content.update',
+            'content.setActive',
+            'meta.describe',
+          ],
+          implementedResources: ['character', 'dream', 'artImage'],
+          defaults: {
+            isPublic: true,
+            isMature: false,
+            isActive: true,
+            defaultGuestUserId: 10,
+          },
+          requestShapes: {
+            create: {
+              operation: 'content.create',
+              resource: 'character',
+              data: {
+                name: 'Example Character',
+                isPublic: true,
+                isMature: false,
+                isActive: true,
+              },
+            },
+            update: {
+              operation: 'content.update',
+              resource: 'character',
+              id: 1,
+              data: {
+                name: 'Updated Character Name',
+              },
+            },
+            list: {
+              operation: 'content.list',
+              resource: 'character',
+              filter: {
+                isActive: true,
+                limit: 20,
+              },
+            },
+            archive: {
+              operation: 'content.setActive',
+              resource: 'character',
+              id: 1,
+              isActive: false,
+            },
+          },
+          notes: [
+            'For content.create and content.update, all record fields must be inside the top-level data object.',
+            'Records are never hard-deleted; use content.setActive with isActive:false to archive.',
+          ],
+        }
+
       case 'content.update':
         return updateContent({
           resource: request.resource,

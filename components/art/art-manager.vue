@@ -60,6 +60,7 @@
         :show-header="false"
         :show-selected-panel="true"
       />
+      <image-upload v-else-if="currentTab === 'upload'" />
 
       <checkpoint-gallery
         v-else-if="currentTab === 'checkpoints'"

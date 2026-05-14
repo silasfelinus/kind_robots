@@ -38,6 +38,13 @@ export const dashboardConfigs = {
           'Build prompts and create new images through the active art server.',
       },
       {
+        key: 'upload',
+        label: 'Upload',
+        icon: 'kind-icon:floppy',
+        title: 'Upload Art',
+        summary: 'Add an image to our gallery',
+      },
+      {
         key: 'gallery',
         label: 'Gallery',
         icon: 'kind-icon:image',

@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
     console.log('[chatgpt actor]', {
       userId: actor?.userId,
       role: actor?.role,
-      isGuest: actor?.isGuest,
     })
 
     switch (request.operation) {
@@ -40,7 +39,10 @@ export default defineEventHandler(async (event) => {
           actor,
         })
 
-        console.log('[chatgpt content.create result]', JSON.stringify(result, null, 2))
+        console.log(
+          '[chatgpt content.create result]',
+          JSON.stringify(result, null, 2),
+        )
 
         return result
       }
@@ -58,7 +60,10 @@ export default defineEventHandler(async (event) => {
           actor,
         })
 
-        console.log('[chatgpt content.get result]', JSON.stringify(result, null, 2))
+        console.log(
+          '[chatgpt content.get result]',
+          JSON.stringify(result, null, 2),
+        )
 
         return result
       }
@@ -76,7 +81,10 @@ export default defineEventHandler(async (event) => {
           actor,
         })
 
-        console.log('[chatgpt content.list result]', JSON.stringify(result, null, 2))
+        console.log(
+          '[chatgpt content.list result]',
+          JSON.stringify(result, null, 2),
+        )
 
         return result
       }
@@ -156,7 +164,10 @@ export default defineEventHandler(async (event) => {
           actor,
         })
 
-        console.log('[chatgpt content.update result]', JSON.stringify(result, null, 2))
+        console.log(
+          '[chatgpt content.update result]',
+          JSON.stringify(result, null, 2),
+        )
 
         return result
       }
@@ -176,7 +187,10 @@ export default defineEventHandler(async (event) => {
           actor,
         })
 
-        console.log('[chatgpt content.setActive result]', JSON.stringify(result, null, 2))
+        console.log(
+          '[chatgpt content.setActive result]',
+          JSON.stringify(result, null, 2),
+        )
 
         return result
       }
@@ -191,7 +205,10 @@ export default defineEventHandler(async (event) => {
     console.error('[chatgpt api error]', error)
 
     if (error instanceof ZodError) {
-      console.error('[chatgpt zod issues]', JSON.stringify(error.issues, null, 2))
+      console.error(
+        '[chatgpt zod issues]',
+        JSON.stringify(error.issues, null, 2),
+      )
 
       throw createError({
         statusCode: 400,

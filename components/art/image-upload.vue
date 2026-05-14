@@ -92,19 +92,25 @@
 
     <!-- Collection name + model link (shown once files are queued) -->
     <template v-if="queuedFiles.length > 0">
-      <!-- Collection name -->
-      <label class="flex flex-col gap-1">
+      <div class="flex flex-col gap-2">
         <span class="text-xs font-medium text-base-content/60">
-          Collection name
+          Upload to collection
         </span>
-        <input
-          v-model="collectionName"
-          type="text"
-          placeholder="My Uploads"
-          class="input input-bordered input-sm w-full"
-          :disabled="isUploading"
+
+        <LazyArtGallery
+          variant="dropdown"
+          title="Upload Collection"
+          subtitle="Choose where these images should land."
+          :show-header="false"
+          :show-controls="false"
+          :show-selected-panel="false"
+          :allow-add="true"
+          :allow-edit="true"
+          :allow-delete="false"
+          :allow-merge="false"
+          :allow-refresh="false"
         />
-      </label>
+      </div>
 
       <!-- Model linker -->
       <div v-if="showModelConnect" class="flex flex-col gap-2">
@@ -303,6 +309,7 @@ import { useDreamStore } from '@/stores/dreamStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 
 withDefaults(
   defineProps<{
@@ -318,10 +325,10 @@ const dreamStore = useDreamStore()
 const pitchStore = usePitchStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
+const collectionStore = useCollectionStore()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
-const collectionName = ref('')
 const connectedModelType = ref<ConnectableModel | ''>('')
 
 const connectableModels: ConnectableModel[] = [
@@ -405,7 +412,6 @@ function clearQueue() {
   queuedFiles.value = []
   succeededNames.value = new Set()
   failedNames.value = new Set()
-  collectionName.value = ''
   connectedModelType.value = ''
   clearModelSelection()
 }
@@ -426,21 +432,23 @@ async function handleBatchUpload() {
 
   if (!files.length) return
 
+  const selectedCollection = collectionStore.currentCollection
+
   const label =
-    collectionName.value.trim() ||
+    selectedCollection?.label?.trim() ||
     uploadStore.activeTarget?.collectionLabel ||
     'My Uploads'
 
   const modelType = connectedModelType.value || null
-  const modelId = modelType && connectedModelId.value ? connectedModelId.value : null
+  const modelId =
+    modelType && connectedModelId.value ? connectedModelId.value : null
 
   const result = await uploadStore.uploadBatchForActiveTarget(
     files,
-    label,
+    undefined,
     modelType && modelId ? modelType : null,
     modelId,
   )
-
   succeededNames.value = new Set(result.succeeded.map((r) => r.fileName ?? ''))
   failedNames.value = new Set(result.failed.map((r) => r.fileName ?? ''))
 }

@@ -188,9 +188,19 @@ export const useUploadStore = defineStore('UploadStore', () => {
     await artStore.updateArtImageWithArtId(artImage.id, art.id)
 
     // Step 4 — add to collection if requested.
-    const label = collectionLabel?.trim() || target.collectionLabel
-    if (label) {
-      await collectionStore.addArtToCollection({ artId: art.id, label })
+    const selectedCollection = collectionStore.currentCollection
+
+    if (selectedCollection?.id && selectedCollection.id > 0) {
+      await collectionStore.addArtToCollection({
+        artId: art.id,
+        collectionId: selectedCollection.id,
+      })
+    } else {
+      const label = collectionLabel?.trim() || target.collectionLabel
+
+      if (label) {
+        await collectionStore.addArtToCollection({ artId: art.id, label })
+      }
     }
 
     // Step 5 — push into store so the gallery updates without a full refresh.
@@ -289,8 +299,13 @@ export const useUploadStore = defineStore('UploadStore', () => {
     const userId = userStore.userId ?? userStore.user?.id ?? 10
     const username =
       userStore.username ?? userStore.user?.username ?? 'Kind Guest'
+    const selectedCollection = useCollectionStore().currentCollection
+
     const label =
-      collectionLabel?.trim() || target.collectionLabel || 'My Uploads'
+      selectedCollection?.label?.trim() ||
+      collectionLabel?.trim() ||
+      target.collectionLabel ||
+      'My Uploads'
 
     const succeeded: ImageUploadResult[] = []
     const failed: ImageUploadResult[] = []
@@ -302,7 +317,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
           target,
           userId,
           username,
-          label,
         )
 
         lastBatchArts.value.push(art)

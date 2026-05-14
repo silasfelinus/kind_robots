@@ -450,7 +450,7 @@ model Dream {
   slug            String?         @unique @db.VarChar(255)
   description     String?         @db.Text
 
-  currentVibe     String          @db.Text
+  currentVibe     String?          @db.Text
   currentPrompt   String?         @db.Text
 
   userId          Int             @default(10)

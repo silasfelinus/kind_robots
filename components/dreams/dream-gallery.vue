@@ -1,6 +1,8 @@
 <!-- /components/dreams/dream-gallery.vue -->
 <template>
-  <section class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow">
+  <section
+    class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+  >
     <header
       v-if="showHeader"
       class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -9,9 +11,7 @@
         <p class="text-xs font-bold uppercase tracking-wide text-primary">
           Dream Atlas
         </p>
-        <h2 class="text-2xl font-black text-base-content">
-          Location Gallery
-        </h2>
+        <h2 class="text-2xl font-black text-base-content">Location Gallery</h2>
         <p class="text-sm text-base-content/70">
           Choose the place before choosing the trouble.
         </p>
@@ -78,11 +78,7 @@
       @change="selectFromDropdown"
     >
       <option value="">Select a Dream location</option>
-      <option
-        v-for="dream in filteredDreams"
-        :key="dream.id"
-        :value="dream.id"
-      >
+      <option v-for="dream in filteredDreams" :key="dream.id" :value="dream.id">
         {{ dream.title }} · {{ dream.isPublic ? 'public' : 'private' }}
       </option>
     </select>
@@ -102,7 +98,9 @@
     <div
       v-if="variant !== 'dropdown'"
       class="grid min-h-0 gap-3 overflow-y-auto pr-1"
-      :class="compact ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'"
+      :class="
+        compact ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'
+      "
     >
       <dream-card
         v-for="dream in filteredDreams"
@@ -164,15 +162,18 @@ const showInactive = ref(false)
 
 const filteredDreams = computed(() => {
   const term = search.value.trim().toLowerCase()
-  const source = showInactive.value ? dreamStore.dreams : dreamStore.activeDreams
+  const source = showInactive.value
+    ? dreamStore.dreams
+    : dreamStore.activeDreams
 
   return source.filter((dream) => {
-    const ownershipMatch = !showMine.value || dream.userId === dreamStore.currentUserId
+    const ownershipMatch =
+      !showMine.value || dream.userId === dreamStore.currentUserId
     const searchMatch =
       !term ||
       dream.title.toLowerCase().includes(term) ||
       dream.description?.toLowerCase().includes(term) ||
-      dream.currentVibe.toLowerCase().includes(term) ||
+      dream.currentVibe?.toLowerCase().includes(term) ||
       dream.currentPrompt?.toLowerCase().includes(term)
 
     return ownershipMatch && searchMatch

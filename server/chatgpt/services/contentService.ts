@@ -76,7 +76,6 @@ export async function createContent({
     actor: {
       userId: actor.userId,
       role: actor.role,
-      isGuest: actor.isGuest,
     },
   })
 

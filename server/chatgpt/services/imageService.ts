@@ -1,6 +1,5 @@
 // /server/chatgpt/services/imageService.ts
 import { createError } from 'h3'
-import sharp from 'sharp'
 import { z } from 'zod'
 import { prisma } from '~/server/utils/prisma'
 import type { ChatGptActor } from '../auth/resolveActor'
@@ -13,7 +12,6 @@ const CURRENT_ADMIN_USER_ID = 1
 const DEFAULT_FILE_TYPE = 'png'
 const DEFAULT_MIME = 'image/png'
 const DEFAULT_THUMBNAIL_SIZE = 256
-const DEFAULT_QUALITY = 75
 const DATA_URL_PATTERN = /^data:([^;,]+)?(;base64)?,(.*)$/s
 
 const ImageConnectResourceSchema = z.enum([
@@ -356,14 +354,6 @@ function getStorageMode(
   return 'unknown'
 }
 
-function clampQuality(quality?: number): number {
-  if (typeof quality !== 'number' || Number.isNaN(quality)) {
-    return DEFAULT_QUALITY
-  }
-
-  return Math.min(100, Math.max(1, Math.round(quality)))
-}
-
 function normalizeDimension(value?: number): number | undefined {
   if (typeof value !== 'number' || Number.isNaN(value)) return undefined
 
@@ -374,13 +364,33 @@ function normalizeDimension(value?: number): number | undefined {
   return normalized
 }
 
+function getDisplayCap({ thumbnail, maxWidth, maxHeight }: ImageDisplayInput) {
+  const width = thumbnail
+    ? DEFAULT_THUMBNAIL_SIZE
+    : normalizeDimension(maxWidth)
+  const height = thumbnail
+    ? DEFAULT_THUMBNAIL_SIZE
+    : normalizeDimension(maxHeight)
+
+  return {
+    width,
+    height,
+    style: {
+      maxWidth: width ? `${width}px` : undefined,
+      maxHeight: height ? `${height}px` : undefined,
+      width: width ? '100%' : undefined,
+      height: 'auto',
+      objectFit: 'contain',
+    },
+  }
+}
+
 async function makeDisplayDataUrl({
   imageData,
   fileType,
+  thumbnail,
   maxWidth,
   maxHeight,
-  quality,
-  thumbnail,
 }: {
   imageData: string
   fileType?: string | null
@@ -391,14 +401,13 @@ async function makeDisplayDataUrl({
 }) {
   const dataInfo = stripDataUrlPrefix(imageData)
   const inputBuffer = Buffer.from(dataInfo.base64, 'base64')
-  const requestedQuality = clampQuality(quality)
-  const width = thumbnail
-    ? DEFAULT_THUMBNAIL_SIZE
-    : normalizeDimension(maxWidth)
-  const height = thumbnail
-    ? DEFAULT_THUMBNAIL_SIZE
-    : normalizeDimension(maxHeight)
-  const shouldResize = Boolean(thumbnail || width || height)
+  const mime = dataInfo.mime || normalizeMime(fileType)
+  const dataUrl = normalizeDataUrl(dataInfo.base64, normalizeFileType(mime))
+  const displayCap = getDisplayCap({
+    thumbnail,
+    maxWidth,
+    maxHeight,
+  })
 
   if (!inputBuffer.byteLength) {
     throw createError({
@@ -407,44 +416,16 @@ async function makeDisplayDataUrl({
     })
   }
 
-  if (!shouldResize) {
-    const mime = dataInfo.mime || normalizeMime(fileType)
-    const dataUrl = DATA_URL_PATTERN.test(imageData)
-      ? imageData
-      : `data:${mime};base64,${dataInfo.base64}`
-
-    return {
-      dataUrl,
-      mime,
-      bytes: inputBuffer.byteLength,
-      resized: false,
-      maxWidth: width,
-      maxHeight: height,
-      thumbnail: Boolean(thumbnail),
-    }
-  }
-
-  const outputBuffer = await sharp(inputBuffer)
-    .rotate()
-    .resize({
-      width,
-      height,
-      fit: 'inside',
-      withoutEnlargement: true,
-    })
-    .webp({
-      quality: requestedQuality,
-    })
-    .toBuffer()
-
   return {
-    dataUrl: `data:image/webp;base64,${outputBuffer.toString('base64')}`,
-    mime: 'image/webp',
-    bytes: outputBuffer.byteLength,
-    resized: true,
-    maxWidth: width,
-    maxHeight: height,
+    dataUrl,
+    mime,
+    bytes: inputBuffer.byteLength,
+    resized: false,
+    maxWidth: displayCap.width,
+    maxHeight: displayCap.height,
     thumbnail: Boolean(thumbnail),
+    displayCap,
+    transformMode: 'client-display-cap',
   }
 }
 
@@ -718,6 +699,8 @@ function buildCreateData({
 
 function toMetadataResponse(image: Record<string, unknown>) {
   const imageData = typeof image.imageData === 'string' ? image.imageData : null
+  const thumbnailData =
+    typeof image.thumbnailData === 'string' ? image.thumbnailData : null
   const metadata = Object.fromEntries(
     Object.entries(image).filter(
       ([key]) => key !== 'imageData' && key !== 'thumbnailData',
@@ -727,9 +710,12 @@ function toMetadataResponse(image: Record<string, unknown>) {
   return {
     ...metadata,
     hasImageData: Boolean(imageData?.trim()),
+    hasThumbnailData: Boolean(thumbnailData?.trim()),
     imageDataBytes: getBase64Bytes(imageData),
+    thumbnailDataBytes: getBase64Bytes(thumbnailData),
     storageMode: getStorageMode(image),
     supportsDisplayCap: true,
+    supportsServerResize: false,
   }
 }
 
@@ -748,21 +734,25 @@ async function toDataUrlResponse(
   displayOptions: ImageDisplayInput = {},
 ) {
   const imageData = typeof image.imageData === 'string' ? image.imageData : null
+  const thumbnailData =
+    typeof image.thumbnailData === 'string' ? image.thumbnailData : null
+  const sourceImageData =
+    displayOptions.thumbnail && thumbnailData ? thumbnailData : imageData
 
-  if (!imageData) {
+  if (!sourceImageData) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Image data is not available for this artImage',
     })
   }
 
-  const dataUrlMime = inferMimeFromDataUrl(imageData)
-  const fileTypeFromData = inferFileTypeFromDataUrl(imageData)
+  const dataUrlMime = inferMimeFromDataUrl(sourceImageData)
+  const fileTypeFromData = inferFileTypeFromDataUrl(sourceImageData)
   const fallbackFileType = normalizeFileType(
     fileTypeFromData || String(image.fileType || DEFAULT_FILE_TYPE),
   )
   const displayData = await makeDisplayDataUrl({
-    imageData,
+    imageData: sourceImageData,
     fileType: dataUrlMime || fallbackFileType,
     maxWidth: displayOptions.maxWidth,
     maxHeight: displayOptions.maxHeight,
@@ -781,6 +771,9 @@ async function toDataUrlResponse(
     maxWidth: displayData.maxWidth,
     maxHeight: displayData.maxHeight,
     thumbnail: displayData.thumbnail,
+    usedStoredThumbnail: Boolean(displayOptions.thumbnail && thumbnailData),
+    displayCap: displayData.displayCap,
+    transformMode: displayData.transformMode,
   }
 }
 

@@ -107,8 +107,12 @@ export const ChatGptOperationSchema = z.discriminatedUnion('operation', [
   z
     .object({
       operation: z.literal('image.get'),
-      id: PositiveIntSchema,
-      format: ChatGptImageFormatSchema.optional().default('metadata'),
+      id: z.number().int().positive(),
+      format: ChatGptImageFormatSchema.optional(),
+      thumbnail: z.boolean().optional(),
+      maxWidth: z.number().int().positive().optional(),
+      maxHeight: z.number().int().positive().optional(),
+      quality: z.number().int().positive().max(100).optional(),
     })
     .strict(),
 

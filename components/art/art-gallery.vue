@@ -3,31 +3,49 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
+    <!-- ── Breadcrumb / back nav (always visible in arts mode) ── -->
+    <nav
+      v-if="mode === 'arts' && !isDropdownMode"
+      class="flex shrink-0 items-center gap-1 rounded-xl bg-base-200 px-3 py-2 text-sm"
+      aria-label="Gallery navigation"
+    >
+      <button
+        class="flex items-center gap-1 font-bold text-primary hover:underline"
+        type="button"
+        @click="exitCollection"
+      >
+        <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+        Collections
+      </button>
+
+      <Icon
+        name="kind-icon:chevron-right"
+        class="h-4 w-4 text-base-content/40"
+      />
+
+      <span class="min-w-0 truncate font-semibold text-base-content">
+        {{ activeCollection?.label || 'Untitled Collection' }}
+      </span>
+
+      <span class="ml-auto shrink-0 badge badge-ghost text-xs">
+        {{ currentGalleryItems.length }} art
+      </span>
+    </nav>
+
+    <!-- ── Header ── -->
     <header
       v-if="showHeader"
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
     >
       <div class="flex items-start justify-between gap-3">
-        <div class="flex min-w-0 items-center gap-2">
-          <button
-            v-if="mode === 'arts' && !isDropdownMode"
-            class="btn btn-ghost btn-sm shrink-0 rounded-xl"
-            type="button"
-            title="Back to collections"
-            @click="exitCollection"
-          >
-            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
-          </button>
+        <div class="min-w-0">
+          <h2 class="truncate text-lg font-bold text-base-content">
+            {{ headerTitle }}
+          </h2>
 
-          <div class="min-w-0">
-            <h2 class="truncate text-lg font-bold text-base-content">
-              {{ headerTitle }}
-            </h2>
-
-            <p class="truncate text-sm text-base-content/60">
-              {{ headerSubtitle }}
-            </p>
-          </div>
+          <p class="truncate text-sm text-base-content/60">
+            {{ headerSubtitle }}
+          </p>
         </div>
 
         <div class="flex shrink-0 items-center gap-2">
@@ -59,8 +77,9 @@
         </div>
       </div>
 
+      <!-- Search / filter controls (collections mode only) -->
       <div
-        v-if="showControls && !isDropdownMode"
+        v-if="showControls && !isDropdownMode && mode === 'collections'"
         class="grid grid-cols-1 gap-2 md:grid-cols-[auto_minmax(0,1fr)_auto]"
       >
         <label
@@ -79,11 +98,7 @@
         <input
           v-model="searchQuery"
           type="search"
-          :placeholder="
-            mode === 'collections'
-              ? 'Search collections...'
-              : 'Search prompts, checkpoints...'
-          "
+          placeholder="Search collections..."
           class="input input-bordered input-sm w-full bg-base-100"
         />
 
@@ -98,6 +113,20 @@
         </button>
       </div>
 
+      <!-- Search inside a collection -->
+      <div
+        v-if="showControls && !isDropdownMode && mode === 'arts'"
+        class="flex gap-2"
+      >
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="Search prompts, checkpoints..."
+          class="input input-bordered input-sm w-full bg-base-100"
+        />
+      </div>
+
+      <!-- Collection action buttons (arts mode) -->
       <div
         v-if="mode === 'arts' && !isDropdownMode && canEditActive"
         class="flex flex-wrap gap-2"
@@ -119,7 +148,7 @@
           @click="toggleMergePanel"
         >
           <Icon name="kind-icon:gallery" class="h-4 w-4" />
-          Merge Into...
+          Merge Into…
         </button>
 
         <button
@@ -134,6 +163,7 @@
       </div>
     </header>
 
+    <!-- ── Collection form ── -->
     <section
       v-if="showCollectionForm"
       class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
@@ -184,7 +214,7 @@
           />
         </label>
 
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="grid grid-cols-2 gap-3">
           <label
             class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
           >
@@ -247,13 +277,14 @@
       </div>
     </section>
 
+    <!-- ── Merge panel ── -->
     <section
       v-if="showMergePanel && activeCollection"
       class="shrink-0 rounded-2xl border border-accent/40 bg-accent/10 p-3 shadow-md"
     >
       <div class="mb-2 flex items-center justify-between gap-2">
         <h3 class="text-sm font-bold text-accent">
-          Merge "{{ activeCollection.label || 'Untitled' }}" into...
+          Merge "{{ activeCollection.label || 'Untitled' }}" into…
         </h3>
 
         <button
@@ -266,7 +297,7 @@
       </div>
 
       <p class="mb-3 text-xs text-base-content/60">
-        All art moves to the target collection. This collection is then deleted.
+        All art moves to the target. This collection is then deleted.
       </p>
 
       <div class="flex gap-2">
@@ -274,7 +305,7 @@
           v-model="mergeTargetId"
           class="select select-bordered select-sm flex-1 bg-base-100"
         >
-          <option :value="null">Select target...</option>
+          <option :value="null">Select target…</option>
 
           <option
             v-for="collection in mergeTargetOptions"
@@ -297,6 +328,7 @@
       </div>
     </section>
 
+    <!-- ── Selected art panel ── -->
     <section
       v-if="showSelectedPanel && selectedArt && !isDropdownMode"
       class="shrink-0 rounded-2xl border border-primary/30 bg-base-100 p-3 shadow-md"
@@ -326,6 +358,7 @@
       <art-interact />
     </section>
 
+    <!-- ── Main scrollable content ── -->
     <section class="min-h-0 flex-1 overflow-auto">
       <div
         v-if="isLoading"
@@ -334,6 +367,7 @@
         <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
+      <!-- Dropdown mode -->
       <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
         <div
           class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
@@ -426,6 +460,7 @@
         </div>
       </div>
 
+      <!-- Collections grid -->
       <div v-else-if="mode === 'collections'">
         <div
           v-if="visibleCollections.length === 0"
@@ -436,7 +471,7 @@
           <p class="mt-2 text-lg font-bold">No collections found.</p>
 
           <p class="mt-1 text-sm">
-            No public or owned collections match this gallery.
+            Nothing matches your search, or none exist yet.
           </p>
 
           <button
@@ -470,6 +505,7 @@
         </div>
       </div>
 
+      <!-- Arts grid -->
       <div v-else class="flex flex-col gap-3">
         <div
           v-if="activeCollection && canEditActive"
@@ -508,12 +544,20 @@
         >
           <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
 
-          <p class="mt-2 text-lg font-bold">No art here.</p>
+          <p class="mt-2 text-lg font-bold">Nothing here yet.</p>
 
-          <p class="mt-1 text-sm">
-            The gallery goblin found only vibes and lint.
-          </p>
+          <p class="mt-1 text-sm">This collection is empty.</p>
+
+          <button
+            class="btn btn-ghost btn-sm mt-4 rounded-xl"
+            type="button"
+            @click="exitCollection"
+          >
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            Back to Collections
+          </button>
         </div>
+
         <div v-else class="art-grid">
           <div
             v-for="item in currentGalleryItems"
@@ -576,6 +620,7 @@
       </div>
     </section>
 
+    <!-- ── Error strip ── -->
     <div
       v-if="localError"
       class="shrink-0 rounded-2xl bg-warning/10 p-2 text-xs text-warning"
@@ -686,14 +731,12 @@ const showMature = computed({
   get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
   set: async (value: boolean) => {
     if (!userStore.user) return
-
     await userStore.updateUser({ showMature: value })
   },
 })
 
 const displayCount = computed(() => {
   if (isDropdownMode.value) return visibleCollections.value.length
-
   return mode.value === 'collections'
     ? visibleCollections.value.length
     : currentGalleryItems.value.length
@@ -707,7 +750,6 @@ const headerTitle = computed(() => {
   ) {
     return activeCollection.value.label || 'Untitled Collection'
   }
-
   return props.title
 })
 
@@ -722,11 +764,9 @@ const headerSubtitle = computed(() => {
       'Browse and manage art in this collection.'
     )
   }
-
   if (activeCollection.value) {
     return activeCollection.value.label || props.subtitle
   }
-
   return props.subtitle
 })
 
@@ -743,11 +783,7 @@ const selectedCollectionSubtitle = computed(() => {
 
 const selectedCollectionArtCount = computed(() => {
   if (!activeCollection.value) return 0
-
-  if (activeCollection.value.id === -1) {
-    return allUnassignedArt.value.length
-  }
-
+  if (activeCollection.value.id === -1) return allUnassignedArt.value.length
   return activeCollection.value.art?.length ?? 0
 })
 
@@ -761,9 +797,7 @@ const collectionFormSubtitle = computed(() => {
     : 'Create a new destination for generated art.'
 })
 
-const canEditActive = computed(() => {
-  return canEdit(activeCollection.value)
-})
+const canEditActive = computed(() => canEdit(activeCollection.value))
 
 const allUnassignedArt = computed<Art[]>(() => {
   const assignedIds = new Set<number>(
@@ -773,36 +807,30 @@ const allUnassignedArt = computed<Art[]>(() => {
         .filter((id): id is number => typeof id === 'number')
     }),
   )
-
   return artStore.art.filter((art) => {
     return typeof art.id === 'number' && !assignedIds.has(art.id)
   })
 })
 
-const unassignedCollection = computed<ArtCollection>(() => {
-  return {
-    id: -1,
-    label: 'Unassigned Art',
-    description: 'Art not currently assigned to any collection.',
-    userId: currentUserId.value || 10,
-    username: userStore.username || 'Kind Guest',
-    isPublic: false,
-    isMature: false,
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    art: allUnassignedArt.value,
-  }
-})
+const unassignedCollection = computed<ArtCollection>(() => ({
+  id: -1,
+  label: 'Unassigned Art',
+  description: 'Art not currently assigned to any collection.',
+  userId: currentUserId.value || 10,
+  username: userStore.username || 'Kind Guest',
+  isPublic: false,
+  isMature: false,
+  createdAt: new Date(0),
+  updatedAt: new Date(0),
+  art: allUnassignedArt.value,
+}))
 
 const baseCollections = computed<ArtCollection[]>(() => {
   const realCollections = collectionStore.collections || []
-
   const visibleRealCollections = realCollections.filter((collection) => {
     if (userStore.isAdmin) return true
-
     return collection.isPublic || collection.userId === currentUserId.value
   })
-
   return [unassignedCollection.value, ...visibleRealCollections]
 })
 
@@ -810,24 +838,18 @@ const visibleCollections = computed<ArtCollection[]>(() => {
   let collections = baseCollections.value
 
   if (!showMature.value) {
-    collections = collections.filter((collection) => !collection.isMature)
+    collections = collections.filter((c) => !c.isMature)
   }
 
   const query = searchQuery.value.trim().toLowerCase()
-
   if (query) {
-    collections = collections.filter((collection) => {
-      return [
-        collection.label,
-        collection.description,
-        collection.username,
-        String(collection.id),
-      ]
+    collections = collections.filter((c) =>
+      [c.label, c.description, c.username, String(c.id)]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
-        .includes(query)
-    })
+        .includes(query),
+    )
   }
 
   return collections
@@ -848,10 +870,9 @@ const currentArtList = computed<Art[]>(() => {
   }
 
   const query = searchQuery.value.trim().toLowerCase()
-
   if (query) {
-    artList = artList.filter((art) => {
-      return [
+    artList = artList.filter((art) =>
+      [
         art.promptString,
         art.negativePrompt,
         art.designer,
@@ -862,8 +883,8 @@ const currentArtList = computed<Art[]>(() => {
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
-        .includes(query)
-    })
+        .includes(query),
+    )
   }
 
   return artList
@@ -879,20 +900,15 @@ const artImageById = computed(() => {
 
 const artImageByArtId = computed(() => {
   const map = new Map<number, ArtImage>()
-
   for (const image of artStore.artImages) {
-    if (image.artId) {
-      map.set(image.artId, image)
-    }
+    if (image.artId) map.set(image.artId, image)
   }
-
   return map
 })
 
 const currentGalleryItems = computed<GalleryArtItem[]>(() => {
   return currentArtList.value.map((art) => {
     const artImage = getImageForArt(art)
-
     return {
       art,
       artImage,
@@ -906,28 +922,23 @@ const currentGalleryItems = computed<GalleryArtItem[]>(() => {
 function getImageForArt(art: Art): ArtImage | null {
   if (art.artImageId) {
     const directImage = artImageById.value.get(art.artImageId)
-
     if (directImage) return directImage
   }
-
   return artImageByArtId.value.get(art.id) || null
 }
 
 const mergeTargetOptions = computed<ArtCollection[]>(() => {
-  return collectionStore.collections.filter((collection) => {
-    return collection.id !== activeCollection.value?.id
-  })
+  return collectionStore.collections.filter(
+    (c) => c.id !== activeCollection.value?.id,
+  )
 })
 
 onMounted(async () => {
-  if (props.autoLoad) {
-    await refresh()
-  }
+  if (props.autoLoad) await refresh()
 })
 
 function canEdit(collection: ArtCollection | null): boolean {
   if (!collection || collection.id === -1) return false
-
   return userStore.isAdmin || collection.userId === currentUserId.value
 }
 
@@ -938,13 +949,10 @@ function canDeleteArt(art: Art): boolean {
 async function refresh() {
   isLoading.value = true
   localError.value = ''
-
   try {
     await Promise.all([
       artStore.initialize({ fetchRemote: true, hydrateImages: false }),
-      artStore.fetchAllArtImages({
-        includeThumbnailData: true,
-      }),
+      artStore.fetchAllArtImages({ includeThumbnailData: true }),
       collectionStore.fetchCollections?.(),
     ])
   } catch (error) {
@@ -958,33 +966,25 @@ async function refresh() {
 
 function selectCollectionFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
-
   if (target.value === '__add__') {
     startAddingCollection()
     return
   }
-
   const id = Number(target.value)
-
   if (!Number.isInteger(id)) {
     clearSelectedCollection()
     return
   }
-
   const collection = visibleCollections.value.find((item) => item.id === id)
-
   if (!collection) return
-
   activeCollection.value =
     collection.id === -1 ? unassignedCollection.value : collection
-
   collectionStore.setCurrentCollection?.(collection.id)
 }
 
 function enterCollection(collection: ArtCollection) {
   activeCollection.value =
     collection.id === -1 ? unassignedCollection.value : collection
-
   mode.value = 'arts'
   searchQuery.value = ''
   showMergePanel.value = false
@@ -1015,32 +1015,26 @@ function clearSelectedArt() {
 function startAddingCollection() {
   editingCollectionId.value = null
   formMessage.value = ''
-
   Object.assign(collectionForm, {
     label: '',
     description: '',
     isPublic: true,
     isMature: false,
   })
-
   showCollectionForm.value = true
 }
 
 function startEditingActiveCollection() {
   const target = activeCollection.value
-
   if (!target || !canEdit(target)) return
-
   editingCollectionId.value = target.id
   formMessage.value = ''
-
   Object.assign(collectionForm, {
     label: target.label || '',
     description: target.description || '',
     isPublic: target.isPublic,
     isMature: target.isMature,
   })
-
   showCollectionForm.value = true
 }
 
@@ -1053,14 +1047,12 @@ function closeCollectionForm() {
 async function saveCollectionForm() {
   isSavingCollection.value = true
   formMessage.value = ''
-
   try {
     if (editingCollectionId.value) {
       await saveExistingCollection(editingCollectionId.value)
     } else {
       await createNewCollection()
     }
-
     formTone.value = 'success'
     formMessage.value = 'Saved.'
     await refresh()
@@ -1078,30 +1070,21 @@ async function saveCollectionForm() {
 async function createNewCollection() {
   const label = collectionForm.label?.trim() || 'Untitled Collection'
   const userId = currentUserId.value || 10
-
   const created = await collectionStore.createCollection(
     label,
     userId,
     Boolean(collectionForm.isPublic),
     Boolean(collectionForm.isMature),
   )
-
-  if (!created?.id) {
-    throw new Error('Failed to create collection.')
-  }
-
+  if (!created?.id) throw new Error('Failed to create collection.')
   const description = collectionForm.description?.trim() || ''
-
   if (description) {
     const updated = await collectionStore.updateCollectionDetails(created.id, {
       description,
     })
-
-    if (!updated) {
+    if (!updated)
       throw new Error('Collection created but description not saved.')
-    }
   }
-
   activeCollection.value = created
   collectionStore.setCurrentCollection?.(created.id)
 }
@@ -1113,22 +1096,15 @@ async function saveExistingCollection(id: number) {
     isPublic: Boolean(collectionForm.isPublic),
     isMature: Boolean(collectionForm.isMature),
   })
-
-  if (!result) {
-    throw new Error('Failed to update collection.')
-  }
-
+  if (!result) throw new Error('Failed to update collection.')
   activeCollection.value = result
   collectionStore.setCurrentCollection?.(result.id)
 }
 
 async function confirmDeleteCollection() {
   const collection = activeCollection.value
-
   if (!collection || !canEdit(collection)) return
-
   const label = collection.label || 'Untitled Collection'
-
   if (
     !confirm(
       `Delete "${label}"? The collection is removed, but the art inside is kept.`,
@@ -1136,10 +1112,8 @@ async function confirmDeleteCollection() {
   ) {
     return
   }
-
   try {
     const result = await collectionStore.deleteCollectionById(collection.id)
-
     if (result) {
       exitCollection()
       await refresh()
@@ -1152,9 +1126,7 @@ async function confirmDeleteCollection() {
 
 async function saveActiveCollectionFlags() {
   const collection = activeCollection.value
-
   if (!collection || !canEdit(collection)) return
-
   try {
     await collectionStore.updateCollectionFlags?.(collection.id, {
       isPublic: collection.isPublic,
@@ -1170,16 +1142,12 @@ async function saveActiveCollectionFlags() {
 
 function removeArtFromCollection(artId: number) {
   const collection = activeCollection.value
-
   if (!collection || collection.id === -1) return
-
   collectionStore.removeArtFromLocalCollection?.(collection, artId)
 }
 
 function handleArtDeleted(artId: number) {
-  if (artStore.currentArt?.id === artId) {
-    artStore.deselectArt?.()
-  }
+  if (artStore.currentArt?.id === artId) artStore.deselectArt?.()
 }
 
 function startEditingArt(artId: number) {
@@ -1190,19 +1158,15 @@ async function startEditingImage(imageId: number) {
   const image = await artStore.getArtImageById(imageId, {
     includeImageData: true,
   })
-
-  if (image) {
-    await artStore.selectArtImageRecord(image)
-  }
+  if (image) await artStore.selectArtImageRecord(image)
 }
+
 function selectImage(image: ArtImage) {
   void artStore.selectArtImageRecord(image)
 }
 
 function handleImageDeleted(imageId: number) {
-  if (artStore.currentArtImage?.id === imageId) {
-    artStore.deselectArtImage()
-  }
+  if (artStore.currentArtImage?.id === imageId) artStore.deselectArtImage()
 }
 
 function toggleMergePanel() {
@@ -1213,26 +1177,18 @@ function toggleMergePanel() {
 async function executeMerge() {
   const source = activeCollection.value
   const targetId = mergeTargetId.value
-
   if (!source || !targetId || !canEdit(source)) return
-
   isMerging.value = true
   localError.value = ''
-
   try {
     const artIds = (source.art || [])
       .map((art) => art.id)
       .filter((id): id is number => typeof id === 'number')
-
     await Promise.all(
-      artIds.map((artId) => {
-        return collectionStore.addArtToCollection({
-          artId,
-          collectionId: targetId,
-        })
-      }),
+      artIds.map((artId) =>
+        collectionStore.addArtToCollection({ artId, collectionId: targetId }),
+      ),
     )
-
     await collectionStore.deleteCollectionById(source.id)
     exitCollection()
     await refresh()
@@ -1245,27 +1201,18 @@ async function executeMerge() {
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message.trim()) {
-    return error.message
-  }
-
-  if (typeof error === 'string' && error.trim()) {
-    return error
-  }
-
+  if (error instanceof Error && error.message.trim()) return error.message
+  if (typeof error === 'string' && error.trim()) return error
   if (typeof error === 'object' && error !== null) {
     const record = error as { message?: unknown; statusMessage?: unknown }
-
     const message =
       typeof record.message === 'string'
         ? record.message.trim()
         : typeof record.statusMessage === 'string'
           ? record.statusMessage.trim()
           : ''
-
     if (message) return message
   }
-
   return fallback
 }
 </script>

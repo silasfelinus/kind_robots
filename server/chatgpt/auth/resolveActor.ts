@@ -1,41 +1,102 @@
-import { getHeader } from 'h3'
+// /server/chatgpt/auth/resolveActor.ts
+import { createError, getHeader, type H3Event } from 'h3'
+
+const CURRENT_ADMIN_USER_ID = 1
+const CURRENT_ADMIN_USERNAME = 'admin'
+
+export type ChatGptActorRole = 'admin'
+
+export type ChatGptActorSource = 'admin-token' | 'user-token' | 'development'
 
 export type ChatGptActor = {
   userId: number
   username: string
-  role: 'guest' | 'user' | 'admin' | 'system'
-  source: 'guest' | 'user-token' | 'admin-token'
+  role: ChatGptActorRole
+  source: ChatGptActorSource
+  token?: string
 }
 
-export async function resolveChatGptActor(event: any): Promise<ChatGptActor> {
+function extractBearerToken(event: H3Event): string | undefined {
   const authHeader = getHeader(event, 'authorization')
   const token = authHeader?.replace(/^Bearer\s+/i, '').trim()
 
-  // No token: default to kindguests.
-  if (!token) {
-    return {
-      userId: 10,
-      username: 'kindguest',
-      role: 'guest',
-      source: 'guest',
-    }
-  }
+  return token || undefined
+}
 
-  // Temporary admin token support.
-  if (token === process.env.ADMIN_TOKEN) {
-    return {
-      userId: 1,
-      username: 'admin',
-      role: 'admin',
-      source: 'admin-token',
-    }
-  }
+function getAllowedTokens(): string[] {
+  return [
+    process.env.ADMIN_TOKEN,
+    process.env.CHATGPT_API_KEY,
+    process.env.KINDROBOTS_API_KEY,
+    process.env.API_KEY,
+  ].filter((token): token is string => Boolean(token?.trim()))
+}
 
-  // Later: look up real user tokens here.
+function isDevelopmentMode(): boolean {
+  return process.env.NODE_ENV !== 'production'
+}
+
+function shouldAllowDevelopmentActor(): boolean {
+  return isDevelopmentMode() && process.env.CHATGPT_ALLOW_DEV_ACTOR === 'true'
+}
+
+function resolveTokenSource(token: string): ChatGptActorSource {
+  if (token === process.env.ADMIN_TOKEN) return 'admin-token'
+
+  return 'user-token'
+}
+
+function createAdminActor({
+  source,
+  token,
+}: {
+  source: ChatGptActorSource
+  token?: string
+}): ChatGptActor {
   return {
-    userId: 10,
-    username: 'kindguest',
-    role: 'guest',
-    source: 'guest',
+    userId: CURRENT_ADMIN_USER_ID,
+    username: CURRENT_ADMIN_USERNAME,
+    role: 'admin',
+    source,
+    token,
   }
+}
+
+export async function resolveChatGptActor(
+  event: H3Event,
+): Promise<ChatGptActor> {
+  const token = extractBearerToken(event)
+  const allowedTokens = getAllowedTokens()
+
+  if (!token) {
+    if (shouldAllowDevelopmentActor()) {
+      return createAdminActor({
+        source: 'development',
+      })
+    }
+
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Missing authorization bearer token',
+    })
+  }
+
+  if (!allowedTokens.length) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'No Kind Robots API token is configured',
+    })
+  }
+
+  if (!allowedTokens.includes(token)) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Invalid authorization bearer token',
+    })
+  }
+
+  return createAdminActor({
+    source: resolveTokenSource(token),
+    token,
+  })
 }

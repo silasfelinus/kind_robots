@@ -10,6 +10,14 @@ export type UploadedImageFile = {
   filename: string
 }
 
+export type UploadArtImageDirectModel =
+  | 'bot'
+  | 'character'
+  | 'pitch'
+  | 'prompt'
+  | 'resource'
+  | 'reward'
+
 export type UploadArtImageInput = {
   uploadedFile: UploadedImageFile
   galleryName?: string
@@ -17,14 +25,14 @@ export type UploadArtImageInput = {
   galleryId?: number
   fileType?: string
   artCollectionId?: number | null
+  artCollectionIds?: number[]
   fileName?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
   promptString?: string | null
+  artPrompt?: string | null
   negativePrompt?: string | null
-  checkpoint?: string | null
-  checkpointResourceId?: number | null
   sampler?: string | null
   seed?: number | null
   steps?: number | null
@@ -34,19 +42,15 @@ export type UploadArtImageInput = {
   genres?: string | null
   isPublic?: boolean | null
   isMature?: boolean | null
-  serverId?: number | null
-  serverName?: string | null
-  serverUrl?: string | null
   botId?: number | null
-  componentId?: number | null
-  milestoneId?: number | null
+  characterId?: number | null
   pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  chatId?: number | null
-  characterId?: number | null
-  butterflyId?: number | null
+  dreamId?: number | null
+  scenarioId?: number | null
+  tagIds?: number[]
 }
 
 const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
@@ -73,8 +77,33 @@ function cleanNumber(value?: number | null): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
+function cleanPositiveId(value?: number | null): number | null {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0
+    ? value
+    : null
+}
+
+function cleanPositiveIds(values?: number[]): number[] {
+  if (!Array.isArray(values)) return []
+
+  return [...new Set(values)]
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value > 0)
+}
+
 function connectById(id?: number | null) {
-  return cleanNumber(id) ? { connect: { id: Number(id) } } : undefined
+  const cleanId = cleanPositiveId(id)
+  return cleanId ? { connect: { id: cleanId } } : undefined
+}
+
+function connectMany(ids?: number[]) {
+  const cleanIds = cleanPositiveIds(ids)
+
+  return cleanIds.length
+    ? {
+        connect: cleanIds.map((id) => ({ id })),
+      }
+    : undefined
 }
 
 export async function uploadArtImage(
@@ -88,12 +117,12 @@ export async function uploadArtImage(
       galleryId = 21,
       fileType = 'png',
       artCollectionId = null,
+      artCollectionIds = [],
       rarity = null,
       path: sourcePath = null,
       promptString = null,
+      artPrompt = null,
       negativePrompt = null,
-      checkpoint = null,
-      checkpointResourceId = null,
       sampler = null,
       seed = null,
       steps = null,
@@ -103,19 +132,15 @@ export async function uploadArtImage(
       genres = null,
       isPublic = false,
       isMature = false,
-      serverId = null,
-      serverName = null,
-      serverUrl = null,
       botId = null,
-      componentId = null,
-      milestoneId = null,
+      characterId = null,
       pitchId = null,
       promptId = null,
       resourceId = null,
       rewardId = null,
-      chatId = null,
-      characterId = null,
-      butterflyId = null,
+      dreamId = null,
+      scenarioId = null,
+      tagIds = [],
     } = input
 
     const normalizedFileType = normalizeFileType(fileType)
@@ -152,16 +177,22 @@ export async function uploadArtImage(
       savedImagePath = `/images/${safeGalleryName}/${finalFileName}`
     }
 
+    const collectionIds = cleanPositiveIds(
+      [artCollectionId, ...artCollectionIds].filter(
+        (id): id is number => typeof id === 'number',
+      ),
+    )
+
     const createData: Prisma.ArtImageCreateInput = {
       imageData: uploadedFile.data.toString('base64'),
       fileName: finalFileName,
       fileType: normalizedFileType,
+      artPrompt: cleanText(artPrompt),
       imagePath: savedImagePath,
       rarity: cleanNumber(rarity),
       path: cleanText(sourcePath),
       promptString: cleanText(promptString),
       negativePrompt: cleanText(negativePrompt),
-      checkpoint: cleanText(checkpoint),
       sampler: cleanText(sampler),
       seed: cleanNumber(seed),
       steps: cleanNumber(steps),
@@ -171,35 +202,23 @@ export async function uploadArtImage(
       genres: cleanText(genres),
       isPublic: Boolean(isPublic),
       isMature: Boolean(isMature),
-      serverName: cleanText(serverName),
-      serverUrl: cleanText(serverUrl),
       Gallery: connectById(galleryId),
       User: connectById(userId),
-      Server: connectById(serverId),
-      CheckpointResource: connectById(checkpointResourceId),
       Bot: connectById(botId),
-      Component: connectById(componentId),
-      Milestone: connectById(milestoneId),
+      Character: connectById(characterId),
       Pitch: connectById(pitchId),
       Prompt: connectById(promptId),
       Resource: connectById(resourceId),
       Reward: connectById(rewardId),
-      Chat: connectById(chatId),
-      Character: connectById(characterId),
-      ArtCollections: cleanNumber(artCollectionId)
-        ? {
-            connect: {
-              id: Number(artCollectionId),
-            },
-          }
-        : undefined,
+      Dreams: connectMany(dreamId ? [dreamId] : []),
+      Scenarios: connectMany(scenarioId ? [scenarioId] : []),
+      Tags: connectMany(tagIds),
+      ArtCollections: connectMany(collectionIds),
     }
 
-    const data = await prisma.artImage.create({
+    return await prisma.artImage.create({
       data: createData,
     })
-
-    return data
   } catch (error: unknown) {
     throw errorHandler(error)
   }

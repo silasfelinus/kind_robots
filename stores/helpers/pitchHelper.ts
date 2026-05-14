@@ -136,7 +136,7 @@ export function buildPitchPayload(p: Partial<Pitch>): Partial<Pitch> {
     highlightImage: p.highlightImage?.trim(),
     isPublic: p.isPublic ?? true,
     isMature: p.isMature ?? false,
-    imagePrompt: p.imagePrompt?.trim(),
+    artPrompt: p.artPrompt?.trim(),
     artImageId: p.artImageId ?? null,
     designer: p.designer?.trim(),
     creationSource: 'UNKNOWN',

@@ -119,6 +119,48 @@ type CreateArtInput = {
   genres?: string | null
 }
 
+export type ArtImageConnectionInput = {
+  artId?: number | null
+  botId?: number | null
+  componentId?: number | null
+  milestoneId?: number | null
+  pitchId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  chatId?: number | null
+  characterId?: number | null
+  galleryId?: number | null
+  userId?: number | null
+  serverId?: number | null
+  checkpointResourceId?: number | null
+
+  dreamIds?: number[]
+  scenarioIds?: number[]
+  reactionIds?: number[]
+  tagIds?: number[]
+  butterflyIds?: number[]
+  artCollectionIds?: number[]
+
+  disconnectDreamIds?: number[]
+  disconnectScenarioIds?: number[]
+  disconnectReactionIds?: number[]
+  disconnectTagIds?: number[]
+  disconnectButterflyIds?: number[]
+  disconnectArtCollectionIds?: number[]
+
+  tagOwnerId?: number | null
+
+  clearDirectLinks?: boolean
+  clearDreams?: boolean
+  clearScenarios?: boolean
+  clearReactions?: boolean
+  clearTags?: boolean
+  clearButterflies?: boolean
+  clearArtCollections?: boolean
+  clearTagOwner?: boolean
+}
+
 type ArtImageFetchOptions = {
   force?: boolean
   includeImageData?: boolean
@@ -392,6 +434,51 @@ export const useArtStore = defineStore('artStore', () => {
   const imageById = computed(() => {
     return new Map(state.artImages.map((image) => [image.id, image]))
   })
+
+  async function updateArtImageConnections(
+    id: number,
+    connections: ArtImageConnectionInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>(
+        `/api/art/image/connections/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(connections),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update art image links.')
+      }
+
+      addOrUpdateArtImages([response.data])
+
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art image links updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating art image links')
+      setError(error, 'Failed to update art image links.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update art image links.',
+      }
+    }
+  }
 
   const getPromptString = computed<string>(() => {
     const baseSelections = Object.entries(state.artListSelections)
@@ -2372,6 +2459,7 @@ export const useArtStore = defineStore('artStore', () => {
     fetchArtImageThumbnail,
     fetchArtImageWithTags,
     buildArtImageSyncFields,
+    updateArtImageConnections,
   }
 })
 

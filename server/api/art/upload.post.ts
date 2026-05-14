@@ -6,28 +6,24 @@ import {
   type UploadArtImageInput,
 } from '../../utils/UploadArtImage'
 
-function getField(
-  form: Awaited<ReturnType<typeof readMultipartFormData>>,
-  name: string,
-): string | undefined {
+type MultipartForm = Awaited<ReturnType<typeof readMultipartFormData>>
+
+function getField(form: MultipartForm, name: string): string | undefined {
   return form?.find((field) => field.name === name)?.data?.toString()
 }
 
-function getNumberField(
-  form: Awaited<ReturnType<typeof readMultipartFormData>>,
-  name: string,
-): number | null {
+function getNumberField(form: MultipartForm, name: string): number | null {
   const value = getField(form, name)
 
   if (!value) return null
 
   const parsed = Number(value)
 
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 }
 
 function getNullableNumberField(
-  form: Awaited<ReturnType<typeof readMultipartFormData>>,
+  form: MultipartForm,
   name: string,
 ): number | null {
   const value = getField(form, name)
@@ -40,7 +36,7 @@ function getNullableNumberField(
 }
 
 function getBooleanField(
-  form: Awaited<ReturnType<typeof readMultipartFormData>>,
+  form: MultipartForm,
   name: string,
   fallback = false,
 ): boolean {
@@ -51,7 +47,26 @@ function getBooleanField(
   return ['true', '1', 'yes', 'on'].includes(value.toLowerCase())
 }
 
-function getImageFile(form: Awaited<ReturnType<typeof readMultipartFormData>>) {
+function getNumberListField(form: MultipartForm, name: string): number[] {
+  const directValues =
+    form
+      ?.filter((field) => field.name === name)
+      .map((field) => field.data?.toString())
+      .filter(Boolean) || []
+
+  const bracketValues =
+    form
+      ?.filter((field) => field.name === `${name}[]`)
+      .map((field) => field.data?.toString())
+      .filter(Boolean) || []
+
+  return [...directValues, ...bracketValues]
+    .flatMap((value) => String(value).split(','))
+    .map((value) => Number(value.trim()))
+    .filter((value) => Number.isInteger(value) && value > 0)
+}
+
+function getImageFile(form: MultipartForm) {
   return form?.find((file) => {
     return file.name === 'file' || file.name === 'image'
   })
@@ -98,13 +113,16 @@ export default defineEventHandler(async (event) => {
       artCollectionId:
         getNumberField(form, 'artCollectionId') ||
         getNumberField(form, 'collectionId'),
+      artCollectionIds: [
+        ...getNumberListField(form, 'artCollectionIds'),
+        ...getNumberListField(form, 'collectionIds'),
+      ],
       imagePath: getField(form, 'imagePath') || null,
       rarity: getNullableNumberField(form, 'rarity'),
       path: getField(form, 'path') || null,
       promptString: getField(form, 'promptString') || null,
+      artPrompt: getField(form, 'artPrompt') || null,
       negativePrompt: getField(form, 'negativePrompt') || null,
-      checkpoint: getField(form, 'checkpoint') || null,
-      checkpointResourceId: getNumberField(form, 'checkpointResourceId'),
       sampler: getField(form, 'sampler') || null,
       seed: getNullableNumberField(form, 'seed'),
       steps: getNullableNumberField(form, 'steps'),
@@ -114,19 +132,15 @@ export default defineEventHandler(async (event) => {
       genres: getField(form, 'genres') || null,
       isPublic: getBooleanField(form, 'isPublic', false),
       isMature: getBooleanField(form, 'isMature', false),
-      serverId: getNumberField(form, 'serverId'),
-      serverName: getField(form, 'serverName') || null,
-      serverUrl: getField(form, 'serverUrl') || null,
       botId: getNumberField(form, 'botId'),
-      componentId: getNumberField(form, 'componentId'),
-      milestoneId: getNumberField(form, 'milestoneId'),
+      characterId: getNumberField(form, 'characterId'),
       pitchId: getNumberField(form, 'pitchId'),
       promptId: getNumberField(form, 'promptId'),
       resourceId: getNumberField(form, 'resourceId'),
       rewardId: getNumberField(form, 'rewardId'),
-      chatId: getNumberField(form, 'chatId'),
-      characterId: getNumberField(form, 'characterId'),
-      butterflyId: getNumberField(form, 'butterflyId'),
+      dreamId: getNumberField(form, 'dreamId'),
+      scenarioId: getNumberField(form, 'scenarioId'),
+      tagIds: getNumberListField(form, 'tagIds'),
     }
 
     const data = await uploadArtImage(input)

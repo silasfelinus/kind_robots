@@ -70,6 +70,7 @@ export type DreamMinAggregateOutputType = {
   artCollectionId: number | null
   galleryId: number | null
   scenarioId: number | null
+  artPrompt: string | null
   accessMode: $Enums.DreamAccessMode | null
   privacyCode: string | null
   isPublic: boolean | null
@@ -95,6 +96,7 @@ export type DreamMaxAggregateOutputType = {
   artCollectionId: number | null
   galleryId: number | null
   scenarioId: number | null
+  artPrompt: string | null
   accessMode: $Enums.DreamAccessMode | null
   privacyCode: string | null
   isPublic: boolean | null
@@ -120,6 +122,7 @@ export type DreamCountAggregateOutputType = {
   artCollectionId: number
   galleryId: number
   scenarioId: number
+  artPrompt: number
   accessMode: number
   privacyCode: number
   isPublic: number
@@ -173,6 +176,7 @@ export type DreamMinAggregateInputType = {
   artCollectionId?: true
   galleryId?: true
   scenarioId?: true
+  artPrompt?: true
   accessMode?: true
   privacyCode?: true
   isPublic?: true
@@ -198,6 +202,7 @@ export type DreamMaxAggregateInputType = {
   artCollectionId?: true
   galleryId?: true
   scenarioId?: true
+  artPrompt?: true
   accessMode?: true
   privacyCode?: true
   isPublic?: true
@@ -223,6 +228,7 @@ export type DreamCountAggregateInputType = {
   artCollectionId?: true
   galleryId?: true
   scenarioId?: true
+  artPrompt?: true
   accessMode?: true
   privacyCode?: true
   isPublic?: true
@@ -335,6 +341,7 @@ export type DreamGroupByOutputType = {
   artCollectionId: number | null
   galleryId: number | null
   scenarioId: number | null
+  artPrompt: string | null
   accessMode: $Enums.DreamAccessMode
   privacyCode: string | null
   isPublic: boolean
@@ -383,6 +390,7 @@ export type DreamWhereInput = {
   artCollectionId?: Prisma.IntNullableFilter<"Dream"> | number | null
   galleryId?: Prisma.IntNullableFilter<"Dream"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   accessMode?: Prisma.EnumDreamAccessModeFilter<"Dream"> | $Enums.DreamAccessMode
   privacyCode?: Prisma.StringNullableFilter<"Dream"> | string | null
   isPublic?: Prisma.BoolFilter<"Dream"> | boolean
@@ -420,6 +428,7 @@ export type DreamOrderByWithRelationInput = {
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   accessMode?: Prisma.SortOrder
   privacyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -461,6 +470,7 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   artCollectionId?: Prisma.IntNullableFilter<"Dream"> | number | null
   galleryId?: Prisma.IntNullableFilter<"Dream"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   accessMode?: Prisma.EnumDreamAccessModeFilter<"Dream"> | $Enums.DreamAccessMode
   privacyCode?: Prisma.StringNullableFilter<"Dream"> | string | null
   isPublic?: Prisma.BoolFilter<"Dream"> | boolean
@@ -498,6 +508,7 @@ export type DreamOrderByWithAggregationInput = {
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   accessMode?: Prisma.SortOrder
   privacyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -531,6 +542,7 @@ export type DreamScalarWhereWithAggregatesInput = {
   artCollectionId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
   galleryId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
   scenarioId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   accessMode?: Prisma.EnumDreamAccessModeWithAggregatesFilter<"Dream"> | $Enums.DreamAccessMode
   privacyCode?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Dream"> | boolean
@@ -548,6 +560,7 @@ export type DreamCreateInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -585,6 +598,7 @@ export type DreamUncheckedCreateInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -607,6 +621,7 @@ export type DreamUpdateInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -644,6 +659,7 @@ export type DreamUncheckedUpdateInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -674,6 +690,7 @@ export type DreamCreateManyInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -691,6 +708,7 @@ export type DreamUpdateManyMutationInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -716,6 +734,7 @@ export type DreamUncheckedUpdateManyInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -762,6 +781,7 @@ export type DreamCountOrderByAggregateInput = {
   artCollectionId?: Prisma.SortOrder
   galleryId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   accessMode?: Prisma.SortOrder
   privacyCode?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -800,6 +820,7 @@ export type DreamMaxOrderByAggregateInput = {
   artCollectionId?: Prisma.SortOrder
   galleryId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   accessMode?: Prisma.SortOrder
   privacyCode?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -825,6 +846,7 @@ export type DreamMinOrderByAggregateInput = {
   artCollectionId?: Prisma.SortOrder
   galleryId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   accessMode?: Prisma.SortOrder
   privacyCode?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
@@ -1299,6 +1321,7 @@ export type DreamCreateWithoutArtInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1334,6 +1357,7 @@ export type DreamUncheckedCreateWithoutArtInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1393,6 +1417,7 @@ export type DreamScalarWhereInput = {
   artCollectionId?: Prisma.IntNullableFilter<"Dream"> | number | null
   galleryId?: Prisma.IntNullableFilter<"Dream"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   accessMode?: Prisma.EnumDreamAccessModeFilter<"Dream"> | $Enums.DreamAccessMode
   privacyCode?: Prisma.StringNullableFilter<"Dream"> | string | null
   isPublic?: Prisma.BoolFilter<"Dream"> | boolean
@@ -1410,6 +1435,7 @@ export type DreamCreateWithoutArtImageInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1445,6 +1471,7 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1493,6 +1520,7 @@ export type DreamCreateWithoutArtCollectionInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1528,6 +1556,7 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   artServerId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1576,6 +1605,7 @@ export type DreamCreateWithoutCharactersInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1612,6 +1642,7 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1654,6 +1685,7 @@ export type DreamCreateWithoutChatsInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1690,6 +1722,7 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1727,6 +1760,7 @@ export type DreamUpdateWithoutChatsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1763,6 +1797,7 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1784,6 +1819,7 @@ export type DreamCreateWithoutGalleryInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1819,6 +1855,7 @@ export type DreamUncheckedCreateWithoutGalleryInput = {
   artServerId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1867,6 +1904,7 @@ export type DreamCreateWithoutPitchInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1902,6 +1940,7 @@ export type DreamUncheckedCreateWithoutPitchInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1950,6 +1989,7 @@ export type DreamCreateWithoutReactionsInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -1986,6 +2026,7 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2023,6 +2064,7 @@ export type DreamUpdateWithoutReactionsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2059,6 +2101,7 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2080,6 +2123,7 @@ export type DreamCreateWithoutRewardsInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2116,6 +2160,7 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2158,6 +2203,7 @@ export type DreamCreateWithoutScenarioInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2193,6 +2239,7 @@ export type DreamUncheckedCreateWithoutScenarioInput = {
   artServerId?: number | null
   artCollectionId?: number | null
   galleryId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2241,6 +2288,7 @@ export type DreamCreateWithoutTagsInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2277,6 +2325,7 @@ export type DreamUncheckedCreateWithoutTagsInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2319,6 +2368,7 @@ export type DreamCreateWithoutUserInput = {
   currentPrompt?: string | null
   textServerId?: number | null
   artServerId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2354,6 +2404,7 @@ export type DreamUncheckedCreateWithoutUserInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2409,6 +2460,7 @@ export type DreamCreateManyArtInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2426,6 +2478,7 @@ export type DreamUpdateWithoutArtInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2461,6 +2514,7 @@ export type DreamUncheckedUpdateWithoutArtInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2490,6 +2544,7 @@ export type DreamUncheckedUpdateManyWithoutArtInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2514,6 +2569,7 @@ export type DreamCreateManyArtImageInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2531,6 +2587,7 @@ export type DreamUpdateWithoutArtImageInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2566,6 +2623,7 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2595,6 +2653,7 @@ export type DreamUncheckedUpdateManyWithoutArtImageInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2619,6 +2678,7 @@ export type DreamCreateManyArtCollectionInput = {
   artServerId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2636,6 +2696,7 @@ export type DreamUpdateWithoutArtCollectionInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2671,6 +2732,7 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2700,6 +2762,7 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionInput = {
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2717,6 +2780,7 @@ export type DreamUpdateWithoutCharactersInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2753,6 +2817,7 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2782,6 +2847,7 @@ export type DreamUncheckedUpdateManyWithoutCharactersInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2806,6 +2872,7 @@ export type DreamCreateManyGalleryInput = {
   artServerId?: number | null
   artCollectionId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2823,6 +2890,7 @@ export type DreamUpdateWithoutGalleryInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2858,6 +2926,7 @@ export type DreamUncheckedUpdateWithoutGalleryInput = {
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2887,6 +2956,7 @@ export type DreamUncheckedUpdateManyWithoutGalleryInput = {
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2911,6 +2981,7 @@ export type DreamCreateManyPitchInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -2928,6 +2999,7 @@ export type DreamUpdateWithoutPitchInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2963,6 +3035,7 @@ export type DreamUncheckedUpdateWithoutPitchInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2992,6 +3065,7 @@ export type DreamUncheckedUpdateManyWithoutPitchInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3009,6 +3083,7 @@ export type DreamUpdateWithoutRewardsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3045,6 +3120,7 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3074,6 +3150,7 @@ export type DreamUncheckedUpdateManyWithoutRewardsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3098,6 +3175,7 @@ export type DreamCreateManyScenarioInput = {
   artServerId?: number | null
   artCollectionId?: number | null
   galleryId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -3115,6 +3193,7 @@ export type DreamUpdateWithoutScenarioInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3150,6 +3229,7 @@ export type DreamUncheckedUpdateWithoutScenarioInput = {
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3179,6 +3259,7 @@ export type DreamUncheckedUpdateManyWithoutScenarioInput = {
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3196,6 +3277,7 @@ export type DreamUpdateWithoutTagsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3232,6 +3314,7 @@ export type DreamUncheckedUpdateWithoutTagsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3261,6 +3344,7 @@ export type DreamUncheckedUpdateManyWithoutTagsInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3285,6 +3369,7 @@ export type DreamCreateManyUserInput = {
   artCollectionId?: number | null
   galleryId?: number | null
   scenarioId?: number | null
+  artPrompt?: string | null
   accessMode?: $Enums.DreamAccessMode
   privacyCode?: string | null
   isPublic?: boolean
@@ -3302,6 +3387,7 @@ export type DreamUpdateWithoutUserInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3337,6 +3423,7 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3366,6 +3453,7 @@ export type DreamUncheckedUpdateManyWithoutUserInput = {
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
   privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3458,6 +3546,7 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   artCollectionId?: boolean
   galleryId?: boolean
   scenarioId?: boolean
+  artPrompt?: boolean
   accessMode?: boolean
   privacyCode?: boolean
   isPublic?: boolean
@@ -3498,6 +3587,7 @@ export type DreamSelectScalar = {
   artCollectionId?: boolean
   galleryId?: boolean
   scenarioId?: boolean
+  artPrompt?: boolean
   accessMode?: boolean
   privacyCode?: boolean
   isPublic?: boolean
@@ -3505,7 +3595,7 @@ export type DreamSelectScalar = {
   isActive?: boolean
 }
 
-export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "currentVibe" | "currentPrompt" | "userId" | "pitchId" | "artId" | "artImageId" | "textServerId" | "artServerId" | "artCollectionId" | "galleryId" | "scenarioId" | "accessMode" | "privacyCode" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["dream"]>
+export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "currentVibe" | "currentPrompt" | "userId" | "pitchId" | "artId" | "artImageId" | "textServerId" | "artServerId" | "artCollectionId" | "galleryId" | "scenarioId" | "artPrompt" | "accessMode" | "privacyCode" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["dream"]>
 export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Gallery?: boolean | Prisma.Dream$GalleryArgs<ExtArgs>
@@ -3556,6 +3646,7 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     artCollectionId: number | null
     galleryId: number | null
     scenarioId: number | null
+    artPrompt: string | null
     accessMode: $Enums.DreamAccessMode
     privacyCode: string | null
     isPublic: boolean
@@ -3959,6 +4050,7 @@ export interface DreamFieldRefs {
   readonly artCollectionId: Prisma.FieldRef<"Dream", 'Int'>
   readonly galleryId: Prisma.FieldRef<"Dream", 'Int'>
   readonly scenarioId: Prisma.FieldRef<"Dream", 'Int'>
+  readonly artPrompt: Prisma.FieldRef<"Dream", 'String'>
   readonly accessMode: Prisma.FieldRef<"Dream", 'DreamAccessMode'>
   readonly privacyCode: Prisma.FieldRef<"Dream", 'String'>
   readonly isPublic: Prisma.FieldRef<"Dream", 'Boolean'>

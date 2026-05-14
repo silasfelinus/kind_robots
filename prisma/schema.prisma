@@ -7,7 +7,7 @@ datasource db {
   provider = "mysql"
 }
 
-/// Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
+/// Art is the old art directory asset. It didn't have the data itself, but could point to the data. I'm now phazing it out as it makes more sense to point directly to the artImage and filter out the data when needed, but there is still a lot of imagePath stored that needs to be migrated before Art can retire
 model Art {
   id                   Int             @id @default(autoincrement())
   createdAt            DateTime?       @default(now())
@@ -71,6 +71,7 @@ model ArtImage {
   thumbnailData        String?         @db.MediumText
   fileName             String?         @db.VarChar(764)
   fileType             String          @default("png")
+  artPrompt  String?  @db.Text
   
   imagePath            String?
   rarity               Int?
@@ -158,6 +159,7 @@ model ArtCollection {
   isMature    Boolean   @default(false)
   isPublic    Boolean   @default(true)
   isActive             Boolean        @default(true)
+  artPrompt  String?  @db.Text
 
   description String?
   username    String?
@@ -189,6 +191,7 @@ model Bot {
   modules           String?    @db.VarChar(764)
   sampleResponse    String?    @db.VarChar(764)
   tagline           String?    @db.VarChar(764)
+  artPrompt  String?  @db.Text
 
   isPublic        Boolean         @default(true)
   isMature        Boolean         @default(false)
@@ -345,7 +348,7 @@ model Character {
   isActive       Boolean    @default(true)
 
   userId         Int        @default(10)
-  artPrompt      String?
+  artPrompt      String?  @db.Text
   goalStat1Name  String?    @default("Principled|Chaotic")
   goalStat1Value Int?       @default(0)
   goalStat2Name  String?    @default("Introvert|Extrovert")
@@ -462,6 +465,7 @@ model Dream {
   artCollectionId Int?
   galleryId       Int?
   scenarioId      Int?
+  artPrompt       String?         @db.Text
 
   accessMode      DreamAccessMode @default(OPEN)
   privacyCode     String?         @db.VarChar(255)
@@ -555,6 +559,7 @@ model Milestone {
   tooltip          String?           @db.VarChar(764)
   isActive         Boolean           @default(false)
   isRepeatable     Boolean           @default(true)
+  artPrompt  String?  @db.Text
   artImageId       Int?
   ArtImage         ArtImage?
   MilestoneRecords MilestoneRecord[]
@@ -588,13 +593,13 @@ model Pitch {
   highlightImage String?    @db.VarChar(256)
   PitchType      PitchType  @default(ARTPITCH)
   creationSource CreationSource @default(HUMAN)
+  artPrompt  String?  @db.Text
 
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
   isActive             Boolean        @default(true)
 
   userId         Int?       @default(1)
-  imagePrompt    String?    @db.VarChar(256)
   description    String?    @db.VarChar(256)
   artImageId     Int?
   examples       String?    @db.LongText
@@ -619,6 +624,7 @@ model Prompt {
   prompt     String     @db.Text
   userId     Int?       @default(1)
   galleryId  Int?       @default(21)
+  artPrompt  String?  @db.Text
 
   isMature       Boolean    @default(false)
   isPublic       Boolean    @default(true)
@@ -725,6 +731,7 @@ model Resource {
   huggingUrl      String?         @db.VarChar(764)
   localPath       String?         @db.VarChar(764)
   description     String?         @db.Text
+  artPrompt  String?  @db.Text
 
   isPublic        Boolean         @default(false)
   isMature        Boolean         @default(false)
@@ -783,7 +790,7 @@ model Reward {
   userId      Int?        @default(1)
   artImageId  Int?
   imagePath   String?
-  imagePrompt String?
+  artPrompt  String?  @db.Text
 
   isPublic    Boolean     @default(true)
   isMature    Boolean     @default(false)
@@ -844,6 +851,7 @@ model Server {
   endpointPath               String?
   healthPath                 String?
   userId                     Int?
+  artPrompt  String?  @db.Text
 
   
   isActive                   Boolean    @default(true)
@@ -983,6 +991,7 @@ model Tag {
 
   userId     Int?        @default(1)
   artImageId Int? @unique
+  artPrompt  String?  @db.Text
 
   // Tag's representative image — Tag owns this FK, same pattern as Bot/Pitch/Character
   ArtImage      ArtImage?   @relation("TagRepresentativeImage", fields: [artImageId], references: [id])
@@ -1016,6 +1025,7 @@ model Theme {
   prefersDark Boolean  @default(false)
   user        User?    @relation(fields: [userId], references: [id])
   Reactions Reaction[]
+  artPrompt  String?  @db.Text
 
   @@index([userId], map: "Theme_userId_fkey")
 }
@@ -1060,6 +1070,7 @@ model User {
   googleEmail           String?           @db.VarChar(255)
   googleId              String?
   blockList             String?
+  artPrompt  String?  @db.Text
 
   isPublic              Boolean           @default(true)
   isActive             Boolean        @default(true)

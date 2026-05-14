@@ -53,7 +53,7 @@ export type RewardMinAggregateOutputType = {
   userId: number | null
   artImageId: number | null
   imagePath: string | null
-  imagePrompt: string | null
+  artPrompt: string | null
   isPublic: boolean | null
   isMature: boolean | null
   isActive: boolean | null
@@ -72,7 +72,7 @@ export type RewardMaxAggregateOutputType = {
   userId: number | null
   artImageId: number | null
   imagePath: string | null
-  imagePrompt: string | null
+  artPrompt: string | null
   isPublic: boolean | null
   isMature: boolean | null
   isActive: boolean | null
@@ -91,7 +91,7 @@ export type RewardCountAggregateOutputType = {
   userId: number
   artImageId: number
   imagePath: number
-  imagePrompt: number
+  artPrompt: number
   isPublic: number
   isMature: number
   isActive: number
@@ -126,7 +126,7 @@ export type RewardMinAggregateInputType = {
   userId?: true
   artImageId?: true
   imagePath?: true
-  imagePrompt?: true
+  artPrompt?: true
   isPublic?: true
   isMature?: true
   isActive?: true
@@ -145,7 +145,7 @@ export type RewardMaxAggregateInputType = {
   userId?: true
   artImageId?: true
   imagePath?: true
-  imagePrompt?: true
+  artPrompt?: true
   isPublic?: true
   isMature?: true
   isActive?: true
@@ -164,7 +164,7 @@ export type RewardCountAggregateInputType = {
   userId?: true
   artImageId?: true
   imagePath?: true
-  imagePrompt?: true
+  artPrompt?: true
   isPublic?: true
   isMature?: true
   isActive?: true
@@ -270,7 +270,7 @@ export type RewardGroupByOutputType = {
   userId: number | null
   artImageId: number | null
   imagePath: string | null
-  imagePrompt: string | null
+  artPrompt: string | null
   isPublic: boolean
   isMature: boolean
   isActive: boolean
@@ -312,7 +312,7 @@ export type RewardWhereInput = {
   userId?: Prisma.IntNullableFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Reward"> | string | null
-  imagePrompt?: Prisma.StringNullableFilter<"Reward"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Reward"> | string | null
   isPublic?: Prisma.BoolFilter<"Reward"> | boolean
   isMature?: Prisma.BoolFilter<"Reward"> | boolean
   isActive?: Prisma.BoolFilter<"Reward"> | boolean
@@ -337,7 +337,7 @@ export type RewardOrderByWithRelationInput = {
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -366,7 +366,7 @@ export type RewardWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.IntNullableFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Reward"> | string | null
-  imagePrompt?: Prisma.StringNullableFilter<"Reward"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Reward"> | string | null
   isPublic?: Prisma.BoolFilter<"Reward"> | boolean
   isMature?: Prisma.BoolFilter<"Reward"> | boolean
   isActive?: Prisma.BoolFilter<"Reward"> | boolean
@@ -391,7 +391,7 @@ export type RewardOrderByWithAggregationInput = {
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -418,7 +418,7 @@ export type RewardScalarWhereWithAggregatesInput = {
   userId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Reward"> | string | null
-  imagePrompt?: Prisma.StringNullableWithAggregatesFilter<"Reward"> | string | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Reward"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Reward"> | boolean
   isMature?: Prisma.BoolWithAggregatesFilter<"Reward"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Reward"> | boolean
@@ -435,7 +435,7 @@ export type RewardCreateInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -460,7 +460,7 @@ export type RewardUncheckedCreateInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -482,7 +482,7 @@ export type RewardUpdateInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -507,7 +507,7 @@ export type RewardUncheckedUpdateInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -531,7 +531,7 @@ export type RewardCreateManyInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -548,7 +548,7 @@ export type RewardUpdateManyMutationInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -567,7 +567,7 @@ export type RewardUncheckedUpdateManyInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -607,7 +607,7 @@ export type RewardCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -633,7 +633,7 @@ export type RewardMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -652,7 +652,7 @@ export type RewardMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
-  imagePrompt?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -842,7 +842,7 @@ export type RewardCreateWithoutArtImageInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -866,7 +866,7 @@ export type RewardUncheckedCreateWithoutArtImageInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -903,7 +903,7 @@ export type RewardUpdateWithoutArtImageInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -927,7 +927,7 @@ export type RewardUncheckedUpdateWithoutArtImageInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -948,7 +948,7 @@ export type RewardCreateWithoutButterfliesInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -972,7 +972,7 @@ export type RewardUncheckedCreateWithoutButterfliesInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1009,7 +1009,7 @@ export type RewardUpdateWithoutButterfliesInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1033,7 +1033,7 @@ export type RewardUncheckedUpdateWithoutButterfliesInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1054,7 +1054,7 @@ export type RewardCreateWithoutCharactersInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1078,7 +1078,7 @@ export type RewardUncheckedCreateWithoutCharactersInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1125,7 +1125,7 @@ export type RewardScalarWhereInput = {
   userId?: Prisma.IntNullableFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Reward"> | string | null
-  imagePrompt?: Prisma.StringNullableFilter<"Reward"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Reward"> | string | null
   isPublic?: Prisma.BoolFilter<"Reward"> | boolean
   isMature?: Prisma.BoolFilter<"Reward"> | boolean
   isActive?: Prisma.BoolFilter<"Reward"> | boolean
@@ -1142,7 +1142,7 @@ export type RewardCreateWithoutDreamsInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1166,7 +1166,7 @@ export type RewardUncheckedCreateWithoutDreamsInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1208,7 +1208,7 @@ export type RewardCreateWithoutReactionsInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1232,7 +1232,7 @@ export type RewardUncheckedCreateWithoutReactionsInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1269,7 +1269,7 @@ export type RewardUpdateWithoutReactionsInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1293,7 +1293,7 @@ export type RewardUncheckedUpdateWithoutReactionsInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1314,7 +1314,7 @@ export type RewardCreateWithoutUserInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1337,7 +1337,7 @@ export type RewardUncheckedCreateWithoutUserInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1385,7 +1385,7 @@ export type RewardUpdateWithoutCharactersInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1409,7 +1409,7 @@ export type RewardUncheckedUpdateWithoutCharactersInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1432,7 +1432,7 @@ export type RewardUncheckedUpdateManyWithoutCharactersInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1449,7 +1449,7 @@ export type RewardUpdateWithoutDreamsInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1473,7 +1473,7 @@ export type RewardUncheckedUpdateWithoutDreamsInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1496,7 +1496,7 @@ export type RewardUncheckedUpdateManyWithoutDreamsInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1514,7 +1514,7 @@ export type RewardCreateManyUserInput = {
   label?: string | null
   artImageId?: number | null
   imagePath?: string | null
-  imagePrompt?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1531,7 +1531,7 @@ export type RewardUpdateWithoutUserInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1554,7 +1554,7 @@ export type RewardUncheckedUpdateWithoutUserInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1577,7 +1577,7 @@ export type RewardUncheckedUpdateManyWithoutUserInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imagePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1654,7 +1654,7 @@ export type RewardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   userId?: boolean
   artImageId?: boolean
   imagePath?: boolean
-  imagePrompt?: boolean
+  artPrompt?: boolean
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1682,13 +1682,13 @@ export type RewardSelectScalar = {
   userId?: boolean
   artImageId?: boolean
   imagePath?: boolean
-  imagePrompt?: boolean
+  artPrompt?: boolean
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
 }
 
-export type RewardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "icon" | "text" | "power" | "collection" | "rarity" | "label" | "userId" | "artImageId" | "imagePath" | "imagePrompt" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["reward"]>
+export type RewardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "icon" | "text" | "power" | "collection" | "rarity" | "label" | "userId" | "artImageId" | "imagePath" | "artPrompt" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["reward"]>
 export type RewardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Reward$ArtImageArgs<ExtArgs>
   Reactions?: boolean | Prisma.Reward$ReactionsArgs<ExtArgs>
@@ -1722,7 +1722,7 @@ export type $RewardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     userId: number | null
     artImageId: number | null
     imagePath: string | null
-    imagePrompt: string | null
+    artPrompt: string | null
     isPublic: boolean
     isMature: boolean
     isActive: boolean
@@ -2113,7 +2113,7 @@ export interface RewardFieldRefs {
   readonly userId: Prisma.FieldRef<"Reward", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Reward", 'Int'>
   readonly imagePath: Prisma.FieldRef<"Reward", 'String'>
-  readonly imagePrompt: Prisma.FieldRef<"Reward", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"Reward", 'String'>
   readonly isPublic: Prisma.FieldRef<"Reward", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"Reward", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Reward", 'Boolean'>

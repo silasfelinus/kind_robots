@@ -107,7 +107,7 @@ export const pitchChoices: ChoiceEntry[] = [
     custom: '',
   },
   {
-    label: 'imagePrompt',
+    label: 'artPrompt',
     model: 'Pitch',
     options: [
       {

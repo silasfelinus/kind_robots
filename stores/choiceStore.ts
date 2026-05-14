@@ -8,7 +8,7 @@ export interface ChoiceOption {
   image?: string
   description?: string
   icon?: string
-  imagePrompt?: string
+  artPrompt?: string
   subtitle?: string
   value?: string
 }
@@ -20,7 +20,7 @@ export interface ChoiceEntry {
   selected: string | null
   custom: string
   icon?: string
-  imagePrompt?: string
+  artPrompt?: string
   groupTitle?: string
 }
 
@@ -68,7 +68,7 @@ export const useChoiceStore = defineStore('choiceStore', () => {
       selected: existing?.selected ?? entry.selected ?? null,
       custom: existing?.custom ?? entry.custom ?? '',
       icon: entry.icon,
-      imagePrompt: entry.imagePrompt,
+      artPrompt: entry.artPrompt,
       groupTitle: entry.groupTitle,
     }
   }
@@ -77,7 +77,7 @@ export const useChoiceStore = defineStore('choiceStore', () => {
     label: string,
     model: SupportedModel,
     options: ChoiceOption[],
-    extras?: Partial<Pick<ChoiceEntry, 'icon' | 'imagePrompt' | 'groupTitle'>>,
+    extras?: Partial<Pick<ChoiceEntry, 'icon' | 'artPrompt' | 'groupTitle'>>,
   ) {
     registerChoice({
       label,
@@ -86,7 +86,7 @@ export const useChoiceStore = defineStore('choiceStore', () => {
       selected: null,
       custom: '',
       icon: extras?.icon,
-      imagePrompt: extras?.imagePrompt,
+      artPrompt: extras?.artPrompt,
       groupTitle: extras?.groupTitle,
     })
   }

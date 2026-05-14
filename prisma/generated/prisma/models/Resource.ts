@@ -50,6 +50,7 @@ export type ResourceMinAggregateOutputType = {
   huggingUrl: string | null
   localPath: string | null
   description: string | null
+  artPrompt: string | null
   isPublic: boolean | null
   isMature: boolean | null
   isActive: boolean | null
@@ -72,6 +73,7 @@ export type ResourceMaxAggregateOutputType = {
   huggingUrl: string | null
   localPath: string | null
   description: string | null
+  artPrompt: string | null
   isPublic: boolean | null
   isMature: boolean | null
   isActive: boolean | null
@@ -94,6 +96,7 @@ export type ResourceCountAggregateOutputType = {
   huggingUrl: number
   localPath: number
   description: number
+  artPrompt: number
   isPublic: number
   isMature: number
   isActive: number
@@ -130,6 +133,7 @@ export type ResourceMinAggregateInputType = {
   huggingUrl?: true
   localPath?: true
   description?: true
+  artPrompt?: true
   isPublic?: true
   isMature?: true
   isActive?: true
@@ -152,6 +156,7 @@ export type ResourceMaxAggregateInputType = {
   huggingUrl?: true
   localPath?: true
   description?: true
+  artPrompt?: true
   isPublic?: true
   isMature?: true
   isActive?: true
@@ -174,6 +179,7 @@ export type ResourceCountAggregateInputType = {
   huggingUrl?: true
   localPath?: true
   description?: true
+  artPrompt?: true
   isPublic?: true
   isMature?: true
   isActive?: true
@@ -283,6 +289,7 @@ export type ResourceGroupByOutputType = {
   huggingUrl: string | null
   localPath: string | null
   description: string | null
+  artPrompt: string | null
   isPublic: boolean
   isMature: boolean
   isActive: boolean
@@ -328,6 +335,7 @@ export type ResourceWhereInput = {
   huggingUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
   localPath?: Prisma.StringNullableFilter<"Resource"> | string | null
   description?: Prisma.StringNullableFilter<"Resource"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolFilter<"Resource"> | boolean
   isMature?: Prisma.BoolFilter<"Resource"> | boolean
   isActive?: Prisma.BoolFilter<"Resource"> | boolean
@@ -356,6 +364,7 @@ export type ResourceOrderByWithRelationInput = {
   huggingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   localPath?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -388,6 +397,7 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   huggingUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
   localPath?: Prisma.StringNullableFilter<"Resource"> | string | null
   description?: Prisma.StringNullableFilter<"Resource"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolFilter<"Resource"> | boolean
   isMature?: Prisma.BoolFilter<"Resource"> | boolean
   isActive?: Prisma.BoolFilter<"Resource"> | boolean
@@ -416,6 +426,7 @@ export type ResourceOrderByWithAggregationInput = {
   huggingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   localPath?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -446,6 +457,7 @@ export type ResourceScalarWhereWithAggregatesInput = {
   huggingUrl?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   localPath?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
   isMature?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
@@ -467,6 +479,7 @@ export type ResourceCreateInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -494,6 +507,7 @@ export type ResourceUncheckedCreateInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -520,6 +534,7 @@ export type ResourceUpdateInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -547,6 +562,7 @@ export type ResourceUncheckedUpdateInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -574,6 +590,7 @@ export type ResourceCreateManyInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -595,6 +612,7 @@ export type ResourceUpdateManyMutationInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -616,6 +634,7 @@ export type ResourceUncheckedUpdateManyInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -649,6 +668,7 @@ export type ResourceCountOrderByAggregateInput = {
   huggingUrl?: Prisma.SortOrder
   localPath?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -677,6 +697,7 @@ export type ResourceMaxOrderByAggregateInput = {
   huggingUrl?: Prisma.SortOrder
   localPath?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -699,6 +720,7 @@ export type ResourceMinOrderByAggregateInput = {
   huggingUrl?: Prisma.SortOrder
   localPath?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -888,6 +910,7 @@ export type ResourceCreateWithoutArtsAsCheckpointInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -914,6 +937,7 @@ export type ResourceUncheckedCreateWithoutArtsAsCheckpointInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -955,6 +979,7 @@ export type ResourceUpdateWithoutArtsAsCheckpointInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -981,6 +1006,7 @@ export type ResourceUncheckedUpdateWithoutArtsAsCheckpointInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1006,6 +1032,7 @@ export type ResourceCreateWithoutArtImageInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1032,6 +1059,7 @@ export type ResourceUncheckedCreateWithoutArtImageInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1062,6 +1090,7 @@ export type ResourceCreateWithoutArtImagesInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1088,6 +1117,7 @@ export type ResourceUncheckedCreateWithoutArtImagesInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1129,6 +1159,7 @@ export type ResourceUpdateWithoutArtImageInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1155,6 +1186,7 @@ export type ResourceUncheckedUpdateWithoutArtImageInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1191,6 +1223,7 @@ export type ResourceUpdateWithoutArtImagesInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1217,6 +1250,7 @@ export type ResourceUncheckedUpdateWithoutArtImagesInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1242,6 +1276,7 @@ export type ResourceCreateWithoutReactionsInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1268,6 +1303,7 @@ export type ResourceUncheckedCreateWithoutReactionsInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1309,6 +1345,7 @@ export type ResourceUpdateWithoutReactionsInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1335,6 +1372,7 @@ export type ResourceUncheckedUpdateWithoutReactionsInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1360,6 +1398,7 @@ export type ResourceCreateWithoutServersInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1386,6 +1425,7 @@ export type ResourceUncheckedCreateWithoutServersInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1436,6 +1476,7 @@ export type ResourceScalarWhereInput = {
   huggingUrl?: Prisma.StringNullableFilter<"Resource"> | string | null
   localPath?: Prisma.StringNullableFilter<"Resource"> | string | null
   description?: Prisma.StringNullableFilter<"Resource"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Resource"> | string | null
   isPublic?: Prisma.BoolFilter<"Resource"> | boolean
   isMature?: Prisma.BoolFilter<"Resource"> | boolean
   isActive?: Prisma.BoolFilter<"Resource"> | boolean
@@ -1457,6 +1498,7 @@ export type ResourceCreateWithoutUserInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1483,6 +1525,7 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1534,6 +1577,7 @@ export type ResourceUpdateWithoutServersInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1560,6 +1604,7 @@ export type ResourceUncheckedUpdateWithoutServersInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1586,6 +1631,7 @@ export type ResourceUncheckedUpdateManyWithoutServersInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1608,6 +1654,7 @@ export type ResourceCreateManyUserInput = {
   huggingUrl?: string | null
   localPath?: string | null
   description?: string | null
+  artPrompt?: string | null
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1628,6 +1675,7 @@ export type ResourceUpdateWithoutUserInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1654,6 +1702,7 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1680,6 +1729,7 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
   huggingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   localPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1759,6 +1809,7 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   huggingUrl?: boolean
   localPath?: boolean
   description?: boolean
+  artPrompt?: boolean
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1790,6 +1841,7 @@ export type ResourceSelectScalar = {
   huggingUrl?: boolean
   localPath?: boolean
   description?: boolean
+  artPrompt?: boolean
   isPublic?: boolean
   isMature?: boolean
   isActive?: boolean
@@ -1800,7 +1852,7 @@ export type ResourceSelectScalar = {
   generation?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isPublic" | "isMature" | "isActive" | "resourceType" | "supportedServer" | "userId" | "artImageId" | "generation", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "artPrompt" | "isPublic" | "isMature" | "isActive" | "resourceType" | "supportedServer" | "userId" | "artImageId" | "generation", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Resource$ArtImageArgs<ExtArgs>
   Reactions?: boolean | Prisma.Resource$ReactionsArgs<ExtArgs>
@@ -1833,6 +1885,7 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     huggingUrl: string | null
     localPath: string | null
     description: string | null
+    artPrompt: string | null
     isPublic: boolean
     isMature: boolean
     isActive: boolean
@@ -2227,6 +2280,7 @@ export interface ResourceFieldRefs {
   readonly huggingUrl: Prisma.FieldRef<"Resource", 'String'>
   readonly localPath: Prisma.FieldRef<"Resource", 'String'>
   readonly description: Prisma.FieldRef<"Resource", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"Resource", 'String'>
   readonly isPublic: Prisma.FieldRef<"Resource", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"Resource", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Resource", 'Boolean'>

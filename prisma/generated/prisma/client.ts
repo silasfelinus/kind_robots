@@ -43,7 +43,7 @@ export { Prisma }
 
 /**
  * Model Art
- * Art holds the overarching data for possibly multiple artImage objects. I've tinkered with having a unified Art object to avoid obfuscation, this is the most complex model we have between Art, ArtCollection, and ArtImage, but the hope was that separating would allow easy handling of the entire Art model array, while selectively calling for the ArtImage data when needed.
+ * Art is the old art directory asset. It didn't have the data itself, but could point to the data. I'm now phazing it out as it makes more sense to point directly to the artImage and filter out the data when needed, but there is still a lot of imagePath stored that needs to be migrated before Art can retire
  */
 export type Art = Prisma.ArtModel
 /**

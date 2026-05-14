@@ -513,7 +513,7 @@ const filteredRewards = computed<Reward[]>(() => {
         (reward.power || '').toLowerCase().includes(query) ||
         (reward.collection || '').toLowerCase().includes(query) ||
         (reward.label || '').toLowerCase().includes(query) ||
-        (reward.imagePrompt || '').toLowerCase().includes(query)
+        (reward.artPrompt || '').toLowerCase().includes(query)
       )
     })
   }

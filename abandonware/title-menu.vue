@@ -72,7 +72,7 @@ watch([customTitle, selectedTitle], ([newCustom, newSelected]) => {
 
       // Add default values for missing fields
       isMature: false,
-      imagePrompt: null,
+      artPrompt: null,
       description: null,
       examples: null,
     }

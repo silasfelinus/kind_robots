@@ -303,7 +303,7 @@ export const PitchCreateSchema = BaseFlagsSchema.extend({
   highlightImage: OptionalStringSchema,
   PitchType: PitchTypeSchema.optional(),
   creationSource: CreationSourceSchema.optional(),
-  imagePrompt: OptionalStringSchema,
+  artPrompt: OptionalStringSchema,
   description: OptionalStringSchema,
   artImageId: OptionalPositiveIntSchema,
   examples: OptionalTextSchema,
@@ -349,7 +349,7 @@ export const RewardCreateSchema = BaseFlagsSchema.extend({
   label: OptionalStringSchema,
   artImageId: OptionalPositiveIntSchema,
   imagePath: OptionalTextSchema,
-  imagePrompt: OptionalTextSchema,
+  artPrompt: OptionalTextSchema,
 }).strict()
 
 export const RewardUpdateSchema = RewardCreateSchema.partial().strict()
@@ -891,7 +891,7 @@ export const CHATGPT_MODEL_REGISTRY = {
       'designer',
       'flavorText',
       'highlightImage',
-      'imagePrompt',
+      'artPrompt',
       'description',
       'examples',
       'icon',
@@ -915,7 +915,7 @@ export const CHATGPT_MODEL_REGISTRY = {
       isPublic: true,
       isActive: true,
       userId: true,
-      imagePrompt: true,
+      artPrompt: true,
       description: true,
       artImageId: true,
       examples: true,
@@ -1014,7 +1014,7 @@ export const CHATGPT_MODEL_REGISTRY = {
       'collection',
       'label',
       'imagePath',
-      'imagePrompt',
+      'artPrompt',
     ],
     filterFields: ['collection', 'rarity', 'label', 'artImageId'],
     defaultOrderBy: {
@@ -1033,7 +1033,7 @@ export const CHATGPT_MODEL_REGISTRY = {
       userId: true,
       artImageId: true,
       imagePath: true,
-      imagePrompt: true,
+      artPrompt: true,
       isPublic: true,
       isMature: true,
       isActive: true,

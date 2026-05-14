@@ -479,7 +479,7 @@ function usePrompt(prompt: string) {
 
 function useForPrompt() {
   const prompt =
-    props.pitch.imagePrompt ||
+    props.pitch.artPrompt ||
     props.pitch.pitch ||
     props.pitch.description ||
     props.pitch.title ||

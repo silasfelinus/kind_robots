@@ -198,10 +198,10 @@
               </span>
 
               <textarea
-                v-model="pitchStore.pitchForm.imagePrompt"
+                v-model="pitchStore.pitchForm.artPrompt"
                 class="textarea textarea-bordered min-h-24 w-full bg-base-200"
                 placeholder="Describe the image this pitch should inspire..."
-                :disabled="isKept('imagePrompt')"
+                :disabled="isKept('artPrompt')"
               />
             </label>
 
@@ -575,22 +575,22 @@ const canEditDesigner = computed(() => {
 const pitchImage = computed(() => {
   return (
     pitchStore.pitchForm.highlightImage ||
-    pitchStore.pitchForm.imagePrompt ||
+    pitchStore.pitchForm.artPrompt ||
     '/images/backtree.webp'
   )
 })
 
 const keepImageFields = computed({
   get: () => {
-    return Boolean(keepField.highlightImage && keepField.imagePrompt)
+    return Boolean(keepField.highlightImage && keepField.artPrompt)
   },
   set: (value: boolean) => {
     keepField.highlightImage = value
-    keepField.imagePrompt = value
+    keepField.artPrompt = value
 
     if (value) {
       useGenerated.highlightImage = false
-      useGenerated.imagePrompt = false
+      useGenerated.artPrompt = false
     }
   },
 })
@@ -665,7 +665,7 @@ const aiFields: Array<{
     icon: 'kind-icon:sparkles',
   },
   {
-    key: 'imagePrompt',
+    key: 'artPrompt',
     label: 'Image Prompt',
     description: 'Refresh the visual generation prompt.',
     icon: 'kind-icon:image',
@@ -778,7 +778,7 @@ function handleKeepFieldChange(field: string) {
 function toggleImageKeeps() {
   if (keepImageFields.value) {
     useGenerated.highlightImage = false
-    useGenerated.imagePrompt = false
+    useGenerated.artPrompt = false
   }
 }
 
@@ -834,8 +834,8 @@ function seedPitch() {
       'Use this as a seed concept for generating art prompts, product ideas, text assets, and strange little worldbuilding fragments.',
     flavorText:
       pitchStore.pitchForm.flavorText || 'Chromatic chaos, but make it useful.',
-    imagePrompt:
-      pitchStore.pitchForm.imagePrompt ||
+    artPrompt:
+      pitchStore.pitchForm.artPrompt ||
       'a whimsical robot holding glowing paint jars, rainbow mist, cozy studio lighting',
     icon: pitchStore.pitchForm.icon || 'kind-icon:palette',
     examples:

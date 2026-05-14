@@ -166,7 +166,7 @@
               </span>
 
               <textarea
-                v-model="rewardStore.rewardForm.imagePrompt"
+                v-model="rewardStore.rewardForm.artPrompt"
                 placeholder="Describe the reward's appearance..."
                 class="textarea textarea-bordered min-h-32 w-full bg-base-200"
                 :disabled="isGeneratingArt"
@@ -331,7 +331,7 @@ function configureRewardImageUpload() {
     galleryName: 'rewardUploads',
     collectionLabel: 'rewards',
     promptString:
-      rewardStore.rewardForm.imagePrompt ||
+      rewardStore.rewardForm.artPrompt ||
       rewardStore.rewardForm.text ||
       '[RewardImage]',
     path: '[RewardImage]',
@@ -381,7 +381,7 @@ function resetForAdd() {
       userId: userStore.userId || 10,
       artImageId: null,
       imagePath: null,
-      imagePrompt: '',
+      artPrompt: '',
     }
   }
 
@@ -398,9 +398,9 @@ function resetFromSelected() {
 }
 
 async function generateArtImage() {
-  const imagePrompt = rewardStore.rewardForm.imagePrompt?.trim()
+  const artPrompt = rewardStore.rewardForm.artPrompt?.trim()
 
-  if (!imagePrompt) {
+  if (!artPrompt) {
     statusTone.value = 'error'
     statusMessage.value = 'Please provide an image prompt.'
     return
@@ -411,7 +411,7 @@ async function generateArtImage() {
 
   try {
     const response = await artStore.generateArt({
-      promptString: imagePrompt,
+      promptString: artPrompt,
       title: rewardStore.rewardForm.text || 'Untitled Reward',
       collection: 'rewards',
     })

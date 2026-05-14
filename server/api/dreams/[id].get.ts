@@ -174,7 +174,7 @@ function getDreamInclude(options: {
         userId: true,
         artImageId: true,
         imagePath: true,
-        imagePrompt: true,
+        artPrompt: true,
         isPublic: true,
         isMature: true,
       },

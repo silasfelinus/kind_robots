@@ -82,6 +82,7 @@ export type ArtImageMinAggregateOutputType = {
   thumbnailData: string | null
   fileName: string | null
   fileType: string | null
+  artPrompt: string | null
   imagePath: string | null
   rarity: number | null
   path: string | null
@@ -125,6 +126,7 @@ export type ArtImageMaxAggregateOutputType = {
   thumbnailData: string | null
   fileName: string | null
   fileType: string | null
+  artPrompt: string | null
   imagePath: string | null
   rarity: number | null
   path: string | null
@@ -168,6 +170,7 @@ export type ArtImageCountAggregateOutputType = {
   thumbnailData: number
   fileName: number
   fileType: number
+  artPrompt: number
   imagePath: number
   rarity: number
   path: number
@@ -259,6 +262,7 @@ export type ArtImageMinAggregateInputType = {
   thumbnailData?: true
   fileName?: true
   fileType?: true
+  artPrompt?: true
   imagePath?: true
   rarity?: true
   path?: true
@@ -302,6 +306,7 @@ export type ArtImageMaxAggregateInputType = {
   thumbnailData?: true
   fileName?: true
   fileType?: true
+  artPrompt?: true
   imagePath?: true
   rarity?: true
   path?: true
@@ -345,6 +350,7 @@ export type ArtImageCountAggregateInputType = {
   thumbnailData?: true
   fileName?: true
   fileType?: true
+  artPrompt?: true
   imagePath?: true
   rarity?: true
   path?: true
@@ -475,6 +481,7 @@ export type ArtImageGroupByOutputType = {
   thumbnailData: string | null
   fileName: string | null
   fileType: string
+  artPrompt: string | null
   imagePath: string | null
   rarity: number | null
   path: string | null
@@ -541,6 +548,7 @@ export type ArtImageWhereInput = {
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringFilter<"ArtImage"> | string
+  artPrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   rarity?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   path?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -605,6 +613,7 @@ export type ArtImageOrderByWithRelationInput = {
   thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   rarity?: Prisma.SortOrderInput | Prisma.SortOrder
   path?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -684,6 +693,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringFilter<"ArtImage"> | string
+  artPrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   rarity?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   path?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -737,6 +747,7 @@ export type ArtImageOrderByWithAggregationInput = {
   thumbnailData?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   rarity?: Prisma.SortOrderInput | Prisma.SortOrder
   path?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -788,6 +799,7 @@ export type ArtImageScalarWhereWithAggregatesInput = {
   thumbnailData?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringWithAggregatesFilter<"ArtImage"> | string
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
   rarity?: Prisma.IntNullableWithAggregatesFilter<"ArtImage"> | number | null
   path?: Prisma.StringNullableWithAggregatesFilter<"ArtImage"> | string | null
@@ -828,6 +840,7 @@ export type ArtImageCreateInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -880,6 +893,7 @@ export type ArtImageUncheckedCreateInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -927,6 +941,7 @@ export type ArtImageUpdateInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -979,6 +994,7 @@ export type ArtImageUncheckedUpdateInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1029,6 +1045,7 @@ export type ArtImageCreateManyInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -1069,6 +1086,7 @@ export type ArtImageUpdateManyMutationInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1100,6 +1118,7 @@ export type ArtImageUncheckedUpdateManyInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1154,6 +1173,7 @@ export type ArtImageCountOrderByAggregateInput = {
   thumbnailData?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
   path?: Prisma.SortOrder
@@ -1220,6 +1240,7 @@ export type ArtImageMaxOrderByAggregateInput = {
   thumbnailData?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
   path?: Prisma.SortOrder
@@ -1263,6 +1284,7 @@ export type ArtImageMinOrderByAggregateInput = {
   thumbnailData?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   rarity?: Prisma.SortOrder
   path?: Prisma.SortOrder
@@ -1984,6 +2006,7 @@ export type ArtImageCreateWithoutArtInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2035,6 +2058,7 @@ export type ArtImageUncheckedCreateWithoutArtInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2097,6 +2121,7 @@ export type ArtImageUpdateWithoutArtInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2148,6 +2173,7 @@ export type ArtImageUncheckedUpdateWithoutArtInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2194,6 +2220,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2245,6 +2272,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2318,6 +2346,7 @@ export type ArtImageScalarWhereInput = {
   thumbnailData?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileName?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   fileType?: Prisma.StringFilter<"ArtImage"> | string
+  artPrompt?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   imagePath?: Prisma.StringNullableFilter<"ArtImage"> | string | null
   rarity?: Prisma.IntNullableFilter<"ArtImage"> | number | null
   path?: Prisma.StringNullableFilter<"ArtImage"> | string | null
@@ -2358,6 +2387,7 @@ export type ArtImageCreateWithoutBotInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2409,6 +2439,7 @@ export type ArtImageUncheckedCreateWithoutBotInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2471,6 +2502,7 @@ export type ArtImageUpdateWithoutBotInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2522,6 +2554,7 @@ export type ArtImageUncheckedUpdateWithoutBotInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2568,6 +2601,7 @@ export type ArtImageCreateWithoutButterfliesInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2619,6 +2653,7 @@ export type ArtImageUncheckedCreateWithoutButterfliesInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2681,6 +2716,7 @@ export type ArtImageUpdateWithoutButterfliesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2732,6 +2768,7 @@ export type ArtImageUncheckedUpdateWithoutButterfliesInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2778,6 +2815,7 @@ export type ArtImageCreateWithoutCharacterInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2829,6 +2867,7 @@ export type ArtImageUncheckedCreateWithoutCharacterInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -2891,6 +2930,7 @@ export type ArtImageUpdateWithoutCharacterInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2942,6 +2982,7 @@ export type ArtImageUncheckedUpdateWithoutCharacterInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2988,6 +3029,7 @@ export type ArtImageCreateWithoutChatInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3039,6 +3081,7 @@ export type ArtImageUncheckedCreateWithoutChatInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3101,6 +3144,7 @@ export type ArtImageUpdateWithoutChatInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3152,6 +3196,7 @@ export type ArtImageUncheckedUpdateWithoutChatInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3198,6 +3243,7 @@ export type ArtImageCreateWithoutComponentInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3249,6 +3295,7 @@ export type ArtImageUncheckedCreateWithoutComponentInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3311,6 +3358,7 @@ export type ArtImageUpdateWithoutComponentInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3362,6 +3410,7 @@ export type ArtImageUncheckedUpdateWithoutComponentInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3408,6 +3457,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3459,6 +3509,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3521,6 +3572,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3572,6 +3624,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3618,6 +3671,7 @@ export type ArtImageCreateWithoutGalleryInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3668,6 +3722,7 @@ export type ArtImageUncheckedCreateWithoutGalleryInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3741,6 +3796,7 @@ export type ArtImageCreateWithoutMilestoneInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3792,6 +3848,7 @@ export type ArtImageUncheckedCreateWithoutMilestoneInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -3854,6 +3911,7 @@ export type ArtImageUpdateWithoutMilestoneInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3905,6 +3963,7 @@ export type ArtImageUncheckedUpdateWithoutMilestoneInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3951,6 +4010,7 @@ export type ArtImageCreateWithoutPitchInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4002,6 +4062,7 @@ export type ArtImageUncheckedCreateWithoutPitchInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4064,6 +4125,7 @@ export type ArtImageUpdateWithoutPitchInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4115,6 +4177,7 @@ export type ArtImageUncheckedUpdateWithoutPitchInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4161,6 +4224,7 @@ export type ArtImageCreateWithoutPromptInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4212,6 +4276,7 @@ export type ArtImageUncheckedCreateWithoutPromptInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4274,6 +4339,7 @@ export type ArtImageUpdateWithoutPromptInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4325,6 +4391,7 @@ export type ArtImageUncheckedUpdateWithoutPromptInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4371,6 +4438,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4422,6 +4490,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4484,6 +4553,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4535,6 +4605,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4581,6 +4652,7 @@ export type ArtImageCreateWithoutResourceInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4632,6 +4704,7 @@ export type ArtImageUncheckedCreateWithoutResourceInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4683,6 +4756,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4734,6 +4808,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4801,6 +4876,7 @@ export type ArtImageUpdateWithoutResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4852,6 +4928,7 @@ export type ArtImageUncheckedUpdateWithoutResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4914,6 +4991,7 @@ export type ArtImageCreateWithoutRewardInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -4965,6 +5043,7 @@ export type ArtImageUncheckedCreateWithoutRewardInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5027,6 +5106,7 @@ export type ArtImageUpdateWithoutRewardInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5078,6 +5158,7 @@ export type ArtImageUncheckedUpdateWithoutRewardInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5124,6 +5205,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5175,6 +5257,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5237,6 +5320,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5288,6 +5372,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5334,6 +5419,7 @@ export type ArtImageCreateWithoutServerInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5385,6 +5471,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5457,6 +5544,7 @@ export type ArtImageCreateWithoutTagOwnerInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5508,6 +5596,7 @@ export type ArtImageUncheckedCreateWithoutTagOwnerInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5559,6 +5648,7 @@ export type ArtImageCreateWithoutTagsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5610,6 +5700,7 @@ export type ArtImageUncheckedCreateWithoutTagsInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5672,6 +5763,7 @@ export type ArtImageUpdateWithoutTagOwnerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5723,6 +5815,7 @@ export type ArtImageUncheckedUpdateWithoutTagOwnerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5785,6 +5878,7 @@ export type ArtImageCreateWithoutUserInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5835,6 +5929,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -5908,6 +6003,7 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5959,6 +6055,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6008,6 +6105,7 @@ export type ArtImageUncheckedUpdateManyWithoutArtCollectionsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6050,6 +6148,7 @@ export type ArtImageCreateManyGalleryInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -6090,6 +6189,7 @@ export type ArtImageUpdateWithoutGalleryInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6140,6 +6240,7 @@ export type ArtImageUncheckedUpdateWithoutGalleryInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6189,6 +6290,7 @@ export type ArtImageUncheckedUpdateManyWithoutGalleryInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6232,6 +6334,7 @@ export type ArtImageCreateManyCheckpointResourceInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -6271,6 +6374,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6322,6 +6426,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6371,6 +6476,7 @@ export type ArtImageUncheckedUpdateManyWithoutCheckpointResourceInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6413,6 +6519,7 @@ export type ArtImageCreateManyServerInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -6452,6 +6559,7 @@ export type ArtImageUpdateWithoutServerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6503,6 +6611,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6552,6 +6661,7 @@ export type ArtImageUncheckedUpdateManyWithoutServerInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6591,6 +6701,7 @@ export type ArtImageUpdateWithoutTagsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6642,6 +6753,7 @@ export type ArtImageUncheckedUpdateWithoutTagsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6691,6 +6803,7 @@ export type ArtImageUncheckedUpdateManyWithoutTagsInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6733,6 +6846,7 @@ export type ArtImageCreateManyUserInput = {
   thumbnailData?: string | null
   fileName?: string | null
   fileType?: string
+  artPrompt?: string | null
   imagePath?: string | null
   rarity?: number | null
   path?: string | null
@@ -6773,6 +6887,7 @@ export type ArtImageUpdateWithoutUserInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6823,6 +6938,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6872,6 +6988,7 @@ export type ArtImageUncheckedUpdateManyWithoutUserInput = {
   thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6991,6 +7108,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   thumbnailData?: boolean
   fileName?: boolean
   fileType?: boolean
+  artPrompt?: boolean
   imagePath?: boolean
   rarity?: boolean
   path?: boolean
@@ -7058,6 +7176,7 @@ export type ArtImageSelectScalar = {
   thumbnailData?: boolean
   fileName?: boolean
   fileType?: boolean
+  artPrompt?: boolean
   imagePath?: boolean
   rarity?: boolean
   path?: boolean
@@ -7091,7 +7210,7 @@ export type ArtImageSelectScalar = {
   butterflyId?: boolean
 }
 
-export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "galleryId" | "userId" | "imageData" | "thumbnailData" | "fileName" | "fileType" | "imagePath" | "rarity" | "path" | "promptString" | "negativePrompt" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "cfg" | "cfgHalf" | "designer" | "genres" | "isPublic" | "isMature" | "isActive" | "serverId" | "serverName" | "serverUrl" | "artId" | "botId" | "componentId" | "milestoneId" | "pitchId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "characterId" | "butterflyId", ExtArgs["result"]["artImage"]>
+export type ArtImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "galleryId" | "userId" | "imageData" | "thumbnailData" | "fileName" | "fileType" | "artPrompt" | "imagePath" | "rarity" | "path" | "promptString" | "negativePrompt" | "checkpoint" | "checkpointResourceId" | "sampler" | "seed" | "steps" | "cfg" | "cfgHalf" | "designer" | "genres" | "isPublic" | "isMature" | "isActive" | "serverId" | "serverName" | "serverUrl" | "artId" | "botId" | "componentId" | "milestoneId" | "pitchId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "characterId" | "butterflyId", ExtArgs["result"]["artImage"]>
 export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Art?: boolean | Prisma.ArtImage$ArtArgs<ExtArgs>
   Bot?: boolean | Prisma.ArtImage$BotArgs<ExtArgs>
@@ -7152,6 +7271,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     thumbnailData: string | null
     fileName: string | null
     fileType: string
+    artPrompt: string | null
     imagePath: string | null
     rarity: number | null
     path: string | null
@@ -7582,6 +7702,7 @@ export interface ArtImageFieldRefs {
   readonly thumbnailData: Prisma.FieldRef<"ArtImage", 'String'>
   readonly fileName: Prisma.FieldRef<"ArtImage", 'String'>
   readonly fileType: Prisma.FieldRef<"ArtImage", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"ArtImage", 'String'>
   readonly imagePath: Prisma.FieldRef<"ArtImage", 'String'>
   readonly rarity: Prisma.FieldRef<"ArtImage", 'Int'>
   readonly path: Prisma.FieldRef<"ArtImage", 'String'>

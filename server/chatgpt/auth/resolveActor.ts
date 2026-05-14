@@ -22,7 +22,7 @@ export async function resolveChatGptActor(event: any): Promise<ChatGptActor> {
   }
 
   // Temporary admin token support.
-  if (token === process.env.KINDROBOTS_ADMIN_TOKEN) {
+  if (token === process.env.ADMIN_TOKEN) {
     return {
       userId: 1,
       username: 'admin',

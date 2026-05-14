@@ -1,157 +1,152 @@
+// /server/api/art/upload.post.ts
 import { defineEventHandler, readMultipartFormData } from 'h3'
 import { errorHandler } from '../../utils/error'
-import prisma from '~/server/utils/prisma'
-import type { ArtImage } from '~/prisma/generated/prisma/client'
-import path from 'path'
-import fs from 'fs/promises'
+import {
+  uploadArtImage,
+  type UploadArtImageInput,
+} from '../../utils/UploadArtImage'
 
-
-export async function uploadArtImage(
-  uploadedFile: { data: Buffer; filename: string },
-  galleryName: string = 'userUpload',
-  userId: number = 10,
-  galleryId: number = 21,
-  fileType: string = 'png',
-): Promise<ArtImage> {
-  try {
-    console.log('uploadArtImage called with:', {
-      uploadedFile,
-      galleryName,
-      userId,
-      galleryId,
-      fileType,
-    })
-
-    const validExtensions = ['png', 'jpeg', 'jpg', 'webp']
-    const normalizedFileType = fileType.replace('image/', '').toLowerCase()
-
-    if (!validExtensions.includes(normalizedFileType)) {
-      throw new Error(
-        `Unsupported file type: ${fileType}. Accepted types are ${validExtensions.join(', ')}`,
-      )
-    }
-
-    const timestamp = Date.now()
-    const fileName = `${galleryName}-${timestamp}.${normalizedFileType}`
-    console.log('Generated fileName:', fileName)
-
-    if (process.env.APP_ENV !== 'production') {
-      const dirPath = path.join(
-        process.env.IMAGES_PATH || './public/images',
-        galleryName,
-      )
-      const filePath = path.join(dirPath, fileName)
-
-      try {
-        await fs.access(dirPath)
-      } catch {
-        console.log(`Creating directory: ${dirPath}`)
-        await fs.mkdir(dirPath, { recursive: true })
-      }
-
-      console.log('Saving image to:', filePath)
-      await fs.writeFile(filePath, uploadedFile.data)
-    }
-
-    console.log('Saving image to database...')
-    const data = await prisma.artImage.create({
-      data: {
-        galleryId,
-        imageData: uploadedFile.data.toString('base64'),
-        fileName,
-        fileType: `.${normalizedFileType}`,
-        userId,
-      },
-    })
-
-    console.log('Database save successful:', data)
-    return data
-  } catch (error: unknown) {
-    console.error('Error in uploadArtImage:', error)
-    throw errorHandler(error)
-  }
+function getField(
+  form: Awaited<ReturnType<typeof readMultipartFormData>>,
+  name: string,
+): string | undefined {
+  return form?.find((field) => field.name === name)?.data?.toString()
 }
 
-function validUserId(userId: string | undefined): boolean {
-  return !isNaN(Number(userId)) && Number(userId) > 0
+function getNumberField(
+  form: Awaited<ReturnType<typeof readMultipartFormData>>,
+  name: string,
+): number | null {
+  const value = getField(form, name)
+
+  if (!value) return null
+
+  const parsed = Number(value)
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
 }
 
-function validGalleryId(galleryId: string | undefined): boolean {
-  return !isNaN(Number(galleryId)) && Number(galleryId) > 0
+function getNullableNumberField(
+  form: Awaited<ReturnType<typeof readMultipartFormData>>,
+  name: string,
+): number | null {
+  const value = getField(form, name)
+
+  if (!value) return null
+
+  const parsed = Number(value)
+
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function getBooleanField(
+  form: Awaited<ReturnType<typeof readMultipartFormData>>,
+  name: string,
+  fallback = false,
+): boolean {
+  const value = getField(form, name)
+
+  if (value === undefined) return fallback
+
+  return ['true', '1', 'yes', 'on'].includes(value.toLowerCase())
+}
+
+function getImageFile(form: Awaited<ReturnType<typeof readMultipartFormData>>) {
+  return form?.find((file) => {
+    return file.name === 'file' || file.name === 'image'
+  })
 }
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('Received request at /api/art/upload')
-
     const form = await readMultipartFormData(event)
-    console.log('Parsed Form Data:', form)
 
-    if (!form) {
+    if (!form?.length) {
       event.node.res.statusCode = 400
-      console.error('No form data received')
-      return { success: false, message: 'No form data received' }
+      return {
+        success: false,
+        message: 'No form data received.',
+      }
     }
 
-    const imageFile = form.find((file) => file.name === 'image')
-    const galleryName =
-      form.find((field) => field.name === 'galleryName')?.data.toString() ||
-      'userUpload'
-    const userId =
-      form.find((field) => field.name === 'userId')?.data.toString() || '10'
-    const galleryId =
-      form.find((field) => field.name === 'galleryId')?.data.toString() || '21'
-    const fileType =
-      form.find((field) => field.name === 'fileType')?.data.toString() || 'png'
+    const imageFile = getImageFile(form)
 
-    console.log('Extracted Fields:', {
-      imageFile,
+    if (!imageFile?.data?.length) {
+      event.node.res.statusCode = 400
+      return {
+        success: false,
+        message: 'No image file received.',
+      }
+    }
+
+    const userId = getNumberField(form, 'userId') || 10
+    const galleryId = getNumberField(form, 'galleryId') || 21
+    const galleryName = getField(form, 'galleryName') || 'userUpload'
+    const fileType = getField(form, 'fileType') || imageFile.type || 'png'
+    const fileName = getField(form, 'fileName') || imageFile.filename || null
+
+    const input: UploadArtImageInput = {
+      uploadedFile: {
+        data: imageFile.data,
+        filename: imageFile.filename || fileName || 'Kind Image',
+      },
       galleryName,
       userId,
       galleryId,
       fileType,
-    })
-
-    if (
-      !imageFile?.data ||
-      !validUserId(userId) ||
-      !validGalleryId(galleryId)
-    ) {
-      event.node.res.statusCode = 400
-      console.error('Validation failed:', {
-        imageFile: !!imageFile?.data,
-        userId: validUserId(userId),
-        galleryId: validGalleryId(galleryId),
-      })
-      return {
-        success: false,
-        message: 'Missing required fields or invalid data',
-      }
+      fileName,
+      artCollectionId:
+        getNumberField(form, 'artCollectionId') ||
+        getNumberField(form, 'collectionId'),
+      imagePath: getField(form, 'imagePath') || null,
+      rarity: getNullableNumberField(form, 'rarity'),
+      path: getField(form, 'path') || null,
+      promptString: getField(form, 'promptString') || null,
+      negativePrompt: getField(form, 'negativePrompt') || null,
+      checkpoint: getField(form, 'checkpoint') || null,
+      checkpointResourceId: getNumberField(form, 'checkpointResourceId'),
+      sampler: getField(form, 'sampler') || null,
+      seed: getNullableNumberField(form, 'seed'),
+      steps: getNullableNumberField(form, 'steps'),
+      cfg: getNullableNumberField(form, 'cfg'),
+      cfgHalf: getBooleanField(form, 'cfgHalf', false),
+      designer: getField(form, 'designer') || null,
+      genres: getField(form, 'genres') || null,
+      isPublic: getBooleanField(form, 'isPublic', false),
+      isMature: getBooleanField(form, 'isMature', false),
+      serverId: getNumberField(form, 'serverId'),
+      serverName: getField(form, 'serverName') || null,
+      serverUrl: getField(form, 'serverUrl') || null,
+      botId: getNumberField(form, 'botId'),
+      componentId: getNumberField(form, 'componentId'),
+      milestoneId: getNumberField(form, 'milestoneId'),
+      pitchId: getNumberField(form, 'pitchId'),
+      promptId: getNumberField(form, 'promptId'),
+      resourceId: getNumberField(form, 'resourceId'),
+      rewardId: getNumberField(form, 'rewardId'),
+      chatId: getNumberField(form, 'chatId'),
+      characterId: getNumberField(form, 'characterId'),
+      butterflyId: getNumberField(form, 'butterflyId'),
     }
 
-    console.log('Calling uploadArtImage...')
-    const data = await uploadArtImage(
-      {
-        data: imageFile.data,
-        filename: imageFile.filename || 'Kind Image',
-      },
-      galleryName,
-      Number(userId),
-      Number(galleryId),
-      fileType,
-    )
-    console.log('uploadArtImage result:', data)
+    const data = await uploadArtImage(input)
 
     event.node.res.statusCode = 201
-    return { success: true, data }
+
+    return {
+      success: true,
+      message: 'ArtImage uploaded.',
+      data,
+    }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
-    console.error('Error in upload handler:', handledError)
+
     event.node.res.statusCode = handledError.statusCode || 500
+
     return {
       success: false,
-      message: 'Error uploading the art image',
-      error: handledError.message || 'An unknown error occurred',
+      message: handledError.message || 'Error uploading the art image.',
+      error: handledError.message || 'An unknown error occurred.',
     }
   }
 })

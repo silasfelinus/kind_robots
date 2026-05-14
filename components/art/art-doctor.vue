@@ -69,6 +69,11 @@
       <div class="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <StatCard label="Art records" :value="allArt.length" tone="base" />
         <StatCard
+          label="Needs thumbnails"
+          :value="summary.needsThumbnail"
+          tone="warning"
+        />
+        <StatCard
           label="ArtImage records"
           :value="allArtImages.length"
           tone="base"
@@ -310,6 +315,22 @@
                 </button>
 
                 <button
+                  v-if="row.artImage?.id && row.canCreateThumbnail"
+                  class="btn btn-accent btn-xs rounded-xl"
+                  type="button"
+                  :disabled="thumbnailingImageIds.has(row.artImage.id)"
+                  @click="createThumbnailForRow(row)"
+                >
+                  <Icon
+                    v-if="thumbnailingImageIds.has(row.artImage.id)"
+                    name="kind-icon:spinner"
+                    class="h-4 w-4 animate-spin"
+                  />
+                  <Icon v-else name="kind-icon:image" class="h-4 w-4" />
+                  Create thumbnail
+                </button>
+
+                <button
                   v-if="row.canRepairLink"
                   class="btn btn-warning btn-xs rounded-xl"
                   type="button"
@@ -419,6 +440,11 @@
                     label="Art.imagePath"
                     :value="row.artImagePathFromArt || 'none'"
                     :state="row.hasArtImagePathFromArt ? 'success' : 'warning'"
+                  />
+                  <EvidenceTile
+                    label="ArtImage.thumbnailData"
+                    :value="thumbnailStatusLabel(row.thumbnailStatus)"
+                    :state="thumbnailTileState(row.thumbnailStatus)"
                   />
 
                   <EvidenceTile
@@ -609,10 +635,14 @@ type LinkStatus =
   | 'image-to-art-only'
   | 'unlinked'
   | 'conflict'
+
 type ImageDataStatus = 'present' | 'missing' | 'unchecked' | 'not-applicable'
+type ThumbnailStatus = 'present' | 'missing' | 'unchecked' | 'not-applicable'
+
 type StatusFilter =
   | 'all'
   | 'canonical'
+  | 'needs-thumbnail'
   | 'unchecked-image-data'
   | 'missing-image-data'
   | 'missing-art-image'
@@ -635,6 +665,8 @@ interface AuditRow {
   art: Art | null
   artImage: ArtImage | null
   artImageDataStatus: ImageDataStatus
+  thumbnailStatus: ThumbnailStatus
+  canCreateThumbnail: boolean
   linkStatus: LinkStatus
   severity: Severity
   status: StatusFilter
@@ -649,6 +681,8 @@ interface AuditRow {
   repairHints: string[]
   createdAtValue: number
 }
+
+const thumbnailingImageIds = ref(new Set<number>())
 
 const StatCard = defineComponent({
   name: 'StatCard',
@@ -767,11 +801,13 @@ const statusFilterOptions: Array<{ value: StatusFilter; label: string }> = [
   { value: 'one-way-link', label: 'One-way link' },
   { value: 'conflict', label: 'Conflict' },
   { value: 'needs-review', label: 'Needs review' },
+  { value: 'needs-thumbnail', label: 'Needs thumbnail' },
 ]
 
 const quickFilters: Array<{ value: StatusFilter; label: string }> = [
   { value: 'all', label: 'All' },
   { value: 'canonical', label: 'Good' },
+  { value: 'needs-thumbnail', label: 'Needs thumb' },
   { value: 'unchecked-image-data', label: 'Unchecked' },
   { value: 'missing-image-data', label: 'No data' },
   { value: 'one-way-link', label: 'One-way' },
@@ -814,6 +850,7 @@ const artByArtImageId = computed(() => {
 const summary = computed(() => {
   const artRows = artAuditRows.value
   const imageRows = artImageAuditRows.value
+  const allRows = [...artRows, ...imageRows]
 
   return {
     artWithImagePath: allArt.value.filter((art) => Boolean(primaryArtPath(art)))
@@ -831,9 +868,8 @@ const summary = computed(() => {
         row.linkStatus === 'image-to-art-only'
       )
     }).length,
-    needsReview: [...artRows, ...imageRows].filter(
-      (row) => row.severity === 'error',
-    ).length,
+    needsThumbnail: allRows.filter((row) => row.canCreateThumbnail).length,
+    needsReview: allRows.filter((row) => row.severity === 'error').length,
   }
 })
 
@@ -856,7 +892,9 @@ const visibleRows = computed(() => {
 
   return activeRows.value
     .filter((row) => {
-      if (
+      if (activeStatusFilter.value === 'needs-thumbnail') {
+        if (!row.canCreateThumbnail) return false
+      } else if (
         activeStatusFilter.value !== 'all' &&
         row.status !== activeStatusFilter.value
       ) {
@@ -904,6 +942,7 @@ function buildArtRow(art: Art): AuditRow {
     ? hydratedImageMap.value.get(artImage.id) || null
     : null
   const imageDataStatus = getImageDataStatus(artImage, detail)
+  const thumbnailStatus = getThumbnailStatus(artImage, detail)
   const artPath = primaryArtPath(art)
   const previewUrl = normalizeImagePath(artPath || artImage?.imagePath || '')
   const createdAtValue = toTimestamp(art.createdAt)
@@ -916,6 +955,7 @@ function buildArtRow(art: Art): AuditRow {
     art,
     artImage,
     artImageDataStatus: imageDataStatus,
+    thumbnailStatus,
     linkStatus,
     severity: 'info',
     status: 'needs-review',
@@ -928,6 +968,10 @@ function buildArtRow(art: Art): AuditRow {
       artImage && linkStatus !== 'bidirectional' && linkStatus !== 'conflict',
     ),
     canPromotePath: Boolean(!artImage && artPath),
+    canCreateThumbnail:
+      Boolean(artImage) &&
+      imageDataStatus !== 'missing' &&
+      thumbnailStatus !== 'present',
     assessment: '',
     repairHints: [],
     createdAtValue,
@@ -946,6 +990,7 @@ function buildArtImageRow(artImage: ArtImage): AuditRow {
   const art = directArt || reverseArt
   const linkStatus = getArtImageLinkStatus(artImage, directArt, reverseArt)
   const imageDataStatus = getImageDataStatus(artImage, hydrated)
+  const thumbnailStatus = getThumbnailStatus(artImage, hydrated)
   const previewUrl = normalizeImagePath(
     artImage.imagePath || primaryArtPath(art) || '',
   )
@@ -959,6 +1004,7 @@ function buildArtImageRow(artImage: ArtImage): AuditRow {
     art,
     artImage: imageWithDetail,
     artImageDataStatus: imageDataStatus,
+    thumbnailStatus,
     linkStatus,
     severity: 'info',
     status: 'needs-review',
@@ -971,12 +1017,190 @@ function buildArtImageRow(artImage: ArtImage): AuditRow {
       art && linkStatus !== 'bidirectional' && linkStatus !== 'conflict',
     ),
     canPromotePath: false,
+    canCreateThumbnail:
+      imageDataStatus !== 'missing' && thumbnailStatus !== 'present',
     assessment: '',
     repairHints: [],
     createdAtValue,
   }
 
   return assessRow(base)
+}
+
+function getThumbnailStatus(
+  artImage: ArtImage | null,
+  detail: ArtImage | null,
+): ThumbnailStatus {
+  if (!artImage) return 'not-applicable'
+
+  if (detail) {
+    return detail.thumbnailData ? 'present' : 'missing'
+  }
+
+  if (artImage.thumbnailData) {
+    return 'present'
+  }
+
+  return 'unchecked'
+}
+
+function thumbnailStatusLabel(status: ThumbnailStatus) {
+  if (status === 'present') return 'present'
+  if (status === 'missing') return 'missing'
+  if (status === 'unchecked') return 'unchecked'
+  return 'n/a'
+}
+
+function thumbnailTileState(status: ThumbnailStatus) {
+  if (status === 'present') return 'success'
+  if (status === 'missing') return 'warning'
+  if (status === 'unchecked') return 'info'
+  return 'info'
+}
+
+function markThumbnailing(id: number) {
+  thumbnailingImageIds.value = new Set([...thumbnailingImageIds.value, id])
+}
+
+function unmarkThumbnailing(id: number) {
+  const next = new Set(thumbnailingImageIds.value)
+  next.delete(id)
+  thumbnailingImageIds.value = next
+}
+
+async function createThumbnailForRow(row: AuditRow) {
+  if (!row.artImage?.id) return
+
+  const id = row.artImage.id
+  markThumbnailing(id)
+
+  try {
+    const fullImage = await hydrateArtImage(id)
+
+    if (!fullImage?.imageData) {
+      throw new Error(`ArtImage #${id} has no imageData to thumbnail`)
+    }
+
+    if (fullImage.thumbnailData) {
+      setFixResult(row.key, 'Thumbnail already exists')
+      return
+    }
+
+    const thumbnailData = await createThumbnailDataUrl({
+      imageData: fullImage.imageData,
+      fileType: fullImage.fileType || row.artImage.fileType || 'png',
+      maxSize: 384,
+      quality: 0.82,
+    })
+
+    const response = await performFetch<ArtImage>(`/api/art/image/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ thumbnailData }),
+    })
+
+    if (!response.success || !response.data) {
+      throw new Error(
+        response.message || `Could not patch thumbnail for ArtImage #${id}`,
+      )
+    }
+
+    const updatedImage = {
+      ...fullImage,
+      ...response.data,
+      thumbnailData,
+    }
+
+    hydratedImageMap.value = new Map(hydratedImageMap.value).set(
+      id,
+      updatedImage,
+    )
+
+    allArtImages.value = allArtImages.value.map((image) => {
+      if (image.id !== id) return image
+      return {
+        ...image,
+        thumbnailData: '(set)',
+      }
+    })
+
+    setFixResult(row.key, `Thumbnail created for ArtImage #${id}`)
+    log(`ArtImage #${id}: thumbnailData created`, 'success')
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : `Thumbnail failed for ArtImage #${id}`
+
+    setFixResult(row.key, message)
+    log(`ArtImage #${id}: ${message}`, 'error')
+  } finally {
+    unmarkThumbnailing(id)
+  }
+}
+
+async function createThumbnailDataUrl(options: {
+  imageData: string
+  fileType?: string | null
+  maxSize?: number
+  quality?: number
+}) {
+  const source = ensureImageDataUrl(options.imageData, options.fileType)
+  const maxSize = options.maxSize || 384
+  const quality = options.quality || 0.82
+
+  const image = await loadImageElement(source)
+  const ratio = Math.min(1, maxSize / Math.max(image.width, image.height))
+  const width = Math.max(1, Math.round(image.width * ratio))
+  const height = Math.max(1, Math.round(image.height * ratio))
+
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+
+  const context = canvas.getContext('2d')
+
+  if (!context) {
+    throw new Error('Could not create canvas context')
+  }
+
+  context.drawImage(image, 0, 0, width, height)
+
+  return canvas.toDataURL('image/webp', quality)
+}
+
+function loadImageElement(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+
+    image.onload = () => resolve(image)
+    image.onerror = () =>
+      reject(new Error('Could not load imageData into browser image'))
+
+    image.src = src
+  })
+}
+
+function ensureImageDataUrl(imageData: string, fileType?: string | null) {
+  if (imageData.startsWith('data:')) return imageData
+
+  const normalizedType = normalizeMimeType(fileType)
+
+  return `data:${normalizedType};base64,${imageData}`
+}
+
+function normalizeMimeType(fileType?: string | null) {
+  const value = fileType?.toLowerCase().trim()
+
+  if (!value) return 'image/png'
+  if (value.includes('/')) return value
+  if (value === 'jpg') return 'image/jpeg'
+  if (value === 'jpeg') return 'image/jpeg'
+  if (value === 'webp') return 'image/webp'
+  if (value === 'gif') return 'image/gif'
+  if (value === 'png') return 'image/png'
+
+  return 'image/png'
 }
 
 function assessRow(row: AuditRow): AuditRow {
@@ -1003,6 +1227,23 @@ function assessRow(row: AuditRow): AuditRow {
       statusLabel: 'Link conflict',
       assessment:
         'This row has conflicting forward and reverse links. Pick the true ArtImage, then patch the incorrect side before trusting either card.',
+      repairHints,
+    }
+  }
+
+  if (hasArtImage && hasImageData && row.thumbnailStatus !== 'present') {
+    repairHints.push('create thumbnailData')
+
+    return {
+      ...row,
+      severity: row.thumbnailStatus === 'missing' ? 'warning' : 'info',
+      status: 'needs-thumbnail',
+      statusLabel:
+        row.thumbnailStatus === 'missing'
+          ? 'Needs thumbnail'
+          : 'Thumbnail unchecked',
+      assessment:
+        'This ArtImage has imageData but no confirmed thumbnailData. Create a lightweight thumbnail for faster gallery display.',
       repairHints,
     }
   }
@@ -1601,6 +1842,10 @@ function severityRank(severity: Severity) {
 
 function countRowsByStatus(status: StatusFilter) {
   if (status === 'all') return activeRows.value.length
+
+  if (status === 'needs-thumbnail') {
+    return activeRows.value.filter((row) => row.canCreateThumbnail).length
+  }
 
   return activeRows.value.filter((row) => row.status === status).length
 }

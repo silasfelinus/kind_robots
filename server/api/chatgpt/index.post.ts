@@ -90,9 +90,13 @@ const operationHandlers = {
 
   'image.get': ({ actor, request }) =>
     getImage({
-      actor,
       id: request.id,
       format: request.format,
+      actor,
+      thumbnail: request.thumbnail,
+      maxWidth: request.maxWidth,
+      maxHeight: request.maxHeight,
+      quality: request.quality,
     }),
 
   'relation.add': ({ actor, request }) =>

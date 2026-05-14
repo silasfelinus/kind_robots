@@ -17,6 +17,7 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
 import { artListPresets } from '@/stores/seeds/artList'
+import { useNavStore } from '@/stores/navStore'
 import {
   getArtImagesByIds,
   removeImageById,
@@ -287,6 +288,7 @@ type ArtStoreState = {
   generatedArt: Art[]
   artForm: GenerateArtData
   artListSelections: Record<string, string[]>
+  previousArtTab: string | null
 }
 
 const isClient = typeof window !== 'undefined'
@@ -366,6 +368,7 @@ export const useArtStore = defineStore('artStore', () => {
     currentCollection: null,
     generatedArt: [],
     artListSelections: {},
+    previousArtTab: null,
     artForm: {
       promptString: '',
       negativePrompt: '',
@@ -395,6 +398,7 @@ export const useArtStore = defineStore('artStore', () => {
   const randomStore = useRandomStore()
   const serverStore = useServerStore()
   const animationStore = useAnimationStore()
+  const navStore = useNavStore()
 
   const hoverArt = ref<Art | null>(null)
   const initializing = ref(false)
@@ -778,6 +782,12 @@ export const useArtStore = defineStore('artStore', () => {
         }
       }
 
+      const currentTab = navStore.getDashboardTab('art')
+      if (currentTab !== 'selected') {
+        state.previousArtTab = currentTab
+      }
+      navStore.setDashboardTab('art', 'selected')
+
       return {
         success: true,
         message: `Selected Art #${artRecord.id}.`,
@@ -1106,6 +1116,10 @@ export const useArtStore = defineStore('artStore', () => {
     state.currentArt = null
     state.currentArtImage = null
     setHoverArt(null)
+    if (state.previousArtTab) {
+      navStore.setDashboardTab('art', state.previousArtTab)
+      state.previousArtTab = null
+    }
   }
 
   async function getArtImageById(

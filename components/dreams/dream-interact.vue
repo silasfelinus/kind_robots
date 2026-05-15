@@ -301,7 +301,7 @@
                 :show-header="false"
                 :show-controls="false"
                 :show-card-actions="true"
-                @select="onCharacterSelect"
+                @select="addCharacter"
               />
             </div>
 
@@ -368,7 +368,7 @@
                 :show-header="false"
                 :show-controls="false"
                 :show-card-actions="true"
-                @select="onRewardSelect"
+                @select="addReward"
               />
             </div>
 
@@ -1233,52 +1233,43 @@ async function toggleMature(isMature: boolean) {
 }
 
 // ─── Characters (multi) ───────────────────────────────────────────────────────
-async function addCharacter(character: { id: number }) {
+// Accept any — character-gallery's @select payload is not typed as { id: number }
+async function addCharacter(character: any) {
+  const id: number | undefined =
+    typeof character?.id === 'number' ? character.id : undefined
+  if (id === undefined) return
   const ids = [
-    ...new Set([
-      ...dreamStore.selectedDreamCast.map((c) => c.id),
-      character.id,
-    ]),
+    ...new Set([...dreamStore.selectedDreamCast.map((c) => c.id), id]),
   ]
   await dreamStore.setDreamCast(ids)
-}
-// gallery @select payload type is not guaranteed — accept any and guard
-function onCharacterSelect(payload?: any) {
-  const id = typeof payload?.id === 'number' ? payload.id : undefined
-  if (id !== undefined) addCharacter({ id })
 }
 async function removeCharacter(id: number) {
   await dreamStore.setDreamCast(
     dreamStore.selectedDreamCast.map((c) => c.id).filter((cid) => cid !== id),
   )
 }
-// add-character may not declare 'created'/'saved' emits — accept any and guard
 async function onCharacterCreated(payload?: unknown) {
-  const id = (payload as { id?: number } | undefined)?.id
-  if (typeof id === 'number') await addCharacter({ id })
+  await addCharacter(payload)
 }
 
 // ─── Rewards (multi) ──────────────────────────────────────────────────────────
-async function addReward(reward: { id: number }) {
+// Accept any — reward-gallery's @select payload is not typed as { id: number }
+async function addReward(reward: any) {
+  const id: number | undefined =
+    typeof reward?.id === 'number' ? reward.id : undefined
+  if (id === undefined) return
   const ids = [
-    ...new Set([...dreamStore.selectedDreamItems.map((r) => r.id), reward.id]),
+    ...new Set([...dreamStore.selectedDreamItems.map((r) => r.id), id]),
   ]
   await dreamStore.setDreamItems(ids)
-}
-// gallery @select payload type is not guaranteed — accept any and guard
-function onRewardSelect(payload?: any) {
-  const id = typeof payload?.id === 'number' ? payload.id : undefined
-  if (id !== undefined) addReward({ id })
 }
 async function removeReward(id: number) {
   await dreamStore.setDreamItems(
     dreamStore.selectedDreamItems.map((r) => r.id).filter((rid) => rid !== id),
   )
 }
-// add-reward may not declare 'created'/'saved' emits — accept any and guard
 async function onRewardCreated(payload?: unknown) {
-  const id = (payload as { id?: number } | undefined)?.id
-  if (typeof id === 'number') await addReward({ id })
+  await addReward(payload)
 }
 
 // ─── Scenario (single) ────────────────────────────────────────────────────────

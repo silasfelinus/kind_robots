@@ -735,12 +735,13 @@ async function toggleCollection(collectionId: number) {
     const artId = currentArt.value.id
     const alreadySelected = artCollectionIds.value.includes(collectionId)
 
-    const response = alreadySelected
-      ? await artStore.removeArtFromCollection(collectionId, artId)
-      : await artStore.addArtToCollection(collectionId, artId)
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to update collection.')
+    if (alreadySelected) {
+      await collectionStore.removeArtFromCollection(artId, collectionId)
+    } else {
+      await collectionStore.addArtToCollection({
+        artId,
+        collectionId,
+      })
     }
 
     await collectionStore.fetchCollections?.(true)

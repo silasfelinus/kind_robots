@@ -109,7 +109,7 @@
           </span>
         </label>
 
-        <label class="form-control">
+        <div class="form-control">
           <span class="label">
             <span class="label-text font-bold">3. Collection</span>
           </span>
@@ -135,7 +135,16 @@
               Generated art is always saved. This adds a second destination.
             </span>
           </span>
-        </label>
+
+          <add-collection
+            class="mt-2"
+            :compact="true"
+            :disabled="isGenerating || isLoading"
+            :show-flags="false"
+            @created="handleCollectionCreated"
+            @selected="handleCollectionSelected"
+          />
+        </div>
       </section>
 
       <section
@@ -540,6 +549,20 @@ const canGenerate = computed(() => {
   )
 })
 
+function handleCollectionCreated(collection: ArtCollection) {
+  selectedCollectionId.value = collection.id
+  syncSelectedCollection(collection.id)
+  setMessage(
+    'success',
+    `Created collection: ${collection.label || collection.id}`,
+  )
+}
+
+function handleCollectionSelected(collection: ArtCollection) {
+  selectedCollectionId.value = collection.id
+  syncSelectedCollection(collection.id)
+}
+
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
   if (typeof value === 'number' || typeof value === 'boolean')
@@ -574,12 +597,14 @@ function configureArtImageUpload() {
 }
 
 function syncSelectedCollection(collectionId: number | null) {
-  const collection = collectionId
-    ? collectionOptions.value.find((entry) => entry.id === collectionId) || null
-    : null
+  if (!collectionId) {
+    collectionStore.currentCollection = null
+    collectionStore.clearSelectedCollections()
+    return
+  }
 
-  collectionStore.currentCollection = collection
-  collectionStore.selectedCollectionIds = collection ? [collection.id] : []
+  collectionStore.setCurrentCollection(collectionId)
+  collectionStore.setSelectedCollectionIds([collectionId])
 }
 
 function clearPrompt() {
@@ -612,15 +637,16 @@ async function loadGenerator() {
   try {
     await Promise.all([
       navStore.initialize(),
-      ...(serverStore.hasLoaded ? [] : [serverStore.initialize({ fetchRemote: true })]),
+      ...(serverStore.hasLoaded
+        ? []
+        : [serverStore.initialize({ fetchRemote: true })]),
       artStore.initialize({
         fetchRemote: false,
         hydrateImages: false,
-        initializeServerStore: false,  
+        initializeServerStore: false,
       }),
       collectionStore.fetchCollections?.(),
     ])
-
 
     if (!selectedServerId.value && serverStore.activeArtServer?.id) {
       selectedServerId.value = serverStore.activeArtServer.id

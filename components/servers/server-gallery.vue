@@ -523,7 +523,9 @@ const dropdownPlaceholder = computed(() => {
 onMounted(async () => {
   applyCurrentServerMode()
 
-  if (props.autoLoad) {
+  // kind-loader owns server initialization. Only fetch here if running
+  // in a context where kind-loader hasn't already loaded servers.
+  if (props.autoLoad && !serverStore.hasLoaded) {
     await refreshServers()
   }
 })

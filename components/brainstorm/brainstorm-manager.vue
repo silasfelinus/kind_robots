@@ -169,9 +169,7 @@
                   <button
                     type="button"
                     class="btn btn-accent rounded-2xl"
-                    :disabled="
-                      isGeneratingArt || !pitchForm.artPrompt?.trim()
-                    "
+                    :disabled="isGeneratingArt || !pitchForm.artPrompt?.trim()"
                     @click="generateArtImage"
                   >
                     <span
@@ -769,24 +767,19 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
+    // FIX:
     await Promise.all([
       navStore.initialize(),
-      pitchStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
-      promptStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      pitchStore.initialize({ force, fetchRemote: true }),
+      promptStore.initialize({ force, fetchRemote: true }),
       artStore.initialize({
         force,
         hydrateImages: false,
+        initializeServerStore: false,
       }),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
     ])
 
     promptStore.setPromptsFromString(buildPromptFragmentString())

@@ -174,6 +174,8 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
+    // FIX:
+    // FIX:
     await Promise.all([
       navStore.initialize(),
       characterStore.initialize({
@@ -181,14 +183,10 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
         createDefaultForm: true,
       }),
-      rewardStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      rewardStore.initialize({ force, fetchRemote: true }),
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
     ])
   } catch (error) {
     managerError.value =

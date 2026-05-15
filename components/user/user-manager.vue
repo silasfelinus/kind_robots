@@ -108,16 +108,16 @@ function setTab(tab: string) {
   }
 }
 
-async function refreshManagerData() {
+async function refreshManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
     await Promise.all([
       navStore.initialize(),
-      serverStore.initialize({
-        fetchRemote: true,
-      }),
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
     ])
   } catch (error) {
     managerError.value =
@@ -126,6 +126,11 @@ async function refreshManagerData() {
     isLoadingManager.value = false
   }
 }
+
+onMounted(async () => {
+  await refreshManagerData() // ← fires on mount, races kind-loader
+  setTab(activeTab.value)
+})
 
 async function logout(): Promise<void> {
   if (isLoggingOut.value) return
@@ -140,9 +145,4 @@ async function logout(): Promise<void> {
     isLoggingOut.value = false
   }
 }
-
-onMounted(async () => {
-  await refreshManagerData()
-  setTab(activeTab.value)
-})
 </script>

@@ -864,9 +864,9 @@ function clearPromptOptions() {
 onMounted(async () => {
   await Promise.all([
     chatStore.initialize(),
-    serverStore.initialize({
-      fetchRemote: true,
-    }),
+    ...(serverStore.hasLoaded
+      ? []
+      : [serverStore.initialize({ fetchRemote: true })]),
   ])
 })
 

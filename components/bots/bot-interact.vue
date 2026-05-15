@@ -640,6 +640,7 @@ async function copyPromptPreview() {
 }
 
 onMounted(async () => {
+  // FIX:
   await Promise.all([
     botStore.initialize({
       fetchRemote: true,
@@ -647,9 +648,9 @@ onMounted(async () => {
       createBlankForm: true,
     }),
     chatStore.initialize(),
-    serverStore.initialize({
-      fetchRemote: true,
-    }),
+    ...(serverStore.hasLoaded
+      ? []
+      : [serverStore.initialize({ fetchRemote: true })]),
   ])
 
   if (botStore.pendingLaunchMessage) {

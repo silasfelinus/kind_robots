@@ -468,7 +468,7 @@ export const useBotStore = defineStore('botStore', () => {
 
         hydrateFromLocalStorage()
 
-        if (options.initializeServerStore !== false) {
+        if (options.initializeServerStore === true) {
           await serverStore.initialize({
             fetchRemote: true,
           })

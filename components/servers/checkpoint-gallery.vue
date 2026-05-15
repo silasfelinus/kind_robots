@@ -354,7 +354,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Resource } from '@/stores/resourceStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
@@ -831,13 +831,7 @@ function hydrateSelectedSampler() {
   checkpointStore.selectSamplerByName('Euler a')
 }
 
-onMounted(async () => {
-  if (!props.autoLoad) return
-
-  hydrateSelectedSampler()
-
-  if (!props.showStatus) return
-
+async function doInitialModelRefresh() {
   isLoading.value = true
   localError.value = ''
 
@@ -845,11 +839,33 @@ onMounted(async () => {
     await refreshModel()
   } catch (error) {
     const message = getErrorMessage(error, 'Failed to initialize checkpoints')
-
     localError.value = message
     errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {
     isLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  if (!props.autoLoad) return
+
+  hydrateSelectedSampler()
+
+  if (!props.showStatus) return
+
+  // If servers are already loaded (kind-loader ran first), go immediately.
+  // Otherwise watch for them — don't race the loader.
+  if (serverStore.hasLoaded) {
+    await doInitialModelRefresh()
+  } else {
+    const unwatch = watch(
+      () => serverStore.hasLoaded,
+      async (loaded) => {
+        if (!loaded) return
+        unwatch()
+        await doInitialModelRefresh()
+      },
+    )
   }
 })
 </script>

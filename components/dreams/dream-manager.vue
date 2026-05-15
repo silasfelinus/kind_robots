@@ -257,7 +257,9 @@ const SERVER_MODE_BY_TAB: Record<string, 'art' | 'text' | 'selected'> = {
 }
 
 const tabs = computed(() =>
-  navStore.getDashboardTabs(dashboardKey).filter((tab) => tab.key !== 'overview'),
+  navStore
+    .getDashboardTabs(dashboardKey)
+    .filter((tab) => tab.key !== 'overview'),
 )
 
 const fallbackTab = computed(() =>
@@ -338,7 +340,7 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    await navStore.initialize()
+    await navStore.initialize() // sequential
 
     await Promise.all([
       dreamStore.initialize(force),
@@ -348,7 +350,7 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
         includeSeeds: true,
       }),
-      serverStore.initialize({ force, fetchRemote: true }),
+      serverStore.initialize({ force, fetchRemote: true }), // ← no hasLoaded guard
     ])
 
     setTab(activeTab.value)

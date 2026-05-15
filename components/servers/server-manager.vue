@@ -157,19 +157,24 @@ function setTab(tab: string) {
   serverStore.setCurrentServerMode('selected')
 }
 
+async function refreshManagerData() {
+  await loadManagerData(true)
+}
+
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
-    await Promise.all([
-      navStore.initialize(),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
-    ])
+    await navStore.initialize()
 
+    // Only fetch servers if kind-loader hasn't already done it
+    if (force || !serverStore.hasLoaded) {
+      await serverStore.initialize({ force, fetchRemote: true })
+    }
+
+    // checkpointStore.initialize() is a sync no-op if already set — fine to keep,
+    // but redundant since kind-loader now owns it
     checkpointStore.initialize()
   } catch (error) {
     managerError.value =
@@ -178,13 +183,4 @@ async function loadManagerData(force = false) {
     isLoadingManager.value = false
   }
 }
-
-async function refreshManagerData() {
-  await loadManagerData(true)
-}
-
-onMounted(async () => {
-  await loadManagerData()
-  setTab(activeTab.value)
-})
 </script>

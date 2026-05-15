@@ -809,7 +809,8 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function initialize(options: ArtInitializeOptions = {}): Promise<void> {
     const shouldFetchRemote = Boolean(options.fetchRemote)
-    const shouldInitializeServers = options.initializeServerStore !== false
+
+    const shouldInitializeServers = options.initializeServerStore === true
     const shouldInitializeCollections = Boolean(options.initializeCollections)
 
     if (state.isInitialized && !options.force && !shouldFetchRemote) return
@@ -2207,10 +2208,6 @@ export const useArtStore = defineStore('artStore', () => {
           message: 'Invalid prompt',
         }
       }
-
-      await serverStore.initialize({
-        fetchRemote: true,
-      })
 
       const server = getSelectedArtServer(data)
       const route = getArtGenerationRoute(server, data)

@@ -248,15 +248,9 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
         includeSeeds: true,
       }),
-      rewardStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      rewardStore.initialize({ force, fetchRemote: true }),
       dreamStore.initialize(force),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      serverStore.initialize({ force, fetchRemote: true }), // ← no hasLoaded guard
     ])
   } catch (error) {
     managerError.value =

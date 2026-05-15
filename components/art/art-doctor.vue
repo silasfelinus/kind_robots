@@ -181,10 +181,25 @@
               <option value="id-asc">ID ascending</option>
             </select>
 
+            <label
+              class="input input-bordered input-sm flex w-28 items-center gap-2 rounded-xl"
+            >
+              <span class="text-xs text-base-content/50">Batch</span>
+              <input
+                v-model.number="imageBatchLimit"
+                class="w-full"
+                type="number"
+                min="1"
+                max="200"
+              />
+            </label>
+
             <button
               class="btn btn-sm rounded-xl"
               type="button"
-              :disabled="visibleRows.length === 0 || isHydratingVisible"
+              :disabled="
+                limitedVisibleHydrationIds.length === 0 || isHydratingVisible
+              "
               @click="hydrateVisibleRows"
             >
               <span
@@ -192,7 +207,7 @@
                 class="loading loading-spinner loading-xs"
               />
               <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
-              Check visible imageData
+              Check {{ limitedVisibleHydrationIds.length }} imageData
             </button>
           </div>
         </div>
@@ -996,6 +1011,36 @@ function buildArtImageRow(artImage: ArtImage): AuditRow {
   )
   const createdAtValue = toTimestamp(artImage.createdAt)
 
+  const DEFAULT_IMAGE_BATCH_LIMIT = 20
+
+  const imageBatchLimit = ref(DEFAULT_IMAGE_BATCH_LIMIT)
+
+  const normalizedImageBatchLimit = computed(() => {
+    const value = Number(imageBatchLimit.value)
+
+    if (!Number.isFinite(value)) return DEFAULT_IMAGE_BATCH_LIMIT
+
+    return Math.max(1, Math.floor(value))
+  })
+
+  const visibleHydrationIds = computed(() => {
+    const seen = new Set<number>()
+
+    return visibleRows.value
+      .map((row) => row.artImage?.id)
+      .filter((id): id is number => Boolean(id))
+      .filter((id) => {
+        if (seen.has(id)) return false
+        seen.add(id)
+        return true
+      })
+      .filter((id) => !hydratedImageMap.value.has(id))
+  })
+
+  const limitedVisibleHydrationIds = computed(() => {
+    return visibleHydrationIds.value.slice(0, normalizedImageBatchLimit.value)
+  })
+
   const base: AuditRow = {
     key: `artImage-${artImage.id}`,
     mode: 'artImage',
@@ -1479,18 +1524,30 @@ async function runScan() {
   }
 }
 
+const visibleThumbnailRows = computed(() => {
+  return visibleRows.value
+    .filter((row) => row.canCreateThumbnail && row.artImage?.id)
+    .slice(0, normalizedImageBatchLimit.value)
+})
+
 async function hydrateVisibleRows() {
   isHydratingVisible.value = true
 
   try {
-    const ids = visibleRows.value
-      .map((row) => row.artImage?.id)
-      .filter((id): id is number => Boolean(id))
-      .filter((id) => !hydratedImageMap.value.has(id))
+    const ids = limitedVisibleHydrationIds.value
+
+    log(
+      `Checking ${ids.length} of ${visibleHydrationIds.value.length} visible unhydrated ArtImage records`,
+    )
 
     for (const id of ids) {
       await hydrateArtImage(id)
     }
+
+    log(
+      `Batch imageData check complete for ${ids.length} ArtImage records`,
+      'success',
+    )
   } finally {
     isHydratingVisible.value = false
   }

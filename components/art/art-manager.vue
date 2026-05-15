@@ -50,7 +50,7 @@
         </div>
 
         <div class="min-h-0 xl:col-span-7">
-          <add-art />
+          <art-maker />
         </div>
       </section>
 

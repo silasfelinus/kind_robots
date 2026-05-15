@@ -493,7 +493,7 @@
               >
                 Generate Art
               </p>
-              <add-art
+              <art-maker
                 :dream-id="dreamStore.selectedDreamId"
                 @created="onArtCreated"
                 @saved="onArtCreated"

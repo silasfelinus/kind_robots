@@ -285,7 +285,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           `/api/art/collection/${collection.id}`,
           {
             method: 'PATCH',
-            body: JSON.stringify({ artIds: [artId] }),
+            body: JSON.stringify({ addArtIds: [artId] }),
             headers: { 'Content-Type': 'application/json' },
           },
         )

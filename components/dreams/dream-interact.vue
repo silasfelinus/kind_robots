@@ -301,7 +301,7 @@
                 :show-header="false"
                 :show-controls="false"
                 :show-card-actions="true"
-                @select="addCharacter"
+                @select="onCharacterSelect"
               />
             </div>
 
@@ -368,7 +368,7 @@
                 :show-header="false"
                 :show-controls="false"
                 :show-card-actions="true"
-                @select="addReward"
+                @select="onRewardSelect"
               />
             </div>
 
@@ -1242,6 +1242,11 @@ async function addCharacter(character: { id: number }) {
   ]
   await dreamStore.setDreamCast(ids)
 }
+// gallery @select payload type is not guaranteed — accept any and guard
+function onCharacterSelect(payload?: any) {
+  const id = typeof payload?.id === 'number' ? payload.id : undefined
+  if (id !== undefined) addCharacter({ id })
+}
 async function removeCharacter(id: number) {
   await dreamStore.setDreamCast(
     dreamStore.selectedDreamCast.map((c) => c.id).filter((cid) => cid !== id),
@@ -1259,6 +1264,11 @@ async function addReward(reward: { id: number }) {
     ...new Set([...dreamStore.selectedDreamItems.map((r) => r.id), reward.id]),
   ]
   await dreamStore.setDreamItems(ids)
+}
+// gallery @select payload type is not guaranteed — accept any and guard
+function onRewardSelect(payload?: any) {
+  const id = typeof payload?.id === 'number' ? payload.id : undefined
+  if (id !== undefined) addReward({ id })
 }
 async function removeReward(id: number) {
   await dreamStore.setDreamItems(

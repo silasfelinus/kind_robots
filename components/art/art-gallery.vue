@@ -3,9 +3,9 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
-    <!-- ── Breadcrumb / back nav (always visible in arts mode) ── -->
+    <!-- ── Breadcrumb / back nav (arts/all mode, non-dropdown) ── -->
     <nav
-      v-if="mode === 'arts' && !isDropdownMode"
+      v-if="(mode === 'arts' || mode === 'all') && !isDropdownMode"
       class="flex shrink-0 items-center gap-1 rounded-xl bg-base-200 px-3 py-2 text-sm"
       aria-label="Gallery navigation"
     >
@@ -24,11 +24,15 @@
       />
 
       <span class="min-w-0 truncate font-semibold text-base-content">
-        {{ activeCollection?.label || 'Untitled Collection' }}
+        {{
+          mode === 'all'
+            ? 'All Content'
+            : activeCollection?.label || 'Untitled Collection'
+        }}
       </span>
 
       <span class="ml-auto shrink-0 badge badge-ghost text-xs">
-        {{ currentGalleryItems.length }} art
+        {{ displayCount }} items
       </span>
     </nav>
 
@@ -77,7 +81,7 @@
         </div>
       </div>
 
-      <!-- Search / filter controls (collections mode only) -->
+      <!-- Collections mode controls -->
       <div
         v-if="showControls && !isDropdownMode && mode === 'collections'"
         class="grid grid-cols-1 gap-2 md:grid-cols-[auto_minmax(0,1fr)_auto]"
@@ -87,7 +91,6 @@
           class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
           <span class="label-text font-bold">Show Mature</span>
-
           <input
             v-model="showMature"
             type="checkbox"
@@ -102,28 +105,95 @@
           class="input input-bordered input-sm w-full bg-base-100"
         />
 
-        <button
-          class="btn btn-ghost btn-sm rounded-xl"
-          type="button"
-          :disabled="!activeCollection"
-          @click="clearSelectedCollection"
-        >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
-          Clear
-        </button>
+        <div class="flex gap-2">
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="!activeCollection"
+            @click="clearSelectedCollection"
+          >
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+            Clear
+          </button>
+
+          <button
+            class="btn btn-outline btn-sm rounded-xl"
+            type="button"
+            @click="enterAllMode"
+          >
+            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+            All
+          </button>
+        </div>
       </div>
 
-      <!-- Search inside a collection -->
+      <!-- Arts mode controls -->
       <div
-        v-if="showControls && !isDropdownMode && mode === 'arts'"
-        class="flex gap-2"
+        v-if="
+          showControls && !isDropdownMode && (mode === 'arts' || mode === 'all')
+        "
+        class="flex flex-col gap-2"
       >
-        <input
-          v-model="searchQuery"
-          type="search"
-          placeholder="Search prompts, checkpoints..."
-          class="input input-bordered input-sm w-full bg-base-100"
-        />
+        <div class="flex gap-2">
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Search prompts, checkpoints..."
+            class="input input-bordered input-sm w-full bg-base-100"
+          />
+        </div>
+
+        <!-- Content type toggle -->
+        <div class="flex items-center gap-1 rounded-xl bg-base-100 p-1">
+          <button
+            v-for="opt in contentModeOptions"
+            :key="opt.value"
+            class="btn btn-sm flex-1 rounded-lg"
+            :class="contentMode === opt.value ? 'btn-primary' : 'btn-ghost'"
+            type="button"
+            @click="contentMode = opt.value"
+          >
+            <Icon :name="opt.icon" class="h-4 w-4" />
+            {{ opt.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- All-mode pagination controls -->
+      <div
+        v-if="showControls && !isDropdownMode && mode === 'all'"
+        class="flex items-center gap-2"
+      >
+        <label class="label-text text-xs font-bold shrink-0">Per page:</label>
+        <select
+          v-model="allPageSize"
+          class="select select-bordered select-xs bg-base-100"
+        >
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+          <option :value="100">100</option>
+        </select>
+        <span class="text-xs text-base-content/50 ml-auto">
+          {{ allPageStart + 1 }}–{{ Math.min(allPageEnd, allItems.length) }} of
+          {{ allItems.length }}
+        </span>
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          type="button"
+          :disabled="allPage === 0"
+          @click="allPage--"
+        >
+          <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
+        </button>
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          type="button"
+          :disabled="allPageEnd >= allItems.length"
+          @click="allPage++"
+        >
+          <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
+        </button>
       </div>
     </header>
 
@@ -219,7 +289,6 @@
             class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
           >
             <span class="label-text font-bold">Public</span>
-
             <input
               v-model="collectionForm.isPublic"
               type="checkbox"
@@ -231,7 +300,6 @@
             class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
           >
             <span class="label-text font-bold">Mature</span>
-
             <input
               v-model="collectionForm.isMature"
               type="checkbox"
@@ -423,7 +491,6 @@
             </option>
 
             <option v-if="allowAdd" disabled>──────────</option>
-
             <option v-if="allowAdd" value="__add__">Add Collection</option>
           </select>
 
@@ -442,18 +509,15 @@
               >
                 Public
               </span>
-
               <span v-else class="badge badge-ghost badge-sm">Private</span>
-
               <span
                 v-if="activeCollection.isMature"
                 class="badge badge-warning badge-sm"
               >
                 Mature
               </span>
-
               <span class="badge badge-secondary badge-sm">
-                {{ selectedCollectionArtCount }} art
+                {{ selectedCollectionArtCount }} items
               </span>
             </div>
           </div>
@@ -467,9 +531,7 @@
           class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
         >
           <Icon name="kind-icon:gallery" class="h-12 w-12 text-primary" />
-
           <p class="mt-2 text-lg font-bold">No collections found.</p>
-
           <p class="mt-1 text-sm">
             Nothing matches your search, or none exist yet.
           </p>
@@ -505,17 +567,98 @@
         </div>
       </div>
 
-      <!-- Arts grid -->
+      <!-- All-content paginated view -->
+      <div v-else-if="mode === 'all'" class="flex flex-col gap-3">
+        <div
+          v-if="pagedAllItems.length === 0"
+          class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
+        >
+          <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
+          <p class="mt-2 text-lg font-bold">Nothing here yet.</p>
+          <p class="mt-1 text-sm">No art or images match the current filter.</p>
+        </div>
+
+        <div v-else class="art-grid">
+          <div
+            v-for="item in pagedAllItems"
+            :key="item.key"
+            class="group relative"
+          >
+            <image-card
+              v-if="item.source === 'artImage' && item.artImage"
+              :art-image="item.artImage"
+              :selected="artStore.currentArtImage?.id === item.artImage.id"
+              :compact="true"
+              :show-actions="true"
+              :show-prompt="false"
+              :show-meta="false"
+              :show-generation-meta="false"
+              :show-select-button="false"
+              :allow-delete="item.canDelete"
+              :allow-edit="item.canEdit"
+              @select="selectImage"
+              @edit="startEditingImage"
+              @delete="handleImageDeleted"
+            />
+
+            <art-card
+              v-else-if="item.source === 'art' && item.art"
+              :art="item.art"
+              :selected="selectedArt?.id === item.art.id"
+              :compact="true"
+              :show-actions="true"
+              :show-prompt="false"
+              :show-meta="false"
+              :show-select-button="false"
+              :allow-delete="item.canDelete"
+              :allow-edit="item.canEdit"
+              @select="artStore.selectArtRecord(item.art, null)"
+              @edit="startEditingArt"
+              @delete="handleArtDeleted"
+            />
+          </div>
+        </div>
+
+        <!-- Pagination footer -->
+        <div
+          v-if="allItems.length > allPageSize"
+          class="flex shrink-0 items-center justify-center gap-2 pt-1"
+        >
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="allPage === 0"
+            @click="allPage--"
+          >
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            Prev
+          </button>
+          <span class="text-sm text-base-content/60">
+            Page {{ allPage + 1 }} / {{ allPageCount }}
+          </span>
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="allPageEnd >= allItems.length"
+            @click="allPage++"
+          >
+            Next
+            <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Arts grid (collection detail view) -->
       <div v-else class="flex flex-col gap-3">
+        <!-- Inline collection flags for editable collections -->
         <div
           v-if="activeCollection && canEditActive"
-          class="flex flex-wrap items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+          class="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
         >
           <label
             class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
           >
             <span class="label-text text-xs font-bold">Public</span>
-
             <input
               v-model="activeCollection.isPublic"
               type="checkbox"
@@ -528,7 +671,6 @@
             class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
           >
             <span class="label-text text-xs font-bold">Mature</span>
-
             <input
               v-model="activeCollection.isMature"
               type="checkbox"
@@ -543,9 +685,7 @@
           class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/55"
         >
           <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
-
           <p class="mt-2 text-lg font-bold">Nothing here yet.</p>
-
           <p class="mt-1 text-sm">This collection is empty.</p>
 
           <button
@@ -564,8 +704,8 @@
             :key="item.key"
             class="group relative"
           >
-            <ImageCard
-              v-if="item.artImage"
+            <image-card
+              v-if="item.source === 'artImage' && item.artImage"
               :art-image="item.artImage"
               :selected="artStore.currentArtImage?.id === item.artImage.id"
               :compact="true"
@@ -582,7 +722,7 @@
             />
 
             <art-card
-              v-else-if="item.art"
+              v-else-if="item.source === 'art' && item.art"
               :art="item.art"
               :selected="selectedArt?.id === item.art.id"
               :compact="true"
@@ -592,18 +732,10 @@
               :show-select-button="false"
               :allow-delete="item.canDelete"
               :allow-edit="item.canEdit"
-              @select="artStore.selectArtRecord(item.art, item.artImage)"
+              @select="artStore.selectArtRecord(item.art, null)"
               @edit="startEditingArt"
               @delete="handleArtDeleted"
             />
-
-            <div
-              v-if="item.art && !item.artImage"
-              class="absolute left-2 top-2 z-10 rounded-full bg-warning px-2 py-1 text-xs font-bold text-warning-content shadow"
-              title="This Art record does not have a resolved ArtImage yet"
-            >
-              Legacy Art
-            </div>
 
             <button
               v-if="
@@ -633,7 +765,7 @@
 
 <script setup lang="ts">
 // /components/content/art/art-gallery.vue
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import type { Art, ArtImage } from '@/stores/artStore'
 import { useArtStore } from '@/stores/artStore'
@@ -641,8 +773,9 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
 
 type CollectionGalleryVariant = 'dashboard' | 'row' | 'dropdown'
+type ContentMode = 'art' | 'artImage' | 'both'
 
-type GalleryArtItem = {
+type GalleryItem = {
   art: Art | null
   artImage: ArtImage | null
   key: string
@@ -650,6 +783,16 @@ type GalleryArtItem = {
   canEdit: boolean
   canDelete: boolean
 }
+
+const contentModeOptions: {
+  value: ContentMode
+  label: string
+  icon: string
+}[] = [
+  { value: 'art', label: 'Art', icon: 'kind-icon:image' },
+  { value: 'artImage', label: 'Images', icon: 'kind-icon:gallery' },
+  { value: 'both', label: 'Both', icon: 'kind-icon:layers' },
+]
 
 const props = withDefaults(
   defineProps<{
@@ -694,8 +837,13 @@ const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
 
-const mode = ref<'collections' | 'arts'>('collections')
+const mode = ref<'collections' | 'arts' | 'all'>('collections')
 const activeCollection = ref<ArtCollection | null>(null)
+const contentMode = ref<ContentMode>('both')
+
+// All-mode pagination
+const allPage = ref(0)
+const allPageSize = ref(20)
 
 const isLoading = ref(false)
 const localError = ref('')
@@ -719,20 +867,16 @@ const mergeTargetId = ref<number | null>(null)
 const isMerging = ref(false)
 
 const selectedArt = computed(() => artStore.currentArt)
-
 const isDropdownMode = computed(() => props.variant === 'dropdown')
-
-const isCompact = computed(() => {
-  return props.compact || props.variant === 'row' || isDropdownMode.value
-})
-
-const layoutClass = computed(() => {
-  return props.variant === 'row' ? 'collection-row' : 'collection-grid'
-})
-
-const currentUserId = computed(() => {
-  return userStore.userId ?? userStore.user?.id ?? null
-})
+const isCompact = computed(
+  () => props.compact || props.variant === 'row' || isDropdownMode.value,
+)
+const layoutClass = computed(() =>
+  props.variant === 'row' ? 'collection-row' : 'collection-grid',
+)
+const currentUserId = computed(
+  () => userStore.userId ?? userStore.user?.id ?? null,
+)
 
 const showMature = computed({
   get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
@@ -742,86 +886,19 @@ const showMature = computed({
   },
 })
 
-const displayCount = computed(() => {
-  if (isDropdownMode.value) return visibleCollections.value.length
-  return mode.value === 'collections'
-    ? visibleCollections.value.length
-    : currentGalleryItems.value.length
-})
-
-const headerTitle = computed(() => {
-  if (
-    mode.value === 'arts' &&
-    activeCollection.value &&
-    !isDropdownMode.value
-  ) {
-    return activeCollection.value.label || 'Untitled Collection'
-  }
-  return props.title
-})
-
-const headerSubtitle = computed(() => {
-  if (
-    mode.value === 'arts' &&
-    activeCollection.value &&
-    !isDropdownMode.value
-  ) {
-    return (
-      activeCollection.value.description ||
-      'Browse and manage art in this collection.'
-    )
-  }
-  if (activeCollection.value) {
-    return activeCollection.value.label || props.subtitle
-  }
-  return props.subtitle
-})
-
-const selectedCollectionLabel = computed(() => {
-  return activeCollection.value?.label || 'No collection selected'
-})
-
-const selectedCollectionSubtitle = computed(() => {
-  return (
-    activeCollection.value?.description ||
-    'Choose a collection or add a new one.'
-  )
-})
-
-const selectedCollectionArtCount = computed(() => {
-  if (!activeCollection.value) return 0
-  if (activeCollection.value.id === -1) return allUnassignedArt.value.length
-
-  const collection = activeCollection.value as CollectionWithImages
-  const artCount = collection.art?.length ?? 0
-  const imageCount = getCollectionImages(collection).length
-
-  return artCount + imageCount
-})
-
-const collectionFormTitle = computed(() => {
-  return editingCollectionId.value ? 'Edit Collection' : 'Add Collection'
-})
-
-const collectionFormSubtitle = computed(() => {
-  return editingCollectionId.value
-    ? 'Update this collection without waking the gallery goblin.'
-    : 'Create a new destination for generated art.'
-})
-
-const canEditActive = computed(() => canEdit(activeCollection.value))
+// ── Collection helpers ───────────────────────────────────────────────────────
 
 const allUnassignedArt = computed<Art[]>(() => {
   const assignedIds = new Set<number>(
-    collectionStore.collections.flatMap((collection) => {
-      return (collection.art ?? [])
-        .map((art) => art.id)
-        .filter((id): id is number => typeof id === 'number')
-    }),
+    collectionStore.collections.flatMap((c) =>
+      (c.art ?? [])
+        .map((a) => a.id)
+        .filter((id): id is number => typeof id === 'number'),
+    ),
   )
-  return artStore.art.filter((art) => {
-    return typeof art.id === 'number' && !assignedIds.has(art.id)
-  })
+  return artStore.art.filter(
+    (a) => typeof a.id === 'number' && !assignedIds.has(a.id),
+  )
 })
 
 const unassignedCollection = computed<ArtCollection>(() => ({
@@ -838,24 +915,18 @@ const unassignedCollection = computed<ArtCollection>(() => ({
 }))
 
 const baseCollections = computed<ArtCollection[]>(() => {
-  const realCollections = collectionStore.collections || []
-  const visibleRealCollections = realCollections.filter((collection) => {
-    if (userStore.isAdmin) return true
-    return collection.isPublic || collection.userId === currentUserId.value
-  })
-  return [unassignedCollection.value, ...visibleRealCollections]
+  const real = (collectionStore.collections || []).filter(
+    (c) => userStore.isAdmin || c.isPublic || c.userId === currentUserId.value,
+  )
+  return [unassignedCollection.value, ...real]
 })
 
 const visibleCollections = computed<ArtCollection[]>(() => {
-  let collections = baseCollections.value
-
-  if (!showMature.value) {
-    collections = collections.filter((c) => !c.isMature)
-  }
-
+  let list = baseCollections.value
+  if (!showMature.value) list = list.filter((c) => !c.isMature)
   const query = searchQuery.value.trim().toLowerCase()
   if (query) {
-    collections = collections.filter((c) =>
+    list = list.filter((c) =>
       [c.label, c.description, c.username, String(c.id)]
         .filter(Boolean)
         .join(' ')
@@ -863,75 +934,35 @@ const visibleCollections = computed<ArtCollection[]>(() => {
         .includes(query),
     )
   }
-
-  return collections
-})
-
-const currentArtList = computed<Art[]>(() => {
-  if (!activeCollection.value) return []
-
-  const base =
-    activeCollection.value.id === -1
-      ? allUnassignedArt.value
-      : (activeCollection.value.art || []).filter((art) => Boolean(art?.id))
-
-  let artList = [...base]
-
-  if (!showMature.value) {
-    artList = artList.filter((art) => !art.isMature)
-  }
-
-  const query = searchQuery.value.trim().toLowerCase()
-  if (query) {
-    artList = artList.filter((art) =>
-      [
-        art.promptString,
-        art.negativePrompt,
-        art.designer,
-        art.checkpoint,
-        art.sampler,
-        String(art.id),
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-        .includes(query),
-    )
-  }
-
-  return artList
+  return list
 })
 
 function getCollectionImages(collection: CollectionWithImages): ArtImage[] {
-  const directImages = collection.artImages || collection.ArtImages || []
-
-  return directImages.filter((image): image is ArtImage => {
-    return Boolean(image?.id)
-  })
+  return (collection.artImages || collection.ArtImages || []).filter(
+    (img): img is ArtImage => Boolean(img?.id),
+  )
 }
 
-const currentArtImageList = computed<ArtImage[]>(() => {
-  if (!activeCollection.value || activeCollection.value.id === -1) return []
+// ── Art / ArtImage lists for current collection ──────────────────────────────
 
-  const collection = activeCollection.value as CollectionWithImages
-  let images = getCollectionImages(collection)
-
-  if (!showMature.value) {
-    images = images.filter((image) => !image.isMature)
-  }
-
+const currentArtList = computed<Art[]>(() => {
+  if (!activeCollection.value) return []
+  const base =
+    activeCollection.value.id === -1
+      ? allUnassignedArt.value
+      : (activeCollection.value.art || []).filter((a) => Boolean(a?.id))
+  let list = [...base]
+  if (!showMature.value) list = list.filter((a) => !a.isMature)
   const query = searchQuery.value.trim().toLowerCase()
   if (query) {
-    images = images.filter((image) =>
+    list = list.filter((a) =>
       [
-        image.promptString,
-        image.negativePrompt,
-        image.designer,
-        image.checkpoint,
-        image.sampler,
-        image.fileName,
-        String(image.id),
-        image.artId ? String(image.artId) : '',
+        a.promptString,
+        a.negativePrompt,
+        a.designer,
+        a.checkpoint,
+        a.sampler,
+        String(a.id),
       ]
         .filter(Boolean)
         .join(' ')
@@ -939,75 +970,216 @@ const currentArtImageList = computed<ArtImage[]>(() => {
         .includes(query),
     )
   }
+  return list
+})
 
+const currentArtImageList = computed<ArtImage[]>(() => {
+  if (!activeCollection.value || activeCollection.value.id === -1) return []
+  const collection = activeCollection.value as CollectionWithImages
+  let images = getCollectionImages(collection)
+  if (!showMature.value) images = images.filter((img) => !img.isMature)
+  const query = searchQuery.value.trim().toLowerCase()
+  if (query) {
+    images = images.filter((img) =>
+      [
+        img.promptString,
+        img.negativePrompt,
+        img.designer,
+        img.checkpoint,
+        img.sampler,
+        img.fileName,
+        String(img.id),
+        img.artId ? String(img.artId) : '',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(query),
+    )
+  }
   return images
 })
 
-const artImageById = computed(() => {
-  return new Map(
-    artStore.artImages
-      .filter((image): image is ArtImage => Boolean(image?.id))
-      .map((image) => [image.id, image]),
-  )
-})
+// ── Gallery items for collection detail view ─────────────────────────────────
 
-const artImageByArtId = computed(() => {
-  const map = new Map<number, ArtImage>()
-  for (const image of artStore.artImages) {
-    if (image.artId) map.set(image.artId, image)
-  }
-  return map
-})
+const currentGalleryItems = computed<GalleryItem[]>(() => {
+  const artItems: GalleryItem[] =
+    contentMode.value !== 'artImage'
+      ? currentArtList.value.map((art) => ({
+          art,
+          artImage: null,
+          key: `art-${art.id}`,
+          source: 'art' as const,
+          canEdit: canDeleteArt(art),
+          canDelete: canDeleteArt(art),
+        }))
+      : []
 
-const currentGalleryItems = computed<GalleryArtItem[]>(() => {
-  const artItems = currentArtList.value.map((art) => {
-    const artImage = getImageForArt(art)
-
-    return {
-      art,
-      artImage,
-      key: artImage ? `art-${art.id}-image-${artImage.id}` : `art-${art.id}`,
-      source: 'art' as const,
-      canEdit: canDeleteArt(art),
-      canDelete: canDeleteArt(art),
-    }
-  })
-
-  const imageItems = currentArtImageList.value.map((artImage) => {
-    const linkedArt = artImage.artId
-      ? artStore.art.find((art) => art.id === artImage.artId) || null
-      : null
-
-    return {
-      art: linkedArt,
-      artImage,
-      key: `direct-image-${artImage.id}`,
-      source: 'artImage' as const,
-      canEdit: canDeleteArtImage(artImage),
-      canDelete: canDeleteArtImage(artImage),
-    }
-  })
+  const imageItems: GalleryItem[] =
+    contentMode.value !== 'art'
+      ? currentArtImageList.value.map((artImage) => ({
+          art: null,
+          artImage,
+          key: `direct-image-${artImage.id}`,
+          source: 'artImage' as const,
+          canEdit: canDeleteArtImage(artImage),
+          canDelete: canDeleteArtImage(artImage),
+        }))
+      : []
 
   return [...artItems, ...imageItems]
 })
 
-function getImageForArt(art: Art): ArtImage | null {
-  if (art.artImageId) {
-    const directImage = artImageById.value.get(art.artImageId)
-    if (directImage) return directImage
+// ── All-mode items ────────────────────────────────────────────────────────────
+
+const allItems = computed<GalleryItem[]>(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  const artItems: GalleryItem[] =
+    contentMode.value !== 'artImage'
+      ? artStore.art
+          .filter((a) => {
+            if (!showMature.value && a.isMature) return false
+            if (!query) return true
+            return [
+              a.promptString,
+              a.designer,
+              a.checkpoint,
+              a.sampler,
+              String(a.id),
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase()
+              .includes(query)
+          })
+          .map((art) => ({
+            art,
+            artImage: null,
+            key: `all-art-${art.id}`,
+            source: 'art' as const,
+            canEdit: canDeleteArt(art),
+            canDelete: canDeleteArt(art),
+          }))
+      : []
+
+  const imageItems: GalleryItem[] =
+    contentMode.value !== 'art'
+      ? artStore.artImages
+          .filter((img) => {
+            if (!showMature.value && img.isMature) return false
+            if (!query) return true
+            return [
+              img.promptString,
+              img.fileName,
+              img.designer,
+              img.checkpoint,
+              String(img.id),
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase()
+              .includes(query)
+          })
+          .map((artImage) => ({
+            art: null,
+            artImage,
+            key: `all-image-${artImage.id}`,
+            source: 'artImage' as const,
+            canEdit: canDeleteArtImage(artImage),
+            canDelete: canDeleteArtImage(artImage),
+          }))
+      : []
+
+  return [...artItems, ...imageItems]
+})
+
+// Reset page when items or pagesize changes
+watch([allItems, allPageSize], () => {
+  allPage.value = 0
+})
+
+const allPageStart = computed(() => allPage.value * allPageSize.value)
+const allPageEnd = computed(() => allPageStart.value + allPageSize.value)
+const allPageCount = computed(() =>
+  Math.max(1, Math.ceil(allItems.value.length / allPageSize.value)),
+)
+const pagedAllItems = computed(() =>
+  allItems.value.slice(allPageStart.value, allPageEnd.value),
+)
+
+// ── Display helpers ───────────────────────────────────────────────────────────
+
+const displayCount = computed(() => {
+  if (isDropdownMode.value) return visibleCollections.value.length
+  if (mode.value === 'all') return allItems.value.length
+  if (mode.value === 'arts') return currentGalleryItems.value.length
+  return visibleCollections.value.length
+})
+
+const headerTitle = computed(() => {
+  if (mode.value === 'all' && !isDropdownMode.value) return 'All Content'
+  if (
+    mode.value === 'arts' &&
+    activeCollection.value &&
+    !isDropdownMode.value
+  ) {
+    return activeCollection.value.label || 'Untitled Collection'
   }
-  return artImageByArtId.value.get(art.id) || null
-}
+  return props.title
+})
 
-const mergeTargetOptions = computed<ArtCollection[]>(() => {
-  return collectionStore.collections.filter(
+const headerSubtitle = computed(() => {
+  if (mode.value === 'all') return 'All art and images across every collection.'
+  if (
+    mode.value === 'arts' &&
+    activeCollection.value &&
+    !isDropdownMode.value
+  ) {
+    return (
+      activeCollection.value.description ||
+      'Browse and manage art in this collection.'
+    )
+  }
+  if (activeCollection.value)
+    return activeCollection.value.label || props.subtitle
+  return props.subtitle
+})
+
+const selectedCollectionLabel = computed(
+  () => activeCollection.value?.label || 'No collection selected',
+)
+const selectedCollectionSubtitle = computed(
+  () =>
+    activeCollection.value?.description ||
+    'Choose a collection or add a new one.',
+)
+
+const selectedCollectionArtCount = computed(() => {
+  if (!activeCollection.value) return 0
+  if (activeCollection.value.id === -1) return allUnassignedArt.value.length
+  const c = activeCollection.value as CollectionWithImages
+  return (c.art?.length ?? 0) + getCollectionImages(c).length
+})
+
+const collectionFormTitle = computed(() =>
+  editingCollectionId.value ? 'Edit Collection' : 'Add Collection',
+)
+const collectionFormSubtitle = computed(() =>
+  editingCollectionId.value
+    ? 'Update this collection without waking the gallery goblin.'
+    : 'Create a new destination for generated art.',
+)
+
+const canEditActive = computed(() => canEdit(activeCollection.value))
+
+const mergeTargetOptions = computed<ArtCollection[]>(() =>
+  collectionStore.collections.filter(
     (c) => c.id !== activeCollection.value?.id,
-  )
-})
+  ),
+)
 
-onMounted(async () => {
-  if (props.autoLoad) await refresh()
-})
+// ── Permission helpers ────────────────────────────────────────────────────────
 
 function canEdit(collection: ArtCollection | null): boolean {
   if (!collection || collection.id === -1) return false
@@ -1025,60 +1197,13 @@ function canDeleteArtImage(image: ArtImage): boolean {
   return userStore.isAdmin || image.userId === currentUserId.value
 }
 
-async function refresh() {
-  isLoading.value = true
-  localError.value = ''
+// ── Lifecycle ─────────────────────────────────────────────────────────────────
 
-  try {
-    await Promise.all([
-      artStore.initialize({
-        fetchRemote: true,
-        force: true,
-        hydrateImages: false,
-      }),
-      artStore.fetchAllArtImages({
-        force: true,
-        includeThumbnailData: true,
-      }),
-      collectionStore.fetchCollections?.(true),
-    ])
+onMounted(async () => {
+  if (props.autoLoad) await refresh()
+})
 
-    if (activeCollection.value?.id && activeCollection.value.id !== -1) {
-      const freshCollection = collectionStore.collections.find((collection) => {
-        return collection.id === activeCollection.value?.id
-      })
-
-      if (freshCollection) {
-        activeCollection.value = freshCollection
-        collectionStore.setCurrentCollection?.(freshCollection.id)
-      }
-    }
-  } catch (error) {
-    const message = getErrorMessage(error, 'Failed to load data')
-    localError.value = message
-    errorStore.setError(ErrorType.NETWORK_ERROR, message)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-function selectCollectionFromEvent(event: Event) {
-  const target = event.target as HTMLSelectElement
-  if (target.value === '__add__') {
-    startAddingCollection()
-    return
-  }
-  const id = Number(target.value)
-  if (!Number.isInteger(id)) {
-    clearSelectedCollection()
-    return
-  }
-  const collection = visibleCollections.value.find((item) => item.id === id)
-  if (!collection) return
-  activeCollection.value =
-    collection.id === -1 ? unassignedCollection.value : collection
-  collectionStore.setCurrentCollection?.(collection.id)
-}
+// ── Navigation ────────────────────────────────────────────────────────────────
 
 function enterCollection(collection: ArtCollection) {
   activeCollection.value =
@@ -1088,6 +1213,12 @@ function enterCollection(collection: ArtCollection) {
   showMergePanel.value = false
   showCollectionForm.value = false
   collectionStore.setCurrentCollection?.(collection.id)
+}
+
+function enterAllMode() {
+  mode.value = 'all'
+  allPage.value = 0
+  searchQuery.value = ''
 }
 
 function exitCollection() {
@@ -1109,6 +1240,26 @@ function clearSelectedCollection() {
 function clearSelectedArt() {
   artStore.deselectArt?.()
 }
+
+function selectCollectionFromEvent(event: Event) {
+  const target = event.target as HTMLSelectElement
+  if (target.value === '__add__') {
+    startAddingCollection()
+    return
+  }
+  const id = Number(target.value)
+  if (!Number.isInteger(id)) {
+    clearSelectedCollection()
+    return
+  }
+  const collection = visibleCollections.value.find((item) => item.id === id)
+  if (!collection) return
+  activeCollection.value =
+    collection.id === -1 ? unassignedCollection.value : collection
+  collectionStore.setCurrentCollection?.(collection.id)
+}
+
+// ── Collection form ───────────────────────────────────────────────────────────
 
 function startAddingCollection() {
   editingCollectionId.value = null
@@ -1207,9 +1358,8 @@ async function confirmDeleteCollection() {
     !confirm(
       `Delete "${label}"? The collection is removed, but the art inside is kept.`,
     )
-  ) {
+  )
     return
-  }
   try {
     const result = await collectionStore.deleteCollectionById(collection.id)
     if (result) {
@@ -1237,6 +1387,8 @@ async function saveActiveCollectionFlags() {
     )
   }
 }
+
+// ── Item actions ──────────────────────────────────────────────────────────────
 
 function removeArtFromCollection(artId: number) {
   const collection = activeCollection.value
@@ -1267,6 +1419,20 @@ function handleImageDeleted(imageId: number) {
   if (artStore.currentArtImage?.id === imageId) artStore.deselectArtImage()
 }
 
+async function removeItemFromCollection(item: GalleryItem) {
+  if (!activeCollection.value || activeCollection.value.id === -1) return
+  if (item.source === 'art' && item.art?.id) {
+    removeArtFromCollection(item.art.id)
+    return
+  }
+  if (item.source === 'artImage' && item.artImage?.id) {
+    localError.value =
+      'ArtImage collection disconnect route not yet implemented.'
+  }
+}
+
+// ── Merge ─────────────────────────────────────────────────────────────────────
+
 function toggleMergePanel() {
   showMergePanel.value = !showMergePanel.value
   mergeTargetId.value = null
@@ -1280,7 +1446,7 @@ async function executeMerge() {
   localError.value = ''
   try {
     const artIds = (source.art || [])
-      .map((art) => art.id)
+      .map((a) => a.id)
       .filter((id): id is number => typeof id === 'number')
     await Promise.all(
       artIds.map((artId) =>
@@ -1298,32 +1464,53 @@ async function executeMerge() {
   }
 }
 
-async function removeItemFromCollection(item: GalleryArtItem) {
-  if (!activeCollection.value || activeCollection.value.id === -1) return
+// ── Refresh ───────────────────────────────────────────────────────────────────
 
-  if (item.source === 'art' && item.art?.id) {
-    await removeArtFromCollection(item.art.id)
-    return
-  }
-
-  if (item.source === 'artImage' && item.artImage?.id) {
-    localError.value =
-      'This image is linked directly as an ArtImage. Removal support needs the ArtImage collection disconnect route next.'
+async function refresh() {
+  isLoading.value = true
+  localError.value = ''
+  try {
+    await Promise.all([
+      artStore.initialize({
+        fetchRemote: true,
+        force: true,
+        hydrateImages: false,
+      }),
+      artStore.fetchAllArtImages({ force: true, includeThumbnailData: true }),
+      collectionStore.fetchCollections?.(true),
+    ])
+    if (activeCollection.value?.id && activeCollection.value.id !== -1) {
+      const fresh = collectionStore.collections.find(
+        (c) => c.id === activeCollection.value?.id,
+      )
+      if (fresh) {
+        activeCollection.value = fresh
+        collectionStore.setCurrentCollection?.(fresh.id)
+      }
+    }
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to load data')
+    localError.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isLoading.value = false
   }
 }
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message.trim()) return error.message
   if (typeof error === 'string' && error.trim()) return error
   if (typeof error === 'object' && error !== null) {
-    const record = error as { message?: unknown; statusMessage?: unknown }
-    const message =
-      typeof record.message === 'string'
-        ? record.message.trim()
-        : typeof record.statusMessage === 'string'
-          ? record.statusMessage.trim()
+    const r = error as { message?: unknown; statusMessage?: unknown }
+    const msg =
+      typeof r.message === 'string'
+        ? r.message.trim()
+        : typeof r.statusMessage === 'string'
+          ? r.statusMessage.trim()
           : ''
-    if (message) return message
+    if (msg) return msg
   }
   return fallback
 }

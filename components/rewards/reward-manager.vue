@@ -174,8 +174,6 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    // FIX:
-    // FIX:
     await Promise.all([
       navStore.initialize(),
       characterStore.initialize({

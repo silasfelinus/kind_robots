@@ -396,6 +396,5 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
-  setTab(dreamStore.selectedDream?.id ? 'interact' : 'dreams')
 })
 </script>

@@ -602,11 +602,18 @@ const linkedContext = computed(() => [
 onMounted(async () => {
   await dreamStore.initialize()
 
+  const selectedId = dreamStore.selectedDream?.id
+  const formId = dreamStore.dreamForm.id
+
+  if (props.mode !== 'create' && selectedId && formId !== selectedId) {
+    dreamStore.setDreamForm(dreamStore.toDreamForm(dreamStore.selectedDream))
+    return
+  }
+
   if (!dreamStore.dreamForm.title && !dreamStore.selectedDream) {
     startLanternDream()
   }
 })
-
 watch(
   () => dreamStore.dreamForm.title,
   (title) => {

@@ -582,7 +582,7 @@
             />
 
             <art-card
-              v-else
+              v-else-if="item.art"
               :art="item.art"
               :selected="selectedArt?.id === item.art.id"
               :compact="true"
@@ -598,7 +598,7 @@
             />
 
             <div
-              v-if="!item.artImage"
+              v-if="item.art && !item.artImage"
               class="absolute left-2 top-2 z-10 rounded-full bg-warning px-2 py-1 text-xs font-bold text-warning-content shadow"
               title="This Art record does not have a resolved ArtImage yet"
             >
@@ -612,7 +612,7 @@
               class="absolute right-2 top-2 z-10 rounded-full bg-base-100/90 p-1.5 opacity-0 shadow transition-opacity group-hover:opacity-100"
               type="button"
               title="Remove from collection"
-              @click.stop="removeArtFromCollection(item.art.id)"
+              @click.stop="removeItemFromCollection(item)"
             >
               <Icon name="kind-icon:x" class="h-3 w-3 text-base-content/70" />
             </button>
@@ -643,9 +643,10 @@ import { useUserStore } from '@/stores/userStore'
 type CollectionGalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
 type GalleryArtItem = {
-  art: Art
+  art: Art | null
   artImage: ArtImage | null
   key: string
+  source: 'art' | 'artImage'
   canEdit: boolean
   canDelete: boolean
 }
@@ -682,6 +683,11 @@ const props = withDefaults(
     autoLoad: true,
   },
 )
+
+type CollectionWithImages = ArtCollection & {
+  artImages?: ArtImage[]
+  ArtImages?: ArtImage[]
+}
 
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
@@ -785,7 +791,12 @@ const selectedCollectionSubtitle = computed(() => {
 const selectedCollectionArtCount = computed(() => {
   if (!activeCollection.value) return 0
   if (activeCollection.value.id === -1) return allUnassignedArt.value.length
-  return activeCollection.value.art?.length ?? 0
+
+  const collection = activeCollection.value as CollectionWithImages
+  const artCount = collection.art?.length ?? 0
+  const imageCount = getCollectionImages(collection).length
+
+  return artCount + imageCount
 })
 
 const collectionFormTitle = computed(() => {
@@ -891,6 +902,47 @@ const currentArtList = computed<Art[]>(() => {
   return artList
 })
 
+function getCollectionImages(collection: CollectionWithImages): ArtImage[] {
+  const directImages = collection.artImages || collection.ArtImages || []
+
+  return directImages.filter((image): image is ArtImage => {
+    return Boolean(image?.id)
+  })
+}
+
+const currentArtImageList = computed<ArtImage[]>(() => {
+  if (!activeCollection.value || activeCollection.value.id === -1) return []
+
+  const collection = activeCollection.value as CollectionWithImages
+  let images = getCollectionImages(collection)
+
+  if (!showMature.value) {
+    images = images.filter((image) => !image.isMature)
+  }
+
+  const query = searchQuery.value.trim().toLowerCase()
+  if (query) {
+    images = images.filter((image) =>
+      [
+        image.promptString,
+        image.negativePrompt,
+        image.designer,
+        image.checkpoint,
+        image.sampler,
+        image.fileName,
+        String(image.id),
+        image.artId ? String(image.artId) : '',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(query),
+    )
+  }
+
+  return images
+})
+
 const artImageById = computed(() => {
   return new Map(
     artStore.artImages
@@ -908,16 +960,35 @@ const artImageByArtId = computed(() => {
 })
 
 const currentGalleryItems = computed<GalleryArtItem[]>(() => {
-  return currentArtList.value.map((art) => {
+  const artItems = currentArtList.value.map((art) => {
     const artImage = getImageForArt(art)
+
     return {
       art,
       artImage,
-      key: artImage ? `image-${artImage.id}` : `art-${art.id}`,
+      key: artImage ? `art-${art.id}-image-${artImage.id}` : `art-${art.id}`,
+      source: 'art' as const,
       canEdit: canDeleteArt(art),
       canDelete: canDeleteArt(art),
     }
   })
+
+  const imageItems = currentArtImageList.value.map((artImage) => {
+    const linkedArt = artImage.artId
+      ? artStore.art.find((art) => art.id === artImage.artId) || null
+      : null
+
+    return {
+      art: linkedArt,
+      artImage,
+      key: `direct-image-${artImage.id}`,
+      source: 'artImage' as const,
+      canEdit: canDeleteArtImage(artImage),
+      canDelete: canDeleteArtImage(artImage),
+    }
+  })
+
+  return [...artItems, ...imageItems]
 })
 
 function getImageForArt(art: Art): ArtImage | null {
@@ -950,15 +1021,38 @@ function canDeleteArt(art: Art): boolean {
   return userStore.isAdmin || art.userId === currentUserId.value
 }
 
+function canDeleteArtImage(image: ArtImage): boolean {
+  return userStore.isAdmin || image.userId === currentUserId.value
+}
+
 async function refresh() {
   isLoading.value = true
   localError.value = ''
+
   try {
     await Promise.all([
-      artStore.initialize({ fetchRemote: true, hydrateImages: false }),
-      artStore.fetchAllArtImages({ includeThumbnailData: true }),
-      collectionStore.fetchCollections?.(),
+      artStore.initialize({
+        fetchRemote: true,
+        force: true,
+        hydrateImages: false,
+      }),
+      artStore.fetchAllArtImages({
+        force: true,
+        includeThumbnailData: true,
+      }),
+      collectionStore.fetchCollections?.(true),
     ])
+
+    if (activeCollection.value?.id && activeCollection.value.id !== -1) {
+      const freshCollection = collectionStore.collections.find((collection) => {
+        return collection.id === activeCollection.value?.id
+      })
+
+      if (freshCollection) {
+        activeCollection.value = freshCollection
+        collectionStore.setCurrentCollection?.(freshCollection.id)
+      }
+    }
   } catch (error) {
     const message = getErrorMessage(error, 'Failed to load data')
     localError.value = message
@@ -1201,6 +1295,20 @@ async function executeMerge() {
     errorStore.setError(ErrorType.GENERAL_ERROR, localError.value)
   } finally {
     isMerging.value = false
+  }
+}
+
+async function removeItemFromCollection(item: GalleryArtItem) {
+  if (!activeCollection.value || activeCollection.value.id === -1) return
+
+  if (item.source === 'art' && item.art?.id) {
+    await removeArtFromCollection(item.art.id)
+    return
+  }
+
+  if (item.source === 'artImage' && item.artImage?.id) {
+    localError.value =
+      'This image is linked directly as an ArtImage. Removal support needs the ArtImage collection disconnect route next.'
   }
 }
 

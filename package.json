@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
-    "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && vue-tsc --noEmit -p tsconfig.json",
+    "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && node --max-old-space-size=8192 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.json",
     "dev": "nuxt dev --host",
     "build": "nuxi prepare && prisma generate && nuxi build",
     "start": "nuxi start",

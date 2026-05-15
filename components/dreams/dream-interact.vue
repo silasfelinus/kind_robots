@@ -1,793 +1,1010 @@
 <!-- /components/dreams/dream-interact.vue -->
+<!--
+  Dream Interact — Flagship Dream Experience
+  ══════════════════════════════════════════
+  Wallpaper ALWAYS fills the screen (art-collection cycling with
+  animated gradient fallback when no images exist).
+
+  Everything else lives behind icon-toggled panels that slide in
+  from the right. Only one panel is open at a time.
+
+  Dock: Dream · Cast · Items · Scene · Art · Chat · Prompts · FX · Wheel · Settings
+  Quick chat bar: always pinned at the bottom.
+  Privacy chip: top-right corner, owner / admin only.
+
+  Real component slots wired:
+    character-gallery  add-character
+    reward-gallery     add-reward
+    scenario-gallery   add-scenario
+    collection-gallery add-art
+    dream-prompts
+
+  Automations (in Settings): art-code timer, prompt-code timer.
+  Wallpaper cycle interval: also in Settings.
+-->
 <template>
   <section
-    class="flex h-full min-h-0 flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
+    class="relative h-full min-h-0 overflow-hidden rounded-2xl bg-neutral"
   >
-    <header class="rounded-2xl border border-base-300 bg-base-200 p-4">
+    <!-- ══ WALLPAPER ════════════════════════════════════════════════ -->
+    <Transition name="wp-fade">
       <div
-        class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"
+        :key="wallpaperKey"
+        class="absolute inset-0 z-0 bg-cover bg-center"
+        :style="
+          wallpaperUrl ? { backgroundImage: `url('${wallpaperUrl}')` } : {}
+        "
       >
-        <div class="min-w-0 flex-1">
-          <p class="text-xs font-bold uppercase tracking-wide text-primary">
-            Dream Interface
-          </p>
-
-          <h2 class="text-2xl font-black text-base-content">
-            {{ dreamStore.selectedDream?.title || 'No Dream selected' }}
-          </h2>
-
-          <p
-            class="mt-2 max-w-4xl whitespace-pre-wrap text-sm text-base-content/70"
-          >
-            {{ activeDreamText }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <button
-            class="btn btn-secondary rounded-2xl"
-            type="button"
-            :disabled="!dreamStore.selectedDreamId || dreamStore.chatsLoading"
-            @click="refreshChats"
-          >
-            <Icon name="kind-icon:refresh" class="h-5 w-5" />
-            Refresh Chat
-          </button>
-
-          <button
-            class="btn btn-primary rounded-2xl"
-            type="button"
-            :disabled="!dreamStore.selectedDream?.id"
-            @click="startEditingSelectedDream"
-          >
-            <Icon name="kind-icon:edit" class="h-5 w-5" />
-            Edit Dream
-          </button>
-        </div>
+        <!-- Animated gradient when no art-collection images exist -->
+        <div
+          v-if="!wallpaperUrl"
+          class="dream-gradient-fallback h-full w-full"
+        />
       </div>
-    </header>
+    </Transition>
 
+    <!-- Legibility overlay -->
     <div
-      class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10"
+      class="absolute inset-0 z-[1] transition-all duration-500"
+      :class="
+        activePanel
+          ? 'bg-gradient-to-r from-base-100/30 via-transparent to-base-100/80'
+          : 'bg-gradient-to-b from-base-100/25 via-transparent to-base-100/70'
+      "
+    />
+
+    <!-- ══ DREAM TITLE CHIP (top-left, always) ═════════════════════ -->
+    <div class="absolute left-3 top-3 z-20 max-w-[58%]">
+      <div
+        class="rounded-2xl border border-white/20 bg-base-100/75 px-3 py-2 backdrop-blur-md"
+      >
+        <p
+          class="text-[10px] font-bold uppercase tracking-widest text-primary/80"
+        >
+          Active Dream
+        </p>
+        <h2 class="truncate text-sm font-black leading-tight text-base-content">
+          {{ dreamTitle }}
+        </h2>
+      </div>
+    </div>
+
+    <!-- ══ PRIVACY CHIP (top-right, owner / admin only) ═══════════ -->
+    <div
+      v-if="isOwnerOrAdmin && dreamStore.selectedDream"
+      class="absolute right-3 top-3 z-20"
     >
       <button
-        v-for="control in elementControls"
-        :key="control.key"
-        class="btn min-h-20 rounded-2xl border text-xs sm:text-sm"
-        :class="
-          control.active
-            ? control.activeClass
-            : 'btn-outline border-base-300 bg-base-100'
-        "
-        type="button"
-        @click="toggleElement(control.key)"
+        class="btn btn-xs rounded-2xl border backdrop-blur-md"
+        :class="privacyBtnClass"
+        :title="`Access: ${currentAccessMode} — click to cycle`"
+        @click="cycleAccessMode"
       >
-        <span class="flex flex-col items-center gap-1">
-          <Icon :name="control.icon" class="h-6 w-6" />
-          <span class="font-black">{{ control.label }}</span>
-        </span>
+        <Icon :name="privacyIcon" class="h-3 w-3" />
+        {{ currentAccessMode }}
       </button>
     </div>
 
-    <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-12">
-      <main class="flex min-h-0 flex-col gap-4 xl:col-span-8">
-        <section
-          v-if="activeElements.dream"
-          class="rounded-2xl border border-base-300 bg-base-200 p-4"
+    <!-- ══ ICON DOCK (above quick-chat bar) ════════════════════════ -->
+    <div
+      class="absolute bottom-[3.75rem] left-0 right-0 z-20 flex justify-center px-2 py-1"
+    >
+      <div
+        class="flex items-end gap-0.5 overflow-x-auto rounded-2xl border border-white/20 bg-base-100/75 p-1.5 backdrop-blur-md scrollbar-none"
+      >
+        <button
+          v-for="panel in PANELS"
+          :key="panel.key"
+          class="flex flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[10px] font-bold transition-all duration-150"
+          :class="
+            activePanel === panel.key
+              ? 'scale-105 bg-primary text-primary-content shadow-md'
+              : 'text-base-content/70 hover:bg-base-200/80 hover:text-base-content'
+          "
+          :title="panel.label"
+          @click="togglePanel(panel.key)"
         >
-          <div
-            class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
-          >
-            <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-primary">
-                Current Dream
-              </p>
+          <Icon :name="panel.icon" class="h-5 w-5" />
+          <span class="leading-none">{{ panel.label }}</span>
+        </button>
+      </div>
+    </div>
 
+    <!-- ══ QUICK CHAT BAR (always at bottom) ═══════════════════════ -->
+    <div
+      class="absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-base-100/85 px-3 py-2 backdrop-blur-md"
+    >
+      <div class="flex items-center gap-2">
+        <button
+          class="btn btn-xs shrink-0 rounded-xl"
+          :class="
+            reshapeDream ? 'btn-warning' : 'btn-ghost border border-base-300'
+          "
+          title="Toggle: reshape dream vibe with this message"
+          @click="reshapeDream = !reshapeDream"
+        >
+          <Icon name="kind-icon:wand" class="h-3 w-3" />
+        </button>
+
+        <input
+          v-model="message"
+          type="text"
+          class="input input-sm input-bordered flex-1 rounded-xl bg-base-100/80 text-sm"
+          :placeholder="
+            dreamStore.selectedDream
+              ? 'Speak into the Dream…'
+              : 'Select a dream first.'
+          "
+          :disabled="!dreamStore.selectedDream"
+          @keydown.enter.exact.prevent="submitMessage"
+        />
+
+        <button
+          class="btn btn-sm btn-primary shrink-0 rounded-xl"
+          :disabled="!canSubmit || dreamStore.isSaving"
+          @click="submitMessage"
+        >
+          <Icon name="kind-icon:send" class="h-4 w-4" />
+        </button>
+
+        <button
+          class="btn btn-sm btn-ghost shrink-0 rounded-xl"
+          :disabled="dreamStore.chatsLoading || !dreamStore.selectedDreamId"
+          title="Refresh chat"
+          @click="refreshChats"
+        >
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+        </button>
+      </div>
+      <p v-if="reshapeDream" class="mt-0.5 text-[10px] text-warning">
+        ✦ This message will reshape the dream vibe
+      </p>
+    </div>
+
+    <!-- ══ PANEL BACKDROP ═══════════════════════════════════════════ -->
+    <Transition name="fade">
+      <div
+        v-if="activePanel"
+        class="absolute inset-0 z-30 cursor-pointer bg-base-100/10 backdrop-blur-[1px]"
+        @click="activePanel = null"
+      />
+    </Transition>
+
+    <!-- ══ PANEL DRAWER ═════════════════════════════════════════════ -->
+    <Transition name="panel-slide">
+      <div
+        v-if="activePanel"
+        class="absolute bottom-[3.75rem] right-0 top-0 z-40 flex w-full flex-col overflow-hidden border-l border-base-300/60 bg-base-100/96 backdrop-blur-lg sm:w-[30rem] xl:w-[34rem]"
+      >
+        <!-- Header -->
+        <div
+          class="flex shrink-0 items-center justify-between border-b border-base-300 bg-base-200/80 px-4 py-3"
+        >
+          <div class="flex items-center gap-2">
+            <Icon
+              :name="currentPanelConfig?.icon ?? 'kind-icon:circle'"
+              class="h-5 w-5 text-primary"
+            />
+            <h3 class="font-black text-base-content">
+              {{ currentPanelConfig?.label }}
+            </h3>
+          </div>
+          <button
+            class="btn btn-sm btn-circle btn-ghost"
+            @click="activePanel = null"
+          >
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="flex-1 overflow-y-auto">
+          <!-- ─── DREAM INFO ──────────────────────────────────────── -->
+          <div v-if="activePanel === 'dream'" class="space-y-4 p-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <p class="text-xs font-bold uppercase tracking-wide text-primary">
+                Current Vibe
+              </p>
               <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/80">
                 {{
                   dreamStore.selectedDream?.currentVibe ||
                   dreamStore.dreamForm.currentVibe ||
-                  'The Dream is quiet. Suspiciously quiet.'
+                  'No vibe set yet.'
                 }}
               </p>
-            </div>
-
-            <button
-              class="btn btn-accent rounded-2xl"
-              type="button"
-              :disabled="!dreamStore.selectedDream?.id || dreamStore.isSaving"
-              @click="saveVibeAsPrompt"
-            >
-              <Icon name="kind-icon:sparkles" class="h-5 w-5" />
-              Vibe to Prompt
-            </button>
-          </div>
-        </section>
-
-        <section
-          v-if="
-            dreamStore.selectedDreamCurrentImage && activeElements.artImages
-          "
-          class="overflow-hidden rounded-2xl border border-base-300 bg-base-200"
-        >
-          <img
-            :src="dreamStore.selectedDreamCurrentImage"
-            class="max-h-96 w-full object-cover"
-            :alt="dreamStore.selectedDream?.title || 'Dream image'"
-          />
-        </section>
-
-        <section
-          v-if="activeElements.inspiration"
-          class="rounded-2xl border border-info/40 bg-info/10 p-4"
-        >
-          <div
-            class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
-          >
-            <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-info">
-                Inspiration Wheel
-              </p>
-
-              <h3 class="text-xl font-black">
-                Combine ideas, then pipe them into the Dream prompt
-              </h3>
-            </div>
-
-            <button
-              class="btn btn-info rounded-2xl"
-              type="button"
-              @click="spinInspirationWheel"
-            >
-              <Icon name="kind-icon:dice" class="h-5 w-5" />
-              Spin
-            </button>
-          </div>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <label class="form-control">
-              <span class="label-text font-bold">Slot One</span>
-              <select
-                v-model="wheelSlots[0]"
-                class="select select-bordered rounded-2xl"
-              >
-                <option
-                  v-for="idea in inspirationIdeas"
-                  :key="`slot-one-${idea}`"
-                  :value="idea"
-                >
-                  {{ idea }}
-                </option>
-              </select>
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Slot Two</span>
-              <select
-                v-model="wheelSlots[1]"
-                class="select select-bordered rounded-2xl"
-              >
-                <option
-                  v-for="idea in inspirationIdeas"
-                  :key="`slot-two-${idea}`"
-                  :value="idea"
-                >
-                  {{ idea }}
-                </option>
-              </select>
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Slot Three</span>
-              <select
-                v-model="wheelSlots[2]"
-                class="select select-bordered rounded-2xl"
-              >
-                <option
-                  v-for="idea in inspirationIdeas"
-                  :key="`slot-three-${idea}`"
-                  :value="idea"
-                >
-                  {{ idea }}
-                </option>
-              </select>
-            </label>
-          </div>
-
-          <div class="mt-4 rounded-2xl border border-info/30 bg-base-100 p-3">
-            <p class="text-xs font-bold uppercase tracking-wide text-info">
-              Combined Inspiration
-            </p>
-
-            <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/80">
-              {{ inspirationText }}
-            </p>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-outline rounded-2xl"
-              type="button"
-              @click="applyInspiration('prepend')"
-            >
-              <Icon name="kind-icon:arrow-up" class="h-5 w-5" />
-              Prepend
-            </button>
-
-            <button
-              class="btn btn-outline rounded-2xl"
-              type="button"
-              @click="applyInspiration('append')"
-            >
-              <Icon name="kind-icon:plus" class="h-5 w-5" />
-              Add
-            </button>
-
-            <button
-              class="btn btn-warning rounded-2xl"
-              type="button"
-              @click="applyInspiration('replace')"
-            >
-              <Icon name="kind-icon:replace" class="h-5 w-5" />
-              Replace
-            </button>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <article
-            v-if="activeElements.characters"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-wide text-primary"
-                >
-                  Characters
-                </p>
-                <p class="text-sm text-base-content/60">
-                  {{ dreamStore.selectedDreamCast.length }} attached
-                </p>
-              </div>
-
-              <button class="btn btn-sm btn-primary rounded-2xl" type="button">
-                <Icon name="kind-icon:user-plus" class="h-4 w-4" />
-                Add
-              </button>
-            </div>
-
-            <div class="mt-3 flex flex-wrap gap-2">
-              <span
-                v-for="character in dreamStore.selectedDreamCast"
-                :key="character.id"
-                class="badge badge-primary badge-outline p-3"
-              >
-                {{ character.name || `Character ${character.id}` }}
-              </span>
-
-              <span
-                v-if="!dreamStore.selectedDreamCast.length"
-                class="text-sm text-base-content/60"
-              >
-                No cast yet. The stage is empty and frankly overqualified.
-              </span>
-            </div>
-          </article>
-
-          <article
-            v-if="activeElements.rewards"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-wide text-primary"
-                >
-                  Rewards
-                </p>
-                <p class="text-sm text-base-content/60">
-                  {{ dreamStore.selectedDreamItems.length }} attached
-                </p>
-              </div>
-
               <button
-                class="btn btn-sm btn-secondary rounded-2xl"
-                type="button"
+                class="btn btn-sm btn-accent mt-3 rounded-2xl"
+                :disabled="!dreamStore.selectedDream?.id || dreamStore.isSaving"
+                @click="saveVibeAsPrompt"
               >
-                <Icon name="kind-icon:gift" class="h-4 w-4" />
-                Add
+                <Icon name="kind-icon:arrow-right-circle" class="h-4 w-4" />
+                Vibe → Image Prompt
               </button>
             </div>
 
-            <div class="mt-3 flex flex-wrap gap-2">
-              <span
-                v-for="reward in dreamStore.selectedDreamItems"
-                :key="reward.id"
-                class="badge badge-secondary badge-outline p-3"
-              >
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <p class="text-xs font-bold uppercase tracking-wide text-primary">
+                Image Prompt
+              </p>
+              <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/80">
                 {{
-                  reward.label ||
-                  reward.text ||
-                  reward.power ||
-                  `Reward ${reward.id}`
+                  dreamStore.selectedDream?.currentPrompt ||
+                  dreamStore.dreamForm.currentPrompt ||
+                  'No prompt set yet.'
                 }}
-              </span>
+              </p>
+            </div>
 
-              <span
-                v-if="!dreamStore.selectedDreamItems.length"
-                class="text-sm text-base-content/60"
+            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+              <div
+                v-for="stat in dreamStats"
+                :key="stat.label"
+                class="rounded-2xl border border-base-300 bg-base-200 p-2"
               >
-                No rewards yet. The loot goblin has unionized.
-              </span>
-            </div>
-          </article>
-
-          <article
-            v-if="activeElements.pitches"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-wide text-primary"
-                >
-                  Pitches
-                </p>
-                <p class="text-sm text-base-content/60">
-                  Big-picture idea fuel
-                </p>
+                <div class="font-black text-secondary">{{ stat.value }}</div>
+                <div class="text-base-content/60">{{ stat.label }}</div>
               </div>
-
-              <button class="btn btn-sm btn-accent rounded-2xl" type="button">
-                <Icon name="kind-icon:lightbulb" class="h-4 w-4" />
-                Add
-              </button>
             </div>
 
-            <p class="mt-3 text-sm text-base-content/70">
-              Pitch picker hooks will land here. For now, this panel reserves
-              the slot and keeps the interface shape honest.
-            </p>
-          </article>
-
-          <article
-            v-if="activeElements.scenarios"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-wide text-primary"
-                >
-                  Scenario
-                </p>
-                <p class="text-sm text-base-content/60">
-                  {{
-                    dreamStore.selectedDream?.scenarioId
-                      ? `Scenario ${dreamStore.selectedDream.scenarioId}`
-                      : 'None selected'
-                  }}
-                </p>
-              </div>
-
-              <button class="btn btn-sm btn-info rounded-2xl" type="button">
-                <Icon name="kind-icon:map" class="h-4 w-4" />
-                Choose
-              </button>
-            </div>
-
-            <p class="mt-3 text-sm text-base-content/70">
-              Scenario selection belongs here, especially once the Dream starts
-              acting like a branching weird little machine.
-            </p>
-          </article>
-
-          <article
-            v-if="activeElements.screenfx"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4 lg:col-span-2"
-          >
-            <div
-              class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+            <button
+              class="btn btn-primary w-full rounded-2xl"
+              :disabled="!dreamStore.selectedDream?.id"
+              @click="startEditingSelectedDream"
             >
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-wide text-primary"
+              <Icon name="kind-icon:edit" class="h-4 w-4" />
+              Edit Dream Settings
+            </button>
+          </div>
+
+          <!-- ─── CHARACTERS ─────────────────────────────────────── -->
+          <div v-else-if="activePanel === 'characters'" class="space-y-4 p-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Cast ({{ dreamStore.selectedDreamCast.length }})
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <div
+                  v-for="char in dreamStore.selectedDreamCast"
+                  :key="char.id"
+                  class="flex items-center gap-1.5 rounded-2xl border border-secondary/40 bg-secondary/10 px-3 py-1.5 text-sm"
                 >
-                  Screen FX
-                </p>
-                <p class="text-sm text-base-content/60">
-                  Visual atmosphere toggles for the Dream scene
+                  <span class="font-bold">{{
+                    char.name || `Character ${char.id}`
+                  }}</span>
+                  <button
+                    class="btn btn-xs btn-circle btn-ghost"
+                    :disabled="dreamStore.isSaving"
+                    @click="removeCharacter(char.id)"
+                  >
+                    <Icon name="kind-icon:x" class="h-3 w-3" />
+                  </button>
+                </div>
+                <p
+                  v-if="!dreamStore.selectedDreamCast.length"
+                  class="text-sm text-base-content/50"
+                >
+                  The stage is empty and frankly overqualified.
                 </p>
               </div>
+            </div>
 
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Add from Gallery
+              </p>
+              <character-gallery
+                variant="dropdown"
+                :show-header="false"
+                :show-controls="false"
+                :show-card-actions="true"
+                @select="addCharacter"
+              />
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Create New Character
+              </p>
+              <add-character
+                @saved="onCharacterCreated"
+                @created="onCharacterCreated"
+              />
+            </div>
+          </div>
+
+          <!-- ─── ITEMS / REWARDS ────────────────────────────────── -->
+          <div v-else-if="activePanel === 'items'" class="space-y-4 p-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Items ({{ dreamStore.selectedDreamItems.length }})
+              </p>
               <div class="flex flex-wrap gap-2">
-                <button
-                  v-for="fx in screenFxOptions"
-                  :key="fx.key"
-                  class="btn btn-sm rounded-2xl"
-                  :class="
-                    screenFx.includes(fx.key) ? 'btn-primary' : 'btn-outline'
-                  "
-                  type="button"
-                  @click="toggleScreenFx(fx.key)"
+                <div
+                  v-for="item in dreamStore.selectedDreamItems"
+                  :key="item.id"
+                  class="flex items-center gap-1.5 rounded-2xl border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm"
                 >
-                  <Icon :name="fx.icon" class="h-4 w-4" />
-                  {{ fx.label }}
+                  <span class="font-bold">
+                    {{
+                      (item as any).label ||
+                      (item as any).text ||
+                      (item as any).power ||
+                      `Item ${item.id}`
+                    }}
+                  </span>
+                  <button
+                    class="btn btn-xs btn-circle btn-ghost"
+                    :disabled="dreamStore.isSaving"
+                    @click="removeReward(item.id)"
+                  >
+                    <Icon name="kind-icon:x" class="h-3 w-3" />
+                  </button>
+                </div>
+                <p
+                  v-if="!dreamStore.selectedDreamItems.length"
+                  class="text-sm text-base-content/50"
+                >
+                  The loot goblin has yet to arrive.
+                </p>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Add from Gallery
+              </p>
+              <reward-gallery
+                variant="dropdown"
+                :show-header="false"
+                :show-controls="false"
+                :show-card-actions="true"
+                @select="addReward"
+              />
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Create New Item
+              </p>
+              <add-reward @saved="onRewardCreated" @created="onRewardCreated" />
+            </div>
+          </div>
+
+          <!-- ─── SCENARIO ───────────────────────────────────────── -->
+          <div v-else-if="activePanel === 'scenario'" class="space-y-4 p-4">
+            <div
+              v-if="dreamStore.selectedDream?.Scenario"
+              class="rounded-2xl border border-secondary/30 bg-secondary/10 p-4"
+            >
+              <p
+                class="text-xs font-bold uppercase tracking-wide text-secondary"
+              >
+                Active Scenario
+              </p>
+              <h3 class="mt-1 text-lg font-black text-base-content">
+                {{
+                  dreamStore.selectedDream.Scenario.title || 'Untitled Scenario'
+                }}
+              </h3>
+              <p class="mt-2 text-sm text-base-content/70">
+                {{
+                  dreamStore.selectedDream.Scenario.description ||
+                  'No description set.'
+                }}
+              </p>
+              <button
+                class="btn btn-xs btn-ghost mt-3 rounded-2xl text-error"
+                :disabled="dreamStore.isSaving"
+                @click="clearScenario"
+              >
+                <Icon name="kind-icon:unlink" class="h-3 w-3" />
+                Remove
+              </button>
+            </div>
+            <div
+              v-else
+              class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-sm text-base-content/50"
+            >
+              No scenario attached yet. Dream is the place — Scenario is what
+              happens there.
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Select a Scenario
+              </p>
+              <scenario-gallery
+                variant="dropdown"
+                :show-header="false"
+                :show-controls="false"
+                :show-card-actions="true"
+                @select="setScenario"
+              />
+            </div>
+
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Create New Scenario
+              </p>
+              <add-scenario
+                @saved="onScenarioCreated"
+                @created="onScenarioCreated"
+              />
+            </div>
+          </div>
+
+          <!-- ─── ART & COLLECTION ──────────────────────────────── -->
+          <div v-else-if="activePanel === 'art'" class="space-y-4 p-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Art Collection
+              </p>
+              <collection-gallery
+                variant="dropdown"
+                :show-header="false"
+                :allow-add="true"
+                :allow-edit="false"
+                :allow-delete="false"
+                :allow-merge="false"
+                :allow-refresh="true"
+                @select="setCollection"
+              />
+              <div
+                class="mt-2 flex items-center gap-2 text-xs text-base-content/60"
+              >
+                <Icon name="kind-icon:image" class="h-3.5 w-3.5" />
+                {{ wallpaperImages.length }} image{{
+                  wallpaperImages.length === 1 ? '' : 's'
+                }}
+                in wallpaper pool
+                <button
+                  class="btn btn-xs btn-ghost ml-auto rounded-xl"
+                  :disabled="wallpaperImages.length < 2"
+                  title="Jump to next wallpaper"
+                  @click="cycleWallpaper"
+                >
+                  <Icon name="kind-icon:shuffle" class="h-3 w-3" />
+                  Next
                 </button>
               </div>
             </div>
-          </article>
-        </section>
 
-        <section
-          v-if="activeElements.artCode || activeElements.promptCode"
-          class="relative min-h-96 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
-        >
-          <p class="text-xs font-bold uppercase tracking-wide text-primary">
-            Code Workspace
-          </p>
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Generate Art
+              </p>
+              <add-art
+                :dream-id="dreamStore.selectedDreamId"
+                @created="onArtCreated"
+                @saved="onArtCreated"
+              />
+            </div>
+          </div>
 
-          <p class="mt-1 text-sm text-base-content/60">
-            Movable automation panels. Tiny robot interns with clipboards.
-          </p>
-
-          <article
-            v-if="activeElements.artCode"
-            class="absolute z-10 w-[min(28rem,calc(100%-2rem))] rounded-2xl border border-accent/40 bg-base-100 p-3 shadow-xl"
-            :style="panelStyle('artCode')"
-            @pointerdown.self="startDrag('artCode', $event)"
+          <!-- ─── CHAT HISTORY ──────────────────────────────────── -->
+          <div
+            v-else-if="activePanel === 'chat'"
+            class="flex h-full min-h-[20rem] flex-col"
           >
             <div
-              class="flex cursor-move items-center justify-between gap-3 rounded-2xl bg-accent/10 p-2"
-              @pointerdown="startDrag('artCode', $event)"
+              ref="chatScrollRef"
+              class="flex-1 space-y-2 overflow-y-auto p-3"
             >
-              <div class="flex items-center gap-2 font-black text-accent">
-                <Icon name="kind-icon:image" class="h-5 w-5" />
-                art-code
-              </div>
-
-              <button
-                class="btn btn-xs btn-circle btn-ghost"
-                type="button"
-                @click.stop="activeElements.artCode = false"
+              <article
+                v-for="chat in dreamStore.selectedDreamChats"
+                :key="chat.id"
+                class="rounded-2xl border p-3 text-sm"
+                :class="
+                  chat.type === 'BotResponse'
+                    ? 'border-secondary/30 bg-secondary/10'
+                    : 'border-base-300 bg-base-200'
+                "
               >
-                <Icon name="kind-icon:close" class="h-4 w-4" />
-              </button>
+                <div class="mb-1 flex items-center justify-between gap-2">
+                  <span class="text-xs font-bold text-primary">
+                    {{
+                      chat.sender ||
+                      (chat as any).User?.username ||
+                      'Someone mysterious'
+                    }}
+                  </span>
+                  <span class="badge badge-outline badge-xs shrink-0">{{
+                    chat.type
+                  }}</span>
+                </div>
+                <p class="whitespace-pre-wrap text-base-content/80">
+                  {{ chat.content }}
+                </p>
+              </article>
+
+              <div
+                v-if="!dreamStore.selectedDreamChats.length"
+                class="flex flex-col items-center justify-center gap-3 py-12 text-center text-base-content/50"
+              >
+                <Icon name="kind-icon:moon" class="h-12 w-12 opacity-30" />
+                <p class="text-sm">
+                  No room history yet.<br />Say something ominous but useful.
+                </p>
+              </div>
             </div>
 
-            <label class="form-control mt-3">
-              <span class="label-text font-bold">Art Prompt</span>
+            <!-- Chat panel input (longer form than the quick bar) -->
+            <div class="shrink-0 border-t border-base-300 bg-base-200 p-3">
+              <div class="flex gap-2">
+                <textarea
+                  v-model="message"
+                  class="textarea textarea-bordered textarea-sm min-h-[3rem] flex-1 resize-none rounded-2xl text-sm"
+                  placeholder="The lanterns flicker as…"
+                  rows="2"
+                  @keydown.enter.exact.prevent="submitMessage"
+                />
+                <div class="flex flex-col gap-1">
+                  <button
+                    class="btn btn-sm btn-primary rounded-xl"
+                    :disabled="!canSubmit || dreamStore.isSaving"
+                    @click="submitMessage"
+                  >
+                    <Icon name="kind-icon:send" class="h-4 w-4" />
+                  </button>
+                  <button
+                    class="btn btn-xs rounded-xl"
+                    :class="
+                      reshapeDream ? 'btn-warning' : 'btn-ghost border-base-300'
+                    "
+                    title="Reshape vibe"
+                    @click="reshapeDream = !reshapeDream"
+                  >
+                    <Icon name="kind-icon:wand" class="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+              <p v-if="reshapeDream" class="mt-1 text-[10px] text-warning">
+                ✦ Reshapes the dream vibe
+              </p>
+            </div>
+          </div>
+
+          <!-- ─── PROMPTS ─────────────────────────────────────────── -->
+          <div v-else-if="activePanel === 'prompts'" class="p-4">
+            <dream-prompts />
+          </div>
+
+          <!-- ─── SCREEN FX ─────────────────────────────────────── -->
+          <div v-else-if="activePanel === 'fx'" class="p-4">
+            <p
+              class="mb-3 text-xs font-bold uppercase tracking-wide text-primary"
+            >
+              Visual Atmosphere
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                v-for="fx in SCREEN_FX_OPTIONS"
+                :key="fx.key"
+                class="btn rounded-2xl"
+                :class="
+                  screenFx.includes(fx.key)
+                    ? 'btn-primary'
+                    : 'btn-outline border-base-300'
+                "
+                @click="toggleScreenFx(fx.key)"
+              >
+                <Icon :name="fx.icon" class="h-5 w-5" />
+                {{ fx.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- ─── INSPIRATION WHEEL ─────────────────────────────── -->
+          <div v-else-if="activePanel === 'wheel'" class="space-y-4 p-4">
+            <p class="text-xs font-bold uppercase tracking-wide text-primary">
+              Inspiration Wheel
+            </p>
+
+            <div class="space-y-2">
+              <label
+                v-for="(_, slotIdx) in wheelSlots"
+                :key="slotIdx"
+                class="form-control"
+              >
+                <span class="label-text text-xs font-bold"
+                  >Slot {{ slotIdx + 1 }}</span
+                >
+                <select
+                  v-model="wheelSlots[slotIdx]"
+                  class="select select-bordered select-sm rounded-2xl"
+                >
+                  <option
+                    v-for="idea in INSPIRATION_IDEAS"
+                    :key="`s${slotIdx}-${idea}`"
+                    :value="idea"
+                  >
+                    {{ idea }}
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <button
+              class="btn btn-info w-full rounded-2xl"
+              @click="spinInspirationWheel"
+            >
+              <Icon name="kind-icon:dice" class="h-5 w-5" />
+              Spin the Wheel
+            </button>
+
+            <div class="rounded-2xl border border-info/30 bg-info/10 p-3">
+              <p class="text-xs font-bold uppercase tracking-wide text-info">
+                Combined Pitch
+              </p>
+              <p class="mt-2 text-sm font-bold text-base-content">
+                {{ inspirationText }}
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                class="btn btn-sm flex-1 rounded-2xl"
+                @click="applyInspiration('prepend')"
+              >
+                <Icon name="kind-icon:arrow-up" class="h-4 w-4" /> Prepend
+              </button>
+              <button
+                class="btn btn-sm btn-outline flex-1 rounded-2xl"
+                @click="applyInspiration('append')"
+              >
+                <Icon name="kind-icon:plus" class="h-4 w-4" /> Append
+              </button>
+              <button
+                class="btn btn-sm btn-warning flex-1 rounded-2xl"
+                @click="applyInspiration('replace')"
+              >
+                <Icon name="kind-icon:replace" class="h-4 w-4" /> Replace
+              </button>
+            </div>
+          </div>
+
+          <!-- ─── SETTINGS ──────────────────────────────────────── -->
+          <div v-else-if="activePanel === 'settings'" class="space-y-4 p-4">
+            <!-- Wallpaper interval -->
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+              <p
+                class="mb-2 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Wallpaper Cycle
+              </p>
+              <div class="flex items-center gap-3">
+                <input
+                  type="range"
+                  class="range range-xs range-primary flex-1"
+                  min="0"
+                  max="300"
+                  step="10"
+                  :value="wallpaperIntervalSeconds"
+                  @input="onWallpaperIntervalInput"
+                />
+                <span class="min-w-[3.5rem] text-right text-sm font-bold">
+                  {{
+                    wallpaperIntervalSeconds === 0
+                      ? 'Off'
+                      : `${wallpaperIntervalSeconds}s`
+                  }}
+                </span>
+              </div>
+              <p class="mt-1 text-xs text-base-content/50">
+                Set to 0 to disable. Requires ≥ 2 images in the art collection.
+              </p>
+            </div>
+
+            <!-- Art-code automation -->
+            <div class="rounded-2xl border border-accent/40 bg-base-200 p-4">
+              <div class="mb-3 flex items-center justify-between">
+                <div>
+                  <p
+                    class="text-xs font-bold uppercase tracking-wide text-accent"
+                  >
+                    art-code
+                  </p>
+                  <p class="text-xs text-base-content/60">
+                    Push art prompt on a timer
+                  </p>
+                </div>
+                <div class="flex gap-1.5">
+                  <button
+                    class="btn btn-xs rounded-xl"
+                    :disabled="!artCode.prompt.trim()"
+                    @click="runArtCode"
+                  >
+                    Run Now
+                  </button>
+                  <button
+                    class="btn btn-xs rounded-xl"
+                    :class="artCode.isRunning ? 'btn-error' : 'btn-outline'"
+                    @click="toggleArtCodeTimer"
+                  >
+                    <Icon
+                      :name="
+                        artCode.isRunning ? 'kind-icon:stop' : 'kind-icon:play'
+                      "
+                      class="h-3 w-3"
+                    />
+                    {{ artCode.isRunning ? 'Stop' : 'Start' }}
+                  </button>
+                </div>
+              </div>
               <textarea
                 v-model="artCode.prompt"
-                class="textarea textarea-bordered min-h-28 rounded-2xl"
-                placeholder="Generate a cinematic dream image..."
+                class="textarea textarea-bordered w-full rounded-2xl text-sm"
+                rows="3"
+                placeholder="Art prompt to push on a timer…"
               />
-            </label>
-
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <label class="form-control">
-                <span class="label-text font-bold">Timer seconds</span>
+              <div class="mt-2 flex items-center gap-2 text-xs">
+                <span class="shrink-0 text-base-content/60">Every</span>
                 <input
                   v-model.number="artCode.intervalSeconds"
-                  class="input input-bordered rounded-2xl"
-                  min="5"
                   type="number"
+                  class="input input-xs input-bordered w-16 rounded-xl"
+                  min="5"
                 />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Mode</span>
+                <span class="shrink-0 text-base-content/60">s ·</span>
                 <select
                   v-model="artCode.promptMode"
-                  class="select select-bordered rounded-2xl"
+                  class="select select-xs select-bordered rounded-xl"
                 >
-                  <option value="append">Add</option>
+                  <option value="append">Append</option>
                   <option value="prepend">Prepend</option>
                   <option value="replace">Replace</option>
                 </select>
-              </label>
-            </div>
-
-            <div class="mt-3 flex flex-wrap gap-2">
-              <button
-                class="btn btn-accent rounded-2xl"
-                type="button"
-                @click="runArtCode"
-              >
-                <Icon name="kind-icon:play" class="h-5 w-5" />
-                Run
-              </button>
-
-              <button
-                class="btn rounded-2xl"
-                :class="artCode.isRunning ? 'btn-error' : 'btn-outline'"
-                type="button"
-                @click="toggleArtCodeTimer"
-              >
-                <Icon
-                  :name="
-                    artCode.isRunning ? 'kind-icon:stop' : 'kind-icon:timer'
-                  "
-                  class="h-5 w-5"
-                />
-                {{ artCode.isRunning ? 'Stop Timer' : 'Start Timer' }}
-              </button>
-            </div>
-          </article>
-
-          <article
-            v-if="activeElements.promptCode"
-            class="absolute z-20 w-[min(28rem,calc(100%-2rem))] rounded-2xl border border-secondary/40 bg-base-100 p-3 shadow-xl"
-            :style="panelStyle('promptCode')"
-            @pointerdown.self="startDrag('promptCode', $event)"
-          >
-            <div
-              class="flex cursor-move items-center justify-between gap-3 rounded-2xl bg-secondary/10 p-2"
-              @pointerdown="startDrag('promptCode', $event)"
-            >
-              <div class="flex items-center gap-2 font-black text-secondary">
-                <Icon name="kind-icon:prompt" class="h-5 w-5" />
-                prompt-code
+                <span
+                  v-if="artCode.isRunning"
+                  class="ml-auto shrink-0 text-xs font-bold text-warning"
+                  >● Running</span
+                >
               </div>
-
-              <button
-                class="btn btn-xs btn-circle btn-ghost"
-                type="button"
-                @click.stop="activeElements.promptCode = false"
-              >
-                <Icon name="kind-icon:close" class="h-4 w-4" />
-              </button>
             </div>
 
-            <label class="form-control mt-3">
-              <span class="label-text font-bold">Text Prompt</span>
+            <!-- Prompt-code automation -->
+            <div class="rounded-2xl border border-secondary/40 bg-base-200 p-4">
+              <div class="mb-3 flex items-center justify-between">
+                <div>
+                  <p
+                    class="text-xs font-bold uppercase tracking-wide text-secondary"
+                  >
+                    prompt-code
+                  </p>
+                  <p class="text-xs text-base-content/60">
+                    Post a chat message on a timer
+                  </p>
+                </div>
+                <div class="flex gap-1.5">
+                  <button
+                    class="btn btn-xs rounded-xl"
+                    :disabled="!promptCode.prompt.trim()"
+                    @click="runPromptCode"
+                  >
+                    Run Now
+                  </button>
+                  <button
+                    class="btn btn-xs rounded-xl"
+                    :class="promptCode.isRunning ? 'btn-error' : 'btn-outline'"
+                    @click="togglePromptCodeTimer"
+                  >
+                    <Icon
+                      :name="
+                        promptCode.isRunning
+                          ? 'kind-icon:stop'
+                          : 'kind-icon:play'
+                      "
+                      class="h-3 w-3"
+                    />
+                    {{ promptCode.isRunning ? 'Stop' : 'Start' }}
+                  </button>
+                </div>
+              </div>
               <textarea
                 v-model="promptCode.prompt"
-                class="textarea textarea-bordered min-h-28 rounded-2xl"
-                placeholder="Write the next Dream beat..."
+                class="textarea textarea-bordered w-full rounded-2xl text-sm"
+                rows="3"
+                placeholder="Text to post into the dream chat on a timer…"
               />
-            </label>
-
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <label class="form-control">
-                <span class="label-text font-bold">Timer seconds</span>
+              <div class="mt-2 flex items-center gap-2 text-xs">
+                <span class="shrink-0 text-base-content/60">Every</span>
                 <input
                   v-model.number="promptCode.intervalSeconds"
-                  class="input input-bordered rounded-2xl"
-                  min="5"
                   type="number"
+                  class="input input-xs input-bordered w-16 rounded-xl"
+                  min="5"
                 />
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Mode</span>
+                <span class="shrink-0 text-base-content/60">s ·</span>
                 <select
                   v-model="promptCode.promptMode"
-                  class="select select-bordered rounded-2xl"
+                  class="select select-xs select-bordered rounded-xl"
                 >
-                  <option value="append">Add</option>
+                  <option value="append">Append</option>
                   <option value="prepend">Prepend</option>
                   <option value="replace">Replace</option>
                 </select>
-              </label>
-            </div>
-
-            <div class="mt-3 flex flex-wrap gap-2">
-              <button
-                class="btn btn-secondary rounded-2xl"
-                type="button"
-                @click="runPromptCode"
-              >
-                <Icon name="kind-icon:play" class="h-5 w-5" />
-                Run
-              </button>
-
-              <button
-                class="btn rounded-2xl"
-                :class="promptCode.isRunning ? 'btn-error' : 'btn-outline'"
-                type="button"
-                @click="togglePromptCodeTimer"
-              >
-                <Icon
-                  :name="
-                    promptCode.isRunning ? 'kind-icon:stop' : 'kind-icon:timer'
-                  "
-                  class="h-5 w-5"
-                />
-                {{ promptCode.isRunning ? 'Stop Timer' : 'Start Timer' }}
-              </button>
-            </div>
-          </article>
-        </section>
-      </main>
-
-      <aside class="flex min-h-0 flex-col gap-4 xl:col-span-4">
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <p class="text-xs font-bold uppercase tracking-wide text-primary">
-            Context
-          </p>
-
-          <div class="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
-            <div class="rounded-2xl bg-base-100 p-2">
-              <div class="font-black text-secondary">
-                {{ dreamStore.selectedDreamCast.length }}
+                <span
+                  v-if="promptCode.isRunning"
+                  class="ml-auto shrink-0 text-xs font-bold text-warning"
+                  >● Running</span
+                >
               </div>
-              <div class="text-base-content/60">Cast</div>
             </div>
 
-            <div class="rounded-2xl bg-base-100 p-2">
-              <div class="font-black text-secondary">
-                {{ dreamStore.selectedDreamItems.length }}
-              </div>
-              <div class="text-base-content/60">Rewards</div>
-            </div>
-
-            <div class="rounded-2xl bg-base-100 p-2">
-              <div class="font-black text-secondary">
-                {{ dreamStore.selectedDreamCollectionArt.length }}
-              </div>
-              <div class="text-base-content/60">Art</div>
-            </div>
-
-            <div class="rounded-2xl bg-base-100 p-2">
-              <div class="font-black text-secondary">
-                {{ dreamStore.selectedDreamChats.length }}
-              </div>
-              <div class="text-base-content/60">Chat</div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          class="flex min-h-0 flex-1 flex-col rounded-2xl border border-base-300 bg-base-100"
-        >
-          <div class="border-b border-base-300 p-3">
-            <p class="text-xs font-bold uppercase tracking-wide text-primary">
-              Chat Window
-            </p>
-            <p class="text-sm text-base-content/60">
-              Talk to the Dream, attached models, and automation results.
-            </p>
-          </div>
-
-          <div class="min-h-72 flex-1 space-y-3 overflow-y-auto p-3">
-            <article
-              v-for="chat in dreamStore.selectedDreamChats"
-              :key="chat.id"
-              class="rounded-2xl border p-3"
-              :class="
-                chat.type === 'BotResponse'
-                  ? 'border-secondary/40 bg-secondary/10'
-                  : 'border-base-300 bg-base-200'
-              "
-            >
-              <div class="flex items-center justify-between gap-3">
-                <div class="font-black text-primary">
-                  {{
-                    chat.sender || chat.User?.username || 'Someone mysterious'
-                  }}
-                </div>
-
-                <div class="badge badge-outline">
-                  {{ chat.type }}
-                </div>
-              </div>
-
-              <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/80">
-                {{ chat.content }}
-              </p>
-            </article>
-
+            <!-- Privacy (owner / admin only) -->
             <div
-              v-if="!dreamStore.selectedDreamChats.length"
-              class="flex min-h-52 flex-col items-center justify-center gap-3 text-center text-base-content/60"
+              v-if="isOwnerOrAdmin && dreamStore.selectedDream"
+              class="rounded-2xl border border-base-300 bg-base-200 p-4"
             >
-              <Icon name="kind-icon:chat" class="h-12 w-12" />
-              <p>No room history yet. Say something ominous but useful.</p>
+              <p
+                class="mb-3 text-xs font-bold uppercase tracking-wide text-primary"
+              >
+                Privacy
+              </p>
+
+              <div class="flex gap-2">
+                <button
+                  v-for="mode in ACCESS_MODES"
+                  :key="mode.key"
+                  class="btn btn-sm flex-1 rounded-2xl"
+                  :class="
+                    currentAccessMode === mode.key
+                      ? 'btn-primary'
+                      : 'btn-ghost border-base-300'
+                  "
+                  @click="setAccessMode(mode.key)"
+                >
+                  <Icon :name="mode.icon" class="h-4 w-4" />
+                  {{ mode.label }}
+                </button>
+              </div>
+
+              <input
+                v-if="currentAccessMode === 'CODE'"
+                v-model="privacyCode"
+                type="text"
+                class="input input-bordered input-sm mt-2 w-full rounded-xl"
+                placeholder="Enter access code…"
+                @blur="savePrivacyCode"
+              />
+
+              <div class="mt-3 flex flex-wrap gap-2">
+                <label
+                  class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    class="checkbox checkbox-sm checkbox-primary"
+                    :checked="dreamStore.selectedDream.isPublic"
+                    @change="
+                      togglePublic(($event.target as HTMLInputElement).checked)
+                    "
+                  />
+                  Public dream
+                </label>
+                <label
+                  class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    class="checkbox checkbox-sm checkbox-warning"
+                    :checked="dreamStore.selectedDream.isMature"
+                    @change="
+                      toggleMature(($event.target as HTMLInputElement).checked)
+                    "
+                  />
+                  Mature content
+                </label>
+              </div>
             </div>
           </div>
+          <!-- /settings -->
+        </div>
+        <!-- /panel body -->
+      </div>
+    </Transition>
 
-          <form
-            class="border-t border-base-300 bg-base-200 p-3"
-            @submit.prevent="submitMessage"
-          >
-            <label class="form-control">
-              <span class="label-text font-bold">Speak into the Dream</span>
-              <textarea
-                v-model="message"
-                class="textarea textarea-bordered min-h-24 rounded-2xl"
-                placeholder="The lanterns flicker as..."
-              />
-            </label>
-
-            <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <label
-                class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
-              >
-                <input
-                  v-model="reshapeDream"
-                  class="checkbox checkbox-primary"
-                  type="checkbox"
-                />
-                <span class="text-sm font-bold">Reshape vibe</span>
-              </label>
-
-              <button
-                class="btn btn-primary rounded-2xl"
-                type="submit"
-                :disabled="!canSubmit || dreamStore.isSaving"
-              >
-                <Icon name="kind-icon:send" class="h-5 w-5" />
-                Send
-              </button>
-            </div>
-          </form>
-        </section>
-      </aside>
-    </div>
+    <!-- ══ SCREEN FX OVERLAYS ══════════════════════════════════════ -->
+    <div
+      v-if="screenFx.includes('lanternGlow')"
+      class="lantern-glow-fx pointer-events-none absolute inset-0 z-[2]"
+    />
+    <div
+      v-if="screenFx.includes('fog')"
+      class="fog-fx pointer-events-none absolute inset-0 z-[2]"
+    />
+    <div
+      v-if="screenFx.includes('vignette')"
+      class="vignette-fx pointer-events-none absolute inset-0 z-[2]"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useUserStore } from '@/stores/userStore'
 
-type DreamElementKey =
+// ─── Types ────────────────────────────────────────────────────────────────────
+type PanelKey =
   | 'dream'
   | 'characters'
-  | 'rewards'
-  | 'pitches'
-  | 'artImages'
-  | 'scenarios'
-  | 'screenfx'
-  | 'inspiration'
-  | 'artCode'
-  | 'promptCode'
-
+  | 'items'
+  | 'scenario'
+  | 'art'
+  | 'chat'
+  | 'prompts'
+  | 'fx'
+  | 'wheel'
+  | 'settings'
 type InspirationMode = 'append' | 'prepend' | 'replace'
-type CodePanelKey = 'artCode' | 'promptCode'
+type AccessMode = 'OPEN' | 'CODE' | 'PRIVATE'
 
 interface CodePanelState {
   prompt: string
   intervalSeconds: number
   promptMode: InspirationMode
   isRunning: boolean
-  timerId: number | null
+  timerId: ReturnType<typeof setInterval> | null
 }
 
-interface PanelPosition {
-  x: number
-  y: number
-}
-
-interface DragState {
-  key: CodePanelKey | null
-  startX: number
-  startY: number
-  originX: number
-  originY: number
-}
-
+// ─── Stores ───────────────────────────────────────────────────────────────────
 const dreamStore = useDreamStore()
+const userStore = useUserStore()
 
+// ─── Refs ─────────────────────────────────────────────────────────────────────
+const chatScrollRef = ref<HTMLElement | null>(null)
 const message = ref('')
 const reshapeDream = ref(false)
+const activePanel = ref<PanelKey | null>(null)
 const screenFx = ref<string[]>([])
 
-const activeElements = reactive<Record<DreamElementKey, boolean>>({
-  dream: true,
-  characters: true,
-  rewards: true,
-  pitches: false,
-  artImages: true,
-  scenarios: false,
-  screenfx: false,
-  inspiration: true,
-  artCode: false,
-  promptCode: false,
-})
+// Wallpaper
+const wallpaperIndex = ref(0)
+const wallpaperKey = ref(0)
+const wallpaperIntervalSeconds = ref(30)
+let wallpaperTimerId: ReturnType<typeof setInterval> | null = null
 
+// Privacy
+const currentAccessMode = ref<AccessMode>('OPEN')
+const privacyCode = ref('')
+
+// Inspiration wheel
+const wheelSlots = ref<[string, string, string]>([
+  'gothic fairy tale',
+  'cozy cosmic tavern',
+  'bureaucratic inferno',
+])
+
+// Automation code panels
 const artCode = reactive<CodePanelState>({
   prompt: '',
   intervalSeconds: 30,
@@ -795,7 +1012,6 @@ const artCode = reactive<CodePanelState>({
   isRunning: false,
   timerId: null,
 })
-
 const promptCode = reactive<CodePanelState>({
   prompt: '',
   intervalSeconds: 45,
@@ -804,26 +1020,36 @@ const promptCode = reactive<CodePanelState>({
   timerId: null,
 })
 
-const panelPositions = reactive<Record<CodePanelKey, PanelPosition>>({
-  artCode: {
-    x: 16,
-    y: 72,
-  },
-  promptCode: {
-    x: 80,
-    y: 152,
-  },
-})
+// ─── Constants ────────────────────────────────────────────────────────────────
+const PANELS: { key: PanelKey; label: string; icon: string }[] = [
+  { key: 'dream', label: 'Dream', icon: 'kind-icon:moon' },
+  { key: 'characters', label: 'Cast', icon: 'kind-icon:users' },
+  { key: 'items', label: 'Items', icon: 'kind-icon:gift' },
+  { key: 'scenario', label: 'Scene', icon: 'kind-icon:map' },
+  { key: 'art', label: 'Art', icon: 'kind-icon:image' },
+  { key: 'chat', label: 'Chat', icon: 'kind-icon:message-circle' },
+  { key: 'prompts', label: 'Prompts', icon: 'kind-icon:sparkles' },
+  { key: 'fx', label: 'FX', icon: 'kind-icon:wand-sparkles' },
+  { key: 'wheel', label: 'Wheel', icon: 'kind-icon:dice' },
+  { key: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
+]
 
-const dragState = reactive<DragState>({
-  key: null,
-  startX: 0,
-  startY: 0,
-  originX: 0,
-  originY: 0,
-})
+const ACCESS_MODES: { key: AccessMode; label: string; icon: string }[] = [
+  { key: 'OPEN', label: 'Open', icon: 'kind-icon:globe' },
+  { key: 'CODE', label: 'Code', icon: 'kind-icon:key' },
+  { key: 'PRIVATE', label: 'Private', icon: 'kind-icon:lock' },
+]
 
-const inspirationIdeas = [
+const SCREEN_FX_OPTIONS = [
+  { key: 'lanternGlow', label: 'Lantern Glow', icon: 'kind-icon:lamp' },
+  { key: 'butterflies', label: 'Butterflies', icon: 'kind-icon:butterfly' },
+  { key: 'glitch', label: 'Glitch', icon: 'kind-icon:zap' },
+  { key: 'fog', label: 'Fog', icon: 'kind-icon:cloud' },
+  { key: 'particles', label: 'Particles', icon: 'kind-icon:sparkle' },
+  { key: 'vignette', label: 'Vignette', icon: 'kind-icon:circle-dashed' },
+]
+
+const INSPIRATION_IDEAS = [
   'gothic fairy tale',
   'corporate hellscape',
   'Japanese yokai folklore',
@@ -836,270 +1062,255 @@ const inspirationIdeas = [
   'weird detective noir',
   'rainbow sanctuary',
   'clockwork carnival',
+  'underwater democracy',
+  'sentient old-growth forest',
+  'neon shaman market',
+  'library at the end of time',
+  'pocket dimension bureaucracy',
+  'robot folk revival',
 ]
 
-const wheelSlots = ref<[string, string, string]>([
-  'gothic fairy tale',
-  'cozy cosmic tavern',
-  'bureaucratic inferno',
+// ─── Computed ─────────────────────────────────────────────────────────────────
+const dreamTitle = computed(
+  () => dreamStore.selectedDream?.title || 'No Dream Selected',
+)
+
+const isOwnerOrAdmin = computed(() => {
+  const userId = userStore.user?.id
+  const role = (userStore.user as any)?.Role
+  return role === 'ADMIN' || dreamStore.selectedDream?.userId === userId
+})
+
+const wallpaperImages = computed((): string[] => {
+  const paths = dreamStore.selectedDreamCollectionArt
+    .map((a) => (a as any).imagePath as string | undefined)
+    .filter(Boolean) as string[]
+  if (paths.length) return paths
+  const current = dreamStore.selectedDreamCurrentImage
+  return current ? [current] : []
+})
+
+// Empty string → CSS animated gradient fallback renders instead
+const wallpaperUrl = computed(() => {
+  const imgs = wallpaperImages.value
+  if (!imgs.length) return ''
+  return imgs[wallpaperIndex.value % imgs.length] ?? ''
+})
+
+const currentPanelConfig = computed(
+  () => PANELS.find((p) => p.key === activePanel.value) ?? null,
+)
+
+const canSubmit = computed(() =>
+  Boolean(dreamStore.selectedDreamId && message.value.trim()),
+)
+
+const inspirationText = computed(() =>
+  wheelSlots.value.filter(Boolean).join(' + '),
+)
+
+const dreamStats = computed(() => [
+  { label: 'Cast', value: dreamStore.selectedDreamCast.length },
+  { label: 'Items', value: dreamStore.selectedDreamItems.length },
+  { label: 'Art', value: dreamStore.selectedDreamCollectionArt.length },
+  { label: 'Chat', value: dreamStore.selectedDreamChats.length },
 ])
 
-const screenFxOptions = [
-  {
-    key: 'lanternGlow',
-    label: 'Lantern Glow',
-    icon: 'kind-icon:lamp',
-  },
-  {
-    key: 'butterflies',
-    label: 'Butterflies',
-    icon: 'kind-icon:butterfly',
-  },
-  {
-    key: 'glitch',
-    label: 'Glitch',
-    icon: 'kind-icon:glitch',
-  },
-  {
-    key: 'fog',
-    label: 'Fog',
-    icon: 'kind-icon:cloud',
-  },
-]
-
-async function startEditingSelectedDream() {
-  if (!dreamStore.selectedDream?.id) return
-
-  await dreamStore.startEditingDream(dreamStore.selectedDream.id)
-}
-
-const elementControls = computed(() => [
-  {
-    key: 'dream' as const,
-    label: 'Dream',
-    icon: 'kind-icon:dream',
-    active: activeElements.dream,
-    activeClass: 'btn-primary',
-  },
-  {
-    key: 'characters' as const,
-    label: 'Characters',
-    icon: 'kind-icon:users',
-    active: activeElements.characters,
-    activeClass: 'btn-secondary',
-  },
-  {
-    key: 'rewards' as const,
-    label: 'Rewards',
-    icon: 'kind-icon:gift',
-    active: activeElements.rewards,
-    activeClass: 'btn-accent',
-  },
-  {
-    key: 'pitches' as const,
-    label: 'Pitches',
-    icon: 'kind-icon:lightbulb',
-    active: activeElements.pitches,
-    activeClass: 'btn-info',
-  },
-  {
-    key: 'artImages' as const,
-    label: 'Images',
-    icon: 'kind-icon:image',
-    active: activeElements.artImages,
-    activeClass: 'btn-primary',
-  },
-  {
-    key: 'scenarios' as const,
-    label: 'Scenario',
-    icon: 'kind-icon:map',
-    active: activeElements.scenarios,
-    activeClass: 'btn-secondary',
-  },
-  {
-    key: 'screenfx' as const,
-    label: 'Screen FX',
-    icon: 'kind-icon:sparkles',
-    active: activeElements.screenfx,
-    activeClass: 'btn-accent',
-  },
-  {
-    key: 'inspiration' as const,
-    label: 'Wheel',
-    icon: 'kind-icon:dice',
-    active: activeElements.inspiration,
-    activeClass: 'btn-info',
-  },
-  {
-    key: 'artCode' as const,
-    label: 'art-code',
-    icon: 'kind-icon:code',
-    active: activeElements.artCode,
-    activeClass: 'btn-primary',
-  },
-  {
-    key: 'promptCode' as const,
-    label: 'prompt-code',
-    icon: 'kind-icon:terminal',
-    active: activeElements.promptCode,
-    activeClass: 'btn-secondary',
-  },
-])
-
-const activeDreamText = computed(() => {
-  return (
-    dreamStore.selectedDream?.currentVibe ||
-    dreamStore.dreamForm.currentVibe ||
-    'Select a Dream, attach strange little ingredients, then make art or text from the combination. Normal software, but wearing eyeliner.'
-  )
+const privacyIcon = computed(() => {
+  if (currentAccessMode.value === 'CODE') return 'kind-icon:key'
+  if (currentAccessMode.value === 'PRIVATE') return 'kind-icon:lock'
+  return 'kind-icon:globe'
 })
 
-const inspirationText = computed(() => {
-  return wheelSlots.value.filter(Boolean).join(' + ')
+const privacyBtnClass = computed(() => {
+  if (currentAccessMode.value === 'CODE')
+    return 'border-warning/50 bg-warning/20 text-warning'
+  if (currentAccessMode.value === 'PRIVATE')
+    return 'border-error/50  bg-error/20  text-error'
+  return 'border-success/50 bg-success/20 text-success'
 })
 
-const canSubmit = computed(() => {
-  return Boolean(dreamStore.selectedDreamId && message.value.trim())
-})
-
+// ─── Watchers ─────────────────────────────────────────────────────────────────
 watch(
   () => dreamStore.selectedDreamId,
-  async (dreamId) => {
-    if (dreamId) await dreamStore.fetchDreamChats({ dreamId })
+  async (id) => {
+    if (!id) return
+    await dreamStore.fetchDreamChats({ dreamId: id })
+    syncAccessMode()
+    wallpaperIndex.value = 0
+    restartWallpaperTimer()
+    await nextTick()
+    scrollChatToBottom()
   },
 )
 
-onMounted(async () => {
-  await dreamStore.initialize()
+watch(
+  () => dreamStore.selectedDreamChats.length,
+  () => scrollChatToBottom(),
+)
+watch(wallpaperIntervalSeconds, () => restartWallpaperTimer())
 
-  if (dreamStore.selectedDreamId) {
-    await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
-  }
-
-  window.addEventListener('pointermove', handleDrag)
-  window.addEventListener('pointerup', stopDrag)
-})
-
-onBeforeUnmount(() => {
-  stopArtCodeTimer()
-  stopPromptCodeTimer()
-  window.removeEventListener('pointermove', handleDrag)
-  window.removeEventListener('pointerup', stopDrag)
-})
-
-function toggleElement(key: DreamElementKey) {
-  activeElements[key] = !activeElements[key]
+// ─── Wallpaper ────────────────────────────────────────────────────────────────
+function cycleWallpaper() {
+  if (wallpaperImages.value.length < 2) return
+  wallpaperIndex.value =
+    (wallpaperIndex.value + 1) % wallpaperImages.value.length
+  wallpaperKey.value += 1
 }
 
-function toggleScreenFx(key: string) {
-  if (screenFx.value.includes(key)) {
-    screenFx.value = screenFx.value.filter((item) => item !== key)
+function restartWallpaperTimer() {
+  if (wallpaperTimerId) {
+    clearInterval(wallpaperTimerId)
+    wallpaperTimerId = null
+  }
+  if (wallpaperIntervalSeconds.value > 0 && wallpaperImages.value.length > 1) {
+    wallpaperTimerId = setInterval(
+      cycleWallpaper,
+      wallpaperIntervalSeconds.value * 1000,
+    )
+  }
+}
+
+function onWallpaperIntervalInput(event: Event) {
+  wallpaperIntervalSeconds.value = Number(
+    (event.target as HTMLInputElement).value,
+  )
+}
+
+// ─── Panel ────────────────────────────────────────────────────────────────────
+function togglePanel(key: PanelKey) {
+  activePanel.value = activePanel.value === key ? null : key
+  if (activePanel.value === 'chat') nextTick(() => scrollChatToBottom())
+}
+
+// ─── Privacy ──────────────────────────────────────────────────────────────────
+function syncAccessMode() {
+  currentAccessMode.value =
+    ((dreamStore.selectedDream as any)?.accessMode as AccessMode) ?? 'OPEN'
+  privacyCode.value = (dreamStore.selectedDream as any)?.privacyCode ?? ''
+}
+
+function cycleAccessMode() {
+  const modes: AccessMode[] = ['OPEN', 'CODE', 'PRIVATE']
+  setAccessMode(
+    modes[(modes.indexOf(currentAccessMode.value) + 1) % modes.length]!,
+  )
+}
+
+async function setAccessMode(mode: AccessMode) {
+  currentAccessMode.value = mode
+  if (!dreamStore.selectedDream?.id) return
+  await dreamStore.updateSelectedDream({
+    accessMode: mode,
+    privacyCode: mode === 'CODE' ? privacyCode.value || null : null,
+    updateNote: `Access mode → ${mode}.`,
+  } as any)
+}
+
+async function savePrivacyCode() {
+  if (!dreamStore.selectedDream?.id || currentAccessMode.value !== 'CODE')
     return
-  }
-
-  screenFx.value = [...screenFx.value, key]
+  await dreamStore.updateSelectedDream({
+    privacyCode: privacyCode.value || null,
+    updateNote: 'Privacy code updated.',
+  } as any)
 }
 
-function spinInspirationWheel() {
-  const fallbackSlots: [string, string, string] = [
-    'gothic fairy tale',
-    'cozy cosmic tavern',
-    'bureaucratic inferno',
-  ]
-
-  const shuffled = [...inspirationIdeas].sort(() => Math.random() - 0.5)
-
-  wheelSlots.value = [
-    shuffled[0] ?? fallbackSlots[0],
-    shuffled[1] ?? fallbackSlots[1],
-    shuffled[2] ?? fallbackSlots[2],
-  ]
-}
-
-function applyTextMode(
-  baseText: string,
-  addedText: string,
-  mode: InspirationMode,
-) {
-  const cleanBase = baseText.trim()
-  const cleanAdded = addedText.trim()
-
-  if (!cleanAdded) return cleanBase
-  if (mode === 'replace') return cleanAdded
-  if (mode === 'prepend')
-    return cleanBase ? `${cleanAdded}, ${cleanBase}` : cleanAdded
-
-  return cleanBase ? `${cleanBase}, ${cleanAdded}` : cleanAdded
-}
-
-async function applyInspiration(mode: InspirationMode) {
-  const currentPrompt =
-    dreamStore.dreamForm.currentPrompt ||
-    dreamStore.selectedDream?.currentPrompt ||
-    ''
-
-  const nextPrompt = applyTextMode(currentPrompt, inspirationText.value, mode)
-
-  dreamStore.setDreamForm({
-    currentPrompt: nextPrompt,
+async function togglePublic(isPublic: boolean) {
+  await dreamStore.updateSelectedDream({
+    isPublic,
+    updateNote: `Dream ${isPublic ? 'published' : 'made private'}.`,
   })
+}
 
+async function toggleMature(isMature: boolean) {
+  await dreamStore.updateSelectedDream({
+    isMature,
+    updateNote: `Mature flag → ${isMature}.`,
+  })
+}
+
+// ─── Characters (multi) ───────────────────────────────────────────────────────
+async function addCharacter(character: { id: number }) {
+  const ids = [
+    ...new Set([
+      ...dreamStore.selectedDreamCast.map((c) => c.id),
+      character.id,
+    ]),
+  ]
+  await dreamStore.setDreamCast(ids)
+}
+async function removeCharacter(id: number) {
+  await dreamStore.setDreamCast(
+    dreamStore.selectedDreamCast.map((c) => c.id).filter((cid) => cid !== id),
+  )
+}
+async function onCharacterCreated(c: { id: number }) {
+  await addCharacter(c)
+}
+
+// ─── Rewards (multi) ──────────────────────────────────────────────────────────
+async function addReward(reward: { id: number }) {
+  const ids = [
+    ...new Set([...dreamStore.selectedDreamItems.map((r) => r.id), reward.id]),
+  ]
+  await dreamStore.setDreamItems(ids)
+}
+async function removeReward(id: number) {
+  await dreamStore.setDreamItems(
+    dreamStore.selectedDreamItems.map((r) => r.id).filter((rid) => rid !== id),
+  )
+}
+async function onRewardCreated(r: { id: number }) {
+  await addReward(r)
+}
+
+// ─── Scenario (single) ────────────────────────────────────────────────────────
+async function setScenario(s: { id: number }) {
+  await dreamStore.setDreamScenario(s.id)
+}
+async function clearScenario() {
+  await dreamStore.setDreamScenario(null)
+}
+async function onScenarioCreated(s: { id: number }) {
+  await setScenario(s)
+}
+
+// ─── Art / Collection ─────────────────────────────────────────────────────────
+async function setCollection(c: { id: number }) {
+  await dreamStore.updateSelectedDream({
+    artCollectionId: c.id,
+    updateNote: 'Art collection linked.',
+  })
+  wallpaperIndex.value = 0
+  restartWallpaperTimer()
+}
+async function onArtCreated(_art: unknown) {
   if (dreamStore.selectedDream?.id) {
-    await dreamStore.setCurrentPrompt(nextPrompt)
+    await dreamStore.fetchDreamById(dreamStore.selectedDream.id, true)
+    restartWallpaperTimer()
   }
 }
 
-function panelStyle(key: CodePanelKey) {
-  const position = panelPositions[key]
-
-  return {
-    transform: `translate(${position.x}px, ${position.y}px)`,
-  }
-}
-
-function startDrag(key: CodePanelKey, event: PointerEvent) {
-  dragState.key = key
-  dragState.startX = event.clientX
-  dragState.startY = event.clientY
-  dragState.originX = panelPositions[key].x
-  dragState.originY = panelPositions[key].y
-}
-
-function handleDrag(event: PointerEvent) {
-  if (!dragState.key) return
-
-  const nextX = dragState.originX + event.clientX - dragState.startX
-  const nextY = dragState.originY + event.clientY - dragState.startY
-
-  panelPositions[dragState.key] = {
-    x: Math.max(0, nextX),
-    y: Math.max(56, nextY),
-  }
-}
-
-function stopDrag() {
-  dragState.key = null
-}
-
-async function refreshChats() {
-  await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
-}
-
+// ─── Dream actions ────────────────────────────────────────────────────────────
 async function saveVibeAsPrompt() {
   const vibe =
     dreamStore.selectedDream?.currentVibe || dreamStore.dreamForm.currentVibe
   if (!vibe) return
-
   await dreamStore.updateSelectedDream({
     currentPrompt: vibe,
-    updateNote: 'Copied the Dream vibe into the location prompt.',
+    updateNote: 'Vibe copied to image prompt.',
   })
 }
+async function startEditingSelectedDream() {
+  if (!dreamStore.selectedDream?.id) return
+  await dreamStore.startEditingDream(dreamStore.selectedDream.id)
+}
 
+// ─── Chat ─────────────────────────────────────────────────────────────────────
 async function submitMessage() {
   const content = message.value.trim()
   if (!content || !dreamStore.selectedDreamId) return
-
   const result = await dreamStore.addDreamChat(dreamStore.selectedDreamId, {
     type: 'Dream',
     content,
@@ -1108,96 +1319,252 @@ async function submitMessage() {
     isPublic: dreamStore.selectedDream?.isPublic ?? true,
     isMature: dreamStore.selectedDream?.isMature ?? false,
   })
-
   if (result.success) {
     message.value = ''
     reshapeDream.value = false
+    await nextTick()
+    scrollChatToBottom()
   }
 }
+async function refreshChats() {
+  if (!dreamStore.selectedDreamId) return
+  await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
+  await nextTick()
+  scrollChatToBottom()
+}
+function scrollChatToBottom() {
+  if (chatScrollRef.value)
+    chatScrollRef.value.scrollTop = chatScrollRef.value.scrollHeight
+}
 
-async function runArtCode() {
-  const prompt = artCode.prompt.trim()
-  if (!prompt) return
-
-  const currentPrompt =
+// ─── Inspiration Wheel ────────────────────────────────────────────────────────
+function spinInspirationWheel() {
+  const s = [...INSPIRATION_IDEAS].sort(() => Math.random() - 0.5)
+  wheelSlots.value = [
+    s[0] ?? INSPIRATION_IDEAS[0]!,
+    s[1] ?? INSPIRATION_IDEAS[1]!,
+    s[2] ?? INSPIRATION_IDEAS[2]!,
+  ]
+}
+function applyTextMode(base: string, added: string, mode: InspirationMode) {
+  const b = base.trim()
+  const a = added.trim()
+  if (!a) return b
+  if (mode === 'replace') return a
+  if (mode === 'prepend') return b ? `${a}, ${b}` : a
+  return b ? `${b}, ${a}` : a
+}
+async function applyInspiration(mode: InspirationMode) {
+  const current =
     dreamStore.dreamForm.currentPrompt ||
     dreamStore.selectedDream?.currentPrompt ||
     ''
-
-  const nextPrompt = applyTextMode(currentPrompt, prompt, artCode.promptMode)
-
-  dreamStore.setDreamForm({
-    currentPrompt: nextPrompt,
-  })
-
-  if (dreamStore.selectedDream?.id) {
-    await dreamStore.setCurrentPrompt(nextPrompt)
-
-    await dreamStore.addModelDreamMessage(
-      `art-code queued prompt:\n\n${prompt}`,
-      {
-        updateDream: false,
-        currentPrompt: nextPrompt,
-      },
-    )
-  }
+  const next = applyTextMode(current, inspirationText.value, mode)
+  dreamStore.setDreamForm({ currentPrompt: next })
+  if (dreamStore.selectedDream?.id) await dreamStore.setCurrentPrompt(next)
 }
 
+// ─── Screen FX ────────────────────────────────────────────────────────────────
+function toggleScreenFx(key: string) {
+  screenFx.value = screenFx.value.includes(key)
+    ? screenFx.value.filter((k) => k !== key)
+    : [...screenFx.value, key]
+}
+
+// ─── Automations ──────────────────────────────────────────────────────────────
+async function runArtCode() {
+  const prompt = artCode.prompt.trim()
+  if (!prompt) return
+  const current =
+    dreamStore.dreamForm.currentPrompt ||
+    dreamStore.selectedDream?.currentPrompt ||
+    ''
+  const next = applyTextMode(current, prompt, artCode.promptMode)
+  dreamStore.setDreamForm({ currentPrompt: next })
+  if (dreamStore.selectedDream?.id) {
+    await dreamStore.setCurrentPrompt(next)
+    await dreamStore.addModelDreamMessage(`art-code prompt:\n${prompt}`, {
+      updateDream: false,
+      currentPrompt: next,
+    })
+  }
+}
 async function runPromptCode() {
   const prompt = promptCode.prompt.trim()
   if (!prompt || !dreamStore.selectedDreamId) return
-
-  await dreamStore.addModelDreamMessage(`prompt-code request:\n\n${prompt}`, {
+  await dreamStore.addModelDreamMessage(`prompt-code:\n${prompt}`, {
     updateDream: false,
     currentPrompt: prompt,
   })
 }
-
 function toggleArtCodeTimer() {
   if (artCode.isRunning) {
-    stopArtCodeTimer()
+    if (artCode.timerId) clearInterval(artCode.timerId)
+    artCode.timerId = null
+    artCode.isRunning = false
     return
   }
-
   artCode.isRunning = true
-  artCode.timerId = window.setInterval(
-    () => {
-      runArtCode()
-    },
+  artCode.timerId = setInterval(
+    runArtCode,
     Math.max(5, artCode.intervalSeconds) * 1000,
   )
 }
-
 function togglePromptCodeTimer() {
   if (promptCode.isRunning) {
-    stopPromptCodeTimer()
+    if (promptCode.timerId) clearInterval(promptCode.timerId)
+    promptCode.timerId = null
+    promptCode.isRunning = false
     return
   }
-
   promptCode.isRunning = true
-  promptCode.timerId = window.setInterval(
-    () => {
-      runPromptCode()
-    },
+  promptCode.timerId = setInterval(
+    runPromptCode,
     Math.max(5, promptCode.intervalSeconds) * 1000,
   )
 }
 
-function stopArtCodeTimer() {
-  if (artCode.timerId) {
-    window.clearInterval(artCode.timerId)
+// ─── Lifecycle ────────────────────────────────────────────────────────────────
+onMounted(async () => {
+  await dreamStore.initialize()
+  if (dreamStore.selectedDreamId) {
+    await dreamStore.fetchDreamChats({ dreamId: dreamStore.selectedDreamId })
+    await nextTick()
+    scrollChatToBottom()
   }
+  syncAccessMode()
+  restartWallpaperTimer()
+})
 
-  artCode.timerId = null
-  artCode.isRunning = false
-}
-
-function stopPromptCodeTimer() {
-  if (promptCode.timerId) {
-    window.clearInterval(promptCode.timerId)
-  }
-
-  promptCode.timerId = null
-  promptCode.isRunning = false
-}
+onBeforeUnmount(() => {
+  if (artCode.timerId) clearInterval(artCode.timerId)
+  if (promptCode.timerId) clearInterval(promptCode.timerId)
+  if (wallpaperTimerId) clearInterval(wallpaperTimerId)
+})
 </script>
+
+<style scoped>
+/* ── Wallpaper crossfade ─────────────────────────────────────────── */
+.wp-fade-enter-active,
+.wp-fade-leave-active {
+  transition: opacity 0.9s ease;
+}
+.wp-fade-enter-from,
+.wp-fade-leave-to {
+  opacity: 0;
+}
+
+/* ── Animated gradient fallback (no art images) ─────────────────── */
+.dream-gradient-fallback {
+  background: linear-gradient(
+    135deg,
+    #0d0d1a,
+    #1a0a2e,
+    #16213e,
+    #0f3460,
+    #533483,
+    #e94560
+  );
+  background-size: 400% 400%;
+  animation: dream-gradient-shift 14s ease infinite;
+}
+@keyframes dream-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ── Panel slides in from the right ─────────────────────────────── */
+.panel-slide-enter-active {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity 0.2s ease;
+}
+.panel-slide-leave-active {
+  transition:
+    transform 0.2s ease-in,
+    opacity 0.15s ease;
+}
+.panel-slide-enter-from,
+.panel-slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* ── Backdrop fade ───────────────────────────────────────────────── */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ── Hide scrollbar on icon dock ────────────────────────────────── */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Screen FX ───────────────────────────────────────────────────── */
+.lantern-glow-fx {
+  background:
+    radial-gradient(
+      ellipse at 25% 25%,
+      rgba(255, 210, 80, 0.18) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 75% 75%,
+      rgba(255, 140, 40, 0.12) 0%,
+      transparent 50%
+    );
+  mix-blend-mode: screen;
+  animation: lantern-pulse 6s ease-in-out infinite alternate;
+}
+@keyframes lantern-pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fog-fx {
+  background: linear-gradient(
+    to top,
+    rgba(200, 220, 255, 0.14) 0%,
+    rgba(200, 220, 255, 0.04) 40%,
+    transparent 70%
+  );
+  animation: fog-drift 22s ease-in-out infinite alternate;
+}
+@keyframes fog-drift {
+  from {
+    opacity: 0.5;
+    transform: translateX(-3%);
+  }
+  to {
+    opacity: 0.9;
+    transform: translateX(3%);
+  }
+}
+
+.vignette-fx {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+</style>

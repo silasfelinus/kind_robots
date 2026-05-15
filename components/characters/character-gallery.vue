@@ -556,8 +556,10 @@ async function refreshCharacters(force = false) {
   isLoading.value = true
 
   try {
+    const shouldForceFetch = force || characterStore.characters.length === 0
+
     await characterStore.initialize({
-      force,
+      force: shouldForceFetch,
       fetchRemote: true,
       createDefaultForm: true,
     })
@@ -565,7 +567,6 @@ async function refreshCharacters(force = false) {
     isLoading.value = false
   }
 }
-
 function selectCharacterFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
 

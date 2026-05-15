@@ -25,6 +25,12 @@
         :show-meta="true"
       />
 
+      <add-dream
+        v-else-if="currentTab === 'add'"
+        @saved="onDreamSaved"
+        @created="onDreamSaved"
+      />
+
       <dream-prompts v-else-if="currentTab === 'prompts'" />
 
       <section
@@ -247,6 +253,7 @@ const readonlyServerGalleryProps = {
 } as const
 
 const SERVER_MODE_BY_TAB: Record<string, 'art' | 'text' | 'selected'> = {
+  add: 'selected',
   art: 'art',
   prompts: 'text',
   servers: 'text',
@@ -256,11 +263,23 @@ const SERVER_MODE_BY_TAB: Record<string, 'art' | 'text' | 'selected'> = {
   scenarios: 'selected',
 }
 
-const tabs = computed(() =>
-  navStore
+const tabs = computed(() => {
+  const baseTabs = navStore
     .getDashboardTabs(dashboardKey)
-    .filter((tab) => tab.key !== 'overview'),
-)
+    .filter((tab) => tab.key !== 'overview')
+
+  if (baseTabs.some((tab) => tab.key === 'add')) return baseTabs
+
+  return [
+    ...baseTabs,
+    {
+      key: 'add',
+      label: 'Add Dream',
+      icon: 'kind-icon:plus',
+      description: 'Create or edit a Dream location.',
+    },
+  ]
+})
 
 const fallbackTab = computed(() =>
   dreamStore.selectedDream?.id ? 'interact' : 'dreams',
@@ -330,6 +349,15 @@ function setTab(tab: string) {
   serverStore.setCurrentServerMode(SERVER_MODE_BY_TAB[nextTab] ?? 'selected')
 
   if (nextTab === 'art') setupUploadTarget()
+}
+
+async function onDreamSaved() {
+  await refreshManagerData()
+  if (dreamStore.selectedDream?.id) {
+    setTab('interact')
+  } else {
+    setTab('dreams')
+  }
 }
 
 const isLoadingManager = ref(false)

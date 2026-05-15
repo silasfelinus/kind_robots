@@ -106,10 +106,30 @@
         v-for="dream in filteredDreams"
         :key="dream.id"
         :dream="dream"
+        :show-images="showImages"
         :show-stats="showStats"
         :show-actions="showCardActions"
-        @edit="emit('edit', $event)"
+        :show-open-button="showOpenButton"
       />
+
+      <button
+        class="group flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-4 text-center transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary/10 hover:shadow-lg"
+        type="button"
+        @click="startNewDream"
+      >
+        <div
+          class="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-content transition group-hover:scale-105"
+        >
+          <Icon name="kind-icon:plus" class="h-9 w-9" />
+        </div>
+
+        <div>
+          <h3 class="text-lg font-black text-primary">Add Dream</h3>
+          <p class="mt-1 text-sm text-base-content/60">
+            Start a new location. The atlas hungers.
+          </p>
+        </div>
+      </button>
     </div>
 
     <div
@@ -124,6 +144,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useNavStore } from '@/stores/navStore'
+
+const dreamStore = useDreamStore()
+const navStore = useNavStore()
+const dashboardKey = 'dream' as const
 
 const props = withDefaults(
   defineProps<{
@@ -149,12 +174,6 @@ const props = withDefaults(
     compact: false,
   },
 )
-
-const emit = defineEmits<{
-  edit: [id: number]
-}>()
-
-const dreamStore = useDreamStore()
 
 const search = ref('')
 const showMine = ref(false)
@@ -186,6 +205,7 @@ onMounted(async () => {
 
 function startNewDream() {
   dreamStore.startAddingDream()
+  navStore.setDashboardTab(dashboardKey, 'add')
 }
 
 function toggleMine() {

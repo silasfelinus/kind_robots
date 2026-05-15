@@ -143,7 +143,26 @@ export default defineEventHandler(async (event) => {
               galleryId: true,
             },
           },
-          ArtCollection: true,
+          ArtCollection: {
+            include: {
+              art: {
+                take: 12,
+                orderBy: { createdAt: 'desc' },
+                select: {
+                  id: true,
+                  createdAt: true,
+                  updatedAt: true,
+                  path: true,
+                  promptString: true,
+                  imagePath: true,
+                  artImageId: true,
+                  userId: true,
+                  isPublic: true,
+                  isMature: true,
+                },
+              },
+            },
+          },
           Gallery: true,
           Scenario: true,
           Characters: true,

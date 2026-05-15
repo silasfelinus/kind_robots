@@ -45,11 +45,11 @@
 
     <!-- Legibility overlay -->
     <div
-      class="absolute inset-0 z-[1] transition-all duration-500"
+      class="absolute inset-0 z-1 transition-all duration-500"
       :class="
         activePanel
-          ? 'bg-gradient-to-r from-base-100/30 via-transparent to-base-100/80'
-          : 'bg-gradient-to-b from-base-100/25 via-transparent to-base-100/70'
+          ? 'bg-linear-to-r from-base-100/30 via-transparent to-base-100/80'
+          : 'bg-linear-to-b from-base-100/25 via-transparent to-base-100/70'
       "
     />
 
@@ -87,7 +87,7 @@
 
     <!-- ══ ICON DOCK (above quick-chat bar) ════════════════════════ -->
     <div
-      class="absolute bottom-[3.75rem] left-0 right-0 z-20 flex justify-center px-2 py-1"
+      class="absolute bottom-15 left-0 right-0 z-20 flex justify-center px-2 py-1"
     >
       <div
         class="flex items-end gap-0.5 overflow-x-auto rounded-2xl border border-white/20 bg-base-100/75 p-1.5 backdrop-blur-md scrollbar-none"
@@ -174,7 +174,7 @@
     <Transition name="panel-slide">
       <div
         v-if="activePanel"
-        class="absolute bottom-[3.75rem] right-0 top-0 z-40 flex w-full flex-col overflow-hidden border-l border-base-300/60 bg-base-100/96 backdrop-blur-lg sm:w-[30rem] xl:w-[34rem]"
+        class="absolute bottom-15 right-0 top-0 z-40 flex w-full flex-col overflow-hidden border-l border-base-300/60 bg-base-100/96 backdrop-blur-lg sm:w-120 xl:w-136"
       >
         <!-- Header -->
         <div
@@ -504,7 +504,7 @@
           <!-- ─── CHAT HISTORY ──────────────────────────────────── -->
           <div
             v-else-if="activePanel === 'chat'"
-            class="flex h-full min-h-[20rem] flex-col"
+            class="flex h-full min-h-80 flex-col"
           >
             <div
               ref="chatScrollRef"
@@ -553,7 +553,7 @@
               <div class="flex gap-2">
                 <textarea
                   v-model="message"
-                  class="textarea textarea-bordered textarea-sm min-h-[3rem] flex-1 resize-none rounded-2xl text-sm"
+                  class="textarea textarea-bordered textarea-sm min-h-12 flex-1 resize-none rounded-2xl text-sm"
                   placeholder="The lanterns flicker as…"
                   rows="2"
                   @keydown.enter.exact.prevent="submitMessage"
@@ -702,7 +702,7 @@
                   :value="wallpaperIntervalSeconds"
                   @input="onWallpaperIntervalInput"
                 />
-                <span class="min-w-[3.5rem] text-right text-sm font-bold">
+                <span class="min-w-14 text-right text-sm font-bold">
                   {{
                     wallpaperIntervalSeconds === 0
                       ? 'Off'
@@ -927,15 +927,15 @@
     <!-- ══ SCREEN FX OVERLAYS ══════════════════════════════════════ -->
     <div
       v-if="screenFx.includes('lanternGlow')"
-      class="lantern-glow-fx pointer-events-none absolute inset-0 z-[2]"
+      class="lantern-glow-fx pointer-events-none absolute inset-0 z-2"
     />
     <div
       v-if="screenFx.includes('fog')"
-      class="fog-fx pointer-events-none absolute inset-0 z-[2]"
+      class="fog-fx pointer-events-none absolute inset-0 z-2"
     />
     <div
       v-if="screenFx.includes('vignette')"
-      class="vignette-fx pointer-events-none absolute inset-0 z-[2]"
+      class="vignette-fx pointer-events-none absolute inset-0 z-2"
     />
   </section>
 </template>
@@ -951,6 +951,7 @@ import {
   watch,
 } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -978,6 +979,7 @@ interface CodePanelState {
 
 // ─── Stores ───────────────────────────────────────────────────────────────────
 const dreamStore = useDreamStore()
+const scenarioStore = useScenarioStore()
 const userStore = useUserStore()
 
 // ─── Refs ─────────────────────────────────────────────────────────────────────
@@ -1245,8 +1247,10 @@ async function removeCharacter(id: number) {
     dreamStore.selectedDreamCast.map((c) => c.id).filter((cid) => cid !== id),
   )
 }
-async function onCharacterCreated(c: { id: number }) {
-  await addCharacter(c)
+// add-character may not declare 'created'/'saved' emits — accept any and guard
+async function onCharacterCreated(payload?: unknown) {
+  const id = (payload as { id?: number } | undefined)?.id
+  if (typeof id === 'number') await addCharacter({ id })
 }
 
 // ─── Rewards (multi) ──────────────────────────────────────────────────────────
@@ -1261,19 +1265,24 @@ async function removeReward(id: number) {
     dreamStore.selectedDreamItems.map((r) => r.id).filter((rid) => rid !== id),
   )
 }
-async function onRewardCreated(r: { id: number }) {
-  await addReward(r)
+// add-reward may not declare 'created'/'saved' emits — accept any and guard
+async function onRewardCreated(payload?: unknown) {
+  const id = (payload as { id?: number } | undefined)?.id
+  if (typeof id === 'number') await addReward({ id })
 }
 
 // ─── Scenario (single) ────────────────────────────────────────────────────────
-async function setScenario(s: { id: number }) {
-  await dreamStore.setDreamScenario(s.id)
+// scenario-gallery @select is typed () => any (no payload) — read from the store
+async function setScenario() {
+  const id = (scenarioStore as any).selectedScenario?.id
+  if (typeof id === 'number') await dreamStore.setDreamScenario(id)
 }
 async function clearScenario() {
   await dreamStore.setDreamScenario(null)
 }
-async function onScenarioCreated(s: { id: number }) {
-  await setScenario(s)
+async function onScenarioCreated(payload?: unknown) {
+  const id = (payload as { id?: number } | undefined)?.id
+  if (typeof id === 'number') await dreamStore.setDreamScenario(id)
 }
 
 // ─── Art / Collection ─────────────────────────────────────────────────────────

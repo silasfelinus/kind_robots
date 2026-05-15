@@ -862,6 +862,36 @@ const artByArtImageId = computed(() => {
   return map
 })
 
+const DEFAULT_IMAGE_BATCH_LIMIT = 20
+
+const imageBatchLimit = ref(DEFAULT_IMAGE_BATCH_LIMIT)
+
+const normalizedImageBatchLimit = computed(() => {
+  const value = Number(imageBatchLimit.value)
+
+  if (!Number.isFinite(value)) return DEFAULT_IMAGE_BATCH_LIMIT
+
+  return Math.max(1, Math.floor(value))
+})
+
+const visibleHydrationIds = computed(() => {
+  const seen = new Set<number>()
+
+  return visibleRows.value
+    .map((row) => row.artImage?.id)
+    .filter((id): id is number => Boolean(id))
+    .filter((id) => {
+      if (seen.has(id)) return false
+      seen.add(id)
+      return true
+    })
+    .filter((id) => !hydratedImageMap.value.has(id))
+})
+
+const limitedVisibleHydrationIds = computed(() => {
+  return visibleHydrationIds.value.slice(0, normalizedImageBatchLimit.value)
+})
+
 const summary = computed(() => {
   const artRows = artAuditRows.value
   const imageRows = artImageAuditRows.value
@@ -1010,36 +1040,6 @@ function buildArtImageRow(artImage: ArtImage): AuditRow {
     artImage.imagePath || primaryArtPath(art) || '',
   )
   const createdAtValue = toTimestamp(artImage.createdAt)
-
-  const DEFAULT_IMAGE_BATCH_LIMIT = 20
-
-  const imageBatchLimit = ref(DEFAULT_IMAGE_BATCH_LIMIT)
-
-  const normalizedImageBatchLimit = computed(() => {
-    const value = Number(imageBatchLimit.value)
-
-    if (!Number.isFinite(value)) return DEFAULT_IMAGE_BATCH_LIMIT
-
-    return Math.max(1, Math.floor(value))
-  })
-
-  const visibleHydrationIds = computed(() => {
-    const seen = new Set<number>()
-
-    return visibleRows.value
-      .map((row) => row.artImage?.id)
-      .filter((id): id is number => Boolean(id))
-      .filter((id) => {
-        if (seen.has(id)) return false
-        seen.add(id)
-        return true
-      })
-      .filter((id) => !hydratedImageMap.value.has(id))
-  })
-
-  const limitedVisibleHydrationIds = computed(() => {
-    return visibleHydrationIds.value.slice(0, normalizedImageBatchLimit.value)
-  })
 
   const base: AuditRow = {
     key: `artImage-${artImage.id}`,

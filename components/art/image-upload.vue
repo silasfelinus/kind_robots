@@ -674,6 +674,22 @@ function addFiles(incoming: FileList | File[]) {
   error.value = ''
 }
 
+function clearUploadedImages() {
+  queuedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview))
+  queuedFiles.value = []
+  succeededNames.value = new Set()
+  failedNames.value = new Set()
+  connectedModelType.value = ''
+  uploadProgress.value = 0
+  uploadTotal.value = 0
+
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+
+  clearModelSelection()
+}
+
 function removeFile(index: number) {
   const removed = queuedFiles.value.splice(index, 1)[0]
   if (removed) URL.revokeObjectURL(removed.preview)
@@ -806,6 +822,10 @@ async function handleBatchUpload() {
   }
 
   isUploading.value = false
+
+  if (succeeded.length && !failed.length) {
+    clearUploadedImages()
+  }
 }
 
 onUnmounted(() => {

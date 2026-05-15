@@ -281,12 +281,17 @@
       >
         <Icon name="kind-icon:theater" class="h-12 w-12 text-primary" />
 
-        <div>
-          <p class="text-lg font-bold">No characters found.</p>
-          <p class="mt-1 text-sm">
-            No public or owned characters match this gallery.
-          </p>
-        </div>
+    <p class="text-lg font-bold">No characters found.</p>
+
+<p class="mt-1 text-sm">
+  <span v-if="characterStore.characters.length === 0">
+    The character store has no loaded characters yet.
+  </span>
+
+  <span v-else>
+    {{ characterStore.characters.length }} characters loaded, but none match the current filters.
+  </span>
+</p>m
 
         <button
           v-if="allowAdd"
@@ -471,9 +476,9 @@ const canCloneSelected = computed(() => {
 })
 
 const galleryCharacters = computed<Character[]>(() => {
-  let characters = characterStore.characters
+  let characters = characterStore.characters ?? []
 
-  if (!userStore.isAdmin) {
+  if (!userStore.isAdmin && currentUserId.value) {
     characters = characters.filter((character) => {
       return character.isPublic || character.userId === currentUserId.value
     })

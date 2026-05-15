@@ -612,16 +612,15 @@ async function loadGenerator() {
   try {
     await Promise.all([
       navStore.initialize(),
-      serverStore.initialize({
-        fetchRemote: true,
-      }),
-      checkpointStore.initialize(),
+      ...(serverStore.hasLoaded ? [] : [serverStore.initialize({ fetchRemote: true })]),
       artStore.initialize({
         fetchRemote: false,
         hydrateImages: false,
+        initializeServerStore: false,  
       }),
       collectionStore.fetchCollections?.(),
     ])
+
 
     if (!selectedServerId.value && serverStore.activeArtServer?.id) {
       selectedServerId.value = serverStore.activeArtServer.id

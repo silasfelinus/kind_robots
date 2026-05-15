@@ -35,12 +35,14 @@ import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 import { useButterflyStore } from '@/stores/butterflyStore'
 import { useServerStore } from '@/stores/serverStore'
+import { useCheckpointStore } from '@/stores/checkpointStore'
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const serverStore = useServerStore()
+const checkpointStore = useCheckpointStore()
 const artStore = useArtStore()
 const botStore = useBotStore()
 const milestoneStore = useMilestoneStore()
@@ -81,23 +83,30 @@ function handleOverlayHidden() {
   emitReadyOnce()
 }
 
-async function initializeServerStore() {
+async function initializeServerAndCheckpoints() {
+  // Servers must fully load before checkpoints can resolve their active server.
+  // This is the single place both are initialized — galleries must not re-fetch.
   await errorStore.handleError(
     async () => {
-      if (!serverStore.isInitialized) {
-        await serverStore.initialize({
-          fetchRemote: true,
-        })
-
-        return
-      }
-
-      if (!serverStore.hasLoaded || serverStore.servers.length === 0) {
-        await serverStore.fetchAllServers(true)
+      if (
+        !serverStore.isInitialized ||
+        !serverStore.hasLoaded ||
+        serverStore.servers.length === 0
+      ) {
+        await serverStore.initialize({ fetchRemote: true })
       }
     },
     ErrorType.STORE_ERROR,
     'Error initializing server store',
+  )
+
+  // Checkpoints depend on servers being present so they can resolve activeArtServer.
+  await errorStore.handleError(
+    async () => {
+      checkpointStore.initialize()
+    },
+    ErrorType.STORE_ERROR,
+    'Error initializing checkpoint store',
   )
 }
 
@@ -111,6 +120,7 @@ async function initializeStores() {
       )
     }
 
+    // First wave: user identity and UI chrome — everything else depends on these
     await Promise.all([
       userStore.initialize?.(),
       pageStore.initialize?.(),
@@ -120,8 +130,10 @@ async function initializeStores() {
       milestoneStore.initialize?.(),
     ])
 
-    await initializeServerStore()
+    // Servers + checkpoints are sequential: checkpoints need a loaded server array
+    await initializeServerAndCheckpoints()
 
+    // Second wave: content stores that may reference servers but don't block server init
     await Promise.all([
       artStore.initialize?.(),
       botStore.initialize?.(),
@@ -129,6 +141,7 @@ async function initializeStores() {
       chatStore.initialize?.(),
     ])
 
+    // Third wave: everything else
     await Promise.all([
       characterStore.initialize?.(),
       pitchStore.initialize?.(),

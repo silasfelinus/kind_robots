@@ -638,15 +638,13 @@ function getServerUrl(server: typeof serverStore.activeArtServer): string {
   )
 }
 
-onMounted(() => {
+watchEffect(() => {
   const activeServer = serverStore.activeArtServer
-
-  imageForm.designer = userStore.username || userStore.user?.username || ''
-  imageForm.serverId = activeServer?.id ?? null
-  imageForm.serverName = activeServer?.label || activeServer?.title || ''
+  if (!activeServer) return
+  imageForm.serverId = activeServer.id
+  imageForm.serverName = activeServer.label || activeServer.title || ''
   imageForm.serverUrl = getServerUrl(activeServer)
 })
-
 function clearModelSelection() {
   botStore.deselectBot()
   characterStore.deselectCharacter()

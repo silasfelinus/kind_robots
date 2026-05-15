@@ -219,13 +219,14 @@ function startServerPreset(serverType: ServerType) {
   showServerForm.value = true
 }
 
-
 async function handleServerSaved() {
   showServerForm.value = false
   await serverStore.fetchAllServers(true)
 }
 
 onMounted(async () => {
-  await loadServers(false)
+  if (!serverStore.hasLoaded) {
+    await loadServers(false)
+  }
 })
 </script>

@@ -207,20 +207,20 @@ async function loadManagerData(force = false) {
   try {
     await Promise.all([
       navStore.initialize(),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      // Guard: only fetch if not already loaded (or if user forced a refresh)
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
       artStore.initialize({
         force,
         fetchRemote: true,
         hydrateImages: false,
+        initializeServerStore: false, // ← kind-loader owns this
       }),
       collectionStore.fetchCollections?.(),
     ])
 
-    checkpointStore.initialize()
-
+    // checkpointStore.initialize() is sync, harmless, but redundant — can remove
     if (!checkpointStore.selectedSampler) {
       checkpointStore.selectSamplerByName('Euler a')
     }

@@ -210,10 +210,9 @@ async function loadManagerData(force = false) {
         force,
         fetchRemote: true,
       }),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
     ])
   } catch (error) {
     managerError.value =

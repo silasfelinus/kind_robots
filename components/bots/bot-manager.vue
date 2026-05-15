@@ -178,10 +178,9 @@ async function loadManagerData(force = false) {
         initializeServerStore: false,
         createBlankForm: true,
       }),
-      serverStore.initialize({
-        force,
-        fetchRemote: true,
-      }),
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
       chatStore.initialize(),
     ])
 

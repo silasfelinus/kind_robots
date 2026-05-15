@@ -6,18 +6,17 @@
     @click="selectDream"
   >
     <div class="flex items-start gap-3">
-      <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+      <div
+        v-if="showImages"
+        class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+      >
         <img
-          v-if="image"
-          :src="image"
+          v-if="previewImage"
+          :src="previewImage"
           class="h-full w-full object-cover"
           :alt="dream.title"
         />
-        <Icon
-          v-else
-          name="kind-icon:door"
-          class="h-9 w-9 text-primary"
-        />
+        <Icon v-else name="kind-icon:door" class="h-10 w-10 text-primary" />
       </div>
 
       <div class="min-w-0 flex-1">
@@ -27,22 +26,13 @@
           </h3>
 
           <div class="flex shrink-0 flex-col gap-1 text-right">
-            <span
-              v-if="!dream.isActive"
-              class="badge badge-warning"
-            >
+            <span v-if="!dream.isActive" class="badge badge-warning">
               Archived
             </span>
-            <span
-              v-if="dream.isMature"
-              class="badge badge-error"
-            >
+            <span v-if="dream.isMature" class="badge badge-error">
               Mature
             </span>
-            <span
-              v-if="!dream.isPublic"
-              class="badge badge-secondary"
-            >
+            <span v-if="!dream.isPublic" class="badge badge-secondary">
               Private
             </span>
           </div>
@@ -50,6 +40,16 @@
 
         <p class="mt-1 line-clamp-3 text-sm text-base-content/70">
           {{ dream.description || dream.currentVibe }}
+        </p>
+
+        <p
+          v-if="collectionArt.length"
+          class="mt-2 flex items-center gap-1 text-xs font-bold text-accent"
+        >
+          <Icon name="kind-icon:image" class="h-3.5 w-3.5" />
+          {{ collectionArt.length }} collection image{{
+            collectionArt.length === 1 ? '' : 's'
+          }}
         </p>
       </div>
     </div>
@@ -80,16 +80,14 @@
       </div>
     </div>
 
-    <div
-      v-if="showActions"
-      class="mt-3 flex flex-wrap gap-2"
-      @click.stop
-    >
+    <div v-if="showActions" class="mt-3 flex flex-wrap gap-2" @click.stop>
       <button
+        v-if="showOpenButton"
         class="btn btn-xs btn-primary rounded-2xl"
         type="button"
-        @click="selectDream"
+        @click="openDream"
       >
+        <Icon name="kind-icon:door-open" class="h-4 w-4" />
         Open
       </button>
 
@@ -98,6 +96,7 @@
         type="button"
         @click="editDream"
       >
+        <Icon name="kind-icon:edit" class="h-4 w-4" />
         Edit
       </button>
 
@@ -107,6 +106,7 @@
         :disabled="dreamStore.isDeleting"
         @click="archiveDream"
       >
+        <Icon name="kind-icon:archive" class="h-4 w-4" />
         Archive
       </button>
     </div>
@@ -117,38 +117,57 @@
 import { computed } from 'vue'
 import type { DreamWithRelations } from '@/stores/dreamStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useNavStore } from '@/stores/navStore'
+
+const dreamStore = useDreamStore()
+const navStore = useNavStore()
+const dashboardKey = 'dream' as const
 
 const props = withDefaults(
   defineProps<{
     dream: DreamWithRelations
     selected?: boolean
+    showImages?: boolean
     showStats?: boolean
     showActions?: boolean
+    showOpenButton?: boolean
   }>(),
   {
     selected: false,
+    showImages: true,
     showStats: true,
     showActions: true,
+    showOpenButton: true,
   },
 )
-
-const emit = defineEmits<{
-  edit: [id: number]
-  selected: [id: number]
-  archived: [id: number]
-}>()
-
-const dreamStore = useDreamStore()
 
 const isSelected = computed(() => {
   return props.selected || dreamStore.selectedDream?.id === props.dream.id
 })
 
-const image = computed(() => {
+const collectionArt = computed(() => props.dream.ArtCollection?.art ?? [])
+
+const randomCollectionArt = computed(() => {
+  if (!collectionArt.value.length) return null
+
+  const index =
+    Math.abs(
+      props.dream.id + props.dream.title.length + collectionArt.value.length,
+    ) % collectionArt.value.length
+
+  return collectionArt.value[index] ?? null
+})
+
+const previewImage = computed(() => {
   return (
-    props.dream.Art?.imagePath ??
-    props.dream.ArtImage?.fileName ??
-    props.dream.Gallery?.highlightImage ??
+    randomCollectionArt.value?.imagePath ||
+    randomCollectionArt.value?.path ||
+    props.dream.Art?.imagePath ||
+    props.dream.Art?.path ||
+    props.dream.ArtImage?.imagePath ||
+    props.dream.ArtImage?.path ||
+    props.dream.ArtImage?.fileName ||
+    props.dream.Gallery?.highlightImage ||
     ''
   )
 })
@@ -161,19 +180,19 @@ const cardClass = computed(() => {
 
 async function selectDream() {
   await dreamStore.selectDreamById(props.dream.id)
-  emit('selected', props.dream.id)
+}
+
+async function openDream() {
+  await dreamStore.selectDreamById(props.dream.id)
+  navStore.setDashboardTab(dashboardKey, 'interact')
 }
 
 async function editDream() {
   await dreamStore.startEditingDream(props.dream.id)
-  emit('edit', props.dream.id)
+  navStore.setDashboardTab(dashboardKey, 'add')
 }
 
 async function archiveDream() {
-  const result = await dreamStore.deleteDream(props.dream.id)
-
-  if (result.success) {
-    emit('archived', props.dream.id)
-  }
+  await dreamStore.deleteDream(props.dream.id)
 }
 </script>

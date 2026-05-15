@@ -87,7 +87,7 @@
         type="button"
         @click="openDream"
       >
-        <Icon name="kind-icon:door-open" class="h-4 w-4" />
+        <Icon name="kind-icon:door" class="h-4 w-4" />
         Open
       </button>
 
@@ -106,7 +106,7 @@
         :disabled="dreamStore.isDeleting"
         @click="archiveDream"
       >
-        <Icon name="kind-icon:archive" class="h-4 w-4" />
+        <Icon name="kind-icon:book" class="h-4 w-4" />
         Archive
       </button>
     </div>
@@ -188,7 +188,15 @@ async function openDream() {
 }
 
 async function editDream() {
-  await dreamStore.startEditingDream(props.dream.id)
+  const dream = await dreamStore.startEditingDream(props.dream.id)
+
+  if (!dream) {
+    dreamStore.setError(
+      `Dream ${props.dream.id} could not be loaded for editing.`,
+    )
+    return
+  }
+
   navStore.setDashboardTab(dashboardKey, 'add')
 }
 

@@ -401,8 +401,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
     try {
       const query = buildQuery({
-        userOnly: options.userOnly ? 'true' : undefined,
-        showInactive: options.showInactive ? 'true' : undefined,
+        mine: options.userOnly ? 'true' : undefined,
+        includeInactive: options.showInactive ? 'true' : undefined,
         includeMature: options.includeMature ? 'true' : undefined,
         artCollectionId: options.artCollectionId,
         galleryId: options.galleryId,
@@ -412,7 +412,7 @@ export const useDreamStore = defineStore('dreamStore', () => {
         characterId: options.characterId,
         rewardId: options.rewardId,
         search: options.search,
-        limit: options.limit,
+        take: options.limit,
       })
 
       const url = query ? `/api/dreams?${query}` : '/api/dreams'

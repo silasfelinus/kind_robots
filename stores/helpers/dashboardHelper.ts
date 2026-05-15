@@ -279,6 +279,13 @@ export const dashboardConfigs = {
         summary: 'Choose text and art engines for generation.',
       },
       {
+        key: 'add',
+        label: 'Add/Edit',
+        icon: 'kind-icon:plus',
+        title: 'Add/Edit Dreams',
+        summary: 'Add/Edit a dream experience',
+      },
+      {
         key: 'interact',
         label: 'Interact',
         icon: 'kind-icon:chat',

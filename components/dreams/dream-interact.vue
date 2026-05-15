@@ -953,6 +953,8 @@ import {
 import { useDreamStore } from '@/stores/dreamStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUserStore } from '@/stores/userStore'
+import { useNavStore } from '@/stores/navStore'
+import { useErrorStore } from '@/stores/errorStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type PanelKey =
@@ -981,6 +983,9 @@ interface CodePanelState {
 const dreamStore = useDreamStore()
 const scenarioStore = useScenarioStore()
 const userStore = useUserStore()
+const navStore = useNavStore()
+const dashboardKey = 'dream' as const
+const errorStore = useErrorStore()
 
 // ─── Refs ─────────────────────────────────────────────────────────────────────
 const chatScrollRef = ref<HTMLElement | null>(null)
@@ -1313,8 +1318,16 @@ async function saveVibeAsPrompt() {
   })
 }
 async function startEditingSelectedDream() {
-  if (!dreamStore.selectedDream?.id) return
-  await dreamStore.startEditingDream(dreamStore.selectedDream.id)
+  if (!dreamStore.selectedDream?.id) {
+    errorStore.setError?.('Select a dream before editing.')
+    return
+  }
+
+  const dream = await dreamStore.startEditingDream(dreamStore.selectedDream.id)
+
+  if (!dream) return
+
+  navStore.setDashboardTab(dashboardKey, 'add')
 }
 
 // ─── Chat ─────────────────────────────────────────────────────────────────────

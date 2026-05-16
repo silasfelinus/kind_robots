@@ -3,56 +3,49 @@
   <div class="flex items-center justify-center">
     <img
       :src="avatarUrl"
-      :alt="`${username}'s avatar`"
-      class="rounded-full min-h-1 min-w-1 border-bg-200 border-2 object-cover"
+      :alt="`${displayName}'s avatar`"
+      class="aspect-square min-h-1 min-w-1 rounded-full border-2 border-base-200 object-cover"
       @error="handleAvatarError"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '../../stores/userStore'
 
-const props = defineProps<{ userId?: number }>()
+const props = defineProps<{
+  userId?: number
+  username?: string
+}>()
 
 const userStore = useUserStore()
 
-const avatarUrl = ref('/images/kindart.webp')
+const fallbackAvatar = '/images/kindart.webp'
+const avatarUrl = ref(fallbackAvatar)
+
 const effectiveUserId = computed(() => props.userId ?? userStore.userId)
-const username = computed(() => userStore.username || 'Guest')
+
+const displayName = computed(() => {
+  return props.username || userStore.username || 'Guest'
+})
 
 const fetchAvatar = async () => {
-  if (!effectiveUserId.value) {
-    console.warn('[user-avatar] No valid userId. Using default avatar.')
+  const id = effectiveUserId.value
+
+  if (!id) {
+    avatarUrl.value = fallbackAvatar
     return
   }
-  try {
-    avatarUrl.value = await userStore.userImage(effectiveUserId.value)
-  } catch (error) {
-    console.error('[user-avatar] Failed to fetch avatar:', error)
-    avatarUrl.value = '/images/kindart.webp'
-  }
+
+  avatarUrl.value = await userStore.userImage(id)
 }
 
 const handleAvatarError = (event: Event) => {
-  console.warn('[user-avatar] Image failed to load. Falling back to default.')
-  ;(event.target as HTMLImageElement).src = '/images/kindart.webp'
+  ;(event.target as HTMLImageElement).src = fallbackAvatar
 }
 
-watch(
-  () => [userStore.user?.artImageId, userStore.user?.avatarImage],
-  async ([newArtId, newAvatar], [oldArtId, oldAvatar]) => {
-    await fetchAvatar()
-  },
-)
+watch(() => [effectiveUserId.value, userStore.user?.artImageId], fetchAvatar)
 
 onMounted(fetchAvatar)
 </script>
-
-<style scoped>
-img {
-  height: auto;
-  aspect-ratio: 1 / 1;
-}
-</style>

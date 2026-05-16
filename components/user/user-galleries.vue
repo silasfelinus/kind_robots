@@ -130,7 +130,7 @@
             <component
               :is="section.galleryComponent"
               v-if="sectionDisplayModes[section.key] === 'gallery'"
-              class="max-h-[34rem] min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-2"
+              class="max-h-136 min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-2"
             />
 
             <div

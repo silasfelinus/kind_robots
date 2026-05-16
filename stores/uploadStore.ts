@@ -247,7 +247,7 @@ export const useUploadStore = defineStore('UploadStore', () => {
           artImageId: artImage.id,
           artId: art.id,
           imageData: artImage.imageData,
-          imagePath: art.path,
+          imagePath: artImage.path,
           artImage,
           art,
         })

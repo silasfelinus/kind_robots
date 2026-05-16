@@ -11,8 +11,7 @@
           <h2 class="text-lg font-black text-base-content">Slim Gallery</h2>
 
           <p class="text-sm text-base-content/60">
-            Minimal gallery test. No cards. No child gallery components. No
-            goblin recursion.
+            Minimal gallery test with image-card only on the Images tab.
           </p>
         </div>
 
@@ -83,6 +82,27 @@
           Either the store is empty, the fetch failed, or the search filter is
           too spicy.
         </p>
+      </div>
+
+      <div
+        v-else-if="activeTab === 'images'"
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+      >
+        <image-card
+          v-for="image in visibleImages"
+          :key="image.id"
+          :art-image="image"
+          :selected="artStore.currentArtImage?.id === image.id"
+          :compact="true"
+          :show-actions="false"
+          :show-prompt="false"
+          :show-meta="false"
+          :show-generation-meta="false"
+          :show-select-button="false"
+          :allow-delete="false"
+          :allow-edit="false"
+          @select="selectImage"
+        />
       </div>
 
       <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -236,6 +256,31 @@ const imageItems = computed<SlimGalleryItem[]>(() =>
   artStore.artImages.map((image) => normalizeArtImage(image)),
 )
 
+const visibleImages = computed<ArtImage[]>(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (!query) return artStore.artImages
+
+  return artStore.artImages.filter((image) =>
+    [
+      image.id,
+      image.fileName,
+      image.promptString,
+      image.negativePrompt,
+      image.designer,
+      image.checkpoint,
+      image.sampler,
+      image.userId,
+      image.isPublic ? 'public' : 'private',
+      image.isMature ? 'mature' : '',
+    ]
+      .filter((value) => value !== null && value !== undefined)
+      .join(' ')
+      .toLowerCase()
+      .includes(query),
+  )
+})
+
 const currentItems = computed<SlimGalleryItem[]>(() => {
   if (activeTab.value === 'collections') return collectionItems.value
   if (activeTab.value === 'art') return artItems.value
@@ -302,6 +347,10 @@ async function fetchArtImagesSafely() {
   await artStore.fetchAllArtImages({ force: true })
 }
 
+function selectImage(image: ArtImage) {
+  void artStore.selectArtImageRecord(image)
+}
+
 function normalizeCollection(collection: ArtCollection): SlimGalleryItem {
   return {
     key: `collection-${collection.id}`,
@@ -321,7 +370,7 @@ function normalizeArt(art: Art): SlimGalleryItem {
     key: `art-${art.id}`,
     type: 'Art',
     id: art.id,
-    title: art.promptString || `Art #${art.id}`,
+    title: art.promptString || art.label || `Art #${art.id}`,
     description:
       [art.designer, art.checkpoint, art.sampler, art.negativePrompt]
         .filter(Boolean)

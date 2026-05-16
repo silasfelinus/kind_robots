@@ -3,7 +3,45 @@
   <div
     class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
+    <div
+      v-if="!showHeader"
+      class="relative z-40 mb-3 flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-md"
+      :class="navZClass"
+    >
+      <div class="flex min-w-0 items-center gap-2">
+        <Icon
+          :name="activeTabConfig.icon || fallbackIcon"
+          class="h-5 w-5 shrink-0 text-primary"
+        />
+
+        <div class="min-w-0">
+          <p class="truncate text-sm font-bold text-base-content">
+            {{ activeTitle }}
+          </p>
+
+          <p
+            v-if="title"
+            class="truncate text-xs font-semibold uppercase tracking-[0.18em] text-base-content/50"
+          >
+            {{ title }}
+          </p>
+        </div>
+      </div>
+
+      <button
+        class="btn btn-sm btn-primary rounded-xl"
+        type="button"
+        aria-label="Show dashboard header"
+        title="Show header"
+        @click="toggleHeader"
+      >
+        <Icon name="kind-icon:expand" class="h-4 w-4" />
+        <span class="hidden sm:inline">Show Header</span>
+      </button>
+    </div>
+
     <header
+      v-if="showHeader"
       class="relative mb-4 flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md sm:p-4"
       :class="navZClass"
     >
@@ -59,6 +97,17 @@
           >
             <Icon name="kind-icon:refresh" class="h-4 w-4" />
             {{ refreshLabel }}
+          </button>
+
+          <button
+            class="btn btn-sm btn-ghost rounded-xl border border-base-300"
+            type="button"
+            aria-label="Hide dashboard header"
+            title="Hide header"
+            @click="toggleHeader"
+          >
+            <Icon name="kind-icon:collapse" class="h-4 w-4" />
+            <span class="hidden sm:inline">Hide Header</span>
           </button>
         </div>
       </div>
@@ -187,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
 
@@ -199,6 +248,7 @@ type ChannelRoute = {
 }
 
 const fallbackIcon = 'kind-icon:sparkles'
+const storageKey = 'kind-dashboard-shell-show-header'
 
 const props = withDefaults(
   defineProps<{
@@ -236,6 +286,7 @@ const emit = defineEmits<{
 
 const route = useRoute()
 const showChannels = ref(false)
+const showHeader = ref(true)
 const channelMenuRef = ref<HTMLElement | null>(null)
 
 const channels: ChannelRoute[] = [
@@ -359,6 +410,14 @@ function toggleChannels() {
   showChannels.value = !showChannels.value
 }
 
+function toggleHeader() {
+  showHeader.value = !showHeader.value
+
+  if (!showHeader.value) {
+    showChannels.value = false
+  }
+}
+
 function handleDocumentClick(event: MouseEvent) {
   const target = event.target
 
@@ -368,7 +427,29 @@ function handleDocumentClick(event: MouseEvent) {
   showChannels.value = false
 }
 
+function loadHeaderPreference() {
+  if (!import.meta.client) return
+
+  const saved = localStorage.getItem(storageKey)
+
+  if (saved === 'true') {
+    showHeader.value = true
+    return
+  }
+
+  if (saved === 'false') {
+    showHeader.value = false
+  }
+}
+
+watch(showHeader, (value) => {
+  if (!import.meta.client) return
+
+  localStorage.setItem(storageKey, String(value))
+})
+
 onMounted(() => {
+  loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
 })
 

@@ -16,6 +16,7 @@
           class="h-full w-full object-cover"
           :alt="dream.title"
         />
+
         <Icon v-else name="kind-icon:door" class="h-10 w-10 text-primary" />
       </div>
 
@@ -29,9 +30,11 @@
             <span v-if="!dream.isActive" class="badge badge-warning">
               Archived
             </span>
+
             <span v-if="dream.isMature" class="badge badge-error">
               Mature
             </span>
+
             <span v-if="!dream.isPublic" class="badge badge-secondary">
               Private
             </span>
@@ -85,28 +88,33 @@
         v-if="showOpenButton"
         class="btn btn-xs btn-primary rounded-2xl"
         type="button"
+        :disabled="isOpening || dreamStore.loading"
         @click="openDream"
       >
-        <Icon name="kind-icon:door" class="h-4 w-4" />
+        <span v-if="isOpening" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:door" class="h-4 w-4" />
         Open
       </button>
 
       <button
         class="btn btn-xs btn-secondary rounded-2xl"
         type="button"
+        :disabled="isEditing || dreamStore.loading"
         @click="editDream"
       >
-        <Icon name="kind-icon:edit" class="h-4 w-4" />
+        <span v-if="isEditing" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:edit" class="h-4 w-4" />
         Edit
       </button>
 
       <button
         class="btn btn-xs btn-warning rounded-2xl"
         type="button"
-        :disabled="dreamStore.isDeleting"
+        :disabled="isArchiving || dreamStore.isDeleting"
         @click="archiveDream"
       >
-        <Icon name="kind-icon:book" class="h-4 w-4" />
+        <span v-if="isArchiving" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:book" class="h-4 w-4" />
         Archive
       </button>
     </div>
@@ -114,7 +122,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+// /components/dreams/dream-card.vue
+import { computed, ref } from 'vue'
 import type { DreamWithRelations } from '@/stores/dreamStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
@@ -140,6 +149,10 @@ const props = withDefaults(
     showOpenButton: true,
   },
 )
+
+const isOpening = ref(false)
+const isEditing = ref(false)
+const isArchiving = ref(false)
 
 const isSelected = computed(() => {
   return props.selected || dreamStore.selectedDream?.id === props.dream.id
@@ -179,28 +192,54 @@ const cardClass = computed(() => {
 })
 
 async function selectDream() {
-  await dreamStore.selectDreamById(props.dream.id)
+  const dream = await dreamStore.selectDreamById(props.dream.id)
+
+  if (!dream) return
 }
 
 async function openDream() {
-  await dreamStore.selectDreamById(props.dream.id)
-  navStore.setDashboardTab(dashboardKey, 'interact')
+  if (isOpening.value) return
+
+  isOpening.value = true
+
+  try {
+    const dream = await dreamStore.selectDreamById(props.dream.id)
+
+    if (!dream) return
+
+    navStore.setDashboardTab(dashboardKey, 'interact')
+  } finally {
+    isOpening.value = false
+  }
 }
 
 async function editDream() {
-  const dream = await dreamStore.startEditingDream(props.dream.id)
+  if (isEditing.value) return
 
-  if (!dream) {
-    dreamStore.setError(
-      `Dream ${props.dream.id} could not be loaded for editing.`,
-    )
-    return
+  isEditing.value = true
+
+  try {
+    const dream = await dreamStore.startEditingDream(props.dream.id)
+
+    if (!dream) return
+
+    navStore.setDashboardTab(dashboardKey, 'add')
+  } finally {
+    isEditing.value = false
   }
-
-  navStore.setDashboardTab(dashboardKey, 'add')
 }
 
 async function archiveDream() {
-  await dreamStore.deleteDream(props.dream.id)
+  if (isArchiving.value) return
+
+  isArchiving.value = true
+
+  try {
+    const result = await dreamStore.deleteDream(props.dream.id)
+
+    if (!result.success) return
+  } finally {
+    isArchiving.value = false
+  }
 }
 </script>

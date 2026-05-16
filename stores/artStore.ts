@@ -634,10 +634,12 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   function persistArtImages(): void {
-    const trimmed = limitByNewestId(state.artImages, maxStoredImages)
+    const trimmed = limitByNewestId(state.artImages, maxStoredImages).map(
+      stripHeavyImageFields,
+    )
+
     safeSetLocalStorage(artImagesStorageKey, JSON.stringify(trimmed))
   }
-
   function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
     state.art = parseStoredArt(safeGetLocalStorage(artStorageKey) || '').sort(
       sortNewestArt,
@@ -809,7 +811,6 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function initialize(options: ArtInitializeOptions = {}): Promise<void> {
     const shouldFetchRemote = Boolean(options.fetchRemote)
-
     const shouldInitializeServers = options.initializeServerStore === true
     const shouldInitializeCollections = Boolean(options.initializeCollections)
 
@@ -825,6 +826,7 @@ export const useArtStore = defineStore('artStore', () => {
 
       try {
         clearError()
+
         hydrateFromLocalStorage({ hydrateImages: options.hydrateImages })
 
         if (shouldInitializeServers) {
@@ -839,11 +841,15 @@ export const useArtStore = defineStore('artStore', () => {
         }
 
         if (shouldFetchRemote) {
-          await fetchAllArt(Boolean(options.force))
-          await fetchAllArtImages({
-            force: Boolean(options.force),
-            includeThumbnailData: options.hydrateImages !== false,
-          })
+          await Promise.all([
+            fetchAllArt(Boolean(options.force)),
+            fetchAllArtImages({
+              force: Boolean(options.force),
+              includeImageData: false,
+              includeThumbnailData: false,
+              includeTags: false,
+            }),
+          ])
         }
 
         if (!state.artForm.userId) {
@@ -1003,11 +1009,18 @@ export const useArtStore = defineStore('artStore', () => {
   async function fetchAllArtImages(
     options: ArtImageFetchOptions = {},
   ): Promise<ArtImage[]> {
-    if (!options.force && state.artImages.length) {
+    const listOptions: ArtImageFetchOptions = {
+      force: options.force,
+      includeImageData: false,
+      includeThumbnailData: false,
+      includeTags: false,
+    }
+
+    if (!listOptions.force && state.artImages.length) {
       return state.artImages
     }
 
-    if (fetchAllArtImagesPromise.value && !options.force) {
+    if (fetchAllArtImagesPromise.value && !listOptions.force) {
       return fetchAllArtImagesPromise.value
     }
 
@@ -1017,7 +1030,7 @@ export const useArtStore = defineStore('artStore', () => {
       try {
         clearError()
 
-        const query = buildArtImageQuery(options)
+        const query = buildArtImageQuery(listOptions)
         const response = await performFetch<ArtImage[]>(
           `/api/art/image${query}`,
         )
@@ -1026,7 +1039,7 @@ export const useArtStore = defineStore('artStore', () => {
           throw new Error(response.message || 'Failed to fetch art images.')
         }
 
-        addOrUpdateArtImages(response.data)
+        addOrUpdateArtImages(response.data.map(stripHeavyImageFields))
 
         return state.artImages
       } catch (error) {
@@ -1040,6 +1053,14 @@ export const useArtStore = defineStore('artStore', () => {
     })()
 
     return fetchAllArtImagesPromise.value
+  }
+
+  function stripHeavyImageFields(image: ArtImage): ArtImage {
+    return {
+      ...image,
+      imageData: null,
+      thumbnailData: null,
+    }
   }
 
   async function loadArtImagesInChunks(

@@ -3,7 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
-import type { Art, Server } from '~/prisma/generated/prisma/client'
+import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
   validateAndLoadDesignerName,
@@ -71,9 +71,6 @@ type A1111Txt2ImgRequest = {
 }
 
 export default defineEventHandler(async (event) => {
-  let imageId: number | null = null
-  let newArt: Art | null = null
-
   try {
     const requestData: ServerAwareRequestData = await readBody(event)
 
@@ -86,7 +83,7 @@ export default defineEventHandler(async (event) => {
 
     const authorizationHeader = event.node.req.headers.authorization
 
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    if (!authorizationHeader?.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
         message: 'Authorization token required in the format "Bearer <token>".',
@@ -96,7 +93,9 @@ export default defineEventHandler(async (event) => {
     const token = authorizationHeader.split(' ')[1] ?? ''
 
     const user = await prisma.user.findFirst({
-      where: { apiKey: token },
+      where: {
+        apiKey: token,
+      },
       select: {
         id: true,
         karma: true,
@@ -173,7 +172,9 @@ export default defineEventHandler(async (event) => {
     if (!response.images?.length) {
       throw createError({
         statusCode: 500,
-        message: `Image generation failed: ${response.error || 'No images generated.'}`,
+        message: `Image generation failed: ${
+          response.error || 'No images generated.'
+        }`,
       })
     }
 
@@ -193,9 +194,7 @@ export default defineEventHandler(async (event) => {
       validatedData.galleryId,
     )
 
-    imageId = savedImage.id
-
-    if (!imageId) {
+    if (!savedImage.id) {
       throw createError({
         statusCode: 500,
         message: 'Failed to save generated image.',
@@ -207,9 +206,16 @@ export default defineEventHandler(async (event) => {
       server,
     })
 
-    newArt = await prisma.art.create({
+    const seed =
+      requestData.seed && requestData.seed !== -1
+        ? requestData.seed
+        : (response.resolvedSeed ?? requestData.seed ?? -1)
+
+    const updatedImage = await prisma.artImage.update({
+      where: {
+        id: savedImage.id,
+      },
       data: {
-        path: savedImage.fileName,
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
         checkpoint:
@@ -223,13 +229,11 @@ export default defineEventHandler(async (event) => {
           response.resolvedSampler ??
           server.defaultSampler ??
           null,
-        seed:
-          requestData.seed && requestData.seed !== -1
-            ? requestData.seed
-            : (response.resolvedSeed ?? requestData.seed ?? -1),
+        seed,
         steps: requestData.steps ?? server.defaultSteps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),
+        artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
         isPublic: requestData.isPublic ?? true,
         isMature: requestData.isMature ?? false,
@@ -237,37 +241,35 @@ export default defineEventHandler(async (event) => {
         promptId: validatedData.promptId ?? null,
         pitchId: validatedData.pitchId ?? null,
         galleryId: validatedData.galleryId ?? null,
-        artImageId: imageId,
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server, 'backend'),
       },
     })
 
-    await prisma.artImage.update({
-      where: { id: imageId },
-      data: { artId: newArt.id },
-    })
-
     await prisma.user.update({
-      where: { id: user.id },
-      data: { karma: user.karma - 1 },
+      where: {
+        id: user.id,
+      },
+      data: {
+        karma: user.karma - 1,
+      },
     })
 
     event.node.res.statusCode = 201
 
     return {
       success: true,
-      message: 'Art and image saved successfully!',
-      data: newArt,
+      message: 'ArtImage generated successfully.',
+      data: updatedImage,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
 
     return {
       success: false,
-      message: handledError.message || 'Failed to create new art.',
+      message: handledError.message || 'Failed to generate art image.',
     }
   }
 })
@@ -430,7 +432,7 @@ export async function generateImage({
       resolvedSampler,
       resolvedSeed,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error during A1111 image generation:', error)
     throw error instanceof Error ? error : new Error('Image generation failed.')
   }
@@ -534,6 +536,7 @@ function getStringField(
 ): string | null {
   for (const key of keys) {
     const value = data[key]
+
     if (typeof value === 'string' && value.trim()) {
       return value.trim()
     }
@@ -555,7 +558,10 @@ function getNumberField(
 
     if (typeof value === 'string') {
       const parsed = Number(value)
-      if (Number.isFinite(parsed)) return parsed
+
+      if (Number.isFinite(parsed)) {
+        return parsed
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
-import type { Art } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
   validateAndLoadDesignerName,
@@ -26,9 +26,6 @@ type SaveGeneratedRequestData = RequestData &
   }
 
 export default defineEventHandler(async (event) => {
-  let imageId: number | null = null
-  let newArt: Art | null = null
-
   try {
     const requestData: SaveGeneratedRequestData = await readBody(event)
 
@@ -48,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     const authorizationHeader = event.node.req.headers.authorization
 
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    if (!authorizationHeader?.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
         message: 'Authorization token required in the format "Bearer <token>".',
@@ -58,7 +55,9 @@ export default defineEventHandler(async (event) => {
     const token = authorizationHeader.split(' ')[1] ?? ''
 
     const user = await prisma.user.findFirst({
-      where: { apiKey: token },
+      where: {
+        apiKey: token,
+      },
       select: {
         id: true,
         karma: true,
@@ -87,10 +86,12 @@ export default defineEventHandler(async (event) => {
       requestData,
       validatedData,
     )
+
     validatedData.promptId = await validateAndLoadPromptId(
       requestData,
       validatedData,
     )
+
     validatedData.pitchId = await validateAndLoadPitchId(requestData)
     validatedData.galleryId = await validateAndLoadGalleryId(requestData)
     validatedData.designer = validateAndLoadDesignerName(requestData)
@@ -110,6 +111,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const rawCfg = Number(requestData.cfg)
+
     const cfgValue = calculateCfg(
       Number.isNaN(rawCfg) ? 3 : rawCfg,
       requestData.cfgHalf ?? false,
@@ -122,9 +124,7 @@ export default defineEventHandler(async (event) => {
       validatedData.galleryId,
     )
 
-    imageId = savedImage.id
-
-    if (!imageId) {
+    if (!savedImage.id) {
       throw createError({
         statusCode: 500,
         message: 'Failed to save generated image.',
@@ -136,9 +136,11 @@ export default defineEventHandler(async (event) => {
       server,
     })
 
-    newArt = await prisma.art.create({
+    const updatedImage = await prisma.artImage.update({
+      where: {
+        id: savedImage.id,
+      },
       data: {
-        path: savedImage.fileName,
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
         checkpoint: resolvedCheckpoint.checkpoint,
@@ -148,6 +150,7 @@ export default defineEventHandler(async (event) => {
         steps: requestData.steps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),
+        artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
         isPublic: requestData.isPublic ?? true,
         isMature: requestData.isMature ?? false,
@@ -155,32 +158,26 @@ export default defineEventHandler(async (event) => {
         promptId: validatedData.promptId ?? null,
         pitchId: validatedData.pitchId ?? null,
         galleryId: validatedData.galleryId ?? null,
-        artImageId: imageId,
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server),
       },
     })
 
-    await prisma.artImage.update({
-      where: { id: imageId },
-      data: { artId: newArt.id },
-    })
-
     event.node.res.statusCode = 201
 
     return {
       success: true,
-      message: 'Browser-generated art saved successfully!',
-      data: newArt,
+      message: 'Browser-generated ArtImage saved successfully.',
+      data: updatedImage,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const handledError = errorHandler(error)
     event.node.res.statusCode = handledError.statusCode || 500
 
     return {
       success: false,
-      message: handledError.message || 'Failed to save generated art.',
+      message: handledError.message || 'Failed to save generated art image.',
     }
   }
 })

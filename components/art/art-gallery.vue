@@ -1471,13 +1471,10 @@ async function refresh() {
   localError.value = ''
   try {
     await Promise.all([
-      artStore.initialize({
-        fetchRemote: true,
-        force: true,
-        hydrateImages: false,
-      }),
-      artStore.fetchAllArtImages({ force: true, includeThumbnailData: true }),
-      collectionStore.fetchCollections?.(true),
+      artStore.fetchAllArt(true),
+      artStore.fetchAllArtImages({ force: true }), // initialize already does this — pick one
+      collectionStore.fetchCollections(true),
+    
     ])
     if (activeCollection.value?.id && activeCollection.value.id !== -1) {
       const fresh = collectionStore.collections.find(

@@ -55,7 +55,7 @@
       </section>
 
       <!-- Gallery: collections → arts. Clicking an art card navigates to 'selected'. -->
-      <art-gallery
+      <artimage-gallery
         v-else-if="currentTab === 'gallery'"
         variant="dashboard"
         :show-header="false"

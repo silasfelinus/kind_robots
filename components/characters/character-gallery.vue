@@ -248,7 +248,9 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+              <span v-else class="badge badge-ghost badge-sm">
+                Private
+              </span>
 
               <span
                 v-if="characterStore.selectedCharacter.isMature"
@@ -281,17 +283,58 @@
       >
         <Icon name="kind-icon:theater" class="h-12 w-12 text-primary" />
 
-    <p class="text-lg font-bold">No characters found.</p>
+        <div class="max-w-2xl">
+          <p class="text-lg font-bold">
+            {{ emptyStateTitle }}
+          </p>
 
-<p class="mt-1 text-sm">
-  <span v-if="characterStore.characters.length === 0">
-    The character store has no loaded characters yet.
-  </span>
+          <div class="mt-3 flex flex-col gap-2 text-sm">
+            <p
+              v-for="reason in emptyStateDetails"
+              :key="reason"
+              class="rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-left"
+            >
+              {{ reason }}
+            </p>
+          </div>
 
-  <span v-else>
-    {{ characterStore.characters.length }} characters loaded, but none match the current filters.
-  </span>
-</p>m
+          <div
+            v-if="characterStore.characters.length > 0"
+            class="mt-3 flex flex-wrap justify-center gap-2 text-xs"
+          >
+            <span class="badge badge-ghost">
+              Loaded: {{ exclusionSummary.total }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenByOwnership"
+              class="badge badge-warning"
+            >
+              Private: {{ exclusionSummary.hiddenByOwnership }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenByMature"
+              class="badge badge-warning"
+            >
+              Mature: {{ exclusionSummary.hiddenByMature }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenByGenre"
+              class="badge badge-info"
+            >
+              Genre: {{ exclusionSummary.hiddenByGenre }}
+            </span>
+
+            <span
+              v-if="exclusionSummary.hiddenBySearch"
+              class="badge badge-secondary"
+            >
+              Search: {{ exclusionSummary.hiddenBySearch }}
+            </span>
+          </div>
+        </div>
 
         <button
           v-if="allowAdd"
@@ -478,7 +521,7 @@ const canCloneSelected = computed(() => {
 const galleryCharacters = computed<Character[]>(() => {
   let characters = characterStore.characters ?? []
 
-  if (!userStore.isAdmin && currentUserId.value) {
+  if (!userStore.isAdmin && currentUserId.value !== null) {
     characters = characters.filter((character) => {
       return character.isPublic || character.userId === currentUserId.value
     })
@@ -518,29 +561,113 @@ const filteredCharacters = computed<Character[]>(() => {
 
   if (query) {
     characters = characters.filter((character) => {
-      const haystack = [
-        character.name,
-        character.honorific,
-        character.species,
-        character.class,
-        character.genre,
-        character.personality,
-        character.backstory,
-        character.quirks,
-        character.inventory,
-        character.skills,
-        character.drive,
-        character.artPrompt,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-
-      return haystack.includes(query)
+      return characterMatchesSearch(character, query)
     })
   }
 
   return characters
+})
+
+const exclusionSummary = computed(() => {
+  const allCharacters = characterStore.characters ?? []
+  const currentId = currentUserId.value
+  const query = searchQuery.value.trim().toLowerCase()
+
+  const counts = {
+    total: allCharacters.length,
+    hiddenByOwnership: 0,
+    hiddenByMature: 0,
+    hiddenByGenre: 0,
+    hiddenBySearch: 0,
+    visibleBeforeGenreSearch: 0,
+  }
+
+  for (const character of allCharacters) {
+    const hiddenByOwnership =
+      !userStore.isAdmin &&
+      currentId !== null &&
+      !character.isPublic &&
+      character.userId !== currentId
+
+    if (hiddenByOwnership) {
+      counts.hiddenByOwnership++
+      continue
+    }
+
+    const hiddenByMature = !showMature.value && character.isMature
+
+    if (hiddenByMature) {
+      counts.hiddenByMature++
+      continue
+    }
+
+    counts.visibleBeforeGenreSearch++
+
+    const hiddenByGenre =
+      selectedGenre.value !== 'all' && character.genre !== selectedGenre.value
+
+    if (hiddenByGenre) {
+      counts.hiddenByGenre++
+      continue
+    }
+
+    if (query && !characterMatchesSearch(character, query)) {
+      counts.hiddenBySearch++
+    }
+  }
+
+  return counts
+})
+
+const emptyStateTitle = computed(() => {
+  if (characterStore.characters.length === 0) {
+    return 'No characters loaded.'
+  }
+
+  return `${characterStore.characters.length} characters loaded, but none match this gallery.`
+})
+
+const emptyStateDetails = computed(() => {
+  const summary = exclusionSummary.value
+  const reasons: string[] = []
+
+  if (summary.hiddenByOwnership > 0) {
+    reasons.push(
+      `${summary.hiddenByOwnership} hidden because they are private and not owned by the current user.`,
+    )
+  }
+
+  if (summary.hiddenByMature > 0) {
+    reasons.push(
+      `${summary.hiddenByMature} hidden because mature content is turned off.`,
+    )
+  }
+
+  if (summary.hiddenByGenre > 0) {
+    reasons.push(
+      `${summary.hiddenByGenre} hidden by the selected genre filter: ${selectedGenre.value}.`,
+    )
+  }
+
+  if (summary.hiddenBySearch > 0) {
+    reasons.push(
+      `${summary.hiddenBySearch} hidden because they do not match the search: "${searchQuery.value.trim()}".`,
+    )
+  }
+
+  if (!currentUserId.value && !userStore.isAdmin) {
+    reasons.push(
+      'The current user is not loaded yet, so owned private characters may be unavailable.',
+    )
+  }
+
+  if (reasons.length === 0 && characterStore.characters.length > 0) {
+    reasons.push(
+      'Characters are loaded, but the visible list is empty. Check whether the store data uses unexpected values for isPublic, isMature, genre, or userId.',
+    )
+  }
+
+  return reasons
 })
 
 onMounted(async () => {
@@ -548,6 +675,28 @@ onMounted(async () => {
     await refreshCharacters()
   }
 })
+
+function characterMatchesSearch(character: Character, query: string) {
+  const haystack = [
+    character.name,
+    character.honorific,
+    character.species,
+    character.class,
+    character.genre,
+    character.personality,
+    character.backstory,
+    character.quirks,
+    character.inventory,
+    character.skills,
+    character.drive,
+    character.artPrompt,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return haystack.includes(query)
+}
 
 function getCharacterTitle(character: Character) {
   if (character.name && character.honorific) {
@@ -572,6 +721,7 @@ async function refreshCharacters(force = false) {
     isLoading.value = false
   }
 }
+
 function selectCharacterFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement
 

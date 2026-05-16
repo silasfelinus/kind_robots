@@ -1,61 +1,96 @@
 <!-- /components/content/user/user-dashboard.vue -->
 <template>
-  <div class="bg-base-300 rounded-2xl p-4">
-    <h1 class="text-2xl font-semibold text-center mb-6">User Dashboard</h1>
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-3 sm:p-4"
+  >
+    <header
+      class="rounded-2xl border border-base-300 bg-base-200 p-4 text-center"
+    >
+      <h1 class="text-2xl font-black text-base-content">User Dashboard</h1>
+      <p class="mt-1 text-sm text-base-content/60">
+        Profile, avatar, settings, and your magnificent heap of creations.
+      </p>
+    </header>
 
     <div
-      class="flex flex-col lg:flex-row lg:space-x-6 items-center lg:items-start"
+      class="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]"
     >
-      <div class="flex flex-col items-center w-full lg:w-1/3">
-        <user-avatar
-          class="w-24 h-auto max-h-1/3 rounded-full border-2 border-accent mb-4"
-        />
-
-        <image-upload class="w-full max-w-xs mt-2" />
-
-        <h2
-          class="text-lg font-semibold bg-base-300 border-accent rounded-2xl border p-2 mt-4"
+      <aside
+        class="flex min-h-0 w-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
+      >
+        <div
+          class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
         >
-          {{ user?.username || 'Kind Guest' }}
-        </h2>
-      </div>
+          <user-avatar class="h-24 w-24 rounded-full border-2 border-accent" />
 
-      <div class="flex flex-col w-full lg:w-2/3">
-        <p class="text-lg font-medium mb-4">
-          Welcome, {{ user?.username || 'Guest' }}
-          <span v-if="!isLoggedIn" class="text-sm text-gray-500 ml-2">
-            (Not logged in)
-          </span>
-        </p>
+          <h2
+            class="max-w-full truncate rounded-2xl border border-accent bg-base-300 px-3 py-2 text-lg font-black"
+          >
+            {{ user?.username || 'Kind Guest' }}
+          </h2>
 
-        <div class="flex flex-wrap items-center space-x-4 mb-4">
-          <jellybean-icon />
+          <p v-if="!isLoggedIn" class="text-sm text-base-content/50">
+            Not logged in
+          </p>
         </div>
 
-        <div v-if="isLoggedIn" class="space-y-4">
-          <user-panel />
+        <div class="min-w-0 rounded-2xl border border-base-300 bg-base-100 p-3">
+          <image-upload class="w-full" />
+        </div>
 
-          <div class="flex justify-center">
-            <button
-              class="bg-warning px-4 py-2 rounded-xl text-white text-lg"
-              @click="logout"
-            >
-              Logout
-            </button>
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <jellybean-icon />
+            <theme-toggle class="flex flex-row" />
           </div>
         </div>
 
-        <div class="mt-6">
-          <theme-toggle class="flex flex-row" />
-        </div>
-      </div>
-    </div>
+        <button
+          v-if="isLoggedIn"
+          class="btn btn-warning w-full rounded-xl text-lg"
+          type="button"
+          @click="logout"
+        >
+          Logout
+        </button>
+      </aside>
 
-    
-  </div>
+      <main class="flex min-h-0 min-w-0 flex-col gap-4 overflow-hidden">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <p class="text-lg font-bold">
+            Welcome, {{ user?.username || 'Guest' }}
+          </p>
+          <p class="text-sm text-base-content/60">
+            Keep the settings tidy. Let the galleries make a mess elsewhere.
+          </p>
+        </div>
+
+        <div
+          v-if="isLoggedIn"
+          class="grid min-h-0 flex-1 grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
+        >
+          <user-panel class="min-w-0" />
+          <user-galleries class="min-w-0" />
+        </div>
+
+        <div
+          v-else
+          class="flex min-h-64 items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center"
+        >
+          <div>
+            <p class="text-lg font-black">Guest mode activated.</p>
+            <p class="mt-1 text-sm text-base-content/60">
+              Charming, mysterious, and tragically short on saved stuff.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
+// /components/content/user/user-dashboard.vue
 import { computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useUploadStore } from '@/stores/uploadStore'

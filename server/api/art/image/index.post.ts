@@ -1,72 +1,135 @@
 // /server/api/art/image/index.post.ts
-import { defineEventHandler, createError, readMultipartFormData } from 'h3'
-import { uploadArtImage } from '~/server/utils/UploadArtImage'
-import { errorHandler } from '~/server/utils/error'
+import { defineEventHandler, createError, readBody } from 'h3'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
+import { errorHandler } from '~/server/utils/error'
 
-type MultipartField = {
-  name?: string
-  filename?: string
-  type?: string
-  data?: Buffer
+type CreateArtImagePayload = {
+  galleryId?: number | null
+  userId?: number | null
+  imageData?: string | null
+  thumbnailData?: string | null
+  fileName?: string | null
+  fileType?: string | null
+  imagePath?: string | null
+  rarity?: number | null
+  path?: string | null
+  promptString?: string | null
+  artPrompt?: string | null
+  negativePrompt?: string | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  sampler?: string | null
+  seed?: number | null
+  steps?: number | null
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  designer?: string | null
+  genres?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean | null
+  isActive?: boolean | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  artId?: number | null
+  botId?: number | null
+  componentId?: number | null
+  milestoneId?: number | null
+  pitchId?: number | null
+  promptId?: number | null
+  resourceId?: number | null
+  rewardId?: number | null
+  chatId?: number | null
+  characterId?: number | null
+  dreamIds?: number[]
+  scenarioIds?: number[]
+  reactionIds?: number[]
+  tagIds?: number[]
+  artCollectionIds?: number[]
 }
 
-function getField(parts: MultipartField[], name: string): string | null {
-  const part = parts.find((item) => item.name === name)
-
-  if (!part?.data) return null
-
-  const value = part.data.toString('utf8').trim()
-
-  return value || null
+function cleanText(value?: string | null): string | null {
+  const text = value?.trim()
+  return text && text !== 'UNDEFINED' ? text : null
 }
 
-function getNumberField(parts: MultipartField[], name: string): number | null {
-  const raw = getField(parts, name)
-
-  if (!raw) return null
-
-  const value = Number(raw)
-
-  return Number.isInteger(value) && value > 0 ? value : null
+function cleanPositiveId(value?: number | null): number | null {
+  const number = Number(value)
+  return Number.isInteger(number) && number > 0 ? number : null
 }
 
-function getOptionalNumberField(
-  parts: MultipartField[],
-  name: string,
-): number | null {
-  const raw = getField(parts, name)
-
-  if (!raw) return null
-
-  const value = Number(raw)
-
-  return Number.isFinite(value) ? value : null
+function cleanNumber(value?: number | null): number | null {
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
 }
 
-function getBooleanField(parts: MultipartField[], name: string): boolean {
-  const raw = getField(parts, name)
-
-  if (!raw) return false
-
-  return ['true', '1', 'yes', 'on'].includes(raw.toLowerCase())
+function cleanBoolean(value?: boolean | null): boolean {
+  return value === true
 }
 
-function getNumberListField(parts: MultipartField[], name: string): number[] {
-  const raw = getField(parts, name)
+function cleanPositiveIds(values?: Array<number | null | undefined>): number[] {
+  if (!Array.isArray(values)) return []
 
-  if (!raw) return []
-
-  return raw
-    .split(',')
-    .map((value) => Number(value.trim()))
+  return [...new Set(values)]
+    .map((value) => Number(value))
     .filter((value) => Number.isInteger(value) && value > 0)
+}
+
+function connectById(id?: number | null) {
+  const cleanId = cleanPositiveId(id)
+  return cleanId ? { connect: { id: cleanId } } : undefined
+}
+
+function connectMany(ids?: Array<number | null | undefined>) {
+  const cleanIds = cleanPositiveIds(ids)
+
+  return cleanIds.length
+    ? {
+        connect: cleanIds.map((id) => ({ id })),
+      }
+    : undefined
+}
+
+function getFallbackFileName(body: CreateArtImagePayload): string {
+  const path = cleanText(body.imagePath) || cleanText(body.path)
+
+  if (path) {
+    const cleanPath = path.split('?')[0] || ''
+    const fileName = cleanPath.split('/').filter(Boolean).at(-1)
+
+    if (fileName) return fileName
+  }
+
+  return `art-image-${Date.now()}.${getFallbackFileType(body)}`
+}
+
+function getFallbackFileType(body: CreateArtImagePayload): string {
+  const source =
+    cleanText(body.fileName) ||
+    cleanText(body.imagePath) ||
+    cleanText(body.path) ||
+    ''
+
+  const extension = source.split('?')[0]?.split('.').pop()?.toLowerCase()
+
+  if (extension === 'jpg') return 'jpeg'
+  if (extension === 'jpeg') return 'jpeg'
+  if (extension === 'webp') return 'webp'
+  if (extension === 'gif') return 'gif'
+  if (extension === 'avif') return 'avif'
+
+  return 'png'
 }
 
 async function validateUserToken(userId: number, token: string): Promise<void> {
   const user = await prisma.user.findFirst({
-    where: { apiKey: token },
-    select: { id: true },
+    where: {
+      apiKey: token,
+    },
+    select: {
+      id: true,
+    },
   })
 
   if (!user || user.id !== userId) {
@@ -74,6 +137,75 @@ async function validateUserToken(userId: number, token: string): Promise<void> {
       statusCode: 403,
       message: 'Token does not match user ID',
     })
+  }
+}
+
+function buildCreateData(
+  body: CreateArtImagePayload,
+): Prisma.ArtImageCreateInput {
+  const imageData = cleanText(body.imageData)
+  const imagePath = cleanText(body.imagePath)
+  const path = cleanText(body.path)
+
+  if (!imageData && !imagePath && !path) {
+    throw createError({
+      statusCode: 400,
+      message: 'imageData, imagePath, or path is required.',
+    })
+  }
+
+  const fileType = cleanText(body.fileType) || getFallbackFileType(body)
+  const fileName = cleanText(body.fileName) || getFallbackFileName(body)
+
+  return {
+    imageData,
+    thumbnailData: cleanText(body.thumbnailData),
+    fileName,
+    fileType,
+    imagePath,
+    rarity: cleanNumber(body.rarity),
+
+    path,
+    promptString: cleanText(body.promptString),
+    artPrompt: cleanText(body.artPrompt),
+    negativePrompt: cleanText(body.negativePrompt),
+    checkpoint: cleanText(body.checkpoint),
+    sampler: cleanText(body.sampler),
+    seed: cleanNumber(body.seed),
+    steps: cleanNumber(body.steps),
+    cfg: cleanNumber(body.cfg),
+    cfgHalf: cleanBoolean(body.cfgHalf),
+    designer: cleanText(body.designer),
+    genres: cleanText(body.genres),
+
+    isPublic: cleanBoolean(body.isPublic),
+    isMature: cleanBoolean(body.isMature),
+    isActive: body.isActive ?? true,
+
+    serverName: cleanText(body.serverName),
+    serverUrl: cleanText(body.serverUrl),
+
+    User: connectById(body.userId),
+    Gallery: connectById(body.galleryId),
+    Server: connectById(body.serverId),
+    CheckpointResource: connectById(body.checkpointResourceId),
+
+    Art: connectById(body.artId),
+    Bot: connectById(body.botId),
+    Component: connectById(body.componentId),
+    Milestone: connectById(body.milestoneId),
+    Pitch: connectById(body.pitchId),
+    Prompt: connectById(body.promptId),
+    Resource: connectById(body.resourceId),
+    Reward: connectById(body.rewardId),
+    Chat: connectById(body.chatId),
+    Character: connectById(body.characterId),
+
+    Dreams: connectMany(body.dreamIds),
+    Scenarios: connectMany(body.scenarioIds),
+    Reactions: connectMany(body.reactionIds),
+    Tags: connectMany(body.tagIds),
+    ArtCollections: connectMany(body.artCollectionIds),
   }
 }
 
@@ -97,29 +229,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const parts = (await readMultipartFormData(event)) as
-      | MultipartField[]
-      | undefined
-
-    if (!parts?.length) {
-      throw createError({
-        statusCode: 400,
-        message: 'Multipart form data is required',
-      })
-    }
-
-    const imagePart = parts.find(
-      (part) => part.name === 'image' && part.data?.length,
-    )
-
-    if (!imagePart?.data?.length) {
-      throw createError({
-        statusCode: 400,
-        message: 'Missing image file',
-      })
-    }
-
-    const userId = getNumberField(parts, 'userId')
+    const body = await readBody<CreateArtImagePayload>(event)
+    const userId = cleanPositiveId(body.userId)
 
     if (!userId) {
       throw createError({
@@ -130,55 +241,20 @@ export default defineEventHandler(async (event) => {
 
     await validateUserToken(userId, token)
 
-    const galleryName = getField(parts, 'galleryName') || 'userUpload'
-    const galleryId = getNumberField(parts, 'galleryId') || 21
-    const fileType =
-      getField(parts, 'fileType') || imagePart.type || 'image/png'
-    const fileName =
-      getField(parts, 'fileName') || imagePart.filename || 'upload'
-
-    const artImage = await uploadArtImage({
-      uploadedFile: {
-        data: imagePart.data,
-        filename: fileName,
-      },
-      galleryName,
-      galleryId,
+    const data = buildCreateData({
+      ...body,
       userId,
-      fileType,
-      fileName,
-      artCollectionId: getNumberField(parts, 'artCollectionId'),
-      artCollectionIds: getNumberListField(parts, 'artCollectionIds'),
-      rarity: getOptionalNumberField(parts, 'rarity'),
-      path: getField(parts, 'path'),
-      promptString: getField(parts, 'promptString'),
-      artPrompt: getField(parts, 'artPrompt'),
-      negativePrompt: getField(parts, 'negativePrompt'),
-      sampler: getField(parts, 'sampler'),
-      seed: getOptionalNumberField(parts, 'seed'),
-      steps: getOptionalNumberField(parts, 'steps'),
-      cfg: getOptionalNumberField(parts, 'cfg'),
-      cfgHalf: getBooleanField(parts, 'cfgHalf'),
-      designer: getField(parts, 'designer'),
-      genres: getField(parts, 'genres'),
-      isPublic: getBooleanField(parts, 'isPublic'),
-      isMature: getBooleanField(parts, 'isMature'),
-      botId: getNumberField(parts, 'botId'),
-      characterId: getNumberField(parts, 'characterId'),
-      pitchId: getNumberField(parts, 'pitchId'),
-      promptId: getNumberField(parts, 'promptId'),
-      resourceId: getNumberField(parts, 'resourceId'),
-      rewardId: getNumberField(parts, 'rewardId'),
-      dreamId: getNumberField(parts, 'dreamId'),
-      scenarioId: getNumberField(parts, 'scenarioId'),
-      tagIds: getNumberListField(parts, 'tagIds'),
+    })
+
+    const artImage = await prisma.artImage.create({
+      data,
     })
 
     event.node.res.statusCode = 201
 
     return {
       success: true,
-      message: 'Image uploaded',
+      message: 'ArtImage created.',
       data: artImage,
     }
   } catch (error: unknown) {

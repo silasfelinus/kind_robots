@@ -11,8 +11,7 @@
           <h2 class="text-lg font-black text-base-content">Slim Gallery</h2>
 
           <p class="text-sm text-base-content/60">
-            Paginated gallery test with collections, art, and ArtImages
-            separated.
+            Collection folders with safe Art shells and real ArtImage cards.
           </p>
         </div>
 
@@ -29,10 +28,10 @@
           </button>
 
           <button
-            v-if="activeTab === 'images' && artStore.currentArtImage"
+            v-if="artStore.currentArt || artStore.currentArtImage"
             class="btn btn-ghost btn-sm rounded-xl"
             type="button"
-            @click="clearSelectedImage"
+            @click="clearSelected"
           >
             <Icon name="kind-icon:x" class="h-4 w-4" />
             Clear Selected
@@ -40,31 +39,14 @@
         </div>
       </div>
 
-      <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <button
-          v-for="tab in tabs"
-          :key="tab.value"
-          class="btn btn-sm rounded-xl"
-          :class="activeTab === tab.value ? 'btn-primary' : 'btn-ghost'"
-          type="button"
-          @click="activeTab = tab.value"
-        >
-          <Icon :name="tab.icon" class="h-4 w-4" />
-          {{ tab.label }}
-          <span class="badge badge-sm">
-            {{ tab.count }}
-          </span>
-        </button>
-      </div>
-
       <div
-        class="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]"
+        class="mt-3 grid grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
       >
         <input
           v-model="searchQuery"
           type="search"
           class="input input-bordered input-sm w-full bg-base-100"
-          placeholder="Search visible items..."
+          placeholder="Search collections, prompts, filenames, checkpoints..."
         />
 
         <label
@@ -79,13 +61,25 @@
         </label>
 
         <select
-          v-model.number="pageSize"
+          v-model.number="folderPageSize"
           class="select select-bordered select-sm bg-base-100"
+          title="Folders per page"
         >
-          <option :value="12">12</option>
-          <option :value="24">24</option>
-          <option :value="48">48</option>
-          <option :value="96">96</option>
+          <option :value="3">3 folders</option>
+          <option :value="6">6 folders</option>
+          <option :value="9">9 folders</option>
+          <option :value="12">12 folders</option>
+        </select>
+
+        <select
+          v-model.number="perFolderLimit"
+          class="select select-bordered select-sm bg-base-100"
+          title="Cards per collapsed folder"
+        >
+          <option :value="6">6 cards</option>
+          <option :value="12">12 cards</option>
+          <option :value="24">24 cards</option>
+          <option :value="48">48 cards</option>
         </select>
       </div>
 
@@ -93,38 +87,43 @@
         class="mt-3 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
       >
         <span class="badge badge-ghost">
-          Showing {{ pagedItems.length }} / {{ visibleItems.length }}
+          Collections {{ visibleGroups.length }}
         </span>
 
-        <span
-          v-if="activeTab === 'images' && artStore.currentArtImage"
-          class="badge badge-primary"
-        >
-          Selected image #{{ artStore.currentArtImage.id }}
-        </span>
+        <span class="badge badge-ghost"> Art {{ visibleArtCount }} </span>
+
+        <span class="badge badge-ghost"> Images {{ visibleImageCount }} </span>
 
         <span v-if="isHydratingImages" class="badge badge-info gap-1">
           <span class="loading loading-spinner loading-xs" />
-          Hydrating page images
+          Hydrating visible images
+        </span>
+
+        <span v-if="artStore.currentArt" class="badge badge-primary">
+          Selected art #{{ artStore.currentArt.id }}
+        </span>
+
+        <span v-if="artStore.currentArtImage" class="badge badge-secondary">
+          Selected image #{{ artStore.currentArtImage.id }}
         </span>
 
         <button
           class="btn btn-ghost btn-xs rounded-xl"
           type="button"
-          :disabled="page === 0"
-          @click="page--"
+          :disabled="folderPage === 0"
+          @click="folderPage--"
         >
           <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
           Prev
         </button>
 
-        <span> Page {{ page + 1 }} / {{ pageCount }} </span>
+        <span> Page {{ folderPage + 1 }} / {{ folderPageCount }} </span>
 
         <button
           class="btn btn-ghost btn-xs rounded-xl"
           type="button"
-          :disabled="page >= pageCount - 1"
-          @click="page++"
+          :disabled="folderPage >= folderPageCount - 1"
+          @click="folderPage++"
         >
           Next
           <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
@@ -158,169 +157,238 @@
       class="min-h-0 flex-1 overflow-auto rounded-2xl bg-base-200 p-3"
     >
       <div
-        v-if="visibleItems.length === 0"
+        v-if="visibleGroups.length === 0"
         class="flex min-h-56 flex-col items-center justify-center text-center text-base-content/60"
       >
         <Icon name="kind-icon:gallery" class="h-12 w-12 text-primary" />
         <p class="mt-2 text-lg font-black">Nothing to show.</p>
         <p class="text-sm">
-          Either the store is empty, the fetch failed, or the search filter is
-          too spicy.
+          No collections, art, or images match the current filter.
         </p>
       </div>
 
-      <div
-        v-else-if="activeTab === 'images'"
-        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
-      >
-        <image-card
-          v-for="item in pagedImageItems"
-          :key="item.image.id"
-          :art-image="item.image"
-          :selected="artStore.currentArtImage?.id === item.image.id"
-          :compact="true"
-          :show-actions="true"
-          :show-prompt="true"
-          :show-meta="true"
-          :show-generation-meta="true"
-          :show-select-button="true"
-          :allow-delete="canModifyImage(item.image)"
-          :allow-edit="canModifyImage(item.image)"
-          :auto-load-image="false"
-          @select="selectImage"
-          @edit="startEditingImage"
-          @delete="handleImageDeleted"
-        />
-      </div>
-
-      <div
-        v-else-if="activeTab === 'collections'"
-        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
-      >
+      <div v-else class="flex flex-col gap-4">
         <article
-          v-for="item in pagedCollectionItems"
-          :key="item.key"
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+          v-for="group in pagedGroups"
+          :key="group.key"
+          class="rounded-2xl border border-base-300 bg-base-100 p-3"
         >
-          <div class="flex items-start justify-between gap-3">
+          <header
+            class="flex flex-col gap-3 border-b border-base-300 pb-3 lg:flex-row lg:items-start lg:justify-between"
+          >
             <div class="min-w-0">
-              <p class="text-xs font-bold uppercase text-primary/70">
-                Collection
-              </p>
+              <div class="flex flex-wrap items-center gap-2">
+                <Icon
+                  name="kind-icon:folder"
+                  class="h-5 w-5 shrink-0 text-primary"
+                />
 
-              <h3 class="truncate text-base font-black text-base-content">
-                {{ item.title }}
-              </h3>
+                <h3 class="truncate text-lg font-black text-base-content">
+                  {{ group.title }}
+                </h3>
 
-              <p class="mt-1 line-clamp-3 text-sm text-base-content/60">
-                {{ item.description }}
+                <span
+                  v-if="group.isVirtual"
+                  class="badge badge-accent badge-sm"
+                >
+                  Virtual
+                </span>
+
+                <span v-if="group.isPublic" class="badge badge-info badge-sm">
+                  Public
+                </span>
+
+                <span v-else class="badge badge-ghost badge-sm">Private</span>
+
+                <span
+                  v-if="group.isMature"
+                  class="badge badge-warning badge-sm"
+                >
+                  Mature
+                </span>
+              </div>
+
+              <p class="mt-1 line-clamp-2 text-sm text-base-content/60">
+                {{ group.description }}
               </p>
             </div>
 
-            <span class="badge badge-ghost shrink-0"> #{{ item.id }} </span>
-          </div>
+            <div class="flex shrink-0 flex-wrap gap-2">
+              <span class="badge badge-ghost">
+                {{ group.art.length }} art
+              </span>
 
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="rounded-xl bg-base-200 p-2">
-              <p class="font-bold uppercase text-base-content/50">Art</p>
-              <p class="text-base font-black text-base-content">
-                {{ item.artCount }}
-              </p>
+              <span class="badge badge-ghost">
+                {{ group.images.length }} images
+              </span>
+
+              <span class="badge badge-primary">
+                {{ group.cards.length }} cards
+              </span>
+
+              <button
+                v-if="group.cards.length > perFolderLimit"
+                class="btn btn-ghost btn-xs rounded-xl"
+                type="button"
+                @click="toggleExpanded(group.key)"
+              >
+                <Icon
+                  :name="
+                    isExpanded(group.key)
+                      ? 'kind-icon:chevron-up'
+                      : 'kind-icon:chevron-down'
+                  "
+                  class="h-3 w-3"
+                />
+                {{ isExpanded(group.key) ? 'Show less' : 'Show all' }}
+              </button>
             </div>
+          </header>
 
-            <div class="rounded-xl bg-base-200 p-2">
-              <p class="font-bold uppercase text-base-content/50">Images</p>
-              <p class="text-base font-black text-base-content">
-                {{ item.imageCount }}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <span v-if="item.isPublic" class="badge badge-info badge-sm">
-              Public
-            </span>
-
-            <span v-else class="badge badge-ghost badge-sm"> Private </span>
-
-            <span v-if="item.isMature" class="badge badge-warning badge-sm">
-              Mature
-            </span>
-
-            <span v-if="item.userId" class="badge badge-secondary badge-sm">
-              User {{ item.userId }}
-            </span>
+          <div
+            v-if="getVisibleCards(group).length === 0"
+            class="flex min-h-32 flex-col items-center justify-center text-center text-base-content/55"
+          >
+            <Icon name="kind-icon:image" class="h-9 w-9 text-primary" />
+            <p class="mt-2 text-sm font-bold">Empty collection.</p>
           </div>
 
           <div
-            v-if="item.previewUrls.length"
-            class="grid grid-cols-4 gap-1 overflow-hidden rounded-2xl bg-base-300 p-1"
+            v-else
+            class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3"
           >
-            <img
-              v-for="url in item.previewUrls"
-              :key="url"
-              :src="url"
-              :alt="item.title"
-              class="aspect-square w-full rounded-xl object-cover"
-              loading="lazy"
+            <article
+              v-for="card in getVisibleArtCards(group)"
+              :key="card.key"
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+              :class="
+                artStore.currentArt?.id === card.art.id
+                  ? 'ring-2 ring-primary'
+                  : ''
+              "
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase text-primary/70">Art</p>
+
+                  <h3
+                    class="line-clamp-2 text-base font-black text-base-content"
+                  >
+                    {{ getArtTitle(card.art) }}
+                  </h3>
+
+                  <p class="mt-1 line-clamp-3 text-sm text-base-content/60">
+                    {{ getArtDescription(card.art) }}
+                  </p>
+                </div>
+
+                <span class="badge badge-ghost shrink-0">
+                  #{{ card.art.id }}
+                </span>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-if="card.art.isPublic"
+                  class="badge badge-info badge-sm"
+                >
+                  Public
+                </span>
+
+                <span v-else class="badge badge-ghost badge-sm">Private</span>
+
+                <span
+                  v-if="card.art.isMature"
+                  class="badge badge-warning badge-sm"
+                >
+                  Mature
+                </span>
+
+                <span
+                  v-if="card.art.userId"
+                  class="badge badge-secondary badge-sm"
+                >
+                  User {{ card.art.userId }}
+                </span>
+
+                <span
+                  v-if="getArtImageId(card.art)"
+                  class="badge badge-success badge-sm"
+                >
+                  Image #{{ getArtImageId(card.art) }}
+                </span>
+              </div>
+
+              <div
+                v-if="getArtPreviewUrl(card.art)"
+                class="overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+              >
+                <img
+                  :src="getArtPreviewUrl(card.art)"
+                  :alt="getArtTitle(card.art)"
+                  class="h-48 w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+
+              <div class="mt-auto grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <button
+                  class="btn btn-sm rounded-xl"
+                  :class="
+                    artStore.currentArt?.id === card.art.id
+                      ? 'btn-primary text-white'
+                      : 'btn-outline'
+                  "
+                  type="button"
+                  @click.stop="selectArt(card.art)"
+                >
+                  <Icon name="kind-icon:check" class="h-4 w-4" />
+                  {{
+                    artStore.currentArt?.id === card.art.id
+                      ? 'Selected'
+                      : 'Select'
+                  }}
+                </button>
+
+                <button
+                  v-if="canModifyArt(card.art)"
+                  class="btn btn-secondary btn-sm rounded-xl"
+                  type="button"
+                  @click.stop="startEditingArt(card.art.id)"
+                >
+                  <Icon name="kind-icon:pencil" class="h-4 w-4" />
+                  Edit
+                </button>
+              </div>
+            </article>
+
+            <image-card
+              v-for="card in getVisibleImageCards(group)"
+              :key="card.key"
+              :art-image="card.image"
+              :selected="artStore.currentArtImage?.id === card.image.id"
+              :compact="true"
+              :show-actions="true"
+              :show-prompt="true"
+              :show-meta="true"
+              :show-generation-meta="true"
+              :show-select-button="true"
+              :allow-delete="canModifyImage(card.image)"
+              :allow-edit="canModifyImage(card.image)"
+              :auto-load-image="false"
+              @select="selectImage"
+              @edit="startEditingImage"
+              @delete="handleImageDeleted"
             />
           </div>
-        </article>
-      </div>
 
-      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <article
-          v-for="item in pagedArtItems"
-          :key="item.key"
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-xs font-bold uppercase text-primary/70">Art</p>
-
-              <h3 class="truncate text-base font-black text-base-content">
-                {{ item.title }}
-              </h3>
-
-              <p class="mt-1 line-clamp-3 text-sm text-base-content/60">
-                {{ item.description }}
-              </p>
-            </div>
-
-            <span class="badge badge-ghost shrink-0"> #{{ item.id }} </span>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <span v-if="item.isPublic" class="badge badge-info badge-sm">
-              Public
-            </span>
-
-            <span v-else class="badge badge-ghost badge-sm"> Private </span>
-
-            <span v-if="item.isMature" class="badge badge-warning badge-sm">
-              Mature
-            </span>
-
-            <span v-if="item.userId" class="badge badge-secondary badge-sm">
-              User {{ item.userId }}
-            </span>
-
-            <span v-if="item.artImageId" class="badge badge-success badge-sm">
-              Image #{{ item.artImageId }}
-            </span>
-          </div>
-
-          <div
-            v-if="item.imageUrl"
-            class="overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+          <footer
+            v-if="!isExpanded(group.key) && group.cards.length > perFolderLimit"
+            class="mt-3 rounded-2xl bg-base-200 p-3 text-center text-xs text-base-content/60"
           >
-            <img
-              :src="item.imageUrl"
-              :alt="item.title"
-              class="h-48 w-full object-cover"
-              loading="lazy"
-            />
-          </div>
+            Showing {{ perFolderLimit }} of {{ group.cards.length }} cards. Open
+            the folder to render the rest without summoning the lag kraken.
+          </footer>
         </article>
       </div>
     </section>
@@ -364,9 +432,34 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 
-type SlimGalleryTab = 'collections' | 'art' | 'images'
+type FolderCard =
+  | {
+      key: string
+      type: 'art'
+      art: Art
+    }
+  | {
+      key: string
+      type: 'image'
+      image: ArtImage
+    }
+
+type FolderGroup = {
+  key: string
+  id: number
+  title: string
+  description: string
+  userId: number | null
+  isPublic: boolean
+  isMature: boolean
+  isVirtual: boolean
+  art: Art[]
+  images: ArtImage[]
+  cards: FolderCard[]
+}
 
 type CollectionWithMedia = ArtCollection & {
+  art?: Art[]
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
 }
@@ -379,39 +472,6 @@ type ArtWithImage = Art & {
   ArtImage?: ArtImage | null
 }
 
-type SlimCollectionItem = {
-  key: string
-  id: number
-  title: string
-  description: string
-  userId: number | null
-  isPublic: boolean
-  isMature: boolean
-  artCount: number
-  imageCount: number
-  previewUrls: string[]
-}
-
-type SlimArtItem = {
-  key: string
-  id: number
-  title: string
-  description: string
-  userId: number | null
-  isPublic: boolean
-  isMature: boolean
-  artImageId: number | null
-  imageUrl: string
-}
-
-type SlimImageItem = {
-  key: string
-  id: number
-  image: ArtImage
-}
-
-type VisibleItem = SlimCollectionItem | SlimArtItem | SlimImageItem
-
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
@@ -422,137 +482,130 @@ const isHydratingImages = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
-const activeTab = ref<SlimGalleryTab>('images')
 const showMature = ref(false)
-const page = ref(0)
-const pageSize = ref(24)
+const folderPage = ref(0)
+const folderPageSize = ref(6)
+const perFolderLimit = ref(12)
 const hydratedImages = ref<Record<number, ArtImage>>({})
+const expandedGroupKeys = ref<string[]>([])
 
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
 )
 
-const tabs = computed(() => [
-  {
-    value: 'collections' as const,
-    label: 'Collections',
-    icon: 'kind-icon:gallery',
-    count: collectionItems.value.length,
-  },
-  {
-    value: 'art' as const,
-    label: 'Art',
-    icon: 'kind-icon:image',
-    count: artItems.value.length,
-  },
-  {
-    value: 'images' as const,
-    label: 'Images',
-    icon: 'kind-icon:picture',
-    count: imageItems.value.length,
-  },
-])
+const appUrl = computed(() => {
+  const config = useRuntimeConfig()
+  const value =
+    config.public?.appUrl ||
+    config.public?.APP_URL ||
+    config.public?.siteUrl ||
+    config.public?.SITE_URL ||
+    ''
 
-const collectionItems = computed<SlimCollectionItem[]>(() =>
-  collectionStore.collections.map((collection) =>
-    normalizeCollection(collection),
-  ),
-)
+  if (typeof value === 'string' && value.trim()) {
+    return value.trim().replace(/\/+$/, '')
+  }
 
-const artItems = computed<SlimArtItem[]>(() =>
-  artStore.art.map((art) => normalizeArt(art)),
-)
+  if (import.meta.client && window.location.origin) {
+    return window.location.origin.replace(/\/+$/, '')
+  }
 
-const imageItems = computed<SlimImageItem[]>(() =>
-  artStore.artImages.map((image) => ({
-    key: `image-${image.id}`,
-    id: image.id,
-    image: hydratedImages.value[image.id] || image,
-  })),
-)
+  return ''
+})
 
-const visibleCollectionItems = computed<SlimCollectionItem[]>(() => {
+const collectionGroups = computed<FolderGroup[]>(() => {
+  const groups = collectionStore.collections.map((collection) =>
+    normalizeCollectionGroup(collection),
+  )
+
+  const assignedArtIds = new Set<number>()
+  const assignedImageIds = new Set<number>()
+
+  for (const group of groups) {
+    for (const art of group.art) {
+      assignedArtIds.add(art.id)
+    }
+
+    for (const image of group.images) {
+      assignedImageIds.add(image.id)
+    }
+  }
+
+  const unassignedArt = artStore.art.filter(
+    (art) => !assignedArtIds.has(art.id),
+  )
+
+  const unassignedImages = artStore.artImages
+    .map((image) => hydratedImages.value[image.id] || image)
+    .filter((image) => !assignedImageIds.has(image.id))
+
+  const unassignedGroup = makeFolderGroup({
+    key: 'collection-unassigned',
+    id: -1,
+    title: 'Unassigned',
+    description:
+      'Art and images that are not currently assigned to a collection.',
+    userId: currentUserId.value,
+    isPublic: false,
+    isMature: false,
+    isVirtual: true,
+    art: unassignedArt,
+    images: unassignedImages,
+  })
+
+  return [unassignedGroup, ...groups]
+})
+
+const visibleGroups = computed<FolderGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  return collectionItems.value.filter((item) => {
-    if (!showMature.value && item.isMature) return false
-    if (!query) return true
-
-    return searchableCollectionText(item).includes(query)
-  })
+  return collectionGroups.value
+    .map((group) => filterGroup(group, query))
+    .filter((group) => {
+      if (!showMature.value && group.isMature) return false
+      if (!group.cards.length && query) return false
+      if (!group.cards.length && group.id === -1) return false
+      return true
+    })
 })
 
-const visibleArtItems = computed<SlimArtItem[]>(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-
-  return artItems.value.filter((item) => {
-    if (!showMature.value && item.isMature) return false
-    if (!query) return true
-
-    return searchableArtText(item).includes(query)
-  })
-})
-
-const visibleImageItems = computed<SlimImageItem[]>(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-
-  return imageItems.value.filter((item) => {
-    const image = item.image
-
-    if (!showMature.value && image.isMature) return false
-    if (!query) return true
-
-    return searchableImageText(image).includes(query)
-  })
-})
-
-const visibleItems = computed<VisibleItem[]>(() => {
-  if (activeTab.value === 'collections') return visibleCollectionItems.value
-  if (activeTab.value === 'art') return visibleArtItems.value
-  return visibleImageItems.value
-})
-
-const pageCount = computed(() =>
-  Math.max(1, Math.ceil(visibleItems.value.length / pageSize.value)),
+const visibleArtCount = computed(() =>
+  visibleGroups.value.reduce((sum, group) => sum + group.art.length, 0),
 )
 
-const pageStart = computed(() => page.value * pageSize.value)
-const pageEnd = computed(() => pageStart.value + pageSize.value)
-
-const pagedItems = computed<VisibleItem[]>(() =>
-  visibleItems.value.slice(pageStart.value, pageEnd.value),
+const visibleImageCount = computed(() =>
+  visibleGroups.value.reduce((sum, group) => sum + group.images.length, 0),
 )
 
-const pagedCollectionItems = computed<SlimCollectionItem[]>(() =>
-  activeTab.value === 'collections'
-    ? (pagedItems.value as SlimCollectionItem[])
-    : [],
+const folderPageCount = computed(() =>
+  Math.max(1, Math.ceil(visibleGroups.value.length / folderPageSize.value)),
 )
 
-const pagedArtItems = computed<SlimArtItem[]>(() =>
-  activeTab.value === 'art' ? (pagedItems.value as SlimArtItem[]) : [],
+const folderPageStart = computed(() => folderPage.value * folderPageSize.value)
+
+const folderPageEnd = computed(
+  () => folderPageStart.value + folderPageSize.value,
 )
 
-const pagedImageItems = computed<SlimImageItem[]>(() =>
-  activeTab.value === 'images' ? (pagedItems.value as SlimImageItem[]) : [],
+const pagedGroups = computed(() =>
+  visibleGroups.value.slice(folderPageStart.value, folderPageEnd.value),
 )
 
-watch([activeTab, searchQuery, showMature, pageSize], () => {
-  page.value = 0
+watch([searchQuery, showMature, folderPageSize], () => {
+  folderPage.value = 0
 })
 
 watch(
   () => [
-    activeTab.value,
-    page.value,
-    pageSize.value,
+    folderPage.value,
+    folderPageSize.value,
+    perFolderLimit.value,
     searchQuery.value,
     showMature.value,
+    expandedGroupKeys.value.join('|'),
   ],
   async () => {
-    if (activeTab.value === 'images') {
-      await hydratePagedImages()
-    }
+    await hydrateVisibleFolderImages()
   },
 )
 
@@ -574,9 +627,7 @@ async function initializeGallery() {
       fetchArtImagesSafely(),
     ])
 
-    if (activeTab.value === 'images') {
-      await hydratePagedImages()
-    }
+    await hydrateVisibleFolderImages()
   } catch (error) {
     const message = getErrorMessage(error, 'Slim gallery failed to initialize.')
     errorMessage.value = message
@@ -601,11 +652,128 @@ async function fetchArtImagesSafely() {
   await artStore.fetchAllArtImages({ force: true })
 }
 
-async function hydratePagedImages() {
-  const imagesNeedingData = pagedImageItems.value
-    .map((item) => item.image)
+function normalizeCollectionGroup(collection: ArtCollection): FolderGroup {
+  const media = collection as CollectionWithMedia
+  const art = getCollectionArt(media)
+  const images = getCollectionImages(media).map(
+    (image) => hydratedImages.value[image.id] || image,
+  )
+
+  return makeFolderGroup({
+    key: `collection-${collection.id}`,
+    id: collection.id,
+    title: collection.label || `Collection #${collection.id}`,
+    description: collection.description || 'No description yet.',
+    userId: collection.userId ?? null,
+    isPublic: Boolean(collection.isPublic),
+    isMature: Boolean(collection.isMature),
+    isVirtual: false,
+    art,
+    images,
+  })
+}
+
+function makeFolderGroup(input: {
+  key: string
+  id: number
+  title: string
+  description: string
+  userId: number | null
+  isPublic: boolean
+  isMature: boolean
+  isVirtual: boolean
+  art: Art[]
+  images: ArtImage[]
+}): FolderGroup {
+  const artCards: FolderCard[] = input.art.map((art) => ({
+    key: `${input.key}-art-${art.id}`,
+    type: 'art',
+    art,
+  }))
+
+  const imageCards: FolderCard[] = input.images.map((image) => ({
+    key: `${input.key}-image-${image.id}`,
+    type: 'image',
+    image,
+  }))
+
+  return {
+    ...input,
+    cards: [...imageCards, ...artCards],
+  }
+}
+
+function filterGroup(group: FolderGroup, query: string): FolderGroup {
+  const matureSafeArt = group.art.filter(
+    (item) => showMature.value || !item.isMature,
+  )
+
+  const matureSafeImages = group.images.filter(
+    (item) => showMature.value || !item.isMature,
+  )
+
+  if (!query) {
+    return makeFolderGroup({
+      ...group,
+      art: matureSafeArt,
+      images: matureSafeImages,
+    })
+  }
+
+  const groupMatches = searchableGroupText(group).includes(query)
+
+  if (groupMatches) {
+    return makeFolderGroup({
+      ...group,
+      art: matureSafeArt,
+      images: matureSafeImages,
+    })
+  }
+
+  return makeFolderGroup({
+    ...group,
+    art: matureSafeArt.filter((item) =>
+      searchableArtText(item).includes(query),
+    ),
+    images: matureSafeImages.filter((item) =>
+      searchableImageText(item).includes(query),
+    ),
+  })
+}
+
+function getCollectionArt(collection: CollectionWithMedia): Art[] {
+  return (collection.art || []).filter((art): art is Art => Boolean(art?.id))
+}
+
+function getCollectionImages(collection: CollectionWithMedia): ArtImage[] {
+  return [
+    ...(collection.artImages || []),
+    ...(collection.ArtImages || []),
+  ].filter((image): image is ArtImage => Boolean(image?.id))
+}
+
+function getVisibleCards(group: FolderGroup): FolderCard[] {
+  if (isExpanded(group.key)) return group.cards
+  return group.cards.slice(0, perFolderLimit.value)
+}
+
+function getVisibleArtCards(group: FolderGroup) {
+  return getVisibleCards(group).filter(
+    (card): card is Extract<FolderCard, { type: 'art' }> => card.type === 'art',
+  )
+}
+
+function getVisibleImageCards(group: FolderGroup) {
+  return getVisibleCards(group).filter(
+    (card): card is Extract<FolderCard, { type: 'image' }> =>
+      card.type === 'image',
+  )
+}
+
+async function hydrateVisibleFolderImages() {
+  const imagesNeedingData = pagedGroups.value
+    .flatMap((group) => getVisibleImageCards(group).map((card) => card.image))
     .filter((image) => shouldHydrateImage(image))
-    .slice(0, pageSize.value)
 
   if (!imagesNeedingData.length) return
 
@@ -628,7 +796,7 @@ async function hydratePagedImages() {
   } catch (error) {
     const message = getErrorMessage(
       error,
-      'Some page images could not be hydrated.',
+      'Some visible images could not be hydrated.',
     )
     errorMessage.value = message
     errorStore.setError(ErrorType.NETWORK_ERROR, message)
@@ -650,6 +818,7 @@ async function runLimited<T>(
   worker: (item: T) => Promise<void>,
 ) {
   const queue = [...items]
+
   const runners = Array.from(
     { length: Math.min(limit, queue.length) },
     async () => {
@@ -664,10 +833,35 @@ async function runLimited<T>(
   await Promise.all(runners)
 }
 
+function isExpanded(key: string): boolean {
+  return expandedGroupKeys.value.includes(key)
+}
+
+function toggleExpanded(key: string) {
+  expandedGroupKeys.value = isExpanded(key)
+    ? expandedGroupKeys.value.filter((item) => item !== key)
+    : [...expandedGroupKeys.value, key]
+}
+
+function canModifyArt(art: Art): boolean {
+  return userStore.isAdmin || Number(art.userId) === Number(currentUserId.value)
+}
+
 function canModifyImage(image: ArtImage): boolean {
   return (
     userStore.isAdmin || Number(image.userId) === Number(currentUserId.value)
   )
+}
+
+function selectArt(art: Art) {
+  try {
+    const safeArt = stripArtRelations(art)
+    artStore.selectArtRecord(safeArt, null)
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to select art.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
+  }
 }
 
 function selectImage(image: ArtImage) {
@@ -675,6 +869,17 @@ function selectImage(image: ArtImage) {
     void artStore.selectArtImageRecord(image)
   } catch (error) {
     const message = getErrorMessage(error, 'Failed to select image.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
+  }
+}
+
+function startEditingArt(artId: number) {
+  try {
+    void artStore.selectArt(artId)
+    successMessage.value = `Loaded art #${artId} for editing.`
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to load art for editing.')
     errorMessage.value = message
     errorStore.setError(ErrorType.GENERAL_ERROR, message)
   }
@@ -708,6 +913,14 @@ async function startEditingImage(imageId: number) {
   }
 }
 
+function handleArtDeleted(artId: number) {
+  if (artStore.currentArt?.id === artId) {
+    artStore.deselectArt?.()
+  }
+
+  successMessage.value = `Art #${artId} removed from the current view.`
+}
+
 function handleImageDeleted(imageId: number) {
   if (artStore.currentArtImage?.id === imageId) {
     artStore.deselectArtImage()
@@ -720,66 +933,27 @@ function handleImageDeleted(imageId: number) {
   successMessage.value = `Image #${imageId} removed from the current view.`
 }
 
-function clearSelectedImage() {
+function clearSelected() {
+  artStore.deselectArt?.()
   artStore.deselectArtImage()
   successMessage.value = ''
 }
 
-function normalizeCollection(collection: ArtCollection): SlimCollectionItem {
-  const media = collection as CollectionWithMedia
-  const art = collection.art || []
-  const images = getCollectionImages(media)
+function stripArtRelations(art: Art): Art {
+  const clone = { ...art } as Art & Record<string, unknown>
 
-  return {
-    key: `collection-${collection.id}`,
-    id: collection.id,
-    title: collection.label || `Collection #${collection.id}`,
-    description: collection.description || 'No description yet.',
-    userId: collection.userId ?? null,
-    isPublic: Boolean(collection.isPublic),
-    isMature: Boolean(collection.isMature),
-    artCount: art.length,
-    imageCount: images.length,
-    previewUrls: getCollectionPreviewUrls(media),
-  }
-}
+  delete clone.ArtImage
+  delete clone.artImage
+  delete clone.ArtImages
+  delete clone.artImages
+  delete clone.ArtCollections
+  delete clone.artCollections
+  delete clone.User
+  delete clone.user
+  delete clone.Gallery
+  delete clone.gallery
 
-function normalizeArt(art: Art): SlimArtItem {
-  const artWithImage = art as ArtWithImage
-
-  return {
-    key: `art-${art.id}`,
-    id: art.id,
-    title: getArtTitle(art),
-    description:
-      [art.promptString, art.designer, art.checkpoint, art.sampler]
-        .filter(Boolean)
-        .join(' • ') || 'No generation metadata.',
-    userId: art.userId ?? null,
-    isPublic: Boolean(art.isPublic),
-    isMature: Boolean(art.isMature),
-    artImageId: artWithImage.artImageId ?? null,
-    imageUrl: getArtImageUrl(art),
-  }
-}
-
-function getCollectionImages(collection: CollectionWithMedia): ArtImage[] {
-  return [
-    ...(collection.artImages || []),
-    ...(collection.ArtImages || []),
-  ].filter((image): image is ArtImage => Boolean(image?.id))
-}
-
-function getCollectionPreviewUrls(collection: CollectionWithMedia): string[] {
-  const imageUrls = getCollectionImages(collection)
-    .map((image) => getArtImageRecordUrl(image))
-    .filter(Boolean)
-
-  const artUrls = (collection.art || [])
-    .map((art) => getArtImageUrl(art))
-    .filter(Boolean)
-
-  return [...new Set([...imageUrls, ...artUrls])].slice(0, 4)
+  return clone as Art
 }
 
 function getArtTitle(art: Art): string {
@@ -795,31 +969,122 @@ function getArtTitle(art: Art): string {
   return `Art #${art.id}`
 }
 
-function searchableCollectionText(item: SlimCollectionItem): string {
+function getArtDescription(art: Art): string {
+  return (
+    [art.promptString, art.designer, art.checkpoint, art.sampler]
+      .filter(Boolean)
+      .join(' • ') || 'No generation metadata.'
+  )
+}
+
+function getArtImageId(art: Art): number | null {
+  const possible = art as ArtWithImage
+  return (
+    possible.artImageId ??
+    possible.artImage?.id ??
+    possible.ArtImage?.id ??
+    null
+  )
+}
+
+function getArtPreviewUrl(art: Art): string {
+  const possible = art as ArtWithImage
+
+  return normalizeImageUrl(
+    possible.imageUrl ||
+      possible.imagePath ||
+      getArtImageRecordUrl(possible.artImage || possible.ArtImage || null),
+  )
+}
+
+function getArtImageRecordUrl(image: ArtImage | null): string {
+  if (!image) return ''
+
+  const possible = image as ArtImage & {
+    imageUrl?: string | null
+    imagePath?: string | null
+    path?: string | null
+    url?: string | null
+    filePath?: string | null
+    imageData?: string | null
+  }
+
+  return (
+    possible.imageUrl ||
+    possible.imagePath ||
+    possible.path ||
+    possible.url ||
+    possible.filePath ||
+    (possible.imageData?.startsWith('data:image/') ? possible.imageData : '')
+  )
+}
+
+function normalizeImageUrl(value?: string | null): string {
+  if (!value) return ''
+
+  const trimmed = value.trim()
+
+  if (!trimmed || trimmed === 'UNDEFINED' || trimmed === 'undefined') return ''
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('data:image/')
+  ) {
+    return trimmed
+  }
+
+  const cleanPath = trimmed
+    .replace(/^file:\/\//, '')
+    .replace(/^\/mnt\/data\/+/, '')
+    .replace(/^\/public\/+/, '')
+    .replace(/^public\/+/, '')
+    .replace(/^\/app\/public\/+/, '')
+    .replace(/^app\/public\/+/, '')
+
+  if (cleanPath.startsWith('/images/')) return withAppUrl(cleanPath)
+  if (cleanPath.startsWith('images/')) return withAppUrl(`/${cleanPath}`)
+  if (cleanPath.startsWith('/')) return withAppUrl(`/images${cleanPath}`)
+
+  return withAppUrl(`/images/${cleanPath}`)
+}
+
+function withAppUrl(path: string): string {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  if (!appUrl.value) return normalizedPath
+
+  return `${appUrl.value}${normalizedPath}`
+}
+
+function searchableGroupText(group: FolderGroup): string {
   return [
-    item.id,
-    item.title,
-    item.description,
-    item.userId,
-    item.artCount,
-    item.imageCount,
-    item.isPublic ? 'public' : 'private',
-    item.isMature ? 'mature' : '',
+    group.id,
+    group.title,
+    group.description,
+    group.userId,
+    group.isPublic ? 'public' : 'private',
+    group.isMature ? 'mature' : '',
   ]
     .filter((value) => value !== null && value !== undefined)
     .join(' ')
     .toLowerCase()
 }
 
-function searchableArtText(item: SlimArtItem): string {
+function searchableArtText(art: Art): string {
+  const possible = art as ArtWithImage
+
   return [
-    item.id,
-    item.title,
-    item.description,
-    item.userId,
-    item.artImageId,
-    item.isPublic ? 'public' : 'private',
-    item.isMature ? 'mature' : '',
+    art.id,
+    art.promptString,
+    art.path,
+    art.designer,
+    art.checkpoint,
+    art.sampler,
+    art.userId,
+    possible.artImageId,
+    art.isPublic ? 'public' : 'private',
+    art.isMature ? 'mature' : '',
   ]
     .filter((value) => value !== null && value !== undefined)
     .join(' ')
@@ -844,42 +1109,6 @@ function searchableImageText(image: ArtImage): string {
     .filter((value) => value !== null && value !== undefined)
     .join(' ')
     .toLowerCase()
-}
-
-function getArtImageUrl(art: Art): string {
-  const possible = art as ArtWithImage
-
-  return (
-    possible.imagePath ||
-    possible.imageUrl ||
-    possible.path ||
-    getArtImageRecordUrl(possible.artImage || possible.ArtImage || null)
-  )
-}
-
-function getArtImageRecordUrl(image: ArtImage | null): string {
-  if (!image) return ''
-
-  const possible = image as ArtImage & {
-    imageUrl?: string | null
-    imagePath?: string | null
-    path?: string | null
-    url?: string | null
-    filePath?: string | null
-    imageData?: string | null
-    fileType?: string | null
-    mimeType?: string | null
-  }
-
-  if (possible.imageUrl) return possible.imageUrl
-  if (possible.imagePath) return possible.imagePath
-  if (possible.path) return possible.path
-  if (possible.url) return possible.url
-  if (possible.filePath) return possible.filePath
-
-  if (possible.imageData?.startsWith('data:image/')) return possible.imageData
-
-  return ''
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {

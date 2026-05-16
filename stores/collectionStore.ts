@@ -100,8 +100,18 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           throw new Error(response.message || 'Failed to fetch collections')
         }
 
-        state.collections = response.data
-        hasFetched.value = true
+        
+        
+// In collectionStore.fetchCollections, after receiving data:
+state.collections = response.data.map(collection => ({
+  ...collection,
+  art: (collection.art ?? []).map(a => {
+    const { ArtCollections, artCollections, ArtImage, Tags, Reactions, ...rest } = a as any
+    return rest
+  }),
+}))
+hasFetched.value = true
+
 
         if (
           state.currentCollection &&

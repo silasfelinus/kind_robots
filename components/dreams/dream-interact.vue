@@ -1034,9 +1034,9 @@ const PANELS: { key: PanelKey; label: string; icon: string }[] = [
   { key: 'items', label: 'Items', icon: 'kind-icon:gift' },
   { key: 'scenario', label: 'Scene', icon: 'kind-icon:map' },
   { key: 'art', label: 'Art', icon: 'kind-icon:image' },
-  { key: 'chat', label: 'Chat', icon: 'kind-icon:message-circle' },
-  { key: 'prompts', label: 'Prompts', icon: 'kind-icon:sparkles' },
-  { key: 'fx', label: 'FX', icon: 'kind-icon:wand-sparkles' },
+  { key: 'chat', label: 'Chat', icon: 'kind-icon:circle' },
+  { key: 'prompts', label: 'Prompts', icon: 'kind-icon:book' },
+  { key: 'fx', label: 'FX', icon: 'kind-icon:sparkles' },
   { key: 'wheel', label: 'Wheel', icon: 'kind-icon:dice' },
   { key: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
 ]

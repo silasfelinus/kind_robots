@@ -1,8 +1,9 @@
 // /stores/dreamStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { performFetch, handleError } from '@/stores/utils'
+import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
+import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type {
   Art,
   ArtCollection,
@@ -92,6 +93,12 @@ export interface FetchDreamChatOptions {
   includeMature?: boolean
 }
 
+export type DreamResult<T> = {
+  success: boolean
+  data?: T
+  message?: string
+}
+
 const isClient = typeof window !== 'undefined'
 const dreamsStorageKey = 'dreams'
 const dreamFormStorageKey = 'dreamForm'
@@ -155,6 +162,7 @@ function fallbackDreamTitle() {
 
 export const useDreamStore = defineStore('dreamStore', () => {
   const userStore = useUserStore()
+  const errorStore = useErrorStore()
 
   const dreams = ref<DreamWithRelations[]>([])
   const selectedDream = ref<DreamWithRelations | null>(null)
@@ -199,6 +207,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const selectedDreamCurrentImage = computed(() => {
     return (
       selectedDream.value?.Art?.imagePath ??
+      selectedDream.value?.ArtImage?.imagePath ??
+      selectedDream.value?.ArtImage?.path ??
       selectedDream.value?.ArtImage?.fileName ??
       selectedDream.value?.Gallery?.highlightImage ??
       ''
@@ -224,6 +234,16 @@ export const useDreamStore = defineStore('dreamStore', () => {
     error.value = message
   }
 
+  function reportError(
+    caught: unknown,
+    context: string,
+    fallback = 'An error occurred.',
+    type: ErrorType = ErrorType.STORE_ERROR,
+  ) {
+    error.value = errorStore.report(caught, type, context, fallback)
+    return error.value
+  }
+
   function randomDream() {
     return randomSeedDream()
   }
@@ -247,29 +267,43 @@ export const useDreamStore = defineStore('dreamStore', () => {
         JSON.stringify(dreamChats.value),
       )
     } catch (storageError) {
-      console.error('[dreamStore] localStorage sync error:', storageError)
+      reportError(
+        storageError,
+        'syncing dream store to localStorage',
+        'Failed to sync Dream data to local storage.',
+        ErrorType.STORE_ERROR,
+      )
     }
   }
 
   function loadFromLocalStorage() {
     if (!isClient) return
 
-    dreams.value = safeJsonParse<DreamWithRelations[]>(
-      localStorage.getItem(dreamsStorageKey),
-      [],
-    )
-    dreamForm.value = safeJsonParse<DreamForm>(
-      localStorage.getItem(dreamFormStorageKey),
-      {},
-    )
-    selectedDream.value = safeJsonParse<DreamWithRelations | null>(
-      localStorage.getItem(selectedDreamStorageKey),
-      null,
-    )
-    dreamChats.value = safeJsonParse<DreamChatWithRelations[]>(
-      localStorage.getItem(dreamChatsStorageKey),
-      [],
-    )
+    try {
+      dreams.value = safeJsonParse<DreamWithRelations[]>(
+        localStorage.getItem(dreamsStorageKey),
+        [],
+      )
+      dreamForm.value = safeJsonParse<DreamForm>(
+        localStorage.getItem(dreamFormStorageKey),
+        {},
+      )
+      selectedDream.value = safeJsonParse<DreamWithRelations | null>(
+        localStorage.getItem(selectedDreamStorageKey),
+        null,
+      )
+      dreamChats.value = safeJsonParse<DreamChatWithRelations[]>(
+        localStorage.getItem(dreamChatsStorageKey),
+        [],
+      )
+    } catch (storageError) {
+      reportError(
+        storageError,
+        'loading dream store from localStorage',
+        'Failed to load Dream data from local storage.',
+        ErrorType.PARSE_ERROR,
+      )
+    }
   }
 
   function toDreamForm(dream: DreamWithRelations): DreamForm {
@@ -386,8 +420,13 @@ export const useDreamStore = defineStore('dreamStore', () => {
       isInitialized.value = true
       syncToLocalStorage()
     } catch (initializeError) {
-      handleError(initializeError, 'initializing dream store')
-      setError((initializeError as Error).message)
+      reportError(
+        initializeError,
+        'initializing dream store',
+        'Failed to initialize dream store.',
+        ErrorType.STORE_ERROR,
+      )
+      isInitialized.value = false
     } finally {
       loading.value = false
     }
@@ -427,8 +466,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
 
       return res.data
     } catch (fetchError) {
-      handleError(fetchError, 'fetching dreams')
-      setError((fetchError as Error).message)
+      reportError(
+        fetchError,
+        'fetching dreams',
+        'Failed to fetch dreams.',
+        ErrorType.NETWORK_ERROR,
+      )
       return []
     } finally {
       loading.value = false
@@ -444,7 +487,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
     selectAfterFetch = false,
   ): Promise<DreamWithRelations | null> {
     const dreamId = normalizeId(id)
-    if (!dreamId) return null
+
+    if (!dreamId) {
+      setError('Invalid dream ID.')
+      return null
+    }
 
     loading.value = true
     setError('')
@@ -470,15 +517,21 @@ export const useDreamStore = defineStore('dreamStore', () => {
       syncToLocalStorage()
       return res.data
     } catch (fetchError) {
-      handleError(fetchError, 'fetching dream by ID')
-      setError((fetchError as Error).message)
+      reportError(
+        fetchError,
+        'fetching dream by ID',
+        `Failed to fetch dream ${dreamId}.`,
+        ErrorType.NETWORK_ERROR,
+      )
       return null
     } finally {
       loading.value = false
     }
   }
 
-  async function createDream(payload: DreamForm) {
+  async function createDream(
+    payload: DreamForm,
+  ): Promise<DreamResult<DreamWithRelations>> {
     isSaving.value = true
     setError('')
 
@@ -524,20 +577,36 @@ export const useDreamStore = defineStore('dreamStore', () => {
       dreamChats.value = res.data.Chats ?? []
       syncToLocalStorage()
 
-      return { success: true, data: res.data }
+      return {
+        success: true,
+        data: res.data,
+        message: `Dream #${res.data.id} created.`,
+      }
     } catch (createError) {
-      handleError(createError, 'creating dream')
-      setError((createError as Error).message)
-      return { success: false, message: (createError as Error).message }
+      const message = reportError(
+        createError,
+        'creating dream',
+        'Failed to create dream.',
+        ErrorType.STORE_ERROR,
+      )
+
+      return { success: false, message }
     } finally {
       isSaving.value = false
     }
   }
 
-  async function updateDream(id: number, updates: DreamForm) {
+  async function updateDream(
+    id: number,
+    updates: DreamForm,
+  ): Promise<DreamResult<DreamWithRelations>> {
     const dreamId = normalizeId(id)
 
-    if (!dreamId) return { success: false, message: 'Invalid dream ID.' }
+    if (!dreamId) {
+      const message = 'Invalid dream ID.'
+      setError(message)
+      return { success: false, message }
+    }
 
     isSaving.value = true
     setError('')
@@ -569,20 +638,36 @@ export const useDreamStore = defineStore('dreamStore', () => {
       dreamForm.value = toDreamForm(res.data)
       syncToLocalStorage()
 
-      return { success: true, data: res.data }
+      return {
+        success: true,
+        data: res.data,
+        message: `Dream #${dreamId} updated.`,
+      }
     } catch (updateError) {
-      handleError(updateError, 'updating dream')
-      setError((updateError as Error).message)
-      return { success: false, message: (updateError as Error).message }
+      const message = reportError(
+        updateError,
+        'updating dream',
+        `Failed to update dream ${dreamId}.`,
+        ErrorType.STORE_ERROR,
+      )
+
+      return { success: false, message }
     } finally {
       isSaving.value = false
     }
   }
 
-  async function deleteDream(id: number, hardDelete = false) {
+  async function deleteDream(
+    id: number,
+    hardDelete = false,
+  ): Promise<DreamResult<DreamWithRelations | undefined>> {
     const dreamId = normalizeId(id)
 
-    if (!dreamId) return { success: false, message: 'Invalid dream ID.' }
+    if (!dreamId) {
+      const message = 'Invalid dream ID.'
+      setError(message)
+      return { success: false, message }
+    }
 
     isDeleting.value = true
     setError('')
@@ -601,24 +686,40 @@ export const useDreamStore = defineStore('dreamStore', () => {
       if (hardDelete) removeDreamFromState(dreamId)
       else if (res.data) upsertDream(res.data)
 
-      return { success: true, data: res.data }
+      return {
+        success: true,
+        data: res.data,
+        message: hardDelete
+          ? `Dream #${dreamId} deleted.`
+          : `Dream #${dreamId} archived.`,
+      }
     } catch (deleteError) {
-      handleError(deleteError, 'deleting dream')
-      setError((deleteError as Error).message)
-      return { success: false, message: (deleteError as Error).message }
+      const message = reportError(
+        deleteError,
+        'deleting dream',
+        `Failed to delete dream ${dreamId}.`,
+        ErrorType.STORE_ERROR,
+      )
+
+      return { success: false, message }
     } finally {
       isDeleting.value = false
     }
   }
 
-  async function fetchDreamChats(options: FetchDreamChatOptions | number = {}) {
+  async function fetchDreamChats(
+    options: FetchDreamChatOptions | number = {},
+  ): Promise<DreamChatWithRelations[]> {
     const normalizedOptions =
       typeof options === 'number' ? { dreamId: options } : options
     const dreamId = normalizeId(
       normalizedOptions.dreamId ?? selectedDreamId.value,
     )
 
-    if (!dreamId) return []
+    if (!dreamId) {
+      setError('No dream selected.')
+      return []
+    }
 
     chatsLoading.value = true
     setError('')
@@ -652,19 +753,29 @@ export const useDreamStore = defineStore('dreamStore', () => {
       syncToLocalStorage()
       return res.data
     } catch (fetchError) {
-      handleError(fetchError, 'fetching dream chats')
-      setError((fetchError as Error).message)
+      reportError(
+        fetchError,
+        'fetching dream chats',
+        `Failed to fetch chats for dream ${dreamId}.`,
+        ErrorType.NETWORK_ERROR,
+      )
       return []
     } finally {
       chatsLoading.value = false
     }
   }
 
-  async function addDreamChat(dreamId: number, payload: DreamChatForm) {
+  async function addDreamChat(
+    dreamId: number,
+    payload: DreamChatForm,
+  ): Promise<DreamResult<DreamChatWithRelations>> {
     const normalizedDreamId = normalizeId(dreamId)
 
-    if (!normalizedDreamId)
-      return { success: false, message: 'Invalid dream ID.' }
+    if (!normalizedDreamId) {
+      const message = 'Invalid dream ID.'
+      setError(message)
+      return { success: false, message }
+    }
 
     isSaving.value = true
     setError('')
@@ -698,11 +809,20 @@ export const useDreamStore = defineStore('dreamStore', () => {
       if (payload.updateDream) await fetchDreamById(normalizedDreamId, true)
       else syncToLocalStorage()
 
-      return { success: true, data: res.data }
+      return {
+        success: true,
+        data: res.data,
+        message: `Dream chat #${res.data.id} created.`,
+      }
     } catch (chatError) {
-      handleError(chatError, 'creating dream chat')
-      setError((chatError as Error).message)
-      return { success: false, message: (chatError as Error).message }
+      const message = reportError(
+        chatError,
+        'creating dream chat',
+        'Failed to create dream chat.',
+        ErrorType.INTERACTION_ERROR,
+      )
+
+      return { success: false, message }
     } finally {
       isSaving.value = false
     }
@@ -711,9 +831,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
   async function addUserDreamMessage(
     content: string,
     dreamId = selectedDreamId.value,
-  ) {
+  ): Promise<DreamResult<DreamChatWithRelations>> {
     const id = normalizeId(dreamId)
-    if (!id) return { success: false, message: 'No dream selected.' }
+
+    if (!id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
 
     return await addDreamChat(id, {
       type: 'Dream',
@@ -726,9 +851,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
   async function addModelDreamMessage(
     content: string,
     options: DreamChatForm = {},
-  ) {
+  ): Promise<DreamResult<DreamChatWithRelations>> {
     const id = normalizeId(options.dreamId ?? selectedDreamId.value)
-    if (!id) return { success: false, message: 'No dream selected.' }
+
+    if (!id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
 
     return await addDreamChat(id, {
       type: 'BotResponse',
@@ -749,22 +879,35 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function updateSelectedDream(updates: DreamForm) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function updateSelectedDream(
+    updates: DreamForm,
+  ): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
+
     return await updateDream(selectedDream.value.id, updates)
   }
 
-  async function saveDream() {
-    if (!dreamForm.value)
-      return { success: false, message: 'No dream form loaded.' }
-    if (dreamForm.value.id)
+  async function saveDream(): Promise<DreamResult<DreamWithRelations>> {
+    if (!dreamForm.value) {
+      const message = 'No dream form loaded.'
+      setError(message)
+      return { success: false, message }
+    }
+
+    if (dreamForm.value.id) {
       return await updateDream(dreamForm.value.id, dreamForm.value)
+    }
+
     return await createDream(dreamForm.value)
   }
 
   function selectDream(id: number) {
     const dreamId = normalizeId(id)
+
     if (!dreamId) return null
 
     const found = dreams.value.find((dream) => dream.id === dreamId)
@@ -807,9 +950,14 @@ export const useDreamStore = defineStore('dreamStore', () => {
     syncToLocalStorage()
   }
 
-  async function submitChatForm() {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function submitChatForm(): Promise<
+    DreamResult<DreamChatWithRelations>
+  > {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
 
     const result = await addDreamChat(selectedDream.value.id, chatForm.value)
     if (result.success) clearChatForm()
@@ -832,47 +980,67 @@ export const useDreamStore = defineStore('dreamStore', () => {
       return null
     }
 
-    const dream =
-      dreams.value.find((entry) => entry.id === dreamId) ??
-      (await fetchDreamById(dreamId, false))
+    try {
+      const dream =
+        dreams.value.find((entry) => entry.id === dreamId) ??
+        (await fetchDreamById(dreamId, false))
 
-    if (!dream) {
-      setError(`Dream ${dreamId} was not found.`)
+      if (!dream) {
+        throw new Error(`Dream ${dreamId} was not found.`)
+      }
+
+      selectedDream.value = dream
+      dreamForm.value = toDreamForm(dream)
+      dreamChats.value = dream.Chats ?? []
+      syncToLocalStorage()
+
+      return dream
+    } catch (editError) {
+      reportError(
+        editError,
+        'starting dream edit',
+        `Dream ${dreamId} could not be loaded for editing.`,
+        ErrorType.INTERACTION_ERROR,
+      )
+
       return null
     }
-
-    selectedDream.value = dream
-    dreamForm.value = toDreamForm(dream)
-    dreamChats.value = dream.Chats ?? []
-    syncToLocalStorage()
-
-    return dream
   }
 
   function startCloningDream(id: number, overrides: DreamForm = {}) {
-    const source = dreams.value.find((dream) => dream.id === id)
+    try {
+      const source = dreams.value.find((dream) => dream.id === id)
 
-    if (!source) {
-      setError(`Dream ${id} was not found.`)
+      if (!source) {
+        throw new Error(`Dream ${id} was not found.`)
+      }
+
+      selectedDream.value = null
+      dreamForm.value = {
+        ...toDreamForm(source),
+        ...overrides,
+        id: undefined,
+        slug: null,
+        title: `Copy of ${source.title || 'Untitled Dream'}`,
+        userId: currentUserId.value,
+        isPublic: overrides.isPublic ?? false,
+        createCollection: overrides.createCollection ?? true,
+      }
+      dreamChats.value = []
+      chatForm.value = {}
+      syncToLocalStorage()
+
+      return source
+    } catch (cloneError) {
+      reportError(
+        cloneError,
+        'starting dream clone',
+        `Dream ${id} could not be cloned.`,
+        ErrorType.INTERACTION_ERROR,
+      )
+
       return null
     }
-
-    selectedDream.value = null
-    dreamForm.value = {
-      ...toDreamForm(source),
-      ...overrides,
-      id: undefined,
-      slug: null,
-      title: `Copy of ${source.title || 'Untitled Dream'}`,
-      userId: currentUserId.value,
-      isPublic: overrides.isPublic ?? false,
-      createCollection: overrides.createCollection ?? true,
-    }
-    dreamChats.value = []
-    chatForm.value = {}
-    syncToLocalStorage()
-
-    return source
   }
 
   function setRandomDreamVibe() {
@@ -887,9 +1055,12 @@ export const useDreamStore = defineStore('dreamStore', () => {
   async function setCurrentArt(art: {
     id: number
     artImageId?: number | null
-  }) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  }): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
 
     return await updateDream(selectedDream.value.id, {
       artId: art.id,
@@ -899,27 +1070,45 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setCurrentPrompt(currentPrompt: string) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function setCurrentPrompt(
+    currentPrompt: string,
+  ): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
+
     return await updateDream(selectedDream.value.id, {
       currentPrompt,
       updateNote: 'Updated the Dream location prompt.',
     })
   }
 
-  async function setCurrentVibe(currentVibe: string) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function setCurrentVibe(
+    currentVibe: string,
+  ): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
+
     return await updateDream(selectedDream.value.id, {
       currentVibe,
       updateNote: 'Updated the Dream location vibe.',
     })
   }
 
-  async function setDreamScenario(scenarioId: number | null) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function setDreamScenario(
+    scenarioId: number | null,
+  ): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
+
     return await updateDream(selectedDream.value.id, {
       scenarioId,
       updateNote: scenarioId
@@ -928,18 +1117,30 @@ export const useDreamStore = defineStore('dreamStore', () => {
     })
   }
 
-  async function setDreamCast(characterIds: number[]) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function setDreamCast(
+    characterIds: number[],
+  ): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
+
     return await updateDream(selectedDream.value.id, {
       characterIds: normalizeIds(characterIds),
       updateNote: 'Updated the Dream cast.',
     })
   }
 
-  async function setDreamItems(rewardIds: number[]) {
-    if (!selectedDream.value?.id)
-      return { success: false, message: 'No dream selected.' }
+  async function setDreamItems(
+    rewardIds: number[],
+  ): Promise<DreamResult<DreamWithRelations>> {
+    if (!selectedDream.value?.id) {
+      const message = 'No dream selected.'
+      setError(message)
+      return { success: false, message }
+    }
+
     return await updateDream(selectedDream.value.id, {
       rewardIds: normalizeIds(rewardIds),
       updateNote: 'Updated the Dream items.',
@@ -973,6 +1174,8 @@ export const useDreamStore = defineStore('dreamStore', () => {
     selectedDreamSummary,
     latestDreamChat,
     hasSelectedDream,
+    setError,
+    reportError,
     randomDream,
     randomDreamSeed,
     initialize,

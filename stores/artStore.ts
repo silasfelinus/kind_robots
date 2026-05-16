@@ -394,7 +394,6 @@ export const useArtStore = defineStore('artStore', () => {
 
   const promptStore = usePromptStore()
   const userStore = useUserStore()
-  const collectionStore = useCollectionStore()
   const randomStore = useRandomStore()
   const serverStore = useServerStore()
   const animationStore = useAnimationStore()
@@ -408,6 +407,10 @@ export const useArtStore = defineStore('artStore', () => {
   const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>(
     {},
   )
+
+  function getCollectionStore() {
+    return useCollectionStore()
+  }
 
   const hasCachedArt = computed(() => state.art.length > 0)
   const hasCachedImages = computed(() => state.artImages.length > 0)
@@ -1732,6 +1735,8 @@ export const useArtStore = defineStore('artStore', () => {
         throw new Error(response.message || 'Failed to add art to collection.')
       }
 
+      const collectionStore = getCollectionStore()
+
       await collectionStore.fetchCollections?.(true)
 
       return {
@@ -1776,6 +1781,8 @@ export const useArtStore = defineStore('artStore', () => {
           response.message || 'Failed to remove art from collection.',
         )
       }
+
+      const collectionStore = getCollectionStore()
 
       await collectionStore.fetchCollections?.(true)
 
@@ -2136,6 +2143,8 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   async function ensureCollectionsReady(): Promise<void> {
+    const collectionStore = getCollectionStore()
+
     if (collectionStore.collections?.length) return
     await collectionStore.fetchCollections?.()
   }
@@ -2221,6 +2230,8 @@ export const useArtStore = defineStore('artStore', () => {
     userId: number,
   ): Promise<void> {
     await ensureCollectionsReady()
+
+    const collectionStore = getCollectionStore()
 
     const generatedCollection =
       await collectionStore.getOrCreateGeneratedArtCollection(userId)

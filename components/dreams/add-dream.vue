@@ -602,16 +602,29 @@ const linkedContext = computed(() => [
 onMounted(async () => {
   await dreamStore.initialize()
 
-  const selectedId = dreamStore.selectedDream?.id
-  const formId = dreamStore.dreamForm.id
+  if (props.mode === 'create') {
+    if (dreamStore.dreamForm.id) {
+      dreamStore.startAddingDream()
+    }
 
-  if (props.mode !== 'create' && selectedId && formId !== selectedId) {
-    dreamStore.setDreamForm(dreamStore.toDreamForm(dreamStore.selectedDream))
+    if (!dreamStore.dreamForm.title && !dreamStore.dreamForm.currentVibe) {
+      dreamStore.startAddingDream()
+    }
+
     return
   }
 
-  if (!dreamStore.dreamForm.title && !dreamStore.selectedDream) {
-    startLanternDream()
+  const selectedDream = dreamStore.selectedDream
+  const selectedId = selectedDream?.id
+  const formId = dreamStore.dreamForm.id
+
+  if (selectedDream && selectedId && formId !== selectedId) {
+    dreamStore.setDreamForm(dreamStore.toDreamForm(selectedDream))
+    return
+  }
+
+  if (!dreamStore.dreamForm.title && !selectedDream) {
+    dreamStore.startAddingDream()
   }
 })
 watch(

@@ -11,8 +11,8 @@
           <h2 class="text-lg font-black text-base-content">Slim Gallery</h2>
 
           <p class="text-sm text-base-content/60">
-            Full-ish image-card gallery test. Still no art-card,
-            collection-card, or art-interact recursion goblins.
+            Paginated gallery test with collections, art, and ArtImages
+            separated.
           </p>
         </div>
 
@@ -79,7 +79,6 @@
         </label>
 
         <select
-          v-if="activeTab === 'images'"
           v-model.number="pageSize"
           class="select select-bordered select-sm bg-base-100"
         >
@@ -91,15 +90,22 @@
       </div>
 
       <div
-        v-if="activeTab === 'images'"
         class="mt-3 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
       >
         <span class="badge badge-ghost">
-          Showing {{ pagedImages.length }} / {{ visibleImages.length }}
+          Showing {{ pagedItems.length }} / {{ visibleItems.length }}
         </span>
 
-        <span v-if="artStore.currentArtImage" class="badge badge-primary">
+        <span
+          v-if="activeTab === 'images' && artStore.currentArtImage"
+          class="badge badge-primary"
+        >
           Selected image #{{ artStore.currentArtImage.id }}
+        </span>
+
+        <span v-if="isHydratingImages" class="badge badge-info gap-1">
+          <span class="loading loading-spinner loading-xs" />
+          Hydrating page images
         </span>
 
         <button
@@ -168,34 +174,38 @@
         class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
       >
         <image-card
-          v-for="image in pagedImages"
-          :key="image.id"
-          :art-image="image"
-          :selected="artStore.currentArtImage?.id === image.id"
+          v-for="item in pagedImageItems"
+          :key="item.image.id"
+          :art-image="item.image"
+          :selected="artStore.currentArtImage?.id === item.image.id"
           :compact="true"
           :show-actions="true"
           :show-prompt="true"
           :show-meta="true"
           :show-generation-meta="true"
           :show-select-button="true"
-          :allow-delete="canModifyImage(image)"
-          :allow-edit="canModifyImage(image)"
+          :allow-delete="canModifyImage(item.image)"
+          :allow-edit="canModifyImage(item.image)"
+          :auto-load-image="false"
           @select="selectImage"
           @edit="startEditingImage"
           @delete="handleImageDeleted"
         />
       </div>
 
-      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div
+        v-else-if="activeTab === 'collections'"
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+      >
         <article
-          v-for="item in visibleItems"
+          v-for="item in pagedCollectionItems"
           :key="item.key"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="text-xs font-bold uppercase text-primary/70">
-                {{ item.type }}
+                Collection
               </p>
 
               <h3 class="truncate text-base font-black text-base-content">
@@ -210,7 +220,23 @@
             <span class="badge badge-ghost shrink-0"> #{{ item.id }} </span>
           </div>
 
-          <div class="mt-3 flex flex-wrap gap-2">
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="rounded-xl bg-base-200 p-2">
+              <p class="font-bold uppercase text-base-content/50">Art</p>
+              <p class="text-base font-black text-base-content">
+                {{ item.artCount }}
+              </p>
+            </div>
+
+            <div class="rounded-xl bg-base-200 p-2">
+              <p class="font-bold uppercase text-base-content/50">Images</p>
+              <p class="text-base font-black text-base-content">
+                {{ item.imageCount }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
             <span v-if="item.isPublic" class="badge badge-info badge-sm">
               Public
             </span>
@@ -227,8 +253,66 @@
           </div>
 
           <div
+            v-if="item.previewUrls.length"
+            class="grid grid-cols-4 gap-1 overflow-hidden rounded-2xl bg-base-300 p-1"
+          >
+            <img
+              v-for="url in item.previewUrls"
+              :key="url"
+              :src="url"
+              :alt="item.title"
+              class="aspect-square w-full rounded-xl object-cover"
+              loading="lazy"
+            />
+          </div>
+        </article>
+      </div>
+
+      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <article
+          v-for="item in pagedArtItems"
+          :key="item.key"
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-xs font-bold uppercase text-primary/70">Art</p>
+
+              <h3 class="truncate text-base font-black text-base-content">
+                {{ item.title }}
+              </h3>
+
+              <p class="mt-1 line-clamp-3 text-sm text-base-content/60">
+                {{ item.description }}
+              </p>
+            </div>
+
+            <span class="badge badge-ghost shrink-0"> #{{ item.id }} </span>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <span v-if="item.isPublic" class="badge badge-info badge-sm">
+              Public
+            </span>
+
+            <span v-else class="badge badge-ghost badge-sm"> Private </span>
+
+            <span v-if="item.isMature" class="badge badge-warning badge-sm">
+              Mature
+            </span>
+
+            <span v-if="item.userId" class="badge badge-secondary badge-sm">
+              User {{ item.userId }}
+            </span>
+
+            <span v-if="item.artImageId" class="badge badge-success badge-sm">
+              Image #{{ item.artImageId }}
+            </span>
+          </div>
+
+          <div
             v-if="item.imageUrl"
-            class="mt-3 overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+            class="overflow-hidden rounded-2xl border border-base-300 bg-base-300"
           >
             <img
               :src="item.imageUrl"
@@ -282,17 +366,51 @@ import { useUserStore } from '@/stores/userStore'
 
 type SlimGalleryTab = 'collections' | 'art' | 'images'
 
-type SlimGalleryItem = {
+type CollectionWithMedia = ArtCollection & {
+  artImages?: ArtImage[]
+  ArtImages?: ArtImage[]
+}
+
+type ArtWithImage = Art & {
+  artImageId?: number | null
+  imagePath?: string | null
+  imageUrl?: string | null
+  artImage?: ArtImage | null
+  ArtImage?: ArtImage | null
+}
+
+type SlimCollectionItem = {
   key: string
-  type: string
   id: number
   title: string
   description: string
   userId: number | null
   isPublic: boolean
   isMature: boolean
+  artCount: number
+  imageCount: number
+  previewUrls: string[]
+}
+
+type SlimArtItem = {
+  key: string
+  id: number
+  title: string
+  description: string
+  userId: number | null
+  isPublic: boolean
+  isMature: boolean
+  artImageId: number | null
   imageUrl: string
 }
+
+type SlimImageItem = {
+  key: string
+  id: number
+  image: ArtImage
+}
+
+type VisibleItem = SlimCollectionItem | SlimArtItem | SlimImageItem
 
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
@@ -300,6 +418,7 @@ const errorStore = useErrorStore()
 const userStore = useUserStore()
 
 const isLoading = ref(false)
+const isHydratingImages = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
@@ -307,6 +426,7 @@ const activeTab = ref<SlimGalleryTab>('images')
 const showMature = ref(false)
 const page = ref(0)
 const pageSize = ref(24)
+const hydratedImages = ref<Record<number, ArtImage>>({})
 
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
@@ -317,111 +437,124 @@ const tabs = computed(() => [
     value: 'collections' as const,
     label: 'Collections',
     icon: 'kind-icon:gallery',
-    count: collectionStore.collections.length,
+    count: collectionItems.value.length,
   },
   {
     value: 'art' as const,
     label: 'Art',
     icon: 'kind-icon:image',
-    count: artStore.art.length,
+    count: artItems.value.length,
   },
   {
     value: 'images' as const,
     label: 'Images',
     icon: 'kind-icon:picture',
-    count: artStore.artImages.length,
+    count: imageItems.value.length,
   },
 ])
 
-const collectionItems = computed<SlimGalleryItem[]>(() =>
+const collectionItems = computed<SlimCollectionItem[]>(() =>
   collectionStore.collections.map((collection) =>
     normalizeCollection(collection),
   ),
 )
 
-const artItems = computed<SlimGalleryItem[]>(() =>
+const artItems = computed<SlimArtItem[]>(() =>
   artStore.art.map((art) => normalizeArt(art)),
 )
 
-const imageItems = computed<SlimGalleryItem[]>(() =>
-  artStore.artImages.map((image) => normalizeArtImage(image)),
+const imageItems = computed<SlimImageItem[]>(() =>
+  artStore.artImages.map((image) => ({
+    key: `image-${image.id}`,
+    id: image.id,
+    image: hydratedImages.value[image.id] || image,
+  })),
 )
 
-const visibleImages = computed<ArtImage[]>(() => {
+const visibleCollectionItems = computed<SlimCollectionItem[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  return artStore.artImages.filter((image) => {
-    if (!showMature.value && image.isMature) return false
-
+  return collectionItems.value.filter((item) => {
+    if (!showMature.value && item.isMature) return false
     if (!query) return true
 
-    return [
-      image.id,
-      image.fileName,
-      image.promptString,
-      image.negativePrompt,
-      image.designer,
-      image.checkpoint,
-      image.sampler,
-      image.userId,
-      image.isPublic ? 'public' : 'private',
-      image.isMature ? 'mature' : '',
-    ]
-      .filter((value) => value !== null && value !== undefined)
-      .join(' ')
-      .toLowerCase()
-      .includes(query)
+    return searchableCollectionText(item).includes(query)
   })
 })
 
-const currentItems = computed<SlimGalleryItem[]>(() => {
-  if (activeTab.value === 'collections') return collectionItems.value
-  if (activeTab.value === 'art') return artItems.value
-  return imageItems.value
-})
-
-const visibleItems = computed<SlimGalleryItem[]>(() => {
+const visibleArtItems = computed<SlimArtItem[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  let items = currentItems.value
+  return artItems.value.filter((item) => {
+    if (!showMature.value && item.isMature) return false
+    if (!query) return true
 
-  if (!showMature.value) {
-    items = items.filter((item) => !item.isMature)
-  }
+    return searchableArtText(item).includes(query)
+  })
+})
 
-  if (!query) return items
+const visibleImageItems = computed<SlimImageItem[]>(() => {
+  const query = searchQuery.value.trim().toLowerCase()
 
-  return items.filter((item) =>
-    [
-      item.type,
-      item.id,
-      item.title,
-      item.description,
-      item.userId,
-      item.isPublic ? 'public' : 'private',
-      item.isMature ? 'mature' : '',
-    ]
-      .filter((value) => value !== null && value !== undefined)
-      .join(' ')
-      .toLowerCase()
-      .includes(query),
-  )
+  return imageItems.value.filter((item) => {
+    const image = item.image
+
+    if (!showMature.value && image.isMature) return false
+    if (!query) return true
+
+    return searchableImageText(image).includes(query)
+  })
+})
+
+const visibleItems = computed<VisibleItem[]>(() => {
+  if (activeTab.value === 'collections') return visibleCollectionItems.value
+  if (activeTab.value === 'art') return visibleArtItems.value
+  return visibleImageItems.value
 })
 
 const pageCount = computed(() =>
-  Math.max(1, Math.ceil(visibleImages.value.length / pageSize.value)),
+  Math.max(1, Math.ceil(visibleItems.value.length / pageSize.value)),
 )
 
 const pageStart = computed(() => page.value * pageSize.value)
 const pageEnd = computed(() => pageStart.value + pageSize.value)
 
-const pagedImages = computed(() =>
-  visibleImages.value.slice(pageStart.value, pageEnd.value),
+const pagedItems = computed<VisibleItem[]>(() =>
+  visibleItems.value.slice(pageStart.value, pageEnd.value),
 )
 
-watch([visibleImages, pageSize], () => {
+const pagedCollectionItems = computed<SlimCollectionItem[]>(() =>
+  activeTab.value === 'collections'
+    ? (pagedItems.value as SlimCollectionItem[])
+    : [],
+)
+
+const pagedArtItems = computed<SlimArtItem[]>(() =>
+  activeTab.value === 'art' ? (pagedItems.value as SlimArtItem[]) : [],
+)
+
+const pagedImageItems = computed<SlimImageItem[]>(() =>
+  activeTab.value === 'images' ? (pagedItems.value as SlimImageItem[]) : [],
+)
+
+watch([activeTab, searchQuery, showMature, pageSize], () => {
   page.value = 0
 })
+
+watch(
+  () => [
+    activeTab.value,
+    page.value,
+    pageSize.value,
+    searchQuery.value,
+    showMature.value,
+  ],
+  async () => {
+    if (activeTab.value === 'images') {
+      await hydratePagedImages()
+    }
+  },
+)
 
 onMounted(async () => {
   showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
@@ -432,6 +565,7 @@ async function initializeGallery() {
   isLoading.value = true
   errorMessage.value = ''
   successMessage.value = ''
+  hydratedImages.value = {}
 
   try {
     await Promise.all([
@@ -439,6 +573,10 @@ async function initializeGallery() {
       fetchArtSafely(),
       fetchArtImagesSafely(),
     ])
+
+    if (activeTab.value === 'images') {
+      await hydratePagedImages()
+    }
   } catch (error) {
     const message = getErrorMessage(error, 'Slim gallery failed to initialize.')
     errorMessage.value = message
@@ -461,6 +599,69 @@ async function fetchArtSafely() {
 async function fetchArtImagesSafely() {
   if (typeof artStore.fetchAllArtImages !== 'function') return
   await artStore.fetchAllArtImages({ force: true })
+}
+
+async function hydratePagedImages() {
+  const imagesNeedingData = pagedImageItems.value
+    .map((item) => item.image)
+    .filter((image) => shouldHydrateImage(image))
+    .slice(0, pageSize.value)
+
+  if (!imagesNeedingData.length) return
+
+  isHydratingImages.value = true
+
+  try {
+    await runLimited(imagesNeedingData, 4, async (image) => {
+      const fetched = await artStore.getArtImageById(image.id, {
+        includeImageData: true,
+        includeThumbnailData: true,
+      })
+
+      if (fetched) {
+        hydratedImages.value = {
+          ...hydratedImages.value,
+          [fetched.id]: fetched,
+        }
+      }
+    })
+  } catch (error) {
+    const message = getErrorMessage(
+      error,
+      'Some page images could not be hydrated.',
+    )
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isHydratingImages.value = false
+  }
+}
+
+function shouldHydrateImage(image: ArtImage): boolean {
+  if (hydratedImages.value[image.id]) return false
+  if (image.imageData) return false
+  if (image.imagePath) return false
+  return true
+}
+
+async function runLimited<T>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<void>,
+) {
+  const queue = [...items]
+  const runners = Array.from(
+    { length: Math.min(limit, queue.length) },
+    async () => {
+      while (queue.length) {
+        const item = queue.shift()
+        if (!item) return
+        await worker(item)
+      }
+    },
+  )
+
+  await Promise.all(runners)
 }
 
 function canModifyImage(image: ArtImage): boolean {
@@ -486,10 +687,16 @@ async function startEditingImage(imageId: number) {
   try {
     const image = await artStore.getArtImageById(imageId, {
       includeImageData: true,
+      includeThumbnailData: true,
     })
 
     if (!image) {
       throw new Error(`Image #${imageId} could not be loaded.`)
+    }
+
+    hydratedImages.value = {
+      ...hydratedImages.value,
+      [image.id]: image,
     }
 
     await artStore.selectArtImageRecord(image)
@@ -506,6 +713,10 @@ function handleImageDeleted(imageId: number) {
     artStore.deselectArtImage()
   }
 
+  const next = { ...hydratedImages.value }
+  delete next[imageId]
+  hydratedImages.value = next
+
   successMessage.value = `Image #${imageId} removed from the current view.`
 }
 
@@ -514,24 +725,30 @@ function clearSelectedImage() {
   successMessage.value = ''
 }
 
-function normalizeCollection(collection: ArtCollection): SlimGalleryItem {
+function normalizeCollection(collection: ArtCollection): SlimCollectionItem {
+  const media = collection as CollectionWithMedia
+  const art = collection.art || []
+  const images = getCollectionImages(media)
+
   return {
     key: `collection-${collection.id}`,
-    type: 'Collection',
     id: collection.id,
     title: collection.label || `Collection #${collection.id}`,
     description: collection.description || 'No description yet.',
     userId: collection.userId ?? null,
     isPublic: Boolean(collection.isPublic),
     isMature: Boolean(collection.isMature),
-    imageUrl: getCollectionImageUrl(collection),
+    artCount: art.length,
+    imageCount: images.length,
+    previewUrls: getCollectionPreviewUrls(media),
   }
 }
 
-function normalizeArt(art: Art): SlimGalleryItem {
+function normalizeArt(art: Art): SlimArtItem {
+  const artWithImage = art as ArtWithImage
+
   return {
     key: `art-${art.id}`,
-    type: 'Art',
     id: art.id,
     title: getArtTitle(art),
     description:
@@ -541,8 +758,28 @@ function normalizeArt(art: Art): SlimGalleryItem {
     userId: art.userId ?? null,
     isPublic: Boolean(art.isPublic),
     isMature: Boolean(art.isMature),
+    artImageId: artWithImage.artImageId ?? null,
     imageUrl: getArtImageUrl(art),
   }
+}
+
+function getCollectionImages(collection: CollectionWithMedia): ArtImage[] {
+  return [
+    ...(collection.artImages || []),
+    ...(collection.ArtImages || []),
+  ].filter((image): image is ArtImage => Boolean(image?.id))
+}
+
+function getCollectionPreviewUrls(collection: CollectionWithMedia): string[] {
+  const imageUrls = getCollectionImages(collection)
+    .map((image) => getArtImageRecordUrl(image))
+    .filter(Boolean)
+
+  const artUrls = (collection.art || [])
+    .map((art) => getArtImageUrl(art))
+    .filter(Boolean)
+
+  return [...new Set([...imageUrls, ...artUrls])].slice(0, 4)
 }
 
 function getArtTitle(art: Art): string {
@@ -558,53 +795,63 @@ function getArtTitle(art: Art): string {
   return `Art #${art.id}`
 }
 
-function normalizeArtImage(image: ArtImage): SlimGalleryItem {
-  return {
-    key: `image-${image.id}`,
-    type: 'ArtImage',
-    id: image.id,
-    title: image.fileName || image.promptString || `Image #${image.id}`,
-    description:
-      [image.promptString, image.designer, image.checkpoint, image.sampler]
-        .filter(Boolean)
-        .join(' • ') || 'No image metadata.',
-    userId: image.userId ?? null,
-    isPublic: Boolean(image.isPublic),
-    isMature: Boolean(image.isMature),
-    imageUrl: getArtImageRecordUrl(image),
-  }
+function searchableCollectionText(item: SlimCollectionItem): string {
+  return [
+    item.id,
+    item.title,
+    item.description,
+    item.userId,
+    item.artCount,
+    item.imageCount,
+    item.isPublic ? 'public' : 'private',
+    item.isMature ? 'mature' : '',
+  ]
+    .filter((value) => value !== null && value !== undefined)
+    .join(' ')
+    .toLowerCase()
 }
 
-function getCollectionImageUrl(collection: ArtCollection): string {
-  const possible = collection as ArtCollection & {
-    imagePath?: string | null
-    imageUrl?: string | null
-    artImages?: ArtImage[]
-    ArtImages?: ArtImage[]
-  }
+function searchableArtText(item: SlimArtItem): string {
+  return [
+    item.id,
+    item.title,
+    item.description,
+    item.userId,
+    item.artImageId,
+    item.isPublic ? 'public' : 'private',
+    item.isMature ? 'mature' : '',
+  ]
+    .filter((value) => value !== null && value !== undefined)
+    .join(' ')
+    .toLowerCase()
+}
 
-  const direct = possible.imagePath || possible.imageUrl
-
-  if (direct) return direct
-
-  const firstImage = [
-    ...(possible.artImages || []),
-    ...(possible.ArtImages || []),
-  ].find((image) => getArtImageRecordUrl(image))
-
-  return firstImage ? getArtImageRecordUrl(firstImage) : ''
+function searchableImageText(image: ArtImage): string {
+  return [
+    image.id,
+    image.fileName,
+    image.promptString,
+    image.negativePrompt,
+    image.designer,
+    image.checkpoint,
+    image.sampler,
+    image.userId,
+    image.artId,
+    image.galleryId,
+    image.isPublic ? 'public' : 'private',
+    image.isMature ? 'mature' : '',
+  ]
+    .filter((value) => value !== null && value !== undefined)
+    .join(' ')
+    .toLowerCase()
 }
 
 function getArtImageUrl(art: Art): string {
-  const possible = art as Art & {
-    imagePath?: string | null
-    path?: string | null
-    artImage?: ArtImage | null
-    ArtImage?: ArtImage | null
-  }
+  const possible = art as ArtWithImage
 
   return (
     possible.imagePath ||
+    possible.imageUrl ||
     possible.path ||
     getArtImageRecordUrl(possible.artImage || possible.ArtImage || null)
   )
@@ -630,12 +877,7 @@ function getArtImageRecordUrl(image: ArtImage | null): string {
   if (possible.url) return possible.url
   if (possible.filePath) return possible.filePath
 
-  if (possible.imageData) {
-    if (possible.imageData.startsWith('data:image/')) return possible.imageData
-
-    const mimeType = possible.mimeType || possible.fileType || 'image/png'
-    return `data:${mimeType};base64,${possible.imageData}`
-  }
+  if (possible.imageData?.startsWith('data:image/')) return possible.imageData
 
   return ''
 }

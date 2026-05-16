@@ -11,7 +11,8 @@
           <h2 class="text-lg font-black text-base-content">Slim Gallery</h2>
 
           <p class="text-sm text-base-content/60">
-            Minimal gallery test with image-card only on the Images tab.
+            Full-ish image-card gallery test. Still no art-card,
+            collection-card, or art-interact recursion goblins.
           </p>
         </div>
 
@@ -25,6 +26,16 @@
             <span v-if="isLoading" class="loading loading-spinner loading-xs" />
             <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
             Refresh
+          </button>
+
+          <button
+            v-if="activeTab === 'images' && artStore.currentArtImage"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            @click="clearSelectedImage"
+          >
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+            Clear Selected
           </button>
         </div>
       </div>
@@ -46,12 +57,73 @@
         </button>
       </div>
 
-      <input
-        v-model="searchQuery"
-        type="search"
-        class="input input-bordered input-sm mt-3 w-full bg-base-100"
-        placeholder="Search visible items..."
-      />
+      <div
+        class="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]"
+      >
+        <input
+          v-model="searchQuery"
+          type="search"
+          class="input input-bordered input-sm w-full bg-base-100"
+          placeholder="Search visible items..."
+        />
+
+        <label
+          class="label cursor-pointer justify-between gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-1"
+        >
+          <span class="label-text text-xs font-bold">Show Mature</span>
+          <input
+            v-model="showMature"
+            type="checkbox"
+            class="toggle toggle-warning toggle-xs"
+          />
+        </label>
+
+        <select
+          v-if="activeTab === 'images'"
+          v-model.number="pageSize"
+          class="select select-bordered select-sm bg-base-100"
+        >
+          <option :value="12">12</option>
+          <option :value="24">24</option>
+          <option :value="48">48</option>
+          <option :value="96">96</option>
+        </select>
+      </div>
+
+      <div
+        v-if="activeTab === 'images'"
+        class="mt-3 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
+      >
+        <span class="badge badge-ghost">
+          Showing {{ pagedImages.length }} / {{ visibleImages.length }}
+        </span>
+
+        <span v-if="artStore.currentArtImage" class="badge badge-primary">
+          Selected image #{{ artStore.currentArtImage.id }}
+        </span>
+
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          type="button"
+          :disabled="page === 0"
+          @click="page--"
+        >
+          <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
+          Prev
+        </button>
+
+        <span> Page {{ page + 1 }} / {{ pageCount }} </span>
+
+        <button
+          class="btn btn-ghost btn-xs rounded-xl"
+          type="button"
+          :disabled="page >= pageCount - 1"
+          @click="page++"
+        >
+          Next
+          <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
+        </button>
+      </div>
     </header>
 
     <div
@@ -59,6 +131,13 @@
       class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
     >
       {{ errorMessage }}
+    </div>
+
+    <div
+      v-if="successMessage"
+      class="shrink-0 rounded-2xl border border-success/40 bg-success/10 p-3 text-sm text-success"
+    >
+      {{ successMessage }}
     </div>
 
     <div
@@ -89,19 +168,21 @@
         class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
       >
         <image-card
-          v-for="image in visibleImages"
+          v-for="image in pagedImages"
           :key="image.id"
           :art-image="image"
           :selected="artStore.currentArtImage?.id === image.id"
           :compact="true"
-          :show-actions="false"
-          :show-prompt="false"
-          :show-meta="false"
-          :show-generation-meta="false"
-          :show-select-button="false"
-          :allow-delete="false"
-          :allow-edit="false"
+          :show-actions="true"
+          :show-prompt="true"
+          :show-meta="true"
+          :show-generation-meta="true"
+          :show-select-button="true"
+          :allow-delete="canModifyImage(image)"
+          :allow-edit="canModifyImage(image)"
           @select="selectImage"
+          @edit="startEditingImage"
+          @delete="handleImageDeleted"
         />
       </div>
 
@@ -191,12 +272,13 @@
 
 <script setup lang="ts">
 // /components/content/art/slim-gallery.vue
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Art, ArtImage } from '@/stores/artStore'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
+import { useUserStore } from '@/stores/userStore'
 
 type SlimGalleryTab = 'collections' | 'art' | 'images'
 
@@ -215,11 +297,20 @@ type SlimGalleryItem = {
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
+const userStore = useUserStore()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
 const searchQuery = ref('')
 const activeTab = ref<SlimGalleryTab>('images')
+const showMature = ref(false)
+const page = ref(0)
+const pageSize = ref(24)
+
+const currentUserId = computed(
+  () => userStore.userId ?? userStore.user?.id ?? null,
+)
 
 const tabs = computed(() => [
   {
@@ -259,10 +350,12 @@ const imageItems = computed<SlimGalleryItem[]>(() =>
 const visibleImages = computed<ArtImage[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  if (!query) return artStore.artImages
+  return artStore.artImages.filter((image) => {
+    if (!showMature.value && image.isMature) return false
 
-  return artStore.artImages.filter((image) =>
-    [
+    if (!query) return true
+
+    return [
       image.id,
       image.fileName,
       image.promptString,
@@ -277,8 +370,8 @@ const visibleImages = computed<ArtImage[]>(() => {
       .filter((value) => value !== null && value !== undefined)
       .join(' ')
       .toLowerCase()
-      .includes(query),
-  )
+      .includes(query)
+  })
 })
 
 const currentItems = computed<SlimGalleryItem[]>(() => {
@@ -290,9 +383,15 @@ const currentItems = computed<SlimGalleryItem[]>(() => {
 const visibleItems = computed<SlimGalleryItem[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  if (!query) return currentItems.value
+  let items = currentItems.value
 
-  return currentItems.value.filter((item) =>
+  if (!showMature.value) {
+    items = items.filter((item) => !item.isMature)
+  }
+
+  if (!query) return items
+
+  return items.filter((item) =>
     [
       item.type,
       item.id,
@@ -309,13 +408,30 @@ const visibleItems = computed<SlimGalleryItem[]>(() => {
   )
 })
 
+const pageCount = computed(() =>
+  Math.max(1, Math.ceil(visibleImages.value.length / pageSize.value)),
+)
+
+const pageStart = computed(() => page.value * pageSize.value)
+const pageEnd = computed(() => pageStart.value + pageSize.value)
+
+const pagedImages = computed(() =>
+  visibleImages.value.slice(pageStart.value, pageEnd.value),
+)
+
+watch([visibleImages, pageSize], () => {
+  page.value = 0
+})
+
 onMounted(async () => {
+  showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
   await initializeGallery()
 })
 
 async function initializeGallery() {
   isLoading.value = true
   errorMessage.value = ''
+  successMessage.value = ''
 
   try {
     await Promise.all([
@@ -347,8 +463,55 @@ async function fetchArtImagesSafely() {
   await artStore.fetchAllArtImages({ force: true })
 }
 
+function canModifyImage(image: ArtImage): boolean {
+  return (
+    userStore.isAdmin || Number(image.userId) === Number(currentUserId.value)
+  )
+}
+
 function selectImage(image: ArtImage) {
-  void artStore.selectArtImageRecord(image)
+  try {
+    void artStore.selectArtImageRecord(image)
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to select image.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
+  }
+}
+
+async function startEditingImage(imageId: number) {
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    const image = await artStore.getArtImageById(imageId, {
+      includeImageData: true,
+    })
+
+    if (!image) {
+      throw new Error(`Image #${imageId} could not be loaded.`)
+    }
+
+    await artStore.selectArtImageRecord(image)
+    successMessage.value = `Loaded image #${imageId} for editing.`
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to load image for editing.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
+  }
+}
+
+function handleImageDeleted(imageId: number) {
+  if (artStore.currentArtImage?.id === imageId) {
+    artStore.deselectArtImage()
+  }
+
+  successMessage.value = `Image #${imageId} removed from the current view.`
+}
+
+function clearSelectedImage() {
+  artStore.deselectArtImage()
+  successMessage.value = ''
 }
 
 function normalizeCollection(collection: ArtCollection): SlimGalleryItem {
@@ -370,9 +533,9 @@ function normalizeArt(art: Art): SlimGalleryItem {
     key: `art-${art.id}`,
     type: 'Art',
     id: art.id,
-    title: art.promptString || `Art #${art.id}`,
+    title: getArtTitle(art),
     description:
-      [art.designer, art.checkpoint, art.sampler, art.negativePrompt]
+      [art.promptString, art.designer, art.checkpoint, art.sampler]
         .filter(Boolean)
         .join(' • ') || 'No generation metadata.',
     userId: art.userId ?? null,
@@ -380,6 +543,19 @@ function normalizeArt(art: Art): SlimGalleryItem {
     isMature: Boolean(art.isMature),
     imageUrl: getArtImageUrl(art),
   }
+}
+
+function getArtTitle(art: Art): string {
+  if (art.promptString?.trim()) {
+    return art.promptString.trim().slice(0, 80)
+  }
+
+  if (art.path?.trim()) {
+    const parts = art.path.split('/')
+    return parts.at(-1) || `Art #${art.id}`
+  }
+
+  return `Art #${art.id}`
 }
 
 function normalizeArtImage(image: ArtImage): SlimGalleryItem {

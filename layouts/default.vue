@@ -24,7 +24,7 @@
     >
       <div class="h-full overflow-y-auto">
         <slot name="right">
-          <smart-panel />
+          <user-panel />
         </slot>
       </div>
     </aside>

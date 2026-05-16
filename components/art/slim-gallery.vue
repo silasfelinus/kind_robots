@@ -370,7 +370,7 @@ function normalizeArt(art: Art): SlimGalleryItem {
     key: `art-${art.id}`,
     type: 'Art',
     id: art.id,
-    title: art.promptString || art.label || `Art #${art.id}`,
+    title: art.promptString || `Art #${art.id}`,
     description:
       [art.designer, art.checkpoint, art.sampler, art.negativePrompt]
         .filter(Boolean)

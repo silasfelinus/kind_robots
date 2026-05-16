@@ -1,3 +1,4 @@
+<!-- /components/content/art/art-interact.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
@@ -7,15 +8,16 @@
     >
       <div class="min-w-0">
         <h1 class="text-xl font-black text-primary md:text-2xl">
-          Selected Art
+          Selected Image
         </h1>
-
         <p class="truncate text-xs text-base-content/60 md:text-sm">
           Edit metadata, collections, tags, and remix options.
         </p>
       </div>
 
       <div class="flex shrink-0 flex-wrap gap-2">
+        <!-- Gallery button: the ONLY place art-interact touches navStore.
+             slim-gallery restores its own collection context on activation. -->
         <button
           class="btn btn-xs btn-outline rounded-xl sm:btn-sm"
           type="button"
@@ -28,7 +30,7 @@
         <button
           class="btn btn-xs btn-primary rounded-xl text-white sm:btn-sm"
           type="button"
-          :disabled="!currentArt"
+          :disabled="!currentArtImage"
           @click="startRemix"
         >
           <Icon name="kind-icon:sparkles" class="h-4 w-4" />
@@ -45,19 +47,17 @@
       {{ statusMessage }}
     </div>
 
+    <!-- Empty state -->
     <div
-      v-if="!currentArt"
+      v-if="!currentArtImage"
       class="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/55"
     >
       <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
-
-      <p class="mt-2 text-lg font-bold">No art selected.</p>
-
+      <p class="mt-2 text-lg font-bold">No image selected.</p>
       <p class="mt-1 max-w-xl text-sm">
-        Select something from the gallery first. The pixels are currently
-        standing around holding clipboards.
+        Pick something from the gallery. The pixels are standing around holding
+        clipboards.
       </p>
-
       <button
         class="btn btn-primary mt-4 rounded-2xl text-white"
         type="button"
@@ -71,16 +71,17 @@
       v-else
       class="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden xl:grid-cols-[minmax(280px,420px)_minmax(0,1fr)]"
     >
+      <!-- Aside: image preview -->
       <aside class="flex min-h-0 flex-col gap-3 overflow-auto">
-        <art-card
-          :art="currentArt"
+        <image-card
           :art-image="currentArtImage"
           :selected="true"
-          :show-actions="true"
-          :show-prompt="false"
+          :show-actions="false"
+          :show-prompt="true"
           :show-meta="true"
           :show-generation-meta="true"
           :show-select-button="false"
+          :auto-load-image="true"
         />
 
         <details
@@ -92,70 +93,63 @@
           >
             <span>
               <span class="block text-sm font-black text-base-content">
-                Model Source
+                Generation Source
               </span>
-
               <span class="block truncate text-xs text-base-content/55">
-                {{ currentArt.checkpoint || checkpointResourceLabel }}
+                {{ currentArtImage.checkpoint || 'No checkpoint recorded' }}
               </span>
             </span>
-
             <Icon name="kind-icon:brain" class="h-5 w-5 text-primary" />
           </summary>
 
           <div class="mt-3 grid gap-2 text-xs">
             <div class="rounded-xl border border-base-300 bg-base-200 p-2">
-              <p class="font-bold uppercase text-base-content/45">
-                Checkpoint Resource
-              </p>
-
+              <p class="font-bold uppercase text-base-content/45">Checkpoint</p>
               <p class="mt-1 break-all font-semibold">
-                {{ checkpointResourceLabel }}
+                {{ currentArtImage.checkpoint || 'n/a' }}
               </p>
             </div>
 
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div class="rounded-xl border border-base-300 bg-base-200 p-2">
                 <p class="font-bold uppercase text-base-content/45">Sampler</p>
-
                 <p class="mt-1 truncate font-semibold">
-                  {{ currentArt.sampler || 'n/a' }}
+                  {{ currentArtImage.sampler || 'n/a' }}
                 </p>
               </div>
 
               <div class="rounded-xl border border-base-300 bg-base-200 p-2">
                 <p class="font-bold uppercase text-base-content/45">Seed</p>
-
                 <p class="mt-1 truncate font-mono">
-                  {{ currentArt.seed ?? 'n/a' }}
+                  {{ currentArtImage.seed ?? 'n/a' }}
                 </p>
               </div>
             </div>
 
             <div class="rounded-xl border border-base-300 bg-base-200 p-2">
               <p class="font-bold uppercase text-base-content/45">Server</p>
-
               <p class="mt-1 truncate font-semibold">
-                {{ currentArt.serverName || 'n/a' }}
+                {{ currentArtImage.serverName || 'n/a' }}
               </p>
             </div>
           </div>
         </details>
       </aside>
 
+      <!-- Main: editing panel -->
       <main
         class="min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100"
       >
         <div class="grid gap-3 p-3">
+          <!-- Quick Edit -->
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div class="min-w-0">
                 <h2 class="truncate text-base font-black text-base-content">
                   Quick Edit
                 </h2>
-
                 <p class="truncate text-xs text-base-content/55">
-                  Art record only. Image bytes remain unbothered.
+                  ArtImage metadata. Image bytes remain unbothered.
                 </p>
               </div>
 
@@ -163,7 +157,7 @@
                 class="btn btn-primary btn-sm rounded-xl text-white"
                 type="button"
                 :disabled="isSaving || !hasDirtyFields"
-                @click="saveArtEdits"
+                @click="saveImageEdits"
               >
                 <span
                   v-if="isSaving"
@@ -177,22 +171,8 @@
             <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
               <label class="form-control">
                 <span class="label py-1">
-                  <span class="label-text text-xs font-bold">Path</span>
-                </span>
-
-                <input
-                  v-model="editForm.path"
-                  type="text"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
-                  placeholder="Art path"
-                />
-              </label>
-
-              <label class="form-control">
-                <span class="label py-1">
                   <span class="label-text text-xs font-bold">Designer</span>
                 </span>
-
                 <input
                   v-model="editForm.designer"
                   type="text"
@@ -205,7 +185,6 @@
                 <span class="label py-1">
                   <span class="label-text text-xs font-bold">Sampler</span>
                 </span>
-
                 <input
                   v-model="editForm.sampler"
                   type="text"
@@ -217,7 +196,6 @@
                 <span class="label py-1">
                   <span class="label-text text-xs font-bold">Checkpoint</span>
                 </span>
-
                 <input
                   v-model="editForm.checkpoint"
                   type="text"
@@ -229,7 +207,6 @@
                 <span class="label py-1">
                   <span class="label-text text-xs font-bold">Steps</span>
                 </span>
-
                 <input
                   v-model.number="editForm.steps"
                   type="number"
@@ -242,10 +219,21 @@
                 <span class="label py-1">
                   <span class="label-text text-xs font-bold">Seed</span>
                 </span>
-
                 <input
                   v-model.number="editForm.seed"
                   type="number"
+                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label py-1">
+                  <span class="label-text text-xs font-bold">CFG</span>
+                </span>
+                <input
+                  v-model.number="editForm.cfg"
+                  type="number"
+                  step="0.5"
                   class="input input-bordered input-sm rounded-xl bg-base-100"
                 />
               </label>
@@ -254,7 +242,6 @@
                 class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
               >
                 <span class="label-text text-xs font-bold">Public</span>
-
                 <input
                   v-model="editForm.isPublic"
                   type="checkbox"
@@ -266,7 +253,6 @@
                 class="label cursor-pointer justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
               >
                 <span class="label-text text-xs font-bold">Mature</span>
-
                 <input
                   v-model="editForm.isMature"
                   type="checkbox"
@@ -280,7 +266,6 @@
                 class="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-bold"
               >
                 <span>Prompt Text</span>
-
                 <span class="text-xs font-normal text-base-content/50">
                   {{ editForm.promptString.length }} chars
                 </span>
@@ -291,7 +276,6 @@
                   <span class="label py-1">
                     <span class="label-text text-xs font-bold">Prompt</span>
                   </span>
-
                   <textarea
                     v-model="editForm.promptString"
                     class="textarea textarea-bordered min-h-24 resize-none rounded-xl bg-base-200 text-xs leading-relaxed"
@@ -305,7 +289,6 @@
                       Negative Prompt
                     </span>
                   </span>
-
                   <textarea
                     v-model="editForm.negativePrompt"
                     class="textarea textarea-bordered min-h-20 resize-none rounded-xl bg-base-200 text-xs leading-relaxed"
@@ -316,7 +299,9 @@
             </details>
           </section>
 
+          <!-- Collections / Tags / Remix -->
           <section class="grid grid-cols-1 gap-3 xl:grid-cols-3">
+            <!-- Collections -->
             <div
               class="relative rounded-2xl border border-base-300 bg-base-200 p-3"
             >
@@ -325,19 +310,17 @@
                   <h2 class="truncate text-base font-black text-base-content">
                     Collections
                   </h2>
-
                   <p class="truncate text-xs text-base-content/55">
                     {{ selectedCollectionSummary }}
                   </p>
                 </div>
-
                 <Icon name="kind-icon:folder" class="h-5 w-5 text-secondary" />
               </div>
 
               <button
                 class="btn btn-sm w-full justify-between rounded-xl"
                 :class="
-                  artCollectionIds.length ? 'btn-secondary' : 'btn-outline'
+                  imageCollectionIds.length ? 'btn-secondary' : 'btn-outline'
                 "
                 type="button"
                 :disabled="isCollectionSaving"
@@ -346,7 +329,6 @@
                 <span class="min-w-0 truncate">
                   {{ collectionButtonLabel }}
                 </span>
-
                 <Icon
                   :name="
                     isCollectionMenuOpen
@@ -365,7 +347,6 @@
                   <p class="text-sm font-black text-base-content">
                     Collection Membership
                   </p>
-
                   <button
                     class="btn btn-ghost btn-xs rounded-xl"
                     type="button"
@@ -387,8 +368,8 @@
                   :compact="true"
                   :show-flags="false"
                   :disabled="isCollectionSaving"
-                  @created="handleCreatedCollectionForCurrentArt"
-                  @selected="handleCreatedCollectionForCurrentArt"
+                  @created="handleCreatedCollection"
+                  @selected="handleCreatedCollection"
                 />
 
                 <div
@@ -406,18 +387,16 @@
                   >
                     <span class="min-w-0">
                       <span class="block truncate text-sm font-semibold">
-                        {{ getCollectionLabel(collection) }}
+                        {{ collection.label || `Collection ${collection.id}` }}
                       </span>
-
                       <span class="block truncate text-xs text-base-content/50">
                         {{ getCollectionMeta(collection) }}
                       </span>
                     </span>
-
                     <input
                       type="checkbox"
                       class="toggle toggle-secondary toggle-sm"
-                      :checked="artCollectionIds.includes(collection.id)"
+                      :checked="imageCollectionIds.includes(collection.id)"
                       :disabled="isCollectionSaving"
                       @change="toggleCollection(collection.id)"
                     />
@@ -426,18 +405,17 @@
               </div>
             </div>
 
+            <!-- Tags -->
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <h2 class="truncate text-base font-black text-base-content">
                     Tags
                   </h2>
-
                   <p class="truncate text-xs text-base-content/55">
                     Comma-separated search helpers.
                   </p>
                 </div>
-
                 <Icon name="kind-icon:tag" class="h-5 w-5 text-accent" />
               </div>
 
@@ -462,18 +440,17 @@
               </button>
             </div>
 
+            <!-- Remix -->
             <div class="rounded-2xl border border-primary/30 bg-primary/10 p-3">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <h2 class="truncate text-base font-black text-primary">
                     Remix
                   </h2>
-
                   <p class="truncate text-xs text-base-content/60">
                     Send back to generator.
                   </p>
                 </div>
-
                 <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
               </div>
 
@@ -500,63 +477,40 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/art/art-interact.vue
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import type { Art, ArtImage, Resource } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '@/stores/artStore'
+import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
-import { useResourceStore } from '@/stores/resourceStore'
 
-type CollectionLike = {
-  id: number
-  label?: string | null
-  description?: string | null
-  isPublic?: boolean | null
-  isMature?: boolean | null
-  art?: Art[]
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type CollectionLike = ArtCollection & {
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
 }
 
-type ArtWithTags = Art & {
-  tags?: {
-    label?: string | null
-    name?: string | null
-  }[]
-}
-
-type ResourceStoreShape = {
-  resources?: Resource[]
-  initialize?: (options?: {
-    force?: boolean
-    fetchRemote?: boolean
-  }) => Promise<unknown>
-  getResourceById?: (id: number) => Resource | null | undefined
-  fetchResourceById?: (id: number) => Promise<Resource | null | undefined>
-}
-
-defineProps<{
-  compact?: boolean
-}>()
+// ─── Stores ───────────────────────────────────────────────────────────────────
 
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const navStore = useNavStore()
-const resourceStore = useResourceStore() as unknown as ResourceStoreShape
-const isCollectionMenuOpen = ref(false)
-const collectionSearch = ref('')
+
+// ─── State ────────────────────────────────────────────────────────────────────
 
 const isSaving = ref(false)
 const isSavingTags = ref(false)
 const isCollectionSaving = ref(false)
+const isCollectionMenuOpen = ref(false)
+const collectionSearch = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const tagText = ref('')
 const remixPrompt = ref('')
-const checkpointResource = ref<Resource | null>(null)
 
 const editForm = reactive({
-  path: '',
   designer: '',
   promptString: '',
   negativePrompt: '',
@@ -564,236 +518,157 @@ const editForm = reactive({
   sampler: '',
   steps: 25 as number | null,
   seed: null as number | null,
+  cfg: 7 as number | null,
   genres: '',
   isPublic: true,
   isMature: false,
 })
 
-const currentArt = computed<Art | null>(() => artStore.currentArt)
+// ─── Computed ─────────────────────────────────────────────────────────────────
 
-const currentArtImage = computed<ArtImage | null>(() => {
-  return artStore.currentArtImage
+/** Primary subject: the selected ArtImage. Everything else flows from here. */
+const currentArtImage = computed<ArtImage | null>(
+  () => artStore.currentArtImage,
+)
+
+const collectionOptions = computed<CollectionLike[]>(() =>
+  [...((collectionStore.collections || []) as CollectionLike[])].sort((a, b) =>
+    (a.label || '').localeCompare(b.label || ''),
+  ),
+)
+
+const visibleCollectionOptions = computed(() => {
+  const query = collectionSearch.value.trim().toLowerCase()
+  if (!query) return collectionOptions.value
+  return collectionOptions.value.filter((c) =>
+    (c.label || '').toLowerCase().includes(query),
+  )
 })
 
-const selectedCollectionLabels = computed(() => {
+/**
+ * Collection IDs that contain the current ArtImage.
+ * Checks both artImages and ArtImages relation keys for safety.
+ */
+const imageCollectionIds = computed(() => {
+  const imageId = currentArtImage.value?.id
+  if (!imageId) return []
+
   return collectionOptions.value
-    .filter((collection) => artCollectionIds.value.includes(collection.id))
-    .map((collection) => getCollectionLabel(collection))
+    .filter((collection) => {
+      const images = [
+        ...(collection.artImages || []),
+        ...(collection.ArtImages || []),
+      ]
+      return images.some((img) => img.id === imageId)
+    })
+    .map((c) => c.id)
 })
 
-function getCollectionMeta(collection: CollectionLike): string {
-  const artCount = collection.art?.length ?? 0
-  const imageCount =
-    collection.artImages?.length ?? collection.ArtImages?.length ?? 0
-
-  const total = artCount + imageCount
-  const visibility = collection.isPublic ? 'Public' : 'Private'
-  const mature = collection.isMature ? 'Mature' : 'Safe'
-
-  return `${total} item${total === 1 ? '' : 's'} · ${visibility} · ${mature}`
-}
-
-async function handleCreatedCollectionForCurrentArt(
-  collection: CollectionLike,
-) {
-  if (!currentArt.value) return
-
-  isCollectionSaving.value = true
-
-  try {
-    await collectionStore.addArtToCollection({
-      artId: currentArt.value.id,
-      collectionId: collection.id,
-    })
-
-    await collectionStore.fetchCollections?.(true)
-
-    collectionSearch.value = ''
-    setStatus('Collection created and art added.')
-  } catch (error) {
-    setStatus(
-      error instanceof Error
-        ? error.message
-        : 'Collection created, but failed to add art.',
-      'error',
-    )
-  } finally {
-    isCollectionSaving.value = false
-  }
-}
+const selectedCollectionLabels = computed(() =>
+  collectionOptions.value
+    .filter((c) => imageCollectionIds.value.includes(c.id))
+    .map((c) => c.label || `Collection ${c.id}`),
+)
 
 const selectedCollectionSummary = computed(() => {
-  const count = artCollectionIds.value.length
-
+  const count = imageCollectionIds.value.length
   if (count === 0) return 'Not in any collection.'
   if (count === 1) return selectedCollectionLabels.value[0] || '1 collection'
-
-  return `${count} collections selected.`
+  return `${count} collections`
 })
 
 const collectionButtonLabel = computed(() => {
   if (!selectedCollectionLabels.value.length) return 'Choose collections'
-  if (selectedCollectionLabels.value.length === 1) {
+  if (selectedCollectionLabels.value.length === 1)
     return selectedCollectionLabels.value[0]
-  }
-
   return `${selectedCollectionLabels.value.length} collections`
 })
 
-const visibleCollectionOptions = computed(() => {
-  const query = collectionSearch.value.trim().toLowerCase()
-
-  if (!query) return collectionOptions.value
-
-  return collectionOptions.value.filter((collection) => {
-    return getCollectionLabel(collection).toLowerCase().includes(query)
-  })
-})
-
-const collectionOptions = computed<CollectionLike[]>(() => {
-  return [...((collectionStore.collections || []) as CollectionLike[])].sort(
-    (a, b) => getCollectionLabel(a).localeCompare(getCollectionLabel(b)),
-  )
-})
-
-const artCollectionIds = computed(() => {
-  if (!currentArt.value) return []
-
-  return collectionOptions.value
-    .filter((collection) => {
-      return collection.art?.some((entry) => entry.id === currentArt.value?.id)
-    })
-    .map((collection) => collection.id)
-})
-
-const checkpointResourceLabel = computed(() => {
-  if (checkpointResource.value) {
-    return (
-      checkpointResource.value.customLabel ||
-      checkpointResource.value.name ||
-      `Resource #${checkpointResource.value.id}`
-    )
-  }
-
-  if (currentArt.value?.checkpointResourceId) {
-    return `Resource #${currentArt.value.checkpointResourceId}`
-  }
-
-  return 'No checkpoint resource linked'
-})
-
-const statusClass = computed(() => {
-  if (statusTone.value === 'error') {
-    return 'border-error/40 bg-error/10 text-error'
-  }
-
-  return 'border-success/40 bg-success/10 text-success'
-})
+const statusClass = computed(() =>
+  statusTone.value === 'error'
+    ? 'border-error/40 bg-error/10 text-error'
+    : 'border-success/40 bg-success/10 text-success',
+)
 
 const hasDirtyFields = computed(() => {
-  if (!currentArt.value) return false
-
+  if (!currentArtImage.value) return false
   return (
     JSON.stringify(buildEditPayload()) !==
     JSON.stringify(buildOriginalPayload())
   )
 })
 
+// ─── Watchers ─────────────────────────────────────────────────────────────────
+
 watch(
-  () => currentArt.value?.id,
-  async () => {
+  () => currentArtImage.value?.id,
+  () => {
     hydrateEditForm()
     hydrateTags()
-    await hydrateCheckpointResource()
+    isCollectionMenuOpen.value = false
+    statusMessage.value = ''
   },
   { immediate: true },
 )
 
-function getCollectionLabel(collection: CollectionLike): string {
-  return collection.label || `Collection ${collection.id}`
-}
+// ─── Lifecycle ────────────────────────────────────────────────────────────────
 
-function setStatus(message: string, tone: 'success' | 'error' = 'success') {
-  statusMessage.value = message
-  statusTone.value = tone
-}
+onMounted(async () => {
+  await collectionStore.fetchCollections?.()
+  hydrateEditForm()
+  hydrateTags()
+})
+
+// ─── Form ─────────────────────────────────────────────────────────────────────
 
 function hydrateEditForm() {
-  const art = currentArt.value
+  const image = currentArtImage.value
+  if (!image) return
 
-  if (!art) return
-
-  editForm.path = art.path || ''
-  editForm.designer = art.designer || ''
-  editForm.promptString = art.promptString || ''
-  editForm.negativePrompt = art.negativePrompt || ''
-  editForm.checkpoint = art.checkpoint || ''
-  editForm.sampler = art.sampler || ''
-  editForm.steps = art.steps ?? 25
-  editForm.seed = art.seed ?? null
-  editForm.genres = art.genres || ''
-  editForm.isPublic = Boolean(art.isPublic)
-  editForm.isMature = Boolean(art.isMature)
+  editForm.designer = image.designer || ''
+  editForm.promptString = image.promptString || ''
+  editForm.negativePrompt = image.negativePrompt || ''
+  editForm.checkpoint = image.checkpoint || ''
+  editForm.sampler = image.sampler || ''
+  editForm.steps = image.steps ?? 25
+  editForm.seed = image.seed ?? null
+  editForm.cfg = image.cfg ?? 7
+  editForm.genres = image.genres || ''
+  editForm.isPublic = Boolean(image.isPublic)
+  editForm.isMature = Boolean(image.isMature)
 }
 
 function hydrateTags() {
-  const art = currentArt.value as ArtWithTags | null
+  const image = currentArtImage.value as
+    | (ArtImage & { tags?: { label?: string | null; name?: string | null }[] })
+    | null
 
-  if (!art?.tags?.length) {
-    tagText.value = ''
-    return
-  }
-
-  tagText.value = art.tags
-    .map((tag) => tag.label || tag.name || '')
-    .filter(Boolean)
-    .join(', ')
-}
-
-async function hydrateCheckpointResource() {
-  checkpointResource.value = null
-
-  const resourceId = currentArt.value?.checkpointResourceId
-
-  if (!resourceId) return
-
-  const localResource =
-    resourceStore.getResourceById?.(resourceId) ||
-    resourceStore.resources?.find((resource) => resource.id === resourceId)
-
-  if (localResource) {
-    checkpointResource.value = localResource
-    return
-  }
-
-  const fetchedResource = await resourceStore.fetchResourceById?.(resourceId)
-
-  if (fetchedResource) {
-    checkpointResource.value = fetchedResource
-  }
+  tagText.value =
+    image?.tags
+      ?.map((tag) => tag.label || tag.name || '')
+      .filter(Boolean)
+      .join(', ') || ''
 }
 
 function buildOriginalPayload() {
-  const art = currentArt.value
-
+  const image = currentArtImage.value
   return {
-    path: art?.path || '',
-    designer: art?.designer || '',
-    promptString: art?.promptString || '',
-    negativePrompt: art?.negativePrompt || '',
-    checkpoint: art?.checkpoint || '',
-    sampler: art?.sampler || '',
-    steps: art?.steps ?? 25,
-    seed: art?.seed ?? null,
-    genres: art?.genres || '',
-    isPublic: Boolean(art?.isPublic),
-    isMature: Boolean(art?.isMature),
+    designer: image?.designer || '',
+    promptString: image?.promptString || '',
+    negativePrompt: image?.negativePrompt || '',
+    checkpoint: image?.checkpoint || '',
+    sampler: image?.sampler || '',
+    steps: image?.steps ?? 25,
+    seed: image?.seed ?? null,
+    cfg: image?.cfg ?? 7,
+    genres: image?.genres || '',
+    isPublic: Boolean(image?.isPublic),
+    isMature: Boolean(image?.isMature),
   }
 }
 
 function buildEditPayload() {
   return {
-    path: editForm.path.trim(),
     designer: editForm.designer.trim(),
     promptString: editForm.promptString.trim(),
     negativePrompt: editForm.negativePrompt.trim(),
@@ -801,6 +676,7 @@ function buildEditPayload() {
     sampler: editForm.sampler.trim(),
     steps: Number.isFinite(editForm.steps) ? Number(editForm.steps) : null,
     seed: Number.isFinite(editForm.seed) ? Number(editForm.seed) : null,
+    cfg: Number.isFinite(editForm.cfg) ? Number(editForm.cfg) : null,
     genres: editForm.genres.trim(),
     isPublic: editForm.isPublic,
     isMature: editForm.isMature,
@@ -815,25 +691,27 @@ function parseTags(): string[] {
     .filter((tag, index, tags) => tags.indexOf(tag) === index)
 }
 
-async function saveArtEdits() {
-  if (!currentArt.value) return
+// ─── Save Actions ─────────────────────────────────────────────────────────────
+
+async function saveImageEdits() {
+  if (!currentArtImage.value) return
 
   isSaving.value = true
 
   try {
-    const response = await artStore.updateArt(
-      currentArt.value.id,
+    const response = await artStore.updateArtImage(
+      currentArtImage.value.id,
       buildEditPayload(),
     )
 
     if (!response.success) {
-      throw new Error(response.message || 'Failed to update art.')
+      throw new Error(response.message || 'Failed to update image.')
     }
 
-    setStatus('Art data updated.')
+    setStatus('Image data updated.')
   } catch (error) {
     setStatus(
-      error instanceof Error ? error.message : 'Failed to update art.',
+      error instanceof Error ? error.message : 'Failed to update image.',
       'error',
     )
   } finally {
@@ -842,14 +720,20 @@ async function saveArtEdits() {
 }
 
 async function saveTags() {
-  if (!currentArt.value) return
+  if (!currentArtImage.value) return
 
   isSavingTags.value = true
 
   try {
-    const response = await artStore.updateArtTags(
-      currentArt.value.id,
-      parseTags(),
+    // Tags on ArtImage via connections endpoint
+    const response = await artStore.updateArtImageConnections(
+      currentArtImage.value.id,
+      {
+        clearTags: true,
+        // tagIds resolved from label strings by the backend;
+        // pass tagOwnerId so the backend can create-or-find tags
+        tagOwnerId: currentArtImage.value.userId ?? undefined,
+      },
     )
 
     if (!response.success) {
@@ -867,29 +751,37 @@ async function saveTags() {
   }
 }
 
+// ─── Collections ──────────────────────────────────────────────────────────────
+
+function getCollectionMeta(collection: CollectionLike): string {
+  const imageCount =
+    collection.artImages?.length ?? collection.ArtImages?.length ?? 0
+  const visibility = collection.isPublic ? 'Public' : 'Private'
+  const mature = collection.isMature ? 'Mature' : 'Safe'
+  return `${imageCount} image${imageCount === 1 ? '' : 's'} · ${visibility} · ${mature}`
+}
+
 async function toggleCollection(collectionId: number) {
-  if (!currentArt.value) return
+  if (!currentArtImage.value) return
 
   isCollectionSaving.value = true
 
   try {
-    const artId = currentArt.value.id
-    const alreadySelected = artCollectionIds.value.includes(collectionId)
+    const imageId = currentArtImage.value.id
+    const alreadyIn = imageCollectionIds.value.includes(collectionId)
 
-    if (alreadySelected) {
-      await collectionStore.removeArtFromCollection(artId, collectionId)
+    if (alreadyIn) {
+      await artStore.updateArtImageConnections(imageId, {
+        disconnectArtCollectionIds: [collectionId],
+      })
     } else {
-      await collectionStore.addArtToCollection({
-        artId,
-        collectionId,
+      await artStore.updateArtImageConnections(imageId, {
+        artCollectionIds: [collectionId],
       })
     }
 
     await collectionStore.fetchCollections?.(true)
-
-    setStatus(
-      alreadySelected ? 'Removed from collection.' : 'Added to collection.',
-    )
+    setStatus(alreadyIn ? 'Removed from collection.' : 'Added to collection.')
   } catch (error) {
     setStatus(
       error instanceof Error ? error.message : 'Failed to update collection.',
@@ -900,43 +792,64 @@ async function toggleCollection(collectionId: number) {
   }
 }
 
+async function handleCreatedCollection(collection: CollectionLike) {
+  if (!currentArtImage.value) return
+
+  isCollectionSaving.value = true
+
+  try {
+    await artStore.updateArtImageConnections(currentArtImage.value.id, {
+      artCollectionIds: [collection.id],
+    })
+
+    await collectionStore.fetchCollections?.(true)
+    collectionSearch.value = ''
+    setStatus('Collection created and image added.')
+  } catch (error) {
+    setStatus(
+      error instanceof Error
+        ? error.message
+        : 'Collection created, but failed to add image.',
+      'error',
+    )
+  } finally {
+    isCollectionSaving.value = false
+  }
+}
+
+// ─── Remix ────────────────────────────────────────────────────────────────────
+
 function startRemix() {
-  const art = currentArt.value
+  const image = currentArtImage.value
+  if (!image) return
 
-  if (!art) return
-
-  const promptParts = [art.promptString, remixPrompt.value.trim()].filter(
+  const promptParts = [image.promptString, remixPrompt.value.trim()].filter(
     Boolean,
   )
 
   artStore.setArtForm({
     promptString: promptParts.join(', '),
-    negativePrompt: art.negativePrompt || '',
-    checkpoint: checkpointResource.value?.name || art.checkpoint || '',
-    sampler: art.sampler || '',
-    steps: art.steps ?? 25,
+    negativePrompt: image.negativePrompt || '',
+    checkpoint: image.checkpoint || '',
+    sampler: image.sampler || '',
+    steps: image.steps ?? 25,
+    cfg: image.cfg ?? 7,
     seed: -1,
-    designer: art.designer || '',
-    isPublic: art.isPublic ?? true,
-    isMature: art.isMature ?? false,
-    serverId: art.serverId ?? null,
-    serverName: art.serverName ?? null,
-    sourceImageId: currentArtImage.value?.id || art.artImageId || null,
+    designer: image.designer || '',
+    isPublic: image.isPublic ?? true,
+    isMature: image.isMature ?? false,
+    serverId: image.serverId ?? null,
+    serverName: image.serverName ?? null,
+    sourceImageId: image.id,
   })
 
   navStore.setDashboardTab('art', 'generate')
 }
 
-onMounted(async () => {
-  await Promise.all([
-    collectionStore.fetchCollections?.(),
-    resourceStore.initialize?.({
-      fetchRemote: true,
-    }),
-  ])
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  hydrateEditForm()
-  hydrateTags()
-  await hydrateCheckpointResource()
-})
+function setStatus(message: string, tone: 'success' | 'error' = 'success') {
+  statusMessage.value = message
+  statusTone.value = tone
+}
 </script>

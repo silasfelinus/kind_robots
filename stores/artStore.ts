@@ -327,6 +327,30 @@ function safeParseArtImages(raw: string | null): ArtImage[] {
   }
 }
 
+function sanitizeArt(art: Art): Art {
+  const cleaned = { ...art } as Record<string, unknown>
+  // Strip Prisma back-relations that create circular structures
+  delete cleaned.ArtImage
+  delete cleaned.ArtCollections
+  delete cleaned.artCollections
+  delete cleaned.Tags
+  delete cleaned.Reactions
+  delete cleaned.Gallery
+  delete cleaned.Server
+  return cleaned as Art
+}
+
+function sanitizeArtImage(image: ArtImage): ArtImage {
+  const cleaned = { ...image } as Record<string, unknown>
+  delete cleaned.Art
+  delete cleaned.Tags
+  delete cleaned.Reactions
+  delete cleaned.Gallery
+  delete cleaned.Server
+  return cleaned as ArtImage
+}
+
+
 function limitByNewestId<T extends { id: number }>(
   items: T[],
   limit: number,
@@ -729,22 +753,25 @@ export const useArtStore = defineStore('artStore', () => {
     return Array.from(map.values()).sort(sortNewestArtImages)
   }
 
+  
   function setArtList(art: Art[]): void {
-    state.art = mergeUniqueArt([], art)
-    persistArt()
-  }
+  state.art = mergeUniqueArt([], art.map(sanitizeArt))
+  persistArt()
+}
 
-  function addOrUpdateArt(art: Art): void {
-    state.art = mergeUniqueArt(state.art, [art])
-    persistArt()
-  }
+function addOrUpdateArt(art: Art): void {
+  state.art = mergeUniqueArt(state.art, [sanitizeArt(art)])
+  persistArt()
+}
 
-  function addOrUpdateArtImages(images: ArtImage[]): void {
-    if (!images.length) return
-
-    state.artImages = mergeUniqueArtImages(state.artImages, images)
-    persistArtImages()
-  }
+function addOrUpdateArtImages(images: ArtImage[]): void {
+  if (!images.length) return
+  state.artImages = mergeUniqueArtImages(
+    state.artImages,
+    images.map(sanitizeArtImage),
+  )
+  persistArtImages()
+}
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
     state.artForm = {

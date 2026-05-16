@@ -636,4 +636,17 @@ function cleanCheckpointName(value: string) {
       .trim() || value
   )
 }
+
+watch(
+  () => props.artImage.id,
+  async () => {
+    localImage.value = props.artImage
+    imageLoadFailed.value = false
+    // Only fetch if we actually need image data and don't have it
+    if (props.autoLoadImage && !props.artImage.imageData && !props.artImage.imagePath) {
+      await loadFullImage()
+    }
+  },
+  { immediate: true },
+)
 </script>

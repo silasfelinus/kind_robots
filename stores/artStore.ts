@@ -633,6 +633,49 @@ export const useArtStore = defineStore('artStore', () => {
     safeSetLocalStorage(artStorageKey, JSON.stringify(trimmed))
   }
 
+  type ArtImageCreateInput = Partial<ArtImage> & Record<string, unknown>
+
+  async function createArtImage(
+    input: ArtImageCreateInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>('/api/art/image', {
+        method: 'POST',
+        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create art image.')
+      }
+
+      addOrUpdateArtImages([stripHeavyImageFields(response.data)])
+
+      if (state.currentArtImage?.id === response.data.id) {
+        state.currentArtImage = stripHeavyImageFields(response.data)
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art image created.',
+      }
+    } catch (error) {
+      handleError(error, 'creating art image')
+      setError(error, 'Failed to create art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create art image.',
+      }
+    }
+  }
+
   function persistArtImages(): void {
     const trimmed = limitByNewestId(state.artImages, maxStoredImages).map(
       stripHeavyImageFields,
@@ -2492,6 +2535,7 @@ export const useArtStore = defineStore('artStore', () => {
     fetchArtImageWithTags,
     buildArtImageSyncFields,
     updateArtImageConnections,
+    createArtImage,
   }
 })
 

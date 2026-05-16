@@ -20,8 +20,7 @@
           <div class="min-w-0">
             <h2 class="text-xl font-black text-base-content">Art Doctor</h2>
             <p class="text-sm text-base-content/60">
-              Promote legacy Art records into ArtImage records, then optionally
-              remove the old Art shell.
+              Promote legacy Art records into ArtImage records.
             </p>
           </div>
         </div>
@@ -52,12 +51,11 @@
 
       <div class="grid gap-3 lg:grid-cols-[1fr_auto]">
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-          <p class="text-sm font-bold text-base-content">Main task</p>
+          <p class="text-sm font-bold text-base-content">One job</p>
           <p class="mt-1 text-sm text-base-content/60">
-            This tool only looks for Art records with no linked ArtImage. It
-            copies the useful Art fields into a new ArtImage, including user,
-            gallery, collection, prompt, path, server, checkpoint, and
-            visibility data.
+            Find Art records without ArtImages, copy their useful fields into a
+            new ArtImage, link the result back to Art, and report exactly what
+            changed.
           </p>
         </div>
 
@@ -70,13 +68,14 @@
             class="checkbox checkbox-warning"
             :disabled="isBusy"
           />
+
           <span class="flex flex-col">
-            <span class="text-sm font-black text-warning"
-              >Delete Art after promotion</span
-            >
+            <span class="text-sm font-black text-warning">
+              Delete Art after promotion
+            </span>
             <span class="text-xs text-base-content/60">
-              Safer off. When on, the new ArtImage is created as standalone
-              before deleting the old Art.
+              Safer off. When on, the old Art shell is deleted after the
+              ArtImage is created.
             </span>
           </span>
         </label>
@@ -86,8 +85,8 @@
         v-if="!hasScanned && !isScanning"
         class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/50"
       >
-        Scan first. No mystery hydration, no thumbnail goblins, no recursive
-        base64 lasagna.
+        Scan first. No thumbnail hydration. No raw payload viewer. No haunted
+        recursion closet.
       </div>
     </header>
 
@@ -113,11 +112,7 @@
         :value="summary.alreadyLinked"
         tone="success"
       />
-      <StatCard
-        label="Ready to promote"
-        :value="summary.readyToPromote"
-        tone="primary"
-      />
+      <StatCard label="Ready" :value="summary.readyToPromote" tone="primary" />
       <StatCard
         label="Missing path"
         :value="summary.missingPath"
@@ -197,13 +192,13 @@
       <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="text-sm text-base-content/60">
           Showing
-          <span class="font-mono font-bold text-base-content">{{
-            visibleRows.length
-          }}</span>
+          <span class="font-mono font-bold text-base-content">
+            {{ visibleRows.length }}
+          </span>
           of
-          <span class="font-mono font-bold text-base-content">{{
-            filteredRows.length
-          }}</span>
+          <span class="font-mono font-bold text-base-content">
+            {{ filteredRows.length }}
+          </span>
           legacy Art rows.
         </p>
 
@@ -263,8 +258,8 @@
         <Icon name="kind-icon:check" class="h-10 w-10 text-success" />
         <p class="mt-2 font-black text-success">No rows match this view</p>
         <p class="mt-1 text-sm text-base-content/50">
-          Either the filter is too spicy, or the goblins finally filed their
-          paperwork.
+          Either the filter is too spicy, or the database goblins finally
+          organized.
         </p>
       </div>
 
@@ -313,9 +308,9 @@
 
               <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="badge badge-primary badge-sm"
-                    >Art #{{ row.art.id }}</span
-                  >
+                  <span class="badge badge-primary badge-sm">
+                    Art #{{ row.art.id }}
+                  </span>
 
                   <span
                     class="badge badge-sm"
@@ -479,9 +474,9 @@
             <div>
               <p class="text-sm font-black">
                 Art #{{ report.artId }}
-                <span v-if="report.artImageId"
-                  >→ ArtImage #{{ report.artImageId }}</span
-                >
+                <span v-if="report.artImageId">
+                  → ArtImage #{{ report.artImageId }}
+                </span>
               </p>
               <p class="text-sm">{{ report.message }}</p>
             </div>
@@ -559,7 +554,6 @@
 import { computed, defineComponent, h, ref } from 'vue'
 import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
-import { performFetch } from '@/stores/utils'
 
 type SortMode = 'newest' | 'oldest' | 'id-desc' | 'id-asc'
 type ActiveFilter = 'ready' | 'blocked' | 'processed' | 'all'
@@ -567,8 +561,22 @@ type RowStatus = 'ready' | 'blocked' | 'created' | 'deleted' | 'failed'
 type ReportStatus = 'created' | 'deleted' | 'failed' | 'partial'
 type LogType = 'info' | 'success' | 'error'
 
+type ApiResponse<T> = {
+  success: boolean
+  data?: T
+  message?: string
+}
+
 type LegacyArt = Art & Record<string, unknown>
 type LightArtImage = ArtImage & Record<string, unknown>
+
+type ArtImageCreatePayload = Partial<ArtImage> & Record<string, unknown>
+
+type ArtStoreWithDoctorActions = ReturnType<typeof useArtStore> & {
+  createArtImage: (
+    input: ArtImageCreatePayload,
+  ) => Promise<ApiResponse<ArtImage>>
+}
 
 interface LogEntry {
   message: string
@@ -691,7 +699,7 @@ const InfoTile = defineComponent({
   },
 })
 
-const artStore = useArtStore()
+const artStore = useArtStore() as ArtStoreWithDoctorActions
 
 const isScanning = ref(false)
 const isPromotingBatch = ref(false)
@@ -705,8 +713,6 @@ const displayLimit = ref(100)
 const batchLimit = ref(25)
 const deleteArtAfterPromote = ref(false)
 
-const allArt = ref<LegacyArt[]>([])
-const allArtImages = ref<LightArtImage[]>([])
 const selectedIds = ref(new Set<number>())
 const promotingIds = ref(new Set<number>())
 const reports = ref<ChangeReport[]>([])
@@ -716,6 +722,14 @@ const isBusy = computed(() => {
   return (
     isScanning.value || isPromotingBatch.value || promotingIds.value.size > 0
   )
+})
+
+const allArt = computed<LegacyArt[]>(() => {
+  return artStore.art.map((art) => art as LegacyArt)
+})
+
+const allArtImages = computed<LightArtImage[]>(() => {
+  return artStore.artImages.map((image) => stripHeavyImageFields(image))
 })
 
 const artImageById = computed(() => {
@@ -758,8 +772,10 @@ const filteredRows = computed(() => {
   return rows.value
     .filter((row) => {
       if (activeFilter.value === 'ready' && row.status !== 'ready') return false
-      if (activeFilter.value === 'blocked' && row.status !== 'blocked')
+      if (activeFilter.value === 'blocked' && row.status !== 'blocked') {
         return false
+      }
+
       if (
         activeFilter.value === 'processed' &&
         row.status !== 'created' &&
@@ -803,9 +819,9 @@ const visibleReadyRows = computed(() => {
 })
 
 const selectedReadyRows = computed(() => {
-  return rows.value.filter(
-    (row) => selectedIds.value.has(row.art.id) && row.canPromote,
-  )
+  return rows.value.filter((row) => {
+    return selectedIds.value.has(row.art.id) && row.canPromote
+  })
 })
 
 const batchTargets = computed(() => {
@@ -849,13 +865,14 @@ const summary = computed(() => {
     return Boolean(art.artImageId) || artImageByArtId.value.has(art.id)
   }).length
 
-  const readyToPromote = rows.value.filter(
-    (row) => row.status === 'ready',
-  ).length
+  const readyToPromote = rows.value.filter((row) => {
+    return row.status === 'ready'
+  }).length
+
   const missingPath = rows.value.filter((row) => {
     return (
       !primaryArtPath(row.art) &&
-      !Boolean(art.artImageId) &&
+      !Boolean(row.art.artImageId) &&
       !artImageByArtId.value.has(row.art.id)
     )
   }).length
@@ -891,22 +908,18 @@ async function runScan() {
   selectedIds.value = new Set()
 
   try {
-    log('Fetching Art records once')
-    const art = await artStore.fetchAllArt(true)
-    allArt.value = art.map((entry) => sanitizeArt(entry as LegacyArt))
+    log('Fetching Art records through artStore')
+    await artStore.fetchAllArt(true)
+    log(`Loaded ${artStore.art.length} Art records`, 'success')
 
-    log(`Loaded ${allArt.value.length} Art records`, 'success')
-
-    log('Fetching ArtImage records once')
-    const response = await performFetch<LightArtImage[]>('/api/art/image')
-
-    if (!response.success || !Array.isArray(response.data)) {
-      throw new Error(response.message || 'Failed to fetch ArtImage records.')
-    }
-
-    allArtImages.value = response.data.map(stripHeavyImageFields)
-
-    log(`Loaded ${allArtImages.value.length} ArtImage records`, 'success')
+    log('Fetching ArtImage records through artStore')
+    await artStore.fetchAllArtImages({
+      force: true,
+      includeImageData: false,
+      includeThumbnailData: false,
+      includeTags: false,
+    })
+    log(`Loaded ${artStore.artImages.length} ArtImage records`, 'success')
 
     hasScanned.value = true
     statusMessage.value = ''
@@ -1079,14 +1092,9 @@ async function promoteOne(art: LegacyArt) {
       )
     }
 
-    log(`Art #${art.id}: creating ArtImage`)
+    log(`Art #${art.id}: creating ArtImage through artStore`)
     const createPayload = buildArtImagePayload(art, shouldDelete)
-
-    const createResponse = await performFetch<LightArtImage>('/api/art/image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(createPayload),
-    })
+    const createResponse = await artStore.createArtImage(createPayload)
 
     if (!createResponse.success || !createResponse.data) {
       throw new Error(
@@ -1096,12 +1104,30 @@ async function promoteOne(art: LegacyArt) {
     }
 
     const createdImage = stripHeavyImageFields(createResponse.data)
-    allArtImages.value = mergeImages(allArtImages.value, [createdImage])
 
     if (shouldDelete) {
-      await deletePromotedArt(art, createdImage)
+      const deleted = await artStore.deleteArt(art.id)
 
-      allArt.value = allArt.value.filter((entry) => entry.id !== art.id)
+      if (!deleted) {
+        addReport({
+          id: reportId,
+          artId: art.id,
+          artImageId: createdImage.id,
+          status: 'partial',
+          message: `Created ArtImage #${createdImage.id}, but Art #${art.id} was not deleted.`,
+          before,
+          after: {
+            ...snapshotImage(createdImage),
+            deletedArt: false,
+          },
+          createdAt: new Date().toISOString(),
+        })
+
+        throw new Error(
+          `Created ArtImage #${createdImage.id}, but failed to delete Art #${art.id}.`,
+        )
+      }
+
       selectedIds.value = removeFromSet(selectedIds.value, art.id)
 
       addReport({
@@ -1125,22 +1151,29 @@ async function promoteOne(art: LegacyArt) {
       return
     }
 
-    log(`Art #${art.id}: patching Art.artImageId to #${createdImage.id}`)
-    const patchResponse = await performFetch<LegacyArt>(`/api/art/${art.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ artImageId: createdImage.id }),
+    log(`Art #${art.id}: linking Art to ArtImage #${createdImage.id}`)
+    const patchResponse = await artStore.updateArt(art.id, {
+      artImageId: createdImage.id,
     })
 
     if (!patchResponse.success || !patchResponse.data) {
+      addReport({
+        id: reportId,
+        artId: art.id,
+        artImageId: createdImage.id,
+        status: 'partial',
+        message: `Created ArtImage #${createdImage.id}, but failed to link Art #${art.id}.`,
+        before,
+        after: snapshotImage(createdImage),
+        createdAt: new Date().toISOString(),
+      })
+
       throw new Error(
         patchResponse.message ||
           `Created ArtImage #${createdImage.id}, but failed to patch Art #${art.id}.`,
       )
     }
 
-    const patchedArt = sanitizeArt(patchResponse.data)
-    allArt.value = mergeArt(allArt.value, [patchedArt])
     selectedIds.value = removeFromSet(selectedIds.value, art.id)
 
     addReport({
@@ -1150,7 +1183,7 @@ async function promoteOne(art: LegacyArt) {
       status: 'created',
       message: `Created ArtImage #${createdImage.id} and linked it to Art #${art.id}.`,
       before,
-      after: snapshotArt(patchedArt),
+      after: snapshotArt(patchResponse.data as LegacyArt),
       createdAt: new Date().toISOString(),
     })
 
@@ -1161,16 +1194,22 @@ async function promoteOne(art: LegacyArt) {
         ? error.message
         : `Promotion failed for Art #${art.id}.`
 
-    addReport({
-      id: reportId,
-      artId: art.id,
-      artImageId: null,
-      status: 'failed',
-      message,
-      before,
-      after: snapshotArt(art),
-      createdAt: new Date().toISOString(),
+    const alreadyReported = reports.value.some((report) => {
+      return report.id === reportId
     })
+
+    if (!alreadyReported) {
+      addReport({
+        id: reportId,
+        artId: art.id,
+        artImageId: null,
+        status: 'failed',
+        message,
+        before,
+        after: snapshotArt(art),
+        createdAt: new Date().toISOString(),
+      })
+    }
 
     log(`Art #${art.id}: ${message}`, 'error')
   } finally {
@@ -1178,73 +1217,36 @@ async function promoteOne(art: LegacyArt) {
   }
 }
 
-async function deletePromotedArt(art: LegacyArt, image: LightArtImage) {
-  const linkedArtId = numberValue(image.artId)
-
-  if (linkedArtId === art.id) {
-    log(`ArtImage #${image.id}: detaching from Art #${art.id} before delete`)
-
-    const detachResponse = await performFetch<LightArtImage>(
-      `/api/art/image/${image.id}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artId: null }),
-      },
-    )
-
-    if (!detachResponse.success || !detachResponse.data) {
-      throw new Error(
-        detachResponse.message ||
-          `Created ArtImage #${image.id}, but could not detach it before deleting Art #${art.id}.`,
-      )
-    }
-
-    allArtImages.value = mergeImages(allArtImages.value, [
-      stripHeavyImageFields(detachResponse.data),
-    ])
-  }
-
-  log(`Art #${art.id}: deleting old Art shell`)
-  const deleteResponse = await performFetch(`/api/art/${art.id}`, {
-    method: 'DELETE',
-  })
-
-  if (!deleteResponse.success) {
-    throw new Error(
-      deleteResponse.message ||
-        `Created ArtImage #${image.id}, but failed to delete Art #${art.id}.`,
-    )
-  }
-}
-
-function buildArtImagePayload(art: LegacyArt, createStandalone: boolean) {
+function buildArtImagePayload(
+  art: LegacyArt,
+  createStandalone: boolean,
+): ArtImageCreatePayload {
   const imagePath = primaryArtPath(art)
-  const payload: Record<string, unknown> = {
+  const payload: ArtImageCreatePayload = {
     artId: createStandalone ? null : art.id,
-    userId: art.userId,
-    galleryId: art.galleryId,
+    userId: art.userId ?? null,
+    galleryId: art.galleryId ?? null,
     imagePath,
     imageData: '',
     fileName: fileNameFromPath(imagePath),
     fileType: guessFileType(imagePath),
-    path: art.path,
-    promptString: art.promptString,
-    negativePrompt: art.negativePrompt,
-    checkpoint: art.checkpoint,
-    checkpointResourceId: art.checkpointResourceId,
-    sampler: art.sampler,
-    seed: art.seed,
-    steps: art.steps,
-    cfg: art.cfg,
-    cfgHalf: art.cfgHalf,
-    designer: art.designer,
-    genres: art.genres,
-    serverId: art.serverId,
-    serverName: art.serverName,
-    serverUrl: art.serverUrl,
-    isPublic: art.isPublic,
-    isMature: art.isMature,
+    path: art.path ?? null,
+    promptString: art.promptString ?? null,
+    negativePrompt: art.negativePrompt ?? null,
+    checkpoint: art.checkpoint ?? null,
+    checkpointResourceId: art.checkpointResourceId ?? null,
+    sampler: art.sampler ?? null,
+    seed: art.seed ?? null,
+    steps: art.steps ?? null,
+    cfg: art.cfg ?? null,
+    cfgHalf: art.cfgHalf ?? null,
+    designer: art.designer ?? null,
+    genres: art.genres ?? null,
+    serverId: art.serverId ?? null,
+    serverName: art.serverName ?? null,
+    serverUrl: art.serverUrl ?? null,
+    isPublic: art.isPublic ?? null,
+    isMature: art.isMature ?? null,
   }
 
   const collection = stringValue(art.collection)
@@ -1262,10 +1264,10 @@ function buildArtImagePayload(art: LegacyArt, createStandalone: boolean) {
   return cleanPayload(payload)
 }
 
-function cleanPayload(payload: Record<string, unknown>) {
+function cleanPayload<T extends Record<string, unknown>>(payload: T): T {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined),
-  )
+  ) as T
 }
 
 function copyPayload(art: LegacyArt) {
@@ -1316,46 +1318,12 @@ function addReport(report: ChangeReport) {
   reports.value = [report, ...reports.value]
 }
 
-function sanitizeArt(art: LegacyArt): LegacyArt {
+function stripHeavyImageFields(image: ArtImage): LightArtImage {
   return {
-    ...art,
-  }
-}
-
-function stripHeavyImageFields(image: LightArtImage): LightArtImage {
-  return {
-    ...image,
+    ...(image as LightArtImage),
     imageData: null,
     thumbnailData: null,
   }
-}
-
-function mergeArt(existing: LegacyArt[], incoming: LegacyArt[]) {
-  const map = new Map<number, LegacyArt>()
-
-  for (const entry of existing) {
-    map.set(entry.id, entry)
-  }
-
-  for (const entry of incoming) {
-    map.set(entry.id, entry)
-  }
-
-  return Array.from(map.values()).sort((a, b) => b.id - a.id)
-}
-
-function mergeImages(existing: LightArtImage[], incoming: LightArtImage[]) {
-  const map = new Map<number, LightArtImage>()
-
-  for (const entry of existing) {
-    map.set(entry.id, stripHeavyImageFields(entry))
-  }
-
-  for (const entry of incoming) {
-    map.set(entry.id, stripHeavyImageFields(entry))
-  }
-
-  return Array.from(map.values()).sort((a, b) => b.id - a.id)
 }
 
 function snapshotArt(art: LegacyArt): Snapshot {
@@ -1435,6 +1403,7 @@ function getCollectionLabel(art: Record<string, unknown>) {
 function fileNameFromPath(path: string) {
   const clean = path.split('?')[0] || ''
   const parts = clean.split('/').filter(Boolean)
+
   return parts.at(-1) || `art-image-${Date.now()}.${guessFileType(path)}`
 }
 
@@ -1503,8 +1472,9 @@ function removeFromSet<T>(set: Set<T>, value: T) {
 
 function rowShellClass(row: LegacyRow) {
   if (row.status === 'ready') return 'border-primary/40'
-  if (row.status === 'created' || row.status === 'deleted')
+  if (row.status === 'created' || row.status === 'deleted') {
     return 'border-success/40'
+  }
   if (row.status === 'failed') return 'border-error/40'
   return 'border-warning/30'
 }
@@ -1517,9 +1487,12 @@ function statusBadgeClass(status: RowStatus) {
 }
 
 function reportBadgeClass(report: ChangeReport) {
-  if (report.status === 'created' || report.status === 'deleted')
+  if (report.status === 'created' || report.status === 'deleted') {
     return 'badge-success'
+  }
+
   if (report.status === 'partial') return 'badge-warning'
+
   return 'badge-error'
 }
 

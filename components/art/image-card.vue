@@ -335,7 +335,6 @@
     </div>
   </reactable-card>
 </template>
-
 <script setup lang="ts">
 // /components/content/art/image-card.vue
 import { computed, ref, watch } from 'vue'
@@ -398,6 +397,27 @@ const localImage = ref<ArtImage | null>(props.artImage)
 const loadingImage = ref(false)
 const imageLoadFailed = ref(false)
 
+const runtimeConfig = useRuntimeConfig()
+
+const appUrl = computed(() => {
+  const configured =
+    runtimeConfig.public?.appUrl ||
+    runtimeConfig.public?.APP_URL ||
+    runtimeConfig.public?.siteUrl ||
+    runtimeConfig.public?.SITE_URL ||
+    ''
+
+  if (typeof configured === 'string' && configured.trim()) {
+    return configured.trim().replace(/\/+$/, '')
+  }
+
+  if (import.meta.client && window.location.origin) {
+    return window.location.origin.replace(/\/+$/, '')
+  }
+
+  return ''
+})
+
 const displayImage = computed(() => {
   return localImage.value || props.artImage
 })
@@ -421,7 +441,7 @@ const imageLoadingMode = computed<'eager' | 'lazy'>(() => {
 const imageKey = computed(() => {
   return [
     displayImage.value.id,
-    displayImage.value.imageData ? 'data' : 'no-data',
+    getImageDataMode(displayImage.value.imageData),
     displayImage.value.imagePath || 'no-path',
     imageLoadFailed.value ? 'fallback' : 'primary',
   ].join('-')
@@ -429,13 +449,11 @@ const imageKey = computed(() => {
 
 const cfgDisplay = computed(() => {
   const cfg = displayImage.value.cfg ?? 0
-
   return displayImage.value.cfgHalf ? `${cfg}.5` : String(cfg)
 })
 
 const checkpointDisplay = computed(() => {
   if (!displayImage.value.checkpoint) return ''
-
   return cleanCheckpointName(displayImage.value.checkpoint)
 })
 
@@ -444,33 +462,35 @@ const checkpointTitle = computed(() => {
 })
 
 const resolvedImageSource = computed(() => {
-  if (imageLoadFailed.value) {
-    return props.fallbackImage
-  }
+  if (imageLoadFailed.value) return props.fallbackImage
 
+  const pathUrl = createImagePathUrl(displayImage.value)
   const dataUrl = createImageDataUrl(displayImage.value)
-  if (dataUrl) return dataUrl
 
-  const normalizedPath = normalizeImagePath(displayImage.value.imagePath)
-  if (normalizedPath) return normalizedPath
+  if (pathUrl && shouldPreferImagePath(displayImage.value)) return pathUrl
+  if (dataUrl) return dataUrl
+  if (pathUrl) return pathUrl
 
   return props.fallbackImage
 })
 
 const imageDataBadgeClass = computed(() => {
-  return displayImage.value.imageData ? 'badge-success' : 'badge-warning'
+  return isUsableImageData(displayImage.value.imageData)
+    ? 'badge-success'
+    : 'badge-warning'
 })
 
 const debugImage = computed(() => {
   return {
     ...displayImage.value,
     imageData: displayImage.value.imageData
-      ? `[${displayImage.value.imageData.length} chars]`
+      ? `[${displayImage.value.imageData.length} chars: ${getImageDataMode(displayImage.value.imageData)}]`
       : '',
     thumbnailData: displayImage.value.thumbnailData
       ? `[${displayImage.value.thumbnailData.length} chars]`
       : null,
-    resolvedImageSourceStart: resolvedImageSource.value.slice(0, 120),
+    appUrl: appUrl.value,
+    resolvedImageSourceStart: resolvedImageSource.value.slice(0, 160),
     imageLoadFailed: imageLoadFailed.value,
     loadingImage: loadingImage.value,
   }
@@ -481,7 +501,10 @@ watch(
   async () => {
     localImage.value = props.artImage
     imageLoadFailed.value = false
-    await loadFullImage()
+
+    if (props.autoLoadImage && shouldFetchFullImage(props.artImage)) {
+      await loadFullImage()
+    }
   },
   { immediate: true },
 )
@@ -500,6 +523,8 @@ watch(
         props.artImage.thumbnailData ||
         null,
     }
+
+    imageLoadFailed.value = false
   },
 )
 
@@ -508,7 +533,7 @@ async function loadFullImage() {
 
   if (!props.autoLoadImage) return
 
-  if (props.artImage.imageData) {
+  if (!shouldFetchFullImage(props.artImage)) {
     localImage.value = props.artImage
     return
   }
@@ -521,22 +546,19 @@ async function loadFullImage() {
       includeThumbnailData: true,
     })
 
-    if (fetched) {
-      localImage.value = fetched
-      emit('loaded', fetched)
-
-      if (!fetched.imageData && !fetched.imagePath) {
-        imageLoadFailed.value = true
-      }
-
+    if (!fetched) {
+      if (!createImagePathUrl(props.artImage)) imageLoadFailed.value = true
       return
     }
 
-    if (!props.artImage.imagePath) {
+    localImage.value = fetched
+    emit('loaded', fetched)
+
+    if (!createImageDataUrl(fetched) && !createImagePathUrl(fetched)) {
       imageLoadFailed.value = true
     }
   } catch {
-    if (!props.artImage.imagePath) {
+    if (!createImagePathUrl(props.artImage)) {
       imageLoadFailed.value = true
     }
   } finally {
@@ -544,9 +566,20 @@ async function loadFullImage() {
   }
 }
 
+function shouldFetchFullImage(image: ArtImage) {
+  if (isUsableImageData(image.imageData)) return false
+  if (createImagePathUrl(image)) return false
+  return true
+}
+
+function shouldPreferImagePath(image: ArtImage) {
+  if (!image.imagePath) return false
+  if (!image.imageData) return true
+  return isProbablyPath(image.imageData) || !isUsableImageData(image.imageData)
+}
+
 function handleImageError() {
   if (resolvedImageSource.value === props.fallbackImage) return
-
   imageLoadFailed.value = true
 }
 
@@ -556,7 +589,6 @@ function selectImage() {
 
 async function copyPrompt() {
   if (!displayImage.value.promptString) return
-
   await navigator.clipboard.writeText(displayImage.value.promptString)
   emit('copied', displayImage.value.promptString)
 }
@@ -592,15 +624,24 @@ function normalizeImageMimeType(fileType?: string | null) {
 }
 
 function createImageDataUrl(image?: ArtImage | null) {
-  if (!image?.imageData) return ''
+  const raw = image?.imageData?.trim()
 
-  if (image.imageData.startsWith('data:image/')) {
-    return image.imageData
-  }
+  if (!raw) return ''
 
-  const mimeType = normalizeImageMimeType(image.fileType)
+  if (raw.startsWith('data:image/')) return raw
+  if (isProbablyPath(raw)) return ''
+  if (!looksLikeBase64(raw)) return ''
 
-  return `data:${mimeType};base64,${image.imageData}`
+  const mimeType = normalizeImageMimeType(image?.fileType)
+
+  return `data:${mimeType};base64,${raw}`
+}
+
+function createImagePathUrl(image?: ArtImage | null) {
+  const path =
+    image?.imagePath || getPathFromBadImageData(image?.imageData) || ''
+
+  return normalizeImagePath(path)
 }
 
 function normalizeImagePath(value?: string | null) {
@@ -608,21 +649,107 @@ function normalizeImagePath(value?: string | null) {
 
   const trimmed = value.trim()
 
-  if (!trimmed || trimmed === 'UNDEFINED') return ''
+  if (!trimmed || trimmed === 'UNDEFINED' || trimmed === 'undefined') return ''
 
   if (
     trimmed.startsWith('http://') ||
     trimmed.startsWith('https://') ||
-    trimmed.startsWith('data:')
+    trimmed.startsWith('data:image/')
   ) {
     return trimmed
   }
 
-  if (trimmed.startsWith('/images/')) return trimmed
-  if (trimmed.startsWith('images/')) return `/${trimmed}`
-  if (trimmed.startsWith('/')) return trimmed
+  const cleanPath = stripServerFilePrefix(trimmed)
 
-  return `/images/${trimmed}`
+  if (cleanPath.startsWith('/images/')) {
+    return withAppUrl(cleanPath)
+  }
+
+  if (cleanPath.startsWith('images/')) {
+    return withAppUrl(`/${cleanPath}`)
+  }
+
+  if (cleanPath.startsWith('/')) {
+    return withAppUrl(`/images${cleanPath}`)
+  }
+
+  return withAppUrl(`/images/${cleanPath}`)
+}
+
+function stripServerFilePrefix(value: string) {
+  return value
+    .replace(/^file:\/\//, '')
+    .replace(/^\/mnt\/data\/+/, '')
+    .replace(/^\/public\/+/, '')
+    .replace(/^public\/+/, '')
+    .replace(/^\/app\/public\/+/, '')
+    .replace(/^app\/public\/+/, '')
+}
+
+function withAppUrl(path: string) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  if (!appUrl.value) return normalizedPath
+
+  return `${appUrl.value}${normalizedPath}`
+}
+
+function getPathFromBadImageData(value?: string | null) {
+  if (!value) return ''
+
+  const trimmed = value.trim()
+
+  if (!isProbablyPath(trimmed)) return ''
+
+  return trimmed
+}
+
+function isUsableImageData(value?: string | null) {
+  if (!value) return false
+
+  const trimmed = value.trim()
+
+  if (trimmed.startsWith('data:image/')) return true
+  if (isProbablyPath(trimmed)) return false
+
+  return looksLikeBase64(trimmed)
+}
+
+function getImageDataMode(value?: string | null) {
+  if (!value) return 'no-data'
+
+  const trimmed = value.trim()
+
+  if (trimmed.startsWith('data:image/')) return 'data-url'
+  if (isProbablyPath(trimmed)) return 'path-in-imageData'
+  if (looksLikeBase64(trimmed)) return 'base64'
+
+  return 'unknown'
+}
+
+function isProbablyPath(value: string) {
+  const trimmed = value.trim()
+
+  return (
+    trimmed.startsWith('/') ||
+    trimmed.startsWith('./') ||
+    trimmed.startsWith('../') ||
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('images/') ||
+    trimmed.startsWith('public/') ||
+    trimmed.startsWith('/mnt/data/') ||
+    /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(trimmed)
+  )
+}
+
+function looksLikeBase64(value: string) {
+  const compact = value.replace(/\s+/g, '')
+
+  if (compact.length < 64) return false
+  if (compact.length % 4 !== 0) return false
+
+  return /^[A-Za-z0-9+/]+={0,2}$/.test(compact)
 }
 
 function cleanCheckpointName(value: string) {
@@ -636,17 +763,4 @@ function cleanCheckpointName(value: string) {
       .trim() || value
   )
 }
-
-watch(
-  () => props.artImage.id,
-  async () => {
-    localImage.value = props.artImage
-    imageLoadFailed.value = false
-    // Only fetch if we actually need image data and don't have it
-    if (props.autoLoadImage && !props.artImage.imageData && !props.artImage.imagePath) {
-      await loadFullImage()
-    }
-  },
-  { immediate: true },
-)
 </script>

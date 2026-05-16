@@ -573,7 +573,7 @@ type LightArtImage = ArtImage & Record<string, unknown>
 type ArtImageCreatePayload = Partial<ArtImage> & Record<string, unknown>
 
 type ArtStoreWithDoctorActions = ReturnType<typeof useArtStore> & {
-  createArtImage: (
+  createLegacyArtImage: (
     input: ArtImageCreatePayload,
   ) => Promise<ApiResponse<ArtImage>>
 }
@@ -1094,7 +1094,7 @@ async function promoteOne(art: LegacyArt) {
 
     log(`Art #${art.id}: creating ArtImage through artStore`)
     const createPayload = buildArtImagePayload(art, shouldDelete)
-    const createResponse = await artStore.createArtImage(createPayload)
+    const createResponse = await artStore.createLegacyArtImage(createPayload)
 
     if (!createResponse.success || !createResponse.data) {
       throw new Error(
@@ -1151,30 +1151,12 @@ async function promoteOne(art: LegacyArt) {
       return
     }
 
-    log(`Art #${art.id}: linking Art to ArtImage #${createdImage.id}`)
-    const patchResponse = await artStore.updateArt(art.id, {
-      artImageId: createdImage.id,
-    })
-
-    if (!patchResponse.success || !patchResponse.data) {
-      addReport({
-        id: reportId,
-        artId: art.id,
-        artImageId: createdImage.id,
-        status: 'partial',
-        message: `Created ArtImage #${createdImage.id}, but failed to link Art #${art.id}.`,
-        before,
-        after: snapshotImage(createdImage),
-        createdAt: new Date().toISOString(),
-      })
-
-      throw new Error(
-        patchResponse.message ||
-          `Created ArtImage #${createdImage.id}, but failed to patch Art #${art.id}.`,
-      )
-    }
-
     selectedIds.value = removeFromSet(selectedIds.value, art.id)
+
+    const updatedArt: LegacyArt = {
+      ...art,
+      artImageId: createdImage.id,
+    }
 
     addReport({
       id: reportId,
@@ -1183,7 +1165,7 @@ async function promoteOne(art: LegacyArt) {
       status: 'created',
       message: `Created ArtImage #${createdImage.id} and linked it to Art #${art.id}.`,
       before,
-      after: snapshotArt(patchResponse.data as LegacyArt),
+      after: snapshotArt(updatedArt),
       createdAt: new Date().toISOString(),
     })
 

@@ -350,7 +350,6 @@ function sanitizeArtImage(image: ArtImage): ArtImage {
   return cleaned as ArtImage
 }
 
-
 function limitByNewestId<T extends { id: number }>(
   items: T[],
   limit: number,
@@ -753,25 +752,24 @@ export const useArtStore = defineStore('artStore', () => {
     return Array.from(map.values()).sort(sortNewestArtImages)
   }
 
-  
   function setArtList(art: Art[]): void {
-  state.art = mergeUniqueArt([], art.map(sanitizeArt))
-  persistArt()
-}
+    state.art = mergeUniqueArt([], art.map(sanitizeArt))
+    persistArt()
+  }
 
-function addOrUpdateArt(art: Art): void {
-  state.art = mergeUniqueArt(state.art, [sanitizeArt(art)])
-  persistArt()
-}
+  function addOrUpdateArt(art: Art): void {
+    state.art = mergeUniqueArt(state.art, [sanitizeArt(art)])
+    persistArt()
+  }
 
-function addOrUpdateArtImages(images: ArtImage[]): void {
-  if (!images.length) return
-  state.artImages = mergeUniqueArtImages(
-    state.artImages,
-    images.map(sanitizeArtImage),
-  )
-  persistArtImages()
-}
+  function addOrUpdateArtImages(images: ArtImage[]): void {
+    if (!images.length) return
+    state.artImages = mergeUniqueArtImages(
+      state.artImages,
+      images.map(sanitizeArtImage),
+    )
+    persistArtImages()
+  }
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
     state.artForm = {
@@ -2285,6 +2283,60 @@ function addOrUpdateArtImages(images: ArtImage[]): void {
     }
   }
 
+  async function createLegacyArtImage(
+    input: ArtImageCreateInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>('/api/art/image/legacy', {
+        method: 'POST',
+        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create legacy ArtImage.')
+      }
+
+      addOrUpdateArtImages([stripHeavyImageFields(response.data)])
+
+      if (state.currentArtImage?.id === response.data.id) {
+        state.currentArtImage = stripHeavyImageFields(response.data)
+      }
+
+      if (response.data.artId) {
+        const linkedArt = state.art.find(
+          (art) => art.id === response.data?.artId,
+        )
+
+        if (linkedArt && linkedArt.artImageId !== response.data.id) {
+          addOrUpdateArt({
+            ...linkedArt,
+            artImageId: response.data.id,
+          })
+        }
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Legacy ArtImage created.',
+      }
+    } catch (error) {
+      handleError(error, 'creating legacy art image')
+      setError(error, 'Failed to create legacy ArtImage.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create legacy ArtImage.',
+      }
+    }
+  }
+
   async function generateArt(
     artData?: GenerateArtData,
   ): Promise<ApiResponse<Art>> {
@@ -2574,6 +2626,7 @@ function addOrUpdateArtImages(images: ArtImage[]): void {
     buildArtImageSyncFields,
     updateArtImageConnections,
     createArtImage,
+    createLegacyArtImage,
   }
 })
 

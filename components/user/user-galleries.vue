@@ -7,8 +7,7 @@
       <h2 class="text-xl font-black">User Galleries</h2>
       <p class="text-sm text-base-content/60">
         Records where <span class="font-bold">userId</span> matches this
-        profile. Each model gets one row, because duplicate UI is how gremlins
-        reproduce.
+        profile. Each model gets one row.
       </p>
     </header>
 
@@ -131,7 +130,7 @@
             <component
               :is="section.galleryComponent"
               v-if="sectionDisplayModes[section.key] === 'gallery'"
-              class="max-h-136 min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-2"
+              class="max-h-[34rem] min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-2"
             />
 
             <div
@@ -187,7 +186,7 @@
 
 <script setup lang="ts">
 // /components/content/user/user-galleries.vue
-import { computed, onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, resolveComponent, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useBotStore } from '@/stores/botStore'
@@ -195,12 +194,6 @@ import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useRewardStore } from '@/stores/rewardStore'
-import ArtGallery from '@/components/content/art/art-gallery.vue'
-import BotGallery from '@/components/content/bots/bot-gallery.vue'
-import CharacterGallery from '@/components/content/weird/character-gallery.vue'
-import DreamGallery from '@/components/content/dreams/dream-gallery.vue'
-import ScenarioGallery from '@/components/content/scenarios/scenario-gallery.vue'
-import RewardGallery from '@/components/content/rewards/reward-gallery.vue'
 
 type SectionKey =
   | 'dreams'
@@ -232,7 +225,7 @@ type UserOwnedSection = {
   label: string
   icon: string
   to: string
-  galleryComponent: unknown
+  galleryComponent: string | ReturnType<typeof resolveComponent>
   items: UserOwnedItem[]
 }
 
@@ -243,6 +236,15 @@ const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
 const scenarioStore = useScenarioStore()
 const rewardStore = useRewardStore()
+
+const galleryComponents = {
+  dreams: resolveComponent('DreamGallery'),
+  art: resolveComponent('ArtGallery'),
+  bots: resolveComponent('BotGallery'),
+  characters: resolveComponent('CharacterGallery'),
+  scenarios: resolveComponent('ScenarioGallery'),
+  rewards: resolveComponent('RewardGallery'),
+}
 
 const expandedSections = reactive<Record<SectionKey, boolean>>({
   dreams: false,
@@ -301,7 +303,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       label: 'Dreams',
       icon: 'kind-icon:sparkles',
       to: '/dreams',
-      galleryComponent: DreamGallery,
+      galleryComponent: galleryComponents.dreams,
       items: dreamItems.value,
     },
     {
@@ -309,7 +311,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       label: 'Art',
       icon: 'kind-icon:palette',
       to: '/art',
-      galleryComponent: ArtGallery,
+      galleryComponent: galleryComponents.art,
       items: artItems.value,
     },
     {
@@ -317,7 +319,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       label: 'Bots',
       icon: 'kind-icon:bot',
       to: '/bots',
-      galleryComponent: BotGallery,
+      galleryComponent: galleryComponents.bots,
       items: botItems.value,
     },
     {
@@ -325,7 +327,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       label: 'Characters',
       icon: 'kind-icon:users',
       to: '/characters',
-      galleryComponent: CharacterGallery,
+      galleryComponent: galleryComponents.characters,
       items: characterItems.value,
     },
     {
@@ -333,7 +335,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       label: 'Scenarios',
       icon: 'kind-icon:map',
       to: '/scenarios',
-      galleryComponent: ScenarioGallery,
+      galleryComponent: galleryComponents.scenarios,
       items: scenarioItems.value,
     },
     {
@@ -341,7 +343,7 @@ const userOwnedSections = computed<UserOwnedSection[]>(() => {
       label: 'Rewards',
       icon: 'kind-icon:gift',
       to: '/rewards',
-      galleryComponent: RewardGallery,
+      galleryComponent: galleryComponents.rewards,
       items: rewardItems.value,
     },
   ]

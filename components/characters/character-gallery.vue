@@ -1,4 +1,4 @@
-<!-- /components/content/weird/character-gallery.vue -->
+<!-- /components/characters/character-gallery.vue -->
 <template>
   <section
     class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"

@@ -40,7 +40,7 @@ export const dashboardConfigs = {
       {
         key: 'upload',
         label: 'Upload',
-        icon: 'kind-icon:floppy',
+        icon: 'kind-icon:save',
         title: 'Upload Art',
         summary: 'Add an image to our gallery',
       },

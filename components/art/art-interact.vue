@@ -16,8 +16,8 @@
       </div>
 
       <div class="flex shrink-0 flex-wrap gap-2">
-        <!-- Gallery button: the ONLY place art-interact touches navStore.
-             slim-gallery restores its own collection context on activation. -->
+        <!-- These are the ONLY places art-interact touches navStore.
+             slim-gallery restores its own collection context from sessionStorage. -->
         <button
           class="btn btn-xs btn-outline rounded-xl sm:btn-sm"
           type="button"
@@ -25,6 +25,16 @@
         >
           <Icon name="kind-icon:image" class="h-4 w-4" />
           Gallery
+        </button>
+
+        <button
+          v-if="currentArtImage"
+          class="btn btn-xs btn-ghost rounded-xl sm:btn-sm"
+          type="button"
+          @click="deselectAndReturn"
+        >
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Deselect
         </button>
 
         <button
@@ -815,6 +825,18 @@ async function handleCreatedCollection(collection: CollectionLike) {
   } finally {
     isCollectionSaving.value = false
   }
+}
+
+// ─── Deselect ─────────────────────────────────────────────────────────────────
+
+/**
+ * Clears the selected image and returns to the gallery.
+ * slim-gallery reads activeCollectionKey from sessionStorage on activation
+ * so it scrolls back to where the user was.
+ */
+function deselectAndReturn() {
+  artStore.deselectArtImage()
+  navStore.setDashboardTab('art', 'gallery')
 }
 
 // ─── Remix ────────────────────────────────────────────────────────────────────

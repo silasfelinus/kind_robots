@@ -1112,23 +1112,8 @@ function rollRewardIdentity() {
   }
 
   if (rewardKind.value === 'skill') {
-    skillName.value = title.value.replace(/^The\s+/i, '')[
-      {
-        resource: '/D:/code/kind_robots/components/builders/reward-builder.vue',
-        owner: 'typescript',
-        code: '2322',
-        severity: 8,
-        message:
-          "Type 'string | undefined' is not assignable to type 'string'.\n  Type 'undefined' is not assignable to type 'string'.",
-        source: 'ts-plugin',
-        startLineNumber: 957,
-        startColumn: 5,
-        endLineNumber: 957,
-        endColumn: 21,
-        modelVersionId: 1,
-        origin: 'extHost1',
-      }
-    ]
+    skillName.value = title.value.replace(/^The\s+/i, '')
+    linkedStat.value = rollLinkedStat()
   }
 }
 

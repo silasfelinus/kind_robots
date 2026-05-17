@@ -58,6 +58,7 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         art: true,
+        ArtImages: true,
       },
     })
 

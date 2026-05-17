@@ -1,5 +1,5 @@
-// server/api/art/collection/[id].get.ts
-import { defineEventHandler } from 'h3'
+// /server/api/art/collection/[id].get.ts
+import { defineEventHandler, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 
@@ -7,19 +7,40 @@ export default defineEventHandler(async (event) => {
   try {
     const collectionId = Number(event.context.params?.id)
 
+    if (!Number.isInteger(collectionId) || collectionId <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid collection ID.',
+      })
+    }
+
     const collection = await prisma.artCollection.findUnique({
       where: { id: collectionId },
       include: {
-        art: true,
+        art: {
+          orderBy: {
+            id: 'desc',
+          },
+        },
+        ArtImages: {
+          orderBy: {
+            id: 'desc',
+          },
+        },
       },
     })
 
     if (!collection) {
-      throw new Error(`Collection with ID ${collectionId} not found.`)
+      throw createError({
+        statusCode: 404,
+        message: `Collection with ID ${collectionId} not found.`,
+      })
     }
 
-    // Wrap the collection in a data object for consistent response format
-    return { success: true, data: { collection } }
+    return {
+      success: true,
+      data: collection,
+    }
   } catch (error: unknown) {
     return errorHandler(error)
   }

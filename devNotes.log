@@ -115,3 +115,8 @@ Add back in milestones
 add fx scroll to art generator animations
 fix animations not staying in toggled sections
 fix butterfly animation to avoid ugly angle
+
+
+
+5/17 4:11pm
+Working today on migrating the Art objects to Art Image. Currently bug hunting the process of saving collection info when transfering, as it's a large part of our old setup. While this could be done automatically and would save some hassle, I insist on taking days to do it piece by piece. At least this way, I'm troubleshooting errors that might have come up in the move, but I'm also forced to spend extra energy accomodating both patterns. This will be a good move when it's done. I'm finally seeing art collections with art images, so it might be time to set fire on an automated routine.

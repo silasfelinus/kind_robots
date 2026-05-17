@@ -36,20 +36,6 @@
       </section>
 
       <section
-        v-else-if="currentTab === 'collection'"
-        class="flex min-h-full flex-col gap-4"
-      >
-        <collection-builder />
-      </section>
-
-      <section
-        v-else-if="currentTab === 'art'"
-        class="flex min-h-full flex-col gap-4"
-      >
-        <art-builder />
-      </section>
-
-      <section
         v-else-if="currentTab === 'dream'"
         class="flex min-h-full flex-col gap-4"
       >

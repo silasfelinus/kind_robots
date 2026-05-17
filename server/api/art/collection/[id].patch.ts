@@ -190,11 +190,8 @@ export default defineEventHandler(async (event) => {
       },
       data: updateData,
       include: {
-        art: {
-          orderBy: {
-            id: 'desc',
-          },
-        },
+        art: true,
+        ArtImages: true,
       },
     })
 

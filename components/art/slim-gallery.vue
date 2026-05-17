@@ -1,21 +1,24 @@
-<!-- /components/content/art/slim-gallery.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
     <header class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-3">
       <div
-        class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
       >
         <div class="min-w-0">
-          <h2 class="text-lg font-black text-base-content">Gallery</h2>
-          <p class="text-sm text-base-content/60">
-            Collections of generated images. Click a card to highlight, then
-            Open to interact.
+          <div class="flex items-center gap-2">
+            <Icon name="kind-icon:gallery" class="h-6 w-6 text-primary" />
+            <h2 class="text-lg font-black text-base-content">Gallery</h2>
+          </div>
+
+          <p class="mt-1 max-w-3xl text-sm text-base-content/60">
+            Browse art image collections as folders. Open a folder to reveal its
+            cards, then select an image to interact with it.
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex shrink-0 flex-wrap items-center gap-2">
           <add-collection
             :compact="true"
             :show-flags="false"
@@ -46,7 +49,7 @@
       </div>
 
       <div
-        class="mt-3 grid grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+        class="mt-3 grid grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_auto_auto]"
       >
         <input
           v-model="searchQuery"
@@ -76,27 +79,23 @@
           <option :value="9">9 folders</option>
           <option :value="12">12 folders</option>
         </select>
-
-        <select
-          v-model.number="perFolderLimit"
-          class="select select-bordered select-sm bg-base-100"
-          title="Cards per collapsed folder"
-        >
-          <option :value="6">6 cards</option>
-          <option :value="12">12 cards</option>
-          <option :value="24">24 cards</option>
-          <option :value="48">48 cards</option>
-        </select>
       </div>
 
       <div
         class="mt-3 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
       >
         <span class="badge badge-ghost">
-          {{ visibleGroups.length }} collections
+          {{ visibleGroups.length }} folders
         </span>
 
         <span class="badge badge-ghost"> {{ visibleImageCount }} images </span>
+
+        <span
+          v-if="expandedGroupKeys.length"
+          class="badge badge-primary badge-outline"
+        >
+          {{ expandedGroupKeys.length }} open
+        </span>
 
         <span v-if="isHydratingImages" class="badge badge-info gap-1">
           <span class="loading loading-spinner loading-xs" />
@@ -107,27 +106,29 @@
           Image #{{ highlightedImageId }} highlighted
         </span>
 
-        <button
-          class="btn btn-ghost btn-xs rounded-xl"
-          type="button"
-          :disabled="folderPage === 0"
-          @click="folderPage--"
-        >
-          <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
-          Prev
-        </button>
+        <div class="ml-auto flex items-center gap-2">
+          <button
+            class="btn btn-ghost btn-xs rounded-xl"
+            type="button"
+            :disabled="folderPage === 0"
+            @click="folderPage--"
+          >
+            <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
+            Prev
+          </button>
 
-        <span>Page {{ folderPage + 1 }} / {{ folderPageCount }}</span>
+          <span>Page {{ folderPage + 1 }} / {{ folderPageCount }}</span>
 
-        <button
-          class="btn btn-ghost btn-xs rounded-xl"
-          type="button"
-          :disabled="folderPage >= folderPageCount - 1"
-          @click="folderPage++"
-        >
-          Next
-          <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
-        </button>
+          <button
+            class="btn btn-ghost btn-xs rounded-xl"
+            type="button"
+            :disabled="folderPage >= folderPageCount - 1"
+            @click="folderPage++"
+          >
+            Next
+            <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
+          </button>
+        </div>
       </div>
     </header>
 
@@ -158,170 +159,229 @@
     >
       <div
         v-if="visibleGroups.length === 0"
-        class="flex min-h-56 flex-col items-center justify-center text-center text-base-content/60"
+        class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
       >
-        <Icon name="kind-icon:gallery" class="h-12 w-12 text-primary" />
-        <p class="mt-2 text-lg font-black">Nothing to show.</p>
-        <p class="text-sm">No images match the current filter.</p>
+        <Icon name="kind-icon:folder-search" class="h-12 w-12 text-primary" />
+        <p class="mt-2 text-lg font-black text-base-content">
+          Nothing to show.
+        </p>
+        <p class="text-sm">No folders or images match the current filter.</p>
       </div>
 
-      <div v-else class="flex flex-col gap-4">
+      <div v-else class="flex flex-col gap-3">
         <article
           v-for="group in pagedGroups"
           :key="group.key"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
-          :class="
-            activeCollectionKey === group.key ? 'ring-2 ring-primary/40' : ''
-          "
+          class="overflow-hidden rounded-2xl border bg-base-100"
+          :class="[
+            activeCollectionKey === group.key
+              ? 'border-primary/50 ring-2 ring-primary/30'
+              : 'border-base-300',
+            group.isVirtual ? 'bg-base-100/80' : 'bg-base-100',
+          ]"
         >
-          <!-- Folder header -->
-          <header
-            class="flex flex-col gap-3 border-b border-base-300 pb-3 lg:flex-row lg:items-start lg:justify-between"
+          <button
+            class="flex w-full flex-col gap-3 p-3 text-left transition hover:bg-base-200/70 lg:flex-row lg:items-center lg:justify-between"
+            type="button"
+            @click="toggleExpanded(group.key)"
           >
-            <button
-              class="min-w-0 text-left"
-              type="button"
-              @click="setActiveCollection(group.key)"
-            >
-              <div class="flex flex-wrap items-center gap-2">
-                <Icon
-                  :name="
-                    activeCollectionKey === group.key
-                      ? 'kind-icon:folder-open'
-                      : 'kind-icon:folder'
-                  "
-                  class="h-5 w-5 shrink-0 text-primary"
-                />
-                <h3 class="truncate text-lg font-black text-base-content">
-                  {{ group.title }}
-                </h3>
-                <span
-                  v-if="group.isVirtual"
-                  class="badge badge-accent badge-sm"
-                >
-                  Virtual
-                </span>
-                <span v-if="group.isPublic" class="badge badge-info badge-sm">
-                  Public
-                </span>
-                <span v-else class="badge badge-ghost badge-sm">Private</span>
-                <span
-                  v-if="group.isMature"
-                  class="badge badge-warning badge-sm"
-                >
-                  Mature
-                </span>
-              </div>
-              <p class="mt-1 line-clamp-2 text-sm text-base-content/60">
-                {{ group.description }}
-              </p>
-            </button>
-
-            <div class="flex shrink-0 flex-wrap gap-2">
-              <span class="badge badge-primary">
-                {{ group.images.length }} images
-              </span>
-
-              <button
-                v-if="group.images.length > perFolderLimit"
-                class="btn btn-ghost btn-xs rounded-xl"
-                type="button"
-                @click="toggleExpanded(group.key)"
+            <div class="flex min-w-0 items-start gap-3">
+              <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+                :class="group.isVirtual ? 'bg-accent/15' : 'bg-primary/15'"
               >
                 <Icon
                   :name="
                     isExpanded(group.key)
-                      ? 'kind-icon:chevron-up'
-                      : 'kind-icon:chevron-down'
+                      ? 'kind-icon:folder-open'
+                      : 'kind-icon:folder'
                   "
-                  class="h-3 w-3"
+                  class="h-7 w-7"
+                  :class="group.isVirtual ? 'text-accent' : 'text-primary'"
                 />
-                {{ isExpanded(group.key) ? 'Show less' : 'Show all' }}
-              </button>
+              </div>
+
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="truncate text-lg font-black text-base-content">
+                    {{ group.title }}
+                  </h3>
+
+                  <span
+                    v-if="group.isVirtual"
+                    class="badge badge-accent badge-sm"
+                  >
+                    Unsorted
+                  </span>
+
+                  <span v-if="group.isPublic" class="badge badge-info badge-sm">
+                    Public
+                  </span>
+
+                  <span v-else class="badge badge-ghost badge-sm">
+                    Private
+                  </span>
+
+                  <span
+                    v-if="group.isMature"
+                    class="badge badge-warning badge-sm"
+                  >
+                    Mature
+                  </span>
+                </div>
+
+                <p class="mt-1 line-clamp-2 text-sm text-base-content/60">
+                  {{ group.description }}
+                </p>
+              </div>
             </div>
-          </header>
 
-          <!-- Empty state -->
-          <div
-            v-if="getVisibleImages(group).length === 0"
-            class="flex min-h-32 flex-col items-center justify-center text-center text-base-content/55"
-          >
-            <Icon name="kind-icon:image" class="h-9 w-9 text-primary" />
-            <p class="mt-2 text-sm font-bold">Empty collection.</p>
-          </div>
+            <div
+              class="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end"
+            >
+              <span class="badge badge-primary">
+                {{ group.images.length }} images
+              </span>
 
-          <!-- Image grid -->
+              <span
+                v-if="isExpanded(group.key)"
+                class="badge badge-success badge-outline"
+              >
+                Open
+              </span>
+
+              <Icon
+                :name="
+                  isExpanded(group.key)
+                    ? 'kind-icon:chevron-up'
+                    : 'kind-icon:chevron-down'
+                "
+                class="h-5 w-5 text-base-content/50"
+              />
+            </div>
+          </button>
+
           <div
-            v-else
-            class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3"
+            v-if="!isExpanded(group.key)"
+            class="border-t border-base-300 bg-base-200/50 p-3"
           >
             <div
-              v-for="image in getVisibleImages(group)"
-              :key="image.id"
-              class="relative"
-              :class="
-                highlightedImageId === image.id
-                  ? 'ring-2 ring-secondary rounded-2xl'
-                  : ''
-              "
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 sm:flex-row sm:items-center sm:justify-between"
             >
-              <image-card
-                :art-image="hydratedImages[image.id] || image"
-                :selected="highlightedImageId === image.id"
-                :compact="true"
-                :show-actions="highlightedImageId === image.id"
-                :show-prompt="true"
-                :show-meta="true"
-                :show-generation-meta="false"
-                :show-select-button="false"
-                :allow-delete="canModifyImage(image)"
-                :allow-edit="false"
-                :auto-load-image="false"
-                @select="handleCardClick(image)"
-                @delete="handleImageDeleted"
-              />
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-base-content">
+                  {{ group.images.length }} images tucked inside.
+                </p>
 
-              <!-- Action bar: only visible when this card is highlighted -->
-              <div
-                v-if="highlightedImageId === image.id"
-                class="mt-2 flex gap-2"
+                <p class="text-xs text-base-content/60">
+                  Open this folder to browse its art image cards.
+                </p>
+              </div>
+
+              <button
+                class="btn btn-primary btn-sm rounded-xl"
+                type="button"
+                @click.stop="toggleExpanded(group.key)"
               >
-                <button
-                  class="btn btn-primary btn-sm flex-1 rounded-xl text-white"
-                  type="button"
-                  @click="openInArtInteract(hydratedImages[image.id] || image)"
-                >
-                  <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-                  Open
-                </button>
+                <Icon name="kind-icon:folder-open" class="h-4 w-4" />
+                Open folder
+              </button>
+            </div>
+          </div>
 
-                <button
-                  v-if="canModifyImage(image)"
-                  class="btn btn-error btn-sm rounded-xl"
-                  type="button"
-                  @click="handleImageDeleted(image.id)"
+          <div
+            v-else-if="group.images.length === 0"
+            class="border-t border-base-300 bg-base-200/50 p-6"
+          >
+            <div
+              class="flex min-h-32 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/55"
+            >
+              <Icon name="kind-icon:image" class="h-10 w-10 text-primary" />
+              <p class="mt-2 text-sm font-bold text-base-content">
+                Empty collection.
+              </p>
+              <p class="text-xs text-base-content/60">
+                No art images are attached to this folder yet.
+              </p>
+            </div>
+          </div>
+
+          <div v-else class="border-t border-base-300 bg-base-200/50 p-3">
+            <div
+              class="mb-3 flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p class="text-sm font-bold text-base-content">
+                  Showing {{ getVisibleImages(group).length }} images
+                </p>
+                <p class="text-xs text-base-content/60">
+                  Click a card to highlight it, then open it in the art
+                  workspace.
+                </p>
+              </div>
+
+              <button
+                class="btn btn-ghost btn-sm rounded-xl"
+                type="button"
+                @click="toggleExpanded(group.key)"
+              >
+                <Icon name="kind-icon:folder" class="h-4 w-4" />
+                Close folder
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
+              <div
+                v-for="image in getVisibleImages(group)"
+                :key="image.id"
+                class="relative rounded-2xl"
+                :class="
+                  highlightedImageId === image.id ? 'ring-2 ring-secondary' : ''
+                "
+              >
+                <image-card
+                  :art-image="hydratedImages[image.id] || image"
+                  :selected="highlightedImageId === image.id"
+                  :compact="true"
+                  :show-actions="highlightedImageId === image.id"
+                  :show-prompt="true"
+                  :show-meta="true"
+                  :show-generation-meta="false"
+                  :show-select-button="false"
+                  :allow-delete="canModifyImage(image)"
+                  :allow-edit="false"
+                  :auto-load-image="false"
+                  @select="handleCardClick(image)"
+                  @delete="handleImageDeleted"
+                />
+
+                <div
+                  v-if="highlightedImageId === image.id"
+                  class="mt-2 flex gap-2"
                 >
-                  <Icon name="kind-icon:trash" class="h-4 w-4" />
-                </button>
+                  <button
+                    class="btn btn-primary btn-sm flex-1 rounded-xl text-white"
+                    type="button"
+                    @click="
+                      openInArtInteract(hydratedImages[image.id] || image)
+                    "
+                  >
+                    <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+                    Open
+                  </button>
+
+                  <button
+                    v-if="canModifyImage(image)"
+                    class="btn btn-error btn-sm rounded-xl"
+                    type="button"
+                    @click="handleImageDeleted(image.id)"
+                  >
+                    <Icon name="kind-icon:trash" class="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-
-          <footer
-            v-if="
-              !isExpanded(group.key) && group.images.length > perFolderLimit
-            "
-            class="mt-3 rounded-2xl bg-base-200 p-3 text-center text-xs text-base-content/60"
-          >
-            Showing {{ perFolderLimit }} of {{ group.images.length }} images.
-            <button
-              class="btn btn-ghost btn-xs rounded-xl"
-              type="button"
-              @click="toggleExpanded(group.key)"
-            >
-              Show all
-            </button>
-          </footer>
         </article>
       </div>
     </section>
@@ -329,7 +389,7 @@
     <footer
       class="shrink-0 rounded-2xl bg-base-200 p-3 text-xs text-base-content/60"
     >
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <p>
           Collections:
           <span class="font-bold text-base-content">
@@ -344,11 +404,18 @@
           </span>
         </p>
 
+        <p>
+          Visible:
+          <span class="font-bold text-base-content">
+            {{ visibleImageCount }}
+          </span>
+        </p>
+
         <p v-if="highlightedImageId">
           Highlighted:
-          <span class="font-bold text-secondary"
-            >#{{ highlightedImageId }}</span
-          >
+          <span class="font-bold text-secondary">
+            #{{ highlightedImageId }}
+          </span>
         </p>
       </div>
     </footer>
@@ -425,16 +492,24 @@ const currentUserId = computed(
 // ─── Collection Groups ────────────────────────────────────────────────────────
 
 const collectionGroups = computed<FolderGroup[]>(() => {
-  const groups = collectionStore.collections.map(normalizeCollectionGroup)
+  const groups = collectionStore.collections
+    .map(normalizeCollectionGroup)
+    .sort((a, b) => {
+      return a.title.localeCompare(b.title)
+    })
 
   const assignedImageIds = new Set<number>()
+
   for (const group of groups) {
-    for (const image of group.images) assignedImageIds.add(image.id)
+    for (const image of group.images) {
+      assignedImageIds.add(image.id)
+    }
   }
 
   const unassignedImages = artStore.artImages
     .map((image) => hydratedImages.value[image.id] || image)
     .filter((image) => !assignedImageIds.has(image.id))
+    .sort((a, b) => b.id - a.id)
 
   const unassigned: FolderGroup = {
     key: 'collection-unassigned',
@@ -448,7 +523,7 @@ const collectionGroups = computed<FolderGroup[]>(() => {
     images: unassignedImages,
   }
 
-  return [unassigned, ...groups]
+  return [...groups, unassigned]
 })
 
 const visibleGroups = computed<FolderGroup[]>(() => {
@@ -595,8 +670,8 @@ function filterGroup(group: FolderGroup, query: string): FolderGroup {
 }
 
 function getVisibleImages(group: FolderGroup): ArtImage[] {
-  if (isExpanded(group.key)) return group.images
-  return group.images.slice(0, perFolderLimit.value)
+  if (!isExpanded(group.key)) return []
+  return group.images
 }
 
 function isExpanded(key: string): boolean {

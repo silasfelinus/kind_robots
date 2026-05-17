@@ -1,7 +1,7 @@
 // /stores/collectionStore.ts
 import { defineStore } from 'pinia'
-import { ref, reactive, toRefs, computed, watch } from 'vue'
-import type { Art } from '~/prisma/generated/prisma/client'
+import { computed, reactive, ref, toRefs, watch } from 'vue'
+import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { performFetch, handleError } from './utils'
 import {
@@ -18,10 +18,193 @@ import { useArtStore } from '@/stores/artStore'
 
 const isClient = typeof window !== 'undefined'
 
+type ApiResponse<T> = {
+  success: boolean
+  data?: T
+  message?: string
+}
+
+type ArtWithRelations = Art & {
+  ArtImage?: ArtImage | null
+  artImage?: ArtImage | null
+  ArtCollections?: unknown
+  artCollections?: unknown
+  Tags?: unknown
+  Reactions?: unknown
+  Gallery?: unknown
+  Server?: unknown
+}
+
+type CollectionWithRelations = ArtCollection & {
+  Art?: ArtWithRelations[]
+  art?: ArtWithRelations[]
+  ArtImages?: ArtImage[]
+  artImages?: ArtImage[]
+  images?: ArtImage[]
+}
+
+type NormalizedCollection = ArtCollection & {
+  Art?: Art[]
+  artImages?: ArtImage[]
+  ArtImages?: ArtImage[]
+  images?: ArtImage[]
+}
+
+type CollectionState = {
+  collections: ArtCollection[]
+  currentCollection: ArtCollection | null
+  autoSave: boolean
+}
+
+type AddArtToCollectionInput = {
+  artId: number
+  collectionId?: number
+  label?: string
+}
+
+type AddArtImageToCollectionInput = {
+  artImageId: number
+  collectionId?: number
+  label?: string
+}
+
+type CollectionPatchInput = {
+  label?: string
+  description?: string
+  isPublic?: boolean
+  isMature?: boolean
+  addArtIds?: number[]
+  removeArtIds?: number[]
+}
+
+function isValidId(value: unknown): value is number {
+  return Number.isInteger(Number(value)) && Number(value) > 0
+}
+
+function isArtImagePayload(value: unknown): value is ArtImage {
+  return Boolean(
+    value && typeof value === 'object' && isValidId((value as ArtImage).id),
+  )
+}
+
+function sanitizeCollectionArt(entry: ArtWithRelations): Art {
+  const {
+    ArtImage,
+    artImage,
+    ArtCollections,
+    artCollections,
+    Tags,
+    Reactions,
+    Gallery,
+    Server,
+    ...rest
+  } = entry
+
+  return rest as Art
+}
+
+function normalizeCollection(
+  collection: CollectionWithRelations,
+): ArtCollection {
+  const rawArtSource = collection.art ?? collection.Art ?? []
+  const rawArt = Array.isArray(rawArtSource)
+    ? rawArtSource.map((entry) => entry as ArtWithRelations)
+    : []
+
+  const art = rawArt.map((entry) => sanitizeCollectionArt(entry))
+
+  const directImages = [
+    ...(collection.artImages ?? []),
+    ...(collection.ArtImages ?? []),
+    ...(collection.images ?? []),
+  ].filter(isArtImagePayload)
+
+  const imagesFromArt = rawArt.flatMap((entry) => {
+    const media = entry as Record<string, unknown>
+
+    return [media.ArtImage, media.artImage].filter(isArtImagePayload)
+  })
+
+  const imageMap = new Map<number, ArtImage>()
+
+  for (const image of [...directImages, ...imagesFromArt]) {
+    imageMap.set(image.id, image)
+  }
+
+  const artImages = Array.from(imageMap.values())
+
+  return {
+    ...collection,
+    art,
+    artImages,
+    ArtImages: artImages,
+  } as NormalizedCollection
+}
+
+function normalizeCollections(collections: CollectionWithRelations[]) {
+  return collections.map((collection) => normalizeCollection(collection))
+}
+
+function getCollectionArtImages(collection: ArtCollection): ArtImage[] {
+  const media = collection as NormalizedCollection
+
+  return [
+    ...(media.artImages ?? []),
+    ...(media.ArtImages ?? []),
+    ...(media.images ?? []),
+  ].filter(isArtImagePayload)
+}
+
+function collectionIncludesArtImageId(
+  collection: ArtCollection,
+  artImageId: number,
+): boolean {
+  return getCollectionArtImages(collection).some((image) => {
+    return image.id === artImageId
+  })
+}
+
+function replaceCollectionLocal(
+  collections: ArtCollection[],
+  incoming: ArtCollection,
+): ArtCollection[] {
+  const normalized = normalizeCollection(incoming as CollectionWithRelations)
+  const index = collections.findIndex((collection) => {
+    return collection.id === normalized.id
+  })
+
+  if (index === -1) {
+    return [...collections, normalized]
+  }
+
+  const next = [...collections]
+  next[index] = normalized
+  return next
+}
+
+function removeArtImageFromLocalCollection(
+  collection: ArtCollection,
+  artImageId: number,
+): void {
+  const mutable = collection as NormalizedCollection
+
+  mutable.artImages = (mutable.artImages ?? []).filter((image) => {
+    return image.id !== artImageId
+  })
+
+  mutable.ArtImages = (mutable.ArtImages ?? []).filter((image) => {
+    return image.id !== artImageId
+  })
+
+  mutable.images = (mutable.images ?? []).filter((image) => {
+    return image.id !== artImageId
+  })
+}
+
 export const useCollectionStore = defineStore('collectionStore', () => {
-  const state = reactive({
-    collections: [] as ArtCollection[],
-    currentCollection: null as ArtCollection | null,
+  const state = reactive<CollectionState>({
+    collections: [],
+    currentCollection: null,
     autoSave: true,
   })
 
@@ -36,21 +219,53 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   const createLocks = ref<Partial<Record<string, Promise<ArtCollection>>>>({})
   const mutationLocks = ref<Partial<Record<string, Promise<void>>>>({})
 
+  const selectedCollections = computed(() => {
+    return selectedCollectionIds.value
+      .map((id) => findCollectionByIdLocal(id))
+      .filter((collection): collection is ArtCollection => Boolean(collection))
+  })
+
+  const selectedCollectionArtImages = computed(() => {
+    const imageMap = new Map<number, ArtImage>()
+
+    for (const collection of selectedCollections.value) {
+      for (const image of getCollectionArtImages(collection)) {
+        imageMap.set(image.id, image)
+      }
+    }
+
+    return Array.from(imageMap.values())
+  })
+
+  const allCollectionArtImages = computed(() => {
+    const imageMap = new Map<number, ArtImage>()
+
+    for (const collection of state.collections) {
+      for (const image of getCollectionArtImages(collection)) {
+        imageMap.set(image.id, image)
+      }
+    }
+
+    return Array.from(imageMap.values())
+  })
+
+  const allCollectionArtImageIds = computed(() => {
+    return allCollectionArtImages.value.map((image) => image.id)
+  })
+
   function findCollectionByIdLocal(
     collectionId: number,
   ): ArtCollection | undefined {
-    return state.collections.find(
-      (collection) => collection.id === collectionId,
-    )
+    return state.collections.find((collection) => {
+      return collection.id === collectionId
+    })
   }
 
-  const selectedCollections = computed(() =>
-    selectedCollectionIds.value
-      .map((id) => findCollectionByIdLocal(id))
-      .filter((collection): collection is ArtCollection => !!collection),
-  )
+  function getCurrentUserId(): number {
+    return Number(userStore.userId ?? userStore.user?.id ?? 10)
+  }
 
-  function loadSelectedCollectionIds() {
+  function loadSelectedCollectionIds(): void {
     if (!isClient) return
 
     const stored = localStorage.getItem(SELECTED_COLLECTION_KEY)
@@ -58,18 +273,20 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     try {
       const parsed = JSON.parse(stored)
+
       if (Array.isArray(parsed)) {
-        selectedCollectionIds.value = parsed.filter((id) =>
-          Number.isFinite(id),
-        ) as number[]
+        selectedCollectionIds.value = parsed
+          .map((id) => Number(id))
+          .filter((id) => Number.isFinite(id) && id > 0)
       }
     } catch (error) {
       console.warn('Invalid collection selection in localStorage:', error)
     }
   }
 
-  function persistSelectedCollectionIds() {
+  function persistSelectedCollectionIds(): void {
     if (!isClient) return
+
     localStorage.setItem(
       SELECTED_COLLECTION_KEY,
       JSON.stringify(selectedCollectionIds.value),
@@ -92,7 +309,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     fetchPromise.value = (async () => {
       try {
-        const response = await performFetch<ArtCollection[]>(
+        const response = await performFetch<CollectionWithRelations[]>(
           '/api/art/collection',
         )
 
@@ -100,26 +317,33 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           throw new Error(response.message || 'Failed to fetch collections')
         }
 
-        
-        
-// In collectionStore.fetchCollections, after receiving data:
-state.collections = response.data.map(collection => ({
-  ...collection,
-  art: (collection.art ?? []).map(a => {
-    const { ArtCollections, artCollections, ArtImage, Tags, Reactions, ...rest } = a as any
-    return rest
-  }),
-}))
-hasFetched.value = true
+        state.collections = normalizeCollections(response.data)
 
+        const images = state.collections.flatMap((collection) => {
+          return getCollectionArtImages(collection)
+        })
+
+        if (
+          images.length &&
+          typeof artStore.addOrUpdateArtImages === 'function'
+        ) {
+          artStore.addOrUpdateArtImages(images)
+        }
+
+        hasFetched.value = true
 
         if (
           state.currentCollection &&
-          !state.collections.some(
-            (collection) => collection.id === state.currentCollection?.id,
-          )
+          !state.collections.some((collection) => {
+            return collection.id === state.currentCollection?.id
+          })
         ) {
           state.currentCollection = null
+        }
+
+        if (state.currentCollection) {
+          state.currentCollection =
+            findCollectionByIdLocal(state.currentCollection.id) ?? null
         }
       } catch (error) {
         handleError(error, 'fetching collections')
@@ -137,10 +361,17 @@ hasFetched.value = true
       .filter((collection) => collection.userId === userStore.userId)
       .flatMap((collection) => collection.art.map((art) => art.id))
 
-    return artStore.art.filter(
-      (art) =>
-        art.userId === userStore.userId && !collectedIds.includes(art.id),
-    )
+    return artStore.art.filter((art) => {
+      return art.userId === userStore.userId && !collectedIds.includes(art.id)
+    })
+  }
+
+  function getUncollectedArtImages(): ArtImage[] {
+    const collectedIds = new Set(allCollectionArtImageIds.value)
+
+    return artStore.artImages.filter((image) => {
+      return image.userId === userStore.userId && !collectedIds.has(image.id)
+    })
   }
 
   async function updateCollectionDetails(
@@ -153,7 +384,7 @@ hasFetched.value = true
     },
   ): Promise<ArtCollection | null> {
     try {
-      const response = await performFetch<ArtCollection>(
+      const response = await performFetch<CollectionWithRelations>(
         `/api/art/collection/${id}`,
         {
           method: 'PATCH',
@@ -166,19 +397,15 @@ hasFetched.value = true
         throw new Error(response.message || 'Failed to update collection')
       }
 
-      const index = state.collections.findIndex((collection) => {
-        return collection.id === id
-      })
+      const normalized = normalizeCollection(response.data)
 
-      if (index !== -1) {
-        state.collections[index] = response.data
-      }
+      state.collections = replaceCollectionLocal(state.collections, normalized)
 
       if (state.currentCollection?.id === id) {
-        state.currentCollection = response.data
+        state.currentCollection = normalized
       }
 
-      return response.data
+      return normalized
     } catch (error) {
       handleError(error, 'updating collection details')
       return null
@@ -196,19 +423,25 @@ hasFetched.value = true
     if (typeof isPublic === 'boolean') body.isPublic = isPublic
     if (typeof isMature === 'boolean') body.isMature = isMature
 
-    const response = await performFetch<ArtCollection>('/api/art/collection', {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const response = await performFetch<CollectionWithRelations>(
+      '/api/art/collection',
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
 
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Failed to create collection')
     }
 
-    state.collections.push(response.data)
-    state.currentCollection = response.data
-    return response.data
+    const normalized = normalizeCollection(response.data)
+
+    state.collections = replaceCollectionLocal(state.collections, normalized)
+    state.currentCollection = normalized
+
+    return normalized
   }
 
   async function deleteCollectionById(collectionId: number): Promise<boolean> {
@@ -224,17 +457,17 @@ hasFetched.value = true
         throw new Error(response.message || 'Failed to delete collection')
       }
 
-      state.collections = state.collections.filter(
-        (collection) => collection.id !== collectionId,
-      )
+      state.collections = state.collections.filter((collection) => {
+        return collection.id !== collectionId
+      })
 
       if (state.currentCollection?.id === collectionId) {
         state.currentCollection = null
       }
 
-      selectedCollectionIds.value = selectedCollectionIds.value.filter(
-        (id) => id !== collectionId,
-      )
+      selectedCollectionIds.value = selectedCollectionIds.value.filter((id) => {
+        return id !== collectionId
+      })
 
       return true
     } catch (error) {
@@ -243,16 +476,104 @@ hasFetched.value = true
     }
   }
 
-  async function addArtToCollection({
-    artId,
+  async function patchCollection(
+    collectionId: number,
+    patch: CollectionPatchInput,
+  ): Promise<ArtCollection | null> {
+    try {
+      const response = await performFetch<CollectionWithRelations>(
+        `/api/art/collection/${collectionId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(patch),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update collection')
+      }
+
+      const normalized = normalizeCollection(response.data)
+
+      state.collections = replaceCollectionLocal(state.collections, normalized)
+
+      if (state.currentCollection?.id === collectionId) {
+        state.currentCollection = normalized
+      }
+
+      return normalized
+    } catch (error) {
+      handleError(error, 'patching collection')
+      return null
+    }
+  }
+
+  async function getOrCreateCollectionByLabel(
+    label: string,
+    userId = getCurrentUserId(),
+    isPublic = false,
+    isMature = false,
+  ): Promise<ArtCollection> {
+    const existing = findCollectionByUserAndLabel(
+      state.collections,
+      userId,
+      label,
+    )
+
+    if (existing) return existing
+
+    return await createCollection(label, userId, isPublic, isMature)
+  }
+
+  async function resolveCollectionForMutation({
     collectionId,
     label = '',
   }: {
-    artId: number
     collectionId?: number
     label?: string
-  }): Promise<void> {
-    const lockKey = `${collectionId ?? label}:${artId}`
+  }): Promise<ArtCollection> {
+    if (collectionId != null) {
+      const existing = findCollectionByIdLocal(collectionId)
+      if (existing) return existing
+
+      await fetchCollections(true)
+
+      const fetched = findCollectionByIdLocal(collectionId)
+      if (fetched) return fetched
+
+      throw new Error(`Collection #${collectionId} was not found.`)
+    }
+
+    const safeLabel = label.trim() || 'Generated Art'
+
+    return await getOrCreateCollectionByLabel(safeLabel)
+  }
+
+  async function addArtToCollection(
+    input: AddArtToCollectionInput,
+  ): Promise<void>
+  async function addArtToCollection(
+    collectionId: number,
+    artId: number,
+  ): Promise<void>
+  async function addArtToCollection(
+    inputOrCollectionId: AddArtToCollectionInput | number,
+    maybeArtId?: number,
+  ): Promise<void> {
+    const input =
+      typeof inputOrCollectionId === 'number'
+        ? {
+            collectionId: inputOrCollectionId,
+            artId: Number(maybeArtId),
+          }
+        : inputOrCollectionId
+
+    if (!isValidId(input.artId)) return
+
+    const lockKey = `art:${input.collectionId ?? input.label ?? 'new'}:${
+      input.artId
+    }`
 
     if (mutationLocks.value[lockKey]) {
       return mutationLocks.value[lockKey]
@@ -260,59 +581,90 @@ hasFetched.value = true
 
     mutationLocks.value[lockKey] = (async () => {
       try {
-        let collection =
-          collectionId != null
-            ? findCollectionByIdLocal(collectionId)
-            : findCollectionByUserAndLabel(
-                state.collections,
-                userStore.userId,
-                label,
-              )
+        const collection = await resolveCollectionForMutation({
+          collectionId: input.collectionId,
+          label: input.label,
+        })
 
-        if (!collection) {
-          const response = await performFetch<ArtCollection>(
-            '/api/art/collection',
-            {
-              method: 'POST',
-              body: JSON.stringify({ label, userId: userStore.userId }),
-              headers: { 'Content-Type': 'application/json' },
-            },
-          )
-
-          if (!response.success || !response.data) {
-            throw new Error(response.message || 'Failed to create collection')
-          }
-
-          collection = response.data
-          state.collections.push(collection)
-        }
-
-        if (collectionIncludesArtId(collection, artId)) {
+        if (collectionIncludesArtId(collection, input.artId)) {
           return
         }
 
-        const response = await performFetch<ArtCollection>(
-          `/api/art/collection/${collection.id}`,
+        await patchCollection(collection.id, {
+          addArtIds: [input.artId],
+        })
+      } catch (error) {
+        handleError(error, 'adding art to collection')
+      } finally {
+        delete mutationLocks.value[lockKey]
+      }
+    })()
+
+    return mutationLocks.value[lockKey]
+  }
+
+  async function addArtImageToCollection(
+    input: AddArtImageToCollectionInput,
+  ): Promise<void>
+  async function addArtImageToCollection(
+    collectionId: number,
+    artImageId: number,
+  ): Promise<void>
+  async function addArtImageToCollection(
+    inputOrCollectionId: AddArtImageToCollectionInput | number,
+    maybeArtImageId?: number,
+  ): Promise<void> {
+    const input =
+      typeof inputOrCollectionId === 'number'
+        ? {
+            collectionId: inputOrCollectionId,
+            artImageId: Number(maybeArtImageId),
+          }
+        : inputOrCollectionId
+
+    if (!isValidId(input.artImageId)) return
+
+    const lockKey = `artImage:${input.collectionId ?? input.label ?? 'new'}:${
+      input.artImageId
+    }`
+
+    if (mutationLocks.value[lockKey]) {
+      return mutationLocks.value[lockKey]
+    }
+
+    mutationLocks.value[lockKey] = (async () => {
+      try {
+        const collection = await resolveCollectionForMutation({
+          collectionId: input.collectionId,
+          label: input.label,
+        })
+
+        if (collectionIncludesArtImageId(collection, input.artImageId)) {
+          return
+        }
+
+        const response = await performFetch<ArtImage>(
+          `/api/art/image/connections/${input.artImageId}`,
           {
             method: 'PATCH',
-            body: JSON.stringify({ addArtIds: [artId] }),
+            body: JSON.stringify({
+              artCollectionIds: [collection.id],
+            }),
             headers: { 'Content-Type': 'application/json' },
           },
         )
 
-        if (response.success && response.data) {
-          const index = state.collections.findIndex(
-            (existingCollection) => existingCollection.id === collection!.id,
+        if (!response.success || !response.data) {
+          throw new Error(
+            response.message || 'Failed to add art image to collection',
           )
-
-          if (index !== -1) {
-            state.collections[index] = response.data
-          }
-        } else {
-          throw new Error(response.message || 'Failed to add art to collection')
         }
+
+        artStore.addOrUpdateArtImages([response.data])
+
+        await fetchCollections(true)
       } catch (error) {
-        handleError(error, 'adding art to collection')
+        handleError(error, 'adding art image to collection')
       } finally {
         delete mutationLocks.value[lockKey]
       }
@@ -329,6 +681,7 @@ hasFetched.value = true
 
     if (success) {
       const collection = findCollectionByIdLocal(collectionId)
+
       if (collection) {
         removeArtFromLocalCollection(collection, artId)
       }
@@ -352,8 +705,11 @@ hasFetched.value = true
       }
 
       const collection = findCollectionByIdLocal(collectionId)
+
       if (collection) {
-        collection.art = collection.art.filter((art) => art.id !== artId)
+        collection.art = collection.art.filter((art) => {
+          return art.id !== artId
+        })
       }
 
       return true
@@ -363,10 +719,69 @@ hasFetched.value = true
     }
   }
 
-  function getUserCollections(userId: number): ArtCollection[] {
-    return state.collections.filter(
-      (collection) => collection.userId === userId,
+  async function removeArtImageFromCollection(
+    artImageId: number,
+    collectionId: number,
+  ): Promise<void> {
+    const success = await removeArtImageFromCollectionServer(
+      collectionId,
+      artImageId,
     )
+
+    if (success) {
+      const collection = findCollectionByIdLocal(collectionId)
+
+      if (collection) {
+        removeArtImageFromLocalCollection(collection, artImageId)
+      }
+    }
+  }
+
+  async function removeArtImageFromCollectionServer(
+    collectionId: number,
+    artImageId: number,
+  ): Promise<boolean> {
+    try {
+      const response = await performFetch<ArtImage>(
+        `/api/art/image/connections/${artImageId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            disconnectArtCollectionIds: [collectionId],
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(
+          response.message || 'Failed to remove art image from collection',
+        )
+      }
+
+      artStore.addOrUpdateArtImages([response.data])
+
+      return true
+    } catch (error) {
+      handleError(error, 'removing art image from collection')
+      return false
+    }
+  }
+
+  function getUserCollections(userId: number): ArtCollection[] {
+    return state.collections.filter((collection) => {
+      return collection.userId === userId
+    })
+  }
+
+  function getCollectionImages(collectionId: number): ArtImage[] {
+    const collection = findCollectionByIdLocal(collectionId)
+    if (!collection) return []
+    return getCollectionArtImages(collection)
+  }
+
+  function getCollectionImageIds(collectionId: number): number[] {
+    return getCollectionImages(collectionId).map((image) => image.id)
   }
 
   async function updateCollectionLabel(
@@ -374,7 +789,7 @@ hasFetched.value = true
     newLabel: string,
   ): Promise<ArtCollection | null> {
     try {
-      const response = await performFetch<ArtCollection>(
+      const response = await performFetch<CollectionWithRelations>(
         `/api/art/collection/${id}`,
         {
           method: 'PATCH',
@@ -387,19 +802,15 @@ hasFetched.value = true
         throw new Error(response.message || 'Failed to update collection label')
       }
 
-      const index = state.collections.findIndex(
-        (collection) => collection.id === id,
-      )
+      const normalized = normalizeCollection(response.data)
 
-      if (index !== -1) {
-        state.collections[index] = response.data
-      }
+      state.collections = replaceCollectionLocal(state.collections, normalized)
 
       if (state.currentCollection?.id === id) {
-        state.currentCollection = response.data
+        state.currentCollection = normalized
       }
 
-      return response.data
+      return normalized
     } catch (error) {
       handleError(error, 'updating collection label')
       return null
@@ -411,7 +822,7 @@ hasFetched.value = true
     flags: { isPublic?: boolean; isMature?: boolean },
   ): Promise<ArtCollection | null> {
     try {
-      const response = await performFetch<ArtCollection>(
+      const response = await performFetch<CollectionWithRelations>(
         `/api/art/collection/${id}`,
         {
           method: 'PATCH',
@@ -424,19 +835,15 @@ hasFetched.value = true
         throw new Error(response.message || 'Failed to update collection flags')
       }
 
-      const index = state.collections.findIndex(
-        (collection) => collection.id === id,
-      )
+      const normalized = normalizeCollection(response.data)
 
-      if (index !== -1) {
-        state.collections[index] = response.data
-      }
+      state.collections = replaceCollectionLocal(state.collections, normalized)
 
       if (state.currentCollection?.id === id) {
-        state.currentCollection = response.data
+        state.currentCollection = normalized
       }
 
-      return response.data
+      return normalized
     } catch (error) {
       handleError(error, 'updating collection flags')
       return null
@@ -471,16 +878,7 @@ hasFetched.value = true
       }
 
       if (!collection) {
-        const newCollection = await createCollection(
-          label,
-          userId,
-          false,
-          false,
-        )
-        if (!newCollection) {
-          throw new Error('Could not create user art collection')
-        }
-        collection = newCollection
+        collection = await createCollection(label, userId, false, false)
       }
 
       return collection
@@ -493,6 +891,12 @@ hasFetched.value = true
     }
   }
 
+  async function getOrCreateGeneratedArtImageCollection(
+    userId: number,
+  ): Promise<ArtCollection> {
+    return await getOrCreateGeneratedArtCollection(userId)
+  }
+
   function setCurrentCollection(collectionId: number | null): void {
     if (collectionId === null) {
       state.currentCollection = null
@@ -502,15 +906,23 @@ hasFetched.value = true
     state.currentCollection = findCollectionByIdLocal(collectionId) ?? null
   }
 
+  function setCurrentCollectionRecord(collection: ArtCollection | null): void {
+    state.currentCollection = collection
+      ? normalizeCollection(collection as CollectionWithRelations)
+      : null
+  }
+
   function setSelectedCollectionIds(ids: number[]): void {
-    selectedCollectionIds.value = ids.filter((id) => Number.isFinite(id))
+    selectedCollectionIds.value = ids
+      .map((id) => Number(id))
+      .filter((id) => Number.isFinite(id) && id > 0)
   }
 
   function toggleSelectedCollectionId(collectionId: number): void {
     if (selectedCollectionIds.value.includes(collectionId)) {
-      selectedCollectionIds.value = selectedCollectionIds.value.filter(
-        (id) => id !== collectionId,
-      )
+      selectedCollectionIds.value = selectedCollectionIds.value.filter((id) => {
+        return id !== collectionId
+      })
       return
     }
 
@@ -521,40 +933,67 @@ hasFetched.value = true
     selectedCollectionIds.value = []
   }
 
+  function resetCollectionFetchState(): void {
+    hasFetched.value = false
+    fetchPromise.value = null
+  }
+
   return {
     ...toRefs(state),
 
     selectedCollectionIds,
     selectedCollections,
+    selectedCollectionArtImages,
+    allCollectionArtImages,
+    allCollectionArtImageIds,
     hasFetched,
     fetchPromise,
 
     fetchCollections,
     createCollection,
     deleteCollectionById,
+    patchCollection,
+
     addArtToCollection,
     removeArtFromCollection,
     removeArtFromCollectionServer,
+
+    addArtImageToCollection,
+    removeArtImageFromCollection,
+    removeArtImageFromCollectionServer,
+
+    updateCollectionDetails,
     updateCollectionLabel,
     updateCollectionFlags,
+
     getUserCollections,
+    getCollectionImages,
+    getCollectionImageIds,
+    getCollectionArtImages,
+    getUncollectedArt,
+    getUncollectedArtImages,
+    getOrCreateCollectionByLabel,
     getOrCreateGeneratedArtCollection,
+    getOrCreateGeneratedArtImageCollection,
 
     setCurrentCollection,
+    setCurrentCollectionRecord,
     setSelectedCollectionIds,
     toggleSelectedCollectionId,
     clearSelectedCollections,
+    resetCollectionFetchState,
 
     findCollectionById: findCollectionByIdLocal,
     findCollectionByUserAndLabel,
 
     isArtInCollection,
     getCollectedArtIds,
-    getUncollectedArt,
     collectionIncludesArtId,
+    collectionIncludesArtImageId,
     removeArtFromLocalCollection,
+    removeArtImageFromLocalCollection,
     createEmptyCollection,
     parseStoredCollections,
-    updateCollectionDetails,
+    normalizeCollection,
   }
 })

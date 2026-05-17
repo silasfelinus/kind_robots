@@ -1092,6 +1092,21 @@ function selectRewardKind(kind: RewardKind) {
   }
 }
 
+const linkedStatOptions = [
+  'Luck',
+  'Swol',
+  'Wits',
+  'Flexibility',
+  'Rizz',
+  'Empathy',
+] satisfies [string, ...string[]]
+
+function rollLinkedStat() {
+  const index = Math.floor(Math.random() * linkedStatOptions.length)
+
+  return linkedStatOptions[index] ?? linkedStatOptions[0]
+}
+
 function rollFrom(key: string, fallback = '') {
   return randomStore.getRandom(key, 1)[0] ?? fallback
 }

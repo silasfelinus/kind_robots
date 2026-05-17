@@ -5,7 +5,6 @@ export type BuilderStageKey =
   | 'user'
   | 'pitch'
   | 'collection'
-  | 'art'
   | 'dream'
   | 'character'
   | 'reward'
@@ -40,27 +39,6 @@ export const builderStages: BuilderStageConfig[] = [
     modelType: 'pitch',
     route: '/brainstorm',
     requiredBeforeNext: ['title', 'pitch'],
-  },
-  {
-    key: 'collection',
-    label: 'Collection',
-    icon: 'kind-icon:folder',
-    title: 'Collection Builder',
-    summary:
-      'Create a visual folder for the idea, gathering art, references, cover images, and inspiration.',
-    modelType: 'artCollection',
-    route: '/art',
-    requiredBeforeNext: ['name'],
-  },
-  {
-    key: 'art',
-    label: 'Art',
-    icon: 'kind-icon:palette',
-    title: 'Art Builder',
-    summary:
-      'Generate or upload original images for covers, characters, locations, rewards, and scenario moments.',
-    modelType: 'artImage',
-    route: '/art',
   },
   {
     key: 'dream',

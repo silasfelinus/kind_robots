@@ -1,3 +1,4 @@
+<!-- /components/content/art/slim-gallery.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
@@ -9,17 +10,29 @@
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:gallery" class="h-6 w-6 text-primary" />
-            <h2 class="text-lg font-black text-base-content">Gallery</h2>
+            <h2 class="text-lg font-black text-base-content">
+              {{ activeGroup ? activeGroup.title : 'Gallery' }}
+            </h2>
           </div>
 
           <p class="mt-1 max-w-3xl text-sm text-base-content/60">
-            Browse art image collections as folders. Open a folder to reveal its
-            cards, then select an image to interact with it.
+            {{ headerSummary }}
           </p>
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
+          <button
+            v-if="activeGroup"
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            @click="clearActiveGroup"
+          >
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            Back
+          </button>
+
           <add-collection
+            v-if="!activeGroup"
             :compact="true"
             :show-flags="false"
             @created="handleCollectionCreated"
@@ -37,10 +50,10 @@
           </button>
 
           <button
-            v-if="highlightedImageId"
+            v-if="selectedImageForOverlay"
             class="btn btn-ghost btn-sm rounded-xl"
             type="button"
-            @click="clearHighlight"
+            @click="clearSelectedImage"
           >
             <Icon name="kind-icon:x" class="h-4 w-4" />
             Deselect
@@ -49,13 +62,17 @@
       </div>
 
       <div
-        class="mt-3 grid grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_auto_auto]"
+        class="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]"
       >
         <input
           v-model="searchQuery"
           type="search"
           class="input input-bordered input-sm w-full bg-base-100"
-          placeholder="Search collections, prompts, filenames, checkpoints..."
+          :placeholder="
+            activeGroup
+              ? 'Search images, prompts, filenames, checkpoints...'
+              : 'Search collections...'
+          "
         />
 
         <label
@@ -70,14 +87,27 @@
         </label>
 
         <select
+          v-if="!activeGroup"
           v-model.number="folderPageSize"
           class="select select-bordered select-sm bg-base-100"
-          title="Folders per page"
+          title="Collections per page"
         >
-          <option :value="3">3 folders</option>
-          <option :value="6">6 folders</option>
-          <option :value="9">9 folders</option>
-          <option :value="12">12 folders</option>
+          <option :value="6">6 cards</option>
+          <option :value="9">9 cards</option>
+          <option :value="12">12 cards</option>
+          <option :value="18">18 cards</option>
+        </select>
+
+        <select
+          v-else
+          v-model.number="imagePageSize"
+          class="select select-bordered select-sm bg-base-100"
+          title="Images per page"
+        >
+          <option :value="12">12 images</option>
+          <option :value="24">24 images</option>
+          <option :value="48">48 images</option>
+          <option :value="96">96 images</option>
         </select>
       </div>
 
@@ -85,16 +115,13 @@
         class="mt-3 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
       >
         <span class="badge badge-ghost">
-          {{ visibleGroups.length }} folders
+          {{ visibleGroups.length }} collections
         </span>
 
         <span class="badge badge-ghost"> {{ visibleImageCount }} images </span>
 
-        <span
-          v-if="expandedGroupKeys.length"
-          class="badge badge-primary badge-outline"
-        >
-          {{ expandedGroupKeys.length }} open
+        <span v-if="activeGroup" class="badge badge-primary">
+          {{ activeGroup.images.length }} in view
         </span>
 
         <span v-if="isHydratingImages" class="badge badge-info gap-1">
@@ -102,28 +129,28 @@
           Loading images
         </span>
 
-        <span v-if="highlightedImageId" class="badge badge-secondary">
-          Image #{{ highlightedImageId }} highlighted
+        <span v-if="selectedImageForOverlay" class="badge badge-secondary">
+          Image #{{ selectedImageForOverlay.id }} selected
         </span>
 
         <div class="ml-auto flex items-center gap-2">
           <button
             class="btn btn-ghost btn-xs rounded-xl"
             type="button"
-            :disabled="folderPage === 0"
-            @click="folderPage--"
+            :disabled="currentPage === 0"
+            @click="currentPage--"
           >
             <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
             Prev
           </button>
 
-          <span>Page {{ folderPage + 1 }} / {{ folderPageCount }}</span>
+          <span>Page {{ currentPage + 1 }} / {{ currentPageCount }}</span>
 
           <button
             class="btn btn-ghost btn-xs rounded-xl"
             type="button"
-            :disabled="folderPage >= folderPageCount - 1"
-            @click="folderPage++"
+            :disabled="currentPage >= currentPageCount - 1"
+            @click="currentPage++"
           >
             Next
             <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
@@ -155,234 +182,152 @@
 
     <section
       v-else
-      class="min-h-0 flex-1 overflow-auto rounded-2xl bg-base-200 p-3"
+      class="relative min-h-0 flex-1 overflow-auto rounded-2xl bg-base-200 p-3"
     >
       <div
-        v-if="visibleGroups.length === 0"
+        v-if="!activeGroup && visibleGroups.length === 0"
         class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:folder-search" class="h-12 w-12 text-primary" />
         <p class="mt-2 text-lg font-black text-base-content">
           Nothing to show.
         </p>
-        <p class="text-sm">No folders or images match the current filter.</p>
+        <p class="text-sm">No collections match the current filters.</p>
       </div>
 
-      <div v-else class="flex flex-col gap-3">
-        <article
+      <div
+        v-else-if="!activeGroup"
+        class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+      >
+        <collection-card
           v-for="group in pagedGroups"
           :key="group.key"
-          class="overflow-hidden rounded-2xl border bg-base-100"
-          :class="[
-            activeCollectionKey === group.key
-              ? 'border-primary/50 ring-2 ring-primary/30'
-              : 'border-base-300',
-            group.isVirtual ? 'bg-base-100/80' : 'bg-base-100',
-          ]"
+          :collection="group.collection"
+          :selected="activeGroupKey === group.key"
+          :compact="true"
+          :show-stats="true"
+          :show-select-button="true"
+          :show-mature="showMature"
+          :preview-art-image="getPreviewImage(group)"
+          @select="selectGroup(group.key)"
+          @delete="handleCollectionDeleted"
+        />
+      </div>
+
+      <div v-else class="flex min-h-0 flex-col gap-3">
+        <div
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 lg:flex-row lg:items-center lg:justify-between"
         >
-          <button
-            class="flex w-full flex-col gap-3 p-3 text-left transition hover:bg-base-200/70 lg:flex-row lg:items-center lg:justify-between"
-            type="button"
-            @click="toggleExpanded(group.key)"
-          >
-            <div class="flex min-w-0 items-start gap-3">
-              <div
-                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                :class="group.isVirtual ? 'bg-accent/15' : 'bg-primary/15'"
-              >
-                <Icon
-                  :name="
-                    isExpanded(group.key)
-                      ? 'kind-icon:folder-open'
-                      : 'kind-icon:folder'
-                  "
-                  class="h-7 w-7"
-                  :class="group.isVirtual ? 'text-accent' : 'text-primary'"
-                />
-              </div>
-
-              <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-2">
-                  <h3 class="truncate text-lg font-black text-base-content">
-                    {{ group.title }}
-                  </h3>
-
-                  <span
-                    v-if="group.isVirtual"
-                    class="badge badge-accent badge-sm"
-                  >
-                    Unsorted
-                  </span>
-
-                  <span v-if="group.isPublic" class="badge badge-info badge-sm">
-                    Public
-                  </span>
-
-                  <span v-else class="badge badge-ghost badge-sm">
-                    Private
-                  </span>
-
-                  <span
-                    v-if="group.isMature"
-                    class="badge badge-warning badge-sm"
-                  >
-                    Mature
-                  </span>
-                </div>
-
-                <p class="mt-1 line-clamp-2 text-sm text-base-content/60">
-                  {{ group.description }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              class="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end"
-            >
-              <span class="badge badge-primary">
-                {{ group.images.length }} images
-              </span>
-
-              <span
-                v-if="isExpanded(group.key)"
-                class="badge badge-success badge-outline"
-              >
-                Open
-              </span>
-
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
               <Icon
                 :name="
-                  isExpanded(group.key)
-                    ? 'kind-icon:chevron-up'
-                    : 'kind-icon:chevron-down'
+                  activeGroup.isVirtual
+                    ? 'kind-icon:archive'
+                    : 'kind-icon:folder-open'
                 "
-                class="h-5 w-5 text-base-content/50"
+                class="h-5 w-5 text-primary"
               />
+
+              <h3 class="truncate text-lg font-black text-base-content">
+                {{ activeGroup.title }}
+              </h3>
+
+              <span v-if="activeGroup.isVirtual" class="badge badge-accent">
+                Unsorted
+              </span>
+
+              <span class="badge badge-primary">
+                {{ filteredActiveImages.length }} images
+              </span>
             </div>
+
+            <p class="mt-1 text-sm text-base-content/60">
+              {{ activeGroup.description }}
+            </p>
+          </div>
+
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            @click="clearActiveGroup"
+          >
+            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            Back to collections
           </button>
+        </div>
 
-          <div
-            v-if="!isExpanded(group.key)"
-            class="border-t border-base-300 bg-base-200/50 p-3"
+        <div
+          v-if="filteredActiveImages.length === 0"
+          class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+        >
+          <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
+          <p class="mt-2 text-lg font-black text-base-content">
+            No images here.
+          </p>
+          <p class="text-sm">
+            This collection has no art images matching the current filters.
+          </p>
+        </div>
+
+        <div
+          v-else
+          class="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3"
+        >
+          <image-card
+            v-for="image in pagedActiveImages"
+            :key="image.id"
+            :art-image="hydratedImages[image.id] || image"
+            :selected="selectedImageForOverlay?.id === image.id"
+            :compact="true"
+            :show-actions="selectedImageForOverlay?.id === image.id"
+            :show-prompt="true"
+            :show-meta="true"
+            :show-generation-meta="false"
+            :show-image-status="false"
+            :show-select-button="false"
+            :allow-delete="canModifyImage(image)"
+            :allow-edit="false"
+            :auto-load-image="false"
+            @select="selectImage"
+            @delete="handleImageDeleted"
+          />
+        </div>
+      </div>
+
+      <div
+        v-if="selectedImageForOverlay"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-base-300/80 p-3 backdrop-blur-sm"
+      >
+        <div
+          class="flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+        >
+          <header
+            class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-200 p-3"
           >
-            <div
-              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div class="min-w-0">
-                <p class="text-sm font-bold text-base-content">
-                  {{ group.images.length }} images tucked inside.
-                </p>
-
-                <p class="text-xs text-base-content/60">
-                  Open this folder to browse its art image cards.
-                </p>
-              </div>
-
-              <button
-                class="btn btn-primary btn-sm rounded-xl"
-                type="button"
-                @click.stop="toggleExpanded(group.key)"
-              >
-                <Icon name="kind-icon:folder-open" class="h-4 w-4" />
-                Open folder
-              </button>
-            </div>
-          </div>
-
-          <div
-            v-else-if="group.images.length === 0"
-            class="border-t border-base-300 bg-base-200/50 p-6"
-          >
-            <div
-              class="flex min-h-32 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/55"
-            >
-              <Icon name="kind-icon:image" class="h-10 w-10 text-primary" />
-              <p class="mt-2 text-sm font-bold text-base-content">
-                Empty collection.
+            <div class="min-w-0">
+              <p class="text-xs font-bold uppercase text-base-content/50">
+                Selected Art Image
               </p>
-              <p class="text-xs text-base-content/60">
-                No art images are attached to this folder yet.
-              </p>
+              <h3 class="truncate text-lg font-black text-base-content">
+                #{{ selectedImageForOverlay.id }}
+              </h3>
             </div>
-          </div>
 
-          <div v-else class="border-t border-base-300 bg-base-200/50 p-3">
-            <div
-              class="mb-3 flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 sm:flex-row sm:items-center sm:justify-between"
+            <button
+              class="btn btn-ghost btn-sm rounded-xl"
+              type="button"
+              @click="clearSelectedImage"
             >
-              <div>
-                <p class="text-sm font-bold text-base-content">
-                  Showing {{ getVisibleImages(group).length }} images
-                </p>
-                <p class="text-xs text-base-content/60">
-                  Click a card to highlight it, then open it in the art
-                  workspace.
-                </p>
-              </div>
+              <Icon name="kind-icon:x" class="h-4 w-4" />
+              Deselect
+            </button>
+          </header>
 
-              <button
-                class="btn btn-ghost btn-sm rounded-xl"
-                type="button"
-                @click="toggleExpanded(group.key)"
-              >
-                <Icon name="kind-icon:folder" class="h-4 w-4" />
-                Close folder
-              </button>
-            </div>
-
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-              <div
-                v-for="image in getVisibleImages(group)"
-                :key="image.id"
-                class="relative rounded-2xl"
-                :class="
-                  highlightedImageId === image.id ? 'ring-2 ring-secondary' : ''
-                "
-              >
-                <image-card
-                  :art-image="hydratedImages[image.id] || image"
-                  :selected="highlightedImageId === image.id"
-                  :compact="true"
-                  :show-actions="highlightedImageId === image.id"
-                  :show-prompt="true"
-                  :show-meta="true"
-                  :show-generation-meta="false"
-                  :show-select-button="false"
-                  :allow-delete="canModifyImage(image)"
-                  :allow-edit="false"
-                  :auto-load-image="false"
-                  @select="handleCardClick(image)"
-                  @delete="handleImageDeleted"
-                />
-
-                <div
-                  v-if="highlightedImageId === image.id"
-                  class="mt-2 flex gap-2"
-                >
-                  <button
-                    class="btn btn-primary btn-sm flex-1 rounded-xl text-white"
-                    type="button"
-                    @click="
-                      openInArtInteract(hydratedImages[image.id] || image)
-                    "
-                  >
-                    <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-                    Open
-                  </button>
-
-                  <button
-                    v-if="canModifyImage(image)"
-                    class="btn btn-error btn-sm rounded-xl"
-                    type="button"
-                    @click="handleImageDeleted(image.id)"
-                  >
-                    <Icon name="kind-icon:trash" class="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div class="min-h-0 flex-1 overflow-auto p-3">
+            <art-interact />
           </div>
-        </article>
+        </div>
       </div>
     </section>
 
@@ -411,10 +356,10 @@
           </span>
         </p>
 
-        <p v-if="highlightedImageId">
-          Highlighted:
-          <span class="font-bold text-secondary">
-            #{{ highlightedImageId }}
+        <p v-if="activeGroup">
+          Viewing:
+          <span class="font-bold text-primary">
+            {{ activeGroup.title }}
           </span>
         </p>
       </div>
@@ -425,17 +370,20 @@
 <script setup lang="ts">
 // /components/content/art/slim-gallery.vue
 import { computed, onMounted, ref, watch } from 'vue'
-import type { ArtImage } from '@/stores/artStore'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import { useNavStore } from '@/stores/navStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+type GalleryCollection = ArtCollection & {
+  artImages?: ArtImage[]
+  ArtImages?: ArtImage[]
+  images?: ArtImage[]
+}
 
-type FolderGroup = {
+type GalleryGroup = {
   key: string
   id: number
   title: string
@@ -445,22 +393,13 @@ type FolderGroup = {
   isMature: boolean
   isVirtual: boolean
   images: ArtImage[]
+  collection: GalleryCollection
 }
-
-type CollectionWithMedia = ArtCollection & {
-  artImages?: ArtImage[]
-  ArtImages?: ArtImage[]
-}
-
-// ─── Stores ──────────────────────────────────────────────────────────────────
 
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
-const navStore = useNavStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
-
-// ─── State ───────────────────────────────────────────────────────────────────
 
 const isLoading = ref(false)
 const isHydratingImages = ref(false)
@@ -469,34 +408,41 @@ const successMessage = ref('')
 const searchQuery = ref('')
 const showMature = ref(false)
 const folderPage = ref(0)
-const folderPageSize = ref(6)
-const perFolderLimit = ref(12)
+const imagePage = ref(0)
+const folderPageSize = ref(12)
+const imagePageSize = ref(24)
 const hydratedImages = ref<Record<number, ArtImage>>({})
-const expandedGroupKeys = ref<string[]>([])
+const activeGroupKey = ref<string | null>(null)
+const selectedImageForOverlay = ref<ArtImage | null>(null)
 
-/** The currently highlighted image (single-click selection within the gallery). */
-const highlightedImageId = ref<number | null>(null)
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
 
-/**
- * The folder that was last intentionally focused by the user.
- * Persisted to sessionStorage so returning from art-interact restores context.
- */
-const activeCollectionKey = ref<string>('')
+const activeGroup = computed(() => {
+  if (!activeGroupKey.value) return null
 
-const SESSION_KEY = 'slim-gallery-active-collection'
+  return (
+    visibleGroups.value.find((group) => group.key === activeGroupKey.value) ||
+    collectionGroups.value.find(
+      (group) => group.key === activeGroupKey.value,
+    ) ||
+    null
+  )
+})
 
-const currentUserId = computed(
-  () => userStore.userId ?? userStore.user?.id ?? null,
-)
+const headerSummary = computed(() => {
+  if (activeGroup.value) {
+    return `${activeGroup.value.images.length} art images in this collection. Select an image to open the interaction overlay.`
+  }
 
-// ─── Collection Groups ────────────────────────────────────────────────────────
+  return 'Browse collections as cards. Open a collection to view its art images.'
+})
 
-const collectionGroups = computed<FolderGroup[]>(() => {
+const collectionGroups = computed<GalleryGroup[]>(() => {
   const groups = collectionStore.collections
     .map(normalizeCollectionGroup)
-    .sort((a, b) => {
-      return a.title.localeCompare(b.title)
-    })
+    .sort((a, b) => a.title.localeCompare(b.title))
 
   const assignedImageIds = new Set<number>()
 
@@ -511,22 +457,31 @@ const collectionGroups = computed<FolderGroup[]>(() => {
     .filter((image) => !assignedImageIds.has(image.id))
     .sort((a, b) => b.id - a.id)
 
-  const unassigned: FolderGroup = {
-    key: 'collection-unassigned',
+  const unassignedCollection = makePseudoCollection({
     id: -1,
     title: 'Unsorted',
     description: 'Images not currently assigned to a collection.',
-    userId: currentUserId.value,
-    isPublic: false,
-    isMature: false,
-    isVirtual: true,
     images: unassignedImages,
-  }
+  })
 
-  return [...groups, unassigned]
+  return [
+    ...groups,
+    {
+      key: 'collection-unsorted',
+      id: -1,
+      title: 'Unsorted',
+      description: 'Images not currently assigned to a collection.',
+      userId: currentUserId.value,
+      isPublic: false,
+      isMature: false,
+      isVirtual: true,
+      images: unassignedImages,
+      collection: unassignedCollection,
+    },
+  ]
 })
 
-const visibleGroups = computed<FolderGroup[]>(() => {
+const visibleGroups = computed<GalleryGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
   return collectionGroups.value
@@ -539,60 +494,96 @@ const visibleGroups = computed<FolderGroup[]>(() => {
     })
 })
 
-const visibleImageCount = computed(() =>
-  visibleGroups.value.reduce((sum, group) => sum + group.images.length, 0),
-)
+const filteredActiveImages = computed(() => {
+  if (!activeGroup.value) return []
 
-const folderPageCount = computed(() =>
-  Math.max(1, Math.ceil(visibleGroups.value.length / folderPageSize.value)),
-)
+  const query = searchQuery.value.trim().toLowerCase()
+
+  return activeGroup.value.images
+    .filter((image) => showMature.value || !image.isMature)
+    .filter((image) => {
+      if (!query) return true
+      return searchableImageText(image).includes(query)
+    })
+})
+
+const visibleImageCount = computed(() => {
+  return visibleGroups.value.reduce(
+    (sum, group) => sum + group.images.length,
+    0,
+  )
+})
+
+const currentPage = computed({
+  get() {
+    return activeGroup.value ? imagePage.value : folderPage.value
+  },
+  set(value: number) {
+    if (activeGroup.value) {
+      imagePage.value = value
+      return
+    }
+
+    folderPage.value = value
+  },
+})
+
+const currentPageCount = computed(() => {
+  if (activeGroup.value) {
+    return Math.max(
+      1,
+      Math.ceil(filteredActiveImages.value.length / imagePageSize.value),
+    )
+  }
+
+  return Math.max(
+    1,
+    Math.ceil(visibleGroups.value.length / folderPageSize.value),
+  )
+})
 
 const pagedGroups = computed(() => {
   const start = folderPage.value * folderPageSize.value
   return visibleGroups.value.slice(start, start + folderPageSize.value)
 })
 
-// ─── Watchers ─────────────────────────────────────────────────────────────────
+const pagedActiveImages = computed(() => {
+  const start = imagePage.value * imagePageSize.value
+  return filteredActiveImages.value.slice(start, start + imagePageSize.value)
+})
 
 watch([searchQuery, showMature, folderPageSize], () => {
   folderPage.value = 0
+  imagePage.value = 0
+})
+
+watch(imagePageSize, () => {
+  imagePage.value = 0
+})
+
+watch(activeGroupKey, async () => {
+  imagePage.value = 0
+  selectedImageForOverlay.value = null
+  await hydrateVisibleImages()
 })
 
 watch(
   () => [
-    folderPage.value,
-    folderPageSize.value,
-    perFolderLimit.value,
+    activeGroupKey.value,
+    imagePage.value,
+    imagePageSize.value,
     searchQuery.value,
     showMature.value,
-    expandedGroupKeys.value.join('|'),
   ],
   async () => {
-    await hydrateVisibleFolderImages()
+    await hydrateVisibleImages()
   },
 )
 
-watch(activeCollectionKey, (key) => {
-  if (typeof sessionStorage !== 'undefined') {
-    sessionStorage.setItem(SESSION_KEY, key)
-  }
-})
-
-// ─── Lifecycle ────────────────────────────────────────────────────────────────
-
 onMounted(async () => {
   showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
-
-  // Restore previously active collection from sessionStorage
-  if (typeof sessionStorage !== 'undefined') {
-    const saved = sessionStorage.getItem(SESSION_KEY)
-    if (saved) activeCollectionKey.value = saved
-  }
-
   await initializeGallery()
 })
-
-// ─── Initialization ───────────────────────────────────────────────────────────
 
 async function initializeGallery() {
   isLoading.value = true
@@ -601,9 +592,9 @@ async function initializeGallery() {
   hydratedImages.value = {}
 
   try {
-    await Promise.all([fetchCollectionsSafely(), fetchArtImagesSafely()])
-
-    await hydrateVisibleFolderImages()
+    await fetchCollectionsSafely()
+    await fetchArtImagesSafely()
+    await hydrateVisibleImages()
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
     errorMessage.value = message
@@ -623,13 +614,9 @@ async function fetchArtImagesSafely() {
   await artStore.fetchAllArtImages({ force: true })
 }
 
-// ─── Group Helpers ────────────────────────────────────────────────────────────
-
-function normalizeCollectionGroup(collection: ArtCollection): FolderGroup {
-  const media = collection as CollectionWithMedia
-  const images = getCollectionImages(media).map(
-    (image) => hydratedImages.value[image.id] || image,
-  )
+function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
+  const media = collection as GalleryCollection
+  const images = getCollectionImages(media)
 
   return {
     key: `collection-${collection.id}`,
@@ -641,59 +628,155 @@ function normalizeCollectionGroup(collection: ArtCollection): FolderGroup {
     isMature: Boolean(collection.isMature),
     isVirtual: false,
     images,
+    collection: {
+      ...media,
+      artImages: images,
+      ArtImages: images,
+      images,
+    },
   }
 }
 
-function getCollectionImages(collection: CollectionWithMedia): ArtImage[] {
-  return [
+function getCollectionImages(collection: GalleryCollection): ArtImage[] {
+  const map = new Map<number, ArtImage>()
+
+  for (const image of [
     ...(collection.artImages || []),
     ...(collection.ArtImages || []),
-  ].filter((image): image is ArtImage => Boolean(image?.id))
+    ...(collection.images || []),
+  ]) {
+    if (image?.id) {
+      map.set(image.id, hydratedImages.value[image.id] || image)
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => b.id - a.id)
 }
 
-function filterGroup(group: FolderGroup, query: string): FolderGroup {
-  const matureSafe = group.images.filter(
-    (image) => showMature.value || !image.isMature,
-  )
+function makePseudoCollection(input: {
+  id: number
+  title: string
+  description: string
+  images: ArtImage[]
+}): GalleryCollection {
+  return {
+    id: input.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: currentUserId.value || 10,
+    label: input.title,
+    isMature: false,
+    isPublic: false,
+    isActive: true,
+    artPrompt: null,
+    description: input.description,
+    username: null,
+    art: [],
+    artImages: input.images,
+    ArtImages: input.images,
+    images: input.images,
+  } as GalleryCollection
+}
 
-  if (!query) return { ...group, images: matureSafe }
+function filterGroup(group: GalleryGroup, query: string): GalleryGroup {
+  const matureSafeImages = group.images.filter((image) => {
+    return showMature.value || !image.isMature
+  })
 
-  const groupMatches = searchableGroupText(group).includes(query)
-  if (groupMatches) return { ...group, images: matureSafe }
+  const baseGroup = {
+    ...group,
+    images: matureSafeImages,
+    collection: {
+      ...group.collection,
+      artImages: matureSafeImages,
+      ArtImages: matureSafeImages,
+      images: matureSafeImages,
+    },
+  }
+
+  if (!query) return baseGroup
+
+  if (searchableGroupText(group).includes(query)) {
+    return baseGroup
+  }
+
+  const images = matureSafeImages.filter((image) => {
+    return searchableImageText(image).includes(query)
+  })
 
   return {
-    ...group,
-    images: matureSafe.filter((image) =>
-      searchableImageText(image).includes(query),
-    ),
+    ...baseGroup,
+    images,
+    collection: {
+      ...baseGroup.collection,
+      artImages: images,
+      ArtImages: images,
+      images,
+    },
   }
 }
 
-function getVisibleImages(group: FolderGroup): ArtImage[] {
-  if (!isExpanded(group.key)) return []
-  return group.images
+function getPreviewImage(group: GalleryGroup): ArtImage | null {
+  const images = group.images.filter((image) => {
+    return showMature.value || !image.isMature
+  })
+
+  if (!images.length) return null
+
+  const index = Math.abs(group.id) % images.length
+  const image = images[index] ?? images[0] ?? null
+
+  if (!image) return null
+
+  return hydratedImages.value[image.id] || image
 }
 
-function isExpanded(key: string): boolean {
-  return expandedGroupKeys.value.includes(key)
+function selectGroup(key: string) {
+  const group = collectionGroups.value.find((entry) => entry.key === key)
+  if (!group) return
+
+  activeGroupKey.value = key
+
+  if (group.id > 0) {
+    collectionStore.setCurrentCollection(group.id)
+    collectionStore.setSelectedCollectionIds([group.id])
+  } else {
+    collectionStore.setCurrentCollection(null)
+    collectionStore.setSelectedCollectionIds([])
+  }
 }
 
-function toggleExpanded(key: string) {
-  expandedGroupKeys.value = isExpanded(key)
-    ? expandedGroupKeys.value.filter((item) => item !== key)
-    : [...expandedGroupKeys.value, key]
+function clearActiveGroup() {
+  activeGroupKey.value = null
+  selectedImageForOverlay.value = null
+  imagePage.value = 0
 }
 
-function setActiveCollection(key: string) {
-  activeCollectionKey.value = key
+async function selectImage(image: ArtImage) {
+  errorMessage.value = ''
+  selectedImageForOverlay.value = hydratedImages.value[image.id] || image
+
+  const result = await artStore.selectArtImageRecord(
+    hydratedImages.value[image.id] || image,
+  )
+
+  if (!result.success) {
+    const message = result.message || 'Failed to select image.'
+    errorMessage.value = message
+    errorStore.setError(ErrorType.GENERAL_ERROR, message)
+  }
 }
 
-// ─── Image Hydration ──────────────────────────────────────────────────────────
+function clearSelectedImage() {
+  selectedImageForOverlay.value = null
 
-async function hydrateVisibleFolderImages() {
-  const imagesNeedingData = pagedGroups.value
-    .flatMap((group) => getVisibleImages(group))
-    .filter(shouldHydrateImage)
+  if (typeof artStore.deselectArt === 'function') {
+    artStore.deselectArt()
+  }
+}
+
+async function hydrateVisibleImages() {
+  const imagesNeedingData = pagedActiveImages.value.filter(shouldHydrateImage)
 
   if (!imagesNeedingData.length) return
 
@@ -746,57 +829,22 @@ async function runLimited<T>(
       }
     },
   )
+
   await Promise.all(runners)
 }
 
-// ─── Selection Logic ──────────────────────────────────────────────────────────
-
-/**
- * Single-click: highlight the card within the gallery.
- * Clicking an already-highlighted card deselects it.
- * Does NOT navigate or touch navStore.
- */
-function handleCardClick(image: ArtImage) {
-  if (highlightedImageId.value === image.id) {
-    highlightedImageId.value = null
-  } else {
-    highlightedImageId.value = image.id
-  }
-}
-
-function clearHighlight() {
-  highlightedImageId.value = null
-}
-
-/**
- * THE single place that navigates to art-interact for a selected image.
- * Calls selectArtImageRecord (sets currentArtImage in store),
- * then switches the dashboard tab to 'selected'.
- *
- * Nothing else in this component should touch navStore.
- */
-async function openInArtInteract(image: ArtImage) {
-  errorMessage.value = ''
-
-  try {
-    const result = await artStore.selectArtImageRecord(image)
-
-    if (!result.success) {
-      throw new Error(result.message || 'Failed to select image.')
-    }
-
-    navStore.setDashboardTab('art', 'selected')
-  } catch (error) {
-    const message = getErrorMessage(error, 'Failed to open image.')
-    errorMessage.value = message
-    errorStore.setError(ErrorType.GENERAL_ERROR, message)
-  }
-}
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
 function handleCollectionCreated() {
   successMessage.value = 'Collection created.'
+  void fetchCollectionsSafely()
+}
+
+function handleCollectionDeleted(id: number) {
+  successMessage.value = `Collection #${id} deleted.`
+
+  if (activeGroup.value?.id === id) {
+    clearActiveGroup()
+  }
+
   void fetchCollectionsSafely()
 }
 
@@ -806,7 +854,9 @@ async function handleImageDeleted(imageId: number) {
   const deleted = await artStore.deleteArtImage(imageId)
 
   if (deleted) {
-    if (highlightedImageId.value === imageId) highlightedImageId.value = null
+    if (selectedImageForOverlay.value?.id === imageId) {
+      selectedImageForOverlay.value = null
+    }
 
     const next = { ...hydratedImages.value }
     delete next[imageId]
@@ -818,21 +868,18 @@ async function handleImageDeleted(imageId: number) {
   }
 }
 
-// ─── Permissions ──────────────────────────────────────────────────────────────
-
 function canModifyImage(image: ArtImage): boolean {
   return (
     userStore.isAdmin || Number(image.userId) === Number(currentUserId.value)
   )
 }
 
-// ─── Search Helpers ───────────────────────────────────────────────────────────
-
-function searchableGroupText(group: FolderGroup): string {
+function searchableGroupText(group: GalleryGroup): string {
   return [
     group.id,
     group.title,
     group.description,
+    group.isVirtual ? 'unsorted' : '',
     group.isPublic ? 'public' : 'private',
     group.isMature ? 'mature' : '',
   ]
@@ -855,7 +902,7 @@ function searchableImageText(image: ArtImage): string {
     image.isPublic ? 'public' : 'private',
     image.isMature ? 'mature' : '',
   ]
-    .filter((v) => v !== null && v !== undefined)
+    .filter((value) => value !== null && value !== undefined)
     .join(' ')
     .toLowerCase()
 }
@@ -872,6 +919,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
         : typeof result.statusMessage === 'string'
           ? result.statusMessage.trim()
           : ''
+
     if (message) return message
   }
 

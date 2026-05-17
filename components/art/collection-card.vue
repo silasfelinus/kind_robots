@@ -44,13 +44,15 @@
         imageHeightClass,
       ]"
     >
-      <art-card
-        v-if="previewArt && !isHiddenMature"
-        :art="previewArt"
+      <image-card
+        v-if="previewArtImage && !isHiddenMature"
+        :art-image="previewArtImage"
         :compact="true"
         :show-actions="false"
         :show-prompt="false"
         :show-meta="false"
+        :show-generation-meta="false"
+        :show-image-status="false"
         :show-select-button="false"
         :show-reaction="false"
         :auto-load-image="autoLoadPreviewImage"
@@ -86,7 +88,7 @@
           Public
         </span>
 
-        <span v-else class="badge badge-warning badge-sm"> Private </span>
+        <span v-else class="badge badge-warning badge-sm">Private</span>
 
         <span v-if="collection.isMature" class="badge badge-error badge-sm">
           Mature
@@ -130,7 +132,7 @@
 
       <div v-if="showMeta" class="flex flex-wrap gap-2">
         <span class="badge badge-outline badge-sm">
-          {{ artCountLabel }}
+          {{ imageCountLabel }}
         </span>
 
         <span v-if="collectionUsername" class="badge badge-primary badge-sm">
@@ -147,9 +149,9 @@
         class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
       >
         <div>
-          <p class="font-bold uppercase text-base-content/45">Art</p>
+          <p class="font-bold uppercase text-base-content/45">Images</p>
           <p class="truncate text-base-content/75">
-            {{ artCount }}
+            {{ imageCount }}
           </p>
         </div>
 
@@ -183,8 +185,8 @@
           :disabled="isHiddenMature"
           @click.stop="selectCollection"
         >
-          <Icon name="kind-icon:check" class="h-4 w-4" />
-          {{ activeSelected ? 'Selected' : 'Select' }}
+          <Icon name="kind-icon:folder-open" class="h-4 w-4" />
+          {{ activeSelected ? 'Selected' : 'Open Collection' }}
         </button>
       </div>
 
@@ -198,7 +200,7 @@
         </summary>
 
         <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-          JSON.stringify(collection, null, 2)
+          JSON.stringify(debugCollection, null, 2)
         }}</pre>
       </details>
     </div>
@@ -206,11 +208,18 @@
 </template>
 
 <script setup lang="ts">
+// /components/content/art/collection-card.vue
 import { computed } from 'vue'
-import type { Art } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
+
+type ArtImageCollection = ArtCollection & {
+  artImages?: ArtImage[]
+  ArtImages?: ArtImage[]
+  images?: ArtImage[]
+}
 
 const props = withDefaults(
   defineProps<{
@@ -232,6 +241,7 @@ const props = withDefaults(
     fallbackImage?: string
     fallbackIcon?: string
     imageHeightClass?: string
+    previewArtImage?: ArtImage | null
   }>(),
   {
     selected: false,
@@ -251,16 +261,22 @@ const props = withDefaults(
     fallbackImage: '/images/backtree.webp',
     fallbackIcon: 'kind-icon:gallery',
     imageHeightClass: 'h-44',
+    previewArtImage: null,
   },
 )
 
 const emit = defineEmits<{
+  select: [collection: ArtCollection]
   edit: [id: number]
   delete: [id: number]
 }>()
 
 const collectionStore = useCollectionStore()
 const userStore = useUserStore()
+
+const mediaCollection = computed(() => {
+  return props.collection as ArtImageCollection
+})
 
 const activeSelected = computed(() => {
   return (
@@ -297,38 +313,58 @@ const collectionDescription = computed(() => {
 
   return (
     safeText(props.collection.description).trim() ||
-    'A curated bundle of generated art, suspicious pixels, and narrative fuel.'
+    'A curated bundle of generated images, suspicious pixels, and narrative fuel.'
   )
 })
 
-const collectionArt = computed<Art[]>(() => {
-  return Array.isArray(props.collection.art) ? props.collection.art : []
+const collectionImages = computed<ArtImage[]>(() => {
+  const images = [
+    ...(mediaCollection.value.artImages ?? []),
+    ...(mediaCollection.value.ArtImages ?? []),
+    ...(mediaCollection.value.images ?? []),
+  ]
+
+  const map = new Map<number, ArtImage>()
+
+  for (const image of images) {
+    if (image?.id) {
+      map.set(image.id, image)
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => b.id - a.id)
 })
 
-const artCount = computed(() => {
-  return collectionArt.value.length
+const imageCount = computed(() => {
+  return collectionImages.value.length
 })
 
-const artCountLabel = computed(() => {
-  return `${artCount.value} art${artCount.value === 1 ? '' : 's'}`
+const imageCountLabel = computed(() => {
+  return `${imageCount.value} image${imageCount.value === 1 ? '' : 's'}`
 })
 
-const previewArt = computed<Art | null>(() => {
+const previewArtImage = computed<ArtImage | null>(() => {
   if (isHiddenMature.value) return null
+  if (props.previewArtImage?.id) return props.previewArtImage
 
-  const artWithImage = collectionArt.value.find((art) => {
-    return Boolean(art.artImageId || art.imagePath || art.path)
+  const visibleImages = collectionImages.value.filter((image) => {
+    return props.showMature || !image.isMature
   })
 
-  return artWithImage || collectionArt.value[0] || null
+  if (!visibleImages.length) return null
+
+  const stableIndex = Math.abs(props.collection.id) % visibleImages.length
+
+  return visibleImages[stableIndex] || visibleImages[0] || null
 })
 
 const previewImage = computed(() => {
   if (isHiddenMature.value) return ''
 
   return (
-    safeText(previewArt.value?.imagePath).trim() ||
-    safeText(previewArt.value?.path).trim() ||
+    createImageDataUrl(previewArtImage.value) ||
+    safeText(previewArtImage.value?.imagePath).trim() ||
+    safeText(previewArtImage.value?.path).trim() ||
     safeText(props.fallbackImage).trim()
   )
 })
@@ -349,12 +385,38 @@ const updatedLabel = computed(() => {
   return date.toLocaleDateString()
 })
 
+const debugCollection = computed(() => {
+  return {
+    id: props.collection.id,
+    label: props.collection.label,
+    imageCount: imageCount.value,
+    previewArtImageId: previewArtImage.value?.id ?? null,
+    artImages: mediaCollection.value.artImages?.length ?? 0,
+    ArtImages: mediaCollection.value.ArtImages?.length ?? 0,
+    images: mediaCollection.value.images?.length ?? 0,
+  }
+})
+
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean')
+  if (typeof value === 'number' || typeof value === 'boolean') {
     return String(value)
+  }
 
   return ''
+}
+
+function createImageDataUrl(image: ArtImage | null): string {
+  if (!image?.imageData) return ''
+
+  const raw = image.imageData.trim()
+
+  if (!raw) return ''
+  if (raw.startsWith('data:image/')) return raw
+
+  const fileType = safeText(image.fileType).trim() || 'png'
+
+  return `data:image/${fileType};base64,${raw}`
 }
 
 async function selectCollection() {
@@ -362,6 +424,7 @@ async function selectCollection() {
 
   collectionStore.setCurrentCollection(props.collection.id)
   collectionStore.setSelectedCollectionIds([props.collection.id])
+  emit('select', props.collection)
 }
 
 async function deleteCollection() {

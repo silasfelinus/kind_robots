@@ -2283,38 +2283,79 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
+    function getAuthToken(): string | null {
+    const userRecord = userStore as unknown as Record<string, unknown>
+    const nestedUser = userRecord.user as Record<string, unknown> | null
+
+    const candidates = [
+      userRecord.token,
+      userRecord.userToken,
+      userRecord.apiKey,
+      nestedUser?.apiKey,
+      nestedUser?.token,
+      safeGetLocalStorage('token'),
+      safeGetLocalStorage('userToken'),
+      safeGetLocalStorage('apiKey'),
+    ]
+
+    const token = candidates.find((value) => {
+      return typeof value === 'string' && value.trim().length > 0
+    })
+
+    if (typeof token !== 'string') return null
+
+    return token.replace(/^Bearer\s+/i, '').trim()
+  }
+
   async function createLegacyArtImage(
     input: ArtImageCreateInput,
   ): Promise<ApiResponse<ArtImage>> {
     try {
       clearError()
 
+      const token = getAuthToken()
+
+      if (!token) {
+        throw new Error('Valid authorization token required.')
+      }
+
       const response = await performFetch<ArtImage>('/api/art/image/legacy', {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       })
 
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create legacy ArtImage.')
       }
 
-      addOrUpdateArtImages([stripHeavyImageFields(response.data)])
+      const cleanImage = stripHeavyImageFields(response.data)
+
+      addOrUpdateArtImages([cleanImage])
 
       if (state.currentArtImage?.id === response.data.id) {
-        state.currentArtImage = stripHeavyImageFields(response.data)
+        state.currentArtImage = cleanImage
       }
 
       if (response.data.artId) {
-        const linkedArt = state.art.find(
-          (art) => art.id === response.data?.artId,
-        )
+        const linkedArt = state.art.find((art) => {
+          return art.id === response.data?.artId
+        })
 
         if (linkedArt && linkedArt.artImageId !== response.data.id) {
-          addOrUpdateArt({
+          const updatedArt = {
             ...linkedArt,
             artImageId: response.data.id,
-          })
+          }
+
+          addOrUpdateArt(updatedArt)
+
+          if (state.currentArt?.id === updatedArt.id) {
+            state.currentArt = updatedArt
+          }
         }
       }
 

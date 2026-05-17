@@ -45,12 +45,25 @@ const ImageConnectRefSchema = z
 
 const ImageUploadSchema = z
   .object({
-    imageData: z.string().trim().min(1),
+    imageData: z
+      .string()
+      .trim()
+      .min(1, 'imageData is required and must be base64 image data'),
+
     thumbnailData: z.string().trim().min(1).optional(),
+
     fileName: z.string().trim().min(1).max(764).optional(),
     fileType: z.string().trim().min(1).max(128).optional(),
+
+    // Friendly aliases from GPT/tools/frontends
+    name: z.string().trim().min(1).max(764).optional(),
+    title: z.string().trim().min(1).max(764).optional(),
+    description: z.string().trim().min(1).optional(),
+    summary: z.string().trim().min(1).optional(),
+
     imagePath: z.string().trim().min(1).optional(),
     path: z.string().trim().min(1).max(764).optional(),
+
     promptString: z.string().trim().min(1).optional(),
     negativePrompt: z.string().trim().min(1).optional(),
     checkpoint: z.string().trim().min(1).max(256).optional(),
@@ -185,6 +198,32 @@ const parentImageFieldByResource: Partial<
   tag: 'artImageId',
   user: 'artImageId',
 }
+
+function assertValidImageData(imageData: string) {
+  const { base64 } = stripDataUrlPrefix(imageData)
+  const cleanBase64 = base64.replace(/\s/g, '')
+
+  if (!cleanBase64) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'imageData is empty after removing data URL prefix',
+    })
+  }
+
+  const bytes = Buffer.byteLength(cleanBase64, 'base64')
+
+  if (!bytes) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'imageData could not be decoded as base64',
+    })
+  }
+
+  return {
+    base64: cleanBase64,
+    bytes,
+  }
+} 
 
 const directArtImageForeignKeyByResource: Partial<
   Record<ImageConnectResource, string>
@@ -667,14 +706,30 @@ function buildCreateData({
   fileName: string
   actor: ChatGptActor
 }) {
+  const normalizedImageData = normalizeDataUrl(input.imageData, fileType)
+
+  const normalizedThumbnailData = input.thumbnailData
+    ? normalizeDataUrl(input.thumbnailData, fileType)
+    : undefined
+
+  const promptString =
+    input.promptString ||
+    input.description ||
+    input.summary ||
+    input.title ||
+    input.name
+
   return {
-    imageData: input.imageData,
-    thumbnailData: input.thumbnailData,
+    imageData: normalizedImageData,
+    thumbnailData: normalizedThumbnailData,
+
     fileName,
     fileType,
+
     imagePath: input.imagePath,
     path: input.path,
-    promptString: input.promptString,
+
+    promptString,
     negativePrompt: input.negativePrompt,
     checkpoint: input.checkpoint,
     checkpointResourceId: input.checkpointResourceId,
@@ -800,10 +855,21 @@ export async function uploadImage({
   actor: ChatGptActor
 }): Promise<ImageServiceResponse<Record<string, unknown>>> {
   const input = ImageUploadSchema.parse(data)
+
+  assertValidImageData(input.imageData)
+
+  if (input.thumbnailData) {
+    assertValidImageData(input.thumbnailData)
+  }
+
   const artImageDelegate = getArtImageDelegate()
   const inferredFileType = inferFileTypeFromDataUrl(input.imageData)
   const fileType = normalizeFileType(input.fileType || inferredFileType)
-  const fileName = input.fileName || createDefaultFileName(fileType)
+  const fileName =
+    input.fileName ||
+    input.name ||
+    input.title ||
+    createDefaultFileName(fileType)
 
   const image = await artImageDelegate.create({
     data: buildCreateData({
@@ -847,7 +913,7 @@ export async function uploadImage({
     data: connectedImage,
     message: 'Image uploaded successfully.',
   }
-}
+} 
 
 export async function getImage({
   id,

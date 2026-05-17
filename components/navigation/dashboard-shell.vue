@@ -113,7 +113,7 @@
       </div>
 
       <div
-        v-if="tabs.length"
+        v-if="resolvedTabs.length"
         ref="channelMenuRef"
         class="relative flex min-w-0 items-start gap-2"
         :class="navZClass"
@@ -194,14 +194,14 @@
           :class="[navGridClass, navZClass]"
         >
           <button
-            v-for="tab in tabs"
+            v-for="tab in resolvedTabs"
             :key="tab.key"
             class="btn btn-sm rounded-xl"
             type="button"
             :class="
               normalizedActiveTab === tab.key ? 'btn-primary' : 'btn-ghost'
             "
-            @click="emit('set-tab', tab.key)"
+            @click="setTab(tab.key)"
           >
             <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4" />
             {{ tab.label }}
@@ -238,7 +238,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
+import {
+  isDashboardKey,
+  type DashboardKey,
+  type DashboardTabConfig,
+} from '@/stores/helpers/dashboardHelper'
+import { useNavStore } from '@/stores/navStore'
 
 type ChannelRoute = {
   key: string
@@ -254,6 +259,7 @@ const props = withDefaults(
   defineProps<{
     title?: string
     summary?: string
+    dashboardKey?: DashboardKey | string | null
     tabs?: DashboardTabConfig[]
     activeTab?: string
     loading?: boolean
@@ -267,6 +273,7 @@ const props = withDefaults(
   {
     title: 'Dashboard',
     summary: '',
+    dashboardKey: null,
     tabs: () => [],
     activeTab: '',
     loading: false,
@@ -285,6 +292,8 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
+const navStore = useNavStore()
+
 const showChannels = ref(false)
 const showHeader = ref(true)
 const channelMenuRef = ref<HTMLElement | null>(null)
@@ -364,28 +373,74 @@ const channels: ChannelRoute[] = [
   },
 ]
 
+const resolvedDashboardKey = computed<DashboardKey | null>(() => {
+  const key = (props.dashboardKey ?? '').trim()
+
+  if (!key || !isDashboardKey(key)) return null
+
+  return key
+})
+
+const resolvedTabs = computed<DashboardTabConfig[]>(() => {
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    return navStore.getDashboardTabs(dashboardKey)
+  }
+
+  return props.tabs
+})
+
+const requestedActiveTab = computed(() => {
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    return navStore.getDashboardTab(dashboardKey)
+  }
+
+  return props.activeTab
+})
+
 const fallbackTab = computed<DashboardTabConfig>(() => {
-  const key = props.activeTab || props.tabs[0]?.key || 'overview'
-  const label = props.activeTab || props.tabs[0]?.label || 'Overview'
+  const firstTab = resolvedTabs.value[0]
+  const requestedTab = requestedActiveTab.value
 
   return {
-    key,
-    label,
-    icon: fallbackIcon,
-    title: label,
-    summary: '',
+    key: requestedTab || firstTab?.key || 'overview',
+    label: firstTab?.label || requestedTab || 'Overview',
+    icon: firstTab?.icon || fallbackIcon,
+    title: firstTab?.title || firstTab?.label || requestedTab || 'Overview',
+    summary: firstTab?.summary || '',
   }
 })
 
 const activeTabConfig = computed<DashboardTabConfig>(() => {
-  return (
-    props.tabs.find((tab) => tab.key === props.activeTab) ??
-    props.tabs[0] ??
-    fallbackTab.value
-  )
+  const requestedTab = (requestedActiveTab.value || '').trim()
+
+  if (requestedTab) {
+    const matchedTab = resolvedTabs.value.find((tab) => {
+      return tab.key === requestedTab
+    })
+
+    if (matchedTab) {
+      return matchedTab
+    }
+
+    return {
+      key: requestedTab,
+      label: requestedTab,
+      icon: fallbackIcon,
+      title: requestedTab,
+      summary: '',
+    }
+  }
+
+  return resolvedTabs.value[0] ?? fallbackTab.value
 })
 
-const normalizedActiveTab = computed(() => activeTabConfig.value.key)
+const normalizedActiveTab = computed(() => {
+  return requestedActiveTab.value || activeTabConfig.value.key
+})
 
 const activeTitle = computed(() => {
   return activeTabConfig.value.title || activeTabConfig.value.label
@@ -407,8 +462,19 @@ const activeChannel = computed(() => {
   )
 })
 
+function setTab(tabKey: string) {
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    navStore.setDashboardTab(dashboardKey, tabKey)
+  }
+
+  emit('set-tab', tabKey)
+}
+
 function isChannelActive(channel: ChannelRoute) {
   if (route.path === channel.path) return true
+
   return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
 }
 
@@ -454,7 +520,8 @@ watch(showHeader, (value) => {
   localStorage.setItem(storageKey, String(value))
 })
 
-onMounted(() => {
+onMounted(async () => {
+  await navStore.initialize()
   loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
 })

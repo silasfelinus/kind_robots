@@ -1,4 +1,10 @@
 // /stores/helpers/dashboardHelper.ts
+
+import {
+  builderDashboardTabs,
+  defaultBuilderStage,
+} from '@/stores/seeds/builderSchema'
+
 export type DashboardTabConfig = {
   key: string
   label: string
@@ -162,6 +168,13 @@ export const dashboardConfigs = {
           'Generate, accept, edit, reject, save, or overwrite brainstorms.',
       },
     ],
+  },
+
+  builder: {
+    key: 'builder',
+    label: 'Builder',
+    defaultTab: defaultBuilderStage,
+    tabs: builderDashboardTabs,
   },
 
   character: {

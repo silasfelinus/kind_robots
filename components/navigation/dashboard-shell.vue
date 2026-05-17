@@ -297,6 +297,12 @@ const channels: ChannelRoute[] = [
     icon: 'kind-icon:home',
   },
   {
+    key: 'builder',
+    label: 'Builder',
+    path: '/builder',
+    icon: 'kind-icon:blueprint',
+  },
+  {
     key: 'bots',
     label: 'Bots',
     path: '/bots',

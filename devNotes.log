@@ -89,3 +89,29 @@ still seeking a working handshake from vercel to a password or tailscale guarded
 5/7/2026
 wORKING HANDSHAKE! cAN send to sd and get image, can test with comfy and sd, can run .http tests that pass with comfy and sd
 really amazed that I'm at this point. have made other progress with server model and what not since, but all pales.
+
+5/17/2026
+Wow, ten days ago I was excited about a working handshake. Since I've got 90% of the backend working, with image generation through SD, testing and front end with a working tailscale connection. 
+
+Built an admin accessed line from ChatGPT to Kind Robots for object gen in app. Still troubleshooting uploading of images to the database, but can update text fields. Waiting to setup auth for user access before release. Current projects involve migrating out of the Art objects and directly using artImages for all image data. This will hopefully create a lot less friction with image creation/handling, and speed production. The other project is creating the builder system to walk the user through creating pitches, art, dreams, rewards, characters, and scenarios (bots to be a future add, have some ideas to make a bot a more functional addition to the project by letting the user dictate the scope of the return fields.) Overall made significant improvements to the UI, eliminated the footer, moved the header to a bottom base, and overall worked towards a more focused and minimalist layout. There is still a lot of pieces, but the overall site is much more navigable and the pieces flow into each other better.
+
+I would still like to make progress on the multi-user potential for the site. I feel like getting an end to end build system and testing a few more connection systems (comfy, openai images, anthropic), should have us primed for users to bring their own server setup. I also need to setup a straightforward system for people to demo the site using my resources, but the ideal setup for that uses a self-hosted text processor, which I have yet to implement.
+
+Current Goals:
+Implement self hosted text processor
+finish builder
+finish front end layout
+Bug test front end options
+Build out Dreams multi-user experience
+finish layout and interaction site for Brainstorm
+Add Reward/Skills to Character
+Decide on Character form model
+Finish tying together working Story pieces
+port over all Art assets to ArtImage
+Fix Art upload collection errors
+Expand Bot model for variable requests.
+build free user support system
+Add back in milestones
+add fx scroll to art generator animations
+fix animations not staying in toggled sections
+fix butterfly animation to avoid ugly angle

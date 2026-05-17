@@ -15,17 +15,23 @@
     >
       <section v-if="currentSection === 'section'" class="flex flex-col gap-4">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:mask" class="h-6 w-6 text-primary" />
             Character Section
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Decide where this character belongs and what kind of role they play. This gives the rest of the builder context before we start naming the little menace.
+            Decide where this character belongs and what kind of role they play.
+            This gives the rest of the builder context before we start naming
+            the little menace.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[22rem_1fr]">
-            <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+            <aside
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
               <label class="form-control">
                 <span class="label-text font-bold">Dream</span>
 
@@ -86,7 +92,9 @@
             </aside>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <p
+                class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+              >
                 Character Direction
               </p>
 
@@ -98,8 +106,12 @@
                 {{ sectionPreview }}
               </p>
 
-              <div class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <div
+                class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3"
+              >
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Dream Link
                 </p>
 
@@ -112,24 +124,36 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'name'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'name'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:signature" class="h-6 w-6 text-primary" />
             Name and Identity
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Give the character a name, honorific, class, and alignment. A good name should sound like it already has unpaid emotional invoices.
+            Give the character a name, honorific, class, and alignment. A good
+            name should sound like it already has unpaid emotional invoices.
           </p>
 
-          <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div
+            class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4"
+          >
             <label class="form-control">
               <span class="label-text font-bold">Name</span>
 
@@ -176,7 +200,11 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollName">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollName"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Name
             </button>
@@ -186,7 +214,11 @@
               Roll Identity
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="buildNameFromParts">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="buildNameFromParts"
+            >
               <Icon name="kind-icon:wand" class="h-4 w-4" />
               Build Name
             </button>
@@ -198,21 +230,32 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'race'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'race'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:species" class="h-6 w-6 text-primary" />
             Race / Species
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            The database field is <span class="font-bold">species</span>, so this builder labels it race/species but saves it to Character.species.
+            The database field is <span class="font-bold">species</span>, so
+            this builder labels it race/species but saves it to
+            Character.species.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_18rem]">
@@ -227,13 +270,23 @@
               />
             </label>
 
-            <div class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4">
-              <button class="btn btn-secondary rounded-xl" type="button" @click="rollSpecies">
+            <div
+              class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
+              <button
+                class="btn btn-secondary rounded-xl"
+                type="button"
+                @click="rollSpecies"
+              >
                 <Icon name="kind-icon:dice" class="h-4 w-4" />
                 Roll Species
               </button>
 
-              <button class="btn rounded-xl" type="button" @click="makeSpeciesWeird">
+              <button
+                class="btn rounded-xl"
+                type="button"
+                @click="makeSpeciesWeird"
+              >
                 <Icon name="kind-icon:sparkles" class="h-4 w-4" />
                 Make It Weird
               </button>
@@ -246,21 +299,32 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'gender'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'gender'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:person" class="h-6 w-6 text-primary" />
             Gender and Presentation
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            There is no Character.gender field yet. This builder keeps gender identity as local builder context and folds it into personality/backstory when saving.
+            There is no Character.gender field yet. This builder keeps gender
+            identity as local builder context and folds it into
+            personality/backstory when saving.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -298,12 +362,20 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollPersonality">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollPersonality"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Personality
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="appendGenderToPersonality">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="appendGenderToPersonality"
+            >
               <Icon name="kind-icon:plus" class="h-4 w-4" />
               Add to Personality
             </button>
@@ -315,28 +387,37 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'stats'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'stats'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:activity" class="h-6 w-6 text-primary" />
             Stats
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Set six flexible stats and four personality axis goals. This lets characters behave like story machines instead of stat spreadsheets with hats.
+            Set six flexible stats and four personality axis goals. This lets
+            characters behave like story machines instead of stat spreadsheets
+            with hats.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Core Stats
-              </h4>
+              <h4 class="font-bold text-base-content">Core Stats</h4>
 
               <div class="mt-3 grid grid-cols-1 gap-3">
                 <div
@@ -363,9 +444,7 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Goal Axes
-              </h4>
+              <h4 class="font-bold text-base-content">Goal Axes</h4>
 
               <div class="mt-3 grid grid-cols-1 gap-3">
                 <div
@@ -388,7 +467,9 @@
                     max="100"
                   />
 
-                  <div class="mt-1 text-center text-sm font-bold text-base-content/70">
+                  <div
+                    class="mt-1 text-center text-sm font-bold text-base-content/70"
+                  >
                     {{ goal.value }}
                   </div>
                 </div>
@@ -397,7 +478,11 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollStats">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollStats"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Stats
             </button>
@@ -414,21 +499,31 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'skills'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'skills'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:sparkles" class="h-6 w-6 text-primary" />
             Skills and Inventory
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Give the character things they can do and things they probably should not be trusted with.
+            Give the character things they can do and things they probably
+            should not be trusted with.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -464,7 +559,11 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollSkills">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollSkills"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Skills
             </button>
@@ -486,21 +585,31 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'background'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'background'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:story" class="h-6 w-6 text-primary" />
             Background
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Define what this character wants, what happened to them, and why they keep making everything narratively complicated.
+            Define what this character wants, what happened to them, and why
+            they keep making everything narratively complicated.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3">
@@ -538,12 +647,20 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollBackstory">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollBackstory"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Backstory
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="buildBackstory">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="buildBackstory"
+            >
               <Icon name="kind-icon:wand" class="h-4 w-4" />
               Build from Character
             </button>
@@ -555,7 +672,11 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
@@ -576,13 +697,20 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Summary
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'summary'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'summary'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
             <Icon name="kind-icon:blueprint" class="h-6 w-6" />
@@ -590,7 +718,9 @@
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Review the character before saving. Saved characters can connect to dreams, rewards, scenarios, chats, and butterflies. Obviously butterflies.
+            Review the character before saving. Saved characters can connect to
+            dreams, rewards, scenarios, chats, and butterflies. Obviously
+            butterflies.
           </p>
         </div>
 
@@ -598,7 +728,9 @@
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div class="flex flex-col gap-3">
               <div class="flex items-start gap-3">
-                <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+                <div
+                  class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+                >
                   <img
                     v-if="imagePath"
                     :src="imagePath"
@@ -614,7 +746,9 @@
                 </div>
 
                 <div class="min-w-0">
-                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                  <p
+                    class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                  >
                     Character
                   </p>
 
@@ -623,27 +757,37 @@
                   </h3>
 
                   <p class="mt-1 text-sm text-base-content/70">
-                    {{ honorific || 'adventurer' }} · {{ species || 'Unknown species' }} · {{ characterClass || 'Unclassed' }}
+                    {{ honorific || 'adventurer' }} ·
+                    {{ species || 'Unknown species' }} ·
+                    {{ characterClass || 'Unclassed' }}
                   </p>
                 </div>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Background
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ backstory || 'No backstory yet.' }}
                 </p>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Skills
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ skills || 'No skills yet.' }}
                 </p>
               </div>
@@ -666,43 +810,77 @@
             </div>
           </div>
 
-          <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-            <button class="btn rounded-xl" type="button" @click="setSection('section')">
+          <aside
+            class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+          >
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('section')"
+            >
               <Icon name="kind-icon:mask" class="h-4 w-4" />
               Edit Section
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('name')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('name')"
+            >
               <Icon name="kind-icon:signature" class="h-4 w-4" />
               Edit Name
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('race')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('race')"
+            >
               <Icon name="kind-icon:species" class="h-4 w-4" />
               Edit Race
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('gender')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('gender')"
+            >
               <Icon name="kind-icon:person" class="h-4 w-4" />
               Edit Gender
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('stats')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('stats')"
+            >
               <Icon name="kind-icon:activity" class="h-4 w-4" />
               Edit Stats
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('skills')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('skills')"
+            >
               <Icon name="kind-icon:sparkles" class="h-4 w-4" />
               Edit Skills
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('background')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('background')"
+            >
               <Icon name="kind-icon:story" class="h-4 w-4" />
               Edit Background
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('art')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('art')"
+            >
               <Icon name="kind-icon:palette" class="h-4 w-4" />
               Edit Art
             </button>
@@ -740,7 +918,9 @@
             class="rounded-2xl border border-base-300 bg-base-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+              <div
+                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+              >
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -910,7 +1090,8 @@ const sections: BuilderSectionConfig[] = [
     label: 'Race',
     icon: 'kind-icon:species',
     title: 'Race / Species',
-    summary: 'Choose the character race or species. This saves to Character.species.',
+    summary:
+      'Choose the character race or species. This saves to Character.species.',
   },
   {
     key: 'gender',
@@ -957,7 +1138,10 @@ const sections: BuilderSectionConfig[] = [
 ]
 
 const selectedDreamLabel = computed(() => {
-  return dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)?.label ?? ''
+  return (
+    dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)
+      ?.label ?? ''
+  )
 })
 
 const sectionTitle = computed(() => {
@@ -1053,7 +1237,8 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
       ? `Saved as #${selectedCharacterId.value}`
       : 'Not saved yet',
     icon: selectedCharacterId.value ? 'kind-icon:check' : 'kind-icon:save',
-    description: 'Saved characters can connect to dreams, rewards, and scenarios.',
+    description:
+      'Saved characters can connect to dreams, rewards, and scenarios.',
     editSection: 'summary',
   },
 ])
@@ -1064,7 +1249,8 @@ function rollFrom(key: string, fallback = '') {
 
 function rollSection() {
   genre.value = rollFrom('genre', genre.value)
-  characterRole.value = rollFrom('class', characterRole.value) || characterRole.value
+  characterRole.value =
+    rollFrom('class', characterRole.value) || characterRole.value
 }
 
 function rollName() {
@@ -1120,8 +1306,22 @@ function rollStats() {
   }
 }
 
+function applyStatRow(
+  rows: StatRow[],
+  index: number,
+  name: string,
+  value: number,
+) {
+  const row = rows[index]
+
+  if (!row) return
+
+  row.name = name
+  row.value = value
+}
+
 function resetStats() {
-  const defaults = [
+  const defaults: Array<Pick<StatRow, 'name' | 'value'>> = [
     { name: 'Luck', value: 59 },
     { name: 'Swol', value: 49 },
     { name: 'Wits', value: 72 },
@@ -1131,21 +1331,14 @@ function resetStats() {
   ]
 
   defaults.forEach((item, index) => {
-    if (!stats[index]) return
-    stats[index].name = item.name
-    stats[index].value = item.value
+    applyStatRow(stats, index, item.name, item.value)
   })
 
-  goalStats[0].name = 'Principled|Chaotic'
-  goalStats[0].value = 0
-  goalStats[1].name = 'Introvert|Extrovert'
-  goalStats[1].value = 0
-  goalStats[2].name = 'Passive|Aggressive'
-  goalStats[2].value = 0
-  goalStats[3].name = 'Optimist|Pessimist'
-  goalStats[3].value = 0
+  applyStatRow(goalStats, 0, 'Principled|Chaotic', 0)
+  applyStatRow(goalStats, 1, 'Introvert|Extrovert', 0)
+  applyStatRow(goalStats, 2, 'Passive|Aggressive', 0)
+  applyStatRow(goalStats, 3, 'Optimist|Pessimist', 0)
 }
-
 function rollSkills() {
   const rolled = [rollFrom('skill'), rollFrom('skill'), rollFrom('skill')]
     .filter(Boolean)
@@ -1176,14 +1369,18 @@ function rollBackstory() {
 
 function buildBackstory() {
   const parts = [
-    name.value ? `${name.value} is ${articleFor(species.value)} ${species.value || 'mysterious being'}.` : '',
+    name.value
+      ? `${name.value} is ${articleFor(species.value)} ${species.value || 'mysterious being'}.`
+      : '',
     characterClass.value ? `They are known as a ${characterClass.value}.` : '',
     characterRole.value ? `Their role is ${characterRole.value}.` : '',
     drive.value ? `Drive: ${drive.value}.` : '',
     personality.value ? `Personality: ${personality.value}` : '',
     genderIdentity.value ? `Gender identity: ${genderIdentity.value}.` : '',
     presentation.value ? `Presentation: ${presentation.value}.` : '',
-    selectedDreamLabel.value ? `They are connected to ${selectedDreamLabel.value}.` : '',
+    selectedDreamLabel.value
+      ? `They are connected to ${selectedDreamLabel.value}.`
+      : '',
   ]
 
   backstory.value = parts.filter(Boolean).join(' ')
@@ -1196,7 +1393,9 @@ function updateCharacterArt(payload: ArtCreatorPayload) {
 
 async function fetchDreams() {
   try {
-    const res = (await performFetch<Dream[]>('/api/dream')) as PerformFetchResult<Dream[]>
+    const res = (await performFetch<Dream[]>(
+      '/api/dream',
+    )) as PerformFetchResult<Dream[]>
 
     if (!res.success || !Array.isArray(res.data)) {
       dreamOptions.value = []

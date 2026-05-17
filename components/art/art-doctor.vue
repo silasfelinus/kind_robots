@@ -762,6 +762,45 @@ const reportByArtId = computed(() => {
   return map
 })
 
+function getPossibleCollectionDebug(art: LegacyArt) {
+  const record = art as Record<string, unknown>
+
+  const directCollections = [
+    record.ArtCollection,
+    record.ArtCollections,
+    record.artCollections,
+    record.collections,
+  ]
+
+  const collectionArrays = directCollections.filter(Array.isArray) as Array<
+    Array<Record<string, unknown>>
+  >
+
+  const relationIds = collectionArrays
+    .flatMap((collection) => collection)
+    .map((collection) => numberValue(collection.id))
+    .filter((id): id is number => Boolean(id))
+
+  return {
+    artId: art.id,
+    artImageId: numberValue(art.artImageId),
+    artCollectionId: numberValue(record.artCollectionId),
+    collection: stringValue(record.collection),
+    relationIds,
+    relationKeysPresent: directCollections
+      .map((value, index) => {
+        const key = [
+          'ArtCollection',
+          'ArtCollections',
+          'artCollections',
+          'collections',
+        ][index]
+        return Array.isArray(value) ? `${key}:${value.length}` : ''
+      })
+      .filter(Boolean),
+  }
+}
+
 const rows = computed<LegacyRow[]>(() => {
   return allArt.value.map((art) => buildRow(art))
 })
@@ -1094,6 +1133,15 @@ async function promoteOne(art: LegacyArt) {
 
     log(`Art #${art.id}: creating ArtImage through artStore`)
     const createPayload = buildArtImagePayload(art, shouldDelete)
+    const collectionDebug = getPossibleCollectionDebug(art)
+
+    log(
+      `Art #${art.id}: payload artId=${String(createPayload.artId)}, collectionHints=${JSON.stringify(collectionDebug)}`,
+    )
+    log(
+      `Art #${art.id}: creating ArtImage with payload collection ids=${JSON.stringify(createPayload.artCollectionIds || createPayload.artCollectionId || [])}`,
+    )
+
     const createResponse = await artStore.createLegacyArtImage(createPayload)
 
     if (!createResponse.success || !createResponse.data) {
@@ -1104,6 +1152,22 @@ async function promoteOne(art: LegacyArt) {
     }
 
     const createdImage = stripHeavyImageFields(createResponse.data)
+    const createdDebug = createdImage as Record<string, unknown>
+
+    log(
+      `Art #${art.id}: created ArtImage #${createdImage.id}, artId=${String(createdImage.artId)}, returned collection fields=${JSON.stringify(
+        {
+          ArtCollections: Array.isArray(createdDebug.ArtCollections)
+            ? createdDebug.ArtCollections.length
+            : null,
+          artCollections: Array.isArray(createdDebug.artCollections)
+            ? createdDebug.artCollections.length
+            : null,
+          collection: createdDebug.collection ?? null,
+        },
+      )}`,
+      'success',
+    )
 
     if (shouldDelete) {
       const deleted = await artStore.deleteArt(art.id)
@@ -1205,7 +1269,7 @@ function buildArtImagePayload(
 ): ArtImageCreatePayload {
   const imagePath = primaryArtPath(art)
   const payload: ArtImageCreatePayload = {
-    artId: createStandalone ? null : art.id,
+    artId: art.id,
     userId: art.userId ?? null,
     galleryId: art.galleryId ?? null,
     imagePath,

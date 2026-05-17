@@ -1,10 +1,5 @@
 // /server/api/art/image/legacy.post.ts
-import {
-  defineEventHandler,
-  createError,
-  readBody,
-  type H3Event,
-} from 'h3'
+import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -359,6 +354,27 @@ export default defineEventHandler(async (event) => {
     const artId = cleanPositiveId(body.artId)
     const sourceArt = await getSourceArt(artId)
 
+    legacyLog('received promotion request', {
+      artId,
+      bodyArtCollectionId: body.artCollectionId ?? null,
+      bodyArtCollectionIds: body.artCollectionIds ?? [],
+      bodyUserId: body.userId ?? null,
+      bodyGalleryId: body.galleryId ?? null,
+      bodyImagePath: body.imagePath ?? null,
+      bodyPath: body.path ?? null,
+    })
+
+    legacyLog('source art lookup result', {
+      found: Boolean(sourceArt),
+      sourceArtId: sourceArt?.id ?? null,
+      sourceUserId: sourceArt?.userId ?? null,
+      sourceGalleryId: sourceArt?.galleryId ?? null,
+      sourceArtImageId: sourceArt?.artImageId ?? null,
+      sourceCollectionCount: sourceArt?.ArtCollection?.length ?? 0,
+      sourceCollectionIds:
+        sourceArt?.ArtCollection?.map((collection) => collection.id) ?? [],
+    })
+
     if (artId && !sourceArt) {
       throw createError({
         statusCode: 404,
@@ -439,8 +455,38 @@ export default defineEventHandler(async (event) => {
         imagePath,
       })
 
+      const relationIds = getRelationIds(body, sourceArt)
+
+      legacyLog('resolved relation ids before create', {
+        artId,
+        artCollectionIds: relationIds.artCollectionIds,
+        tagIds: relationIds.tagIds,
+        dreamIds: relationIds.dreamIds,
+        butterflyIds: relationIds.butterflyIds,
+        reactionIds: relationIds.reactionIds,
+        scenarioIds: relationIds.scenarioIds,
+      })
+
       const artImage = await tx.artImage.create({
         data,
+        include: {
+          ArtCollections: {
+            select: {
+              id: true,
+              label: true,
+            },
+          },
+        },
+      })
+
+      legacyLog('created art image', {
+        artImageId: artImage.id,
+        artId: artImage.artId,
+        artCollectionCount: artImage.ArtCollections.length,
+        artCollections: artImage.ArtCollections.map((collection) => ({
+          id: collection.id,
+          label: collection.label,
+        })),
       })
 
       if (artId) {
@@ -475,3 +521,15 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+function legacyLog(message: string, payload?: unknown): void {
+  if (payload === undefined) {
+    console.info(`[legacy-art-image] ${message}`)
+    return
+  }
+
+  console.info(
+    `[legacy-art-image] ${message}`,
+    JSON.stringify(payload, null, 2),
+  )
+}

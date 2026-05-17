@@ -69,9 +69,7 @@
             <span
               class="rounded-full bg-base-100/60 px-2 py-0.5 text-[0.65rem] font-black text-base-content/60 group-hover:text-primary-content"
               :class="
-                activeSection.key === section.key
-                  ? 'text-primary-content'
-                  : ''
+                activeSection.key === section.key ? 'text-primary-content' : ''
               "
             >
               {{ index + 1 }}
@@ -223,14 +221,16 @@ export type BuilderSectionConfig = {
 
 const fallbackIcon = 'kind-icon:sparkles'
 
-const fallbackSections: BuilderSectionConfig[] = [
-  {
-    key: 'start',
-    label: 'Start',
-    icon: fallbackIcon,
-    title: 'Start',
-    summary: 'Begin this builder step.',
-  },
+const fallbackStartSection: BuilderSectionConfig = {
+  key: 'start',
+  label: 'Start',
+  icon: fallbackIcon,
+  title: 'Start',
+  summary: 'Begin this builder step.',
+}
+
+const fallbackSections = [
+  fallbackStartSection,
   {
     key: 'summary',
     label: 'Summary',
@@ -238,7 +238,7 @@ const fallbackSections: BuilderSectionConfig[] = [
     title: 'Summary',
     summary: 'Review the current choices, images, links, and next actions.',
   },
-]
+] satisfies [BuilderSectionConfig, ...BuilderSectionConfig[]]
 
 const props = withDefaults(
   defineProps<{
@@ -283,7 +283,9 @@ const activeSectionIndex = computed(() => {
 })
 
 const activeSection = computed<BuilderSectionConfig>(() => {
-  return normalizedSections.value[activeSectionIndex.value] ?? fallbackSections[0]
+  return (
+    normalizedSections.value[activeSectionIndex.value] ?? fallbackStartSection
+  )
 })
 
 const canGoBack = computed(() => activeSectionIndex.value > 0)
@@ -357,10 +359,10 @@ watch(
 watch(
   normalizedSections,
   (sections) => {
-    if (!sections.length) return
+    const firstSection = sections[0] ?? fallbackStartSection
 
     if (!hasSection(activeSectionKey.value)) {
-      setSection(sections[0].key)
+      setSection(firstSection.key)
     }
   },
   { immediate: true },

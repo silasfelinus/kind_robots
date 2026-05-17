@@ -15,16 +15,22 @@
     >
       <section v-if="currentSection === 'type'" class="flex flex-col gap-4">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:gift" class="h-6 w-6 text-primary" />
             What kind of reward is this?
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            A reward can be treasure, but it can also be a skill, power, secret, curse, permission, ally, or story key. Loot is cute. Narrative leverage is cuter.
+            A reward can be treasure, but it can also be a skill, power, secret,
+            curse, permission, ally, or story key. Loot is cute. Narrative
+            leverage is cuter.
           </p>
 
-          <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div
+            class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+          >
             <button
               v-for="option in rewardTypeOptions"
               :key="option.value"
@@ -51,21 +57,31 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'identity'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'identity'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon :name="rewardKindIcon" class="h-6 w-6 text-primary" />
             Reward Identity
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Give the reward a name, category, and description. The best rewards imply a story problem they either solve or make dramatically worse.
+            Give the reward a name, category, and description. The best rewards
+            imply a story problem they either solve or make dramatically worse.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -83,7 +99,10 @@
             <label class="form-control">
               <span class="label-text font-bold">Reward Kind</span>
 
-              <select v-model="rewardKind" class="select select-bordered rounded-2xl">
+              <select
+                v-model="rewardKind"
+                class="select select-bordered rounded-2xl"
+              >
                 <option
                   v-for="option in rewardTypeOptions"
                   :key="option.value"
@@ -107,7 +126,10 @@
             <label class="form-control">
               <span class="label-text font-bold">Rarity</span>
 
-              <select v-model="rarity" class="select select-bordered rounded-2xl">
+              <select
+                v-model="rarity"
+                class="select select-bordered rounded-2xl"
+              >
                 <option value="common">Common</option>
                 <option value="uncommon">Uncommon</option>
                 <option value="rare">Rare</option>
@@ -131,12 +153,20 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollRewardIdentity">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollRewardIdentity"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Identity
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="buildRewardDescription">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="buildRewardDescription"
+            >
               <Icon name="kind-icon:wand" class="h-4 w-4" />
               Build Description
             </button>
@@ -148,21 +178,32 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'effect'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'effect'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:sparkles" class="h-6 w-6 text-primary" />
             Reward Effect
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Define what this reward actually does. For skill rewards, this becomes a character ability. For treasure, this becomes usable loot. For permissions, this can unlock scenario choices.
+            Define what this reward actually does. For skill rewards, this
+            becomes a character ability. For treasure, this becomes usable loot.
+            For permissions, this can unlock scenario choices.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -197,7 +238,8 @@
             </h4>
 
             <p class="mt-1 text-sm text-base-content/70">
-              Skill rewards should feel like a new action a character can take, not just a shiny badge that says “I did plot.”
+              Skill rewards should feel like a new action a character can take,
+              not just a shiny badge that says “I did plot.”
             </p>
 
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -215,7 +257,10 @@
               <label class="form-control">
                 <span class="label-text font-bold">Linked Stat</span>
 
-                <select v-model="linkedStat" class="select select-bordered rounded-2xl">
+                <select
+                  v-model="linkedStat"
+                  class="select select-bordered rounded-2xl"
+                >
                   <option value="Luck">Luck</option>
                   <option value="Swol">Swol</option>
                   <option value="Wits">Wits</option>
@@ -242,13 +287,16 @@
             v-else-if="rewardKind === 'treasure'"
             class="mt-4 rounded-2xl border border-secondary/30 bg-secondary/10 p-4"
           >
-            <h4 class="flex items-center gap-2 text-lg font-bold text-secondary">
+            <h4
+              class="flex items-center gap-2 text-lg font-bold text-secondary"
+            >
               <Icon name="kind-icon:chest" class="h-5 w-5" />
               Treasure Details
             </h4>
 
             <p class="mt-1 text-sm text-base-content/70">
-              Treasure should be desirable, portable, stealable, cursed, or emotionally inconvenient. Ideally several.
+              Treasure should be desirable, portable, stealable, cursed, or
+              emotionally inconvenient. Ideally several.
             </p>
 
             <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -277,12 +325,20 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="rollEffect">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="rollEffect"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Effect
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="buildEffectFromKind">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="buildEffectFromKind"
+            >
               <Icon name="kind-icon:wand" class="h-4 w-4" />
               Build Effect
             </button>
@@ -294,24 +350,37 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'connections'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'connections'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:link" class="h-6 w-6 text-primary" />
             Reward Connections
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Attach this reward to a dream, character, or scenario. Skill rewards especially like being attached to characters. Treasure likes being lost dramatically.
+            Attach this reward to a dream, character, or scenario. Skill rewards
+            especially like being attached to characters. Treasure likes being
+            lost dramatically.
           </p>
 
-          <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div
+            class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+          >
             <label class="form-control">
               <span class="label-text font-bold">Dream</span>
 
@@ -371,9 +440,7 @@
           </div>
 
           <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
-            <h4 class="font-bold text-base-content">
-              Connection Notes
-            </h4>
+            <h4 class="font-bold text-base-content">Connection Notes</h4>
 
             <textarea
               v-model="connectionNotes"
@@ -388,7 +455,11 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
@@ -409,13 +480,20 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Summary
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'summary'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'summary'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
             <Icon name="kind-icon:blueprint" class="h-6 w-6" />
@@ -423,7 +501,8 @@
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Review the reward before saving. Remember, a reward is not just an item. It is permission for the story to get weirder.
+            Review the reward before saving. Remember, a reward is not just an
+            item. It is permission for the story to get weirder.
           </p>
         </div>
 
@@ -431,7 +510,9 @@
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div class="flex flex-col gap-3">
               <div class="flex items-start gap-3">
-                <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+                <div
+                  class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+                >
                   <img
                     v-if="imagePath"
                     :src="imagePath"
@@ -447,7 +528,9 @@
                 </div>
 
                 <div class="min-w-0">
-                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                  <p
+                    class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                  >
                     {{ rewardKindLabel }}
                   </p>
 
@@ -462,69 +545,107 @@
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Description
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ description || 'No description yet.' }}
                 </p>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Effect
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ effect || 'No effect yet.' }}
                 </p>
               </div>
 
               <div v-if="rewardKind === 'skill'">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Skill Details
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ skillSummary }}
                 </p>
               </div>
 
               <div v-if="rewardKind === 'treasure'">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Treasure Details
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ treasureSummary }}
                 </p>
               </div>
             </div>
           </div>
 
-          <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-            <button class="btn rounded-xl" type="button" @click="setSection('type')">
+          <aside
+            class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+          >
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('type')"
+            >
               <Icon name="kind-icon:gift" class="h-4 w-4" />
               Edit Type
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('identity')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('identity')"
+            >
               <Icon name="kind-icon:signature" class="h-4 w-4" />
               Edit Identity
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('effect')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('effect')"
+            >
               <Icon name="kind-icon:sparkles" class="h-4 w-4" />
               Edit Effect
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('connections')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('connections')"
+            >
               <Icon name="kind-icon:link" class="h-4 w-4" />
               Edit Connections
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('art')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('art')"
+            >
               <Icon name="kind-icon:palette" class="h-4 w-4" />
               Edit Art
             </button>
@@ -562,7 +683,9 @@
             class="rounded-2xl border border-base-300 bg-base-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+              <div
+                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+              >
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -711,55 +834,64 @@ const rewardTypeOptions: {
     value: 'treasure',
     label: 'Treasure',
     icon: 'kind-icon:chest',
-    description: 'Physical loot, artifacts, relics, money, maps, charms, or suspiciously shiny objects.',
+    description:
+      'Physical loot, artifacts, relics, money, maps, charms, or suspiciously shiny objects.',
   },
   {
     value: 'skill',
     label: 'Skill',
     icon: 'kind-icon:activity',
-    description: 'A new character ability, technique, talent, move, spell, or social trick.',
+    description:
+      'A new character ability, technique, talent, move, spell, or social trick.',
   },
   {
     value: 'power',
     label: 'Power',
     icon: 'kind-icon:sparkles',
-    description: 'A supernatural, technological, or narrative ability that changes what is possible.',
+    description:
+      'A supernatural, technological, or narrative ability that changes what is possible.',
   },
   {
     value: 'secret',
     label: 'Secret',
     icon: 'kind-icon:eye',
-    description: 'Knowledge, leverage, forbidden truth, blackmail, prophecy, or hidden history.',
+    description:
+      'Knowledge, leverage, forbidden truth, blackmail, prophecy, or hidden history.',
   },
   {
     value: 'status',
     label: 'Status',
     icon: 'kind-icon:trophy',
-    description: 'A title, rank, reputation, blessing, debt, favor, or social position.',
+    description:
+      'A title, rank, reputation, blessing, debt, favor, or social position.',
   },
   {
     value: 'key',
     label: 'Key',
     icon: 'kind-icon:key',
-    description: 'A literal or symbolic key that opens places, paths, factions, endings, or trouble.',
+    description:
+      'A literal or symbolic key that opens places, paths, factions, endings, or trouble.',
   },
   {
     value: 'curse',
     label: 'Curse',
     icon: 'kind-icon:skull',
-    description: 'A mixed reward with a drawback, burden, haunting, mark, or narrative timer.',
+    description:
+      'A mixed reward with a drawback, burden, haunting, mark, or narrative timer.',
   },
   {
     value: 'permission',
     label: 'Permission',
     icon: 'kind-icon:unlock',
-    description: 'Unlocks choices, scenes, dialogue, factions, scenario branches, or special actions.',
+    description:
+      'Unlocks choices, scenes, dialogue, factions, scenario branches, or special actions.',
   },
   {
     value: 'ally',
     label: 'Ally',
     icon: 'kind-icon:person',
-    description: 'A helper, contact, tiny monster, familiar, patron, fan club, or problem with legs.',
+    description:
+      'A helper, contact, tiny monster, familiar, patron, fan club, or problem with legs.',
   },
 ]
 
@@ -769,7 +901,8 @@ const sections: BuilderSectionConfig[] = [
     label: 'Type',
     icon: 'kind-icon:gift',
     title: 'Reward Type',
-    summary: 'Choose whether this reward is treasure, skill, power, secret, status, key, curse, permission, or ally.',
+    summary:
+      'Choose whether this reward is treasure, skill, power, secret, status, key, curse, permission, or ally.',
   },
   {
     key: 'identity',
@@ -812,26 +945,43 @@ const rewardKindConfig = computed(() => {
   return rewardTypeOptions.find((option) => option.value === rewardKind.value)
 })
 
-const rewardKindLabel = computed(() => rewardKindConfig.value?.label ?? 'Reward')
-const rewardKindIcon = computed(() => rewardKindConfig.value?.icon ?? 'kind-icon:gift')
+const rewardKindLabel = computed(
+  () => rewardKindConfig.value?.label ?? 'Reward',
+)
+const rewardKindIcon = computed(
+  () => rewardKindConfig.value?.icon ?? 'kind-icon:gift',
+)
 
 const selectedDreamLabel = computed(() => {
-  return dreamOptions.value.find((item) => item.id === selectedDreamId.value)?.label ?? ''
+  return (
+    dreamOptions.value.find((item) => item.id === selectedDreamId.value)
+      ?.label ?? ''
+  )
 })
 
 const selectedCharacterLabel = computed(() => {
-  return characterOptions.value.find((item) => item.id === selectedCharacterId.value)?.label ?? ''
+  return (
+    characterOptions.value.find((item) => item.id === selectedCharacterId.value)
+      ?.label ?? ''
+  )
 })
 
 const selectedScenarioLabel = computed(() => {
-  return scenarioOptions.value.find((item) => item.id === selectedScenarioId.value)?.label ?? ''
+  return (
+    scenarioOptions.value.find((item) => item.id === selectedScenarioId.value)
+      ?.label ?? ''
+  )
 })
 
 const connectionSummary = computed(() => {
   const parts = [
     selectedDreamLabel.value ? `Dream: ${selectedDreamLabel.value}` : '',
-    selectedCharacterLabel.value ? `Character: ${selectedCharacterLabel.value}` : '',
-    selectedScenarioLabel.value ? `Scenario: ${selectedScenarioLabel.value}` : '',
+    selectedCharacterLabel.value
+      ? `Character: ${selectedCharacterLabel.value}`
+      : '',
+    selectedScenarioLabel.value
+      ? `Scenario: ${selectedScenarioLabel.value}`
+      : '',
   ].filter(Boolean)
 
   return parts.length ? parts.join(', ') : 'No links selected yet'
@@ -848,12 +998,14 @@ const skillSummary = computed(() => {
 })
 
 const treasureSummary = computed(() => {
-  return [
-    treasureForm.value ? `Form: ${treasureForm.value}.` : '',
-    material.value ? `Material: ${material.value}.` : '',
-  ]
-    .filter(Boolean)
-    .join(' ') || 'Treasure details not set yet.'
+  return (
+    [
+      treasureForm.value ? `Form: ${treasureForm.value}.` : '',
+      material.value ? `Material: ${material.value}.` : '',
+    ]
+      .filter(Boolean)
+      .join(' ') || 'Treasure details not set yet.'
+  )
 })
 
 const canSave = computed(() => title.value.trim().length > 0)
@@ -888,7 +1040,10 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
     label: 'Skill Details',
     value: rewardKind.value === 'skill' ? skillSummary.value : '',
     icon: 'kind-icon:activity',
-    description: rewardKind.value === 'skill' ? 'Character ability reward.' : 'Only used for skill rewards.',
+    description:
+      rewardKind.value === 'skill'
+        ? 'Character ability reward.'
+        : 'Only used for skill rewards.',
     editSection: 'effect',
   },
   {
@@ -911,9 +1066,12 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
   {
     key: 'save',
     label: 'Save Status',
-    value: selectedRewardId.value ? `Saved as #${selectedRewardId.value}` : 'Not saved yet',
+    value: selectedRewardId.value
+      ? `Saved as #${selectedRewardId.value}`
+      : 'Not saved yet',
     icon: selectedRewardId.value ? 'kind-icon:check' : 'kind-icon:save',
-    description: 'Saved rewards can connect to characters, dreams, and scenarios.',
+    description:
+      'Saved rewards can connect to characters, dreams, and scenarios.',
     editSection: 'summary',
   },
 ])
@@ -940,9 +1098,10 @@ function rollFrom(key: string, fallback = '') {
 
 function rollRewardIdentity() {
   const adjective = rollFrom('adjective', 'strange')
-  const noun = rewardKind.value === 'skill'
-    ? rollFrom('skill', 'Technique')
-    : rollFrom('item', 'Relic')
+  const noun =
+    rewardKind.value === 'skill'
+      ? rollFrom('skill', 'Technique')
+      : rollFrom('item', 'Relic')
 
   title.value = `The ${capitalize(adjective)} ${capitalize(noun)}`
   genre.value = genre.value || rollFrom('genre', 'fantasy')
@@ -953,9 +1112,22 @@ function rollRewardIdentity() {
   }
 
   if (rewardKind.value === 'skill') {
-    skillName.value = title.value.replace(/^The\s+/i, '')
-    linkedStat.value = ['Luck', 'Swol', 'Wits', 'Flexibility', 'Rizz', 'Empathy'][
-      Math.floor(Math.random() * 6)
+    skillName.value = title.value.replace(/^The\s+/i, '')[
+      {
+        resource: '/D:/code/kind_robots/components/builders/reward-builder.vue',
+        owner: 'typescript',
+        code: '2322',
+        severity: 8,
+        message:
+          "Type 'string | undefined' is not assignable to type 'string'.\n  Type 'undefined' is not assignable to type 'string'.",
+        source: 'ts-plugin',
+        startLineNumber: 957,
+        startColumn: 5,
+        endLineNumber: 957,
+        endColumn: 21,
+        modelVersionId: 1,
+        origin: 'extHost1',
+      }
     ]
   }
 }
@@ -1037,7 +1209,8 @@ function buildEffectFromKind() {
 
 function buildArtPrompt() {
   const name = title.value.trim() || rewardKindLabel.value
-  const visualRole = rewardKind.value === 'skill' ? 'skill icon' : 'reward object'
+  const visualRole =
+    rewardKind.value === 'skill' ? 'skill icon' : 'reward object'
 
   artPrompt.value = [
     `Create original ${visualRole} art for "${name}".`,
@@ -1066,7 +1239,9 @@ async function fetchSelectOptions() {
 
 async function fetchDreams() {
   try {
-    const res = (await performFetch<unknown[]>('/api/dream')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/dream',
+    )) as PerformFetchResult<unknown[]>
     dreamOptions.value = normalizeOptions(res)
   } catch (error) {
     handleError(error, 'fetching dreams for reward-builder')
@@ -1076,7 +1251,9 @@ async function fetchDreams() {
 
 async function fetchCharacters() {
   try {
-    const res = (await performFetch<unknown[]>('/api/character')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/character',
+    )) as PerformFetchResult<unknown[]>
     characterOptions.value = normalizeOptions(res)
   } catch (error) {
     handleError(error, 'fetching characters for reward-builder')
@@ -1086,7 +1263,9 @@ async function fetchCharacters() {
 
 async function fetchScenarios() {
   try {
-    const res = (await performFetch<unknown[]>('/api/scenario')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/scenario',
+    )) as PerformFetchResult<unknown[]>
     scenarioOptions.value = normalizeOptions(res)
   } catch (error) {
     handleError(error, 'fetching scenarios for reward-builder')
@@ -1161,7 +1340,9 @@ async function saveReward() {
       characterId: selectedCharacterId.value || null,
       scenarioId: selectedScenarioId.value || null,
       dreamIds: selectedDreamId.value ? [selectedDreamId.value] : [],
-      characterIds: selectedCharacterId.value ? [selectedCharacterId.value] : [],
+      characterIds: selectedCharacterId.value
+        ? [selectedCharacterId.value]
+        : [],
       scenarioIds: selectedScenarioId.value ? [selectedScenarioId.value] : [],
       metadata: {
         rewardKind: rewardKind.value,

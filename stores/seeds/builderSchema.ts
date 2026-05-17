@@ -16,7 +16,7 @@ export type BuilderStageConfig = DashboardTabConfig & {
   requiredBeforeNext?: string[]
 }
 
-export const builderStages: BuilderStageConfig[] = [
+export const builderStages = [
   {
     key: 'user',
     label: 'User',
@@ -83,7 +83,7 @@ export const builderStages: BuilderStageConfig[] = [
     route: '/stories',
     requiredBeforeNext: ['title', 'intro'],
   },
-]
+] satisfies [BuilderStageConfig, ...BuilderStageConfig[]]
 
 export const builderDashboardTabs: DashboardTabConfig[] = builderStages.map(
   ({ key, label, icon, title, summary }) => ({

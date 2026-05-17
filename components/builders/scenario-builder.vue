@@ -15,17 +15,23 @@
     >
       <section v-if="currentSection === 'dream'" class="flex flex-col gap-4">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:moon" class="h-6 w-6 text-primary" />
             Choose the Dream
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            A scenario is something that happens inside a dream. Pick the universe first so the scene has gravity, texture, and fewer random goblins wandering in from unrelated lore.
+            A scenario is something that happens inside a dream. Pick the
+            universe first so the scene has gravity, texture, and fewer random
+            goblins wandering in from unrelated lore.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[22rem_1fr]">
-            <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+            <aside
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
               <label class="form-control">
                 <span class="label-text font-bold">Dream</span>
 
@@ -74,7 +80,9 @@
             </aside>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <p
+                class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+              >
                 Selected Dream
               </p>
 
@@ -83,11 +91,18 @@
               </h4>
 
               <p class="mt-3 whitespace-pre-wrap text-sm text-base-content/70">
-                {{ selectedDreamDescription || 'Pick a dream, or continue without one and make a standalone scenario.' }}
+                {{
+                  selectedDreamDescription ||
+                  'Pick a dream, or continue without one and make a standalone scenario.'
+                }}
               </p>
 
-              <div class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <div
+                class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3"
+              >
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Scenario Direction
                 </p>
 
@@ -100,24 +115,37 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'type'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'type'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:map" class="h-6 w-6 text-primary" />
             What kind of scenario is this?
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Scenarios can be tough choices, narrative adventures, art prompts, text prompts, encounters, puzzles, or launchpads for more generation.
+            Scenarios can be tough choices, narrative adventures, art prompts,
+            text prompts, encounters, puzzles, or launchpads for more
+            generation.
           </p>
 
-          <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div
+            class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+          >
             <button
               v-for="option in scenarioTypeOptions"
               :key="option.value"
@@ -148,21 +176,32 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'setup'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'setup'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:story" class="h-6 w-6 text-primary" />
             Scenario Setup
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Define the scene, stakes, and objective. The goal is not to over-write the adventure, just to give the LLM enough delicious trouble to work with.
+            Define the scene, stakes, and objective. The goal is not to
+            over-write the adventure, just to give the LLM enough delicious
+            trouble to work with.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3">
@@ -209,12 +248,20 @@
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <button class="btn btn-secondary rounded-xl" type="button" @click="buildSetupFromDream">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="buildSetupFromDream"
+            >
               <Icon name="kind-icon:wand" class="h-4 w-4" />
               Build from Dream
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="rollScenarioSetup">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="rollScenarioSetup"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Roll Setup
             </button>
@@ -226,21 +273,32 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'choices'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'choices'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:choice" class="h-6 w-6 text-primary" />
             Choices and Custom Solutions
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Add multiple-choice options, but keep custom solutions enabled when the scenario wants player creativity. That is where the good chaos hides.
+            Add multiple-choice options, but keep custom solutions enabled when
+            the scenario wants player creativity. That is where the good chaos
+            hides.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3">
@@ -286,7 +344,9 @@
           </div>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
-            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+            <label
+              class="flex cursor-pointer items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
               <input
                 v-model="allowCustomSolution"
                 class="toggle toggle-primary"
@@ -299,18 +359,27 @@
                 </span>
 
                 <span class="block text-sm text-base-content/60">
-                  Let the user type their own plan and let the LLM judge the delightful mess.
+                  Let the user type their own plan and let the LLM judge the
+                  delightful mess.
                 </span>
               </span>
             </label>
 
             <div class="flex flex-wrap gap-2">
-              <button class="btn btn-secondary rounded-xl" type="button" @click="buildChoices">
+              <button
+                class="btn btn-secondary rounded-xl"
+                type="button"
+                @click="buildChoices"
+              >
                 <Icon name="kind-icon:wand" class="h-4 w-4" />
                 Build Choices
               </button>
 
-              <button class="btn rounded-xl" type="button" @click="clearChoices">
+              <button
+                class="btn rounded-xl"
+                type="button"
+                @click="clearChoices"
+              >
                 <Icon name="kind-icon:trash" class="h-4 w-4" />
                 Clear
               </button>
@@ -323,21 +392,32 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'prompt'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'prompt'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:prompt" class="h-6 w-6 text-primary" />
             Output Prompt
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            The scenario can produce a text prompt, art prompt, adventure prompt, or choice-resolution prompt. This is the reusable instruction layer.
+            The scenario can produce a text prompt, art prompt, adventure
+            prompt, or choice-resolution prompt. This is the reusable
+            instruction layer.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[1fr_20rem]">
@@ -363,28 +443,42 @@
               </label>
             </div>
 
-            <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Prompt Helpers
-              </h4>
+            <aside
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
+              <h4 class="font-bold text-base-content">Prompt Helpers</h4>
 
-              <button class="btn btn-secondary rounded-xl" type="button" @click="buildScenarioPrompt">
+              <button
+                class="btn btn-secondary rounded-xl"
+                type="button"
+                @click="buildScenarioPrompt"
+              >
                 <Icon name="kind-icon:wand" class="h-4 w-4" />
                 Build Scenario Prompt
               </button>
 
-              <button class="btn rounded-xl" type="button" @click="buildArtPrompt">
+              <button
+                class="btn rounded-xl"
+                type="button"
+                @click="buildArtPrompt"
+              >
                 <Icon name="kind-icon:palette" class="h-4 w-4" />
                 Build Art Prompt
               </button>
 
-              <button class="btn rounded-xl" type="button" @click="buildTextPrompt">
+              <button
+                class="btn rounded-xl"
+                type="button"
+                @click="buildTextPrompt"
+              >
                 <Icon name="kind-icon:chat" class="h-4 w-4" />
                 Build Text Prompt
               </button>
 
               <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Scenario Type
                 </p>
 
@@ -401,21 +495,31 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'connections'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'connections'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:link" class="h-6 w-6 text-primary" />
             Cast, Rewards, and Links
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Attach characters and rewards so the scenario has actors, incentives, consequences, and tiny plot grenades.
+            Attach characters and rewards so the scenario has actors,
+            incentives, consequences, and tiny plot grenades.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -474,7 +578,11 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
@@ -495,15 +603,24 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'settings'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'settings'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:sliders" class="h-6 w-6 text-primary" />
             Scenario Settings
           </h3>
@@ -512,16 +629,20 @@
             Configure visibility, maturity, active state, and play behavior.
           </p>
 
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-4">
+          <div
+            class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-4"
+          >
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Public
-              </h4>
+              <h4 class="font-bold text-base-content">Public</h4>
 
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <button
                   class="btn rounded-xl"
-                  :class="isPublic ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    isPublic
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="isPublic = true"
                 >
@@ -530,7 +651,11 @@
 
                 <button
                   class="btn rounded-xl"
-                  :class="!isPublic ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    !isPublic
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="isPublic = false"
                 >
@@ -540,14 +665,16 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Mature
-              </h4>
+              <h4 class="font-bold text-base-content">Mature</h4>
 
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <button
                   class="btn rounded-xl"
-                  :class="isMature ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    isMature
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="isMature = true"
                 >
@@ -556,7 +683,11 @@
 
                 <button
                   class="btn rounded-xl"
-                  :class="!isMature ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    !isMature
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="isMature = false"
                 >
@@ -566,14 +697,16 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Active
-              </h4>
+              <h4 class="font-bold text-base-content">Active</h4>
 
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <button
                   class="btn rounded-xl"
-                  :class="isActive ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    isActive
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="isActive = true"
                 >
@@ -582,7 +715,11 @@
 
                 <button
                   class="btn rounded-xl"
-                  :class="!isActive ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    !isActive
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="isActive = false"
                 >
@@ -592,14 +729,16 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Custom Answers
-              </h4>
+              <h4 class="font-bold text-base-content">Custom Answers</h4>
 
               <div class="mt-3 grid grid-cols-2 gap-2">
                 <button
                   class="btn rounded-xl"
-                  :class="allowCustomSolution ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    allowCustomSolution
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="allowCustomSolution = true"
                 >
@@ -608,7 +747,11 @@
 
                 <button
                   class="btn rounded-xl"
-                  :class="!allowCustomSolution ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    !allowCustomSolution
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="allowCustomSolution = false"
                 >
@@ -624,13 +767,20 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Summary
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'summary'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'summary'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
             <Icon name="kind-icon:blueprint" class="h-6 w-6" />
@@ -638,23 +788,29 @@
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Review the scenario before saving. A good scenario is basically a suspicious little machine for producing consequences.
+            Review the scenario before saving. A good scenario is basically a
+            suspicious little machine for producing consequences.
           </p>
         </div>
 
         <div class="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_22rem]">
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div class="flex flex-col gap-3">
-              <div v-if="imagePath" class="overflow-hidden rounded-2xl border border-base-300 bg-base-300">
+              <div
+                v-if="imagePath"
+                class="overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+              >
                 <img
                   :src="imagePath"
                   alt="Scenario art"
-                  class="max-h-[24rem] w-full object-contain"
+                  class="max-h-96 w-full object-contain"
                 />
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Scenario
                 </p>
 
@@ -663,32 +819,43 @@
                 </h3>
 
                 <p class="mt-1 text-sm text-base-content/70">
-                  {{ scenarioTypeLabel }} · {{ selectedDreamTitle || 'No dream selected' }}
+                  {{ scenarioTypeLabel }} ·
+                  {{ selectedDreamTitle || 'No dream selected' }}
                 </p>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Intro
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ intro || 'No intro yet.' }}
                 </p>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Objective
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ objective || 'No objective yet.' }}
                 </p>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Choices
                 </p>
 
@@ -721,43 +888,77 @@
             </div>
           </div>
 
-          <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-            <button class="btn rounded-xl" type="button" @click="setSection('dream')">
+          <aside
+            class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+          >
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('dream')"
+            >
               <Icon name="kind-icon:moon" class="h-4 w-4" />
               Edit Dream
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('type')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('type')"
+            >
               <Icon name="kind-icon:map" class="h-4 w-4" />
               Edit Type
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('setup')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('setup')"
+            >
               <Icon name="kind-icon:story" class="h-4 w-4" />
               Edit Setup
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('choices')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('choices')"
+            >
               <Icon name="kind-icon:choice" class="h-4 w-4" />
               Edit Choices
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('prompt')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('prompt')"
+            >
               <Icon name="kind-icon:prompt" class="h-4 w-4" />
               Edit Prompt
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('connections')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('connections')"
+            >
               <Icon name="kind-icon:link" class="h-4 w-4" />
               Edit Links
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('art')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('art')"
+            >
               <Icon name="kind-icon:palette" class="h-4 w-4" />
               Edit Art
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('settings')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('settings')"
+            >
               <Icon name="kind-icon:sliders" class="h-4 w-4" />
               Edit Settings
             </button>
@@ -795,7 +996,9 @@
             class="rounded-2xl border border-base-300 bg-base-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+              <div
+                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+              >
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -976,25 +1179,29 @@ const scenarioTypeOptions: {
     value: 'tough-choice',
     label: 'Tough Choice',
     icon: 'kind-icon:choice',
-    description: 'A dilemma with no perfect answer and several excellent ways to regret things.',
+    description:
+      'A dilemma with no perfect answer and several excellent ways to regret things.',
   },
   {
     value: 'narrative-adventure',
     label: 'Adventure',
     icon: 'kind-icon:map',
-    description: 'A playable story beat where the user chooses a direction and the LLM narrates consequences.',
+    description:
+      'A playable story beat where the user chooses a direction and the LLM narrates consequences.',
   },
   {
     value: 'encounter',
     label: 'Encounter',
     icon: 'kind-icon:mask',
-    description: 'A meeting, fight, negotiation, obstacle, or weird social moment.',
+    description:
+      'A meeting, fight, negotiation, obstacle, or weird social moment.',
   },
   {
     value: 'puzzle',
     label: 'Puzzle',
     icon: 'kind-icon:brain',
-    description: 'A mystery, lock, ritual, pattern, or problem that rewards cleverness.',
+    description:
+      'A mystery, lock, ritual, pattern, or problem that rewards cleverness.',
   },
   {
     value: 'art-prompt',
@@ -1006,19 +1213,22 @@ const scenarioTypeOptions: {
     value: 'text-prompt',
     label: 'Text Prompt',
     icon: 'kind-icon:prompt',
-    description: 'A scenario designed to generate prose, dialogue, lore, or chat.',
+    description:
+      'A scenario designed to generate prose, dialogue, lore, or chat.',
   },
   {
     value: 'branching-scene',
     label: 'Branching Scene',
     icon: 'kind-icon:story',
-    description: 'A scene with explicit branches, outcomes, and follow-up hooks.',
+    description:
+      'A scene with explicit branches, outcomes, and follow-up hooks.',
   },
   {
     value: 'world-event',
     label: 'World Event',
     icon: 'kind-icon:world',
-    description: 'Something that happens in the dream universe and changes the state of play.',
+    description:
+      'Something that happens in the dream universe and changes the state of play.',
   },
 ]
 
@@ -1035,7 +1245,8 @@ const sections: BuilderSectionConfig[] = [
     label: 'Type',
     icon: 'kind-icon:map',
     title: 'Scenario Type',
-    summary: 'Choose whether this is a tough choice, adventure, prompt, puzzle, encounter, or world event.',
+    summary:
+      'Choose whether this is a tough choice, adventure, prompt, puzzle, encounter, or world event.',
   },
   {
     key: 'setup',
@@ -1077,7 +1288,8 @@ const sections: BuilderSectionConfig[] = [
     label: 'Settings',
     icon: 'kind-icon:sliders',
     title: 'Settings',
-    summary: 'Configure visibility, maturity, activity, and custom answer behavior.',
+    summary:
+      'Configure visibility, maturity, activity, and custom answer behavior.',
   },
   {
     key: 'summary',
@@ -1094,18 +1306,28 @@ const selectedDream = computed(() => {
 
 const selectedDreamTitle = computed(() => selectedDream.value?.label ?? '')
 
-const selectedDreamDescription = computed(() => selectedDream.value?.description ?? '')
+const selectedDreamDescription = computed(
+  () => selectedDream.value?.description ?? '',
+)
 
 const selectedDreamVibe = computed(() => selectedDream.value?.currentVibe ?? '')
 
-const selectedDreamPrompt = computed(() => selectedDream.value?.currentPrompt ?? '')
+const selectedDreamPrompt = computed(
+  () => selectedDream.value?.currentPrompt ?? '',
+)
 
 const selectedCharacterLabel = computed(() => {
-  return characterOptions.value.find((item) => item.id === selectedCharacterId.value)?.label ?? ''
+  return (
+    characterOptions.value.find((item) => item.id === selectedCharacterId.value)
+      ?.label ?? ''
+  )
 })
 
 const selectedRewardLabel = computed(() => {
-  return rewardOptions.value.find((item) => item.id === selectedRewardId.value)?.label ?? ''
+  return (
+    rewardOptions.value.find((item) => item.id === selectedRewardId.value)
+      ?.label ?? ''
+  )
 })
 
 const dreamDirectionPreview = computed(() => {
@@ -1118,10 +1340,14 @@ const dreamDirectionPreview = computed(() => {
 })
 
 const scenarioTypeConfig = computed(() => {
-  return scenarioTypeOptions.find((option) => option.value === scenarioType.value)
+  return scenarioTypeOptions.find(
+    (option) => option.value === scenarioType.value,
+  )
 })
 
-const scenarioTypeLabel = computed(() => scenarioTypeConfig.value?.label ?? 'Scenario')
+const scenarioTypeLabel = computed(
+  () => scenarioTypeConfig.value?.label ?? 'Scenario',
+)
 
 const filledChoices = computed(() => {
   return choices.filter((choice) => choice.text.trim().length > 0)
@@ -1160,10 +1386,14 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
     key: 'choices',
     label: 'Choices',
     value: filledChoices.value.length
-      ? filledChoices.value.map((choice) => `${choice.label}: ${choice.text}`).join(', ')
+      ? filledChoices.value
+          .map((choice) => `${choice.label}: ${choice.text}`)
+          .join(', ')
       : '',
     icon: 'kind-icon:choice',
-    description: allowCustomSolution.value ? 'Custom solutions allowed.' : 'Only listed choices allowed.',
+    description: allowCustomSolution.value
+      ? 'Custom solutions allowed.'
+      : 'Only listed choices allowed.',
     editSection: 'choices',
   },
   {
@@ -1198,14 +1428,17 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
       ? `Saved as #${selectedScenarioId.value}`
       : 'Not saved yet',
     icon: selectedScenarioId.value ? 'kind-icon:check' : 'kind-icon:save',
-    description: 'Saved scenarios can be played, branched, illustrated, or reused as prompts.',
+    description:
+      'Saved scenarios can be played, branched, illustrated, or reused as prompts.',
     editSection: 'summary',
   },
 ])
 
 const connectionSummary = computed(() => {
   const parts = [
-    selectedCharacterLabel.value ? `Character: ${selectedCharacterLabel.value}` : '',
+    selectedCharacterLabel.value
+      ? `Character: ${selectedCharacterLabel.value}`
+      : '',
     selectedRewardLabel.value ? `Reward: ${selectedRewardLabel.value}` : '',
   ].filter(Boolean)
 
@@ -1268,7 +1501,8 @@ function applySelectedDream() {
   }
 
   if (!stakes.value.trim()) {
-    stakes.value = 'Success creates a new opening. Failure creates a new complication. Hesitation creates an even funnier problem.'
+    stakes.value =
+      'Success creates a new opening. Failure creates a new complication. Hesitation creates an even funnier problem.'
   }
 
   if (!scenarioPrompt.value.trim()) {
@@ -1299,49 +1533,75 @@ function buildSetupFromDream() {
 
   intro.value = [
     `In ${dreamName}, the characters arrive at a moment charged with ${vibe}.`,
-    selectedDreamDescription.value ? `The world context: ${selectedDreamDescription.value}` : '',
+    selectedDreamDescription.value
+      ? `The world context: ${selectedDreamDescription.value}`
+      : '',
     'Something is about to force a decision.',
   ]
     .filter(Boolean)
     .join(' ')
 
-  objective.value = objective.value.trim() || 'Choose a path through the problem and accept the consequences.'
-  stakes.value = stakes.value.trim() || 'The wrong move may cost trust, time, safety, access, or a reward.'
+  objective.value =
+    objective.value.trim() ||
+    'Choose a path through the problem and accept the consequences.'
+  stakes.value =
+    stakes.value.trim() ||
+    'The wrong move may cost trust, time, safety, access, or a reward.'
 }
 
 function rollScenarioSetup() {
   const adjective = rollFrom('adjective', 'strange')
   const noun = rollFrom('noun', 'door')
-  const encounter = rollFrom('encounter', 'A suspicious stranger blocks the way.')
+  const encounter = rollFrom(
+    'encounter',
+    'A suspicious stranger blocks the way.',
+  )
 
   title.value = `The ${capitalize(adjective)} ${capitalize(noun)}`
   intro.value = encounter
   objective.value = `Figure out what the ${noun} wants before the situation escalates.`
-  stakes.value = 'A rushed choice may create a worse problem, but waiting too long lets someone else act first.'
+  stakes.value =
+    'A rushed choice may create a worse problem, but waiting too long lets someone else act first.'
+}
+
+function getChoice(index: number): ScenarioChoice | null {
+  return choices[index] ?? null
+}
+
+function fillChoice(index: number, text: string, outcomeHint: string) {
+  const choice = getChoice(index)
+
+  if (!choice || choice.text.trim()) return
+
+  choice.text = text
+  choice.outcomeHint = outcomeHint
 }
 
 function buildChoices() {
-  if (!choices[0].text.trim()) {
-    choices[0].text = 'Take the direct approach.'
-    choices[0].outcomeHint = 'Fast, risky, and likely to reveal hidden resistance.'
-  }
+  fillChoice(
+    0,
+    'Take the direct approach.',
+    'Fast, risky, and likely to reveal hidden resistance.',
+  )
 
-  if (!choices[1].text.trim()) {
-    choices[1].text = 'Look for a clever workaround.'
-    choices[1].outcomeHint = 'Slower, more flexible, and likely to reveal new information.'
-  }
+  fillChoice(
+    1,
+    'Look for a clever workaround.',
+    'Slower, more flexible, and likely to reveal new information.',
+  )
 
-  if (!choices[2].text.trim()) {
-    choices[2].text = 'Ask someone involved what they really want.'
-    choices[2].outcomeHint = 'Social, revealing, and vulnerable to lies.'
-  }
+  fillChoice(
+    2,
+    'Ask someone involved what they really want.',
+    'Social, revealing, and vulnerable to lies.',
+  )
 
-  if (!choices[3].text.trim()) {
-    choices[3].text = 'Use an object, reward, or unusual skill.'
-    choices[3].outcomeHint = 'Creative, dependent on character resources, and perfect for chaos.'
-  }
+  fillChoice(
+    3,
+    'Use an object, reward, or unusual skill.',
+    'Creative, dependent on character resources, and perfect for chaos.',
+  )
 }
-
 function clearChoices() {
   for (const choice of choices) {
     choice.text = ''
@@ -1353,7 +1613,9 @@ function buildScenarioPrompt() {
   scenarioPrompt.value = [
     `Run a ${scenarioTypeLabel.value.toLowerCase()} scenario.`,
     selectedDreamTitle.value ? `Dream: ${selectedDreamTitle.value}.` : '',
-    selectedDreamPrompt.value ? `Dream prompt: ${selectedDreamPrompt.value}` : '',
+    selectedDreamPrompt.value
+      ? `Dream prompt: ${selectedDreamPrompt.value}`
+      : '',
     title.value ? `Scenario title: ${title.value}.` : '',
     intro.value ? `Intro: ${intro.value}` : '',
     objective.value ? `Objective: ${objective.value}` : '',
@@ -1366,8 +1628,12 @@ function buildScenarioPrompt() {
     allowCustomSolution.value
       ? 'The user may also propose a custom solution. Judge it fairly, narrate consequences, and create a forward hook.'
       : 'The user must choose from the listed options. Narrate consequences and create a forward hook.',
-    selectedCharacterLabel.value ? `Featured character: ${selectedCharacterLabel.value}.` : '',
-    selectedRewardLabel.value ? `Possible reward or consequence: ${selectedRewardLabel.value}.` : '',
+    selectedCharacterLabel.value
+      ? `Featured character: ${selectedCharacterLabel.value}.`
+      : '',
+    selectedRewardLabel.value
+      ? `Possible reward or consequence: ${selectedRewardLabel.value}.`
+      : '',
   ]
     .filter(Boolean)
     .join('\n\n')
@@ -1376,12 +1642,18 @@ function buildScenarioPrompt() {
 function buildArtPrompt() {
   artPrompt.value = [
     `Create original scenario scene art for "${title.value || scenarioTypeLabel.value}".`,
-    selectedDreamTitle.value ? `Set in the dream world "${selectedDreamTitle.value}".` : '',
+    selectedDreamTitle.value
+      ? `Set in the dream world "${selectedDreamTitle.value}".`
+      : '',
     intro.value ? `Scene setup: ${intro.value}` : '',
     objective.value ? `Objective: ${objective.value}` : '',
     stakes.value ? `Stakes: ${stakes.value}` : '',
-    selectedCharacterLabel.value ? `Feature or imply character: ${selectedCharacterLabel.value}.` : '',
-    selectedRewardLabel.value ? `Include or foreshadow reward: ${selectedRewardLabel.value}.` : '',
+    selectedCharacterLabel.value
+      ? `Feature or imply character: ${selectedCharacterLabel.value}.`
+      : '',
+    selectedRewardLabel.value
+      ? `Include or foreshadow reward: ${selectedRewardLabel.value}.`
+      : '',
     'Dramatic composition, readable choice moment, expressive atmosphere, no text, no watermark.',
   ]
     .filter(Boolean)
@@ -1411,7 +1683,9 @@ async function fetchSelectOptions() {
 
 async function fetchDreams() {
   try {
-    const res = (await performFetch<unknown[]>('/api/dream')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/dream',
+    )) as PerformFetchResult<unknown[]>
 
     if (!res.success || !Array.isArray(res.data)) {
       dreamOptions.value = []
@@ -1429,7 +1703,9 @@ async function fetchDreams() {
 
 async function fetchCharacters() {
   try {
-    const res = (await performFetch<unknown[]>('/api/character')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/character',
+    )) as PerformFetchResult<unknown[]>
     characterOptions.value = normalizeOptions(res)
   } catch (error) {
     handleError(error, 'fetching characters for scenario-builder')
@@ -1439,7 +1715,9 @@ async function fetchCharacters() {
 
 async function fetchRewards() {
   try {
-    const res = (await performFetch<unknown[]>('/api/reward')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/reward',
+    )) as PerformFetchResult<unknown[]>
     rewardOptions.value = normalizeOptions(res)
   } catch (error) {
     handleError(error, 'fetching rewards for scenario-builder')
@@ -1457,7 +1735,8 @@ function normalizeDreamOption(item: unknown): SelectOption | null {
 
   return {
     id,
-    label: stringValue(record.title) || stringValue(record.name) || `Dream #${id}`,
+    label:
+      stringValue(record.title) || stringValue(record.name) || `Dream #${id}`,
     description: stringValue(record.description) || null,
     currentVibe: stringValue(record.currentVibe) || null,
     currentPrompt: stringValue(record.currentPrompt) || null,
@@ -1522,7 +1801,9 @@ async function saveScenario() {
       characterId: selectedCharacterId.value || null,
       rewardId: selectedRewardId.value || null,
       dreamIds: selectedDreamId.value ? [selectedDreamId.value] : [],
-      characterIds: selectedCharacterId.value ? [selectedCharacterId.value] : [],
+      characterIds: selectedCharacterId.value
+        ? [selectedCharacterId.value]
+        : [],
       rewardIds: selectedRewardId.value ? [selectedRewardId.value] : [],
       isPublic: isPublic.value,
       isMature: isMature.value,
@@ -1537,18 +1818,23 @@ async function saveScenario() {
       },
     }
 
-    const res = (await performFetch<Record<string, unknown>>(SCENARIO_ENDPOINT, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    })) as PerformFetchResult<Record<string, unknown>>
+    const res = (await performFetch<Record<string, unknown>>(
+      SCENARIO_ENDPOINT,
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )) as PerformFetchResult<Record<string, unknown>>
 
     if (!res.success || !res.data) {
       throw new Error(res.message || 'Failed to save scenario.')
     }
 
     const id = Number(res.data.id)
-    selectedScenarioId.value = Number.isFinite(id) ? id : selectedScenarioId.value
+    selectedScenarioId.value = Number.isFinite(id)
+      ? id
+      : selectedScenarioId.value
     saveMessage.value = selectedScenarioId.value
       ? `Saved scenario #${selectedScenarioId.value}. The plot gremlin has been containerized.`
       : 'Scenario saved.'

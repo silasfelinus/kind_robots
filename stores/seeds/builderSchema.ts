@@ -4,7 +4,6 @@ import type { DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
 export type BuilderStageKey =
   | 'user'
   | 'pitch'
-  | 'collection'
   | 'dream'
   | 'character'
   | 'reward'

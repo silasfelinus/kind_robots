@@ -1,8 +1,14 @@
 // /server/api/art/image/legacy.post.ts
-import { defineEventHandler, createError, readBody } from 'h3'
+import {
+  defineEventHandler,
+  createError,
+  readBody,
+  type H3Event,
+} from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { validateApiKey } from '~/server/utils/validateKey'
 
 type LegacyArtImagePayload = {
   artId?: number | null
@@ -43,6 +49,19 @@ type LegacyArtImagePayload = {
   isActive?: boolean | null
 }
 
+type ValidatedUser = {
+  id?: number | null
+  Role?: string | null
+  role?: string | null
+  isAdmin?: boolean | null
+}
+
+type LegacyAccess = {
+  userId: number | null
+  isAdmin: boolean
+  isServer: boolean
+}
+
 type SourceArtWithRelations = Prisma.ArtGetPayload<{
   include: {
     ArtCollection: {
@@ -80,13 +99,11 @@ function cleanText(value?: string | null): string | null {
 
 function cleanPositiveId(value?: number | null): number | null {
   const number = Number(value)
-
   return Number.isInteger(number) && number > 0 ? number : null
 }
 
 function cleanNumber(value?: number | null): number | null {
   const number = Number(value)
-
   return Number.isFinite(number) ? number : null
 }
 
@@ -104,7 +121,6 @@ function cleanPositiveIds(values?: Array<number | null | undefined>): number[] {
 
 function connectById(id?: number | null) {
   const cleanId = cleanPositiveId(id)
-
   return cleanId ? { connect: { id: cleanId } } : undefined
 }
 
@@ -116,6 +132,63 @@ function connectMany(ids?: Array<number | null | undefined>) {
         connect: cleanIds.map((id) => ({ id })),
       }
     : undefined
+}
+
+function isAdminUser(user: ValidatedUser | null | undefined): boolean {
+  if (!user) return false
+
+  const role = String(user.Role || user.role || '').toLowerCase()
+
+  return Boolean(user.isAdmin || role === 'admin' || role === 'system')
+}
+
+async function requireLegacyAccess(event: H3Event): Promise<LegacyAccess> {
+  const auth = await validateApiKey(event)
+  const user = auth.user as ValidatedUser | null | undefined
+
+  if (!auth.isValid) {
+    throw createError({
+      statusCode: 401,
+      message: 'Valid authorization token required.',
+    })
+  }
+
+  if (auth.kind === 'server') {
+    return {
+      userId: null,
+      isAdmin: true,
+      isServer: true,
+    }
+  }
+
+  if (typeof user?.id !== 'number') {
+    throw createError({
+      statusCode: 401,
+      message: 'Valid user authorization token required.',
+    })
+  }
+
+  return {
+    userId: Number(user.id),
+    isAdmin: isAdminUser(user),
+    isServer: false,
+  }
+}
+
+function assertCanPromoteForUser(params: {
+  access: LegacyAccess
+  sourceUserId: number
+}) {
+  const { access, sourceUserId } = params
+
+  if (access.isServer || access.isAdmin) return
+
+  if (access.userId !== sourceUserId) {
+    throw createError({
+      statusCode: 403,
+      message: 'You are not allowed to promote this Art record.',
+    })
+  }
 }
 
 function getFallbackFileName(imagePath: string): string {
@@ -135,24 +208,6 @@ function getFallbackFileType(imagePath: string): string {
   if (extension === 'avif') return 'avif'
 
   return 'png'
-}
-
-async function validateUserToken(userId: number, token: string): Promise<void> {
-  const user = await prisma.user.findFirst({
-    where: {
-      apiKey: token,
-    },
-    select: {
-      id: true,
-    },
-  })
-
-  if (!user || user.id !== userId) {
-    throw createError({
-      statusCode: 403,
-      message: 'Token does not match user ID',
-    })
-  }
 }
 
 async function getSourceArt(
@@ -247,7 +302,6 @@ function buildCreateData(params: {
   const relationIds = getRelationIds(body, sourceArt)
 
   const fileName = cleanText(body.fileName) || getFallbackFileName(imagePath)
-
   const fileType = cleanText(body.fileType) || getFallbackFileType(imagePath)
 
   return {
@@ -300,24 +354,7 @@ function buildCreateData(params: {
 
 export default defineEventHandler(async (event) => {
   try {
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>"',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]?.trim()
-
-    if (!token) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token is empty',
-      })
-    }
-
+    const access = await requireLegacyAccess(event)
     const body = await readBody<LegacyArtImagePayload>(event)
     const artId = cleanPositiveId(body.artId)
     const sourceArt = await getSourceArt(artId)
@@ -338,7 +375,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    await validateUserToken(userId, token)
+    assertCanPromoteForUser({
+      access,
+      sourceUserId: userId,
+    })
 
     const existingImage = artId
       ? await prisma.artImage.findFirst({
@@ -431,6 +471,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       message: handledError.message,
+      data: null,
     }
   }
 })

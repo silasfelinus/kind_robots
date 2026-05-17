@@ -7,7 +7,7 @@
     :summary-items="summaryItems"
     initial-section="idea"
     summary-title="Pitch Summary"
-    summary-subtitle="Review the big idea, generated ingredients, art direction, and save status."
+    summary-subtitle="Review the big idea, generated ingredients, collection, pitch art, and save status."
     @section-change="activeSection = $event"
   >
     <template
@@ -21,7 +21,7 @@
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            A pitch is the seed idea. Keep it loose, bold, and strange enough to make the next builder stages worth opening.
+            A pitch is the seed idea. It should be flexible enough to become dreams, characters, rewards, scenarios, and suspiciously dramatic cover art.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[1fr_18rem]">
@@ -65,7 +65,7 @@
               </h4>
 
               <p class="mt-1 text-sm text-base-content/60">
-                Write it yourself, or let the random goblin hand you suspiciously useful ingredients.
+                Write it yourself, or use the pitch creator with the random store goblin engine.
               </p>
 
               <div class="mt-4 flex flex-col gap-2">
@@ -91,7 +91,7 @@
                       : 'btn-ghost border border-base-300'
                   "
                   type="button"
-                  @click="pitchMode = 'creator'"
+                  @click="openCreator(setSection)"
                 >
                   <Icon name="kind-icon:dice" class="h-4 w-4" />
                   Pitch Creator
@@ -126,7 +126,7 @@
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Use the random store to mash together genres, nouns, characters, objects, and problems until a pitch starts screaming in a productive way.
+            Use random words, custom lists, and prompt notes to assemble a new pitch.
           </p>
 
           <pitch-creator
@@ -147,71 +147,125 @@
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'art'" class="flex flex-col gap-4">
+      <section v-else-if="currentSection === 'collection'" class="flex flex-col gap-4">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
-            <Icon name="kind-icon:palette" class="h-6 w-6 text-primary" />
-            Pitch Art
+            <Icon name="kind-icon:folder" class="h-6 w-6 text-primary" />
+            Pitch Collection
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Give this idea a visual anchor. Upload a reference, pick existing art, or prepare a cover prompt for the art builder.
+            Choose or prepare the collection that will hold the pitch cover, inspiration images, and future visual debris.
           </p>
 
-          <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="flex items-center gap-2 font-bold text-base-content">
-                <Icon name="kind-icon:save" class="h-5 w-5 text-primary" />
-                Upload or Select
+          <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[22rem_1fr]">
+            <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+              <h4 class="font-bold text-base-content">
+                Collection Selection
               </h4>
 
-              <p class="mt-1 text-sm text-base-content/60">
-                Use the existing image tools. This should point to ArtImage as the new standard path.
+              <p class="text-sm text-base-content/60">
+                Use an existing collection or name a new one for this pitch.
               </p>
 
-              <div class="mt-3 flex flex-col gap-3">
-                <image-upload />
-                <art-gallery />
-              </div>
-            </div>
+              <label class="form-control">
+                <span class="label-text font-bold">Collection Mode</span>
+
+                <select
+                  v-model="collectionMode"
+                  class="select select-bordered rounded-2xl"
+                >
+                  <option value="existing">Use Existing</option>
+                  <option value="new">Create New</option>
+                </select>
+              </label>
+
+              <label v-if="collectionMode === 'existing'" class="form-control">
+                <span class="label-text font-bold">Existing Collection</span>
+
+                <select
+                  v-model.number="selectedCollectionId"
+                  class="select select-bordered rounded-2xl"
+                >
+                  <option :value="0">No collection selected</option>
+
+                  <option
+                    v-for="collection in collectionOptions"
+                    :key="collection.id"
+                    :value="collection.id"
+                  >
+                    {{ collection.label }}
+                  </option>
+                </select>
+              </label>
+
+              <label class="form-control">
+                <span class="label-text font-bold">
+                  {{ collectionMode === 'new' ? 'New Collection Name' : 'Collection Label' }}
+                </span>
+
+                <input
+                  v-model="collectionName"
+                  class="input input-bordered rounded-2xl"
+                  type="text"
+                  placeholder="Example: Yokai Steamhouse Visuals"
+                />
+              </label>
+
+              <button
+                class="btn btn-secondary rounded-xl"
+                type="button"
+                @click="usePitchTitleForCollection"
+              >
+                <Icon name="kind-icon:wand" class="h-4 w-4" />
+                Use Pitch Title
+              </button>
+
+              <button
+                v-if="collectionMode === 'new'"
+                class="btn btn-primary rounded-xl"
+                type="button"
+                :disabled="isCreatingCollection || !collectionName.trim()"
+                @click="createCollection"
+              >
+                <Icon name="kind-icon:plus" class="h-4 w-4" />
+                {{ isCreatingCollection ? 'Creating...' : 'Create Collection' }}
+              </button>
+
+              <p
+                v-if="collectionMessage"
+                class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm text-info"
+              >
+                {{ collectionMessage }}
+              </p>
+            </aside>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="flex items-center gap-2 font-bold text-base-content">
-                <Icon name="kind-icon:wand" class="h-5 w-5 text-primary" />
-                Cover Prompt
-              </h4>
-
-              <p class="mt-1 text-sm text-base-content/60">
-                This prompt can be sent into the art builder or saved with the pitch as visual direction.
-              </p>
-
-              <textarea
-                v-model="artPrompt"
-                class="textarea textarea-bordered mt-3 min-h-48 w-full rounded-2xl text-base"
-                placeholder="A cinematic cover image for..."
-              />
-
-              <div class="mt-3 flex flex-wrap gap-2">
-                <button
-                  class="btn btn-secondary rounded-xl"
-                  type="button"
-                  @click="generateArtPrompt"
-                >
-                  <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-                  Make Art Prompt
-                </button>
-
-                <button
-                  class="btn rounded-xl"
-                  type="button"
-                  @click="setSection('summary')"
-                >
-                  Skip to Summary
-                </button>
-              </div>
+              <collection-gallery />
             </div>
           </div>
         </div>
+
+        <div class="flex justify-between gap-2">
+          <button class="btn rounded-xl" type="button" @click="goBack">
+            Back
+          </button>
+
+          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section v-else-if="currentSection === 'art'" class="flex flex-col gap-4">
+        <art-creator
+          purpose="pitch"
+          :model-id="selectedPitchId"
+          :model-title="title"
+          :prompt="artPrompt"
+          image-role="cover"
+          @update="updatePitchArt"
+        />
 
         <div class="flex justify-between gap-2">
           <button class="btn rounded-xl" type="button" @click="goBack">
@@ -232,7 +286,7 @@
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Review the pitch before saving it or sending it forward into collections, art, and dreams.
+            Review the pitch before saving it or sending it forward into dreams.
           </p>
         </div>
 
@@ -261,6 +315,16 @@
 
               <div>
                 <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                  Collection
+                </p>
+
+                <p class="mt-1 text-base text-base-content/80">
+                  {{ resolvedCollectionLabel }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
                   Art Prompt
                 </p>
 
@@ -268,33 +332,40 @@
                   {{ artPrompt || 'No art prompt yet.' }}
                 </p>
               </div>
+
+              <div v-if="artImagePath">
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                  Pitch Art
+                </p>
+
+                <div class="mt-2 overflow-hidden rounded-2xl border border-base-300 bg-base-300">
+                  <img
+                    :src="artImagePath"
+                    alt="Pitch art"
+                    class="max-h-[24rem] w-full object-contain"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('idea')"
-            >
+            <button class="btn rounded-xl" type="button" @click="setSection('idea')">
               <Icon name="kind-icon:edit" class="h-4 w-4" />
               Edit Pitch
             </button>
 
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('creator')"
-            >
+            <button class="btn rounded-xl" type="button" @click="setSection('creator')">
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Rebuild Randoms
             </button>
 
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('art')"
-            >
+            <button class="btn rounded-xl" type="button" @click="setSection('collection')">
+              <Icon name="kind-icon:folder" class="h-4 w-4" />
+              Edit Collection
+            </button>
+
+            <button class="btn rounded-xl" type="button" @click="setSection('art')">
               <Icon name="kind-icon:palette" class="h-4 w-4" />
               Edit Art
             </button>
@@ -388,7 +459,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Pitch } from '~/prisma/generated/prisma/client'
 import type {
   BuilderChoiceSummary,
@@ -397,14 +468,29 @@ import type {
 import { useUserStore } from '@/stores/userStore'
 import { handleError, performFetch } from '@/stores/utils'
 
-type PitchBuilderSectionKey = 'idea' | 'creator' | 'art' | 'summary'
 type PitchMode = 'manual' | 'creator'
+type CollectionMode = 'existing' | 'new'
 
 type GeneratedPitchPayload = {
   title: string
   pitch: string
   artPrompt: string
   ingredients: string[]
+}
+
+type ArtCreatorPayload = {
+  purpose: string
+  modelId: number | null
+  modelTitle: string
+  prompt: string
+  negativePrompt: string
+  imageRole: string
+  imagePath: string | null
+}
+
+type SelectOption = {
+  id: number
+  label: string
 }
 
 type PerformFetchResult<T> = {
@@ -422,7 +508,14 @@ const title = ref('')
 const pitch = ref('')
 const promptNotes = ref('')
 const artPrompt = ref('')
+const artImagePath = ref<string | null>(null)
 const ingredients = ref<string[]>([])
+const collectionMode = ref<CollectionMode>('existing')
+const selectedCollectionId = ref(0)
+const collectionName = ref('')
+const collectionOptions = ref<SelectOption[]>([])
+const collectionMessage = ref('')
+const isCreatingCollection = ref(false)
 const selectedPitchId = ref<number | null>(null)
 const isSaving = ref(false)
 const saveMessage = ref('')
@@ -434,32 +527,35 @@ const sections: BuilderSectionConfig[] = [
     label: 'Idea',
     icon: 'kind-icon:idea',
     title: 'Big Picture Idea',
-    summary:
-      'Write the pitch directly or give the creator enough direction to generate one.',
+    summary: 'Write the pitch directly or give the creator enough direction to generate one.',
   },
   {
     key: 'creator',
     label: 'Creator',
     icon: 'kind-icon:dice',
     title: 'Pitch Creator',
-    summary:
-      'Use random words, custom lists, and prompt notes to assemble a new pitch.',
+    summary: 'Use random words, custom lists, and prompt notes to assemble a new pitch.',
+  },
+  {
+    key: 'collection',
+    label: 'Collection',
+    icon: 'kind-icon:folder',
+    title: 'Pitch Collection',
+    summary: 'Choose or prepare the art collection that will hold pitch visuals.',
   },
   {
     key: 'art',
     label: 'Art',
     icon: 'kind-icon:palette',
     title: 'Pitch Art',
-    summary:
-      'Upload, select, or prepare an art prompt for the pitch cover and visual direction.',
+    summary: 'Create, upload, generate, or select cover and inspiration art for the pitch.',
   },
   {
     key: 'summary',
     label: 'Summary',
     icon: 'kind-icon:blueprint',
     title: 'Pitch Summary',
-    summary:
-      'Review the pitch, visual direction, and generated ingredients before saving.',
+    summary: 'Review the pitch, collection, visual direction, and save status.',
   },
 ]
 
@@ -472,6 +568,22 @@ const pitchPreview = computed(() => {
   if (promptNotes.value.trim()) return promptNotes.value.trim()
 
   return 'No pitch yet. The idea goblin is pacing.'
+})
+
+const selectedCollectionLabel = computed(() => {
+  return (
+    collectionOptions.value.find(
+      (collection) => collection.id === selectedCollectionId.value,
+    )?.label ?? ''
+  )
+})
+
+const resolvedCollectionLabel = computed(() => {
+  if (collectionMode.value === 'new') {
+    return collectionName.value.trim() || 'New collection not named yet'
+  }
+
+  return selectedCollectionLabel.value || collectionName.value || 'No collection selected yet'
 })
 
 const summaryItems = computed<BuilderChoiceSummary[]>(() => [
@@ -500,11 +612,20 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
     editSection: 'creator',
   },
   {
+    key: 'collection',
+    label: 'Collection',
+    value: resolvedCollectionLabel.value,
+    icon: 'kind-icon:folder',
+    description: 'The visual folder for this pitch.',
+    editSection: 'collection',
+  },
+  {
     key: 'art',
-    label: 'Art Direction',
+    label: 'Pitch Art',
     value: artPrompt.value,
+    image: artImagePath.value,
     icon: 'kind-icon:palette',
-    description: 'The cover or inspiration image prompt for this pitch.',
+    description: 'The cover or inspiration art direction for this pitch.',
     editSection: 'art',
   },
   {
@@ -512,10 +633,15 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
     label: 'Save Status',
     value: selectedPitchId.value ? `Saved as #${selectedPitchId.value}` : 'Not saved yet',
     icon: selectedPitchId.value ? 'kind-icon:check' : 'kind-icon:save',
-    description: 'Saved pitches can become collections, dreams, characters, rewards, and scenarios.',
+    description: 'Saved pitches can become dreams, characters, rewards, and scenarios.',
     editSection: 'summary',
   },
 ])
+
+function openCreator(setSection: (section: string) => void) {
+  pitchMode.value = 'creator'
+  setSection('creator')
+}
 
 function applyGeneratedPitch(payload: GeneratedPitchPayload) {
   title.value = payload.title
@@ -525,22 +651,105 @@ function applyGeneratedPitch(payload: GeneratedPitchPayload) {
   pitchMode.value = 'creator'
   saveMessage.value = ''
   saveError.value = ''
+
+  if (!collectionName.value.trim()) {
+    collectionName.value = `${payload.title} Visuals`
+  }
 }
 
-function generateArtPrompt() {
-  const baseTitle = title.value.trim() || 'Untitled Pitch'
-  const basePitch = pitch.value.trim() || promptNotes.value.trim()
+function updatePitchArt(payload: ArtCreatorPayload) {
+  artPrompt.value = payload.prompt
+  artImagePath.value = payload.imagePath
+}
 
-  artPrompt.value = [
-    `Create a cinematic cover image for "${baseTitle}".`,
-    basePitch ? `Core premise: ${basePitch}` : '',
-    ingredients.value.length
-      ? `Visual ingredients: ${ingredients.value.join(', ')}.`
-      : '',
-    'Original composition, strong silhouette, expressive atmosphere, no text, no watermark.',
-  ]
-    .filter(Boolean)
-    .join(' ')
+function usePitchTitleForCollection() {
+  const base = title.value.trim() || 'Untitled Pitch'
+  collectionName.value = `${base} Visuals`
+}
+
+async function fetchCollections() {
+  try {
+    const res = (await performFetch<unknown[]>('/api/artCollection')) as PerformFetchResult<unknown[]>
+
+    if (!res.success || !Array.isArray(res.data)) {
+      collectionOptions.value = []
+      return
+    }
+
+    collectionOptions.value = res.data
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null
+
+        const record = item as Record<string, unknown>
+        const id = Number(record.id)
+
+        if (!Number.isFinite(id)) return null
+
+        const label =
+          stringValue(record.title) ||
+          stringValue(record.name) ||
+          stringValue(record.label) ||
+          `Collection #${id}`
+
+        return {
+          id,
+          label,
+        }
+      })
+      .filter((item): item is SelectOption => Boolean(item))
+  } catch (error) {
+    handleError(error, 'fetching collections for pitch-builder')
+    collectionOptions.value = []
+  }
+}
+
+async function createCollection() {
+  const name = collectionName.value.trim()
+
+  if (!name) {
+    collectionMessage.value = 'Collection name cannot be blank.'
+    return
+  }
+
+  isCreatingCollection.value = true
+  collectionMessage.value = ''
+
+  try {
+    const body = {
+      name,
+      title: name,
+      label: name,
+      userId: userStore.userId,
+      isPublic: false,
+      isMature: false,
+    }
+
+    const res = (await performFetch<Record<string, unknown>>('/api/artCollection', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    })) as PerformFetchResult<Record<string, unknown>>
+
+    if (!res.success || !res.data) {
+      throw new Error(res.message || 'Failed to create collection.')
+    }
+
+    const id = Number(res.data.id)
+
+    if (Number.isFinite(id)) {
+      selectedCollectionId.value = id
+      collectionMode.value = 'existing'
+    }
+
+    collectionMessage.value = 'Collection created.'
+    await fetchCollections()
+  } catch (error) {
+    handleError(error, 'creating collection from pitch-builder')
+    collectionMessage.value =
+      error instanceof Error ? error.message : 'Failed to create collection.'
+  } finally {
+    isCreatingCollection.value = false
+  }
 }
 
 async function savePitch() {
@@ -561,6 +770,11 @@ async function savePitch() {
       userId: userStore.userId,
       isPublic: false,
       isMature: false,
+    }
+
+    if (selectedCollectionId.value) {
+      body.artCollectionId = selectedCollectionId.value
+      body.collectionId = selectedCollectionId.value
     }
 
     const res = (await performFetch<Pitch>('/api/pitch', {
@@ -584,6 +798,10 @@ async function savePitch() {
   }
 }
 
+function stringValue(value: unknown) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 function displaySummaryValue(value: BuilderChoiceSummary['value']) {
   if (value === null || value === undefined || value === '') {
     return 'Not selected yet'
@@ -595,4 +813,8 @@ function displaySummaryValue(value: BuilderChoiceSummary['value']) {
 
   return String(value)
 }
+
+onMounted(async () => {
+  await fetchCollections()
+})
 </script>

@@ -7,37 +7,30 @@
     :summary-items="summaryItems"
     initial-section="account"
     summary-title="User Setup Summary"
-    summary-subtitle="Review your account, designer identity, avatar, theme, privacy, and maturity settings."
+    summary-subtitle="Review account access, designer identity, avatar art, theme, privacy, and maturity settings."
     @section-change="activeSection = $event"
   >
     <template
       #default="{ activeSection: currentSection, setSection, goNext, goBack }"
     >
-      <section
-        v-if="currentSection === 'account'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-base-300 bg-base-200 p-4"
-        >
-          <div class="flex flex-col gap-2">
-            <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
-              <Icon name="kind-icon:person" class="h-6 w-6 text-primary" />
-              Account Access
-            </h3>
+      <section v-if="currentSection === 'account'" class="flex flex-col gap-4">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+            <Icon name="kind-icon:login" class="h-6 w-6 text-primary" />
+            Login or Register
+          </h3>
 
-            <p class="text-sm text-base-content/70">
-              Login or create an account so your builder progress can be saved, connected, and summoned later without a tiny archivist crying in a drawer.
-            </p>
-          </div>
+          <p class="mt-1 text-sm text-base-content/70">
+            Start by entering your account. Builder progress needs a real user if it is going to remember all these tiny universe crimes.
+          </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
             <button
               class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
               :class="
                 accountMode === 'login'
-                  ? 'border-primary bg-primary text-primary-content'
-                  : 'border-base-300 bg-base-100'
+                  ? 'border-primary bg-primary text-primary-content shadow-md'
+                  : 'border-base-300 bg-base-100 text-base-content'
               "
               type="button"
               @click="accountMode = 'login'"
@@ -57,8 +50,8 @@
               class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
               :class="
                 accountMode === 'register'
-                  ? 'border-primary bg-primary text-primary-content'
-                  : 'border-base-300 bg-base-100'
+                  ? 'border-primary bg-primary text-primary-content shadow-md'
+                  : 'border-base-300 bg-base-100 text-base-content'
               "
               type="button"
               @click="accountMode = 'register'"
@@ -70,44 +63,33 @@
               </p>
 
               <p class="mt-1 text-sm opacity-70">
-                Create a new identity for building strange little universes.
+                Create a new builder identity.
               </p>
             </button>
           </div>
         </div>
 
-        <div
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
-        >
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <login-page v-if="accountMode === 'login'" />
           <registration-page v-else />
         </div>
 
         <div class="flex justify-end gap-2">
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
+          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
             Continue
           </button>
         </div>
       </section>
 
-      <section
-        v-else-if="currentSection === 'designer'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-base-300 bg-base-200 p-4"
-        >
+      <section v-else-if="currentSection === 'designer'" class="flex flex-col gap-4">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
             <Icon name="kind-icon:signature" class="h-6 w-6 text-primary" />
             Designer Name
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Your username is for account identity. Your designer name is your creative byline. It can match your username, or it can be gloriously theatrical.
+            Your username is your account identity. Your designer name is your creative byline.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -115,8 +97,8 @@
               class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
               :class="
                 designerMode === 'username'
-                  ? 'border-primary bg-primary text-primary-content'
-                  : 'border-base-300 bg-base-100'
+                  ? 'border-primary bg-primary text-primary-content shadow-md'
+                  : 'border-base-300 bg-base-100 text-base-content'
               "
               type="button"
               @click="useUsernameAsDesigner"
@@ -128,7 +110,7 @@
               </p>
 
               <p class="mt-1 text-sm opacity-70">
-                Keep your account name and creative name the same.
+                Keep your account name and creator name the same.
               </p>
             </button>
 
@@ -136,8 +118,8 @@
               class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
               :class="
                 designerMode === 'custom'
-                  ? 'border-primary bg-primary text-primary-content'
-                  : 'border-base-300 bg-base-100'
+                  ? 'border-primary bg-primary text-primary-content shadow-md'
+                  : 'border-base-300 bg-base-100 text-base-content'
               "
               type="button"
               @click="designerMode = 'custom'"
@@ -145,11 +127,11 @@
               <Icon name="kind-icon:sparkles" class="h-7 w-7" />
 
               <p class="mt-2 text-lg font-bold">
-                Make Designer Name
+                Custom Designer Name
               </p>
 
               <p class="mt-1 text-sm opacity-70">
-                Create a separate public-facing maker identity.
+                Make a separate public-facing creator identity.
               </p>
             </button>
           </div>
@@ -165,53 +147,59 @@
               :disabled="designerMode === 'username'"
             />
           </label>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button
+              class="btn btn-secondary rounded-xl"
+              type="button"
+              @click="saveDesignerName"
+            >
+              <Icon name="kind-icon:save" class="h-4 w-4" />
+              Save Designer Name
+            </button>
+
+            <p
+              v-if="designerMessage"
+              class="rounded-2xl border border-info/30 bg-info/10 px-3 py-2 text-sm text-info"
+            >
+              {{ designerMessage }}
+            </p>
+          </div>
         </div>
 
         <div class="flex justify-between gap-2">
-          <button
-            class="btn rounded-xl"
-            type="button"
-            @click="goBack"
-          >
+          <button class="btn rounded-xl" type="button" @click="goBack">
             Back
           </button>
 
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
+          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
             Continue
           </button>
         </div>
       </section>
 
-      <section
-        v-else-if="currentSection === 'avatar'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-base-300 bg-base-200 p-4"
-        >
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
-            <Icon name="kind-icon:portrait" class="h-6 w-6 text-primary" />
-            Avatar
+      <section v-else-if="currentSection === 'avatar'" class="flex flex-col gap-4">
+        <art-creator
+          purpose="user"
+          :model-id="userStore.userId"
+          :model-title="designerName || username"
+          :prompt="avatarPrompt"
+          image-role="avatar"
+          @update="updateAvatarArt"
+        />
+
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <h3 class="flex items-center gap-2 text-lg font-bold text-base-content">
+            <Icon name="kind-icon:portrait" class="h-5 w-5 text-primary" />
+            Avatar Preview
           </h3>
 
-          <p class="mt-1 text-sm text-base-content/70">
-            Pick an existing avatar, upload one, or generate something new. This should eventually point to ArtImage, not the old Art path.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[18rem_1fr]">
-            <div
-              class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
-              <div
-                class="flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-primary/40 bg-base-300"
-              >
+          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[12rem_1fr]">
+            <div class="flex justify-center rounded-2xl border border-base-300 bg-base-100 p-4">
+              <div class="flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-primary/40 bg-base-300">
                 <img
-                  v-if="avatarPreview"
-                  :src="avatarPreview"
+                  v-if="avatarImagePath"
+                  :src="avatarImagePath"
                   alt="Selected avatar"
                   class="h-full w-full object-cover"
                 />
@@ -222,92 +210,48 @@
                   class="h-16 w-16 text-primary"
                 />
               </div>
-
-              <p class="text-center text-sm font-semibold text-base-content/70">
-                {{ avatarLabel }}
-              </p>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100 p-4"
-              >
-                <h4 class="font-bold text-base-content">
-                  Upload Avatar
-                </h4>
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+              <p class="text-sm font-bold uppercase tracking-[0.18em] text-base-content/50">
+                Avatar Prompt
+              </p>
 
-                <p class="mt-1 text-sm text-base-content/60">
-                  Use the standard image uploader and save the result as your avatar ArtImage.
-                </p>
+              <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/70">
+                {{ avatarPrompt || 'No avatar prompt yet.' }}
+              </p>
 
-                <div class="mt-3">
-                  <image-upload />
-                </div>
-              </div>
+              <p class="mt-4 text-sm font-bold uppercase tracking-[0.18em] text-base-content/50">
+                Avatar Image
+              </p>
 
-              <div
-                class="rounded-2xl border border-base-300 bg-base-100 p-4"
-              >
-                <h4 class="font-bold text-base-content">
-                  Generate Avatar
-                </h4>
-
-                <p class="mt-1 text-sm text-base-content/60">
-                  Describe the avatar vibe and send it to the art builder pipeline.
-                </p>
-
-                <textarea
-                  v-model="avatarPrompt"
-                  class="textarea textarea-bordered mt-3 min-h-28 w-full rounded-2xl text-base"
-                  placeholder="A friendly robot occultist with butterfly goggles..."
-                />
-
-                <button
-                  class="btn btn-secondary mt-3 rounded-xl"
-                  type="button"
-                  @click="markAvatarGenerated"
-                >
-                  <Icon name="kind-icon:wand" class="h-4 w-4" />
-                  Generate Later
-                </button>
-              </div>
+              <p class="mt-2 break-all text-sm text-base-content/70">
+                {{ avatarImagePath || 'No avatar image selected yet.' }}
+              </p>
             </div>
           </div>
         </div>
 
         <div class="flex justify-between gap-2">
-          <button
-            class="btn rounded-xl"
-            type="button"
-            @click="goBack"
-          >
+          <button class="btn rounded-xl" type="button" @click="goBack">
             Back
           </button>
 
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
+          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
             Continue
           </button>
         </div>
       </section>
 
-      <section
-        v-else-if="currentSection === 'theme'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-base-300 bg-base-200 p-4"
-        >
+      <section v-else-if="currentSection === 'theme'" class="flex flex-col gap-4">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
             <Icon name="kind-icon:palette" class="h-6 w-6 text-primary" />
             Theme
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Pick the visual atmosphere for the builder experience. This should use the same theme gallery already powering the user dashboard.
+            Pick the visual atmosphere for your workspace. This uses the existing theme gallery.
           </p>
 
           <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
@@ -316,44 +260,29 @@
         </div>
 
         <div class="flex justify-between gap-2">
-          <button
-            class="btn rounded-xl"
-            type="button"
-            @click="goBack"
-          >
+          <button class="btn rounded-xl" type="button" @click="goBack">
             Back
           </button>
 
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
+          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
             Continue
           </button>
         </div>
       </section>
 
-      <section
-        v-else-if="currentSection === 'settings'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-base-300 bg-base-200 p-4"
-        >
+      <section v-else-if="currentSection === 'settings'" class="flex flex-col gap-4">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
             <Icon name="kind-icon:sliders" class="h-6 w-6 text-primary" />
             Privacy and Maturity
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Choose your default content behavior. These are builder defaults, so individual records can still override them later when needed.
+            Choose builder defaults. Individual records can still override these later.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <div
-              class="rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <h4 class="font-bold text-base-content">
                 Privacy Default
               </h4>
@@ -365,7 +294,11 @@
               <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <button
                   class="btn rounded-xl"
-                  :class="defaultPrivacy === 'private' ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    defaultPrivacy === 'private'
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="defaultPrivacy = 'private'"
                 >
@@ -375,7 +308,11 @@
 
                 <button
                   class="btn rounded-xl"
-                  :class="defaultPrivacy === 'public' ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    defaultPrivacy === 'public'
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="defaultPrivacy = 'public'"
                 >
@@ -385,9 +322,7 @@
               </div>
             </div>
 
-            <div
-              class="rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <h4 class="font-bold text-base-content">
                 Mature Content
               </h4>
@@ -399,7 +334,11 @@
               <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <button
                   class="btn rounded-xl"
-                  :class="allowMature ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    allowMature
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="allowMature = true"
                 >
@@ -409,7 +348,11 @@
 
                 <button
                   class="btn rounded-xl"
-                  :class="!allowMature ? 'btn-primary' : 'btn-ghost border border-base-300'"
+                  :class="
+                    !allowMature
+                      ? 'btn-primary'
+                      : 'btn-ghost border border-base-300'
+                  "
                   type="button"
                   @click="allowMature = false"
                 >
@@ -422,11 +365,11 @@
 
           <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
             <h4 class="font-bold text-base-content">
-              User Panel
+              Account Panel
             </h4>
 
             <p class="mt-1 text-sm text-base-content/60">
-              Keep the existing account controls available here too, because hiding settings inside settings is how apps become haunted filing cabinets.
+              Existing user controls stay available here too.
             </p>
 
             <div class="mt-3">
@@ -436,38 +379,25 @@
         </div>
 
         <div class="flex justify-between gap-2">
-          <button
-            class="btn rounded-xl"
-            type="button"
-            @click="goBack"
-          >
+          <button class="btn rounded-xl" type="button" @click="goBack">
             Back
           </button>
 
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
+          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
             Summary
           </button>
         </div>
       </section>
 
-      <section
-        v-else-if="currentSection === 'summary'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-primary/30 bg-primary/10 p-4"
-        >
+      <section v-else-if="currentSection === 'summary'" class="flex flex-col gap-4">
+        <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
           <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
             <Icon name="kind-icon:blueprint" class="h-6 w-6" />
             User Builder Summary
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Review your setup before moving into pitches. This is the launchpad for the rest of the builder tool.
+            Review your setup before moving into pitches.
           </p>
         </div>
 
@@ -478,9 +408,7 @@
             class="rounded-2xl border border-base-300 bg-base-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <div
-                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
-              >
+              <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -525,19 +453,11 @@
         </div>
 
         <div class="flex justify-between gap-2">
-          <button
-            class="btn rounded-xl"
-            type="button"
-            @click="goBack"
-          >
+          <button class="btn rounded-xl" type="button" @click="goBack">
             Back
           </button>
 
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="setSection('account')"
-          >
+          <button class="btn btn-primary rounded-xl" type="button" @click="setSection('account')">
             Start Over
           </button>
         </div>
@@ -555,28 +475,25 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type {
+  BuilderChoiceSummary,
+  BuilderSectionConfig,
+} from '@/components/builders/builder-shell.vue'
 import { useUserStore } from '@/stores/userStore'
+import { handleError } from '@/stores/utils'
 
 type AccountMode = 'login' | 'register'
 type DesignerMode = 'username' | 'custom'
 type PrivacyDefault = 'private' | 'public'
 
-type UserBuilderSectionKey =
-  | 'account'
-  | 'designer'
-  | 'avatar'
-  | 'theme'
-  | 'settings'
-  | 'summary'
-
-type BuilderChoiceSummary = {
-  key: string
-  label: string
-  value?: string | number | boolean | null
-  image?: string | null
-  icon?: string | null
-  description?: string | null
-  editSection?: UserBuilderSectionKey
+type ArtCreatorPayload = {
+  purpose: string
+  modelId: number | null
+  modelTitle: string
+  prompt: string
+  negativePrompt: string
+  imageRole: string
+  imagePath: string | null
 }
 
 const userStore = useUserStore()
@@ -585,72 +502,64 @@ const activeSection = ref<string>('account')
 const accountMode = ref<AccountMode>('login')
 const designerMode = ref<DesignerMode>('username')
 const designerName = ref('')
+const designerMessage = ref('')
 const avatarPrompt = ref('')
-const avatarPreview = ref<string | null>(null)
+const avatarImagePath = ref<string | null>(null)
 const defaultPrivacy = ref<PrivacyDefault>('private')
 const allowMature = ref(false)
 
-const username = computed(() => {
-  return userStore.username || 'Guest'
-})
-
-const avatarLabel = computed(() => {
-  if (avatarPreview.value) return 'Selected avatar'
-  if (avatarPrompt.value) return 'Avatar prompt ready'
-
-  return 'No avatar selected yet'
-})
-
-const sections = [
+const sections: BuilderSectionConfig[] = [
   {
     key: 'account',
     label: 'Account',
     icon: 'kind-icon:login',
     title: 'Login or Register',
-    summary:
-      'Access your account or create a new one so your builder work can be saved.',
+    summary: 'Access your account or create a new one so builder work can be saved.',
   },
   {
     key: 'designer',
     label: 'Designer',
     icon: 'kind-icon:signature',
     title: 'Designer Name',
-    summary:
-      'Choose whether your creative byline should match your username or become its own delightful little persona.',
+    summary: 'Choose whether your creative byline matches your username or becomes its own persona.',
   },
   {
     key: 'avatar',
     label: 'Avatar',
     icon: 'kind-icon:portrait',
-    title: 'Avatar',
-    summary:
-      'Pick, upload, or generate an avatar that represents this creator identity.',
+    title: 'Avatar Art',
+    summary: 'Create, upload, generate, or select avatar art for the user profile.',
   },
   {
     key: 'theme',
     label: 'Theme',
     icon: 'kind-icon:palette',
     title: 'Theme',
-    summary:
-      'Choose the visual style for your workspace and creative dashboard.',
+    summary: 'Choose the visual style for the builder workspace.',
   },
   {
     key: 'settings',
     label: 'Settings',
     icon: 'kind-icon:sliders',
     title: 'Privacy and Maturity',
-    summary:
-      'Set default privacy and mature-content behavior for new builder creations.',
+    summary: 'Set default privacy and mature-content behavior for new creations.',
   },
   {
     key: 'summary',
     label: 'Summary',
     icon: 'kind-icon:blueprint',
     title: 'User Setup Summary',
-    summary:
-      'Review account, designer identity, avatar, theme, privacy, and maturity choices.',
+    summary: 'Review account, designer identity, avatar, theme, privacy, and maturity choices.',
   },
 ]
+
+const username = computed(() => {
+  return userStore.username || 'Guest'
+})
+
+const resolvedDesignerName = computed(() => {
+  return designerName.value.trim() || username.value
+})
 
 const summaryItems = computed<BuilderChoiceSummary[]>(() => [
   {
@@ -664,7 +573,7 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
   {
     key: 'designer',
     label: 'Designer Name',
-    value: designerName.value || username.value,
+    value: resolvedDesignerName.value,
     icon: 'kind-icon:signature',
     description:
       designerMode.value === 'username'
@@ -675,10 +584,10 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
   {
     key: 'avatar',
     label: 'Avatar',
-    value: avatarLabel.value,
-    image: avatarPreview.value,
+    value: avatarImagePath.value ? 'Avatar image selected' : avatarPrompt.value,
+    image: avatarImagePath.value,
     icon: 'kind-icon:portrait',
-    description: avatarPrompt.value || 'Avatar can be uploaded, selected, or generated.',
+    description: 'Avatar art is created through art-creator.',
     editSection: 'avatar',
   },
   {
@@ -692,8 +601,14 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
   {
     key: 'privacy',
     label: 'Privacy Default',
-    value: defaultPrivacy.value === 'private' ? 'Private by default' : 'Public by default',
-    icon: defaultPrivacy.value === 'private' ? 'kind-icon:lock' : 'kind-icon:globe',
+    value:
+      defaultPrivacy.value === 'private'
+        ? 'Private by default'
+        : 'Public by default',
+    icon:
+      defaultPrivacy.value === 'private'
+        ? 'kind-icon:lock'
+        : 'kind-icon:globe',
     description: 'Default visibility for new creations.',
     editSection: 'settings',
   },
@@ -712,8 +627,58 @@ function useUsernameAsDesigner() {
   designerName.value = username.value
 }
 
-function markAvatarGenerated() {
-  avatarPreview.value = null
+function updateAvatarArt(payload: ArtCreatorPayload) {
+  avatarPrompt.value = payload.prompt
+  avatarImagePath.value = payload.imagePath
+}
+
+async function saveDesignerName() {
+  designerMessage.value = ''
+
+  try {
+    const name = resolvedDesignerName.value.trim()
+
+    if (!name) {
+      designerMessage.value = 'Designer name cannot be blank.'
+      return
+    }
+
+    const store = userStore as unknown as {
+      patchUser?: (payload: Record<string, unknown>) => Promise<unknown>
+      updateUser?: (payload: Record<string, unknown>) => Promise<unknown>
+      updateProfile?: (payload: Record<string, unknown>) => Promise<unknown>
+    }
+
+    const payload = {
+      designer: name,
+      designerName: name,
+    }
+
+    if (typeof store.patchUser === 'function') {
+      await store.patchUser(payload)
+      designerMessage.value = 'Designer name saved.'
+      return
+    }
+
+    if (typeof store.updateUser === 'function') {
+      await store.updateUser(payload)
+      designerMessage.value = 'Designer name saved.'
+      return
+    }
+
+    if (typeof store.updateProfile === 'function') {
+      await store.updateProfile(payload)
+      designerMessage.value = 'Designer name saved.'
+      return
+    }
+
+    designerMessage.value =
+      'Designer name staged locally. Add a userStore update action when ready.'
+  } catch (error) {
+    handleError(error, 'saving designer name from user-builder')
+    designerMessage.value =
+      error instanceof Error ? error.message : 'Failed to save designer name.'
+  }
 }
 
 function displaySummaryValue(value: BuilderChoiceSummary['value']) {

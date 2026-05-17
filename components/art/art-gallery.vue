@@ -423,7 +423,6 @@
         </button>
       </div>
 
-      <art-interact />
     </section>
 
     <!-- ── Main scrollable content ── -->

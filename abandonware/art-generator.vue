@@ -1,4 +1,4 @@
-<!-- /components/content/art/art-interact.vue -->
+<!-- /components/content/art/art-generator.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"

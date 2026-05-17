@@ -2283,48 +2283,17 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-    function getAuthToken(): string | null {
-    const userRecord = userStore as unknown as Record<string, unknown>
-    const nestedUser = userRecord.user as Record<string, unknown> | null
-
-    const candidates = [
-      userRecord.token,
-      userRecord.userToken,
-      userRecord.apiKey,
-      nestedUser?.apiKey,
-      nestedUser?.token,
-      safeGetLocalStorage('token'),
-      safeGetLocalStorage('userToken'),
-      safeGetLocalStorage('apiKey'),
-    ]
-
-    const token = candidates.find((value) => {
-      return typeof value === 'string' && value.trim().length > 0
-    })
-
-    if (typeof token !== 'string') return null
-
-    return token.replace(/^Bearer\s+/i, '').trim()
-  }
-
-  async function createLegacyArtImage(
+      async function createLegacyArtImage(
     input: ArtImageCreateInput,
   ): Promise<ApiResponse<ArtImage>> {
     try {
       clearError()
-
-      const token = getAuthToken()
-
-      if (!token) {
-        throw new Error('Valid authorization token required.')
-      }
 
       const response = await performFetch<ArtImage>('/api/art/image/legacy', {
         method: 'POST',
         body: JSON.stringify(input),
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
       })
 
@@ -2377,6 +2346,7 @@ export const useArtStore = defineStore('artStore', () => {
       }
     }
   }
+
 
   async function generateArt(
     artData?: GenerateArtData,

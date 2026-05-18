@@ -47,9 +47,13 @@
       </button>
     </template>
 
+    <!-- ── Image area ─────────────────────────────────────────────────── -->
     <div
       v-if="showImage"
-      class="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+      :class="[
+        'relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-300',
+        imageAspectClass,
+      ]"
     >
       <div
         v-if="loadingImage"
@@ -69,66 +73,70 @@
         @error="handleImageError"
       />
 
-      <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span
-          v-if="displayImage.artId"
-          class="badge badge-info badge-sm"
-          :title="`Linked Art #${displayImage.artId}`"
+      <!-- Minimal status overlay — only show data-source badge in debug mode -->
+      <div
+        v-if="showDebug"
+        class="absolute left-1.5 top-1.5 flex flex-wrap gap-1"
+      >
+        <span v-if="displayImage.imageData" class="badge badge-success badge-xs"
+          >data</span
         >
-          Art #{{ displayImage.artId }}
-        </span>
-
-        <span
-          v-if="displayImage.imageData"
-          class="badge badge-success badge-sm"
-        >
-          imageData
-        </span>
-
         <span
           v-else-if="displayImage.imagePath"
-          class="badge badge-warning badge-sm"
+          class="badge badge-warning badge-xs"
+          >path</span
         >
-          imagePath
-        </span>
-
-        <span v-else class="badge badge-error badge-sm"> no image </span>
-
-        <span v-if="displayImage.isPublic" class="badge badge-success badge-sm">
-          Public
-        </span>
-
-        <span v-else class="badge badge-warning badge-sm"> Private </span>
-
-        <span v-if="displayImage.isMature" class="badge badge-error badge-sm">
-          Mature
-        </span>
+        <span v-else class="badge badge-error badge-xs">none</span>
       </div>
 
+      <!-- Mature / visibility badges — only when selected -->
+      <div
+        v-if="selected && size !== 'xs'"
+        class="absolute left-1.5 top-1.5 flex flex-wrap gap-1"
+      >
+        <span v-if="displayImage.isMature" class="badge badge-error badge-xs"
+          >Mature</span
+        >
+        <span v-if="!displayImage.isPublic" class="badge badge-warning badge-xs"
+          >Private</span
+        >
+        <span v-if="displayImage.artId" class="badge badge-info badge-xs"
+          >Art #{{ displayImage.artId }}</span
+        >
+      </div>
+
+      <!-- Selected indicator -->
       <div
         v-if="selected"
-        class="absolute bottom-2 right-2 rounded-full bg-primary p-2 text-primary-content shadow"
+        class="absolute bottom-1.5 right-1.5 rounded-full bg-primary p-1.5 text-primary-content shadow"
       >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
+        <Icon name="kind-icon:check" class="h-3 w-3" />
       </div>
 
+      <!-- Retry -->
       <button
         v-if="imageLoadFailed && showDebug"
-        class="absolute bottom-2 left-2 rounded-full bg-warning px-3 py-1 text-xs font-bold text-warning-content shadow"
+        class="absolute bottom-1.5 left-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-bold text-warning-content shadow"
         type="button"
         title="Retry image"
         @click.stop="loadFullImage"
       >
-        Retry image
+        Retry
       </button>
     </div>
 
-    <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <!-- ── Text content ──────────────────────────────────────────────── -->
+    <div v-if="size !== 'xs'" class="flex min-w-0 flex-1 flex-col gap-1.5">
+      <!-- Prompt title -->
       <div v-if="showPrompt" class="min-w-0">
         <h2
           :class="[
             'font-black leading-tight text-base-content',
-            compact ? 'line-clamp-2 text-sm' : 'line-clamp-3 text-base',
+            size === 'sm'
+              ? 'line-clamp-1 text-xs'
+              : compact
+                ? 'line-clamp-2 text-sm'
+                : 'line-clamp-2 text-sm',
           ]"
           :title="cardTitle"
         >
@@ -136,126 +144,99 @@
         </h2>
 
         <p
-          v-if="showNegativePrompt && displayImage.negativePrompt"
-          class="mt-1 line-clamp-2 text-xs text-base-content/50"
+          v-if="
+            showNegativePrompt && displayImage.negativePrompt && size === 'lg'
+          "
+          class="mt-0.5 line-clamp-1 text-xs text-base-content/50"
         >
-          Negative: {{ displayImage.negativePrompt }}
+          ↓ {{ displayImage.negativePrompt }}
         </p>
       </div>
 
+      <!-- Image status section (verbose) — only when showImageStatus AND selected -->
       <div
-        v-if="displayImage.artId || showImageStatus"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+        v-if="showImageStatus && selected"
+        class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
       >
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-1.5">
           <span
             v-if="displayImage.artId"
-            class="badge badge-info badge-sm"
-            :title="`Linked Art #${displayImage.artId}`"
+            class="badge badge-info badge-xs"
+            :title="`Art #${displayImage.artId}`"
           >
-            Linked to Art #{{ displayImage.artId }}
+            Art #{{ displayImage.artId }}
           </span>
-
-          <span v-else class="badge badge-ghost badge-sm"> No Art link </span>
-
-          <span class="badge badge-sm" :class="imageDataBadgeClass">
-            imageData: {{ displayImage.imageData ? 'yes' : 'no' }}
+          <span v-else class="badge badge-ghost badge-xs">No Art link</span>
+          <span class="badge badge-xs" :class="imageDataBadgeClass">
+            data: {{ displayImage.imageData ? 'yes' : 'no' }}
           </span>
-
           <span
-            class="badge badge-sm"
+            class="badge badge-xs"
             :class="displayImage.imagePath ? 'badge-info' : 'badge-ghost'"
           >
-            imagePath: {{ displayImage.imagePath ? 'yes' : 'no' }}
+            path: {{ displayImage.imagePath ? 'yes' : 'no' }}
           </span>
-
           <span
-            class="badge badge-sm"
+            class="badge badge-xs"
             :class="
               displayImage.thumbnailData ? 'badge-success' : 'badge-ghost'
             "
           >
-            thumbnail: {{ displayImage.thumbnailData ? 'yes' : 'no' }}
+            thumb: {{ displayImage.thumbnailData ? 'yes' : 'no' }}
           </span>
         </div>
-
-        <p v-if="displayImage.artId" class="mt-2 text-xs text-base-content/50">
-          This ArtImage is attached to Art #{{ displayImage.artId }}. Good
-          little payload. Very official.
-        </p>
-
-        <p v-else class="mt-2 text-xs text-base-content/50">
-          This ArtImage is not attached to an Art record. That may be fine for
-          Bot, Character, Pitch, or other owner models.
-        </p>
       </div>
 
-      <div v-if="showMeta" class="flex flex-wrap gap-2">
+      <!-- Meta badges — only on md/lg -->
+      <div
+        v-if="showMeta && (size === 'md' || size === 'lg')"
+        class="flex flex-wrap gap-1"
+      >
         <button
           v-if="checkpointDisplay"
-          class="badge badge-outline badge-sm max-w-full cursor-copy gap-1 truncate"
+          class="badge badge-outline badge-xs max-w-full cursor-copy gap-1 truncate"
           type="button"
           :title="checkpointTitle"
           @click.stop="copyCheckpoint"
         >
-          <Icon name="kind-icon:checkpoint" class="h-3 w-3" />
           <span class="truncate">{{ checkpointDisplay }}</span>
         </button>
 
-        <span v-if="displayImage.genres" class="badge badge-accent badge-sm">
-          {{ displayImage.genres }}
-        </span>
-
-        <span v-if="displayImage.sampler" class="badge badge-ghost badge-sm">
+        <span v-if="displayImage.sampler" class="badge badge-ghost badge-xs">
           {{ displayImage.sampler }}
         </span>
 
-        <span v-if="displayImage.designer" class="badge badge-primary badge-sm">
-          {{ displayImage.designer }}
-        </span>
-
         <span
-          v-if="displayImage.serverName"
-          class="badge badge-secondary badge-sm"
+          v-if="displayImage.designer && size === 'lg'"
+          class="badge badge-primary badge-xs"
         >
-          {{ displayImage.serverName }}
-        </span>
-
-        <span v-if="displayImage.fileType" class="badge badge-ghost badge-sm">
-          {{ displayImage.fileType }}
+          {{ displayImage.designer }}
         </span>
       </div>
 
+      <!-- Generation meta grid — only on lg when explicitly requested -->
       <div
-        v-if="showGenerationMeta"
-        class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+        v-if="showGenerationMeta && size === 'lg'"
+        class="grid grid-cols-2 gap-2 rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
       >
         <div>
-          <p class="font-bold uppercase text-base-content/45">Image ID</p>
-          <p class="truncate text-base-content/75">#{{ displayImage.id }}</p>
+          <p class="font-bold uppercase text-base-content/40">Image ID</p>
+          <p class="text-base-content/75">#{{ displayImage.id }}</p>
         </div>
-
         <div>
-          <p class="font-bold uppercase text-base-content/45">Art ID</p>
-          <p class="truncate text-base-content/75">
+          <p class="font-bold uppercase text-base-content/40">Art ID</p>
+          <p class="text-base-content/75">
             {{ displayImage.artId ? `#${displayImage.artId}` : 'n/a' }}
           </p>
         </div>
-
         <div>
-          <p class="font-bold uppercase text-base-content/45">Steps</p>
-          <p class="truncate text-base-content/75">
-            {{ displayImage.steps ?? 'n/a' }}
-          </p>
+          <p class="font-bold uppercase text-base-content/40">Steps</p>
+          <p class="text-base-content/75">{{ displayImage.steps ?? 'n/a' }}</p>
         </div>
-
         <div>
-          <p class="font-bold uppercase text-base-content/45">CFG</p>
-          <p class="truncate text-base-content/75">
-            {{ cfgDisplay }}
-          </p>
+          <p class="font-bold uppercase text-base-content/40">CFG</p>
+          <p class="text-base-content/75">{{ cfgDisplay }}</p>
         </div>
-
         <button
           class="rounded-xl text-left transition hover:bg-base-200 disabled:hover:bg-transparent"
           type="button"
@@ -263,31 +244,13 @@
           title="Copy seed"
           @click.stop="copySeed"
         >
-          <p class="font-bold uppercase text-base-content/45">Seed</p>
-          <p class="truncate text-base-content/75">
+          <p class="font-bold uppercase text-base-content/40">Seed</p>
+          <p class="truncate font-mono text-base-content/75">
             {{ displayImage.seed ?? 'n/a' }}
           </p>
         </button>
-
-        <div>
-          <p class="font-bold uppercase text-base-content/45">Gallery</p>
-          <p class="truncate text-base-content/75">
-            {{ displayImage.galleryId ? `#${displayImage.galleryId}` : 'n/a' }}
-          </p>
-        </div>
-
-        <div
-          v-if="displayImage.checkpointResourceId || displayImage.checkpoint"
-          class="col-span-2"
-        >
-          <p class="font-bold uppercase text-base-content/45">Checkpoint</p>
-          <p class="truncate text-base-content/75" :title="checkpointTitle">
-            {{ checkpointDisplay || 'n/a' }}
-          </p>
-        </div>
-
         <div v-if="displayImage.imagePath" class="col-span-2">
-          <p class="font-bold uppercase text-base-content/45">Image Path</p>
+          <p class="font-bold uppercase text-base-content/40">Path</p>
           <p
             class="truncate text-base-content/75"
             :title="displayImage.imagePath"
@@ -295,39 +258,30 @@
             {{ displayImage.imagePath }}
           </p>
         </div>
-
-        <div v-if="displayImage.fileName" class="col-span-2">
-          <p class="font-bold uppercase text-base-content/45">File Name</p>
-          <p
-            class="truncate text-base-content/75"
-            :title="displayImage.fileName"
-          >
-            {{ displayImage.fileName }}
-          </p>
-        </div>
       </div>
 
-      <div v-if="showSelectButton" class="mt-auto grid grid-cols-1 gap-2 pt-1">
+      <!-- Select button -->
+      <div v-if="showSelectButton" class="mt-auto pt-1">
         <button
-          class="btn btn-sm rounded-xl"
-          :class="selected ? 'btn-primary text-white' : 'btn-outline'"
+          class="btn btn-xs w-full rounded-lg"
+          :class="selected ? 'btn-primary' : 'btn-outline'"
           type="button"
           @click.stop="selectImage"
         >
-          <Icon name="kind-icon:check" class="h-4 w-4" />
+          <Icon name="kind-icon:check" class="h-3.5 w-3.5" />
           {{ selected ? 'Selected' : 'Select' }}
         </button>
       </div>
 
+      <!-- Debug -->
       <details
         v-if="showDebug"
-        class="rounded-2xl border border-base-300 bg-base-100 p-2"
+        class="rounded-xl border border-base-300 bg-base-100 p-2"
         @click.stop
       >
         <summary class="cursor-pointer text-xs font-bold text-base-content/70">
           Debug
         </summary>
-
         <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
           JSON.stringify(debugImage, null, 2)
         }}</pre>
@@ -335,6 +289,7 @@
     </div>
   </reactable-card>
 </template>
+
 <script setup lang="ts">
 // /components/content/art/image-card.vue
 import { computed, ref, watch } from 'vue'
@@ -346,6 +301,7 @@ const props = withDefaults(
     artImage: ArtImage
     selected?: boolean
     compact?: boolean
+    size?: 'xs' | 'sm' | 'md' | 'lg'
     showImage?: boolean
     showActions?: boolean
     showPrompt?: boolean
@@ -365,13 +321,14 @@ const props = withDefaults(
   {
     selected: false,
     compact: false,
+    size: 'md',
     showImage: true,
     showActions: true,
     showPrompt: true,
     showNegativePrompt: false,
     showMeta: true,
     showGenerationMeta: false,
-    showImageStatus: true,
+    showImageStatus: false,
     showSelectButton: false,
     showReaction: true,
     showDebug: false,
@@ -406,46 +363,54 @@ const appUrl = computed(() => {
     runtimeConfig.public?.siteUrl ||
     runtimeConfig.public?.SITE_URL ||
     ''
-
   if (typeof configured === 'string' && configured.trim()) {
     return configured.trim().replace(/\/+$/, '')
   }
-
   if (import.meta.client && window.location.origin) {
     return window.location.origin.replace(/\/+$/, '')
   }
-
   return ''
 })
 
-const displayImage = computed(() => {
-  return localImage.value || props.artImage
-})
+const displayImage = computed(() => localImage.value || props.artImage)
 
-const cardTitle = computed(() => {
-  return (
+const cardTitle = computed(
+  () =>
     displayImage.value.promptString ||
     displayImage.value.fileName ||
-    `ArtImage #${displayImage.value.id}`
-  )
+    `ArtImage #${displayImage.value.id}`,
+)
+
+const imageAltText = computed(
+  () => displayImage.value.promptString || `Image ${displayImage.value.id}`,
+)
+
+const imageLoadingMode = computed<'eager' | 'lazy'>(() =>
+  props.compact || props.size === 'xs' ? 'eager' : 'lazy',
+)
+
+// Size → aspect/height class
+const imageAspectClass = computed(() => {
+  switch (props.size) {
+    case 'xs':
+      return 'aspect-square'
+    case 'sm':
+      return 'aspect-square'
+    case 'lg':
+      return 'aspect-[4/3]'
+    default:
+      return 'aspect-square'
+  }
 })
 
-const imageAltText = computed(() => {
-  return displayImage.value.promptString || `Image ${displayImage.value.id}`
-})
-
-const imageLoadingMode = computed<'eager' | 'lazy'>(() => {
-  return props.compact ? 'eager' : 'lazy'
-})
-
-const imageKey = computed(() => {
-  return [
+const imageKey = computed(() =>
+  [
     displayImage.value.id,
     getImageDataMode(displayImage.value.imageData),
     displayImage.value.imagePath || 'no-path',
     imageLoadFailed.value ? 'fallback' : 'primary',
-  ].join('-')
-})
+  ].join('-'),
+)
 
 const cfgDisplay = computed(() => {
   const cfg = displayImage.value.cfg ?? 0
@@ -457,51 +422,45 @@ const checkpointDisplay = computed(() => {
   return cleanCheckpointName(displayImage.value.checkpoint)
 })
 
-const checkpointTitle = computed(() => {
-  return displayImage.value.checkpoint || checkpointDisplay.value
-})
+const checkpointTitle = computed(
+  () => displayImage.value.checkpoint || checkpointDisplay.value,
+)
 
 const resolvedImageSource = computed(() => {
   if (imageLoadFailed.value) return props.fallbackImage
-
   const pathUrl = createImagePathUrl(displayImage.value)
   const dataUrl = createImageDataUrl(displayImage.value)
-
   if (pathUrl && shouldPreferImagePath(displayImage.value)) return pathUrl
   if (dataUrl) return dataUrl
   if (pathUrl) return pathUrl
-
   return props.fallbackImage
 })
 
-const imageDataBadgeClass = computed(() => {
-  return isUsableImageData(displayImage.value.imageData)
+const imageDataBadgeClass = computed(() =>
+  isUsableImageData(displayImage.value.imageData)
     ? 'badge-success'
-    : 'badge-warning'
-})
+    : 'badge-warning',
+)
 
-const debugImage = computed(() => {
-  return {
-    ...displayImage.value,
-    imageData: displayImage.value.imageData
-      ? `[${displayImage.value.imageData.length} chars: ${getImageDataMode(displayImage.value.imageData)}]`
-      : '',
-    thumbnailData: displayImage.value.thumbnailData
-      ? `[${displayImage.value.thumbnailData.length} chars]`
-      : null,
-    appUrl: appUrl.value,
-    resolvedImageSourceStart: resolvedImageSource.value.slice(0, 160),
-    imageLoadFailed: imageLoadFailed.value,
-    loadingImage: loadingImage.value,
-  }
-})
+const debugImage = computed(() => ({
+  ...displayImage.value,
+  imageData: displayImage.value.imageData
+    ? `[${displayImage.value.imageData.length} chars: ${getImageDataMode(displayImage.value.imageData)}]`
+    : '',
+  thumbnailData: displayImage.value.thumbnailData
+    ? `[${displayImage.value.thumbnailData.length} chars]`
+    : null,
+  appUrl: appUrl.value,
+  resolvedImageSourceStart: resolvedImageSource.value.slice(0, 160),
+  imageLoadFailed: imageLoadFailed.value,
+  loadingImage: loadingImage.value,
+}))
 
 watch(
   () => props.artImage.id,
   async () => {
     localImage.value = props.artImage
     imageLoadFailed.value = false
-
     if (props.autoLoadImage && shouldFetchFullImage(props.artImage)) {
       await loadFullImage()
     }
@@ -513,7 +472,6 @@ watch(
   () => props.artImage,
   () => {
     if (props.artImage.id !== displayImage.value.id) return
-
     localImage.value = {
       ...displayImage.value,
       ...props.artImage,
@@ -523,44 +481,33 @@ watch(
         props.artImage.thumbnailData ||
         null,
     }
-
     imageLoadFailed.value = false
   },
 )
 
 async function loadFullImage() {
   imageLoadFailed.value = false
-
   if (!props.autoLoadImage) return
-
   if (!shouldFetchFullImage(props.artImage)) {
     localImage.value = props.artImage
     return
   }
-
   loadingImage.value = true
-
   try {
     const fetched = await artStore.getArtImageById(props.artImage.id, {
       includeImageData: true,
       includeThumbnailData: true,
     })
-
     if (!fetched) {
       if (!createImagePathUrl(props.artImage)) imageLoadFailed.value = true
       return
     }
-
     localImage.value = fetched
     emit('loaded', fetched)
-
-    if (!createImageDataUrl(fetched) && !createImagePathUrl(fetched)) {
+    if (!createImageDataUrl(fetched) && !createImagePathUrl(fetched))
       imageLoadFailed.value = true
-    }
   } catch {
-    if (!createImagePathUrl(props.artImage)) {
-      imageLoadFailed.value = true
-    }
+    if (!createImagePathUrl(props.artImage)) imageLoadFailed.value = true
   } finally {
     loadingImage.value = false
   }
@@ -595,7 +542,6 @@ async function copyPrompt() {
 
 async function copySeed() {
   if (!displayImage.value.seed) return
-
   const seed = String(displayImage.value.seed)
   await navigator.clipboard.writeText(seed)
   emit('copied', seed)
@@ -603,76 +549,51 @@ async function copySeed() {
 
 async function copyCheckpoint() {
   if (!displayImage.value.checkpoint) return
-
   await navigator.clipboard.writeText(displayImage.value.checkpoint)
   emit('copied', displayImage.value.checkpoint)
 }
 
 function normalizeImageMimeType(fileType?: string | null) {
   if (!fileType) return 'image/png'
-
   const cleaned = fileType.trim().toLowerCase()
-
   if (cleaned.startsWith('image/')) return cleaned
-  if (cleaned === 'jpg') return 'image/jpeg'
-  if (cleaned === 'jpeg') return 'image/jpeg'
+  if (cleaned === 'jpg' || cleaned === 'jpeg') return 'image/jpeg'
   if (cleaned === 'png') return 'image/png'
   if (cleaned === 'webp') return 'image/webp'
   if (cleaned === 'gif') return 'image/gif'
-
   return `image/${cleaned}`
 }
 
 function createImageDataUrl(image?: ArtImage | null) {
   const raw = image?.imageData?.trim()
-
   if (!raw) return ''
-
   if (raw.startsWith('data:image/')) return raw
   if (isProbablyPath(raw)) return ''
   if (!looksLikeBase64(raw)) return ''
-
   const mimeType = normalizeImageMimeType(image?.fileType)
-
   return `data:${mimeType};base64,${raw}`
 }
 
 function createImagePathUrl(image?: ArtImage | null) {
   const path =
     image?.imagePath || getPathFromBadImageData(image?.imageData) || ''
-
   return normalizeImagePath(path)
 }
 
 function normalizeImagePath(value?: string | null) {
   if (!value) return ''
-
   const trimmed = value.trim()
-
   if (!trimmed || trimmed === 'UNDEFINED' || trimmed === 'undefined') return ''
-
   if (
     trimmed.startsWith('http://') ||
     trimmed.startsWith('https://') ||
     trimmed.startsWith('data:image/')
-  ) {
+  )
     return trimmed
-  }
-
   const cleanPath = stripServerFilePrefix(trimmed)
-
-  if (cleanPath.startsWith('/images/')) {
-    return withAppUrl(cleanPath)
-  }
-
-  if (cleanPath.startsWith('images/')) {
-    return withAppUrl(`/${cleanPath}`)
-  }
-
-  if (cleanPath.startsWith('/')) {
-    return withAppUrl(`/images${cleanPath}`)
-  }
-
+  if (cleanPath.startsWith('/images/')) return withAppUrl(cleanPath)
+  if (cleanPath.startsWith('images/')) return withAppUrl(`/${cleanPath}`)
+  if (cleanPath.startsWith('/')) return withAppUrl(`/images${cleanPath}`)
   return withAppUrl(`/images/${cleanPath}`)
 }
 
@@ -688,48 +609,36 @@ function stripServerFilePrefix(value: string) {
 
 function withAppUrl(path: string) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
-
   if (!appUrl.value) return normalizedPath
-
   return `${appUrl.value}${normalizedPath}`
 }
 
 function getPathFromBadImageData(value?: string | null) {
   if (!value) return ''
-
   const trimmed = value.trim()
-
   if (!isProbablyPath(trimmed)) return ''
-
   return trimmed
 }
 
 function isUsableImageData(value?: string | null) {
   if (!value) return false
-
   const trimmed = value.trim()
-
   if (trimmed.startsWith('data:image/')) return true
   if (isProbablyPath(trimmed)) return false
-
   return looksLikeBase64(trimmed)
 }
 
 function getImageDataMode(value?: string | null) {
   if (!value) return 'no-data'
-
   const trimmed = value.trim()
-
   if (trimmed.startsWith('data:image/')) return 'data-url'
   if (isProbablyPath(trimmed)) return 'path-in-imageData'
   if (looksLikeBase64(trimmed)) return 'base64'
-
   return 'unknown'
 }
 
 function isProbablyPath(value: string) {
   const trimmed = value.trim()
-
   return (
     trimmed.startsWith('/') ||
     trimmed.startsWith('./') ||
@@ -745,10 +654,8 @@ function isProbablyPath(value: string) {
 
 function looksLikeBase64(value: string) {
   const compact = value.replace(/\s+/g, '')
-
   if (compact.length < 64) return false
   if (compact.length % 4 !== 0) return false
-
   return /^[A-Za-z0-9+/]+={0,2}$/.test(compact)
 }
 

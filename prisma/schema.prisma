@@ -327,7 +327,7 @@ model Character {
   role           String?   @db.VarChar(256)
   class          String?   @db.VarChar(764)
   species        String?   @db.VarChar(764)
-  genderIdentity String?   @db.VarChar(256)
+  gender         String?   @db.VarChar(256)
   presentation   String?   @db.VarChar(764)
 
   genre          String?   @db.VarChar(256)

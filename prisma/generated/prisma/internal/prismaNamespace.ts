@@ -2562,48 +2562,36 @@ export const CharacterScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
-  achievements: 'achievements',
-  alignment: 'alignment',
-  experience: 'experience',
-  level: 'level',
+  honorific: 'honorific',
+  title: 'title',
+  role: 'role',
   class: 'class',
   species: 'species',
-  backstory: 'backstory',
-  drive: 'drive',
-  inventory: 'inventory',
-  statName1: 'statName1',
-  statValue1: 'statValue1',
-  statName2: 'statName2',
-  statValue2: 'statValue2',
-  statName3: 'statName3',
-  statValue3: 'statValue3',
-  statName4: 'statName4',
-  statValue4: 'statValue4',
-  statName5: 'statName5',
-  statValue5: 'statValue5',
-  statName6: 'statName6',
-  statValue6: 'statValue6',
-  quirks: 'quirks',
-  skills: 'skills',
+  genderIdentity: 'genderIdentity',
+  presentation: 'presentation',
   genre: 'genre',
+  alignment: 'alignment',
+  personality: 'personality',
+  drive: 'drive',
+  backstory: 'backstory',
+  achievements: 'achievements',
+  quirks: 'quirks',
+  luck: 'luck',
+  might: 'might',
+  wits: 'wits',
+  grace: 'grace',
+  charm: 'charm',
+  empathy: 'empathy',
+  artPrompt: 'artPrompt',
   artImageId: 'artImageId',
+  imagePath: 'imagePath',
+  experience: 'experience',
+  level: 'level',
+  designer: 'designer',
   isPublic: 'isPublic',
   isMature: 'isMature',
   isActive: 'isActive',
-  userId: 'userId',
-  artPrompt: 'artPrompt',
-  goalStat1Name: 'goalStat1Name',
-  goalStat1Value: 'goalStat1Value',
-  goalStat2Name: 'goalStat2Name',
-  goalStat2Value: 'goalStat2Value',
-  goalStat3Name: 'goalStat3Name',
-  goalStat3Value: 'goalStat3Value',
-  goalStat4Name: 'goalStat4Name',
-  goalStat4Value: 'goalStat4Value',
-  honorific: 'honorific',
-  imagePath: 'imagePath',
-  designer: 'designer',
-  personality: 'personality'
+  userId: 'userId'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
@@ -2865,6 +2853,7 @@ export const RewardScalarFieldEnum = {
   collection: 'collection',
   rarity: 'rarity',
   label: 'label',
+  rewardType: 'rewardType',
   userId: 'userId',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
@@ -3228,31 +3217,23 @@ export type ButterflyOrderByRelevanceFieldEnum = (typeof ButterflyOrderByRelevan
 
 export const CharacterOrderByRelevanceFieldEnum = {
   name: 'name',
-  achievements: 'achievements',
-  alignment: 'alignment',
+  honorific: 'honorific',
+  title: 'title',
+  role: 'role',
   class: 'class',
   species: 'species',
-  backstory: 'backstory',
-  drive: 'drive',
-  inventory: 'inventory',
-  statName1: 'statName1',
-  statName2: 'statName2',
-  statName3: 'statName3',
-  statName4: 'statName4',
-  statName5: 'statName5',
-  statName6: 'statName6',
-  quirks: 'quirks',
-  skills: 'skills',
+  genderIdentity: 'genderIdentity',
+  presentation: 'presentation',
   genre: 'genre',
+  alignment: 'alignment',
+  personality: 'personality',
+  drive: 'drive',
+  backstory: 'backstory',
+  achievements: 'achievements',
+  quirks: 'quirks',
   artPrompt: 'artPrompt',
-  goalStat1Name: 'goalStat1Name',
-  goalStat2Name: 'goalStat2Name',
-  goalStat3Name: 'goalStat3Name',
-  goalStat4Name: 'goalStat4Name',
-  honorific: 'honorific',
   imagePath: 'imagePath',
-  designer: 'designer',
-  personality: 'personality'
+  designer: 'designer'
 } as const
 
 export type CharacterOrderByRelevanceFieldEnum = (typeof CharacterOrderByRelevanceFieldEnum)[keyof typeof CharacterOrderByRelevanceFieldEnum]
@@ -3574,6 +3555,13 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
 
 
 /**
+ * Reference to a field of type 'Rarity'
+ */
+export type EnumRarityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Rarity'>
+    
+
+
+/**
  * Reference to a field of type 'ChatType'
  */
 export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChatType'>
@@ -3626,6 +3614,13 @@ export type EnumResourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'SupportedServer'
  */
 export type EnumSupportedServerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportedServer'>
+    
+
+
+/**
+ * Reference to a field of type 'RewardType'
+ */
+export type EnumRewardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RewardType'>
     
 
 

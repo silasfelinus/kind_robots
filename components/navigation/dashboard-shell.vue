@@ -176,13 +176,13 @@
           </div>
 
           <nav
-            class="grid max-h-44 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3 lg:max-h-48 lg:grid-cols-2"
+            class="grid max-h-44 grid-flow-col grid-rows-2 auto-cols-[minmax(8.5rem,1fr)] gap-2 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
             style="scrollbar-width: none; -webkit-overflow-scrolling: touch"
           >
             <button
               v-for="tab in resolvedTabs"
               :key="tab.key"
-              class="btn btn-sm min-h-11 justify-start rounded-xl transition-all"
+              class="btn btn-sm min-h-11 w-full justify-start rounded-xl transition-all"
               type="button"
               :class="
                 normalizedActiveTab === tab.key

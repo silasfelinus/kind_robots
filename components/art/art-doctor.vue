@@ -20,7 +20,7 @@
           <div class="min-w-0">
             <h2 class="text-xl font-black text-base-content">Art Doctor</h2>
             <p class="text-sm text-base-content/60">
-              Promote legacy Art records into ArtImage records.
+              Promote, inspect, and clean legacy Art records.
             </p>
           </div>
         </div>
@@ -49,13 +49,13 @@
         </div>
       </div>
 
-      <div class="grid gap-3 lg:grid-cols-[1fr_auto]">
+      <div class="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <p class="text-sm font-bold text-base-content">One job</p>
           <p class="mt-1 text-sm text-base-content/60">
-            Find Art records without ArtImages, copy their useful fields into a
-            new ArtImage, link the result back to Art, and report exactly what
-            changed.
+            Find legacy Art records, show exactly what remains, migrate anything
+            that can still become an ArtImage, and delete old Art shells only
+            when you choose to.
           </p>
         </div>
 
@@ -74,8 +74,27 @@
               Delete Art after promotion
             </span>
             <span class="text-xs text-base-content/60">
-              Safer off. When on, the old Art shell is deleted after the
-              ArtImage is created.
+              After migration, delete the old Art shell.
+            </span>
+          </span>
+        </label>
+
+        <label
+          class="flex cursor-pointer items-center gap-3 rounded-2xl border border-error/30 bg-error/10 p-3"
+        >
+          <input
+            v-model="allowManualDelete"
+            type="checkbox"
+            class="checkbox checkbox-error"
+            :disabled="isBusy"
+          />
+
+          <span class="flex flex-col">
+            <span class="text-sm font-black text-error">
+              Allow manual delete
+            </span>
+            <span class="text-xs text-base-content/60">
+              Enables deleting blocked or weird leftovers after inspection.
             </span>
           </span>
         </label>
@@ -85,8 +104,8 @@
         v-if="!hasScanned && !isScanning"
         class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center text-sm text-base-content/50"
       >
-        Scan first. No thumbnail hydration. No raw payload viewer. No haunted
-        recursion closet.
+        Scan first. Then we’ll separate the migrated, the matchable, and the
+        genuinely cursed.
       </div>
     </header>
 
@@ -99,7 +118,7 @@
 
     <section
       v-if="hasScanned"
-      class="grid shrink-0 grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6"
+      class="grid shrink-0 grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-7"
     >
       <StatCard label="Art records" :value="summary.totalArt" tone="base" />
       <StatCard
@@ -112,6 +131,7 @@
         :value="summary.alreadyLinked"
         tone="success"
       />
+      <StatCard label="Matched" :value="summary.matchedExisting" tone="info" />
       <StatCard label="Ready" :value="summary.readyToPromote" tone="primary" />
       <StatCard
         label="Missing path"
@@ -142,7 +162,9 @@
             class="select select-bordered rounded-xl"
             :disabled="isBusy"
           >
+            <option value="remaining">Remaining only</option>
             <option value="ready">Ready only</option>
+            <option value="matched">Matched cleanup</option>
             <option value="blocked">Blocked only</option>
             <option value="processed">Processed only</option>
             <option value="all">All legacy rows</option>
@@ -210,7 +232,17 @@
             @click="selectVisibleReadyRows"
           >
             <Icon name="kind-icon:check" class="h-4 w-4" />
-            Select visible ready
+            Select ready
+          </button>
+
+          <button
+            class="btn btn-ghost btn-sm rounded-xl"
+            type="button"
+            :disabled="isBusy || visibleMatchedRows.length === 0"
+            @click="selectVisibleMatchedRows"
+          >
+            <Icon name="kind-icon:link" class="h-4 w-4" />
+            Select matched
           </button>
 
           <button
@@ -236,6 +268,20 @@
             <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
             Promote {{ batchTargets.length }}
           </button>
+
+          <button
+            class="btn btn-error btn-sm rounded-xl"
+            type="button"
+            :disabled="isBusy || matchedDeleteTargets.length === 0"
+            @click="deleteMatchedBatch"
+          >
+            <span
+              v-if="isDeletingBatch"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:trash" class="h-4 w-4" />
+            Delete matched {{ matchedDeleteTargets.length }}
+          </button>
         </div>
       </div>
 
@@ -244,6 +290,148 @@
         class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm text-info"
       >
         {{ batchPreviewText }}
+      </div>
+    </section>
+
+    <section
+      v-if="selectedRow"
+      class="shrink-0 rounded-2xl border border-info/30 bg-info/10 p-3"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p class="text-sm font-black text-info">
+            Inspecting Art #{{ selectedRow.art.id }}
+          </p>
+          <p class="text-xs text-base-content/60">
+            Status: {{ selectedRow.statusLabel }}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            class="btn btn-primary btn-xs rounded-xl"
+            type="button"
+            :disabled="isBusy || !selectedRow.canPromote"
+            @click="promoteOne(selectedRow.art)"
+          >
+            <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+            Migrate
+          </button>
+
+          <button
+            class="btn btn-error btn-xs rounded-xl"
+            type="button"
+            :disabled="isBusy || !canDeleteSelectedRow"
+            @click="deleteArtShell(selectedRow.art, selectedRow.matchedImage)"
+          >
+            <Icon name="kind-icon:trash" class="h-4 w-4" />
+            Delete Art
+          </button>
+
+          <button
+            class="btn btn-ghost btn-xs rounded-xl"
+            type="button"
+            :disabled="isBusy"
+            @click="selectedArtId = null"
+          >
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3 grid gap-3 xl:grid-cols-3">
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <p class="text-xs font-black uppercase tracking-wide opacity-60">
+            Normalized summary
+          </p>
+
+          <dl class="mt-2 space-y-1 text-xs">
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Art ID</dt>
+              <dd class="font-mono">{{ selectedRow.art.id }}</dd>
+            </div>
+
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Status</dt>
+              <dd>{{ selectedRow.statusLabel }}</dd>
+            </div>
+
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Path</dt>
+              <dd class="break-all font-mono">
+                {{ primaryArtPath(selectedRow.art) || 'none' }}
+              </dd>
+            </div>
+
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Prompt</dt>
+              <dd>{{ selectedRow.promptText || 'none' }}</dd>
+            </div>
+
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Collection</dt>
+              <dd>{{ selectedRow.collectionLabel || 'none' }}</dd>
+            </div>
+
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Match</dt>
+              <dd>
+                <span v-if="selectedRow.matchedImage">
+                  ArtImage #{{ selectedRow.matchedImage.id }}
+                </span>
+                <span v-else>none</span>
+              </dd>
+            </div>
+
+            <div class="grid grid-cols-[8rem_1fr] gap-2">
+              <dt class="font-bold opacity-60">Reason</dt>
+              <dd>{{ selectedRow.blockedReason || 'none' }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs font-black uppercase tracking-wide opacity-60">
+              Art object
+            </p>
+
+            <button
+              class="btn btn-ghost btn-xs rounded-xl"
+              type="button"
+              @click="copyText(toPrettyJson(selectedRow.art), 'Copied raw Art')"
+            >
+              <Icon name="kind-icon:copy" class="h-4 w-4" />
+            </button>
+          </div>
+
+          <pre
+            class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-300 p-3 text-[11px]"
+            >{{ toPrettyJson(selectedRow.art) }}</pre
+          >
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs font-black uppercase tracking-wide opacity-60">
+              Payload or match
+            </p>
+
+            <button
+              class="btn btn-ghost btn-xs rounded-xl"
+              type="button"
+              @click="copyInspectPayload"
+            >
+              <Icon name="kind-icon:copy" class="h-4 w-4" />
+            </button>
+          </div>
+
+          <pre
+            class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-300 p-3 text-[11px]"
+            >{{ selectedInspectPayload }}</pre
+          >
+        </div>
       </div>
     </section>
 
@@ -279,7 +467,9 @@
                   type="checkbox"
                   class="checkbox checkbox-primary"
                   :checked="selectedIds.has(row.art.id)"
-                  :disabled="isBusy || !row.canPromote"
+                  :disabled="
+                    isBusy || (!row.canPromote && !row.canDeleteMatched)
+                  "
                   @change="toggleSelected(row.art.id)"
                 />
               </label>
@@ -339,6 +529,13 @@
                   >
                     {{ row.collectionLabel }}
                   </span>
+
+                  <span
+                    v-if="row.matchedImage"
+                    class="badge badge-info badge-sm"
+                  >
+                    Match ArtImage #{{ row.matchedImage.id }}
+                  </span>
                 </div>
 
                 <p class="mt-2 line-clamp-2 text-sm text-base-content/70">
@@ -389,26 +586,22 @@
                         {{ row.lastReport.after.artImageId || 'none' }}
                       </p>
                       <p class="font-mono">
-                        ArtImage:
-                        {{
-                          row.lastReport.after.artImageId
-                            ? `#${row.lastReport.after.artImageId}`
-                            : 'not created'
-                        }}
+                        deletedArt:
+                        {{ row.lastReport.after.deletedArt ? 'yes' : 'no' }}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <p
-                  v-if="!row.canPromote"
+                  v-if="row.blockedReason"
                   class="mt-3 rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning"
                 >
                   {{ row.blockedReason }}
                 </p>
               </div>
 
-              <div class="flex flex-col gap-2 xl:min-w-40">
+              <div class="flex flex-col gap-2 xl:min-w-44">
                 <button
                   class="btn btn-primary btn-sm rounded-xl"
                   type="button"
@@ -421,6 +614,40 @@
                   />
                   <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
                   Promote
+                </button>
+
+                <button
+                  class="btn btn-error btn-sm rounded-xl"
+                  type="button"
+                  :disabled="isBusy || !row.canDeleteMatched"
+                  @click="deleteArtShell(row.art, row.matchedImage)"
+                >
+                  <span
+                    v-if="deletingIds.has(row.art.id)"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  <Icon v-else name="kind-icon:trash" class="h-4 w-4" />
+                  Delete matched
+                </button>
+
+                <button
+                  class="btn btn-warning btn-sm rounded-xl"
+                  type="button"
+                  :disabled="isBusy || !allowManualDelete"
+                  @click="deleteArtShell(row.art, row.matchedImage)"
+                >
+                  <Icon name="kind-icon:skull" class="h-4 w-4" />
+                  Delete Art
+                </button>
+
+                <button
+                  class="btn btn-ghost btn-sm rounded-xl"
+                  type="button"
+                  :disabled="isBusy"
+                  @click="inspectRow(row.art.id)"
+                >
+                  <Icon name="kind-icon:search" class="h-4 w-4" />
+                  Inspect
                 </button>
 
                 <button
@@ -556,8 +783,20 @@ import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 
 type SortMode = 'newest' | 'oldest' | 'id-desc' | 'id-asc'
-type ActiveFilter = 'ready' | 'blocked' | 'processed' | 'all'
-type RowStatus = 'ready' | 'blocked' | 'created' | 'deleted' | 'failed'
+type ActiveFilter =
+  | 'remaining'
+  | 'ready'
+  | 'matched'
+  | 'blocked'
+  | 'processed'
+  | 'all'
+type RowStatus =
+  | 'ready'
+  | 'matched'
+  | 'blocked'
+  | 'created'
+  | 'deleted'
+  | 'failed'
 type ReportStatus = 'created' | 'deleted' | 'failed' | 'partial'
 type LogType = 'info' | 'success' | 'error'
 
@@ -569,13 +808,13 @@ type ApiResponse<T> = {
 
 type LegacyArt = Art & Record<string, unknown>
 type LightArtImage = ArtImage & Record<string, unknown>
-
 type ArtImageCreatePayload = Partial<ArtImage> & Record<string, unknown>
 
 type ArtStoreWithDoctorActions = ReturnType<typeof useArtStore> & {
   createLegacyArtImage: (
     input: ArtImageCreatePayload,
   ) => Promise<ApiResponse<ArtImage>>
+  deleteArt: (id: number) => Promise<boolean>
 }
 
 interface LogEntry {
@@ -611,11 +850,14 @@ interface LegacyRow {
   status: RowStatus
   statusLabel: string
   canPromote: boolean
+  canDeleteMatched: boolean
   blockedReason: string
   previewUrl: string
   promptText: string
   collectionLabel: string
   createdAtValue: number
+  matchedImage: LightArtImage | null
+  matchReason: string
   lastReport: ChangeReport | null
 }
 
@@ -703,24 +945,32 @@ const artStore = useArtStore() as ArtStoreWithDoctorActions
 
 const isScanning = ref(false)
 const isPromotingBatch = ref(false)
+const isDeletingBatch = ref(false)
 const hasScanned = ref(false)
 const errorMessage = ref('')
 const statusMessage = ref('')
 const searchText = ref('')
-const activeFilter = ref<ActiveFilter>('ready')
+const activeFilter = ref<ActiveFilter>('remaining')
 const sortMode = ref<SortMode>('newest')
 const displayLimit = ref(100)
 const batchLimit = ref(25)
 const deleteArtAfterPromote = ref(false)
+const allowManualDelete = ref(false)
+const selectedArtId = ref<number | null>(null)
 
 const selectedIds = ref(new Set<number>())
 const promotingIds = ref(new Set<number>())
+const deletingIds = ref(new Set<number>())
 const reports = ref<ChangeReport[]>([])
 const operationLog = ref<LogEntry[]>([])
 
 const isBusy = computed(() => {
   return (
-    isScanning.value || isPromotingBatch.value || promotingIds.value.size > 0
+    isScanning.value ||
+    isPromotingBatch.value ||
+    isDeletingBatch.value ||
+    promotingIds.value.size > 0 ||
+    deletingIds.value.size > 0
   )
 })
 
@@ -762,45 +1012,6 @@ const reportByArtId = computed(() => {
   return map
 })
 
-function getPossibleCollectionDebug(art: LegacyArt) {
-  const record = art as Record<string, unknown>
-
-  const directCollections = [
-    record.ArtCollection,
-    record.ArtCollections,
-    record.artCollections,
-    record.collections,
-  ]
-
-  const collectionArrays = directCollections.filter(Array.isArray) as Array<
-    Array<Record<string, unknown>>
-  >
-
-  const relationIds = collectionArrays
-    .flatMap((collection) => collection)
-    .map((collection) => numberValue(collection.id))
-    .filter((id): id is number => Boolean(id))
-
-  return {
-    artId: art.id,
-    artImageId: numberValue(art.artImageId),
-    artCollectionId: numberValue(record.artCollectionId),
-    collection: stringValue(record.collection),
-    relationIds,
-    relationKeysPresent: directCollections
-      .map((value, index) => {
-        const key = [
-          'ArtCollection',
-          'ArtCollections',
-          'artCollections',
-          'collections',
-        ][index]
-        return Array.isArray(value) ? `${key}:${value.length}` : ''
-      })
-      .filter(Boolean),
-  }
-}
-
 const rows = computed<LegacyRow[]>(() => {
   return allArt.value.map((art) => buildRow(art))
 })
@@ -810,7 +1021,23 @@ const filteredRows = computed(() => {
 
   return rows.value
     .filter((row) => {
-      if (activeFilter.value === 'ready' && row.status !== 'ready') return false
+      if (activeFilter.value === 'remaining') {
+        return (
+          row.status === 'ready' ||
+          row.status === 'matched' ||
+          row.status === 'blocked' ||
+          row.status === 'failed'
+        )
+      }
+
+      if (activeFilter.value === 'ready' && row.status !== 'ready') {
+        return false
+      }
+
+      if (activeFilter.value === 'matched' && row.status !== 'matched') {
+        return false
+      }
+
       if (activeFilter.value === 'blocked' && row.status !== 'blocked') {
         return false
       }
@@ -839,6 +1066,10 @@ const filteredRows = computed(() => {
         row.collectionLabel,
         row.statusLabel,
         row.blockedReason,
+        row.matchReason,
+        row.matchedImage?.id,
+        row.matchedImage?.imagePath,
+        row.matchedImage?.path,
       ]
         .filter((value) => value !== null && value !== undefined)
         .join(' ')
@@ -857,9 +1088,19 @@ const visibleReadyRows = computed(() => {
   return visibleRows.value.filter((row) => row.canPromote)
 })
 
+const visibleMatchedRows = computed(() => {
+  return visibleRows.value.filter((row) => row.canDeleteMatched)
+})
+
 const selectedReadyRows = computed(() => {
   return rows.value.filter((row) => {
     return selectedIds.value.has(row.art.id) && row.canPromote
+  })
+})
+
+const selectedMatchedRows = computed(() => {
+  return rows.value.filter((row) => {
+    return selectedIds.value.has(row.art.id) && row.canDeleteMatched
   })
 })
 
@@ -867,6 +1108,14 @@ const batchTargets = computed(() => {
   const source = selectedReadyRows.value.length
     ? selectedReadyRows.value
     : visibleReadyRows.value
+
+  return source.slice(0, normalizedBatchLimit.value)
+})
+
+const matchedDeleteTargets = computed(() => {
+  const source = selectedMatchedRows.value.length
+    ? selectedMatchedRows.value
+    : visibleMatchedRows.value
 
   return source.slice(0, normalizedBatchLimit.value)
 })
@@ -899,9 +1148,39 @@ const normalizedBatchLimit = computed(() => {
   return Math.min(500, Math.max(1, Math.floor(value)))
 })
 
+const selectedRow = computed(() => {
+  if (!selectedArtId.value) return null
+
+  return rows.value.find((row) => row.art.id === selectedArtId.value) || null
+})
+
+const canDeleteSelectedRow = computed(() => {
+  if (!selectedRow.value) return false
+  if (selectedRow.value.canDeleteMatched) return true
+
+  return allowManualDelete.value
+})
+
+const selectedInspectPayload = computed(() => {
+  if (!selectedRow.value) return ''
+
+  if (selectedRow.value.matchedImage) {
+    return toPrettyJson({
+      matchReason: selectedRow.value.matchReason,
+      matchedImage: selectedRow.value.matchedImage,
+    })
+  }
+
+  return toPrettyJson(buildArtImagePayload(selectedRow.value.art))
+})
+
 const summary = computed(() => {
   const alreadyLinked = allArt.value.filter((art) => {
     return Boolean(art.artImageId) || artImageByArtId.value.has(art.id)
+  }).length
+
+  const matchedExisting = rows.value.filter((row) => {
+    return row.status === 'matched'
   }).length
 
   const readyToPromote = rows.value.filter((row) => {
@@ -924,6 +1203,7 @@ const summary = computed(() => {
     totalArt: allArt.value.length,
     totalArtImages: allArtImages.value.length,
     alreadyLinked,
+    matchedExisting,
     readyToPromote,
     missingPath,
     processed,
@@ -931,13 +1211,23 @@ const summary = computed(() => {
 })
 
 const batchPreviewText = computed(() => {
-  if (!batchTargets.value.length) return ''
+  if (batchTargets.value.length) {
+    if (selectedReadyRows.value.length) {
+      return `Batch will promote ${batchTargets.value.length} selected ready Art record${batchTargets.value.length === 1 ? '' : 's'}.`
+    }
 
-  if (selectedReadyRows.value.length) {
-    return `Batch will promote ${batchTargets.value.length} selected ready Art record${batchTargets.value.length === 1 ? '' : 's'}.`
+    return `Batch will promote the first ${batchTargets.value.length} visible ready Art record${batchTargets.value.length === 1 ? '' : 's'}.`
   }
 
-  return `Batch will promote the first ${batchTargets.value.length} visible ready Art record${batchTargets.value.length === 1 ? '' : 's'}.`
+  if (matchedDeleteTargets.value.length) {
+    if (selectedMatchedRows.value.length) {
+      return `Cleanup will delete ${matchedDeleteTargets.value.length} selected matched Art shell${matchedDeleteTargets.value.length === 1 ? '' : 's'}.`
+    }
+
+    return `Cleanup can delete the first ${matchedDeleteTargets.value.length} visible matched Art shell${matchedDeleteTargets.value.length === 1 ? '' : 's'}.`
+  }
+
+  return ''
 })
 
 async function runScan() {
@@ -945,6 +1235,7 @@ async function runScan() {
   errorMessage.value = ''
   statusMessage.value = 'Scanning Art and ArtImage records…'
   selectedIds.value = new Set()
+  selectedArtId.value = null
 
   try {
     log('Fetching Art records through artStore')
@@ -975,11 +1266,7 @@ async function runScan() {
 
 function buildRow(art: LegacyArt): LegacyRow {
   const report = reportByArtId.value.get(art.id) || null
-  const forwardImage = art.artImageId
-    ? artImageById.value.get(art.artImageId)
-    : null
-  const reverseImage = artImageByArtId.value.get(art.id) || null
-  const existingImage = forwardImage || reverseImage || null
+  const match = findMatchingArtImage(art)
   const imagePath = primaryArtPath(art)
   const previewUrl = normalizeImagePath(imagePath)
   const collectionLabel = getCollectionLabel(art)
@@ -991,13 +1278,16 @@ function buildRow(art: LegacyArt): LegacyRow {
       key: `art-${art.id}`,
       art,
       status: 'deleted',
-      statusLabel: 'Deleted after promotion',
+      statusLabel: 'Deleted',
       canPromote: false,
+      canDeleteMatched: false,
       blockedReason: '',
       previewUrl,
       promptText,
       collectionLabel,
       createdAtValue,
+      matchedImage: match.image,
+      matchReason: match.reason,
       lastReport: report,
     }
   }
@@ -1009,11 +1299,14 @@ function buildRow(art: LegacyArt): LegacyRow {
       status: 'created',
       statusLabel: 'Promoted',
       canPromote: false,
+      canDeleteMatched: false,
       blockedReason: '',
       previewUrl,
       promptText,
       collectionLabel,
       createdAtValue,
+      matchedImage: match.image,
+      matchReason: match.reason,
       lastReport: report,
     }
   }
@@ -1024,28 +1317,34 @@ function buildRow(art: LegacyArt): LegacyRow {
       art,
       status: 'failed',
       statusLabel: report.status === 'partial' ? 'Partial failure' : 'Failed',
-      canPromote: true,
+      canPromote: Boolean(imagePath) && !match.image,
+      canDeleteMatched: Boolean(match.image),
       blockedReason: report.message,
       previewUrl,
       promptText,
       collectionLabel,
       createdAtValue,
+      matchedImage: match.image,
+      matchReason: match.reason,
       lastReport: report,
     }
   }
 
-  if (existingImage) {
+  if (match.image) {
     return {
       key: `art-${art.id}`,
       art,
-      status: 'blocked',
-      statusLabel: 'Already has ArtImage',
+      status: 'matched',
+      statusLabel: 'Matching ArtImage found',
       canPromote: false,
-      blockedReason: `Art is already linked to ArtImage #${existingImage.id}.`,
+      canDeleteMatched: true,
+      blockedReason: match.reason,
       previewUrl,
       promptText,
       collectionLabel,
       createdAtValue,
+      matchedImage: match.image,
+      matchReason: match.reason,
       lastReport: null,
     }
   }
@@ -1057,12 +1356,15 @@ function buildRow(art: LegacyArt): LegacyRow {
       status: 'blocked',
       statusLabel: 'Missing path',
       canPromote: false,
+      canDeleteMatched: false,
       blockedReason:
         'This Art record has no usable path or imagePath to copy into ArtImage.',
       previewUrl,
       promptText,
       collectionLabel,
       createdAtValue,
+      matchedImage: null,
+      matchReason: '',
       lastReport: null,
     }
   }
@@ -1073,11 +1375,14 @@ function buildRow(art: LegacyArt): LegacyRow {
     status: 'ready',
     statusLabel: 'Ready to promote',
     canPromote: true,
+    canDeleteMatched: false,
     blockedReason: '',
     previewUrl,
     promptText,
     collectionLabel,
     createdAtValue,
+    matchedImage: null,
+    matchReason: '',
     lastReport: null,
   }
 }
@@ -1105,6 +1410,29 @@ async function promoteBatch() {
   }
 }
 
+async function deleteMatchedBatch() {
+  const targets = [...matchedDeleteTargets.value]
+
+  if (!targets.length) return
+
+  isDeletingBatch.value = true
+  errorMessage.value = ''
+  statusMessage.value = `Deleting ${targets.length} matched Art shells…`
+
+  log(`Starting matched cleanup for ${targets.length} Art records`)
+
+  try {
+    for (const row of targets) {
+      await deleteArtShell(row.art, row.matchedImage)
+    }
+
+    log(`Matched cleanup complete: ${targets.length} attempted`, 'success')
+  } finally {
+    isDeletingBatch.value = false
+    statusMessage.value = ''
+  }
+}
+
 async function promoteOne(art: LegacyArt) {
   if (promotingIds.value.has(art.id)) return
 
@@ -1121,25 +1449,20 @@ async function promoteOne(art: LegacyArt) {
       throw new Error(`Art #${art.id} has no usable path or imagePath.`)
     }
 
-    const existingImage = art.artImageId
-      ? artImageById.value.get(art.artImageId)
-      : artImageByArtId.value.get(art.id)
+    const match = findMatchingArtImage(art)
 
-    if (existingImage) {
+    if (match.image) {
       throw new Error(
-        `Art #${art.id} already has ArtImage #${existingImage.id}.`,
+        `Art #${art.id} already matches ArtImage #${match.image.id}.`,
       )
     }
 
     log(`Art #${art.id}: creating ArtImage through artStore`)
-    const createPayload = buildArtImagePayload(art, shouldDelete)
-    const collectionDebug = getPossibleCollectionDebug(art)
+
+    const createPayload = buildArtImagePayload(art)
 
     log(
-      `Art #${art.id}: payload artId=${String(createPayload.artId)}, collectionHints=${JSON.stringify(collectionDebug)}`,
-    )
-    log(
-      `Art #${art.id}: creating ArtImage with payload collection ids=${JSON.stringify(createPayload.artCollectionIds || createPayload.artCollectionId || [])}`,
+      `Art #${art.id}: payload artId=${String(createPayload.artId)}, artCollectionId=${String(createPayload.artCollectionId || 'none')}`,
     )
 
     const createResponse = await artStore.createLegacyArtImage(createPayload)
@@ -1152,20 +1475,9 @@ async function promoteOne(art: LegacyArt) {
     }
 
     const createdImage = stripHeavyImageFields(createResponse.data)
-    const createdDebug = createdImage as Record<string, unknown>
 
     log(
-      `Art #${art.id}: created ArtImage #${createdImage.id}, artId=${String(createdImage.artId)}, returned collection fields=${JSON.stringify(
-        {
-          ArtCollections: Array.isArray(createdDebug.ArtCollections)
-            ? createdDebug.ArtCollections.length
-            : null,
-          artCollections: Array.isArray(createdDebug.artCollections)
-            ? createdDebug.artCollections.length
-            : null,
-          collection: createdDebug.collection ?? null,
-        },
-      )}`,
+      `Art #${art.id}: created ArtImage #${createdImage.id}, artId=${String(createdImage.artId)}`,
       'success',
     )
 
@@ -1194,6 +1506,10 @@ async function promoteOne(art: LegacyArt) {
 
       selectedIds.value = removeFromSet(selectedIds.value, art.id)
 
+      if (selectedArtId.value === art.id) {
+        selectedArtId.value = null
+      }
+
       addReport({
         id: reportId,
         artId: art.id,
@@ -1212,6 +1528,7 @@ async function promoteOne(art: LegacyArt) {
         `Art #${art.id}: promoted to ArtImage #${createdImage.id} and deleted`,
         'success',
       )
+
       return
     }
 
@@ -1263,11 +1580,84 @@ async function promoteOne(art: LegacyArt) {
   }
 }
 
-function buildArtImagePayload(
+async function deleteArtShell(
   art: LegacyArt,
-  createStandalone: boolean,
-): ArtImageCreatePayload {
+  matchedImage: LightArtImage | null = null,
+) {
+  if (deletingIds.value.has(art.id)) return
+
+  if (!matchedImage && !allowManualDelete.value) {
+    errorMessage.value =
+      'Manual delete is disabled. Enable it before deleting unmatched leftovers.'
+    return
+  }
+
+  markDeleting(art.id)
+
+  const before = snapshotArt(art)
+  const reportId = `${art.id}-${Date.now()}`
+  const image = matchedImage || findMatchingArtImage(art).image
+
+  try {
+    log(
+      `Art #${art.id}: deleting legacy Art shell${image ? ` matched to ArtImage #${image.id}` : ''}`,
+    )
+
+    const deleted = await artStore.deleteArt(art.id)
+
+    if (!deleted) {
+      throw new Error(`Failed to delete Art #${art.id}.`)
+    }
+
+    selectedIds.value = removeFromSet(selectedIds.value, art.id)
+
+    if (selectedArtId.value === art.id) {
+      selectedArtId.value = null
+    }
+
+    addReport({
+      id: reportId,
+      artId: art.id,
+      artImageId: image?.id || null,
+      status: 'deleted',
+      message: image
+        ? `Deleted Art #${art.id}; matching ArtImage #${image.id} remains.`
+        : `Deleted Art #${art.id}.`,
+      before,
+      after: {
+        ...(image ? snapshotImage(image) : snapshotArt(art)),
+        deletedArt: true,
+      },
+      createdAt: new Date().toISOString(),
+    })
+
+    log(`Art #${art.id}: deleted`, 'success')
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : `Delete failed for Art #${art.id}.`
+
+    addReport({
+      id: reportId,
+      artId: art.id,
+      artImageId: image?.id || null,
+      status: 'failed',
+      message,
+      before,
+      after: snapshotArt(art),
+      createdAt: new Date().toISOString(),
+    })
+
+    log(`Art #${art.id}: ${message}`, 'error')
+  } finally {
+    unmarkDeleting(art.id)
+  }
+}
+
+function buildArtImagePayload(art: LegacyArt): ArtImageCreatePayload {
   const imagePath = primaryArtPath(art)
+
   const payload: ArtImageCreatePayload = {
     artId: art.id,
     userId: art.userId ?? null,
@@ -1310,23 +1700,168 @@ function buildArtImagePayload(
   return cleanPayload(payload)
 }
 
+function findMatchingArtImage(art: LegacyArt) {
+  const forwardImage = art.artImageId
+    ? artImageById.value.get(art.artImageId)
+    : null
+
+  if (forwardImage) {
+    return {
+      image: forwardImage,
+      reason: `Art.artImageId points to ArtImage #${forwardImage.id}.`,
+    }
+  }
+
+  const reverseImage = artImageByArtId.value.get(art.id) || null
+
+  if (reverseImage) {
+    return {
+      image: reverseImage,
+      reason: `ArtImage.artId points back to Art #${art.id}.`,
+    }
+  }
+
+  const artPath = normalizeComparablePath(primaryArtPath(art))
+
+  if (!artPath) {
+    return {
+      image: null,
+      reason: '',
+    }
+  }
+
+  const artPrompt = normalizeComparableText(art.promptString)
+  const artCheckpoint = normalizeComparableText(art.checkpoint)
+  const artUserId = numberValue(art.userId)
+  const artGalleryId = numberValue(art.galleryId)
+
+  const pathMatches = allArtImages.value.filter((image) => {
+    const imagePath = normalizeComparablePath(primaryImagePath(image))
+    return imagePath && imagePath === artPath
+  })
+
+  if (pathMatches.length === 1) {
+    const image = pathMatches[0]
+
+    return {
+      image,
+      reason: `Matched by unique image path: ${primaryImagePath(image)}.`,
+    }
+  }
+
+  const strongMatch = pathMatches.find((image) => {
+    const imagePrompt = normalizeComparableText(image.promptString)
+    const imageCheckpoint = normalizeComparableText(image.checkpoint)
+    const imageUserId = numberValue(image.userId)
+    const imageGalleryId = numberValue(image.galleryId)
+
+    const promptMatches =
+      !artPrompt || !imagePrompt || artPrompt === imagePrompt
+    const checkpointMatches =
+      !artCheckpoint || !imageCheckpoint || artCheckpoint === imageCheckpoint
+    const userMatches = !artUserId || !imageUserId || artUserId === imageUserId
+    const galleryMatches =
+      !artGalleryId || !imageGalleryId || artGalleryId === imageGalleryId
+
+    return promptMatches && checkpointMatches && userMatches && galleryMatches
+  })
+
+  if (strongMatch) {
+    return {
+      image: strongMatch,
+      reason:
+        'Matched by image path plus compatible prompt, checkpoint, user, and gallery metadata.',
+    }
+  }
+
+  return {
+    image: null,
+    reason: pathMatches.length
+      ? `Found ${pathMatches.length} ArtImages with the same path, but metadata was ambiguous. Inspect before deleting.`
+      : '',
+  }
+}
+
+function primaryImagePath(image?: LightArtImage | null) {
+  if (!image) return ''
+
+  const imagePath = stringValue(image.imagePath)
+  const path = stringValue(image.path)
+
+  if (imagePath && imagePath !== 'UNDEFINED') return imagePath
+  if (path && path !== 'UNDEFINED') return path
+
+  return ''
+}
+
+function getPossibleCollectionDebug(art: LegacyArt) {
+  const record = art as Record<string, unknown>
+
+  const directCollections = [
+    record.ArtCollection,
+    record.ArtCollections,
+    record.artCollections,
+    record.collections,
+  ]
+
+  const collectionArrays = directCollections.filter(Array.isArray) as Array<
+    Array<Record<string, unknown>>
+  >
+
+  const relationIds = collectionArrays
+    .flatMap((collection) => collection)
+    .map((collection) => numberValue(collection.id))
+    .filter((id): id is number => Boolean(id))
+
+  return {
+    artId: art.id,
+    artImageId: numberValue(art.artImageId),
+    artCollectionId: numberValue(record.artCollectionId),
+    collection: stringValue(record.collection),
+    relationIds,
+    relationKeysPresent: directCollections
+      .map((value, index) => {
+        const key = [
+          'ArtCollection',
+          'ArtCollections',
+          'artCollections',
+          'collections',
+        ][index]
+        return Array.isArray(value) ? `${key}:${value.length}` : ''
+      })
+      .filter(Boolean),
+  }
+}
+
 function cleanPayload<T extends Record<string, unknown>>(payload: T): T {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined),
   ) as T
 }
 
-function copyPayload(art: LegacyArt) {
-  const payload = buildArtImagePayload(art, deleteArtAfterPromote.value)
-  const serialized = JSON.stringify(payload, null, 2)
+function inspectRow(artId: number) {
+  selectedArtId.value = artId
+}
 
+function copyPayload(art: LegacyArt) {
+  const payload = buildArtImagePayload(art)
+  copyText(JSON.stringify(payload, null, 2), `Art #${art.id}: copied payload`)
+}
+
+function copyInspectPayload() {
+  if (!selectedInspectPayload.value) return
+
+  copyText(selectedInspectPayload.value, 'Copied inspect payload')
+}
+
+function copyText(value: string, successMessage: string) {
   navigator.clipboard
-    ?.writeText(serialized)
+    ?.writeText(value)
     .then(() => {
-      log(`Art #${art.id}: copied ArtImage payload`, 'success')
+      log(successMessage, 'success')
     })
     .catch(() => {
-      log(`Art #${art.id}: could not copy payload`, 'error')
+      log('Could not copy to clipboard', 'error')
     })
 }
 
@@ -1334,6 +1869,16 @@ function selectVisibleReadyRows() {
   const next = new Set(selectedIds.value)
 
   for (const row of visibleReadyRows.value) {
+    next.add(row.art.id)
+  }
+
+  selectedIds.value = next
+}
+
+function selectVisibleMatchedRows() {
+  const next = new Set(selectedIds.value)
+
+  for (const row of visibleMatchedRows.value) {
     next.add(row.art.id)
   }
 
@@ -1434,6 +1979,21 @@ function normalizeImagePath(value?: string | null) {
   return `/images/${trimmed}`
 }
 
+function normalizeComparablePath(value: unknown) {
+  const normalized = normalizeImagePath(stringValue(value))
+
+  return normalized
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\/[^/]+/i, '')
+    .replace(/\\/g, '/')
+    .replace(/\/+/g, '/')
+}
+
+function normalizeComparableText(value: unknown) {
+  return stringValue(value).trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
 function getCollectionLabel(art: Record<string, unknown>) {
   const collection = stringValue(art.collection)
 
@@ -1510,6 +2070,14 @@ function unmarkPromoting(id: number) {
   promotingIds.value = removeFromSet(promotingIds.value, id)
 }
 
+function markDeleting(id: number) {
+  deletingIds.value = new Set([...deletingIds.value, id])
+}
+
+function unmarkDeleting(id: number) {
+  deletingIds.value = removeFromSet(deletingIds.value, id)
+}
+
 function removeFromSet<T>(set: Set<T>, value: T) {
   const next = new Set(set)
   next.delete(value)
@@ -1518,6 +2086,7 @@ function removeFromSet<T>(set: Set<T>, value: T) {
 
 function rowShellClass(row: LegacyRow) {
   if (row.status === 'ready') return 'border-primary/40'
+  if (row.status === 'matched') return 'border-info/40'
   if (row.status === 'created' || row.status === 'deleted') {
     return 'border-success/40'
   }
@@ -1527,6 +2096,7 @@ function rowShellClass(row: LegacyRow) {
 
 function statusBadgeClass(status: RowStatus) {
   if (status === 'ready') return 'badge-primary'
+  if (status === 'matched') return 'badge-info'
   if (status === 'created' || status === 'deleted') return 'badge-success'
   if (status === 'failed') return 'badge-error'
   return 'badge-warning'
@@ -1568,6 +2138,10 @@ function log(message: string, type: LogType = 'info') {
     },
     ...operationLog.value,
   ]
+}
+
+function toPrettyJson(value: unknown) {
+  return JSON.stringify(value, null, 2)
 }
 </script>
 

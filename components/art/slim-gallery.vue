@@ -1,33 +1,57 @@
 <!-- /components/content/art/slim-gallery.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+    class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
   >
-    <header class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-3">
-      <div
-        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
-      >
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <Icon name="kind-icon:gallery" class="h-6 w-6 text-primary" />
-            <h2 class="text-lg font-black text-base-content">
-              {{ activeGroup ? activeGroup.title : 'Gallery' }}
-            </h2>
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <header
+      class="shrink-0 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+    >
+      <!-- Title row -->
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:gallery" class="h-5 w-5 shrink-0 text-primary" />
+        <h2 class="min-w-0 truncate text-base font-black text-base-content">
+          {{ activeGroup ? activeGroup.title : 'Gallery' }}
+        </h2>
+        <p
+          class="hidden min-w-0 truncate text-xs text-base-content/50 sm:block"
+        >
+          {{ headerSummary }}
+        </p>
+
+        <!-- Spacer -->
+        <div class="flex-1" />
+
+        <!-- Action row: all in one tight strip -->
+        <div class="flex shrink-0 items-center gap-1">
+          <!-- Size toggle -->
+          <div class="flex overflow-hidden rounded-lg border border-base-300">
+            <button
+              v-for="s in SIZE_OPTIONS"
+              :key="s.value"
+              class="flex h-7 w-8 items-center justify-center text-xs font-bold transition"
+              :class="
+                viewSize === s.value
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-100 text-base-content/60 hover:bg-base-300'
+              "
+              type="button"
+              :title="s.label"
+              @click="viewSize = s.value"
+            >
+              {{ s.value.toUpperCase() }}
+            </button>
           </div>
 
-          <p class="mt-1 max-w-3xl text-sm text-base-content/60">
-            {{ headerSummary }}
-          </p>
-        </div>
+          <div class="h-5 w-px bg-base-300" />
 
-        <div class="flex shrink-0 flex-wrap items-center gap-2">
           <button
             v-if="activeGroup"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="btn btn-ghost btn-xs rounded-lg"
             type="button"
             @click="clearActiveGroup"
           >
-            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
             Back
           </button>
 
@@ -39,46 +63,39 @@
           />
 
           <button
-            class="btn btn-primary btn-sm rounded-xl"
+            class="btn btn-primary btn-xs rounded-lg"
             type="button"
             :disabled="isLoading"
             @click="initializeGallery"
           >
             <span v-if="isLoading" class="loading loading-spinner loading-xs" />
-            <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
-            Refresh
+            <Icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
           </button>
 
           <button
             v-if="selectedImageForOverlay"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="btn btn-ghost btn-xs rounded-lg"
             type="button"
             @click="clearSelectedImage"
           >
-            <Icon name="kind-icon:x" class="h-4 w-4" />
-            Deselect
+            <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
-      <div
-        class="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]"
-      >
+      <!-- Search + filters row -->
+      <div class="mt-2 flex items-center gap-2">
         <input
           v-model="searchQuery"
           type="search"
-          class="input input-bordered input-sm w-full bg-base-100"
-          :placeholder="
-            activeGroup
-              ? 'Search images, prompts, filenames, checkpoints...'
-              : 'Search collections...'
-          "
+          class="input input-bordered input-xs flex-1 bg-base-100"
+          :placeholder="activeGroup ? 'Search images…' : 'Search collections…'"
         />
 
         <label
-          class="label cursor-pointer justify-between gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-1"
+          class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-100 px-2 py-1"
         >
-          <span class="label-text text-xs font-bold">Mature</span>
+          <span class="text-xs font-bold text-base-content/70">Mature</span>
           <input
             v-model="showMature"
             type="checkbox"
@@ -89,104 +106,103 @@
         <select
           v-if="!activeGroup"
           v-model.number="folderPageSize"
-          class="select select-bordered select-sm bg-base-100"
+          class="select select-bordered select-xs bg-base-100"
           title="Collections per page"
         >
-          <option :value="6">6 cards</option>
-          <option :value="9">9 cards</option>
-          <option :value="12">12 cards</option>
-          <option :value="18">18 cards</option>
+          <option :value="6">6</option>
+          <option :value="9">9</option>
+          <option :value="12">12</option>
+          <option :value="18">18</option>
+          <option :value="24">24</option>
         </select>
 
         <select
           v-else
           v-model.number="imagePageSize"
-          class="select select-bordered select-sm bg-base-100"
+          class="select select-bordered select-xs bg-base-100"
           title="Images per page"
         >
-          <option :value="12">12 images</option>
-          <option :value="24">24 images</option>
-          <option :value="48">48 images</option>
-          <option :value="96">96 images</option>
+          <option :value="12">12</option>
+          <option :value="24">24</option>
+          <option :value="48">48</option>
+          <option :value="96">96</option>
         </select>
       </div>
 
+      <!-- Stats + pagination row -->
       <div
-        class="mt-3 flex flex-wrap items-center gap-2 text-xs text-base-content/60"
+        class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
       >
-        <span class="badge badge-ghost">
-          {{ visibleGroups.length }} collections
-        </span>
-
-        <span class="badge badge-ghost"> {{ visibleImageCount }} images </span>
-
-        <span v-if="activeGroup" class="badge badge-primary">
-          {{ activeGroup.images.length }} in view
-        </span>
-
-        <span v-if="isHydratingImages" class="badge badge-info gap-1">
+        <span class="badge badge-ghost badge-sm"
+          >{{ visibleGroups.length }} collections</span
+        >
+        <span class="badge badge-ghost badge-sm"
+          >{{ visibleImageCount }} images</span
+        >
+        <span v-if="activeGroup" class="badge badge-primary badge-sm"
+          >{{ activeGroup.images.length }} in view</span
+        >
+        <span v-if="isHydratingImages" class="badge badge-info badge-sm gap-1">
           <span class="loading loading-spinner loading-xs" />
-          Loading images
+          Loading
         </span>
 
-        <span v-if="selectedImageForOverlay" class="badge badge-secondary">
-          Image #{{ selectedImageForOverlay.id }} selected
-        </span>
-
-        <div class="ml-auto flex items-center gap-2">
+        <div class="ml-auto flex items-center gap-1">
           <button
-            class="btn btn-ghost btn-xs rounded-xl"
+            class="btn btn-ghost btn-xs rounded-lg px-1.5"
             type="button"
             :disabled="currentPage === 0"
             @click="currentPage--"
           >
             <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
-            Prev
           </button>
-
-          <span>Page {{ currentPage + 1 }} / {{ currentPageCount }}</span>
-
+          <span class="text-xs"
+            >{{ currentPage + 1 }}/{{ currentPageCount }}</span
+          >
           <button
-            class="btn btn-ghost btn-xs rounded-xl"
+            class="btn btn-ghost btn-xs rounded-lg px-1.5"
             type="button"
             :disabled="currentPage >= currentPageCount - 1"
             @click="currentPage++"
           >
-            Next
             <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
           </button>
         </div>
       </div>
     </header>
 
+    <!-- ── Alerts ──────────────────────────────────────────────────────── -->
     <div
       v-if="errorMessage"
-      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+      class="shrink-0 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-xs text-error"
     >
       {{ errorMessage }}
     </div>
 
     <div
       v-if="successMessage"
-      class="shrink-0 rounded-2xl border border-success/40 bg-success/10 p-3 text-sm text-success"
+      class="shrink-0 rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-xs text-success"
     >
       {{ successMessage }}
     </div>
 
+    <!-- ── Loading ─────────────────────────────────────────────────────── -->
     <div
       v-if="isLoading"
-      class="flex min-h-56 flex-1 items-center justify-center rounded-2xl bg-base-200"
+      class="flex min-h-56 flex-1 items-center justify-center rounded-xl bg-base-200"
     >
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
 
+    <!-- ── Content ─────────────────────────────────────────────────────── -->
     <section
       v-else
-      class="relative min-h-0 flex-1 overflow-auto rounded-2xl bg-base-200 p-3"
+      class="relative min-h-0 flex-1 overflow-auto rounded-xl bg-base-200 p-2"
     >
+      <!-- Empty state (folder view) -->
       <div
         v-if="!activeGroup && visibleGroups.length === 0"
-        class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+        class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:folder-search" class="h-12 w-12 text-primary" />
         <p class="mt-2 text-lg font-black text-base-content">
@@ -195,106 +211,96 @@
         <p class="text-sm">No collections match the current filters.</p>
       </div>
 
-      <div
-        v-else-if="!activeGroup"
-        class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-      >
+      <!-- Collection grid -->
+      <div v-else-if="!activeGroup" class="grid gap-2" :class="folderGridClass">
         <collection-card
           v-for="group in pagedGroups"
           :key="group.key"
           :collection="group.collection"
           :selected="activeGroupKey === group.key"
-          :compact="true"
-          :show-stats="true"
+          :compact="viewSize === 'xs' || viewSize === 'sm'"
+          :show-stats="false"
           :show-select-button="true"
           :show-mature="showMature"
+          :size="viewSize"
           :preview-art-image="getPreviewImage(group)"
           @select="selectGroup(group.key)"
           @delete="handleCollectionDeleted"
         />
       </div>
 
-      <div v-else class="flex min-h-0 flex-col gap-3">
+      <!-- Image view -->
+      <div v-else class="flex min-h-0 flex-col gap-2">
+        <!-- Collection info bar -->
         <div
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 lg:flex-row lg:items-center lg:justify-between"
+          class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2"
         >
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <Icon
-                :name="
-                  activeGroup.isVirtual
-                    ? 'kind-icon:archive'
-                    : 'kind-icon:folder-open'
-                "
-                class="h-5 w-5 text-primary"
-              />
-
-              <h3 class="truncate text-lg font-black text-base-content">
-                {{ activeGroup.title }}
-              </h3>
-
-              <span v-if="activeGroup.isVirtual" class="badge badge-accent">
-                Unsorted
-              </span>
-
-              <span class="badge badge-primary">
-                {{ filteredActiveImages.length }} images
-              </span>
-            </div>
-
-            <p class="mt-1 text-sm text-base-content/60">
-              {{ activeGroup.description }}
-            </p>
-          </div>
-
+          <Icon
+            :name="
+              activeGroup.isVirtual
+                ? 'kind-icon:archive'
+                : 'kind-icon:folder-open'
+            "
+            class="h-4 w-4 shrink-0 text-primary"
+          />
+          <h3 class="min-w-0 truncate text-sm font-black text-base-content">
+            {{ activeGroup.title }}
+          </h3>
+          <span
+            v-if="activeGroup.isVirtual"
+            class="badge badge-accent badge-sm shrink-0"
+            >Unsorted</span
+          >
+          <span class="badge badge-primary badge-sm shrink-0">{{
+            filteredActiveImages.length
+          }}</span>
           <button
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="btn btn-ghost btn-xs ml-auto rounded-lg"
             type="button"
             @click="clearActiveGroup"
           >
-            <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
-            Back to collections
+            <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+            Collections
           </button>
         </div>
 
+        <!-- Empty image state -->
         <div
           v-if="filteredActiveImages.length === 0"
-          class="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+          class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
         >
           <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
           <p class="mt-2 text-lg font-black text-base-content">
             No images here.
           </p>
-          <p class="text-sm">
-            This collection has no art images matching the current filters.
-          </p>
+          <p class="text-sm">No art images match the current filters.</p>
         </div>
 
-        <div
-          v-else
-          class="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3"
-        >
+        <!-- Image grid -->
+        <div v-else class="grid gap-2" :class="imageGridClass">
           <image-card
             v-for="image in pagedActiveImages"
             :key="image.id"
             :art-image="hydratedImages[image.id] || image"
             :selected="selectedImageForOverlay?.id === image.id"
-            :compact="true"
+            :compact="viewSize === 'xs' || viewSize === 'sm'"
             :show-actions="selectedImageForOverlay?.id === image.id"
-            :show-prompt="true"
-            :show-meta="true"
+            :show-prompt="viewSize !== 'xs'"
+            :show-meta="viewSize === 'md' || viewSize === 'lg'"
             :show-generation-meta="false"
             :show-image-status="false"
             :show-select-button="false"
             :allow-delete="canModifyImage(image)"
             :allow-edit="false"
             :auto-load-image="false"
+            :size="viewSize"
             @select="selectImage"
             @delete="handleImageDeleted"
           />
         </div>
       </div>
 
+      <!-- Image overlay -->
       <div
         v-if="selectedImageForOverlay"
         class="fixed inset-0 z-50 flex items-center justify-center bg-base-300/80 p-3 backdrop-blur-sm"
@@ -303,27 +309,25 @@
           class="flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
         >
           <header
-            class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-200 p-3"
+            class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-200 px-4 py-2"
           >
             <div class="min-w-0">
               <p class="text-xs font-bold uppercase text-base-content/50">
-                Selected Art Image
+                Selected
               </p>
-              <h3 class="truncate text-lg font-black text-base-content">
+              <h3 class="truncate text-base font-black text-base-content">
                 #{{ selectedImageForOverlay.id }}
               </h3>
             </div>
-
             <button
               class="btn btn-ghost btn-sm rounded-xl"
               type="button"
               @click="clearSelectedImage"
             >
               <Icon name="kind-icon:x" class="h-4 w-4" />
-              Deselect
+              Close
             </button>
           </header>
-
           <div class="min-h-0 flex-1 overflow-auto p-3">
             <art-interact />
           </div>
@@ -331,38 +335,29 @@
       </div>
     </section>
 
+    <!-- ── Footer ─────────────────────────────────────────────────────── -->
     <footer
-      class="shrink-0 rounded-2xl bg-base-200 p-3 text-xs text-base-content/60"
+      class="shrink-0 flex items-center gap-3 rounded-xl bg-base-200 px-3 py-1.5 text-xs text-base-content/50"
     >
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <p>
-          Collections:
-          <span class="font-bold text-base-content">
-            {{ collectionStore.collections.length }}
-          </span>
-        </p>
-
-        <p>
-          Images:
-          <span class="font-bold text-base-content">
-            {{ artStore.artImages.length }}
-          </span>
-        </p>
-
-        <p>
-          Visible:
-          <span class="font-bold text-base-content">
-            {{ visibleImageCount }}
-          </span>
-        </p>
-
-        <p v-if="activeGroup">
-          Viewing:
-          <span class="font-bold text-primary">
-            {{ activeGroup.title }}
-          </span>
-        </p>
-      </div>
+      <span>
+        <span class="font-bold text-base-content">{{
+          collectionStore.collections.length
+        }}</span>
+        collections
+      </span>
+      <span>
+        <span class="font-bold text-base-content">{{
+          artStore.artImages.length
+        }}</span>
+        images
+      </span>
+      <span>
+        <span class="font-bold text-base-content">{{ visibleImageCount }}</span>
+        visible
+      </span>
+      <span v-if="activeGroup" class="ml-auto text-primary font-bold truncate">
+        {{ activeGroup.title }}
+      </span>
     </footer>
   </section>
 </template>
@@ -396,6 +391,15 @@ type GalleryGroup = {
   collection: GalleryCollection
 }
 
+type ViewSize = 'xs' | 'sm' | 'md' | 'lg'
+
+const SIZE_OPTIONS: { value: ViewSize; label: string }[] = [
+  { value: 'xs', label: 'Extra compact' },
+  { value: 'sm', label: 'Compact' },
+  { value: 'md', label: 'Normal' },
+  { value: 'lg', label: 'Large' },
+]
+
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
@@ -414,29 +418,56 @@ const imagePageSize = ref(24)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
+const viewSize = ref<ViewSize>('md')
 
-const currentUserId = computed(() => {
-  return userStore.userId ?? userStore.user?.id ?? null
+// ── Grid classes ──────────────────────────────────────────────────────────────
+
+const folderGridClass = computed(() => {
+  switch (viewSize.value) {
+    case 'xs':
+      return 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
+    case 'sm':
+      return 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
+    case 'lg':
+      return 'grid-cols-1 xl:grid-cols-2'
+    default:
+      return 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
+  }
 })
+
+const imageGridClass = computed(() => {
+  switch (viewSize.value) {
+    case 'xs':
+      return 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
+    case 'sm':
+      return 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+    case 'lg':
+      return 'grid-cols-1 md:grid-cols-1 xl:grid-cols-2'
+    default:
+      return 'grid-cols-1 md:grid-cols-2 2xl:grid-cols-3'
+  }
+})
+
+// ── Computed ──────────────────────────────────────────────────────────────────
+
+const currentUserId = computed(
+  () => userStore.userId ?? userStore.user?.id ?? null,
+)
 
 const activeGroup = computed(() => {
   if (!activeGroupKey.value) return null
-
   return (
-    visibleGroups.value.find((group) => group.key === activeGroupKey.value) ||
-    collectionGroups.value.find(
-      (group) => group.key === activeGroupKey.value,
-    ) ||
+    visibleGroups.value.find((g) => g.key === activeGroupKey.value) ||
+    collectionGroups.value.find((g) => g.key === activeGroupKey.value) ||
     null
   )
 })
 
 const headerSummary = computed(() => {
   if (activeGroup.value) {
-    return `${activeGroup.value.images.length} art images in this collection. Select an image to open the interaction overlay.`
+    return `${activeGroup.value.images.length} images — select one to open`
   }
-
-  return 'Browse collections as cards. Open a collection to view its art images.'
+  return `${visibleGroups.value.length} collections · ${visibleImageCount.value} images`
 })
 
 const collectionGroups = computed<GalleryGroup[]>(() => {
@@ -445,7 +476,6 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
     .sort((a, b) => a.title.localeCompare(b.title))
 
   const assignedImageIds = new Set<number>()
-
   for (const group of groups) {
     for (const image of group.images) {
       assignedImageIds.add(image.id)
@@ -483,7 +513,6 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
 
 const visibleGroups = computed<GalleryGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
-
   return collectionGroups.value
     .map((group) => filterGroup(group, query))
     .filter((group) => {
@@ -496,23 +525,15 @@ const visibleGroups = computed<GalleryGroup[]>(() => {
 
 const filteredActiveImages = computed(() => {
   if (!activeGroup.value) return []
-
   const query = searchQuery.value.trim().toLowerCase()
-
   return activeGroup.value.images
     .filter((image) => showMature.value || !image.isMature)
-    .filter((image) => {
-      if (!query) return true
-      return searchableImageText(image).includes(query)
-    })
+    .filter((image) => !query || searchableImageText(image).includes(query))
 })
 
-const visibleImageCount = computed(() => {
-  return visibleGroups.value.reduce(
-    (sum, group) => sum + group.images.length,
-    0,
-  )
-})
+const visibleImageCount = computed(() =>
+  visibleGroups.value.reduce((sum, group) => sum + group.images.length, 0),
+)
 
 const currentPage = computed({
   get() {
@@ -523,7 +544,6 @@ const currentPage = computed({
       imagePage.value = value
       return
     }
-
     folderPage.value = value
   },
 })
@@ -535,7 +555,6 @@ const currentPageCount = computed(() => {
       Math.ceil(filteredActiveImages.value.length / imagePageSize.value),
     )
   }
-
   return Math.max(
     1,
     Math.ceil(visibleGroups.value.length / folderPageSize.value),
@@ -551,6 +570,8 @@ const pagedActiveImages = computed(() => {
   const start = imagePage.value * imagePageSize.value
   return filteredActiveImages.value.slice(start, start + imagePageSize.value)
 })
+
+// ── Watchers ──────────────────────────────────────────────────────────────────
 
 watch([searchQuery, showMature, folderPageSize], () => {
   folderPage.value = 0
@@ -580,10 +601,24 @@ watch(
   },
 )
 
+watch(viewSize, (val) => {
+  if (typeof localStorage !== 'undefined')
+    localStorage.setItem('galleryViewSize', val)
+})
+
+// ── Lifecycle ─────────────────────────────────────────────────────────────────
+
 onMounted(async () => {
   showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem('galleryViewSize') as ViewSize | null
+    if (stored && ['xs', 'sm', 'md', 'lg'].includes(stored))
+      viewSize.value = stored
+  }
   await initializeGallery()
 })
+
+// ── Actions ───────────────────────────────────────────────────────────────────
 
 async function initializeGallery() {
   isLoading.value = true
@@ -617,7 +652,6 @@ async function fetchArtImagesSafely() {
 function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
   const media = collection as GalleryCollection
   const images = getCollectionImages(media)
-
   return {
     key: `collection-${collection.id}`,
     id: collection.id,
@@ -628,28 +662,19 @@ function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
     isMature: Boolean(collection.isMature),
     isVirtual: false,
     images,
-    collection: {
-      ...media,
-      artImages: images,
-      ArtImages: images,
-      images,
-    },
+    collection: { ...media, artImages: images, ArtImages: images, images },
   }
 }
 
 function getCollectionImages(collection: GalleryCollection): ArtImage[] {
   const map = new Map<number, ArtImage>()
-
   for (const image of [
     ...(collection.artImages || []),
     ...(collection.ArtImages || []),
     ...(collection.images || []),
   ]) {
-    if (image?.id) {
-      map.set(image.id, hydratedImages.value[image.id] || image)
-    }
+    if (image?.id) map.set(image.id, hydratedImages.value[image.id] || image)
   }
-
   return Array.from(map.values()).sort((a, b) => b.id - a.id)
 }
 
@@ -679,10 +704,9 @@ function makePseudoCollection(input: {
 }
 
 function filterGroup(group: GalleryGroup, query: string): GalleryGroup {
-  const matureSafeImages = group.images.filter((image) => {
-    return showMature.value || !image.isMature
-  })
-
+  const matureSafeImages = group.images.filter(
+    (image) => showMature.value || !image.isMature,
+  )
   const baseGroup = {
     ...group,
     images: matureSafeImages,
@@ -693,17 +717,11 @@ function filterGroup(group: GalleryGroup, query: string): GalleryGroup {
       images: matureSafeImages,
     },
   }
-
   if (!query) return baseGroup
-
-  if (searchableGroupText(group).includes(query)) {
-    return baseGroup
-  }
-
-  const images = matureSafeImages.filter((image) => {
-    return searchableImageText(image).includes(query)
-  })
-
+  if (searchableGroupText(group).includes(query)) return baseGroup
+  const images = matureSafeImages.filter((image) =>
+    searchableImageText(image).includes(query),
+  )
   return {
     ...baseGroup,
     images,
@@ -717,26 +735,19 @@ function filterGroup(group: GalleryGroup, query: string): GalleryGroup {
 }
 
 function getPreviewImage(group: GalleryGroup): ArtImage | null {
-  const images = group.images.filter((image) => {
-    return showMature.value || !image.isMature
-  })
-
+  const images = group.images.filter(
+    (image) => showMature.value || !image.isMature,
+  )
   if (!images.length) return null
-
   const index = Math.abs(group.id) % images.length
   const image = images[index] ?? images[0] ?? null
-
-  if (!image) return null
-
-  return hydratedImages.value[image.id] || image
+  return image ? hydratedImages.value[image.id] || image : null
 }
 
 function selectGroup(key: string) {
   const group = collectionGroups.value.find((entry) => entry.key === key)
   if (!group) return
-
   activeGroupKey.value = key
-
   if (group.id > 0) {
     collectionStore.setCurrentCollection(group.id)
     collectionStore.setSelectedCollectionIds([group.id])
@@ -755,11 +766,9 @@ function clearActiveGroup() {
 async function selectImage(image: ArtImage) {
   errorMessage.value = ''
   selectedImageForOverlay.value = hydratedImages.value[image.id] || image
-
   const result = await artStore.selectArtImageRecord(
     hydratedImages.value[image.id] || image,
   )
-
   if (!result.success) {
     const message = result.message || 'Failed to select image.'
     errorMessage.value = message
@@ -769,26 +778,19 @@ async function selectImage(image: ArtImage) {
 
 function clearSelectedImage() {
   selectedImageForOverlay.value = null
-
-  if (typeof artStore.deselectArt === 'function') {
-    artStore.deselectArt()
-  }
+  if (typeof artStore.deselectArt === 'function') artStore.deselectArt()
 }
 
 async function hydrateVisibleImages() {
   const imagesNeedingData = pagedActiveImages.value.filter(shouldHydrateImage)
-
   if (!imagesNeedingData.length) return
-
   isHydratingImages.value = true
-
   try {
     await runLimited(imagesNeedingData, 4, async (image) => {
       const fetched = await artStore.getArtImageById(image.id, {
         includeImageData: true,
         includeThumbnailData: true,
       })
-
       if (fetched) {
         hydratedImages.value = {
           ...hydratedImages.value,
@@ -829,7 +831,6 @@ async function runLimited<T>(
       }
     },
   )
-
   await Promise.all(runners)
 }
 
@@ -840,28 +841,19 @@ function handleCollectionCreated() {
 
 function handleCollectionDeleted(id: number) {
   successMessage.value = `Collection #${id} deleted.`
-
-  if (activeGroup.value?.id === id) {
-    clearActiveGroup()
-  }
-
+  if (activeGroup.value?.id === id) clearActiveGroup()
   void fetchCollectionsSafely()
 }
 
 async function handleImageDeleted(imageId: number) {
   errorMessage.value = ''
-
   const deleted = await artStore.deleteArtImage(imageId)
-
   if (deleted) {
-    if (selectedImageForOverlay.value?.id === imageId) {
+    if (selectedImageForOverlay.value?.id === imageId)
       selectedImageForOverlay.value = null
-    }
-
     const next = { ...hydratedImages.value }
     delete next[imageId]
     hydratedImages.value = next
-
     successMessage.value = `Image #${imageId} deleted.`
   } else {
     errorMessage.value = `Failed to delete image #${imageId}.`
@@ -902,7 +894,7 @@ function searchableImageText(image: ArtImage): string {
     image.isPublic ? 'public' : 'private',
     image.isMature ? 'mature' : '',
   ]
-    .filter((value) => value !== null && value !== undefined)
+    .filter((v) => v !== null && v !== undefined)
     .join(' ')
     .toLowerCase()
 }
@@ -910,7 +902,6 @@ function searchableImageText(image: ArtImage): string {
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message.trim()) return error.message
   if (typeof error === 'string' && error.trim()) return error
-
   if (typeof error === 'object' && error !== null) {
     const result = error as { message?: unknown; statusMessage?: unknown }
     const message =
@@ -919,10 +910,8 @@ function getErrorMessage(error: unknown, fallback: string): string {
         : typeof result.statusMessage === 'string'
           ? result.statusMessage.trim()
           : ''
-
     if (message) return message
   }
-
   return fallback
 }
 </script>

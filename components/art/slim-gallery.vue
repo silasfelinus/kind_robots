@@ -7,7 +7,7 @@
     <header
       class="shrink-0 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
     >
-      <!-- Title row -->
+      <!-- Title + controls row -->
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="h-5 w-5 shrink-0 text-primary" />
         <h2 class="min-w-0 truncate text-base font-black text-base-content">
@@ -19,10 +19,8 @@
           {{ headerSummary }}
         </p>
 
-        <!-- Spacer -->
         <div class="flex-1" />
 
-        <!-- Action row: all in one tight strip -->
         <div class="flex shrink-0 items-center gap-1">
           <!-- Size toggle -->
           <div class="flex overflow-hidden rounded-lg border border-base-300">
@@ -109,11 +107,10 @@
           class="select select-bordered select-xs bg-base-100"
           title="Collections per page"
         >
-          <option :value="6">6</option>
-          <option :value="9">9</option>
           <option :value="12">12</option>
-          <option :value="18">18</option>
           <option :value="24">24</option>
+          <option :value="36">36</option>
+          <option :value="48">48</option>
         </select>
 
         <select
@@ -129,7 +126,7 @@
         </select>
       </div>
 
-      <!-- Stats + pagination row -->
+      <!-- Stats row (no pagination here — moved to bottom) -->
       <div
         class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
       >
@@ -146,28 +143,6 @@
           <span class="loading loading-spinner loading-xs" />
           Loading
         </span>
-
-        <div class="ml-auto flex items-center gap-1">
-          <button
-            class="btn btn-ghost btn-xs rounded-lg px-1.5"
-            type="button"
-            :disabled="currentPage === 0"
-            @click="currentPage--"
-          >
-            <Icon name="kind-icon:arrow-left" class="h-3 w-3" />
-          </button>
-          <span class="text-xs"
-            >{{ currentPage + 1 }}/{{ currentPageCount }}</span
-          >
-          <button
-            class="btn btn-ghost btn-xs rounded-lg px-1.5"
-            type="button"
-            :disabled="currentPage >= currentPageCount - 1"
-            @click="currentPage++"
-          >
-            <Icon name="kind-icon:arrow-right" class="h-3 w-3" />
-          </button>
-        </div>
       </div>
     </header>
 
@@ -199,7 +174,7 @@
       v-else
       class="relative min-h-0 flex-1 overflow-auto rounded-xl bg-base-200 p-2"
     >
-      <!-- Empty state (folder view) -->
+      <!-- Empty (folder view) -->
       <div
         v-if="!activeGroup && visibleGroups.length === 0"
         class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
@@ -211,7 +186,7 @@
         <p class="text-sm">No collections match the current filters.</p>
       </div>
 
-      <!-- Collection grid -->
+      <!-- Collection grid — clicking a card auto-enters it (no Open button needed) -->
       <div v-else-if="!activeGroup" class="grid gap-2" :class="folderGridClass">
         <collection-card
           v-for="group in pagedGroups"
@@ -220,7 +195,7 @@
           :selected="activeGroupKey === group.key"
           :compact="viewSize === 'xs' || viewSize === 'sm'"
           :show-stats="false"
-          :show-select-button="true"
+          :show-select-button="false"
           :show-mature="showMature"
           :size="viewSize"
           :preview-art-image="getPreviewImage(group)"
@@ -274,7 +249,7 @@
           <p class="text-sm">No art images match the current filters.</p>
         </div>
 
-        <!-- Image grid -->
+        <!-- Image grid — clicking auto-selects and opens overlay -->
         <div v-else class="grid gap-2" :class="imageGridClass">
           <image-card
             v-for="image in pagedActiveImages"
@@ -333,29 +308,73 @@
       </div>
     </section>
 
+    <!-- ── Pagination (bottom) ─────────────────────────────────────────── -->
+    <div
+      v-if="currentPageCount > 1"
+      class="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-base-200 px-3 py-1.5"
+    >
+      <button
+        class="btn btn-ghost btn-xs rounded-lg"
+        type="button"
+        :disabled="currentPage === 0"
+        @click="currentPage--"
+      >
+        <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+        Prev
+      </button>
+
+      <!-- Page number pills -->
+      <div class="flex items-center gap-1">
+        <button
+          v-for="p in pageRange"
+          :key="p"
+          class="btn btn-xs rounded-lg min-w-[2rem]"
+          :class="p === currentPage ? 'btn-primary' : 'btn-ghost'"
+          type="button"
+          @click="currentPage = p"
+        >
+          {{ p + 1 }}
+        </button>
+      </div>
+
+      <button
+        class="btn btn-ghost btn-xs rounded-lg"
+        type="button"
+        :disabled="currentPage >= currentPageCount - 1"
+        @click="currentPage++"
+      >
+        Next
+        <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5" />
+      </button>
+    </div>
+
     <!-- ── Footer ─────────────────────────────────────────────────────── -->
     <footer
       class="shrink-0 flex items-center gap-3 rounded-xl bg-base-200 px-3 py-1.5 text-xs text-base-content/50"
     >
-      <span>
-        <span class="font-bold text-base-content">{{
+      <span
+        ><span class="font-bold text-base-content">{{
           collectionStore.collections.length
         }}</span>
-        collections
-      </span>
-      <span>
-        <span class="font-bold text-base-content">{{
+        collections</span
+      >
+      <span
+        ><span class="font-bold text-base-content">{{
           artStore.artImages.length
         }}</span>
-        images
-      </span>
-      <span>
-        <span class="font-bold text-base-content">{{ visibleImageCount }}</span>
-        visible
-      </span>
-      <span v-if="activeGroup" class="ml-auto text-primary font-bold truncate">
-        {{ activeGroup.title }}
-      </span>
+        images</span
+      >
+      <span
+        ><span class="font-bold text-base-content">{{
+          visibleImageCount
+        }}</span>
+        visible</span
+      >
+      <span
+        v-if="activeGroup"
+        class="ml-auto truncate font-bold text-primary"
+        >{{ activeGroup.title }}</span
+      >
     </footer>
   </section>
 </template>
@@ -411,7 +430,7 @@ const searchQuery = ref('')
 const showMature = ref(false)
 const folderPage = ref(0)
 const imagePage = ref(0)
-const folderPageSize = ref(12)
+const folderPageSize = ref(24) // default 24
 const imagePageSize = ref(24)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
@@ -462,9 +481,8 @@ const activeGroup = computed(() => {
 })
 
 const headerSummary = computed(() => {
-  if (activeGroup.value) {
-    return `${activeGroup.value.images.length} images — select one to open`
-  }
+  if (activeGroup.value)
+    return `${activeGroup.value.images.length} images — click to open`
   return `${visibleGroups.value.length} collections · ${visibleImageCount.value} images`
 })
 
@@ -475,9 +493,7 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
 
   const assignedImageIds = new Set<number>()
   for (const group of groups) {
-    for (const image of group.images) {
-      assignedImageIds.add(image.id)
-    }
+    for (const image of group.images) assignedImageIds.add(image.id)
   }
 
   const unassignedImages = artStore.artImages
@@ -530,7 +546,7 @@ const filteredActiveImages = computed(() => {
 })
 
 const visibleImageCount = computed(() =>
-  visibleGroups.value.reduce((sum, group) => sum + group.images.length, 0),
+  visibleGroups.value.reduce((sum, g) => sum + g.images.length, 0),
 )
 
 const currentPage = computed({
@@ -557,6 +573,15 @@ const currentPageCount = computed(() => {
     1,
     Math.ceil(visibleGroups.value.length / folderPageSize.value),
   )
+})
+
+// Compact page range: max 7 page pills, ellipsis-free for simplicity
+const pageRange = computed(() => {
+  const total = currentPageCount.value
+  const current = currentPage.value
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i)
+  const start = Math.max(0, Math.min(current - 3, total - 7))
+  return Array.from({ length: Math.min(7, total) }, (_, i) => start + i)
 })
 
 const pagedGroups = computed(() => {
@@ -623,7 +648,6 @@ async function initializeGallery() {
   errorMessage.value = ''
   successMessage.value = ''
   hydratedImages.value = {}
-
   try {
     await fetchCollectionsSafely()
     await fetchArtImagesSafely()
@@ -737,8 +761,7 @@ function getPreviewImage(group: GalleryGroup): ArtImage | null {
     (image) => showMature.value || !image.isMature,
   )
   if (!images.length) return null
-  const index = Math.abs(group.id) % images.length
-  const image = images[index] ?? images[0] ?? null
+  const image = images[Math.abs(group.id) % images.length] ?? images[0] ?? null
   return image ? hydratedImages.value[image.id] || image : null
 }
 
@@ -789,12 +812,11 @@ async function hydrateVisibleImages() {
         includeImageData: true,
         includeThumbnailData: true,
       })
-      if (fetched) {
+      if (fetched)
         hydratedImages.value = {
           ...hydratedImages.value,
           [fetched.id]: fetched,
         }
-      }
     })
   } catch (error) {
     const message = getErrorMessage(error, 'Some images could not be loaded.')

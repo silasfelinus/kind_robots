@@ -47,7 +47,7 @@
     <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-[1fr_25rem]">
       <character-sheet
         :sheet="sheet"
-        :reward-slots="rewardSlots"
+        :reward-slots="rewardSlotsForCharacterSheet"
         :is-builder-mode="true"
         :can-create-art="canCreateArt"
         :allow-art="true"
@@ -104,9 +104,9 @@
             </div>
 
             <label v-if="activeStep.inputType === 'short'" class="form-control">
-              <span class="label-text font-bold">{{
-                activeStep.inputLabel
-              }}</span>
+              <span class="label-text font-bold">
+                {{ activeStep.inputLabel }}
+              </span>
 
               <input
                 v-model="activeValue"
@@ -120,9 +120,9 @@
               v-else-if="activeStep.inputType === 'long'"
               class="form-control"
             >
-              <span class="label-text font-bold">{{
-                activeStep.inputLabel
-              }}</span>
+              <span class="label-text font-bold">
+                {{ activeStep.inputLabel }}
+              </span>
 
               <textarea
                 v-model="activeValue"
@@ -482,6 +482,11 @@ import type { Character, Dream, Reward } from '~/prisma/generated/prisma/client'
 import { useUserStore } from '@/stores/userStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { handleError, performFetch } from '@/stores/utils'
+import type {
+  CharacterRewardDraft as SheetCharacterRewardDraft,
+  CharacterSheetDraft,
+  RewardPromptSlot,
+} from '@/stores/helpers/characterHelper'
 
 type SelectOption = {
   id: number
@@ -530,6 +535,16 @@ type CharacterStringField =
 
 type RewardSlotKey = 'common-skill' | 'rare-skill' | 'common-item' | 'rare-item'
 
+type RarityTier =
+  | 'COMMON'
+  | 'UNCOMMON'
+  | 'RARE'
+  | 'EPIC'
+  | 'LEGENDARY'
+  | 'MYTHIC'
+
+type RewardKind = 'SKILL' | 'ITEM'
+
 type CharacterPromptStep = {
   key: string
   title: string
@@ -549,7 +564,7 @@ type CharacterPromptCard = {
   prompt: string
   required?: boolean
   rewardSlotKey?: RewardSlotKey
-  restoresFields: Array<keyof CharacterSheetDraft | RewardSlotKey>
+  restoresFields: Array<keyof BuilderSheet | RewardSlotKey>
   unlockWhen?: () => boolean
   steps: CharacterPromptStep[]
 }
@@ -560,20 +575,17 @@ type CharacterSheetStat = {
   value: number
 }
 
-type RewardKind = 'SKILL' | 'ITEM'
-type RewardRarityType = 'COMMON' | 'RARE'
-
-type RewardPromptSlot = {
+type BuilderRewardSlot = RewardPromptSlot & {
   key: RewardSlotKey
   label: string
   description: string
   rewardType: RewardKind
-  rarityType: RewardRarityType
-  rarity: number
+  rarity: RarityTier
+  rarityType: RarityTier
   icon: string
 }
 
-type CharacterRewardDraft = {
+type BuilderRewardDraft = SheetCharacterRewardDraft & {
   id: number | null
   slotKey: RewardSlotKey
   label: string
@@ -581,15 +593,15 @@ type CharacterRewardDraft = {
   power: string
   collection: string
   rewardType: RewardKind
-  rarityType: RewardRarityType
-  rarity: number
+  rarity: RarityTier
+  rarityType: RarityTier
   icon: string
   imagePath: string
   artImageId: number | null
   artPrompt: string
 }
 
-type CharacterSheetDraft = {
+type BuilderSheet = CharacterSheetDraft & {
   id: number | null
   name: string
   honorific: string
@@ -618,128 +630,13 @@ type CharacterSheetDraft = {
   isActive: boolean
   stats: CharacterSheetStat[]
   goalStats: CharacterSheetStat[]
-  rewards: CharacterRewardDraft[]
-}
-
-function defaultCharacterStats(): CharacterSheetStat[] {
-  return [
-    { key: 'luck', name: 'Luck', value: 0 },
-    { key: 'swol', name: 'Swol', value: 0 },
-    { key: 'wits', name: 'Wits', value: 0 },
-    { key: 'flexibility', name: 'Flexibility', value: 0 },
-    { key: 'rizz', name: 'Rizz', value: 0 },
-    { key: 'empathy', name: 'Empathy', value: 0 },
-  ]
-}
-
-function defaultGoalStats(): CharacterSheetStat[] {
-  return [
-    { key: 'principled-chaotic', name: 'Principled|Chaotic', value: 0 },
-    { key: 'introvert-extrovert', name: 'Introvert|Extrovert', value: 0 },
-    { key: 'passive-aggressive', name: 'Passive|Aggressive', value: 0 },
-    { key: 'optimist-pessimist', name: 'Optimist|Pessimist', value: 0 },
-  ]
-}
-
-function defaultRewardSlots(): RewardPromptSlot[] {
-  return [
-    {
-      key: 'common-skill',
-      label: 'Common Skill',
-      description: 'A reliable character skill for everyday story problems.',
-      rewardType: 'SKILL',
-      rarityType: 'COMMON',
-      rarity: 1,
-      icon: 'kind-icon:bolt',
-    },
-    {
-      key: 'rare-skill',
-      label: 'Rare Skill',
-      description: 'A signature character skill with dramatic table energy.',
-      rewardType: 'SKILL',
-      rarityType: 'RARE',
-      rarity: 2,
-      icon: 'kind-icon:comet',
-    },
-    {
-      key: 'common-item',
-      label: 'Common Item',
-      description: 'A practical piece of gear with just enough weird sauce.',
-      rewardType: 'ITEM',
-      rarityType: 'COMMON',
-      rarity: 1,
-      icon: 'kind-icon:backpack',
-    },
-    {
-      key: 'rare-item',
-      label: 'Rare Item',
-      description: 'A strange treasure with story gravity.',
-      rewardType: 'ITEM',
-      rarityType: 'RARE',
-      rarity: 2,
-      icon: 'kind-icon:gem',
-    },
-  ]
-}
-
-function createEmptyRewardDraft(slot: RewardPromptSlot): CharacterRewardDraft {
-  return {
-    id: null,
-    slotKey: slot.key,
-    label: '',
-    text: '',
-    power: '',
-    collection: 'starting-character-reward',
-    rewardType: slot.rewardType,
-    rarityType: slot.rarityType,
-    rarity: slot.rarity,
-    icon: slot.icon,
-    imagePath: '',
-    artImageId: null,
-    artPrompt: '',
-  }
-}
-
-function createEmptyCharacterSheet(userId: number): CharacterSheetDraft {
-  return {
-    id: null,
-    name: '',
-    honorific: 'adventurer',
-    title: '',
-    role: '',
-    genre: '',
-    species: '',
-    characterClass: '',
-    alignment: '',
-    genderIdentity: '',
-    presentation: '',
-    personality: '',
-    drive: '',
-    backstory: '',
-    achievements: '',
-    skills: '',
-    inventory: '',
-    quirks: '',
-    artPrompt: '',
-    artImageId: null,
-    imagePath: null,
-    userId,
-    designer: null,
-    isPublic: true,
-    isMature: false,
-    isActive: true,
-    stats: defaultCharacterStats(),
-    goalStats: defaultGoalStats(),
-    rewards: [],
-  }
-}
-
-function fallbackRewardIcon(draft: CharacterRewardDraft) {
-  if (draft.rewardType === 'SKILL') {
-    return draft.rarityType === 'RARE' ? 'kind-icon:comet' : 'kind-icon:bolt'
-  }
-
-  return draft.rarityType === 'RARE' ? 'kind-icon:gem' : 'kind-icon:backpack'
+  rewards: BuilderRewardDraft[]
+  luck: RarityTier
+  might: RarityTier
+  wits: RarityTier
+  grace: RarityTier
+  charm: RarityTier
+  grit: RarityTier
 }
 
 const CHARACTER_ENDPOINT = '/api/character'
@@ -766,13 +663,30 @@ const saveMessage = ref('')
 const saveError = ref('')
 
 const statBlocks = [1, 2, 3, 4, 5, 6]
-const rewardSlots = defaultRewardSlots()
-const stagedReward = reactive<CharacterRewardDraft>(
-  createEmptyRewardDraft(rewardSlots[0]),
+
+const defaultRewardSlot: BuilderRewardSlot = {
+  key: 'common-skill',
+  label: 'Common Skill',
+  description: 'A reliable character skill for everyday story problems.',
+  rewardType: 'SKILL',
+  rarity: 'COMMON',
+  rarityType: 'COMMON',
+  icon: 'kind-icon:bolt',
+}
+
+const rewardSlots = reactive<BuilderRewardSlot[]>(defaultRewardSlots())
+
+const stagedReward = reactive<BuilderRewardDraft>(
+  createEmptyRewardDraft(rewardSlots[0] ?? defaultRewardSlot),
 )
-const sheet = reactive<CharacterSheetDraft>(
+
+const sheet = reactive<BuilderSheet>(
   createEmptyCharacterSheet(userStore.userId || 10),
 )
+
+const rewardSlotsForCharacterSheet = computed<RewardPromptSlot[]>(() => {
+  return rewardSlots as unknown as RewardPromptSlot[]
+})
 
 const saveButtonLabel = computed(() => {
   return selectedCharacterId.value ? 'Update Character' : 'Save Character'
@@ -1030,7 +944,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'common-skill',
         title: 'Common Skill',
-        body: 'Create a Reward with type SKILL and rarity COMMON.',
+        body: 'Create a common skill reward.',
         inputLabel: 'Common Skill',
         placeholder: '',
         inputType: 'reward',
@@ -1053,7 +967,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'rare-skill',
         title: 'Rare Skill',
-        body: 'Create a Reward with type SKILL and rarity RARE.',
+        body: 'Create a rare skill reward.',
         inputLabel: 'Rare Skill',
         placeholder: '',
         inputType: 'reward',
@@ -1076,7 +990,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'common-item',
         title: 'Common Item',
-        body: 'Create a Reward with type ITEM and rarity COMMON.',
+        body: 'Create a common item reward.',
         inputLabel: 'Common Item',
         placeholder: '',
         inputType: 'reward',
@@ -1099,7 +1013,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'rare-item',
         title: 'Rare Item',
-        body: 'Create a Reward with type ITEM and rarity RARE.',
+        body: 'Create a rare item reward.',
         inputLabel: 'Rare Item',
         placeholder: '',
         inputType: 'reward',
@@ -1159,7 +1073,7 @@ const activeRewardSlot = computed(() => {
 
 const rewardSlotDescription = computed(() => {
   if (!activeRewardSlot.value) return 'Create a reward.'
-  return `${activeRewardSlot.value.rarityType} ${activeRewardSlot.value.rewardType}, rarity ${activeRewardSlot.value.rarity}.`
+  return `${activeRewardSlot.value.rarity} ${activeRewardSlot.value.rewardType}.`
 })
 
 const usedDraftStatBlocks = computed(() => {
@@ -1201,10 +1115,14 @@ const canSave = computed(() => {
 })
 
 const saveStatus = computed(() => {
-  if (selectedCharacterId.value)
+  if (selectedCharacterId.value) {
     return `Saved as character #${selectedCharacterId.value}. Tiny legend notarized.`
-  if (!canSave.value)
+  }
+
+  if (!canSave.value) {
     return 'Finish identity, stats, background, and the four reward cards before saving.'
+  }
+
   return 'Ready to save.'
 })
 
@@ -1236,6 +1154,149 @@ const emptyStep: CharacterPromptStep = {
   inputLabel: '',
   placeholder: '',
   inputType: 'short',
+}
+
+function defaultCharacterStats(): CharacterSheetStat[] {
+  return [
+    { key: 'luck', name: 'Luck', value: 0 },
+    { key: 'swol', name: 'Swol', value: 0 },
+    { key: 'wits', name: 'Wits', value: 0 },
+    { key: 'flexibility', name: 'Flexibility', value: 0 },
+    { key: 'rizz', name: 'Rizz', value: 0 },
+    { key: 'empathy', name: 'Empathy', value: 0 },
+  ]
+}
+
+function defaultGoalStats(): CharacterSheetStat[] {
+  return [
+    { key: 'principled-chaotic', name: 'Principled|Chaotic', value: 0 },
+    { key: 'introvert-extrovert', name: 'Introvert|Extrovert', value: 0 },
+    { key: 'passive-aggressive', name: 'Passive|Aggressive', value: 0 },
+    { key: 'optimist-pessimist', name: 'Optimist|Pessimist', value: 0 },
+  ]
+}
+
+function defaultRewardSlots(): BuilderRewardSlot[] {
+  return [
+    {
+      key: 'common-skill',
+      label: 'Common Skill',
+      description: 'A reliable character skill for everyday story problems.',
+      rewardType: 'SKILL',
+      rarity: 'COMMON',
+      rarityType: 'COMMON',
+      icon: 'kind-icon:bolt',
+    },
+    {
+      key: 'rare-skill',
+      label: 'Rare Skill',
+      description: 'A signature character skill with dramatic table energy.',
+      rewardType: 'SKILL',
+      rarity: 'RARE',
+      rarityType: 'RARE',
+      icon: 'kind-icon:comet',
+    },
+    {
+      key: 'common-item',
+      label: 'Common Item',
+      description: 'A practical piece of gear with just enough weird sauce.',
+      rewardType: 'ITEM',
+      rarity: 'COMMON',
+      rarityType: 'COMMON',
+      icon: 'kind-icon:backpack',
+    },
+    {
+      key: 'rare-item',
+      label: 'Rare Item',
+      description: 'A strange treasure with story gravity.',
+      rewardType: 'ITEM',
+      rarity: 'RARE',
+      rarityType: 'RARE',
+      icon: 'kind-icon:gem',
+    },
+  ]
+}
+
+function createEmptyRewardDraft(slot: BuilderRewardSlot): BuilderRewardDraft {
+  return {
+    id: null,
+    slotKey: slot.key,
+    label: '',
+    text: '',
+    power: '',
+    collection: 'starting-character-reward',
+    rewardType: slot.rewardType,
+    rarity: slot.rarity,
+    rarityType: slot.rarityType,
+    icon: slot.icon,
+    imagePath: '',
+    artImageId: null,
+    artPrompt: '',
+  } as BuilderRewardDraft
+}
+
+function createEmptyCharacterSheet(userId: number): BuilderSheet {
+  return {
+    id: null,
+    name: '',
+    honorific: 'adventurer',
+    title: '',
+    role: '',
+    genre: '',
+    species: '',
+    characterClass: '',
+    alignment: '',
+    genderIdentity: '',
+    presentation: '',
+    personality: '',
+    drive: '',
+    backstory: '',
+    achievements: '',
+    skills: '',
+    inventory: '',
+    quirks: '',
+    artPrompt: '',
+    artImageId: null,
+    imagePath: null,
+    userId,
+    designer: null,
+    isPublic: true,
+    isMature: false,
+    isActive: true,
+    stats: defaultCharacterStats(),
+    goalStats: defaultGoalStats(),
+    rewards: [],
+    luck: 'COMMON',
+    might: 'COMMON',
+    wits: 'COMMON',
+    grace: 'COMMON',
+    charm: 'COMMON',
+    grit: 'COMMON',
+  } as BuilderSheet
+}
+
+function statTierByValue(value: number): RarityTier {
+  if (value >= 6) return 'MYTHIC'
+  if (value === 5) return 'LEGENDARY'
+  if (value === 4) return 'EPIC'
+  if (value === 3) return 'RARE'
+  if (value === 2) return 'UNCOMMON'
+  return 'COMMON'
+}
+
+function statTierByKey(key: string): RarityTier {
+  return statTierByValue(
+    sheet.stats.find((stat) => stat.key === key)?.value ?? 0,
+  )
+}
+
+function syncSheetStatTiers() {
+  sheet.luck = statTierByKey('luck')
+  sheet.might = statTierByKey('swol')
+  sheet.wits = statTierByKey('wits')
+  sheet.grace = statTierByKey('flexibility')
+  sheet.charm = statTierByKey('rizz')
+  sheet.grit = statTierByKey('empathy')
 }
 
 function selectCardByKey(key: string) {
@@ -1298,8 +1359,10 @@ function commitActiveStepValue() {
   if (
     activeStep.value.inputType !== 'short' &&
     activeStep.value.inputType !== 'long'
-  )
+  ) {
     return
+  }
+
   stagedValues[activeStep.value.key] = activeValue.value.trim()
 }
 
@@ -1338,6 +1401,7 @@ function finishActiveCard() {
       sheet.stats,
       draftStats.map((stat) => ({ ...stat })),
     )
+    syncSheetStatTiers()
     completeCard('stats')
     closeCardAndChooseNext()
     return
@@ -1440,9 +1504,10 @@ function removeRewardSlot(slotKey: string) {
   completedCards[slotKey] = false
 }
 
-function clearSheetField(field: keyof CharacterSheetDraft) {
+function clearSheetField(field: keyof BuilderSheet) {
   if (field === 'stats') {
     resetStatRows(sheet.stats, defaultCharacterStats())
+    syncSheetStatTiers()
     return
   }
 
@@ -1497,6 +1562,18 @@ function clearSheetField(field: keyof CharacterSheetDraft) {
     return
   }
 
+  if (
+    field === 'luck' ||
+    field === 'might' ||
+    field === 'wits' ||
+    field === 'grace' ||
+    field === 'charm' ||
+    field === 'grit'
+  ) {
+    sheet[field] = 'COMMON'
+    return
+  }
+
   if (typeof sheet[field] === 'string') {
     ;(sheet[field] as string) = field === 'honorific' ? 'adventurer' : ''
   }
@@ -1518,50 +1595,59 @@ function suggestForActiveStep() {
   const cardKey = activeCard.value.key
 
   if (stepKey === 'role') activeValue.value = rollFrom('role', 'companion')
-  else if (stepKey === 'genre')
+  else if (stepKey === 'genre') {
     activeValue.value = rollFrom('genre', 'gothic comedy')
-  else if (stepKey === 'name') activeValue.value = rollFrom('name', 'Mira Voss')
-  else if (stepKey === 'honorific')
+  } else if (stepKey === 'name') {
+    activeValue.value = rollFrom('name', 'Mira Voss')
+  } else if (stepKey === 'honorific') {
     activeValue.value = rollFrom('honorific', 'adventurer')
-  else if (stepKey === 'title')
+  } else if (stepKey === 'title') {
     activeValue.value = rollFrom('title', 'The Lantern of Wrong Tuesdays')
-  else if (stepKey === 'species')
+  } else if (stepKey === 'species') {
     activeValue.value = rollFrom('species', 'Moon-Moth Human')
-  else if (stepKey === 'characterClass')
+  } else if (stepKey === 'characterClass') {
     activeValue.value = rollFrom('class', 'Oracle')
-  else if (stepKey === 'alignment')
-    activeValue.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom('personality', 'Helpful')}`
-  else if (stepKey === 'genderIdentity')
+  } else if (stepKey === 'alignment') {
+    activeValue.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom(
+      'personality',
+      'Helpful',
+    )}`
+  } else if (stepKey === 'genderIdentity') {
     activeValue.value = rollFrom('gender', 'unknown')
-  else if (stepKey === 'presentation')
+  } else if (stepKey === 'presentation') {
     activeValue.value = rollFrom(
       'presentation',
       'ceremonial and slightly dangerous',
     )
-  else if (stepKey === 'personality')
+  } else if (stepKey === 'personality') {
     activeValue.value = rollFrom(
       'personality',
       'Warm, theatrical, and allergic to simple answers.',
     )
-  else if (stepKey === 'drive')
+  } else if (stepKey === 'drive') {
     activeValue.value = rollFrom(
       'drive',
       'to recover something everyone else insists was never lost',
     )
-  else if (stepKey === 'backstory') activeValue.value = buildBackstoryText()
-  else if (stepKey === 'achievements')
+  } else if (stepKey === 'backstory') {
+    activeValue.value = buildBackstoryText()
+  } else if (stepKey === 'achievements') {
     activeValue.value = rollFrom(
       'achievement',
       'Survived a duel with a polite ghost.',
     )
-  else if (stepKey === 'quirks')
+  } else if (stepKey === 'quirks') {
     activeValue.value = [
       rollFrom('quirk', 'apologizes to furniture'),
       rollFrom('quirk', 'counts exits before compliments'),
     ].join(', ')
-  else if (activeStep.value.inputType === 'stats') rollStats()
-  else if (activeStep.value.inputType === 'reward') rollReward(cardKey)
-  else if (activeStep.value.inputType === 'art') buildArtPrompt()
+  } else if (activeStep.value.inputType === 'stats') {
+    rollStats()
+  } else if (activeStep.value.inputType === 'reward') {
+    rollReward(cardKey)
+  } else if (activeStep.value.inputType === 'art') {
+    buildArtPrompt()
+  }
 }
 
 function assignSelectedStat(statKey: string) {
@@ -1603,7 +1689,8 @@ function commitRewardCard(slotKey: RewardSlotKey) {
 
   if (!slot) return
 
-  const reward: CharacterRewardDraft = {
+  const reward: BuilderRewardDraft = {
+    id: stagedReward.id,
     slotKey,
     label: stagedReward.label.trim() || slot.label,
     text:
@@ -1614,14 +1701,13 @@ function commitRewardCard(slotKey: RewardSlotKey) {
       'Provides a useful advantage when the story calls for it.',
     collection: 'starting-character-reward',
     rewardType: slot.rewardType,
-    rarityType: slot.rarityType,
     rarity: slot.rarity,
+    rarityType: slot.rarityType,
     icon: stagedReward.icon.trim() || slot.icon,
     imagePath: stagedReward.imagePath.trim(),
     artImageId: stagedReward.artImageId,
     artPrompt: stagedReward.artPrompt.trim(),
-    id: stagedReward.id,
-  }
+  } as BuilderRewardDraft
 
   const index = sheet.rewards.findIndex((item) => item.slotKey === slotKey)
 
@@ -1641,18 +1727,20 @@ function rollReward(cardKey: string) {
 
   const fallbackLabel =
     slot.rewardType === 'SKILL'
-      ? slot.rarityType === 'RARE'
+      ? slot.rarity === 'RARE'
         ? 'Moonlit Counterspell'
         : 'Pocket Sand Theology'
-      : slot.rarityType === 'RARE'
+      : slot.rarity === 'RARE'
         ? 'The Apology Dagger'
         : 'Emergency Biscuit Tin'
 
   stagedReward.label = rollFrom('reward', fallbackLabel)
   stagedReward.text =
     slot.rewardType === 'SKILL'
-      ? `A ${slot.rarityType.toLowerCase()} skill that lets ${sheet.name || 'this character'} turn pressure into possibility.`
-      : `A ${slot.rarityType.toLowerCase()} item with practical use and suspicious narrative gravity.`
+      ? `A ${slot.rarity.toLowerCase()} skill that lets ${
+          sheet.name || 'this character'
+        } turn pressure into possibility.`
+      : `A ${slot.rarity.toLowerCase()} item with practical use and suspicious narrative gravity.`
   stagedReward.power =
     slot.rewardType === 'SKILL'
       ? 'Gain an advantage when this skill directly applies to a risky scene.'
@@ -1664,10 +1752,14 @@ function rollReward(cardKey: string) {
 function buildBackstoryText() {
   return [
     stagedValues.name || sheet.name
-      ? `${stagedValues.name || sheet.name} is ${articleFor(stagedValues.species || sheet.species)} ${stagedValues.species || sheet.species || 'mysterious being'}.`
+      ? `${stagedValues.name || sheet.name} is ${articleFor(
+          stagedValues.species || sheet.species,
+        )} ${stagedValues.species || sheet.species || 'mysterious being'}.`
       : '',
     stagedValues.characterClass || sheet.characterClass
-      ? `They are known as a ${stagedValues.characterClass || sheet.characterClass}.`
+      ? `They are known as a ${
+          stagedValues.characterClass || sheet.characterClass
+        }.`
       : '',
     stagedValues.role || sheet.role
       ? `Their role in the story is ${stagedValues.role || sheet.role}.`
@@ -1690,7 +1782,9 @@ function buildArtPrompt() {
   const rewardText = sheet.rewards
     .map(
       (reward) =>
-        `${reward.rarityType.toLowerCase()} ${reward.rewardType.toLowerCase()}: ${reward.label}`,
+        `${reward.rarity.toLowerCase()} ${reward.rewardType.toLowerCase()}: ${
+          reward.label
+        }`,
     )
     .join(', ')
 
@@ -1709,9 +1803,9 @@ function buildArtPrompt() {
     .join(', ')
 }
 
-function buildRewardArtPrompt(slot: RewardPromptSlot, label: string) {
+function buildRewardArtPrompt(slot: BuilderRewardSlot, label: string) {
   return [
-    `${slot.rarityType.toLowerCase()} ${slot.rewardType.toLowerCase()} reward`,
+    `${slot.rarity.toLowerCase()} ${slot.rewardType.toLowerCase()} reward`,
     label,
     'iconic fantasy game asset',
     'clear silhouette',
@@ -1936,6 +2030,12 @@ function resetBuilder() {
   sheet.isPublic = fresh.isPublic
   sheet.isMature = fresh.isMature
   sheet.isActive = fresh.isActive
+  sheet.luck = fresh.luck
+  sheet.might = fresh.might
+  sheet.wits = fresh.wits
+  sheet.grace = fresh.grace
+  sheet.charm = fresh.charm
+  sheet.grit = fresh.grit
 
   resetStatRows(sheet.stats, fresh.stats)
   resetStatRows(sheet.goalStats, fresh.goalStats)
@@ -1951,7 +2051,10 @@ function resetStaging() {
   }
 
   resetStatRows(draftStats, [])
-  Object.assign(stagedReward, createEmptyRewardDraft(rewardSlots[0]))
+  Object.assign(
+    stagedReward,
+    createEmptyRewardDraft(rewardSlots[0] ?? defaultRewardSlot),
+  )
 }
 
 function resetStatRows(
@@ -1965,6 +2068,14 @@ function isRewardSlotKey(value: unknown): value is RewardSlotKey {
   return (
     typeof value === 'string' && rewardSlots.some((slot) => slot.key === value)
   )
+}
+
+function fallbackRewardIcon(draft: BuilderRewardDraft) {
+  if (draft.rewardType === 'SKILL') {
+    return draft.rarity === 'RARE' ? 'kind-icon:comet' : 'kind-icon:bolt'
+  }
+
+  return draft.rarity === 'RARE' ? 'kind-icon:gem' : 'kind-icon:backpack'
 }
 
 function rollFrom(key: string, fallback: string) {
@@ -2010,6 +2121,7 @@ onMounted(async () => {
   randomStore.initialize()
   sheet.userId = userStore.userId || 10
   sheet.designer = getDesignerName()
+  syncSheetStatTiers()
   await fetchDreams()
   reshuffleDeck()
 })

@@ -3,79 +3,82 @@ import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Reward } from '~/prisma/generated/prisma/client'
+import { updateRewardById, type RewardMutationInput } from './index'
 
 export default defineEventHandler(async (event) => {
   const rewardId = Number(event.context.params?.id)
 
   try {
-    // Validate Reward ID
-    if (isNaN(rewardId) || rewardId <= 0) {
+    if (!Number.isInteger(rewardId) || rewardId <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid Reward ID. It must be a positive integer.',
       })
     }
 
-    // Use validateApiKey to authenticate
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
-      event.node.res.statusCode = 401 // Set HTTP status code to 401 Unauthorized
-      return {
-        success: false,
+      throw createError({
+        statusCode: 401,
         message: 'Invalid or expired token.',
-      }
+      })
     }
 
-    // Verify Reward Ownership
     const existingReward = await prisma.reward.findUnique({
       where: { id: rewardId },
-      select: { userId: true },
+      select: {
+        userId: true,
+      },
     })
+
     if (!existingReward) {
-      event.node.res.statusCode = 404 // Set HTTP status code to 404 Not Found
-      return {
-        success: false,
+      throw createError({
+        statusCode: 404,
         message: `Reward with ID ${rewardId} does not exist.`,
-      }
+      })
     }
-    if (existingReward.userId !== user.id) {
-      event.node.res.statusCode = 403 // Set HTTP status code to 403 Forbidden
-      return {
-        success: false,
+
+    if (existingReward.userId !== user.id && user.Role !== 'ADMIN') {
+      throw createError({
+        statusCode: 403,
         message: 'You do not have permission to update this reward.',
-      }
+      })
     }
 
-    // Read and Validate Update Data
-    const rewardData: Partial<Reward> = await readBody(event)
+    const rewardData = await readBody<RewardMutationInput>(event)
+
     if (!rewardData || Object.keys(rewardData).length === 0) {
-      event.node.res.statusCode = 400 // Set HTTP status code to 400 Bad Request
-      return {
-        success: false,
+      throw createError({
+        statusCode: 400,
         message: 'No data provided for update.',
-      }
+      })
     }
 
-    // Perform Update
-    const data = await prisma.reward.update({
-      where: { id: rewardId },
-      data: rewardData,
-    })
+    if (rewardData.userId && rewardData.userId !== existingReward.userId) {
+      throw createError({
+        statusCode: 403,
+        message: 'Reward ownership cannot be changed here.',
+      })
+    }
 
-    // Set Success Response Status Code to 200
+    const data = await updateRewardById(rewardId, rewardData)
+
     event.node.res.statusCode = 200
+
     return {
       success: true,
       data,
+      statusCode: 200,
     }
   } catch (error: unknown) {
-    // Process Error with Error Handler
     const { message, statusCode } = errorHandler(error)
-    event.node.res.statusCode = statusCode || 500 // Set appropriate error status code
+    event.node.res.statusCode = statusCode || 500
+
     return {
       success: false,
       message: message || `Failed to update reward with ID ${rewardId}.`,
+      statusCode: event.node.res.statusCode,
     }
   }
 })

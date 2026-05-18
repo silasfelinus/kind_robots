@@ -1,44 +1,43 @@
 // /server/api/rewards/[id].get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import { fetchRewardById } from './index'
 import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let response
   const id = Number(event.context.params?.id)
 
   try {
-    // Validate the ID format
-    if (isNaN(id) || id <= 0) {
-      event.node.res.statusCode = 400 // Bad Request
-      throw new Error('Invalid ID format. ID must be a positive integer.')
+    if (!Number.isInteger(id) || id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid ID format. ID must be a positive integer.',
+      })
     }
 
-    // Fetch reward by ID
-    const reward = await fetchRewardById(id)
+    const data = await fetchRewardById(id)
 
-    if (!reward) {
-      event.node.res.statusCode = 404 // Not Found
-      throw new Error('Reward not found.')
+    if (!data) {
+      throw createError({
+        statusCode: 404,
+        message: 'Reward not found.',
+      })
     }
 
-    // Successful response
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
-      reward,
+      data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    // Process error with errorHandler and set appropriate response
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+
+    return {
       success: false,
-      message: handledError.message || 'Failed to fetch the reward.',
+      message: message || 'Failed to fetch the reward.',
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

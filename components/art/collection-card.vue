@@ -186,7 +186,7 @@
           :disabled="isHiddenMature"
           @click.stop="selectCollection"
         >
-          <Icon name="kind-icon:folder-open" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:folder" class="h-3.5 w-3.5" />
           {{ activeSelected ? 'Selected' : 'Open' }}
         </button>
       </div>

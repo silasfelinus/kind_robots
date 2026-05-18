@@ -4,29 +4,24 @@ import { fetchAllRewards } from './'
 import { errorHandler } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
     const data = await fetchAllRewards()
 
-    // Success Response
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
   } catch (error: unknown) {
-    // Error Handling
     const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
 
-    response = {
+    return {
       success: false,
-      message: message || 'Failed to fetch rewards',
-      statusCode: statusCode || 500,
+      message: message || 'Failed to fetch rewards.',
+      statusCode: event.node.res.statusCode,
     }
-    event.node.res.statusCode = response.statusCode
   }
-
-  return response
 })

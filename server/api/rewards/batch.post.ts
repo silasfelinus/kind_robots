@@ -1,40 +1,21 @@
 // /server/api/rewards/batch.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { createRewardsBatch } from './'
+import { createRewardsBatch, type RewardMutationInput } from './'
 import { errorHandler } from '../../utils/error'
-import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
-    // Validate authorization token
-    const authorizationHeader = event.node.req.headers['authorization']
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
+    const { isValid, user } = await validateApiKey(event)
 
-    const token = authorizationHeader.split(' ')[1]
-    const user = await prisma.user.findFirst({
-      where: { apiKey: token },
-      select: { id: true },
-    })
-
-    if (!user) {
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
       })
     }
 
-    const authenticatedUserId = user.id
-
-    // Read and validate incoming rewards data
-    const rewardsData = await readBody(event)
+    const rewardsData = await readBody<RewardMutationInput[]>(event)
 
     if (!Array.isArray(rewardsData)) {
       throw createError({
@@ -43,17 +24,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate each reward object in the array
     for (const rewardData of rewardsData) {
-      if (!rewardData.text || !rewardData.power || !rewardData.icon) {
-        throw createError({
-          statusCode: 400,
-          message: 'Each reward must have "text," "power," and an "icon".',
-        })
-      }
-
-      // Check if userId is provided in the reward and matches the authenticated user
-      if (rewardData.userId && rewardData.userId !== authenticatedUserId) {
+      if (rewardData.userId && rewardData.userId !== user.id) {
         throw createError({
           statusCode: 403,
           message: 'User ID in reward does not match the authenticated user.',
@@ -61,39 +33,43 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Create rewards in batch
-    const { count, rewards, errors } = await createRewardsBatch(rewardsData)
+    const { count, rewards, errors } = await createRewardsBatch(
+      rewardsData,
+      user.id,
+    )
 
-    // Check for partial success and set response accordingly
     if (errors.length > 0) {
-      response = {
-        success: false,
-        message: 'Some rewards could not be created.',
+      event.node.res.statusCode = count > 0 ? 207 : 400
+
+      return {
+        success: count > 0,
+        message:
+          count > 0
+            ? 'Some rewards were created, but some failed.'
+            : 'No rewards could be created.',
         errors,
-        createdCount: count,
-        statusCode: 207, // 207 indicates partial success
-      }
-      event.node.res.statusCode = 207
-    } else {
-      response = {
-        success: true,
         count,
-        rewards,
-        statusCode: 201,
+        data: rewards,
+        statusCode: event.node.res.statusCode,
       }
-      event.node.res.statusCode = 201
+    }
+
+    event.node.res.statusCode = 201
+
+    return {
+      success: true,
+      count,
+      data: rewards,
+      statusCode: 201,
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
-    console.error(`Failed to create new rewards: ${message}`)
+    event.node.res.statusCode = statusCode || 500
 
-    response = {
+    return {
       success: false,
-      message: `Failed to create new rewards: ${message}`,
-      statusCode: statusCode || 500,
+      message: message || 'Failed to create rewards batch.',
+      statusCode: event.node.res.statusCode,
     }
-    event.node.res.statusCode = response.statusCode
   }
-
-  return response
 })

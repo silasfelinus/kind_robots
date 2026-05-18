@@ -316,39 +316,43 @@ model Character {
   id             Int        @id @default(autoincrement())
   createdAt      DateTime   @default(now())
   updatedAt      DateTime?  @default(now()) @updatedAt
+
   name           String     @db.VarChar(256)
-  achievements   String?    @db.VarChar(256)
+  honorific      String?    @default("adventurer")
+  title          String?    @db.VarChar(256)
+
+  role           String?    @db.VarChar(256)
+  genderIdentity String?    @db.VarChar(256)
+  presentation   String?    @db.VarChar(764)
+
+  achievements   String?    @db.VarChar(764)
   alignment      String?    @db.VarChar(256)
   experience     Int?       @default(0)
   level          Int?       @default(1)
+
   class          String?    @db.VarChar(764)
   species        String?    @db.VarChar(764)
-  backstory      String?    @db.VarChar(2048)
+  backstory      String?    @db.Text
   drive          String?    @db.VarChar(764)
-  inventory      String?    @db.VarChar(2048)
+  inventory      String?    @db.Text
+  quirks         String?    @db.Text
+  skills         String?    @db.Text
+  genre          String?    @db.VarChar(256)
+  personality    String?    @db.Text
+
   statName1      String?    @default("Luck")
   statValue1     Int?       @default(59)
   statName2      String?    @default("Swol")
   statValue2     Int?       @default(49)
   statName3      String?    @default("Wits")
   statValue3     Int?       @default(72)
-  statName4      String?    @default("Flexibilty")
+  statName4      String?    @default("Flexibility")
   statValue4     Int?       @default(93)
   statName5      String?    @default("Rizz")
   statValue5     Int?       @default(9)
   statName6      String?    @default("Empathy")
   statValue6     Int?       @default(71)
-  quirks         String?    @db.VarChar(2048)
-  skills         String?    @db.VarChar(2048)
-  genre          String?    @db.VarChar(256)
-  artImageId     Int?
 
-  isPublic       Boolean    @default(true)
-  isMature       Boolean    @default(false)
-  isActive       Boolean    @default(true)
-
-  userId         Int        @default(10)
-  artPrompt      String?  @db.Text
   goalStat1Name  String?    @default("Principled|Chaotic")
   goalStat1Value Int?       @default(0)
   goalStat2Name  String?    @default("Introvert|Extrovert")
@@ -357,10 +361,16 @@ model Character {
   goalStat3Value Int?       @default(0)
   goalStat4Name  String?    @default("Optimist|Pessimist")
   goalStat4Value Int?       @default(0)
-  honorific      String?    @default("adventurer")
-  imagePath      String?    @db.VarChar(256)
+
+  artPrompt      String?    @db.Text
+  artImageId     Int?
+  imagePath      String?    @db.VarChar(764)
+
   designer       String?
-  personality    String?
+  isPublic       Boolean    @default(true)
+  isMature       Boolean    @default(false)
+  isActive       Boolean    @default(true)
+  userId         Int        @default(10)
 
   ArtImage       ArtImage?
   User           User       @relation(fields: [userId], references: [id])

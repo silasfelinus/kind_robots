@@ -1,28 +1,28 @@
 <!-- /components/content/navigation/dashboard-shell.vue -->
 <template>
   <div
-    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-2 sm:p-3"
+    class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
     <!-- ── Collapsed bar ───────────────────────────────────────────────── -->
     <div
       v-if="!showHeader"
-      class="relative mb-2 flex shrink-0 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 shadow-sm"
+      class="relative mb-3 flex shrink-0 items-center gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-2 shadow-sm"
       :class="navZClass"
     >
       <div
-        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-base-300 bg-base-200"
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-base-300 bg-base-200"
       >
         <Icon
           :name="activeTabConfig.icon || fallbackIcon"
-          class="h-4 w-4 text-primary"
+          class="h-5 w-5 text-primary"
         />
       </div>
 
-      <span class="min-w-0 truncate text-sm font-black text-base-content">
+      <span class="min-w-0 truncate text-base font-black text-base-content">
         {{ activeTitle }}
       </span>
 
-      <span v-if="title" class="hidden text-xs text-base-content/40 sm:block"
+      <span v-if="title" class="hidden text-sm text-base-content/40 sm:block"
         >·</span
       >
       <span
@@ -32,7 +32,7 @@
         {{ title }}
       </span>
 
-      <div class="ml-auto flex shrink-0 items-center gap-1">
+      <div class="ml-auto flex shrink-0 items-center gap-1.5">
         <slot
           name="actions"
           :active-tab="normalizedActiveTab"
@@ -40,12 +40,12 @@
         />
 
         <button
-          class="btn btn-xs btn-primary rounded-lg"
+          class="btn btn-sm btn-primary rounded-lg"
           type="button"
           title="Show header"
           @click="toggleHeader"
         >
-          <Icon name="kind-icon:expand" class="h-3.5 w-3.5" />
+          <Icon name="kind-icon:expand" class="h-4 w-4" />
           <span class="hidden sm:inline">Show</span>
         </button>
       </div>
@@ -54,31 +54,30 @@
     <!-- ── Expanded header ─────────────────────────────────────────────── -->
     <header
       v-if="showHeader"
-      class="relative mb-2 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
+      class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
       :class="navZClass"
     >
       <!-- Row 1: image anchor + title + controls -->
-      <div class="flex items-center gap-2.5 px-2.5 pt-2.5 pb-2">
-        <!-- Page image / icon anchor -->
+      <div class="flex items-center gap-4 p-4">
+        <!-- Page image / icon anchor — scaled up -->
         <div class="relative shrink-0">
           <img
             v-if="headerImage"
             :src="headerImage"
             alt=""
-            class="h-11 w-11 rounded-xl border border-base-300 object-cover shadow-sm"
+            class="h-16 w-16 rounded-xl border border-base-300 object-cover shadow-sm"
           />
           <div
             v-else
-            class="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/20 bg-primary/8 shadow-sm"
+            class="flex h-16 w-16 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-sm"
           >
             <Icon
               :name="activeTabConfig.icon || fallbackIcon"
-              class="h-6 w-6 text-primary"
+              class="h-8 w-8 text-primary"
             />
           </div>
-          <!-- Active indicator dot -->
           <span
-            class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-base-100 bg-primary"
+            class="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-base-100 bg-primary"
           />
         </div>
 
@@ -91,14 +90,20 @@
             {{ title }}
           </p>
           <h1
-            class="truncate text-base font-black leading-tight text-base-content"
+            class="truncate text-xl font-black leading-tight text-base-content"
           >
             {{ activeTitle }}
           </h1>
+          <p
+            v-if="activeSummary"
+            class="mt-0.5 truncate text-sm text-base-content/50"
+          >
+            {{ activeSummary }}
+          </p>
         </div>
 
-        <!-- Controls: all in one tight row -->
-        <div class="flex shrink-0 items-center gap-1">
+        <!-- Controls -->
+        <div class="flex shrink-0 items-center gap-1.5">
           <slot
             name="actions"
             :active-tab="normalizedActiveTab"
@@ -107,58 +112,36 @@
 
           <button
             v-if="showRefresh"
-            class="btn btn-xs btn-ghost rounded-lg border border-base-300"
+            class="btn btn-sm btn-ghost rounded-lg border border-base-300"
             type="button"
             :disabled="loading"
             :title="refreshLabel"
             @click="emit('refresh')"
           >
-            <Icon name="kind-icon:refresh" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:refresh" class="h-4 w-4" />
             <span class="hidden md:inline">{{ refreshLabel }}</span>
           </button>
 
           <button
-            class="btn btn-xs btn-ghost rounded-lg border border-base-300"
+            class="btn btn-sm btn-ghost rounded-lg border border-base-300"
             type="button"
             title="Hide header"
             @click="toggleHeader"
           >
-            <Icon name="kind-icon:collapse" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:collapse" class="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      <!-- Row 2: tabs + channels — single scrollable strip -->
+      <!-- Row 2: [channels | divider | scrollable tabs] -->
       <div
         v-if="resolvedTabs.length"
-        ref="channelMenuRef"
-        class="relative flex items-center gap-1 overflow-x-auto border-t border-base-300/60 px-2.5 py-1.5"
-        :class="navZClass"
-        style="scrollbar-width: none"
+        class="flex items-center border-t border-base-300/60"
       >
-        <button
-          v-for="tab in resolvedTabs"
-          :key="tab.key"
-          class="btn btn-xs shrink-0 rounded-lg transition-all"
-          type="button"
-          :class="
-            normalizedActiveTab === tab.key
-              ? 'btn-primary shadow-sm'
-              : 'btn-ghost hover:btn-ghost'
-          "
-          @click="setTab(tab.key)"
-        >
-          <Icon :name="tab.icon || fallbackIcon" class="h-3.5 w-3.5" />
-          {{ tab.label }}
-        </button>
-
-        <!-- Spacer -->
-        <div class="flex-1" />
-
-        <!-- Channels: inline at end of tab row -->
-        <div class="relative shrink-0">
+        <!-- Channels — left-anchored, outside the scroll container -->
+        <div ref="channelMenuRef" class="relative shrink-0 px-3 py-2">
           <button
-            class="btn btn-xs rounded-lg"
+            class="btn btn-sm rounded-lg"
             :class="
               showChannels
                 ? 'btn-secondary'
@@ -169,13 +152,13 @@
             title="Channels"
             @click.stop="toggleChannels"
           >
-            <Icon name="kind-icon:compass" class="h-3.5 w-3.5" />
+            <Icon name="kind-icon:compass" class="h-4 w-4" />
             <span class="hidden sm:inline">{{ activeChannel.label }}</span>
             <Icon
               :name="
                 showChannels ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
               "
-              class="h-3 w-3 opacity-60"
+              class="h-3.5 w-3.5 opacity-60"
             />
           </button>
 
@@ -183,10 +166,10 @@
           <Transition name="fade-up">
             <div
               v-if="showChannels"
-              class="absolute right-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-xl"
+              class="absolute left-0 top-full z-50 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-xl"
             >
               <div
-                class="flex items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-3 py-2"
+                class="flex items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3"
               >
                 <div class="min-w-0">
                   <p
@@ -194,12 +177,12 @@
                   >
                     Channels
                   </p>
-                  <p class="truncate text-sm font-semibold text-base-content">
+                  <p class="truncate text-base font-semibold text-base-content">
                     {{ activeChannel.label }}
                   </p>
                 </div>
                 <button
-                  class="btn btn-xs btn-ghost rounded-lg"
+                  class="btn btn-sm btn-ghost rounded-lg"
                   type="button"
                   title="Close"
                   @click="showChannels = false"
@@ -209,13 +192,13 @@
               </div>
 
               <div
-                class="grid max-h-[55vh] grid-cols-2 gap-1.5 overflow-y-auto p-2.5"
+                class="grid max-h-[55vh] grid-cols-2 gap-2 overflow-y-auto p-3"
               >
                 <NuxtLink
                   v-for="channel in channels"
                   :key="channel.key"
                   :to="channel.path"
-                  class="group flex min-w-0 items-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
+                  class="group flex min-w-0 items-center gap-2.5 rounded-xl border p-3 text-sm font-bold transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
                   :class="
                     isChannelActive(channel)
                       ? 'border-primary bg-primary text-primary-content shadow-sm'
@@ -225,7 +208,7 @@
                 >
                   <Icon
                     :name="channel.icon"
-                    class="h-4 w-4 shrink-0 transition group-hover:scale-110"
+                    class="h-5 w-5 shrink-0 transition group-hover:scale-110"
                   />
                   <span class="min-w-0 truncate">{{ channel.label }}</span>
                 </NuxtLink>
@@ -233,20 +216,45 @@
             </div>
           </Transition>
         </div>
+
+        <!-- Divider -->
+        <div class="h-6 w-px shrink-0 bg-base-300" />
+
+        <!-- Scrollable tab strip -->
+        <nav
+          class="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto py-2 pl-3 pr-3"
+          style="scrollbar-width: none; -webkit-overflow-scrolling: touch"
+        >
+          <button
+            v-for="tab in resolvedTabs"
+            :key="tab.key"
+            class="btn btn-sm shrink-0 rounded-lg transition-all"
+            type="button"
+            :class="
+              normalizedActiveTab === tab.key
+                ? 'btn-primary shadow-sm'
+                : 'btn-ghost'
+            "
+            @click="setTab(tab.key)"
+          >
+            <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4" />
+            {{ tab.label }}
+          </button>
+        </nav>
       </div>
     </header>
 
     <!-- ── Status banners ──────────────────────────────────────────────── -->
     <div
       v-if="loading"
-      class="relative z-40 mb-2 shrink-0 rounded-xl border border-info/40 bg-info/10 px-3 py-2 text-xs text-info"
+      class="relative z-40 mb-3 shrink-0 rounded-xl border border-info/40 bg-info/10 px-4 py-2.5 text-sm text-info"
     >
       {{ loadingMessage }}
     </div>
 
     <div
       v-if="error"
-      class="relative z-40 mb-2 shrink-0 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-xs text-error"
+      class="relative z-40 mb-3 shrink-0 rounded-xl border border-error/40 bg-error/10 px-4 py-2.5 text-sm text-error"
     >
       {{ error }}
     </div>
@@ -297,7 +305,6 @@ const props = withDefaults(
     refreshLabel?: string
     navGridClass?: string
     navZClass?: string
-    /** Optional page/section image shown in the header top-left corner */
     headerImage?: string
   }>(),
   {
@@ -379,8 +386,6 @@ const channels: ChannelRoute[] = [
   },
 ]
 
-// ── Computed ──────────────────────────────────────────────────────────────────
-
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = (props.dashboardKey ?? '').trim()
   if (!key || !isDashboardKey(key)) return null
@@ -433,6 +438,10 @@ const activeTitle = computed(
   () => activeTabConfig.value.title || activeTabConfig.value.label,
 )
 
+const activeSummary = computed(
+  () => activeTabConfig.value.summary || props.summary || '',
+)
+
 const activeChannel = computed(
   () =>
     channels.find((c) => isChannelActive(c)) ??
@@ -443,8 +452,6 @@ const activeChannel = computed(
       icon: 'kind-icon:home',
     },
 )
-
-// ── Methods ───────────────────────────────────────────────────────────────────
 
 function setTab(tabKey: string) {
   const dk = resolvedDashboardKey.value

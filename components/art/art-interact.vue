@@ -16,8 +16,6 @@
       </div>
 
       <div class="flex shrink-0 flex-wrap gap-2">
-        <!-- These are the ONLY places art-interact touches navStore.
-             slim-gallery restores its own collection context from sessionStorage. -->
         <button
           class="btn btn-xs btn-outline rounded-xl sm:btn-sm"
           type="button"
@@ -46,6 +44,36 @@
           <Icon name="kind-icon:sparkles" class="h-4 w-4" />
           Remix
         </button>
+
+        <!-- Delete button — arms on first click, fires on second -->
+        <template v-if="currentArtImage && canDeleteCurrentImage">
+          <button
+            v-if="!deleteArmed"
+            class="btn btn-xs btn-ghost rounded-xl border border-error/30 text-error sm:btn-sm hover:btn-error hover:text-error-content"
+            type="button"
+            title="Delete this image"
+            @click="deleteArmed = true"
+          >
+            <Icon name="kind-icon:trash" class="h-4 w-4" />
+            <span class="hidden sm:inline">Delete</span>
+          </button>
+
+          <button
+            v-else
+            class="btn btn-xs btn-error rounded-xl text-error-content sm:btn-sm"
+            type="button"
+            :disabled="isDeleting"
+            @click="confirmDelete"
+            @blur="deleteArmed = false"
+          >
+            <span
+              v-if="isDeleting"
+              class="loading loading-spinner loading-xs"
+            />
+            <Icon v-else name="kind-icon:trash" class="h-4 w-4" />
+            Confirm?
+          </button>
+        </template>
       </div>
     </header>
 
@@ -102,9 +130,9 @@
             class="flex cursor-pointer list-none items-center justify-between gap-2"
           >
             <span>
-              <span class="block text-sm font-black text-base-content">
-                Generation Source
-              </span>
+              <span class="block text-sm font-black text-base-content"
+                >Generation Source</span
+              >
               <span class="block truncate text-xs text-base-content/55">
                 {{ currentArtImage.checkpoint || 'No checkpoint recorded' }}
               </span>
@@ -127,7 +155,6 @@
                   {{ currentArtImage.sampler || 'n/a' }}
                 </p>
               </div>
-
               <div class="rounded-xl border border-base-300 bg-base-200 p-2">
                 <p class="font-bold uppercase text-base-content/45">Seed</p>
                 <p class="mt-1 truncate font-mono">
@@ -180,9 +207,11 @@
 
             <div class="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
               <label class="form-control">
-                <span class="label py-1">
-                  <span class="label-text text-xs font-bold">Designer</span>
-                </span>
+                <span class="label py-1"
+                  ><span class="label-text text-xs font-bold"
+                    >Designer</span
+                  ></span
+                >
                 <input
                   v-model="editForm.designer"
                   type="text"
@@ -192,9 +221,11 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
-                  <span class="label-text text-xs font-bold">Sampler</span>
-                </span>
+                <span class="label py-1"
+                  ><span class="label-text text-xs font-bold"
+                    >Sampler</span
+                  ></span
+                >
                 <input
                   v-model="editForm.sampler"
                   type="text"
@@ -203,9 +234,11 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
-                  <span class="label-text text-xs font-bold">Checkpoint</span>
-                </span>
+                <span class="label py-1"
+                  ><span class="label-text text-xs font-bold"
+                    >Checkpoint</span
+                  ></span
+                >
                 <input
                   v-model="editForm.checkpoint"
                   type="text"
@@ -214,9 +247,9 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
-                  <span class="label-text text-xs font-bold">Steps</span>
-                </span>
+                <span class="label py-1"
+                  ><span class="label-text text-xs font-bold">Steps</span></span
+                >
                 <input
                   v-model.number="editForm.steps"
                   type="number"
@@ -226,9 +259,9 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
-                  <span class="label-text text-xs font-bold">Seed</span>
-                </span>
+                <span class="label py-1"
+                  ><span class="label-text text-xs font-bold">Seed</span></span
+                >
                 <input
                   v-model.number="editForm.seed"
                   type="number"
@@ -237,9 +270,9 @@
               </label>
 
               <label class="form-control">
-                <span class="label py-1">
-                  <span class="label-text text-xs font-bold">CFG</span>
-                </span>
+                <span class="label py-1"
+                  ><span class="label-text text-xs font-bold">CFG</span></span
+                >
                 <input
                   v-model.number="editForm.cfg"
                   type="number"
@@ -276,29 +309,29 @@
                 class="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-sm font-bold"
               >
                 <span>Prompt Text</span>
-                <span class="text-xs font-normal text-base-content/50">
-                  {{ editForm.promptString.length }} chars
-                </span>
+                <span class="text-xs font-normal text-base-content/50"
+                  >{{ editForm.promptString.length }} chars</span
+                >
               </summary>
-
               <div class="grid gap-2 p-3">
                 <label class="form-control">
-                  <span class="label py-1">
-                    <span class="label-text text-xs font-bold">Prompt</span>
-                  </span>
+                  <span class="label py-1"
+                    ><span class="label-text text-xs font-bold"
+                      >Prompt</span
+                    ></span
+                  >
                   <textarea
                     v-model="editForm.promptString"
                     class="textarea textarea-bordered min-h-24 resize-none rounded-xl bg-base-200 text-xs leading-relaxed"
                     placeholder="Prompt..."
                   />
                 </label>
-
                 <label class="form-control">
-                  <span class="label py-1">
-                    <span class="label-text text-xs font-bold">
-                      Negative Prompt
-                    </span>
-                  </span>
+                  <span class="label py-1"
+                    ><span class="label-text text-xs font-bold"
+                      >Negative Prompt</span
+                    ></span
+                  >
                   <textarea
                     v-model="editForm.negativePrompt"
                     class="textarea textarea-bordered min-h-20 resize-none rounded-xl bg-base-200 text-xs leading-relaxed"
@@ -336,9 +369,9 @@
                 :disabled="isCollectionSaving"
                 @click="isCollectionMenuOpen = !isCollectionMenuOpen"
               >
-                <span class="min-w-0 truncate">
-                  {{ collectionButtonLabel }}
-                </span>
+                <span class="min-w-0 truncate">{{
+                  collectionButtonLabel
+                }}</span>
                 <Icon
                   :name="
                     isCollectionMenuOpen
@@ -396,12 +429,13 @@
                     class="mb-1 flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-base-300 bg-base-200 px-3 py-2 transition hover:bg-base-300"
                   >
                     <span class="min-w-0">
-                      <span class="block truncate text-sm font-semibold">
-                        {{ collection.label || `Collection ${collection.id}` }}
-                      </span>
-                      <span class="block truncate text-xs text-base-content/50">
-                        {{ getCollectionMeta(collection) }}
-                      </span>
+                      <span class="block truncate text-sm font-semibold">{{
+                        collection.label || `Collection ${collection.id}`
+                      }}</span>
+                      <span
+                        class="block truncate text-xs text-base-content/50"
+                        >{{ getCollectionMeta(collection) }}</span
+                      >
                     </span>
                     <input
                       type="checkbox"
@@ -428,13 +462,11 @@
                 </div>
                 <Icon name="kind-icon:tag" class="h-5 w-5 text-accent" />
               </div>
-
               <textarea
                 v-model="tagText"
                 class="textarea textarea-bordered min-h-20 resize-none rounded-xl bg-base-100 text-xs"
                 placeholder="portrait, robot, butterfly"
               />
-
               <button
                 class="btn btn-accent btn-sm mt-2 w-full rounded-xl"
                 type="button"
@@ -463,13 +495,11 @@
                 </div>
                 <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
               </div>
-
               <textarea
                 v-model="remixPrompt"
                 class="textarea textarea-bordered min-h-20 resize-none rounded-xl bg-base-100 text-xs leading-relaxed"
                 placeholder="Make it warmer, add glass wings, preserve the pose..."
               />
-
               <button
                 class="btn btn-primary btn-sm mt-2 w-full rounded-xl text-white"
                 type="button"
@@ -494,21 +524,17 @@ import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { useUserStore } from '@/stores/userStore'
 
 type CollectionLike = ArtCollection & {
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
 }
 
-// ─── Stores ───────────────────────────────────────────────────────────────────
-
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const navStore = useNavStore()
-
-// ─── State ────────────────────────────────────────────────────────────────────
+const userStore = useUserStore()
 
 const isSaving = ref(false)
 const isSavingTags = ref(false)
@@ -519,6 +545,8 @@ const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const tagText = ref('')
 const remixPrompt = ref('')
+const deleteArmed = ref(false)
+const isDeleting = ref(false)
 
 const editForm = reactive({
   designer: '',
@@ -534,12 +562,18 @@ const editForm = reactive({
   isMature: false,
 })
 
-// ─── Computed ─────────────────────────────────────────────────────────────────
-
-/** Primary subject: the selected ArtImage. Everything else flows from here. */
 const currentArtImage = computed<ArtImage | null>(
   () => artStore.currentArtImage,
 )
+
+const canDeleteCurrentImage = computed(() => {
+  if (!currentArtImage.value) return false
+  return (
+    userStore.isAdmin ||
+    Number(currentArtImage.value.userId) ===
+      Number(userStore.userId ?? userStore.user?.id)
+  )
+})
 
 const collectionOptions = computed<CollectionLike[]>(() =>
   [...((collectionStore.collections || []) as CollectionLike[])].sort((a, b) =>
@@ -555,14 +589,9 @@ const visibleCollectionOptions = computed(() => {
   )
 })
 
-/**
- * Collection IDs that contain the current ArtImage.
- * Checks both artImages and ArtImages relation keys for safety.
- */
 const imageCollectionIds = computed(() => {
   const imageId = currentArtImage.value?.id
   if (!imageId) return []
-
   return collectionOptions.value
     .filter((collection) => {
       const images = [
@@ -608,8 +637,6 @@ const hasDirtyFields = computed(() => {
   )
 })
 
-// ─── Watchers ─────────────────────────────────────────────────────────────────
-
 watch(
   () => currentArtImage.value?.id,
   () => {
@@ -617,11 +644,10 @@ watch(
     hydrateTags()
     isCollectionMenuOpen.value = false
     statusMessage.value = ''
+    deleteArmed.value = false
   },
   { immediate: true },
 )
-
-// ─── Lifecycle ────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
   await collectionStore.fetchCollections?.()
@@ -629,12 +655,9 @@ onMounted(async () => {
   hydrateTags()
 })
 
-// ─── Form ─────────────────────────────────────────────────────────────────────
-
 function hydrateEditForm() {
   const image = currentArtImage.value
   if (!image) return
-
   editForm.designer = image.designer || ''
   editForm.promptString = image.promptString || ''
   editForm.negativePrompt = image.negativePrompt || ''
@@ -652,7 +675,6 @@ function hydrateTags() {
   const image = currentArtImage.value as
     | (ArtImage & { tags?: { label?: string | null; name?: string | null }[] })
     | null
-
   tagText.value =
     image?.tags
       ?.map((tag) => tag.label || tag.name || '')
@@ -693,31 +715,16 @@ function buildEditPayload() {
   }
 }
 
-function parseTags(): string[] {
-  return tagText.value
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean)
-    .filter((tag, index, tags) => tags.indexOf(tag) === index)
-}
-
-// ─── Save Actions ─────────────────────────────────────────────────────────────
-
 async function saveImageEdits() {
   if (!currentArtImage.value) return
-
   isSaving.value = true
-
   try {
     const response = await artStore.updateArtImage(
       currentArtImage.value.id,
       buildEditPayload(),
     )
-
-    if (!response.success) {
+    if (!response.success)
       throw new Error(response.message || 'Failed to update image.')
-    }
-
     setStatus('Image data updated.')
   } catch (error) {
     setStatus(
@@ -731,25 +738,17 @@ async function saveImageEdits() {
 
 async function saveTags() {
   if (!currentArtImage.value) return
-
   isSavingTags.value = true
-
   try {
-    // Tags on ArtImage via connections endpoint
     const response = await artStore.updateArtImageConnections(
       currentArtImage.value.id,
       {
         clearTags: true,
-        // tagIds resolved from label strings by the backend;
-        // pass tagOwnerId so the backend can create-or-find tags
         tagOwnerId: currentArtImage.value.userId ?? undefined,
       },
     )
-
-    if (!response.success) {
+    if (!response.success)
       throw new Error(response.message || 'Failed to update tags.')
-    }
-
     setStatus('Tags updated.')
   } catch (error) {
     setStatus(
@@ -761,7 +760,29 @@ async function saveTags() {
   }
 }
 
-// ─── Collections ──────────────────────────────────────────────────────────────
+async function confirmDelete() {
+  if (!currentArtImage.value || !deleteArmed.value) return
+  isDeleting.value = true
+  try {
+    const imageId = currentArtImage.value.id
+    const deleted = await artStore.deleteArtImage(imageId)
+    if (deleted) {
+      artStore.deselectArtImage()
+      navStore.setDashboardTab('art', 'gallery')
+    } else {
+      setStatus('Failed to delete image.', 'error')
+      deleteArmed.value = false
+    }
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Failed to delete image.',
+      'error',
+    )
+    deleteArmed.value = false
+  } finally {
+    isDeleting.value = false
+  }
+}
 
 function getCollectionMeta(collection: CollectionLike): string {
   const imageCount =
@@ -773,13 +794,10 @@ function getCollectionMeta(collection: CollectionLike): string {
 
 async function toggleCollection(collectionId: number) {
   if (!currentArtImage.value) return
-
   isCollectionSaving.value = true
-
   try {
     const imageId = currentArtImage.value.id
     const alreadyIn = imageCollectionIds.value.includes(collectionId)
-
     if (alreadyIn) {
       await artStore.updateArtImageConnections(imageId, {
         disconnectArtCollectionIds: [collectionId],
@@ -789,7 +807,6 @@ async function toggleCollection(collectionId: number) {
         artCollectionIds: [collectionId],
       })
     }
-
     await collectionStore.fetchCollections?.(true)
     setStatus(alreadyIn ? 'Removed from collection.' : 'Added to collection.')
   } catch (error) {
@@ -804,14 +821,11 @@ async function toggleCollection(collectionId: number) {
 
 async function handleCreatedCollection(collection: CollectionLike) {
   if (!currentArtImage.value) return
-
   isCollectionSaving.value = true
-
   try {
     await artStore.updateArtImageConnections(currentArtImage.value.id, {
       artCollectionIds: [collection.id],
     })
-
     await collectionStore.fetchCollections?.(true)
     collectionSearch.value = ''
     setStatus('Collection created and image added.')
@@ -827,28 +841,17 @@ async function handleCreatedCollection(collection: CollectionLike) {
   }
 }
 
-// ─── Deselect ─────────────────────────────────────────────────────────────────
-
-/**
- * Clears the selected image and returns to the gallery.
- * slim-gallery reads activeCollectionKey from sessionStorage on activation
- * so it scrolls back to where the user was.
- */
 function deselectAndReturn() {
   artStore.deselectArtImage()
   navStore.setDashboardTab('art', 'gallery')
 }
 
-// ─── Remix ────────────────────────────────────────────────────────────────────
-
 function startRemix() {
   const image = currentArtImage.value
   if (!image) return
-
   const promptParts = [image.promptString, remixPrompt.value.trim()].filter(
     Boolean,
   )
-
   artStore.setArtForm({
     promptString: promptParts.join(', '),
     negativePrompt: image.negativePrompt || '',
@@ -864,11 +867,8 @@ function startRemix() {
     serverName: image.serverName ?? null,
     sourceImageId: image.id,
   })
-
   navStore.setDashboardTab('art', 'generate')
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function setStatus(message: string, tone: 'success' | 'error' = 'success') {
   statusMessage.value = message

@@ -59,8 +59,6 @@
         :show-selected-panel="false"
       />
 
-      <art-interact v-else-if="currentTab === 'selected'" />
-
       <image-upload v-else-if="currentTab === 'upload'" />
 
       <checkpoint-gallery
@@ -153,14 +151,17 @@ const selectedCollectionLabel = computed(() => {
 })
 
 const selectedArtLabel = computed(() => {
-  return artStore.currentArt ? `Art #${artStore.currentArt.id}` : 'no art'
+  if (artStore.currentArtImage) return `Image #${artStore.currentArtImage.id}`
+  if (artStore.currentArt) return `Art #${artStore.currentArt.id}`
+  return 'nothing selected'
 })
 
 const managerSummary = computed(() => {
   const artCount = artStore.art.length
+  const imageCount = artStore.artImages.length
   const collectionCount = collectionStore.collections.length
 
-  return `${artCount} art records and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Selected: ${selectedArtLabel.value}.`
+  return `${artCount} art records, ${imageCount} images, and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Focus: ${selectedArtLabel.value}.`
 })
 
 async function loadManagerData(force = false) {

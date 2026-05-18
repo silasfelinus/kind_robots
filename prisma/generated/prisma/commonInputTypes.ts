@@ -242,6 +242,23 @@ export type FloatWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
 }
 
+export type EnumRarityFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rarity | Prisma.EnumRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.Rarity[]
+  notIn?: $Enums.Rarity[]
+  not?: Prisma.NestedEnumRarityFilter<$PrismaModel> | $Enums.Rarity
+}
+
+export type EnumRarityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rarity | Prisma.EnumRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.Rarity[]
+  notIn?: $Enums.Rarity[]
+  not?: Prisma.NestedEnumRarityWithAggregatesFilter<$PrismaModel> | $Enums.Rarity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRarityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRarityFilter<$PrismaModel>
+}
+
 export type EnumChatTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.ChatType | Prisma.EnumChatTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ChatType[]
@@ -376,6 +393,23 @@ export type EnumSupportedServerWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
+}
+
+export type EnumRewardTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.RewardType | Prisma.EnumRewardTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RewardType[]
+  notIn?: $Enums.RewardType[]
+  not?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel> | $Enums.RewardType
+}
+
+export type EnumRewardTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RewardType | Prisma.EnumRewardTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RewardType[]
+  notIn?: $Enums.RewardType[]
+  not?: Prisma.NestedEnumRewardTypeWithAggregatesFilter<$PrismaModel> | $Enums.RewardType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel>
 }
 
 export type EnumServerTypeFilter<$PrismaModel = never> = {
@@ -792,6 +826,23 @@ export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
 }
 
+export type NestedEnumRarityFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rarity | Prisma.EnumRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.Rarity[]
+  notIn?: $Enums.Rarity[]
+  not?: Prisma.NestedEnumRarityFilter<$PrismaModel> | $Enums.Rarity
+}
+
+export type NestedEnumRarityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Rarity | Prisma.EnumRarityFieldRefInput<$PrismaModel>
+  in?: $Enums.Rarity[]
+  notIn?: $Enums.Rarity[]
+  not?: Prisma.NestedEnumRarityWithAggregatesFilter<$PrismaModel> | $Enums.Rarity
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRarityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRarityFilter<$PrismaModel>
+}
+
 export type NestedEnumChatTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.ChatType | Prisma.EnumChatTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ChatType[]
@@ -926,6 +977,23 @@ export type NestedEnumSupportedServerWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSupportedServerFilter<$PrismaModel>
+}
+
+export type NestedEnumRewardTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.RewardType | Prisma.EnumRewardTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RewardType[]
+  notIn?: $Enums.RewardType[]
+  not?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel> | $Enums.RewardType
+}
+
+export type NestedEnumRewardTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RewardType | Prisma.EnumRewardTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.RewardType[]
+  notIn?: $Enums.RewardType[]
+  not?: Prisma.NestedEnumRewardTypeWithAggregatesFilter<$PrismaModel> | $Enums.RewardType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRewardTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumServerTypeFilter<$PrismaModel = never> = {

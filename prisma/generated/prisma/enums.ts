@@ -48,6 +48,30 @@ export const SupportedServer = {
 export type SupportedServer = (typeof SupportedServer)[keyof typeof SupportedServer]
 
 
+export const RewardType = {
+  SKILL: 'SKILL',
+  ITEM: 'ITEM',
+  TREASURE: 'TREASURE',
+  TITLE: 'TITLE',
+  POWER: 'POWER',
+  STORY: 'STORY'
+} as const
+
+export type RewardType = (typeof RewardType)[keyof typeof RewardType]
+
+
+export const Rarity = {
+  COMMON: 'COMMON',
+  UNCOMMON: 'UNCOMMON',
+  RARE: 'RARE',
+  EPIC: 'EPIC',
+  LEGENDARY: 'LEGENDARY',
+  MYTHIC: 'MYTHIC'
+} as const
+
+export type Rarity = (typeof Rarity)[keyof typeof Rarity]
+
+
 export const ServerAccessMode = {
   LOCAL: 'LOCAL',
   TAILSCALE: 'TAILSCALE',

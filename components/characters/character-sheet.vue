@@ -384,21 +384,23 @@
 
                   <div class="mt-3 grid grid-cols-2 gap-2">
                     <div
-                      v-for="stat in sheet.stats"
+                      v-for="stat in characterStats"
                       :key="stat.key"
                       class="rounded-2xl border bg-base-200 p-3"
                       :class="
-                        stat.value
+                        stat.value !== 'COMMON'
                           ? 'border-primary/30'
                           : 'border-dashed border-base-300 opacity-70'
                       "
                     >
                       <p class="truncate text-sm font-bold text-base-content">
-                        {{ stat.name || 'Stat' }}
+                        {{ stat.label }}
                       </p>
 
-                      <p class="mt-1 text-3xl font-black text-primary">
-                        {{ stat.value || '—' }}
+                      <p
+                        class="mt-1 text-sm font-black uppercase tracking-wide text-primary"
+                      >
+                        {{ stat.value }}
                       </p>
                     </div>
                   </div>
@@ -487,7 +489,7 @@
                           >
                             {{
                               rewardForSlot(slot.key)?.power ||
-                              `${slot.rarityType} ${slot.rewardType}, rarity ${slot.rarity}.`
+                              `${slot.rarity} ${slot.rewardType}.`
                             }}
                           </p>
                         </div>
@@ -506,10 +508,11 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, h, ref, resolveComponent } from 'vue'
-import type {
-  CharacterRewardDraft,
-  CharacterSheetDraft,
-  RewardPromptSlot,
+import {
+  characterStatFields,
+  type CharacterRewardDraft,
+  type CharacterSheetDraft,
+  type RewardPromptSlot,
 } from '@/stores/helpers/characterHelper'
 
 const props = withDefaults(
@@ -539,41 +542,16 @@ const hasPortrait = computed(() =>
   Boolean(props.sheet.imagePath || props.sheet.artImageId),
 )
 
-const characterStats = computed(() => [
-  {
-    key: 'luck',
-    label: 'Luck',
-    value: props.sheet.luck,
-  },
-  {
-    key: 'might',
-    label: 'Might',
-    value: props.sheet.might,
-  },
-  {
-    key: 'wits',
-    label: 'Wits',
-    value: props.sheet.wits,
-  },
-  {
-    key: 'grace',
-    label: 'Grace',
-    value: props.sheet.grace,
-  },
-  {
-    key: 'charm',
-    label: 'Charm',
-    value: props.sheet.charm,
-  },
-  {
-    key: 'empathy',
-    label: 'Empathy',
-    value: props.sheet.empathy,
-  },
-])
+const characterStats = computed(() =>
+  characterStatFields.map((stat) => ({
+    key: stat.key,
+    label: stat.label,
+    value: props.sheet[stat.key],
+  })),
+)
 
 const hasStats = computed(() =>
-  characterStats.value.some((stat) => stat.value !== 'AVERAGE'),
+  characterStats.value.some((stat) => stat.value !== 'COMMON'),
 )
 
 const hasIdentityContent = computed(() => {

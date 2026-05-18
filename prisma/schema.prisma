@@ -345,25 +345,25 @@ model Character {
   achievements   String?   @db.VarChar(764)
   quirks         String?   @db.Text
 
-  luck           ChallengeRating @default(AVERAGE)
-  might          ChallengeRating @default(AVERAGE)
-  wits           ChallengeRating @default(AVERAGE)
-  grace          ChallengeRating @default(AVERAGE)
-  charm          ChallengeRating @default(AVERAGE)
-  empathy        ChallengeRating @default(AVERAGE)
+  luck           Rarity    @default(COMMON)
+  might          Rarity    @default(COMMON)
+  wits           Rarity    @default(COMMON)
+  grace          Rarity    @default(COMMON)
+  charm          Rarity    @default(COMMON)
+  empathy        Rarity    @default(COMMON)
 
   artPrompt      String?   @db.Text
   artImageId     Int?
   imagePath      String?   @db.VarChar(764)
 
-  experience     Int      @default(0)
-  level          Int      @default(1)
+  experience     Int       @default(0)
+  level          Int       @default(1)
 
-  designer       String?  @db.VarChar(256)
-  isPublic       Boolean  @default(true)
-  isMature       Boolean  @default(false)
-  isActive       Boolean  @default(true)
-  userId         Int      @default(10)
+  designer       String?   @db.VarChar(256)
+  isPublic       Boolean   @default(true)
+  isMature       Boolean   @default(false)
+  isActive       Boolean   @default(true)
+  userId         Int       @default(10)
 
   ArtImage       ArtImage?
   User           User      @relation(fields: [userId], references: [id])
@@ -784,38 +784,36 @@ enum SupportedServer {
 }
 
 model Reward {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime?    @default(now()) @updatedAt
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @default(now()) @updatedAt
 
-  icon        String?      @db.VarChar(256)
-  text        String       @db.Text
-  power       String       @db.Text
-  collection  String?      @db.VarChar(764)
-  rarity      Int          @default(1)
-  rarityType  RewardRarity @default(COMMON)
-  label       String?      @db.VarChar(764)
-  rewardType  RewardType   @default(ITEM)
+  icon        String?    @db.VarChar(256)
+  text        String     @db.Text
+  power       String     @db.Text
+  collection  String?    @db.VarChar(764)
+  rarity      Rarity     @default(COMMON)
+  label       String?    @db.VarChar(764)
+  rewardType  RewardType @default(ITEM)
 
-  userId      Int?         @default(1)
+  userId      Int?       @default(1)
   artImageId  Int?
-  imagePath   String?      @db.VarChar(764)
-  artPrompt   String?      @db.Text
+  imagePath   String?    @db.VarChar(764)
+  artPrompt   String?    @db.Text
 
-  isPublic    Boolean      @default(true)
-  isMature    Boolean      @default(false)
-  isActive    Boolean      @default(true)
+  isPublic    Boolean    @default(true)
+  isMature    Boolean    @default(false)
+  isActive    Boolean    @default(true)
 
   ArtImage    ArtImage?
   Reactions   Reaction[]
-  User        User?        @relation(fields: [userId], references: [id])
-  Characters  Character[]  @relation("CharacterToReward")
-  Dreams      Dream[]      @relation("DreamToReward")
+  User        User?      @relation(fields: [userId], references: [id])
+  Characters  Character[] @relation("CharacterToReward")
+  Dreams      Dream[]     @relation("DreamToReward")
   Butterflies Butterfly[]
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
-  @@index([rarityType])
   @@index([rarity])
 }
 
@@ -828,7 +826,7 @@ enum RewardType {
   STORY
 }
 
-enum RewardRarity {
+enum Rarity {
   COMMON
   UNCOMMON
   RARE

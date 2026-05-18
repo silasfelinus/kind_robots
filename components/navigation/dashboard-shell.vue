@@ -3,40 +3,6 @@
   <div
     class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
-    <div
-      v-if="!showHeader"
-      class="relative mb-3 flex shrink-0 items-center gap-3 rounded-xl border border-base-300 bg-base-100 px-3 py-2 shadow-sm"
-      :class="navZClass"
-    >
-      <page-image class="h-10 w-10 shrink-0 rounded-xl" />
-
-      <div class="min-w-0 flex-1">
-        <p
-          v-if="title"
-          class="truncate text-xs font-bold uppercase tracking-[0.18em] text-base-content/40"
-        >
-          {{ title }}
-        </p>
-        <h1
-          class="truncate text-base font-black leading-tight text-base-content"
-        >
-          {{ activeTitle }}
-        </h1>
-      </div>
-
-      <button
-        class="btn btn-sm btn-primary flex h-11 min-h-0 flex-col gap-0 rounded-xl px-3 leading-none"
-        type="button"
-        title="Show header"
-        @click="toggleHeader"
-      >
-        <Icon name="kind-icon:expand" class="h-4 w-4" />
-        <span class="text-[0.65rem] font-black uppercase tracking-wider">
-          Show
-        </span>
-      </button>
-    </div>
-
     <header
       v-if="showHeader"
       class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"

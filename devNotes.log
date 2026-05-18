@@ -120,3 +120,10 @@ fix butterfly animation to avoid ugly angle
 
 5/17 4:11pm
 Working today on migrating the Art objects to Art Image. Currently bug hunting the process of saving collection info when transfering, as it's a large part of our old setup. While this could be done automatically and would save some hassle, I insist on taking days to do it piece by piece. At least this way, I'm troubleshooting errors that might have come up in the move, but I'm also forced to spend extra energy accomodating both patterns. This will be a good move when it's done. I'm finally seeing art collections with art images, so it might be time to set fire on an automated routine.
+
+5/18 1:27am
+Mostly finished migrating art  to art image, looking forward to it finishing.
+
+Scaffolded out a rough draft for an idea of code-card prompts to encourage text and image generation. Started under the components/code folder, but that naming mostly is because the code aspect is something I'm looking forward to exploring.
+
+Might get into trouble now that Dreams and Locations are getting muddied. One is a chatroom experience and the other is the location, but truthfully, the chat room experience is mostly front end. I like the idea of using prompt cards to create a character, and the idea of adventuring with a character that isn't yet formed, and giving them stats as they journey.

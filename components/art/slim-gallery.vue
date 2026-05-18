@@ -237,9 +237,7 @@
         >
           <Icon
             :name="
-              activeGroup.isVirtual
-                ? 'kind-icon:archive'
-                : 'kind-icon:folder-open'
+              activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'
             "
             class="h-4 w-4 shrink-0 text-primary"
           />

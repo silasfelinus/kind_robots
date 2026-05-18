@@ -80,13 +80,6 @@ export const dashboardConfigs = {
         title: 'Art Servers',
         summary: 'Manage image generation servers.',
       },
-      {
-        key: 'selected',
-        label: 'Selected',
-        icon: 'kind-icon:check',
-        title: 'Selected Art',
-        summary: 'Inspect the currently selected art record and image.',
-      },
     ],
   },
 

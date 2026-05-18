@@ -1,899 +1,226 @@
 <!-- /components/builders/character-builder.vue -->
 <template>
-  <builder-shell
-    builder-key="character"
-    title="Character Builder"
-    :sections="sections"
-    :summary-items="summaryItems"
-    initial-section="section"
-    summary-title="Character Summary"
-    summary-subtitle="Review section, name, race/species, gender identity, stats, skills, background, art, and save status."
-    @section-change="activeSection = $event"
-  >
-    <template
-      #default="{ activeSection: currentSection, setSection, goNext, goBack }"
-    >
-      <section v-if="currentSection === 'section'" class="flex flex-col gap-4">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:mask" class="h-6 w-6 text-primary" />
-            Character Section
+  <section class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
+    <header class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 lg:flex-row lg:items-start lg:justify-between">
+      <div class="min-w-0">
+        <h2 class="flex items-center gap-2 text-2xl font-black text-base-content">
+          <Icon name="kind-icon:mask" class="h-7 w-7 text-primary" />
+          Character Builder
+        </h2>
+
+        <p class="mt-1 max-w-3xl text-sm text-base-content/70">
+          Build a character by playing prompt cards. Each finished prompt lands on the character sheet. It is less paperwork, more tiny narrative goblin engine.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button
+          class="btn rounded-xl"
+          type="button"
+          @click="reshuffleDeck"
+        >
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          Reshuffle
+        </button>
+
+        <button
+          class="btn rounded-xl"
+          type="button"
+          @click="resetBuilder"
+        >
+          <Icon name="kind-icon:trash" class="h-4 w-4" />
+          Clear
+        </button>
+
+        <button
+          class="btn btn-primary rounded-xl"
+          type="button"
+          :disabled="isSaving || !canSave"
+          @click="saveCharacter"
+        >
+          <Icon name="kind-icon:save" class="h-4 w-4" />
+          {{ isSaving ? 'Saving...' : 'Save Character' }}
+        </button>
+      </div>
+    </header>
+
+    <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-[1fr_24rem]">
+      <character-sheet :sheet="sheet" />
+
+      <aside class="flex min-h-0 flex-col gap-3">
+        <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <h3 class="flex items-center gap-2 text-lg font-bold text-base-content">
+            <Icon name="kind-icon:cards" class="h-5 w-5 text-primary" />
+            Active Prompt
           </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Decide where this character belongs and what kind of role they play.
-            This gives the rest of the builder context before we start naming
-            the little menace.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[22rem_1fr]">
-            <aside
-              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
-              <label class="form-control">
-                <span class="label-text font-bold">Dream</span>
-
-                <select
-                  v-model.number="selectedDreamId"
-                  class="select select-bordered rounded-2xl"
-                >
-                  <option :value="0">No dream selected</option>
-
-                  <option
-                    v-for="dream in dreamOptions"
-                    :key="dream.id"
-                    :value="dream.id"
-                  >
-                    {{ dream.label }}
-                  </option>
-                </select>
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Character Role</span>
-
-                <select
-                  v-model="characterRole"
-                  class="select select-bordered rounded-2xl"
-                >
-                  <option value="playable hero">Playable Hero</option>
-                  <option value="companion">Companion</option>
-                  <option value="guide">Guide</option>
-                  <option value="rival">Rival</option>
-                  <option value="villain">Villain</option>
-                  <option value="merchant">Merchant</option>
-                  <option value="quest giver">Quest Giver</option>
-                  <option value="wild card">Wild Card</option>
-                  <option value="background legend">Background Legend</option>
-                </select>
-              </label>
-
-              <label class="form-control">
-                <span class="label-text font-bold">Genre</span>
-
-                <input
-                  v-model="genre"
-                  class="input input-bordered rounded-2xl"
-                  type="text"
-                  placeholder="Fantasy, sci-fi, gothic comedy..."
-                />
-              </label>
-
-              <button
-                class="btn btn-secondary rounded-xl"
-                type="button"
-                @click="rollSection"
-              >
-                <Icon name="kind-icon:dice" class="h-4 w-4" />
-                Roll Section Flavor
-              </button>
-            </aside>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <p
-                class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
-              >
-                Character Direction
-              </p>
-
-              <h4 class="mt-2 text-2xl font-bold text-base-content">
-                {{ sectionTitle }}
-              </h4>
-
-              <p class="mt-3 whitespace-pre-wrap text-sm text-base-content/70">
-                {{ sectionPreview }}
-              </p>
-
-              <div
-                class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3"
-              >
-                <p
-                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
-                >
-                  Dream Link
-                </p>
-
-                <p class="mt-2 text-sm text-base-content/70">
-                  {{ selectedDreamLabel || 'No dream selected yet.' }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'name'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:signature" class="h-6 w-6 text-primary" />
-            Name and Identity
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Give the character a name, honorific, class, and alignment. A good
-            name should sound like it already has unpaid emotional invoices.
-          </p>
 
           <div
-            class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4"
+            v-if="activeCard"
+            class="mt-3 flex flex-col gap-3"
           >
-            <label class="form-control">
-              <span class="label-text font-bold">Name</span>
+            <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                {{ activeCard.label }}
+              </p>
 
-              <input
-                v-model="name"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="Name"
-              />
-            </label>
+              <h4 class="mt-2 text-xl font-black text-base-content">
+                {{ activeCard.title }}
+              </h4>
 
-            <label class="form-control">
-              <span class="label-text font-bold">Honorific</span>
+              <p class="mt-2 text-sm text-base-content/70">
+                {{ activeCard.prompt }}
+              </p>
+            </div>
 
-              <input
-                v-model="honorific"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="adventurer"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Class</span>
-
-              <input
-                v-model="characterClass"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="Oracle, rogue, barista knight..."
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Alignment</span>
-
-              <input
-                v-model="alignment"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="Chaotic Helpful"
-              />
-            </label>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary rounded-xl"
-              type="button"
-              @click="rollName"
+            <label
+              v-if="activeCard.inputType === 'short'"
+              class="form-control"
             >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
-              Roll Name
-            </button>
-
-            <button class="btn rounded-xl" type="button" @click="rollIdentity">
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              Roll Identity
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="buildNameFromParts"
-            >
-              <Icon name="kind-icon:wand" class="h-4 w-4" />
-              Build Name
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'race'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:species" class="h-6 w-6 text-primary" />
-            Race / Species
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            The database field is <span class="font-bold">species</span>, so
-            this builder labels it race/species but saves it to
-            Character.species.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_18rem]">
-            <label class="form-control">
-              <span class="label-text font-bold">Race / Species</span>
+              <span class="label-text font-bold">{{ activeCard.inputLabel }}</span>
 
               <input
-                v-model="species"
+                v-model="activeValue"
                 class="input input-bordered rounded-2xl"
                 type="text"
-                placeholder="Human, yokai, clockwork moth, goblin-adjacent..."
+                :placeholder="activeCard.placeholder"
+              />
+            </label>
+
+            <label
+              v-else-if="activeCard.inputType === 'long'"
+              class="form-control"
+            >
+              <span class="label-text font-bold">{{ activeCard.inputLabel }}</span>
+
+              <textarea
+                v-model="activeValue"
+                class="textarea textarea-bordered min-h-40 rounded-2xl text-base"
+                :placeholder="activeCard.placeholder"
               />
             </label>
 
             <div
-              class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+              v-else-if="activeCard.inputType === 'stats'"
+              class="flex flex-col gap-3"
             >
+              <div
+                v-for="stat in sheet.stats"
+                :key="stat.key"
+                class="grid grid-cols-1 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 sm:grid-cols-[1fr_7rem]"
+              >
+                <input
+                  v-model="stat.name"
+                  class="input input-bordered rounded-2xl"
+                  type="text"
+                />
+
+                <input
+                  v-model.number="stat.value"
+                  class="input input-bordered rounded-2xl"
+                  type="number"
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
+
+            <div
+              v-else-if="activeCard.inputType === 'art'"
+              class="flex flex-col gap-3"
+            >
+              <label class="form-control">
+                <span class="label-text font-bold">Character Art Prompt</span>
+
+                <textarea
+                  v-model="sheet.artPrompt"
+                  class="textarea textarea-bordered min-h-36 rounded-2xl text-base"
+                  placeholder="Portrait prompt, costume, mood, expression, visual style..."
+                />
+              </label>
+
+              <art-creator
+                purpose="character"
+                :model-id="selectedCharacterId"
+                :model-title="sheet.name"
+                :prompt="sheet.artPrompt"
+                image-role="portrait"
+                @update="updateCharacterArt"
+              />
+            </div>
+
+            <div class="flex flex-wrap gap-2">
               <button
                 class="btn btn-secondary rounded-xl"
                 type="button"
-                @click="rollSpecies"
+                @click="rollActiveCard"
               >
                 <Icon name="kind-icon:dice" class="h-4 w-4" />
-                Roll Species
+                Suggest
+              </button>
+
+              <button
+                class="btn btn-primary rounded-xl"
+                type="button"
+                @click="completeActiveCard"
+              >
+                <Icon name="kind-icon:check" class="h-4 w-4" />
+                Add to Sheet
               </button>
 
               <button
                 class="btn rounded-xl"
                 type="button"
-                @click="makeSpeciesWeird"
+                @click="skipActiveCard"
               >
-                <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-                Make It Weird
+                <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+                Skip
               </button>
             </div>
           </div>
-        </div>
 
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
+          <div
+            v-else
+            class="mt-3 rounded-2xl border border-base-300 bg-base-100 p-4 text-sm text-base-content/70"
           >
-            Continue
-          </button>
-        </div>
-      </section>
+            Pick a card from the bottom deck. The cards are friendly. Mostly.
+          </div>
+        </section>
 
-      <section
-        v-else-if="currentSection === 'gender'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:person" class="h-6 w-6 text-primary" />
-            Gender and Presentation
+        <section class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-4">
+          <h3 class="flex items-center gap-2 text-lg font-bold text-base-content">
+            <Icon name="kind-icon:blueprint" class="h-5 w-5 text-primary" />
+            Builder Notes
           </h3>
 
-          <p class="mt-1 text-sm text-base-content/70">
-            There is no Character.gender field yet. This builder keeps gender
-            identity as local builder context and folds it into
-            personality/backstory when saving.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div class="mt-3 flex flex-col gap-3">
             <label class="form-control">
-              <span class="label-text font-bold">Gender Identity</span>
+              <span class="label-text font-bold">Dream Context</span>
 
-              <input
-                v-model="genderIdentity"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="Woman, man, nonbinary, agender, fluid, unknown..."
-              />
-            </label>
+              <select
+                v-model.number="selectedDreamId"
+                class="select select-bordered rounded-2xl"
+              >
+                <option :value="0">No dream selected</option>
 
-            <label class="form-control">
-              <span class="label-text font-bold">Presentation</span>
-
-              <input
-                v-model="presentation"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="Glamorous, practical, masked, ceremonial..."
-              />
-            </label>
-
-            <label class="form-control md:col-span-2">
-              <span class="label-text font-bold">Personality</span>
-
-              <textarea
-                v-model="personality"
-                class="textarea textarea-bordered min-h-32 rounded-2xl text-base"
-                placeholder="How they talk, react, flirt with danger, avoid responsibility..."
-              />
-            </label>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary rounded-xl"
-              type="button"
-              @click="rollPersonality"
-            >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
-              Roll Personality
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="appendGenderToPersonality"
-            >
-              <Icon name="kind-icon:plus" class="h-4 w-4" />
-              Add to Personality
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'stats'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:activity" class="h-6 w-6 text-primary" />
-            Stats
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Set six flexible stats and four personality axis goals. This lets
-            characters behave like story machines instead of stat spreadsheets
-            with hats.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">Core Stats</h4>
-
-              <div class="mt-3 grid grid-cols-1 gap-3">
-                <div
-                  v-for="stat in stats"
-                  :key="stat.key"
-                  class="grid grid-cols-1 gap-2 rounded-2xl border border-base-300 bg-base-200 p-3 sm:grid-cols-[1fr_8rem]"
+                <option
+                  v-for="dream in dreamOptions"
+                  :key="dream.id"
+                  :value="dream.id"
                 >
-                  <input
-                    v-model="stat.name"
-                    class="input input-bordered rounded-2xl"
-                    type="text"
-                    placeholder="Stat name"
-                  />
+                  {{ dream.label }}
+                </option>
+              </select>
+            </label>
 
-                  <input
-                    v-model.number="stat.value"
-                    class="input input-bordered rounded-2xl"
-                    type="number"
-                    min="0"
-                    max="100"
-                  />
-                </div>
-              </div>
+            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                Save Status
+              </p>
+
+              <p class="mt-2 text-sm text-base-content/70">
+                {{ saveStatus }}
+              </p>
             </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">Goal Axes</h4>
-
-              <div class="mt-3 grid grid-cols-1 gap-3">
-                <div
-                  v-for="goal in goalStats"
-                  :key="goal.key"
-                  class="rounded-2xl border border-base-300 bg-base-200 p-3"
-                >
-                  <input
-                    v-model="goal.name"
-                    class="input input-bordered w-full rounded-2xl"
-                    type="text"
-                    placeholder="Axis name"
-                  />
-
-                  <input
-                    v-model.number="goal.value"
-                    class="range range-primary mt-3"
-                    type="range"
-                    min="-100"
-                    max="100"
-                  />
-
-                  <div
-                    class="mt-1 text-center text-sm font-bold text-base-content/70"
-                  >
-                    {{ goal.value }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary rounded-xl"
-              type="button"
-              @click="rollStats"
-            >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
-              Roll Stats
-            </button>
-
-            <button class="btn rounded-xl" type="button" @click="resetStats">
-              <Icon name="kind-icon:refresh" class="h-4 w-4" />
-              Reset Defaults
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'skills'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:sparkles" class="h-6 w-6 text-primary" />
-            Skills and Inventory
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Give the character things they can do and things they probably
-            should not be trusted with.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <label class="form-control">
-              <span class="label-text font-bold">Skills</span>
-
-              <textarea
-                v-model="skills"
-                class="textarea textarea-bordered min-h-40 rounded-2xl text-base"
-                placeholder="Sword dancing, emotional blackmail, ritual accounting..."
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Inventory</span>
-
-              <textarea
-                v-model="inventory"
-                class="textarea textarea-bordered min-h-40 rounded-2xl text-base"
-                placeholder="A haunted spoon, three apology letters, a pocket moon..."
-              />
-            </label>
-
-            <label class="form-control lg:col-span-2">
-              <span class="label-text font-bold">Quirks</span>
-
-              <textarea
-                v-model="quirks"
-                class="textarea textarea-bordered min-h-32 rounded-2xl text-base"
-                placeholder="Refuses to enter rooms normally. Apologizes to doors. Collects ceremonial receipts..."
-              />
-            </label>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary rounded-xl"
-              type="button"
-              @click="rollSkills"
-            >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
-              Roll Skills
-            </button>
-
-            <button class="btn rounded-xl" type="button" @click="rollInventory">
-              <Icon name="kind-icon:backpack" class="h-4 w-4" />
-              Roll Inventory
-            </button>
-
-            <button class="btn rounded-xl" type="button" @click="rollQuirks">
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              Roll Quirks
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'background'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:story" class="h-6 w-6 text-primary" />
-            Background
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Define what this character wants, what happened to them, and why
-            they keep making everything narratively complicated.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3">
-            <label class="form-control">
-              <span class="label-text font-bold">Drive</span>
-
-              <input
-                v-model="drive"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="What do they want?"
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Backstory</span>
-
-              <textarea
-                v-model="backstory"
-                class="textarea textarea-bordered min-h-52 rounded-2xl text-base"
-                placeholder="Where they came from, what broke beautifully, what they refuse to admit..."
-              />
-            </label>
-
-            <label class="form-control">
-              <span class="label-text font-bold">Achievements</span>
-
-              <input
-                v-model="achievements"
-                class="input input-bordered rounded-2xl"
-                type="text"
-                placeholder="Defeated the Tax Hydra, survived brunch with ghosts..."
-              />
-            </label>
-          </div>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary rounded-xl"
-              type="button"
-              @click="rollBackstory"
-            >
-              <Icon name="kind-icon:dice" class="h-4 w-4" />
-              Roll Backstory
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="buildBackstory"
-            >
-              <Icon name="kind-icon:wand" class="h-4 w-4" />
-              Build from Character
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section v-else-if="currentSection === 'art'" class="flex flex-col gap-4">
-        <art-creator
-          purpose="character"
-          :model-id="selectedCharacterId"
-          :model-title="name"
-          :prompt="artPrompt"
-          image-role="portrait"
-          @update="updateCharacterArt"
-        />
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Summary
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'summary'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
-            <Icon name="kind-icon:blueprint" class="h-6 w-6" />
-            Character Summary
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Review the character before saving. Saved characters can connect to
-            dreams, rewards, scenarios, chats, and butterflies. Obviously
-            butterflies.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_22rem]">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-            <div class="flex flex-col gap-3">
-              <div class="flex items-start gap-3">
-                <div
-                  class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
-                >
-                  <img
-                    v-if="imagePath"
-                    :src="imagePath"
-                    alt="Character art"
-                    class="h-full w-full object-cover"
-                  />
-
-                  <Icon
-                    v-else
-                    name="kind-icon:mask"
-                    class="h-10 w-10 text-primary"
-                  />
-                </div>
-
-                <div class="min-w-0">
-                  <p
-                    class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
-                  >
-                    Character
-                  </p>
-
-                  <h3 class="mt-1 text-2xl font-bold text-base-content">
-                    {{ name || 'Unnamed Character' }}
-                  </h3>
-
-                  <p class="mt-1 text-sm text-base-content/70">
-                    {{ honorific || 'adventurer' }} ·
-                    {{ species || 'Unknown species' }} ·
-                    {{ characterClass || 'Unclassed' }}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
-                >
-                  Background
-                </p>
-
-                <p
-                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
-                >
-                  {{ backstory || 'No backstory yet.' }}
-                </p>
-              </div>
-
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
-                >
-                  Skills
-                </p>
-
-                <p
-                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
-                >
-                  {{ skills || 'No skills yet.' }}
-                </p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 md:grid-cols-3">
-                <div
-                  v-for="stat in stats"
-                  :key="stat.key"
-                  class="rounded-2xl border border-base-300 bg-base-100 p-3"
-                >
-                  <p class="text-sm font-bold text-base-content">
-                    {{ stat.name || 'Stat' }}
-                  </p>
-
-                  <p class="text-2xl font-black text-primary">
-                    {{ stat.value }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <aside
-            class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
-          >
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('section')"
-            >
-              <Icon name="kind-icon:mask" class="h-4 w-4" />
-              Edit Section
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('name')"
-            >
-              <Icon name="kind-icon:signature" class="h-4 w-4" />
-              Edit Name
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('race')"
-            >
-              <Icon name="kind-icon:species" class="h-4 w-4" />
-              Edit Race
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('gender')"
-            >
-              <Icon name="kind-icon:person" class="h-4 w-4" />
-              Edit Gender
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('stats')"
-            >
-              <Icon name="kind-icon:activity" class="h-4 w-4" />
-              Edit Stats
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('skills')"
-            >
-              <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              Edit Skills
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('background')"
-            >
-              <Icon name="kind-icon:story" class="h-4 w-4" />
-              Edit Background
-            </button>
-
-            <button
-              class="btn rounded-xl"
-              type="button"
-              @click="setSection('art')"
-            >
-              <Icon name="kind-icon:palette" class="h-4 w-4" />
-              Edit Art
-            </button>
-
-            <button
-              class="btn btn-primary rounded-xl"
-              type="button"
-              :disabled="isSaving || !canSave"
-              @click="saveCharacter"
-            >
-              <Icon name="kind-icon:save" class="h-4 w-4" />
-              {{ isSaving ? 'Saving...' : 'Save Character' }}
-            </button>
 
             <p
               v-if="saveMessage"
@@ -908,87 +235,70 @@
             >
               {{ saveError }}
             </p>
-          </aside>
-        </div>
+          </div>
+        </section>
+      </aside>
+    </div>
 
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <article
-            v-for="item in summaryItems"
-            :key="item.key"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
-          >
-            <div class="flex items-start gap-3">
-              <div
-                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
-              >
-                <img
-                  v-if="item.image"
-                  :src="item.image"
-                  :alt="item.label"
-                  class="h-full w-full object-cover"
-                />
+    <footer class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-2">
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button
+          v-for="card in visibleDeck"
+          :key="card.key"
+          class="group flex min-w-56 max-w-64 shrink-0 items-center gap-3 rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:bg-primary/10"
+          :class="cardButtonClass(card)"
+          type="button"
+          @click="selectCard(card)"
+        >
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-base-300 group-hover:bg-primary/20">
+            <Icon
+              :name="card.icon"
+              class="h-5 w-5 text-primary"
+            />
+          </div>
 
-                <Icon
-                  v-else
-                  :name="item.icon || 'kind-icon:sparkles'"
-                  class="h-7 w-7 text-primary"
-                />
-              </div>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-black text-base-content">
+              {{ card.title }}
+            </p>
 
-              <div class="min-w-0">
-                <p class="font-bold text-base-content">
-                  {{ item.label }}
-                </p>
-
-                <p class="mt-1 line-clamp-3 text-sm text-base-content/70">
-                  {{ displaySummaryValue(item.value) }}
-                </p>
-
-                <p
-                  v-if="item.description"
-                  class="mt-1 line-clamp-2 text-xs text-base-content/50"
-                >
-                  {{ item.description }}
-                </p>
-              </div>
-            </div>
-
-            <button
-              v-if="item.editSection"
-              class="btn btn-sm mt-3 rounded-xl"
-              type="button"
-              @click="setSection(item.editSection)"
-            >
-              Reconfigure
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
-      >
-        Unknown character builder section: {{ currentSection }}
+            <p class="line-clamp-2 text-xs text-base-content/60">
+              {{ card.prompt }}
+            </p>
+          </div>
+        </button>
       </div>
-    </template>
-  </builder-shell>
+    </footer>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { Character, Dream } from '~/prisma/generated/prisma/client'
-import type {
-  BuilderChoiceSummary,
-  BuilderSectionConfig,
-} from '@/components/builders/builder-shell.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { handleError, performFetch } from '@/stores/utils'
+import type { CharacterSheetDraft, CharacterSheetStat } from '@/components/builders/character-sheet.vue'
 
 type SelectOption = {
   id: number
   label: string
+}
+
+type PromptInputType = 'short' | 'long' | 'stats' | 'art'
+
+type CharacterPromptCard = {
+  key: string
+  label: string
+  title: string
+  icon: string
+  prompt: string
+  inputLabel: string
+  placeholder: string
+  inputType: PromptInputType
+  field?: keyof CharacterSheetDraft
+  required?: boolean
+  unlockWhen?: () => boolean
 }
 
 type ArtCreatorPayload = {
@@ -996,9 +306,10 @@ type ArtCreatorPayload = {
   modelId: number | null
   modelTitle: string
   prompt: string
-  negativePrompt: string
+  negativePrompt?: string
   imageRole: string
-  imagePath: string | null
+  imagePath?: string | null
+  artImageId?: number | null
 }
 
 type PerformFetchResult<T> = {
@@ -1008,415 +319,426 @@ type PerformFetchResult<T> = {
   statusCode?: number
 }
 
-type StatRow = {
-  key: string
-  name: string
-  value: number
-}
-
 const CHARACTER_ENDPOINT = '/api/character'
 
 const userStore = useUserStore()
 const randomStore = useRandomStore()
 
-const activeSection = ref<string>('section')
 const selectedCharacterId = ref<number | null>(null)
-
 const selectedDreamId = ref(0)
 const dreamOptions = ref<SelectOption[]>([])
 
-const characterRole = ref('playable hero')
-const genre = ref('')
-const name = ref('')
-const honorific = ref('adventurer')
-const characterClass = ref('')
-const alignment = ref('')
-const species = ref('')
-const genderIdentity = ref('')
-const presentation = ref('')
-const personality = ref('')
-const skills = ref('')
-const inventory = ref('')
-const quirks = ref('')
-const drive = ref('')
-const backstory = ref('')
-const achievements = ref('')
-const artPrompt = ref('')
-const imagePath = ref<string | null>(null)
+const activeCard = ref<CharacterPromptCard | null>(null)
+const activeValue = ref('')
 
-const experience = ref(0)
-const level = ref(1)
-const isPublic = ref(true)
-const isMature = ref(false)
-const isActive = ref(true)
+const completedCards = reactive<Record<string, boolean>>({})
 
 const isSaving = ref(false)
 const saveMessage = ref('')
 const saveError = ref('')
 
-const stats = reactive<StatRow[]>([
-  { key: 'stat1', name: 'Luck', value: 59 },
-  { key: 'stat2', name: 'Swol', value: 49 },
-  { key: 'stat3', name: 'Wits', value: 72 },
-  { key: 'stat4', name: 'Flexibility', value: 93 },
-  { key: 'stat5', name: 'Rizz', value: 9 },
-  { key: 'stat6', name: 'Empathy', value: 71 },
-])
+const sheet = reactive<CharacterSheetDraft>({
+  name: '',
+  honorific: 'adventurer',
+  title: '',
+  role: '',
+  genre: '',
+  species: '',
+  characterClass: '',
+  alignment: '',
+  genderIdentity: '',
+  presentation: '',
+  personality: '',
+  drive: '',
+  backstory: '',
+  achievements: '',
+  skills: '',
+  inventory: '',
+  quirks: '',
+  artPrompt: '',
+  imagePath: null,
+  stats: [
+    { key: 'stat1', name: 'Luck', value: 59 },
+    { key: 'stat2', name: 'Swol', value: 49 },
+    { key: 'stat3', name: 'Wits', value: 72 },
+    { key: 'stat4', name: 'Flexibility', value: 93 },
+    { key: 'stat5', name: 'Rizz', value: 9 },
+    { key: 'stat6', name: 'Empathy', value: 71 },
+  ],
+  goalStats: [
+    { key: 'goal1', name: 'Principled|Chaotic', value: 0 },
+    { key: 'goal2', name: 'Introvert|Extrovert', value: 0 },
+    { key: 'goal3', name: 'Passive|Aggressive', value: 0 },
+    { key: 'goal4', name: 'Optimist|Pessimist', value: 0 },
+  ],
+})
 
-const goalStats = reactive<StatRow[]>([
-  { key: 'goal1', name: 'Principled|Chaotic', value: 0 },
-  { key: 'goal2', name: 'Introvert|Extrovert', value: 0 },
-  { key: 'goal3', name: 'Passive|Aggressive', value: 0 },
-  { key: 'goal4', name: 'Optimist|Pessimist', value: 0 },
-])
-
-const sections: BuilderSectionConfig[] = [
+const promptCards = computed<CharacterPromptCard[]>(() => [
   {
-    key: 'section',
-    label: 'Section',
+    key: 'role',
+    label: 'Place in the Story',
+    title: 'What role do they play?',
     icon: 'kind-icon:mask',
-    title: 'Character Section',
-    summary: 'Choose dream context, genre, and the role this character plays.',
+    prompt: 'Are they a hero, rival, guide, menace, merchant, villain, or beautifully suspicious side character?',
+    inputLabel: 'Character Role',
+    placeholder: 'Companion, rival, guide, villain, quest giver...',
+    inputType: 'short',
+    field: 'role',
+    required: true,
   },
   {
     key: 'name',
     label: 'Name',
+    title: 'Give them a name',
     icon: 'kind-icon:signature',
-    title: 'Name and Identity',
-    summary: 'Choose name, honorific, class, and alignment.',
-  },
-  {
-    key: 'race',
-    label: 'Race',
-    icon: 'kind-icon:species',
-    title: 'Race / Species',
-    summary:
-      'Choose the character race or species. This saves to Character.species.',
-  },
-  {
-    key: 'gender',
-    label: 'Gender',
-    icon: 'kind-icon:person',
-    title: 'Gender and Presentation',
-    summary: 'Choose gender identity, presentation, and personality context.',
-  },
-  {
-    key: 'stats',
-    label: 'Stats',
-    icon: 'kind-icon:activity',
-    title: 'Stats',
-    summary: 'Set six core stats and four goal-axis values.',
-  },
-  {
-    key: 'skills',
-    label: 'Skills',
-    icon: 'kind-icon:sparkles',
-    title: 'Skills',
-    summary: 'Define skills, inventory, and quirks.',
-  },
-  {
-    key: 'background',
-    label: 'Background',
-    icon: 'kind-icon:story',
-    title: 'Background',
-    summary: 'Define drive, backstory, and achievements.',
-  },
-  {
-    key: 'art',
-    label: 'Art',
-    icon: 'kind-icon:palette',
-    title: 'Character Art',
-    summary: 'Create, upload, generate, or select character art.',
-  },
-  {
-    key: 'summary',
-    label: 'Summary',
-    icon: 'kind-icon:blueprint',
-    title: 'Character Summary',
-    summary: 'Review and save the character.',
-  },
-]
-
-const selectedDreamLabel = computed(() => {
-  return (
-    dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)
-      ?.label ?? ''
-  )
-})
-
-const sectionTitle = computed(() => {
-  return selectedDreamLabel.value
-    ? `${characterRole.value} in ${selectedDreamLabel.value}`
-    : `${characterRole.value} character`
-})
-
-const sectionPreview = computed(() => {
-  return [
-    genre.value ? `Genre: ${genre.value}.` : '',
-    selectedDreamLabel.value ? `Dream: ${selectedDreamLabel.value}.` : '',
-    `Role: ${characterRole.value}.`,
-  ]
-    .filter(Boolean)
-    .join(' ')
-})
-
-const canSave = computed(() => {
-  return name.value.trim().length > 0
-})
-
-const summaryItems = computed<BuilderChoiceSummary[]>(() => [
-  {
-    key: 'section',
-    label: 'Section',
-    value: sectionPreview.value,
-    icon: 'kind-icon:mask',
-    description: 'Dream context and character role.',
-    editSection: 'section',
-  },
-  {
-    key: 'name',
-    label: 'Name',
-    value: name.value,
-    icon: 'kind-icon:signature',
-    description: `${honorific.value || 'adventurer'} · ${characterClass.value || 'unclassed'}`,
-    editSection: 'name',
+    prompt: 'Name the character like they already owe someone a dramatic apology.',
+    inputLabel: 'Name',
+    placeholder: 'Mira Voss, Buttonwick, Saint Crumble...',
+    inputType: 'short',
+    field: 'name',
+    required: true,
   },
   {
     key: 'species',
-    label: 'Race / Species',
-    value: species.value,
+    label: 'Species',
+    title: 'What are they?',
     icon: 'kind-icon:species',
-    description: 'Saved to Character.species.',
-    editSection: 'race',
+    prompt: 'Pick their people, species, origin, or “technically complicated” biology.',
+    inputLabel: 'Species',
+    placeholder: 'Human, goblin, ghost, moon-moth, clockwork saint...',
+    inputType: 'short',
+    field: 'species',
+    required: true,
   },
   {
-    key: 'gender',
-    label: 'Gender',
-    value: genderIdentity.value,
+    key: 'identity',
+    label: 'Identity',
+    title: 'How do they show up?',
     icon: 'kind-icon:person',
-    description: presentation.value || 'Presentation not set.',
-    editSection: 'gender',
+    prompt: 'Set gender identity, presentation, vibe, and how the world reads them.',
+    inputLabel: 'Identity and Presentation',
+    placeholder: 'Nonbinary, ceremonial, glamorous, masked, practical...',
+    inputType: 'long',
+    field: 'presentation',
+  },
+  {
+    key: 'class',
+    label: 'Class',
+    title: 'What is their calling?',
+    icon: 'kind-icon:sparkles',
+    prompt: 'Give them a class, job, archetype, or suspiciously specific life function.',
+    inputLabel: 'Class',
+    placeholder: 'Oracle, rogue, plague baker, haunted accountant...',
+    inputType: 'short',
+    field: 'characterClass',
+    required: true,
+  },
+  {
+    key: 'personality',
+    label: 'Personality',
+    title: 'How do they behave?',
+    icon: 'kind-icon:heart',
+    prompt: 'Describe how they talk, react, panic, posture, charm, sulk, or lie to themselves.',
+    inputLabel: 'Personality',
+    placeholder: 'Warm but evasive. Brave until paperwork appears...',
+    inputType: 'long',
+    field: 'personality',
+    required: true,
   },
   {
     key: 'stats',
     label: 'Stats',
-    value: stats.map((stat) => `${stat.name}: ${stat.value}`).join(', '),
+    title: 'Tune the stat goblin',
     icon: 'kind-icon:activity',
-    description: 'Six flexible character stats.',
-    editSection: 'stats',
+    prompt: 'Adjust their six core stats. Numbers are narrative spice, not prison bars.',
+    inputLabel: 'Stats',
+    placeholder: '',
+    inputType: 'stats',
+    required: true,
   },
   {
     key: 'skills',
     label: 'Skills',
-    value: skills.value,
-    icon: 'kind-icon:sparkles',
-    description: quirks.value || 'No quirks yet.',
-    editSection: 'skills',
+    title: 'What can they do?',
+    icon: 'kind-icon:bolt',
+    prompt: 'Give them skills, talents, combat tricks, social nonsense, or suspicious hobbies.',
+    inputLabel: 'Skills',
+    placeholder: 'Sword dancing, lockpicking, ritual accounting...',
+    inputType: 'long',
+    field: 'skills',
+    required: true,
+  },
+  {
+    key: 'inventory',
+    label: 'Inventory',
+    title: 'What do they carry?',
+    icon: 'kind-icon:backpack',
+    prompt: 'Add possessions, tools, keepsakes, weapons, snacks, cursed objects, and regrettable receipts.',
+    inputLabel: 'Inventory',
+    placeholder: 'A silver thimble, three maps, a knife named Kevin...',
+    inputType: 'long',
+    field: 'inventory',
+  },
+  {
+    key: 'quirks',
+    label: 'Quirks',
+    title: 'What makes them weird?',
+    icon: 'kind-icon:bug',
+    prompt: 'Give them memorable habits. The kind of details players quote later.',
+    inputLabel: 'Quirks',
+    placeholder: 'Apologizes to doors. Collects doomed spoons...',
+    inputType: 'long',
+    field: 'quirks',
   },
   {
     key: 'background',
     label: 'Background',
-    value: backstory.value,
+    title: 'Where did they come from?',
     icon: 'kind-icon:story',
-    description: drive.value || 'No drive yet.',
-    editSection: 'background',
+    prompt: 'Write the backstory. Include desire, trouble, history, and one excellent emotional bruise.',
+    inputLabel: 'Backstory',
+    placeholder: 'They were raised by...',
+    inputType: 'long',
+    field: 'backstory',
+    required: true,
   },
   {
     key: 'art',
     label: 'Art',
-    value: artPrompt.value,
-    image: imagePath.value,
+    title: 'Create their portrait',
     icon: 'kind-icon:palette',
-    description: 'Character portrait or concept art.',
-    editSection: 'art',
-  },
-  {
-    key: 'save',
-    label: 'Save Status',
-    value: selectedCharacterId.value
-      ? `Saved as #${selectedCharacterId.value}`
-      : 'Not saved yet',
-    icon: selectedCharacterId.value ? 'kind-icon:check' : 'kind-icon:save',
-    description:
-      'Saved characters can connect to dreams, rewards, and scenarios.',
-    editSection: 'summary',
+    prompt: 'Build the visual prompt, then generate or select art for this character.',
+    inputLabel: 'Art Prompt',
+    placeholder: '',
+    inputType: 'art',
+    unlockWhen: () => canCreateArt.value,
   },
 ])
 
-function rollFrom(key: string, fallback = '') {
-  return randomStore.getRandom(key, 1)[0] ?? fallback
-}
-
-function rollSection() {
-  genre.value = rollFrom('genre', genre.value)
-  characterRole.value =
-    rollFrom('class', characterRole.value) || characterRole.value
-}
-
-function rollName() {
-  name.value = rollFrom('name', name.value)
-}
-
-function rollIdentity() {
-  honorific.value = rollFrom('honorific', honorific.value)
-  characterClass.value = rollFrom('class', characterClass.value)
-  alignment.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom('personality', 'Helpful')}`
-}
-
-function buildNameFromParts() {
-  const rolledName = name.value || rollFrom('name', 'Ami')
-  const rolledTitle = honorific.value || rollFrom('honorific', 'adventurer')
-  name.value = `${rolledName} the ${capitalize(rolledTitle)}`
-}
-
-function rollSpecies() {
-  species.value = rollFrom('species', species.value)
-}
-
-function makeSpeciesWeird() {
-  const adjective = rollFrom('adjective', 'strange')
-  const animal = rollFrom('animal', 'moth')
-  species.value = `${capitalize(adjective)} ${capitalize(animal)}-kin`
-}
-
-function rollPersonality() {
-  personality.value = rollFrom('personality', personality.value)
-}
-
-function appendGenderToPersonality() {
-  const additions = [
-    genderIdentity.value ? `Gender identity: ${genderIdentity.value}.` : '',
-    presentation.value ? `Presentation: ${presentation.value}.` : '',
-  ].filter(Boolean)
-
-  if (!additions.length) return
-
-  personality.value = [personality.value.trim(), ...additions]
-    .filter(Boolean)
-    .join('\n')
-}
-
-function rollStats() {
-  for (const stat of stats) {
-    stat.value = Math.floor(Math.random() * 101)
-  }
-
-  for (const goal of goalStats) {
-    goal.value = Math.floor(Math.random() * 201) - 100
-  }
-}
-
-function applyStatRow(
-  rows: StatRow[],
-  index: number,
-  name: string,
-  value: number,
-) {
-  const row = rows[index]
-
-  if (!row) return
-
-  row.name = name
-  row.value = value
-}
-
-function resetStats() {
-  const defaults: Array<Pick<StatRow, 'name' | 'value'>> = [
-    { name: 'Luck', value: 59 },
-    { name: 'Swol', value: 49 },
-    { name: 'Wits', value: 72 },
-    { name: 'Flexibility', value: 93 },
-    { name: 'Rizz', value: 9 },
-    { name: 'Empathy', value: 71 },
-  ]
-
-  defaults.forEach((item, index) => {
-    applyStatRow(stats, index, item.name, item.value)
+const visibleDeck = computed(() => {
+  return promptCards.value.filter((card) => {
+    if (card.unlockWhen && !card.unlockWhen()) return false
+    return !completedCards[card.key] || card.key === 'art'
   })
+})
 
-  applyStatRow(goalStats, 0, 'Principled|Chaotic', 0)
-  applyStatRow(goalStats, 1, 'Introvert|Extrovert', 0)
-  applyStatRow(goalStats, 2, 'Passive|Aggressive', 0)
-  applyStatRow(goalStats, 3, 'Optimist|Pessimist', 0)
+const requiredCards = computed(() => {
+  return promptCards.value.filter((card) => card.required)
+})
+
+const canCreateArt = computed(() => {
+  return ['name', 'species', 'class', 'personality', 'background'].every((key) => completedCards[key])
+})
+
+const canSave = computed(() => {
+  return Boolean(sheet.name.trim()) && canCreateArt.value
+})
+
+const saveStatus = computed(() => {
+  if (selectedCharacterId.value) return `Saved as character #${selectedCharacterId.value}. Tiny legend notarized.`
+  if (!canSave.value) return 'Finish the core cards before saving.'
+  return 'Ready to save.'
+})
+
+function selectCard(card: CharacterPromptCard) {
+  activeCard.value = card
+  activeValue.value = card.field ? String(sheet[card.field] || '') : ''
 }
-function rollSkills() {
-  const rolled = [rollFrom('skill'), rollFrom('skill'), rollFrom('skill')]
+
+function completeActiveCard() {
+  if (!activeCard.value) return
+
+  if (activeCard.value.inputType === 'stats') {
+    completedCards[activeCard.value.key] = true
+    replaceActiveCard()
+    return
+  }
+
+  if (activeCard.value.inputType === 'art') {
+    completedCards[activeCard.value.key] = Boolean(sheet.artPrompt.trim() || sheet.imagePath)
+    replaceActiveCard()
+    return
+  }
+
+  if (activeCard.value.key === 'identity') {
+    applyIdentityPrompt(activeValue.value)
+    completedCards[activeCard.value.key] = true
+    replaceActiveCard()
+    return
+  }
+
+  if (activeCard.value.field) {
+    const field = activeCard.value.field
+    const value = activeValue.value.trim()
+
+    if (typeof sheet[field] === 'string') {
+      ;(sheet[field] as string) = value
+    }
+  }
+
+  completedCards[activeCard.value.key] = true
+  buildArtPrompt()
+  replaceActiveCard()
+}
+
+function skipActiveCard() {
+  replaceActiveCard()
+}
+
+function replaceActiveCard() {
+  const next = visibleDeck.value.find((card) => card.key !== activeCard.value?.key) || null
+  activeCard.value = next
+  activeValue.value = next?.field ? String(sheet[next.field] || '') : ''
+}
+
+function reshuffleDeck() {
+  const available = [...visibleDeck.value]
+  const next = available[Math.floor(Math.random() * available.length)] || null
+
+  activeCard.value = next
+  activeValue.value = next?.field ? String(sheet[next.field] || '') : ''
+}
+
+function rollActiveCard() {
+  if (!activeCard.value) return
+
+  const key = activeCard.value.key
+
+  if (key === 'name') {
+    activeValue.value = rollFrom('name', 'Mira Voss')
+    return
+  }
+
+  if (key === 'species') {
+    activeValue.value = rollFrom('species', 'Moon-Moth Human')
+    return
+  }
+
+  if (key === 'class') {
+    activeValue.value = rollFrom('class', 'Oracle')
+    return
+  }
+
+  if (key === 'role') {
+    activeValue.value = rollFrom('role', 'companion')
+    return
+  }
+
+  if (key === 'identity') {
+    activeValue.value = [
+      `Gender identity: ${rollFrom('gender', 'unknown')}.`,
+      `Presentation: ${rollFrom('presentation', 'ceremonial and slightly dangerous')}.`,
+    ].join('\n')
+    return
+  }
+
+  if (key === 'personality') {
+    activeValue.value = rollFrom('personality', 'Warm, theatrical, and allergic to simple answers.')
+    return
+  }
+
+  if (key === 'skills') {
+    activeValue.value = [
+      rollFrom('skill', 'dangerous etiquette'),
+      rollFrom('skill', 'improvised spellwork'),
+      rollFrom('skill', 'knife juggling'),
+    ].join(', ')
+    return
+  }
+
+  if (key === 'inventory') {
+    activeValue.value = [
+      rollFrom('item', 'a cracked mirror'),
+      rollFrom('item', 'a ribboned dagger'),
+      rollFrom('item', 'three emergency biscuits'),
+    ].join(', ')
+    return
+  }
+
+  if (key === 'quirks') {
+    activeValue.value = [
+      rollFrom('quirk', 'apologizes to furniture'),
+      rollFrom('quirk', 'counts exits before compliments'),
+    ].join(', ')
+    return
+  }
+
+  if (key === 'background') {
+    buildBackstory()
+    activeValue.value = sheet.backstory
+    return
+  }
+
+  if (key === 'stats') {
+    rollStats()
+    return
+  }
+
+  if (key === 'art') {
+    buildArtPrompt()
+  }
+}
+
+function applyIdentityPrompt(value: string) {
+  const lines = value
+    .split('\n')
+    .map((line) => line.trim())
     .filter(Boolean)
-    .join(', ')
 
-  skills.value = mergeText(skills.value, rolled)
-}
+  const genderLine = lines.find((line) => line.toLowerCase().startsWith('gender identity:'))
+  const presentationLine = lines.find((line) => line.toLowerCase().startsWith('presentation:'))
 
-function rollInventory() {
-  const rolled = [rollFrom('inventory'), rollFrom('item'), rollFrom('material')]
-    .filter(Boolean)
-    .join(', ')
-
-  inventory.value = mergeText(inventory.value, rolled)
-}
-
-function rollQuirks() {
-  const rolled = [rollFrom('quirk'), rollFrom('quirk')]
-    .filter(Boolean)
-    .join(', ')
-
-  quirks.value = mergeText(quirks.value, rolled)
-}
-
-function rollBackstory() {
-  backstory.value = rollFrom('backstory', backstory.value)
+  sheet.genderIdentity = genderLine?.replace(/gender identity:/i, '').trim().replace(/\.$/, '') || sheet.genderIdentity
+  sheet.presentation = presentationLine?.replace(/presentation:/i, '').trim().replace(/\.$/, '') || value.trim()
 }
 
 function buildBackstory() {
   const parts = [
-    name.value
-      ? `${name.value} is ${articleFor(species.value)} ${species.value || 'mysterious being'}.`
-      : '',
-    characterClass.value ? `They are known as a ${characterClass.value}.` : '',
-    characterRole.value ? `Their role is ${characterRole.value}.` : '',
-    drive.value ? `Drive: ${drive.value}.` : '',
-    personality.value ? `Personality: ${personality.value}` : '',
-    genderIdentity.value ? `Gender identity: ${genderIdentity.value}.` : '',
-    presentation.value ? `Presentation: ${presentation.value}.` : '',
-    selectedDreamLabel.value
-      ? `They are connected to ${selectedDreamLabel.value}.`
-      : '',
+    sheet.name ? `${sheet.name} is ${articleFor(sheet.species)} ${sheet.species || 'mysterious being'}.` : '',
+    sheet.characterClass ? `They are known as a ${sheet.characterClass}.` : '',
+    sheet.role ? `Their role in the story is ${sheet.role}.` : '',
+    sheet.drive ? `They want ${sheet.drive}.` : '',
+    sheet.personality ? `Personality: ${sheet.personality}` : '',
+    selectedDreamLabel.value ? `They are connected to ${selectedDreamLabel.value}.` : '',
   ]
 
-  backstory.value = parts.filter(Boolean).join(' ')
+  sheet.backstory = parts.filter(Boolean).join(' ')
+}
+
+function buildArtPrompt() {
+  sheet.artPrompt = [
+    `Character portrait of ${sheet.name || 'an unnamed character'}`,
+    sheet.species,
+    sheet.characterClass,
+    sheet.presentation,
+    sheet.personality,
+    sheet.genre,
+    sheet.backstory ? `story context: ${sheet.backstory}` : '',
+    'expressive face, strong silhouette, detailed costume, vivid narrative design',
+  ]
+    .filter(Boolean)
+    .join(', ')
+}
+
+function rollStats() {
+  for (const stat of sheet.stats) {
+    stat.value = randomInt(0, 100)
+  }
+
+  for (const goal of sheet.goalStats) {
+    goal.value = randomInt(-100, 100)
+  }
 }
 
 function updateCharacterArt(payload: ArtCreatorPayload) {
-  artPrompt.value = payload.prompt
-  imagePath.value = payload.imagePath
-}
-
-async function fetchDreams() {
-  try {
-    const res = (await performFetch<Dream[]>(
-      '/api/dream',
-    )) as PerformFetchResult<Dream[]>
-
-    if (!res.success || !Array.isArray(res.data)) {
-      dreamOptions.value = []
-      return
-    }
-
-    dreamOptions.value = res.data
-      .filter((item) => item && item.id)
-      .map((item) => ({
-        id: item.id,
-        label: item.title || `Dream #${item.id}`,
-      }))
-  } catch (error) {
-    handleError(error, 'fetching dreams for character-builder')
-    dreamOptions.value = []
-  }
+  sheet.artPrompt = payload.prompt || sheet.artPrompt
+  sheet.imagePath = payload.imagePath || sheet.imagePath
+  completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath)
 }
 
 async function saveCharacter() {
   if (!canSave.value) {
-    saveError.value = 'Add a character name before saving.'
+    saveError.value = 'Finish the required character cards before saving.'
     return
   }
 
@@ -1426,95 +748,172 @@ async function saveCharacter() {
 
   try {
     const body: Partial<Character> & Record<string, unknown> = {
-      name: name.value.trim(),
-      achievements: achievements.value.trim() || null,
-      alignment: alignment.value.trim() || null,
-      experience: experience.value,
-      level: level.value,
-      class: characterClass.value.trim() || null,
-      species: species.value.trim() || null,
-      backstory: backstoryWithGender.value,
-      drive: drive.value.trim() || null,
-      inventory: inventory.value.trim() || null,
-      quirks: quirks.value.trim() || null,
-      skills: skills.value.trim() || null,
-      genre: genre.value.trim() || null,
-      isPublic: isPublic.value,
-      isMature: isMature.value,
-      isActive: isActive.value,
+      name: sheet.name.trim(),
+      honorific: sheet.honorific.trim() || 'adventurer',
+      title: sheet.title.trim() || null,
+      role: sheet.role.trim() || null,
+      genderIdentity: sheet.genderIdentity.trim() || null,
+      presentation: sheet.presentation.trim() || null,
+      achievements: sheet.achievements.trim() || null,
+      alignment: sheet.alignment.trim() || null,
+      experience: 0,
+      level: 1,
+      class: sheet.characterClass.trim() || null,
+      species: sheet.species.trim() || null,
+      backstory: sheet.backstory.trim() || null,
+      drive: sheet.drive.trim() || null,
+      inventory: sheet.inventory.trim() || null,
+      quirks: sheet.quirks.trim() || null,
+      skills: sheet.skills.trim() || null,
+      genre: sheet.genre.trim() || null,
+      personality: sheet.personality.trim() || null,
+      artPrompt: sheet.artPrompt.trim() || null,
+      imagePath: sheet.imagePath || null,
       userId: userStore.userId || 10,
-      artPrompt: artPrompt.value.trim() || null,
-      honorific: honorific.value.trim() || 'adventurer',
-      imagePath: imagePath.value || null,
       designer: getDesignerName(),
-      personality: personalityWithGender.value,
-      statName1: stats[0]?.name || 'Luck',
-      statValue1: stats[0]?.value ?? 59,
-      statName2: stats[1]?.name || 'Swol',
-      statValue2: stats[1]?.value ?? 49,
-      statName3: stats[2]?.name || 'Wits',
-      statValue3: stats[2]?.value ?? 72,
-      statName4: stats[3]?.name || 'Flexibility',
-      statValue4: stats[3]?.value ?? 93,
-      statName5: stats[4]?.name || 'Rizz',
-      statValue5: stats[4]?.value ?? 9,
-      statName6: stats[5]?.name || 'Empathy',
-      statValue6: stats[5]?.value ?? 71,
-      goalStat1Name: goalStats[0]?.name || 'Principled|Chaotic',
-      goalStat1Value: goalStats[0]?.value ?? 0,
-      goalStat2Name: goalStats[1]?.name || 'Introvert|Extrovert',
-      goalStat2Value: goalStats[1]?.value ?? 0,
-      goalStat3Name: goalStats[2]?.name || 'Passive|Aggressive',
-      goalStat3Value: goalStats[2]?.value ?? 0,
-      goalStat4Name: goalStats[3]?.name || 'Optimist|Pessimist',
-      goalStat4Value: goalStats[3]?.value ?? 0,
+      isPublic: true,
+      isMature: false,
+      isActive: true,
+      statName1: sheet.stats[0]?.name || 'Luck',
+      statValue1: sheet.stats[0]?.value ?? 59,
+      statName2: sheet.stats[1]?.name || 'Swol',
+      statValue2: sheet.stats[1]?.value ?? 49,
+      statName3: sheet.stats[2]?.name || 'Wits',
+      statValue3: sheet.stats[2]?.value ?? 72,
+      statName4: sheet.stats[3]?.name || 'Flexibility',
+      statValue4: sheet.stats[3]?.value ?? 93,
+      statName5: sheet.stats[4]?.name || 'Rizz',
+      statValue5: sheet.stats[4]?.value ?? 9,
+      statName6: sheet.stats[5]?.name || 'Empathy',
+      statValue6: sheet.stats[5]?.value ?? 71,
+      goalStat1Name: sheet.goalStats[0]?.name || 'Principled|Chaotic',
+      goalStat1Value: sheet.goalStats[0]?.value ?? 0,
+      goalStat2Name: sheet.goalStats[1]?.name || 'Introvert|Extrovert',
+      goalStat2Value: sheet.goalStats[1]?.value ?? 0,
+      goalStat3Name: sheet.goalStats[2]?.name || 'Passive|Aggressive',
+      goalStat3Value: sheet.goalStats[2]?.value ?? 0,
+      goalStat4Name: sheet.goalStats[3]?.name || 'Optimist|Pessimist',
+      goalStat4Value: sheet.goalStats[3]?.value ?? 0,
     }
 
     if (selectedDreamId.value) {
-      body.dreamId = selectedDreamId.value
       body.dreamIds = [selectedDreamId.value]
     }
 
-    const res = (await performFetch<Character>(CHARACTER_ENDPOINT, {
+    const response = (await performFetch<Character>(CHARACTER_ENDPOINT, {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
     })) as PerformFetchResult<Character>
 
-    if (!res.success || !res.data) {
-      throw new Error(res.message || 'Failed to save character.')
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to save character.')
     }
 
-    selectedCharacterId.value = res.data.id
-    saveMessage.value = `Saved character #${res.data.id}. They are legally allowed to cause plot now.`
+    selectedCharacterId.value = response.data.id
+    saveMessage.value = `Saved character #${response.data.id}. Plot goblin successfully released.`
   } catch (error) {
     handleError(error, 'saving character from character-builder')
-    saveError.value =
-      error instanceof Error ? error.message : 'Failed to save character.'
+    saveError.value = error instanceof Error ? error.message : 'Failed to save character.'
   } finally {
     isSaving.value = false
   }
 }
 
-const personalityWithGender = computed(() => {
-  const details = [
-    personality.value.trim(),
-    genderIdentity.value ? `Gender identity: ${genderIdentity.value}.` : '',
-    presentation.value ? `Presentation: ${presentation.value}.` : '',
-  ]
+async function fetchDreams() {
+  try {
+    const response = (await performFetch<Dream[]>('/api/dream')) as PerformFetchResult<Dream[]>
 
-  return details.filter(Boolean).join('\n') || null
+    if (!response.success || !Array.isArray(response.data)) {
+      dreamOptions.value = []
+      return
+    }
+
+    dreamOptions.value = response.data
+      .filter((dream) => dream && dream.id)
+      .map((dream) => ({
+        id: dream.id,
+        label: dream.title || `Dream #${dream.id}`,
+      }))
+  } catch (error) {
+    handleError(error, 'fetching dreams for character-builder')
+    dreamOptions.value = []
+  }
+}
+
+function resetBuilder() {
+  selectedCharacterId.value = null
+  selectedDreamId.value = 0
+  activeCard.value = null
+  activeValue.value = ''
+  saveMessage.value = ''
+  saveError.value = ''
+
+  for (const key of Object.keys(completedCards)) {
+    delete completedCards[key]
+  }
+
+  sheet.name = ''
+  sheet.honorific = 'adventurer'
+  sheet.title = ''
+  sheet.role = ''
+  sheet.genre = ''
+  sheet.species = ''
+  sheet.characterClass = ''
+  sheet.alignment = ''
+  sheet.genderIdentity = ''
+  sheet.presentation = ''
+  sheet.personality = ''
+  sheet.drive = ''
+  sheet.backstory = ''
+  sheet.achievements = ''
+  sheet.skills = ''
+  sheet.inventory = ''
+  sheet.quirks = ''
+  sheet.artPrompt = ''
+  sheet.imagePath = null
+
+  resetStatRows(sheet.stats, [
+    { key: 'stat1', name: 'Luck', value: 59 },
+    { key: 'stat2', name: 'Swol', value: 49 },
+    { key: 'stat3', name: 'Wits', value: 72 },
+    { key: 'stat4', name: 'Flexibility', value: 93 },
+    { key: 'stat5', name: 'Rizz', value: 9 },
+    { key: 'stat6', name: 'Empathy', value: 71 },
+  ])
+
+  resetStatRows(sheet.goalStats, [
+    { key: 'goal1', name: 'Principled|Chaotic', value: 0 },
+    { key: 'goal2', name: 'Introvert|Extrovert', value: 0 },
+    { key: 'goal3', name: 'Passive|Aggressive', value: 0 },
+    { key: 'goal4', name: 'Optimist|Pessimist', value: 0 },
+  ])
+}
+
+function resetStatRows(target: CharacterSheetStat[], defaults: CharacterSheetStat[]) {
+  target.splice(0, target.length, ...defaults)
+}
+
+const selectedDreamLabel = computed(() => {
+  return dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)?.label || ''
 })
 
-const backstoryWithGender = computed(() => {
-  const details = [
-    backstory.value.trim(),
-    genderIdentity.value ? `Gender identity: ${genderIdentity.value}.` : '',
-    presentation.value ? `Presentation: ${presentation.value}.` : '',
-  ]
+function rollFrom(key: string, fallback: string) {
+  try {
+    return randomStore.getRandom(key, 1)[0] || fallback
+  } catch {
+    return fallback
+  }
+}
 
-  return details.filter(Boolean).join('\n') || null
-})
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function articleFor(value: string) {
+  const first = value.trim().charAt(0).toLowerCase()
+  return ['a', 'e', 'i', 'o', 'u'].includes(first) ? 'an' : 'a'
+}
 
 function getDesignerName() {
   const store = userStore as unknown as {
@@ -1526,37 +925,21 @@ function getDesignerName() {
   return store.designer || store.designerName || store.username || null
 }
 
-function mergeText(current: string, addition: string) {
-  if (!addition.trim()) return current
-  if (!current.trim()) return addition
-
-  return `${current.trim()}, ${addition}`
-}
-
-function articleFor(value: string) {
-  const first = value.trim().charAt(0).toLowerCase()
-  return ['a', 'e', 'i', 'o', 'u'].includes(first) ? 'an' : 'a'
-}
-
-function capitalize(value: string) {
-  if (!value) return ''
-  return value.charAt(0).toUpperCase() + value.slice(1)
-}
-
-function displaySummaryValue(value: BuilderChoiceSummary['value']) {
-  if (value === null || value === undefined || value === '') {
-    return 'Not selected yet'
+function cardButtonClass(card: CharacterPromptCard) {
+  if (activeCard.value?.key === card.key) {
+    return 'border-primary bg-primary/10'
   }
 
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No'
+  if (completedCards[card.key]) {
+    return 'border-success/40 bg-success/10'
   }
 
-  return String(value)
+  return 'border-base-300 bg-base-100'
 }
 
 onMounted(async () => {
   randomStore.initialize()
   await fetchDreams()
+  reshuffleDeck()
 })
 </script>

@@ -637,6 +637,7 @@ type BuilderSheet = CharacterSheetDraft & {
   grace: RarityTier
   charm: RarityTier
   grit: RarityTier
+  empathy: RarityTier
 }
 
 const CHARACTER_ENDPOINT = '/api/character'
@@ -1272,6 +1273,7 @@ function createEmptyCharacterSheet(userId: number): BuilderSheet {
     grace: 'COMMON',
     charm: 'COMMON',
     grit: 'COMMON',
+    empathy: 'COMMON',
   } as BuilderSheet
 }
 

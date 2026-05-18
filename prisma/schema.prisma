@@ -385,6 +385,7 @@ model Character {
 }
 
 
+
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
 /// originId should always be shared in subsequent messages so we can track the thread via originID and createdAt
 /// splitting the chat into a new thread creates a fresh originId
@@ -788,32 +789,57 @@ enum SupportedServer {
 }
 
 model Reward {
-  id          Int         @id @default(autoincrement())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime?   @default(now()) @updatedAt
-  icon        String      @db.VarChar(256)
-  text        String      @db.VarChar(764)
-  power       String      @db.VarChar(764)
-  collection  String      @db.VarChar(764)
-  rarity      Int         @default(0)
-  label       String?     @db.VarChar(764)
-  userId      Int?        @default(1)
-  artImageId  Int?
-  imagePath   String?
-  artPrompt  String?  @db.Text
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @default(now()) @updatedAt
 
-  isPublic    Boolean     @default(true)
-  isMature    Boolean     @default(false)
-  isActive             Boolean        @default(true)
+  icon        String?      @db.VarChar(256)
+  text        String       @db.Text
+  power       String       @db.Text
+  collection  String?      @db.VarChar(764)
+  rarity      Int          @default(1)
+  rarityType  RewardRarity @default(COMMON)
+  label       String?      @db.VarChar(764)
+  rewardType  RewardType   @default(ITEM)
+
+  userId      Int?         @default(1)
+  artImageId  Int?
+  imagePath   String?      @db.VarChar(764)
+  artPrompt   String?      @db.Text
+
+  isPublic    Boolean      @default(true)
+  isMature    Boolean      @default(false)
+  isActive    Boolean      @default(true)
 
   ArtImage    ArtImage?
   Reactions   Reaction[]
-  User        User?       @relation(fields: [userId], references: [id])
-  Characters  Character[] @relation("CharacterToReward")
-  Dreams      Dream[]     @relation("DreamToReward")
+  User        User?        @relation(fields: [userId], references: [id])
+  Characters  Character[]  @relation("CharacterToReward")
+  Dreams      Dream[]      @relation("DreamToReward")
   Butterflies Butterfly[]
 
   @@index([userId], map: "Reward_userId_fkey")
+  @@index([rewardType])
+  @@index([rarityType])
+  @@index([rarity])
+}
+
+enum RewardType {
+  SKILL
+  ITEM
+  TREASURE
+  TITLE
+  POWER
+  STORY
+}
+
+enum RewardRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHIC
 }
 
 /// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, Art, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.

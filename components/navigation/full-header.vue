@@ -40,7 +40,7 @@
     -->
     <div
       v-if="showViewportBadge"
-      class="pointer-events-none fixed left-2 top-2 z-[9999]"
+      class="pointer-events-none fixed left-2 top-2 z-9999"
     >
       <span
         class="inline-flex rounded-md bg-primary/90 px-2 py-1 text-[clamp(0.7rem,1vw,1rem)] leading-none text-white shadow"

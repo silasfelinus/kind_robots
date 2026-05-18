@@ -1,11 +1,7 @@
 <!-- /components/code/code-interact.vue -->
 <template>
   <section class="flex w-full flex-col gap-3">
-    <code-cards
-      :cards="hand"
-      @play="playCard"
-      @reshuffle="reshuffleHand"
-    />
+    <code-cards :cards="hand" @play="playCard" @reshuffle="reshuffleHand" />
 
     <div
       v-if="message"
@@ -23,7 +19,6 @@ import { useDreamStore } from '@/stores/dreamStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
-import { useDisplayStore } from '@/stores/displayStore'
 import { useNavStore } from '@/stores/navStore'
 
 type CodeCardKind =
@@ -39,13 +34,23 @@ type CodeCardKind =
   | 'add-treasure'
   | 'expand-concept'
 
-type CodeModel =
-  | 'pitch'
+type CodeModel = 'pitch' | 'dream' | 'character' | 'reward' | 'scenario' | 'art'
+
+type DashboardKey =
+  | 'art'
+  | 'bot'
+  | 'brainstorm'
+  | 'builder'
+  | 'user'
   | 'dream'
   | 'character'
   | 'reward'
   | 'scenario'
-  | 'art'
+  | 'footer'
+  | 'theme'
+  | 'giftshop'
+  | 'server'
+  | 'wonder'
 
 interface CodeCard {
   id: string
@@ -65,6 +70,14 @@ interface CodeTarget {
   model: CodeModel
 }
 
+interface SelectableStore {
+  selectPitch?: (id: number) => Promise<unknown> | unknown
+  selectDream?: (id: number) => Promise<unknown> | unknown
+  selectCharacter?: (id: number) => Promise<unknown> | unknown
+  selectReward?: (id: number) => Promise<unknown> | unknown
+  selectScenario?: (id: number) => Promise<unknown> | unknown
+}
+
 const handSize = 6
 
 const pitchStore = usePitchStore()
@@ -72,7 +85,6 @@ const dreamStore = useDreamStore()
 const characterStore = useCharacterStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
-const displayStore = useDisplayStore()
 const navStore = useNavStore()
 
 const hand = ref<CodeCard[]>([])
@@ -83,61 +95,51 @@ const makeId = () => {
 }
 
 const pitchTargets = computed<CodeTarget[]>(() => {
-  const pitches = pitchStore.pitches ?? pitchStore.pitchs ?? []
-
-  return pitches
-    .filter((pitch: any) => pitch?.id)
-    .map((pitch: any) => ({
+  return pitchStore.pitches
+    .filter((pitch) => pitch?.id)
+    .map((pitch) => ({
       id: pitch.id,
-      title: pitch.title || pitch.name || `Pitch ${pitch.id}`,
+      title: pitch.title || pitch.pitch || `Pitch ${pitch.id}`,
       model: 'pitch',
     }))
 })
 
 const dreamTargets = computed<CodeTarget[]>(() => {
-  const dreams = dreamStore.dreams ?? []
-
-  return dreams
-    .filter((dream: any) => dream?.id)
-    .map((dream: any) => ({
+  return dreamStore.dreams
+    .filter((dream) => dream?.id)
+    .map((dream) => ({
       id: dream.id,
-      title: dream.title || dream.name || `Dream ${dream.id}`,
+      title: dream.title || `Dream ${dream.id}`,
       model: 'dream',
     }))
 })
 
 const characterTargets = computed<CodeTarget[]>(() => {
-  const characters = characterStore.characters ?? []
-
-  return characters
-    .filter((character: any) => character?.id)
-    .map((character: any) => ({
+  return characterStore.characters
+    .filter((character) => character?.id)
+    .map((character) => ({
       id: character.id,
-      title: character.name || character.title || `Character ${character.id}`,
+      title: character.name || `Character ${character.id}`,
       model: 'character',
     }))
 })
 
 const rewardTargets = computed<CodeTarget[]>(() => {
-  const rewards = rewardStore.rewards ?? []
-
-  return rewards
-    .filter((reward: any) => reward?.id)
-    .map((reward: any) => ({
+  return rewardStore.rewards
+    .filter((reward) => reward?.id)
+    .map((reward) => ({
       id: reward.id,
-      title: reward.title || reward.name || `Reward ${reward.id}`,
+      title: reward.label || `Reward ${reward.id}`,
       model: 'reward',
     }))
 })
 
 const scenarioTargets = computed<CodeTarget[]>(() => {
-  const scenarios = scenarioStore.scenarios ?? []
-
-  return scenarios
-    .filter((scenario: any) => scenario?.id)
-    .map((scenario: any) => ({
+  return scenarioStore.scenarios
+    .filter((scenario) => scenario?.id)
+    .map((scenario) => ({
       id: scenario.id,
-      title: scenario.title || scenario.name || `Scenario ${scenario.id}`,
+      title: scenario.title || `Scenario ${scenario.id}`,
       model: 'scenario',
     }))
 })
@@ -164,7 +166,8 @@ const baseCards = computed<CodeCard[]>(() => [
     id: makeId(),
     title: 'Add Location',
     subtitle: 'Create a Dream',
-    description: 'Add a place, realm, set piece, dungeon, salon, void mall, or suspicious moon.',
+    description:
+      'Add a place, realm, set piece, dungeon, salon, void mall, or suspicious moon.',
     icon: 'kind-icon:map',
     kind: 'add-dream',
     model: 'dream',
@@ -173,7 +176,8 @@ const baseCards = computed<CodeCard[]>(() => [
     id: makeId(),
     title: 'Add Character',
     subtitle: 'Create someone dramatic',
-    description: 'Add a hero, villain, chaos goblin, mentor, rival, or lore-adjacent menace.',
+    description:
+      'Add a hero, villain, chaos goblin, mentor, rival, or lore-adjacent menace.',
     icon: 'kind-icon:character',
     kind: 'add-character',
     model: 'character',
@@ -182,7 +186,8 @@ const baseCards = computed<CodeCard[]>(() => [
     id: makeId(),
     title: 'Add Reward',
     subtitle: 'Skill or treasure',
-    description: 'Create loot, magic, a special move, a cursed object, or a deeply suspicious sandwich.',
+    description:
+      'Create loot, magic, a special move, a cursed object, or a deeply suspicious sandwich.',
     icon: 'kind-icon:treasure',
     kind: 'add-reward',
     model: 'reward',
@@ -191,7 +196,8 @@ const baseCards = computed<CodeCard[]>(() => [
     id: makeId(),
     title: 'Add Scenario',
     subtitle: 'Create a story prompt',
-    description: 'Add a choice, challenge, art prompt, text prompt, or interactive situation.',
+    description:
+      'Add a choice, challenge, art prompt, text prompt, or interactive situation.',
     icon: 'kind-icon:story',
     kind: 'add-scenario',
     model: 'scenario',
@@ -202,7 +208,7 @@ const targetCards = computed<CodeCard[]>(() => {
   return targets.value.flatMap((target) => [
     {
       id: makeId(),
-      title: `Create Art`,
+      title: 'Create Art',
       subtitle: target.title,
       description: `Generate art for ${target.title}.`,
       icon: 'kind-icon:paintbrush',
@@ -213,7 +219,7 @@ const targetCards = computed<CodeCard[]>(() => {
     },
     {
       id: makeId(),
-      title: `Edit`,
+      title: 'Edit',
       subtitle: target.title,
       description: `Open ${target.title} for revision and polish.`,
       icon: 'kind-icon:edit',
@@ -224,7 +230,7 @@ const targetCards = computed<CodeCard[]>(() => {
     },
     {
       id: makeId(),
-      title: `Interact`,
+      title: 'Interact',
       subtitle: target.title,
       description: `Use ${target.title} as an interactive prompt-tool.`,
       icon: 'kind-icon:chat',
@@ -244,7 +250,8 @@ const rewardFlavorCards = computed<CodeCard[]>(() => {
       id: makeId(),
       title: 'Add Skill',
       subtitle: 'World ability',
-      description: 'Create a skill, power, trick, move, or special interaction for this world.',
+      description:
+        'Create a skill, power, trick, move, or special interaction for this world.',
       icon: 'kind-icon:magic',
       kind: 'add-skill',
       model: 'reward',
@@ -254,7 +261,8 @@ const rewardFlavorCards = computed<CodeCard[]>(() => {
       id: makeId(),
       title: 'Add Treasure',
       subtitle: 'Loot with consequences',
-      description: 'Create an item, relic, artifact, key, device, prize, or cursed keepsake.',
+      description:
+        'Create an item, relic, artifact, key, device, prize, or cursed keepsake.',
       icon: 'kind-icon:gem',
       kind: 'add-treasure',
       model: 'reward',
@@ -270,20 +278,31 @@ const deck = computed<CodeCard[]>(() => [
   ...rewardFlavorCards.value,
 ])
 
-const shuffleCards = (cards: CodeCard[]) => {
+function isCodeCard(card: CodeCard | undefined): card is CodeCard {
+  return Boolean(card)
+}
+
+function modelToDashboardKey(model: CodeModel): DashboardKey {
+  if (model === 'pitch') return 'brainstorm'
+  if (model === 'art') return 'art'
+  return model
+}
+
+function shuffleCards(cards: CodeCard[]) {
   return [...cards].sort(() => Math.random() - 0.5)
 }
 
-const drawCards = (count = handSize) => {
+function drawCards(count = handSize) {
   return shuffleCards(deck.value).slice(0, count)
 }
 
-const reshuffleHand = () => {
+function reshuffleHand() {
   hand.value = drawCards()
-  message.value = 'The deck has been reshuffled. Chaos has received fresh paperwork.'
+  message.value =
+    'The deck has been reshuffled. Chaos has received fresh paperwork.'
 }
 
-const replaceCard = (playedCard: CodeCard) => {
+function replaceCard(playedCard: CodeCard) {
   const usedIds = new Set(hand.value.map((card) => card.id))
   const availableCards = shuffleCards(deck.value).filter((card) => {
     return !usedIds.has(card.id) && card.kind !== playedCard.kind
@@ -291,64 +310,65 @@ const replaceCard = (playedCard: CodeCard) => {
 
   const replacement = availableCards[0] ?? drawCards(1)[0]
 
-  hand.value = hand.value.map((card) => {
-    if (card.id === playedCard.id) {
-      return replacement
-    }
-
-    return card
-  })
-}
-
-const openModelTab = (model: CodeModel, tab: string) => {
-  const dashboardKey = model === 'dream' ? 'dream' : model
-
-  if (typeof navStore.setActiveDashboardTab === 'function') {
-    navStore.setActiveDashboardTab(dashboardKey, tab)
+  if (!replacement) {
+    hand.value = hand.value.filter((card) => card.id !== playedCard.id)
     return
   }
 
-  if (typeof navStore.setDashboardTab === 'function') {
-    navStore.setDashboardTab(dashboardKey, tab)
-    return
-  }
+  hand.value = hand.value
+    .map((card) => {
+      if (card.id === playedCard.id) {
+        return replacement
+      }
 
-  if (typeof displayStore.setDisplayMode === 'function') {
-    displayStore.setDisplayMode(model)
-  }
+      return card
+    })
+    .filter(isCodeCard)
 }
 
-const selectTarget = async (card: CodeCard) => {
+function openModelTab(model: CodeModel, tab: string) {
+  const dashboardKey = modelToDashboardKey(model)
+
+  navStore.setDashboardTab(dashboardKey, tab)
+}
+
+async function selectTarget(card: CodeCard) {
   if (!card.model || !card.targetId) {
     return
   }
 
-  if (card.model === 'pitch' && typeof pitchStore.selectPitch === 'function') {
-    await pitchStore.selectPitch(card.targetId)
+  const pitchActions = pitchStore as SelectableStore
+  const dreamActions = dreamStore as SelectableStore
+  const characterActions = characterStore as SelectableStore
+  const rewardActions = rewardStore as SelectableStore
+  const scenarioActions = scenarioStore as SelectableStore
+
+  if (card.model === 'pitch' && pitchActions.selectPitch) {
+    await pitchActions.selectPitch(card.targetId)
   }
 
-  if (card.model === 'dream' && typeof dreamStore.selectDream === 'function') {
-    await dreamStore.selectDream(card.targetId)
+  if (card.model === 'dream' && dreamActions.selectDream) {
+    await dreamActions.selectDream(card.targetId)
   }
 
-  if (card.model === 'character' && typeof characterStore.selectCharacter === 'function') {
-    await characterStore.selectCharacter(card.targetId)
+  if (card.model === 'character' && characterActions.selectCharacter) {
+    await characterActions.selectCharacter(card.targetId)
   }
 
-  if (card.model === 'reward' && typeof rewardStore.selectReward === 'function') {
-    await rewardStore.selectReward(card.targetId)
+  if (card.model === 'reward' && rewardActions.selectReward) {
+    await rewardActions.selectReward(card.targetId)
   }
 
-  if (card.model === 'scenario' && typeof scenarioStore.selectScenario === 'function') {
-    await scenarioStore.selectScenario(card.targetId)
+  if (card.model === 'scenario' && scenarioActions.selectScenario) {
+    await scenarioActions.selectScenario(card.targetId)
   }
 }
 
-const openAdd = (model: CodeModel) => {
+function openAdd(model: CodeModel) {
   openModelTab(model, 'add')
 }
 
-const openEdit = async (card: CodeCard) => {
+async function openEdit(card: CodeCard) {
   await selectTarget(card)
 
   if (card.model) {
@@ -356,7 +376,7 @@ const openEdit = async (card: CodeCard) => {
   }
 }
 
-const openInteract = async (card: CodeCard) => {
+async function openInteract(card: CodeCard) {
   await selectTarget(card)
 
   if (card.model) {
@@ -364,12 +384,12 @@ const openInteract = async (card: CodeCard) => {
   }
 }
 
-const openArt = async (card: CodeCard) => {
+async function openArt(card: CodeCard) {
   await selectTarget(card)
   openModelTab('art', 'add')
 }
 
-const playCard = async (card: CodeCard) => {
+async function playCard(card: CodeCard) {
   message.value = ''
 
   if (card.kind === 'add-pitch') {

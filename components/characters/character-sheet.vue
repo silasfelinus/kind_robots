@@ -1,13 +1,19 @@
 <!-- /components/builders/character-sheet.vue -->
 <template>
-  <section class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-300">
-    <header class="flex shrink-0 flex-col gap-3 border-b border-base-300 bg-base-200 p-4 lg:flex-row lg:items-start lg:justify-between">
+  <section
+    class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+  >
+    <header
+      class="flex shrink-0 flex-col gap-3 border-b border-base-300 bg-base-200 p-4 lg:flex-row lg:items-start lg:justify-between"
+    >
       <div class="min-w-0">
         <p class="text-xs font-bold uppercase tracking-[0.22em] text-primary">
           Character Sheet
         </p>
 
-        <h2 class="mt-1 flex items-center gap-2 text-2xl font-black text-base-content">
+        <h2
+          class="mt-1 flex items-center gap-2 text-2xl font-black text-base-content"
+        >
           <Icon name="kind-icon:mask" class="h-7 w-7 text-primary" />
           {{ sheet.name || 'Unnamed Character' }}
         </h2>
@@ -54,15 +60,18 @@
           v-if="sheet.imagePath"
           :src="sheet.imagePath"
           :alt="`${sheet.name || 'Character'} portrait`"
-          class="h-full min-h-[32rem] w-full object-cover"
+          class="h-full min-h-128 w-full object-cover"
         />
 
         <div
           v-else
-          class="flex h-full min-h-[32rem] w-full items-center justify-center bg-base-300 p-4 text-center"
+          class="flex h-full min-h-128 w-full items-center justify-center bg-base-300 p-4 text-center"
         >
           <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
-            <Icon name="kind-icon:palette" class="mx-auto h-14 w-14 text-primary" />
+            <Icon
+              name="kind-icon:palette"
+              class="mx-auto h-14 w-14 text-primary"
+            />
             <p class="mt-3 text-sm font-bold text-base-content">
               Portrait image record attached.
             </p>
@@ -72,9 +81,15 @@
           </div>
         </div>
 
-        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-base-300 via-base-300/90 to-transparent p-4 pt-28">
-          <article class="rounded-2xl border border-base-100/20 bg-base-100/85 p-4 shadow-xl backdrop-blur">
-            <p class="text-xs font-bold uppercase tracking-[0.22em] text-primary">
+        <div
+          class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300 via-base-300/90 to-transparent p-4 pt-28"
+        >
+          <article
+            class="rounded-2xl border border-base-100/20 bg-base-100/85 p-4 shadow-xl backdrop-blur"
+          >
+            <p
+              class="text-xs font-bold uppercase tracking-[0.22em] text-primary"
+            >
               Portrait Mode
             </p>
 
@@ -108,15 +123,13 @@
         </div>
       </section>
 
-      <section
-        v-else
-        key="sheet"
-        class="min-h-0 flex-1 overflow-y-auto p-3"
-      >
+      <section v-else key="sheet" class="min-h-0 flex-1 overflow-y-auto p-3">
         <div class="grid grid-cols-1 gap-3 2xl:grid-cols-[16rem_minmax(0,1fr)]">
           <aside class="flex flex-col gap-3">
             <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
-              <div class="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300">
+              <div
+                class="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+              >
                 <img
                   v-if="sheet.imagePath"
                   :src="sheet.imagePath"
@@ -128,7 +141,10 @@
                   v-else
                   class="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center"
                 >
-                  <Icon name="kind-icon:mask" class="h-14 w-14 text-primary/70" />
+                  <Icon
+                    name="kind-icon:mask"
+                    class="h-14 w-14 text-primary/70"
+                  />
 
                   <p class="text-sm font-bold text-base-content/70">
                     Portrait Pending
@@ -162,7 +178,11 @@
 
                   <Icon
                     :name="item.done ? 'kind-icon:check' : 'kind-icon:circle'"
-                    :class="item.done ? 'h-4 w-4 text-success' : 'h-4 w-4 text-base-content/30'"
+                    :class="
+                      item.done
+                        ? 'h-4 w-4 text-success'
+                        : 'h-4 w-4 text-base-content/30'
+                    "
                   />
                 </button>
               </div>
@@ -173,7 +193,9 @@
             <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                  <p
+                    class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                  >
                     Identity
                   </p>
 
@@ -197,7 +219,9 @@
                 </button>
               </div>
 
-              <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div
+                class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+              >
                 <sheet-cell
                   label="Name"
                   icon="kind-icon:signature"
@@ -273,7 +297,9 @@
               </div>
             </section>
 
-            <section class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <section
+              class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]"
+            >
               <div class="flex min-w-0 flex-col gap-3">
                 <sheet-panel
                   label="Personality"
@@ -331,10 +357,17 @@
               </div>
 
               <aside class="flex flex-col gap-3">
-                <article class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                <article
+                  class="rounded-2xl border border-base-300 bg-base-100 p-4"
+                >
                   <div class="flex items-center justify-between gap-3">
-                    <h3 class="flex items-center gap-2 font-black text-base-content">
-                      <Icon name="kind-icon:activity" class="h-5 w-5 text-primary" />
+                    <h3
+                      class="flex items-center gap-2 font-black text-base-content"
+                    >
+                      <Icon
+                        name="kind-icon:activity"
+                        class="h-5 w-5 text-primary"
+                      />
                       Stats
                     </h3>
 
@@ -354,7 +387,11 @@
                       v-for="stat in sheet.stats"
                       :key="stat.key"
                       class="rounded-2xl border bg-base-200 p-3"
-                      :class="stat.value ? 'border-primary/30' : 'border-dashed border-base-300 opacity-70'"
+                      :class="
+                        stat.value
+                          ? 'border-primary/30'
+                          : 'border-dashed border-base-300 opacity-70'
+                      "
                     >
                       <p class="truncate text-sm font-bold text-base-content">
                         {{ stat.name || 'Stat' }}
@@ -367,8 +404,12 @@
                   </div>
                 </article>
 
-                <article class="rounded-2xl border border-base-300 bg-base-100 p-4">
-                  <h3 class="flex items-center gap-2 font-black text-base-content">
+                <article
+                  class="rounded-2xl border border-base-300 bg-base-100 p-4"
+                >
+                  <h3
+                    class="flex items-center gap-2 font-black text-base-content"
+                  >
                     <Icon name="kind-icon:gift" class="h-5 w-5 text-primary" />
                     Starting Rewards
                   </h3>
@@ -378,10 +419,16 @@
                       v-for="slot in rewardSlots"
                       :key="slot.key"
                       class="group rounded-2xl border bg-base-200 p-3"
-                      :class="rewardForSlot(slot.key) ? 'border-base-300' : 'border-dashed border-base-300 opacity-70'"
+                      :class="
+                        rewardForSlot(slot.key)
+                          ? 'border-base-300'
+                          : 'border-dashed border-base-300 opacity-70'
+                      "
                     >
                       <div class="flex gap-3">
-                        <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+                        <div
+                          class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+                        >
                           <img
                             v-if="rewardForSlot(slot.key)?.imagePath"
                             :src="rewardForSlot(slot.key)?.imagePath"
@@ -399,15 +446,24 @@
                         <div class="min-w-0 flex-1">
                           <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
-                              <p class="text-xs font-bold uppercase tracking-[0.16em] text-base-content/50">
+                              <p
+                                class="text-xs font-bold uppercase tracking-[0.16em] text-base-content/50"
+                              >
                                 {{ slot.label }}
                               </p>
 
                               <p
                                 class="mt-1 font-black"
-                                :class="rewardForSlot(slot.key) ? 'text-base-content' : 'italic text-base-content/40'"
+                                :class="
+                                  rewardForSlot(slot.key)
+                                    ? 'text-base-content'
+                                    : 'italic text-base-content/40'
+                                "
                               >
-                                {{ rewardForSlot(slot.key)?.label || 'Empty reward slot' }}
+                                {{
+                                  rewardForSlot(slot.key)?.label ||
+                                  'Empty reward slot'
+                                }}
                               </p>
                             </div>
 
@@ -423,9 +479,16 @@
 
                           <p
                             class="mt-2 line-clamp-3 text-sm"
-                            :class="rewardForSlot(slot.key) ? 'text-base-content/70' : 'italic text-base-content/40'"
+                            :class="
+                              rewardForSlot(slot.key)
+                                ? 'text-base-content/70'
+                                : 'italic text-base-content/40'
+                            "
                           >
-                            {{ rewardForSlot(slot.key)?.power || `${slot.rarityType} ${slot.rewardType}, rarity ${slot.rarity}.` }}
+                            {{
+                              rewardForSlot(slot.key)?.power ||
+                              `${slot.rarityType} ${slot.rewardType}, rarity ${slot.rarity}.`
+                            }}
                           </p>
                         </div>
                       </div>
@@ -447,7 +510,7 @@ import type {
   CharacterRewardDraft,
   CharacterSheetDraft,
   RewardPromptSlot,
-} from '@/types/characterBuilder'
+} from '@/stores/helpers/characterHelper'
 
 const props = withDefaults(
   defineProps<{
@@ -472,20 +535,57 @@ const emit = defineEmits<{
 
 const showPortrait = ref(false)
 
-const hasPortrait = computed(() => Boolean(props.sheet.imagePath || props.sheet.artImageId))
+const hasPortrait = computed(() =>
+  Boolean(props.sheet.imagePath || props.sheet.artImageId),
+)
 
-const hasStats = computed(() => props.sheet.stats.some((stat) => stat.value > 0))
+const characterStats = computed(() => [
+  {
+    key: 'luck',
+    label: 'Luck',
+    value: props.sheet.luck,
+  },
+  {
+    key: 'might',
+    label: 'Might',
+    value: props.sheet.might,
+  },
+  {
+    key: 'wits',
+    label: 'Wits',
+    value: props.sheet.wits,
+  },
+  {
+    key: 'grace',
+    label: 'Grace',
+    value: props.sheet.grace,
+  },
+  {
+    key: 'charm',
+    label: 'Charm',
+    value: props.sheet.charm,
+  },
+  {
+    key: 'empathy',
+    label: 'Empathy',
+    value: props.sheet.empathy,
+  },
+])
+
+const hasStats = computed(() =>
+  characterStats.value.some((stat) => stat.value !== 'AVERAGE'),
+)
 
 const hasIdentityContent = computed(() => {
   return Boolean(
     props.sheet.name ||
-      props.sheet.honorific !== 'adventurer' ||
-      props.sheet.role ||
-      props.sheet.species ||
-      props.sheet.characterClass ||
-      props.sheet.alignment ||
-      props.sheet.genderIdentity ||
-      props.sheet.presentation,
+    props.sheet.honorific !== 'adventurer' ||
+    props.sheet.role ||
+    props.sheet.species ||
+    props.sheet.characterClass ||
+    props.sheet.alignment ||
+    props.sheet.genderIdentity ||
+    props.sheet.presentation,
   )
 })
 
@@ -509,7 +609,11 @@ const badges = computed(() => {
 
 const sheetSubtitle = computed(() => {
   if (!props.isBuilderMode) return identityLine.value
-  if (props.canCreateArt) return 'The sheet is complete enough for portrait creation. Save it, paint it, or keep tinkering.'
+
+  if (props.canCreateArt) {
+    return 'The sheet is complete enough for portrait creation. Save it, paint it, or keep tinkering.'
+  }
+
   return 'Choose prompt cards to fill the sheet. Completed sections can be cleared to restore their cards.'
 })
 
@@ -530,13 +634,17 @@ const completionItems = computed(() => [
     key: 'origin',
     cardKey: 'origin',
     label: 'Origin',
-    done: Boolean(props.sheet.species.trim() && props.sheet.characterClass.trim()),
+    done: Boolean(
+      props.sheet.species.trim() && props.sheet.characterClass.trim(),
+    ),
   },
   {
     key: 'identity',
     cardKey: 'identity',
     label: 'Identity',
-    done: Boolean(props.sheet.genderIdentity.trim() || props.sheet.presentation.trim()),
+    done: Boolean(
+      props.sheet.genderIdentity.trim() || props.sheet.presentation.trim(),
+    ),
   },
   {
     key: 'personality',
@@ -548,7 +656,7 @@ const completionItems = computed(() => [
     key: 'stats',
     cardKey: 'stats',
     label: 'Stats',
-    done: props.sheet.stats.every((stat) => stat.value >= 1 && stat.value <= 6),
+    done: characterStats.value.every((stat) => Boolean(stat.value)),
   },
   {
     key: 'background',
@@ -566,12 +674,18 @@ const completionItems = computed(() => [
     key: 'portrait',
     cardKey: 'art',
     label: 'Portrait',
-    done: Boolean(props.sheet.artPrompt.trim() || props.sheet.imagePath || props.sheet.artImageId),
+    done: Boolean(
+      props.sheet.artPrompt.trim() ||
+      props.sheet.imagePath ||
+      props.sheet.artImageId,
+    ),
   },
 ])
 
-function rewardForSlot(slotKey: string) {
-  return props.sheet.rewards.find((reward) => reward.slotKey === slotKey) ?? null
+function rewardForSlot(slotKey: string): CharacterRewardDraft | null {
+  return (
+    props.sheet.rewards.find((reward) => reward.slotKey === slotKey) ?? null
+  )
 }
 
 const SheetCell = defineComponent({
@@ -594,23 +708,37 @@ const SheetCell = defineComponent({
         {
           class: [
             'group rounded-2xl border bg-base-200 p-3 transition',
-            componentProps.value ? 'border-base-300' : 'border-dashed border-base-300 opacity-70',
+            componentProps.value
+              ? 'border-base-300'
+              : 'border-dashed border-base-300 opacity-70',
             componentProps.wide ? 'md:col-span-2' : '',
           ],
         },
         [
           h('div', { class: 'flex items-start justify-between gap-2' }, [
             h('div', { class: 'min-w-0' }, [
-              h('p', { class: 'flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-base-content/50' }, [
-                h(Icon, { name: componentProps.icon, class: 'h-4 w-4 text-primary' }),
-                componentProps.label,
-              ]),
+              h(
+                'p',
+                {
+                  class:
+                    'flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-base-content/50',
+                },
+                [
+                  h(Icon, {
+                    name: componentProps.icon,
+                    class: 'h-4 w-4 text-primary',
+                  }),
+                  componentProps.label,
+                ],
+              ),
               h(
                 'p',
                 {
                   class: [
                     'mt-2 whitespace-pre-wrap text-sm',
-                    componentProps.value ? 'font-semibold text-base-content' : 'italic text-base-content/40',
+                    componentProps.value
+                      ? 'font-semibold text-base-content'
+                      : 'italic text-base-content/40',
                   ],
                 },
                 componentProps.value || componentProps.placeholder,
@@ -620,7 +748,8 @@ const SheetCell = defineComponent({
               ? h(
                   'button',
                   {
-                    class: 'btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100',
+                    class:
+                      'btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100',
                     type: 'button',
                     onClick: () => componentEmit('clear'),
                   },
@@ -652,27 +781,34 @@ const SheetPanel = defineComponent({
         {
           class: [
             'group rounded-2xl border bg-base-100 p-4 transition',
-            componentProps.value ? 'border-base-300' : 'border-dashed border-base-300 opacity-70',
+            componentProps.value
+              ? 'border-base-300'
+              : 'border-dashed border-base-300 opacity-70',
           ],
         },
         [
           h('div', { class: 'flex items-start justify-between gap-3' }, [
-            h('h3', { class: 'flex items-center gap-2 font-black text-base-content' }, [
-              h(Icon, { name: componentProps.icon, class: 'h-5 w-5 text-primary' }),
-              componentProps.label,
-            ]),
+            h(
+              'h3',
+              { class: 'flex items-center gap-2 font-black text-base-content' },
+              [
+                h(Icon, {
+                  name: componentProps.icon,
+                  class: 'h-5 w-5 text-primary',
+                }),
+                componentProps.label,
+              ],
+            ),
             componentProps.value && componentProps.isBuilderMode
               ? h(
                   'button',
                   {
-                    class: 'btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100',
+                    class:
+                      'btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100',
                     type: 'button',
                     onClick: () => componentEmit('clear'),
                   },
-                  [
-                    h(Icon, { name: 'kind-icon:x', class: 'h-3 w-3' }),
-                    'Clear',
-                  ],
+                  [h(Icon, { name: 'kind-icon:x', class: 'h-3 w-3' }), 'Clear'],
                 )
               : null,
           ]),
@@ -681,7 +817,9 @@ const SheetPanel = defineComponent({
             {
               class: [
                 'mt-3 whitespace-pre-wrap text-sm leading-relaxed',
-                componentProps.value ? 'text-base-content/75' : 'italic text-base-content/40',
+                componentProps.value
+                  ? 'text-base-content/75'
+                  : 'italic text-base-content/40',
               ],
             },
             componentProps.value || componentProps.placeholder,

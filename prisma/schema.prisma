@@ -116,7 +116,9 @@ model ArtImage {
   // Relations — one-to-one owners
   Art                  Art?            @relation(fields: [artId], references: [id])
   Bot                  Bot?            @relation(fields: [botId], references: [id])
-  Character            Character?      @relation(fields: [characterId], references: [id])
+
+
+Character   Character? @relation(fields: [characterId], references: [id])
   Chat                 Chat?           @relation(fields: [chatId], references: [id])
   Component            Component?      @relation(fields: [componentId], references: [id])
   Gallery              Gallery?        @relation(fields: [galleryId], references: [id])
@@ -312,68 +314,60 @@ model ButterflyRecord {
   @@index([butterflyId], map: "ButterflyRecord_butterflyId_fkey")
 }
 
+enum ChallengeRating {
+  TERRIBLE
+  WEAK
+  AVERAGE
+  STRONG
+  EXCEPTIONAL
+}
+
 model Character {
-  id             Int        @id @default(autoincrement())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime?  @default(now()) @updatedAt
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @default(now()) @updatedAt
 
-  name           String     @db.VarChar(256)
-  honorific      String?    @default("adventurer")
-  title          String?    @db.VarChar(256)
+  name           String    @db.VarChar(256)
+  honorific      String?   @default("adventurer") @db.VarChar(256)
+  title          String?   @db.VarChar(256)
 
-  role           String?    @db.VarChar(256)
-  genderIdentity String?    @db.VarChar(256)
-  presentation   String?    @db.VarChar(764)
+  role           String?   @db.VarChar(256)
+  class          String?   @db.VarChar(764)
+  species        String?   @db.VarChar(764)
+  genderIdentity String?   @db.VarChar(256)
+  presentation   String?   @db.VarChar(764)
 
-  achievements   String?    @db.VarChar(764)
-  alignment      String?    @db.VarChar(256)
-  experience     Int?       @default(0)
-  level          Int?       @default(1)
+  genre          String?   @db.VarChar(256)
+  alignment      String?   @db.VarChar(256)
+  personality    String?   @db.Text
+  drive          String?   @db.VarChar(764)
+  backstory      String?   @db.Text
+  achievements   String?   @db.VarChar(764)
+  quirks         String?   @db.Text
 
-  class          String?    @db.VarChar(764)
-  species        String?    @db.VarChar(764)
-  backstory      String?    @db.Text
-  drive          String?    @db.VarChar(764)
-  inventory      String?    @db.Text
-  quirks         String?    @db.Text
-  skills         String?    @db.Text
-  genre          String?    @db.VarChar(256)
-  personality    String?    @db.Text
+  luck           ChallengeRating @default(AVERAGE)
+  might          ChallengeRating @default(AVERAGE)
+  wits           ChallengeRating @default(AVERAGE)
+  grace          ChallengeRating @default(AVERAGE)
+  charm          ChallengeRating @default(AVERAGE)
+  empathy        ChallengeRating @default(AVERAGE)
 
-  statName1      String?    @default("Luck")
-  statValue1     Int?       @default(59)
-  statName2      String?    @default("Swol")
-  statValue2     Int?       @default(49)
-  statName3      String?    @default("Wits")
-  statValue3     Int?       @default(72)
-  statName4      String?    @default("Flexibility")
-  statValue4     Int?       @default(93)
-  statName5      String?    @default("Rizz")
-  statValue5     Int?       @default(9)
-  statName6      String?    @default("Empathy")
-  statValue6     Int?       @default(71)
-
-  goalStat1Name  String?    @default("Principled|Chaotic")
-  goalStat1Value Int?       @default(0)
-  goalStat2Name  String?    @default("Introvert|Extrovert")
-  goalStat2Value Int?       @default(0)
-  goalStat3Name  String?    @default("Passive|Aggressive")
-  goalStat3Value Int?       @default(0)
-  goalStat4Name  String?    @default("Optimist|Pessimist")
-  goalStat4Value Int?       @default(0)
-
-  artPrompt      String?    @db.Text
+  artPrompt      String?   @db.Text
   artImageId     Int?
-  imagePath      String?    @db.VarChar(764)
+  imagePath      String?   @db.VarChar(764)
 
-  designer       String?
-  isPublic       Boolean    @default(true)
-  isMature       Boolean    @default(false)
-  isActive       Boolean    @default(true)
-  userId         Int        @default(10)
+  experience     Int      @default(0)
+  level          Int      @default(1)
+
+  designer       String?  @db.VarChar(256)
+  isPublic       Boolean  @default(true)
+  isMature       Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  userId         Int      @default(10)
 
   ArtImage       ArtImage?
-  User           User       @relation(fields: [userId], references: [id])
+  User           User      @relation(fields: [userId], references: [id])
+
   Chats          Chat[]
   Reactions      Reaction[]
   Rewards        Reward[]   @relation("CharacterToReward")
@@ -382,9 +376,10 @@ model Character {
   Butterflies    Butterfly[]
 
   @@index([userId], map: "Character_userId_fkey")
+  @@index([isPublic])
+  @@index([isActive])
+  @@index([name])
 }
-
-
 
 /// a chat can be between users, user to Bot or Character, on to a Forum or Channel (aka chatroom)
 /// originId should always be shared in subsequent messages so we can track the thread via originID and createdAt

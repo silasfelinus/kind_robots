@@ -39,7 +39,7 @@
           @click="saveCharacter"
         >
           <Icon name="kind-icon:save" class="h-4 w-4" />
-          {{ isSaving ? 'Saving...' : 'Save Character' }}
+          {{ isSaving ? 'Saving...' : saveButtonLabel }}
         </button>
       </div>
     </header>
@@ -47,8 +47,13 @@
     <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-[1fr_25rem]">
       <character-sheet
         :sheet="sheet"
+        :reward-slots="rewardSlots"
+        :is-builder-mode="true"
+        :can-create-art="canCreateArt"
+        :allow-art="true"
         @remove-section="removeSheetSection"
         @remove-reward="removeRewardSlot"
+        @select-card="selectCardByKey"
       />
 
       <aside class="flex min-h-0 flex-col gap-3">
@@ -70,7 +75,7 @@
                   </p>
 
                   <h4 class="mt-2 text-xl font-black text-base-content">
-                    {{ activeCard.title }}
+                    {{ activeStep.title }}
                   </h4>
                 </div>
 
@@ -128,7 +133,7 @@
               class="flex flex-col gap-3"
             >
               <p class="text-sm text-base-content/70">
-                Drag or tap a number block, then choose a stat slot. Each number can only be used once.
+                Tap a number block, then choose a stat slot. Each number can only be used once.
               </p>
 
               <div class="flex flex-wrap gap-2">
@@ -138,10 +143,8 @@
                   class="btn btn-sm rounded-xl"
                   :class="selectedStatBlock === block ? 'btn-primary' : 'btn-outline'"
                   type="button"
-                  :disabled="usedStatBlocks.includes(block) && selectedStatBlock !== block"
-                  draggable="true"
+                  :disabled="usedDraftStatBlocks.includes(block) && selectedStatBlock !== block"
                   @click="selectedStatBlock = block"
-                  @dragstart="startStatDrag(block)"
                 >
                   {{ block }}
                 </button>
@@ -149,13 +152,11 @@
 
               <div class="grid grid-cols-1 gap-2">
                 <button
-                  v-for="stat in sheet.stats"
+                  v-for="stat in draftStats"
                   :key="stat.key"
                   class="grid grid-cols-[1fr_4rem] items-center gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-left transition hover:border-primary hover:bg-primary/10"
                   type="button"
                   @click="assignSelectedStat(stat.key)"
-                  @dragover.prevent
-                  @drop="dropStatBlock(stat.key)"
                 >
                   <input
                     v-model="stat.name"
@@ -279,7 +280,7 @@
               <button
                 class="btn btn-secondary rounded-xl"
                 type="button"
-                @click="rollActiveCard"
+                @click="suggestForActiveStep"
               >
                 <Icon name="kind-icon:dice" class="h-4 w-4" />
                 Suggest
@@ -453,78 +454,27 @@ import type { Character, Dream, Reward } from '~/prisma/generated/prisma/client'
 import { useUserStore } from '@/stores/userStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { handleError, performFetch } from '@/stores/utils'
+import {
+  createEmptyCharacterSheet,
+  createEmptyRewardDraft,
+  defaultCharacterStats,
+  defaultGoalStats,
+  defaultRewardSlots,
+  fallbackRewardIcon,
+} from '@/types/characterBuilder'
 import type {
+  CharacterPromptCard,
+  CharacterPromptStep,
+  CharacterRewardDraft,
   CharacterSheetDraft,
   CharacterSheetStat,
-} from '@/components/builders/character-sheet.vue'
+  RewardPromptSlot,
+  RewardSlotKey,
+} from '@/types/characterBuilder'
 
 type SelectOption = {
   id: number
   label: string
-}
-
-type PromptInputType = 'short' | 'long' | 'stats' | 'reward' | 'art'
-
-type RewardTypeValue = 'SKILL' | 'ITEM'
-type RewardRarityValue = 'COMMON' | 'RARE'
-
-type RewardSlotKey =
-  | 'common-skill'
-  | 'rare-skill'
-  | 'common-item'
-  | 'rare-item'
-
-type RewardPromptSlot = {
-  key: RewardSlotKey
-  label: string
-  rewardType: RewardTypeValue
-  rarityType: RewardRarityValue
-  rarity: number
-  icon: string
-}
-
-type RewardDraft = {
-  slotKey: RewardSlotKey
-  label: string
-  text: string
-  power: string
-  collection: string
-  rewardType: RewardTypeValue
-  rarityType: RewardRarityValue
-  rarity: number
-  icon: string
-  imagePath: string
-  artImageId: number | null
-  artPrompt: string
-  id?: number
-}
-
-type BuilderCharacterSheetDraft = CharacterSheetDraft & {
-  rewards: RewardDraft[]
-}
-
-type CharacterPromptStep = {
-  key: string
-  title: string
-  body: string
-  inputLabel: string
-  placeholder: string
-  inputType: PromptInputType
-  field?: keyof BuilderCharacterSheetDraft
-}
-
-type CharacterPromptCard = {
-  key: string
-  label: string
-  title: string
-  icon: string
-  flourish: string
-  prompt: string
-  restoresFields: Array<keyof BuilderCharacterSheetDraft | RewardSlotKey>
-  steps: CharacterPromptStep[]
-  required?: boolean
-  rewardSlotKey?: RewardSlotKey
-  unlockWhen?: () => boolean
 }
 
 type ArtCreatorPayload = {
@@ -559,103 +509,39 @@ const activeCard = ref<CharacterPromptCard | null>(null)
 const activeStepIndex = ref(0)
 const activeValue = ref('')
 const selectedStatBlock = ref<number | null>(null)
-const draggedStatBlock = ref<number | null>(null)
 
+const stagedValues = reactive<Record<string, string>>({})
+const draftStats = reactive<CharacterSheetStat[]>([])
 const completedCards = reactive<Record<string, boolean>>({})
 
 const isSaving = ref(false)
 const saveMessage = ref('')
 const saveError = ref('')
 
-const rewardSlots: RewardPromptSlot[] = [
-  {
-    key: 'common-skill',
-    label: 'Common Skill',
-    rewardType: 'SKILL',
-    rarityType: 'COMMON',
-    rarity: 1,
-    icon: 'kind-icon:bolt',
-  },
-  {
-    key: 'rare-skill',
-    label: 'Rare Skill',
-    rewardType: 'SKILL',
-    rarityType: 'RARE',
-    rarity: 3,
-    icon: 'kind-icon:comet',
-  },
-  {
-    key: 'common-item',
-    label: 'Common Item',
-    rewardType: 'ITEM',
-    rarityType: 'COMMON',
-    rarity: 1,
-    icon: 'kind-icon:backpack',
-  },
-  {
-    key: 'rare-item',
-    label: 'Rare Item',
-    rewardType: 'ITEM',
-    rarityType: 'RARE',
-    rarity: 3,
-    icon: 'kind-icon:gem',
-  },
-]
+const statBlocks = [1, 2, 3, 4, 5, 6]
+const rewardSlots = defaultRewardSlots()
+const stagedReward = reactive<CharacterRewardDraft>(createEmptyRewardDraft(rewardSlots[0]))
+const sheet = reactive<CharacterSheetDraft>(createEmptyCharacterSheet(userStore.userId || 10))
 
-const stagedReward = reactive<RewardDraft>(createEmptyRewardDraft(rewardSlots[0]))
-
-const sheet = reactive<BuilderCharacterSheetDraft>({
-  name: '',
-  honorific: 'adventurer',
-  title: '',
-  role: '',
-  genre: '',
-  species: '',
-  characterClass: '',
-  alignment: '',
-  genderIdentity: '',
-  presentation: '',
-  personality: '',
-  drive: '',
-  backstory: '',
-  achievements: '',
-  skills: '',
-  inventory: '',
-  quirks: '',
-  artPrompt: '',
-  imagePath: null,
-  rewards: [],
-  stats: [
-    { key: 'stat1', name: 'Luck', value: 0 },
-    { key: 'stat2', name: 'Swol', value: 0 },
-    { key: 'stat3', name: 'Wits', value: 0 },
-    { key: 'stat4', name: 'Flexibility', value: 0 },
-    { key: 'stat5', name: 'Rizz', value: 0 },
-    { key: 'stat6', name: 'Empathy', value: 0 },
-  ],
-  goalStats: [
-    { key: 'goal1', name: 'Principled|Chaotic', value: 0 },
-    { key: 'goal2', name: 'Introvert|Extrovert', value: 0 },
-    { key: 'goal3', name: 'Passive|Aggressive', value: 0 },
-    { key: 'goal4', name: 'Optimist|Pessimist', value: 0 },
-  ],
+const saveButtonLabel = computed(() => {
+  return selectedCharacterId.value ? 'Update Character' : 'Save Character'
 })
 
 const promptCards = computed<CharacterPromptCard[]>(() => [
   {
     key: 'role',
-    label: 'Place in the Story',
+    label: 'Story Role',
     title: 'Choose their role',
     icon: 'kind-icon:mask',
     flourish: '⚜',
-    prompt: 'Are they a hero, rival, guide, menace, merchant, villain, or beautifully suspicious side character?',
-    restoresFields: ['role', 'genre'],
+    prompt: 'Decide what job they serve in the story, even if they immediately swerve out of it.',
     required: true,
+    restoresFields: ['role', 'genre'],
     steps: [
       {
         key: 'role',
         title: 'Story Role',
-        body: 'Choose the job they serve in the story. This is their narrative lane, even if they immediately swerve out of it.',
+        body: 'Are they a hero, rival, guide, menace, merchant, villain, or beautifully suspicious side character?',
         inputLabel: 'Character Role',
         placeholder: 'Companion, rival, guide, villain, quest giver...',
         inputType: 'short',
@@ -664,7 +550,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'genre',
         title: 'Genre Flavor',
-        body: 'Add the genre or vibe this character belongs to. Optional, but very useful for art and backstory.',
+        body: 'Give the character a genre or vibe. This helps the portrait and backstory stay on target.',
         inputLabel: 'Genre',
         placeholder: 'Gothic comedy, mythic sci-fi, cozy horror...',
         inputType: 'short',
@@ -678,9 +564,9 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Name the troublemaker',
     icon: 'kind-icon:signature',
     flourish: '✒',
-    prompt: 'Give them a name that sounds like it has history, bad timing, and excellent lighting.',
-    restoresFields: ['name', 'honorific', 'title'],
+    prompt: 'Give them a name with history, bad timing, and excellent lighting.',
     required: true,
+    restoresFields: ['name', 'honorific', 'title'],
     steps: [
       {
         key: 'name',
@@ -700,17 +586,26 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
         inputType: 'short',
         field: 'honorific',
       },
+      {
+        key: 'title',
+        title: 'Title',
+        body: 'Optional: add a formal title, rumor-name, or dramatic billing.',
+        inputLabel: 'Title',
+        placeholder: 'The Lantern of Wrong Tuesdays...',
+        inputType: 'short',
+        field: 'title',
+      },
     ],
   },
   {
-    key: 'species',
+    key: 'origin',
     label: 'Origin',
     title: 'Choose species and calling',
     icon: 'kind-icon:species',
     flourish: '❦',
     prompt: 'What are they, and what do they do when destiny starts knocking on the furniture?',
-    restoresFields: ['species', 'characterClass', 'alignment'],
     required: true,
+    restoresFields: ['species', 'characterClass', 'alignment'],
     steps: [
       {
         key: 'species',
@@ -722,7 +617,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
         field: 'species',
       },
       {
-        key: 'class',
+        key: 'characterClass',
         title: 'Class',
         body: 'Give them a class, job, archetype, or suspiciously specific life function.',
         inputLabel: 'Class',
@@ -733,7 +628,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'alignment',
         title: 'Alignment',
-        body: 'Choose their moral weather. It does not have to be official. It does have to be funny or useful.',
+        body: 'Choose their moral weather. It does not need to be official. It should be useful.',
         inputLabel: 'Alignment',
         placeholder: 'Chaotic Helpful, Lawful Petty, Neutral Dramatic...',
         inputType: 'short',
@@ -747,9 +642,9 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose gender and presentation',
     icon: 'kind-icon:person',
     flourish: '☾',
-    prompt: 'How do they move through the world? Pick identity, presentation, and the vibe people notice first.',
-    restoresFields: ['genderIdentity', 'presentation'],
+    prompt: 'How do they move through the world? Pick identity, presentation, and first impressions.',
     required: true,
+    restoresFields: ['genderIdentity', 'presentation'],
     steps: [
       {
         key: 'genderIdentity',
@@ -777,9 +672,9 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Give them a social operating system',
     icon: 'kind-icon:heart',
     flourish: '✦',
-    prompt: 'How do they talk, panic, charm, lie, sulk, flirt with danger, and avoid obvious lessons?',
-    restoresFields: ['personality', 'drive'],
+    prompt: 'How do they talk, panic, charm, lie, sulk, flirt with danger, and avoid lessons?',
     required: true,
+    restoresFields: ['personality', 'drive'],
     steps: [
       {
         key: 'personality',
@@ -807,9 +702,9 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Arrange their strengths',
     icon: 'kind-icon:activity',
     flourish: '♛',
-    prompt: 'Drag the numbers 1 through 6 onto the stats. One tiny number. One heroic number. No refunds from fate.',
-    restoresFields: ['stats'],
+    prompt: 'Place 1 through 6 onto their stats. One tiny number. One heroic number.',
     required: true,
+    restoresFields: ['stats'],
     steps: [
       {
         key: 'stats',
@@ -827,9 +722,9 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Reveal the glorious problem',
     icon: 'kind-icon:story',
     flourish: '§',
-    prompt: 'What happened to them, what do they want, and what emotional furniture are they still tripping over?',
-    restoresFields: ['backstory', 'achievements', 'quirks'],
+    prompt: 'What happened to them, what do they want, and what emotional furniture are they tripping over?',
     required: true,
+    restoresFields: ['backstory', 'achievements', 'quirks'],
     steps: [
       {
         key: 'backstory',
@@ -843,7 +738,7 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
       {
         key: 'achievements',
         title: 'Achievements',
-        body: 'Add one or two accomplishments, rumors, failures they keep rebranding, or titles earned the hard way.',
+        body: 'Add accomplishments, rumors, failures they keep rebranding, or titles earned the hard way.',
         inputLabel: 'Achievements',
         placeholder: 'Defeated the Tax Hydra, survived brunch with ghosts...',
         inputType: 'long',
@@ -866,16 +761,16 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose a reliable trick',
     icon: 'kind-icon:bolt',
     flourish: '✧',
-    prompt: 'Pick a practical skill they can use often. Useful, flavorful, and not too universe-breaking.',
-    restoresFields: ['common-skill'],
-    rewardSlotKey: 'common-skill',
+    prompt: 'A practical skill they can use often. Useful, flavorful, not universe-breaking.',
     required: true,
+    rewardSlotKey: 'common-skill',
+    restoresFields: ['common-skill'],
     unlockWhen: () => canChooseRewards.value,
     steps: [
       {
         key: 'common-skill',
         title: 'Common Skill',
-        body: 'Create a Reward with type SKILL and rarity COMMON. Simple. Useful. A little spicy.',
+        body: 'Create a Reward with type SKILL and rarity COMMON.',
         inputLabel: 'Common Skill',
         placeholder: '',
         inputType: 'reward',
@@ -888,16 +783,16 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose their signature move',
     icon: 'kind-icon:comet',
     flourish: '✶',
-    prompt: 'Give them one rare skill that feels special. The table should say, wait, you can do WHAT?',
-    restoresFields: ['rare-skill'],
-    rewardSlotKey: 'rare-skill',
+    prompt: 'One rare skill that feels special. The table should say, wait, you can do WHAT?',
     required: true,
+    rewardSlotKey: 'rare-skill',
+    restoresFields: ['rare-skill'],
     unlockWhen: () => canChooseRewards.value,
     steps: [
       {
         key: 'rare-skill',
         title: 'Rare Skill',
-        body: 'Create a Reward with type SKILL and rarity RARE. This is their signature trick.',
+        body: 'Create a Reward with type SKILL and rarity RARE.',
         inputLabel: 'Rare Skill',
         placeholder: '',
         inputType: 'reward',
@@ -910,16 +805,16 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Pack a useful item',
     icon: 'kind-icon:backpack',
     flourish: '◆',
-    prompt: 'Choose an everyday item with personality. Useful tools are better when they look mildly cursed.',
-    restoresFields: ['common-item'],
-    rewardSlotKey: 'common-item',
+    prompt: 'An everyday item with personality. Useful tools are better when mildly cursed.',
     required: true,
+    rewardSlotKey: 'common-item',
+    restoresFields: ['common-item'],
     unlockWhen: () => canChooseRewards.value,
     steps: [
       {
         key: 'common-item',
         title: 'Common Item',
-        body: 'Create a Reward with type ITEM and rarity COMMON. A practical object with a tiny story hook.',
+        body: 'Create a Reward with type ITEM and rarity COMMON.',
         inputLabel: 'Common Item',
         placeholder: '',
         inputType: 'reward',
@@ -932,16 +827,16 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Claim a strange treasure',
     icon: 'kind-icon:gem',
     flourish: '❖',
-    prompt: 'Choose a rare item with story gravity. Loot, leverage, or a very bad idea with excellent branding.',
-    restoresFields: ['rare-item'],
-    rewardSlotKey: 'rare-item',
+    prompt: 'A rare item with story gravity. Loot, leverage, or a terrible idea with excellent branding.',
     required: true,
+    rewardSlotKey: 'rare-item',
+    restoresFields: ['rare-item'],
     unlockWhen: () => canChooseRewards.value,
     steps: [
       {
         key: 'rare-item',
         title: 'Rare Item',
-        body: 'Create a Reward with type ITEM and rarity RARE. Make it feel like a prize and a problem.',
+        body: 'Create a Reward with type ITEM and rarity RARE.',
         inputLabel: 'Rare Item',
         placeholder: '',
         inputType: 'reward',
@@ -954,8 +849,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Create their portrait',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    prompt: 'Turn the sheet into a portrait prompt. Costume, expression, silhouette, mood, and dramatic nonsense encouraged.',
-    restoresFields: ['artPrompt', 'imagePath'],
+    prompt: 'Turn the sheet into a portrait prompt. Costume, expression, silhouette, mood, and drama.',
+    restoresFields: ['artPrompt', 'imagePath', 'artImageId'],
     unlockWhen: () => canCreateArt.value,
     steps: [
       {
@@ -997,25 +892,24 @@ const activeRewardSlot = computed(() => {
 
 const rewardSlotDescription = computed(() => {
   if (!activeRewardSlot.value) return 'Create a reward.'
-
   return `${activeRewardSlot.value.rarityType} ${activeRewardSlot.value.rewardType}, rarity ${activeRewardSlot.value.rarity}.`
 })
 
-const usedStatBlocks = computed(() => {
-  return sheet.stats
+const usedDraftStatBlocks = computed(() => {
+  return draftStats
     .map((stat) => stat.value)
     .filter((value) => statBlocks.includes(value))
 })
 
 const canChooseRewards = computed(() => {
-  return ['role', 'name', 'species', 'identity', 'personality', 'stats', 'background'].every((key) => completedCards[key])
+  return ['role', 'name', 'origin', 'identity', 'personality', 'stats', 'background'].every((key) => completedCards[key])
 })
 
 const canCreateArt = computed(() => {
   return [
     'role',
     'name',
-    'species',
+    'origin',
     'identity',
     'personality',
     'stats',
@@ -1037,7 +931,23 @@ const saveStatus = computed(() => {
   return 'Ready to save.'
 })
 
-const statBlocks = [1, 2, 3, 4, 5, 6]
+const selectedDreamLabel = computed(() => {
+  return dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)?.label || ''
+})
+
+const rewardSkillText = computed(() => {
+  return sheet.rewards
+    .filter((reward) => reward.rewardType === 'SKILL')
+    .map((reward) => `${reward.label}: ${reward.power}`)
+    .join('\n')
+})
+
+const rewardInventoryText = computed(() => {
+  return sheet.rewards
+    .filter((reward) => reward.rewardType === 'ITEM')
+    .map((reward) => `${reward.label}: ${reward.text}`)
+    .join('\n')
+})
 
 const emptyStep: CharacterPromptStep = {
   key: 'empty',
@@ -1048,64 +958,120 @@ const emptyStep: CharacterPromptStep = {
   inputType: 'short',
 }
 
+function selectCardByKey(key: string) {
+  if (key === 'identity-group') return
+
+  const card = promptCards.value.find((item) => item.key === key)
+
+  if (!card) return
+  if (card.unlockWhen && !card.unlockWhen()) return
+
+  selectCard(card)
+}
+
 function selectCard(card: CharacterPromptCard) {
   activeCard.value = card
   activeStepIndex.value = 0
-  loadStepValue()
-  prepareRewardStage(card)
+  selectedStatBlock.value = null
+  resetStaging()
+  prepareCardStage(card)
+  loadActiveStepValue()
+}
+
+function prepareCardStage(card: CharacterPromptCard) {
+  for (const step of card.steps) {
+    if (step.field && typeof sheet[step.field] === 'string') {
+      stagedValues[step.key] = String(sheet[step.field] || '')
+    }
+  }
+
+  if (card.key === 'stats') {
+    resetStatRows(draftStats, sheet.stats.map((stat) => ({ ...stat })))
+  }
+
+  if (card.rewardSlotKey) {
+    const slot = rewardSlots.find((item) => item.key === card.rewardSlotKey)
+    const existing = sheet.rewards.find((reward) => reward.slotKey === card.rewardSlotKey)
+
+    if (existing) {
+      Object.assign(stagedReward, existing)
+    } else if (slot) {
+      Object.assign(stagedReward, createEmptyRewardDraft(slot))
+    }
+  }
+
+  if (card.key === 'art') {
+    buildArtPrompt()
+  }
+}
+
+function loadActiveStepValue() {
+  activeValue.value = stagedValues[activeStep.value.key] || ''
+}
+
+function commitActiveStepValue() {
+  if (activeStep.value.inputType !== 'short' && activeStep.value.inputType !== 'long') return
+  stagedValues[activeStep.value.key] = activeValue.value.trim()
 }
 
 function goNextStep() {
-  commitCurrentStepToStage()
+  commitActiveStepValue()
 
   if (!activeCard.value) return
   if (activeStepIndex.value >= activeCard.value.steps.length - 1) return
 
   activeStepIndex.value += 1
-  loadStepValue()
+  loadActiveStepValue()
 }
 
 function goPreviousStep() {
-  commitCurrentStepToStage()
+  commitActiveStepValue()
 
   if (activeStepIndex.value <= 0) return
 
   activeStepIndex.value -= 1
-  loadStepValue()
+  loadActiveStepValue()
 }
 
 function finishActiveCard() {
-  commitCurrentStepToStage()
+  commitActiveStepValue()
 
   if (!activeCard.value) return
 
-  if (activeCard.value.rewardSlotKey) {
-    commitRewardCard(activeCard.value.rewardSlotKey)
-    completeCard(activeCard.value.key)
-    replaceActiveCard()
-    return
-  }
-
-  if (activeStep.value.inputType === 'stats') {
+  if (activeCard.value.key === 'stats') {
     if (!isStatAllocationComplete()) {
       saveError.value = 'Assign each stat a unique value from 1 to 6 before adding it to the sheet.'
       return
     }
 
-    completeCard(activeCard.value.key)
-    replaceActiveCard()
+    resetStatRows(sheet.stats, draftStats.map((stat) => ({ ...stat })))
+    completeCard('stats')
+    closeCardAndChooseNext()
     return
   }
 
-  if (activeStep.value.inputType === 'art') {
-    completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath)
-    replaceActiveCard()
+  if (activeCard.value.rewardSlotKey) {
+    commitRewardCard(activeCard.value.rewardSlotKey)
+    completeCard(activeCard.value.key)
+    closeCardAndChooseNext()
     return
+  }
+
+  if (activeCard.value.key === 'art') {
+    completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId)
+    closeCardAndChooseNext()
+    return
+  }
+
+  for (const step of activeCard.value.steps) {
+    if (!step.field) continue
+    if (typeof sheet[step.field] !== 'string') continue
+    ;(sheet[step.field] as string) = stagedValues[step.key] || ''
   }
 
   completeCard(activeCard.value.key)
   buildArtPrompt()
-  replaceActiveCard()
+  closeCardAndChooseNext()
 }
 
 function cancelActiveCard() {
@@ -1113,8 +1079,23 @@ function cancelActiveCard() {
   activeStepIndex.value = 0
   activeValue.value = ''
   selectedStatBlock.value = null
-  draggedStatBlock.value = null
-  resetStagedReward()
+  resetStaging()
+}
+
+function closeCardAndChooseNext() {
+  const previousKey = activeCard.value?.key
+
+  activeCard.value = null
+  activeStepIndex.value = 0
+  activeValue.value = ''
+  selectedStatBlock.value = null
+  resetStaging()
+
+  const next = visibleDeck.value.find((card) => card.key !== previousKey) || null
+
+  if (next) {
+    selectCard(next)
+  }
 }
 
 function completeCard(key: string) {
@@ -1122,23 +1103,106 @@ function completeCard(key: string) {
   saveError.value = ''
 }
 
-function skipActiveCard() {
-  replaceActiveCard()
+function removeSheetSection(key: string) {
+  if (key === 'identity-group') {
+    removeSheetSection('role')
+    removeSheetSection('name')
+    removeSheetSection('origin')
+    removeSheetSection('identity')
+    return
+  }
+
+  const card = promptCards.value.find((item) => item.key === key)
+
+  if (!card) return
+
+  for (const field of card.restoresFields) {
+    if (isRewardSlotKey(field)) {
+      removeRewardSlot(field)
+      continue
+    }
+
+    clearSheetField(field)
+  }
+
+  completedCards[card.key] = false
+
+  if (activeCard.value?.key === card.key) {
+    cancelActiveCard()
+  }
 }
 
-function replaceActiveCard() {
-  const previousKey = activeCard.value?.key
-  const next = visibleDeck.value.find((card) => card.key !== previousKey) || null
+function removeRewardSlot(slotKey: string) {
+  if (!isRewardSlotKey(slotKey)) return
 
-  activeCard.value = next
-  activeStepIndex.value = 0
-  activeValue.value = ''
+  const index = sheet.rewards.findIndex((reward) => reward.slotKey === slotKey)
 
-  if (next) {
-    loadStepValue()
-    prepareRewardStage(next)
-  } else {
-    resetStagedReward()
+  if (index >= 0) {
+    sheet.rewards.splice(index, 1)
+  }
+
+  completedCards[slotKey] = false
+}
+
+function clearSheetField(field: keyof CharacterSheetDraft) {
+  if (field === 'stats') {
+    resetStatRows(sheet.stats, defaultCharacterStats())
+    return
+  }
+
+  if (field === 'goalStats') {
+    resetStatRows(sheet.goalStats, defaultGoalStats())
+    return
+  }
+
+  if (field === 'rewards') {
+    sheet.rewards.splice(0, sheet.rewards.length)
+    return
+  }
+
+  if (field === 'imagePath') {
+    sheet.imagePath = null
+    return
+  }
+
+  if (field === 'artImageId') {
+    sheet.artImageId = null
+    return
+  }
+
+  if (field === 'id') {
+    sheet.id = null
+    selectedCharacterId.value = null
+    return
+  }
+
+  if (field === 'userId') {
+    sheet.userId = userStore.userId || 10
+    return
+  }
+
+  if (field === 'designer') {
+    sheet.designer = getDesignerName()
+    return
+  }
+
+  if (field === 'isPublic') {
+    sheet.isPublic = true
+    return
+  }
+
+  if (field === 'isMature') {
+    sheet.isMature = false
+    return
+  }
+
+  if (field === 'isActive') {
+    sheet.isActive = true
+    return
+  }
+
+  if (typeof sheet[field] === 'string') {
+    ;(sheet[field] as string) = field === 'honorific' ? 'adventurer' : ''
   }
 }
 
@@ -1146,57 +1210,69 @@ function reshuffleDeck() {
   const available = [...visibleDeck.value]
   const next = available[Math.floor(Math.random() * available.length)] || null
 
-  activeCard.value = next
-  activeStepIndex.value = 0
-  activeValue.value = ''
-
   if (next) {
-    loadStepValue()
-    prepareRewardStage(next)
+    selectCard(next)
   }
 }
 
-function loadStepValue() {
-  const step = activeStep.value
+function suggestForActiveStep() {
+  if (!activeCard.value) return
 
-  if (step.inputType === 'reward' || step.inputType === 'stats' || step.inputType === 'art') {
-    activeValue.value = ''
-    return
-  }
+  const stepKey = activeStep.value.key
+  const cardKey = activeCard.value.key
 
-  if (step.field && typeof sheet[step.field] === 'string') {
-    activeValue.value = String(sheet[step.field] || '')
-    return
-  }
-
-  activeValue.value = ''
+  if (stepKey === 'role') activeValue.value = rollFrom('role', 'companion')
+  else if (stepKey === 'genre') activeValue.value = rollFrom('genre', 'gothic comedy')
+  else if (stepKey === 'name') activeValue.value = rollFrom('name', 'Mira Voss')
+  else if (stepKey === 'honorific') activeValue.value = rollFrom('honorific', 'adventurer')
+  else if (stepKey === 'title') activeValue.value = rollFrom('title', 'The Lantern of Wrong Tuesdays')
+  else if (stepKey === 'species') activeValue.value = rollFrom('species', 'Moon-Moth Human')
+  else if (stepKey === 'characterClass') activeValue.value = rollFrom('class', 'Oracle')
+  else if (stepKey === 'alignment') activeValue.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom('personality', 'Helpful')}`
+  else if (stepKey === 'genderIdentity') activeValue.value = rollFrom('gender', 'unknown')
+  else if (stepKey === 'presentation') activeValue.value = rollFrom('presentation', 'ceremonial and slightly dangerous')
+  else if (stepKey === 'personality') activeValue.value = rollFrom('personality', 'Warm, theatrical, and allergic to simple answers.')
+  else if (stepKey === 'drive') activeValue.value = rollFrom('drive', 'to recover something everyone else insists was never lost')
+  else if (stepKey === 'backstory') activeValue.value = buildBackstoryText()
+  else if (stepKey === 'achievements') activeValue.value = rollFrom('achievement', 'Survived a duel with a polite ghost.')
+  else if (stepKey === 'quirks') activeValue.value = [rollFrom('quirk', 'apologizes to furniture'), rollFrom('quirk', 'counts exits before compliments')].join(', ')
+  else if (activeStep.value.inputType === 'stats') rollStats()
+  else if (activeStep.value.inputType === 'reward') rollReward(cardKey)
+  else if (activeStep.value.inputType === 'art') buildArtPrompt()
 }
 
-function commitCurrentStepToStage() {
-  const step = activeStep.value
+function assignSelectedStat(statKey: string) {
+  if (!selectedStatBlock.value) return
 
-  if (!step.field) return
-  if (step.inputType !== 'short' && step.inputType !== 'long') return
-  if (typeof sheet[step.field] !== 'string') return
+  const target = draftStats.find((stat) => stat.key === statKey)
 
-  ;(sheet[step.field] as string) = activeValue.value.trim()
-}
+  if (!target) return
 
-function prepareRewardStage(card: CharacterPromptCard) {
-  if (!card.rewardSlotKey) return
-
-  const slot = rewardSlots.find((item) => item.key === card.rewardSlotKey)
-
-  if (!slot) return
-
-  const existing = sheet.rewards.find((reward) => reward.slotKey === slot.key)
-
-  if (existing) {
-    Object.assign(stagedReward, existing)
-    return
+  for (const stat of draftStats) {
+    if (stat.key !== statKey && stat.value === selectedStatBlock.value) {
+      stat.value = 0
+    }
   }
 
-  Object.assign(stagedReward, createEmptyRewardDraft(slot))
+  target.value = selectedStatBlock.value
+  selectedStatBlock.value = null
+}
+
+function isStatAllocationComplete() {
+  const values = draftStats.map((stat) => stat.value).sort((a, b) => a - b)
+  return values.join(',') === statBlocks.join(',')
+}
+
+function rollStats() {
+  const shuffled = [...statBlocks].sort(() => Math.random() - 0.5)
+
+  draftStats.forEach((stat, index) => {
+    stat.value = shuffled[index] ?? 0
+  })
+
+  for (const goal of sheet.goalStats) {
+    goal.value = randomInt(-100, 100)
+  }
 }
 
 function commitRewardCard(slotKey: RewardSlotKey) {
@@ -1204,7 +1280,7 @@ function commitRewardCard(slotKey: RewardSlotKey) {
 
   if (!slot) return
 
-  const reward: RewardDraft = {
+  const reward: CharacterRewardDraft = {
     slotKey,
     label: stagedReward.label.trim() || slot.label,
     text: stagedReward.text.trim() || `${slot.label} for ${sheet.name || 'this character'}.`,
@@ -1229,102 +1305,9 @@ function commitRewardCard(slotKey: RewardSlotKey) {
   }
 }
 
-function rollActiveCard() {
-  if (!activeCard.value) return
-
-  const stepKey = activeStep.value.key
-  const cardKey = activeCard.value.key
-
-  if (stepKey === 'name') {
-    activeValue.value = rollFrom('name', 'Mira Voss')
-    return
-  }
-
-  if (stepKey === 'honorific') {
-    activeValue.value = rollFrom('honorific', 'adventurer')
-    return
-  }
-
-  if (stepKey === 'role') {
-    activeValue.value = rollFrom('role', 'companion')
-    return
-  }
-
-  if (stepKey === 'genre') {
-    activeValue.value = rollFrom('genre', 'gothic comedy')
-    return
-  }
-
-  if (stepKey === 'species') {
-    activeValue.value = rollFrom('species', 'Moon-Moth Human')
-    return
-  }
-
-  if (stepKey === 'class') {
-    activeValue.value = rollFrom('class', 'Oracle')
-    return
-  }
-
-  if (stepKey === 'alignment') {
-    activeValue.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom('personality', 'Helpful')}`
-    return
-  }
-
-  if (stepKey === 'genderIdentity') {
-    activeValue.value = rollFrom('gender', 'unknown')
-    return
-  }
-
-  if (stepKey === 'presentation') {
-    activeValue.value = rollFrom('presentation', 'ceremonial and slightly dangerous')
-    return
-  }
-
-  if (stepKey === 'personality') {
-    activeValue.value = rollFrom('personality', 'Warm, theatrical, and allergic to simple answers.')
-    return
-  }
-
-  if (stepKey === 'drive') {
-    activeValue.value = rollFrom('drive', 'to recover something everyone else insists was never lost')
-    return
-  }
-
-  if (stepKey === 'backstory') {
-    buildBackstory()
-    activeValue.value = sheet.backstory
-    return
-  }
-
-  if (stepKey === 'achievements') {
-    activeValue.value = rollFrom('achievement', 'Survived a duel with a polite ghost.')
-    return
-  }
-
-  if (stepKey === 'quirks') {
-    activeValue.value = [
-      rollFrom('quirk', 'apologizes to furniture'),
-      rollFrom('quirk', 'counts exits before compliments'),
-    ].join(', ')
-    return
-  }
-
-  if (activeStep.value.inputType === 'stats') {
-    rollStats()
-    return
-  }
-
-  if (activeStep.value.inputType === 'reward') {
-    rollReward(cardKey)
-    return
-  }
-
-  if (activeStep.value.inputType === 'art') {
-    buildArtPrompt()
-  }
-}
-
 function rollReward(cardKey: string) {
+  if (!isRewardSlotKey(cardKey)) return
+
   const slot = rewardSlots.find((item) => item.key === cardKey)
 
   if (!slot) return
@@ -1351,17 +1334,27 @@ function rollReward(cardKey: string) {
   stagedReward.artPrompt = buildRewardArtPrompt(slot, stagedReward.label)
 }
 
-function buildBackstory() {
-  const parts = [
-    sheet.name ? `${sheet.name} is ${articleFor(sheet.species)} ${sheet.species || 'mysterious being'}.` : '',
-    sheet.characterClass ? `They are known as a ${sheet.characterClass}.` : '',
-    sheet.role ? `Their role in the story is ${sheet.role}.` : '',
-    sheet.drive ? `They want ${sheet.drive}.` : '',
-    sheet.personality ? `Personality: ${sheet.personality}` : '',
+function buildBackstoryText() {
+  return [
+    stagedValues.name || sheet.name
+      ? `${stagedValues.name || sheet.name} is ${articleFor(stagedValues.species || sheet.species)} ${stagedValues.species || sheet.species || 'mysterious being'}.`
+      : '',
+    stagedValues.characterClass || sheet.characterClass
+      ? `They are known as a ${stagedValues.characterClass || sheet.characterClass}.`
+      : '',
+    stagedValues.role || sheet.role
+      ? `Their role in the story is ${stagedValues.role || sheet.role}.`
+      : '',
+    stagedValues.drive || sheet.drive
+      ? `They want ${stagedValues.drive || sheet.drive}.`
+      : '',
+    stagedValues.personality || sheet.personality
+      ? `Personality: ${stagedValues.personality || sheet.personality}`
+      : '',
     selectedDreamLabel.value ? `They are connected to ${selectedDreamLabel.value}.` : '',
   ]
-
-  sheet.backstory = parts.filter(Boolean).join(' ')
+    .filter(Boolean)
+    .join(' ')
 }
 
 function buildArtPrompt() {
@@ -1395,130 +1388,11 @@ function buildRewardArtPrompt(slot: RewardPromptSlot, label: string) {
   ].join(', ')
 }
 
-function startStatDrag(block: number) {
-  draggedStatBlock.value = block
-}
-
-function dropStatBlock(statKey: string) {
-  if (!draggedStatBlock.value) return
-
-  assignStatBlock(statKey, draggedStatBlock.value)
-  draggedStatBlock.value = null
-}
-
-function assignSelectedStat(statKey: string) {
-  if (!selectedStatBlock.value) return
-
-  assignStatBlock(statKey, selectedStatBlock.value)
-  selectedStatBlock.value = null
-}
-
-function assignStatBlock(statKey: string, block: number) {
-  const target = sheet.stats.find((stat) => stat.key === statKey)
-
-  if (!target) return
-
-  for (const stat of sheet.stats) {
-    if (stat.key !== statKey && stat.value === block) {
-      stat.value = 0
-    }
-  }
-
-  target.value = block
-}
-
-function isStatAllocationComplete() {
-  const values = sheet.stats.map((stat) => stat.value).sort((a, b) => a - b)
-  return values.join(',') === statBlocks.join(',')
-}
-
-function rollStats() {
-  const shuffled = [...statBlocks].sort(() => Math.random() - 0.5)
-
-  sheet.stats.forEach((stat, index) => {
-    stat.value = shuffled[index] ?? 0
-  })
-
-  for (const goal of sheet.goalStats) {
-    goal.value = randomInt(-100, 100)
-  }
-}
-
 function updateCharacterArt(payload: ArtCreatorPayload) {
   sheet.artPrompt = payload.prompt || sheet.artPrompt
   sheet.imagePath = payload.imagePath || sheet.imagePath
-  completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath)
-}
-
-function removeSheetSection(key: string) {
-  const card = promptCards.value.find((item) => item.key === key)
-
-  if (!card) return
-
-  for (const field of card.restoresFields) {
-    if (isRewardSlotKey(field)) {
-      removeRewardSlot(field)
-      continue
-    }
-
-    clearSheetField(field)
-  }
-
-  completedCards[card.key] = false
-
-  if (activeCard.value?.key === card.key) {
-    cancelActiveCard()
-  }
-}
-
-function removeRewardSlot(slotKey: string) {
-  if (!isRewardSlotKey(slotKey)) return
-
-  const index = sheet.rewards.findIndex((reward) => reward.slotKey === slotKey)
-
-  if (index >= 0) {
-    sheet.rewards.splice(index, 1)
-  }
-
-  completedCards[slotKey] = false
-}
-
-function clearSheetField(field: keyof BuilderCharacterSheetDraft) {
-  if (field === 'stats') {
-    resetStatRows(sheet.stats, [
-      { key: 'stat1', name: 'Luck', value: 0 },
-      { key: 'stat2', name: 'Swol', value: 0 },
-      { key: 'stat3', name: 'Wits', value: 0 },
-      { key: 'stat4', name: 'Flexibility', value: 0 },
-      { key: 'stat5', name: 'Rizz', value: 0 },
-      { key: 'stat6', name: 'Empathy', value: 0 },
-    ])
-    return
-  }
-
-  if (field === 'goalStats') {
-    resetStatRows(sheet.goalStats, [
-      { key: 'goal1', name: 'Principled|Chaotic', value: 0 },
-      { key: 'goal2', name: 'Introvert|Extrovert', value: 0 },
-      { key: 'goal3', name: 'Passive|Aggressive', value: 0 },
-      { key: 'goal4', name: 'Optimist|Pessimist', value: 0 },
-    ])
-    return
-  }
-
-  if (field === 'rewards') {
-    sheet.rewards.splice(0, sheet.rewards.length)
-    return
-  }
-
-  if (field === 'imagePath') {
-    sheet.imagePath = null
-    return
-  }
-
-  if (typeof sheet[field] === 'string') {
-    ;(sheet[field] as string) = field === 'honorific' ? 'adventurer' : ''
-  }
+  sheet.artImageId = payload.artImageId || sheet.artImageId
+  completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId)
 }
 
 async function saveCharacter() {
@@ -1534,7 +1408,7 @@ async function saveCharacter() {
   try {
     const savedRewards = await saveRewardDrafts()
 
-    const body: Partial<Character> & Record<string, unknown> = {
+    const body: Record<string, unknown> = {
       name: sheet.name.trim(),
       honorific: sheet.honorific.trim() || 'adventurer',
       title: sheet.title.trim() || null,
@@ -1549,18 +1423,19 @@ async function saveCharacter() {
       species: sheet.species.trim() || null,
       backstory: sheet.backstory.trim() || null,
       drive: sheet.drive.trim() || null,
-      inventory: rewardInventoryText.value,
+      inventory: rewardInventoryText.value || sheet.inventory.trim() || null,
       quirks: sheet.quirks.trim() || null,
-      skills: rewardSkillText.value,
+      skills: rewardSkillText.value || sheet.skills.trim() || null,
       genre: sheet.genre.trim() || null,
       personality: sheet.personality.trim() || null,
       artPrompt: sheet.artPrompt.trim() || null,
+      artImageId: sheet.artImageId || null,
       imagePath: sheet.imagePath || null,
-      userId: userStore.userId || 10,
-      designer: getDesignerName(),
-      isPublic: true,
-      isMature: false,
-      isActive: true,
+      userId: sheet.userId || userStore.userId || 10,
+      designer: sheet.designer || getDesignerName(),
+      isPublic: sheet.isPublic,
+      isMature: sheet.isMature,
+      isActive: sheet.isActive,
       rewardIds: savedRewards.map((reward) => reward.id).filter(Boolean),
       statName1: sheet.stats[0]?.name || 'Luck',
       statValue1: sheet.stats[0]?.value ?? 0,
@@ -1588,8 +1463,11 @@ async function saveCharacter() {
       body.dreamIds = [selectedDreamId.value]
     }
 
-    const response = (await performFetch<Character>(CHARACTER_ENDPOINT, {
-      method: 'POST',
+    const method = sheet.id ? 'PATCH' : 'POST'
+    const endpoint = sheet.id ? `${CHARACTER_ENDPOINT}/${sheet.id}` : CHARACTER_ENDPOINT
+
+    const response = (await performFetch<Character>(endpoint, {
+      method,
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
     })) as PerformFetchResult<Character>
@@ -1598,6 +1476,7 @@ async function saveCharacter() {
       throw new Error(response.message || 'Failed to save character.')
     }
 
+    sheet.id = response.data.id
     selectedCharacterId.value = response.data.id
     saveMessage.value = `Saved character #${response.data.id}. Plot goblin successfully released.`
   } catch (error) {
@@ -1617,7 +1496,7 @@ async function saveRewardDrafts() {
       continue
     }
 
-    const body: Partial<Reward> & Record<string, unknown> = {
+    const body: Record<string, unknown> = {
       label: draft.label,
       text: draft.text,
       power: draft.power,
@@ -1629,7 +1508,7 @@ async function saveRewardDrafts() {
       imagePath: draft.imagePath || null,
       artImageId: draft.artImageId || null,
       artPrompt: draft.artPrompt || null,
-      userId: userStore.userId || 10,
+      userId: sheet.userId || userStore.userId || 10,
       isPublic: true,
       isMature: false,
       isActive: true,
@@ -1680,7 +1559,6 @@ function resetBuilder() {
   activeStepIndex.value = 0
   activeValue.value = ''
   selectedStatBlock.value = null
-  draggedStatBlock.value = null
   saveMessage.value = ''
   saveError.value = ''
 
@@ -1688,101 +1566,59 @@ function resetBuilder() {
     delete completedCards[key]
   }
 
-  sheet.name = ''
-  sheet.honorific = 'adventurer'
-  sheet.title = ''
-  sheet.role = ''
-  sheet.genre = ''
-  sheet.species = ''
-  sheet.characterClass = ''
-  sheet.alignment = ''
-  sheet.genderIdentity = ''
-  sheet.presentation = ''
-  sheet.personality = ''
-  sheet.drive = ''
-  sheet.backstory = ''
-  sheet.achievements = ''
-  sheet.skills = ''
-  sheet.inventory = ''
-  sheet.quirks = ''
-  sheet.artPrompt = ''
-  sheet.imagePath = null
+  const fresh = createEmptyCharacterSheet(userStore.userId || 10)
+
+  sheet.id = fresh.id
+  sheet.name = fresh.name
+  sheet.honorific = fresh.honorific
+  sheet.title = fresh.title
+  sheet.role = fresh.role
+  sheet.genre = fresh.genre
+  sheet.species = fresh.species
+  sheet.characterClass = fresh.characterClass
+  sheet.alignment = fresh.alignment
+  sheet.genderIdentity = fresh.genderIdentity
+  sheet.presentation = fresh.presentation
+  sheet.personality = fresh.personality
+  sheet.drive = fresh.drive
+  sheet.backstory = fresh.backstory
+  sheet.achievements = fresh.achievements
+  sheet.skills = fresh.skills
+  sheet.inventory = fresh.inventory
+  sheet.quirks = fresh.quirks
+  sheet.artPrompt = fresh.artPrompt
+  sheet.artImageId = fresh.artImageId
+  sheet.imagePath = fresh.imagePath
+  sheet.userId = fresh.userId
+  sheet.designer = getDesignerName()
+  sheet.isPublic = fresh.isPublic
+  sheet.isMature = fresh.isMature
+  sheet.isActive = fresh.isActive
+
+  resetStatRows(sheet.stats, fresh.stats)
+  resetStatRows(sheet.goalStats, fresh.goalStats)
   sheet.rewards.splice(0, sheet.rewards.length)
 
-  resetStagedReward()
-
-  resetStatRows(sheet.stats, [
-    { key: 'stat1', name: 'Luck', value: 0 },
-    { key: 'stat2', name: 'Swol', value: 0 },
-    { key: 'stat3', name: 'Wits', value: 0 },
-    { key: 'stat4', name: 'Flexibility', value: 0 },
-    { key: 'stat5', name: 'Rizz', value: 0 },
-    { key: 'stat6', name: 'Empathy', value: 0 },
-  ])
-
-  resetStatRows(sheet.goalStats, [
-    { key: 'goal1', name: 'Principled|Chaotic', value: 0 },
-    { key: 'goal2', name: 'Introvert|Extrovert', value: 0 },
-    { key: 'goal3', name: 'Passive|Aggressive', value: 0 },
-    { key: 'goal4', name: 'Optimist|Pessimist', value: 0 },
-  ])
-
+  resetStaging()
   reshuffleDeck()
+}
+
+function resetStaging() {
+  for (const key of Object.keys(stagedValues)) {
+    delete stagedValues[key]
+  }
+
+  resetStatRows(draftStats, [])
+  Object.assign(stagedReward, createEmptyRewardDraft(rewardSlots[0]))
 }
 
 function resetStatRows(target: CharacterSheetStat[], defaults: CharacterSheetStat[]) {
   target.splice(0, target.length, ...defaults)
 }
 
-function createEmptyRewardDraft(slot: RewardPromptSlot): RewardDraft {
-  return {
-    slotKey: slot.key,
-    label: '',
-    text: '',
-    power: '',
-    collection: 'starting-character-reward',
-    rewardType: slot.rewardType,
-    rarityType: slot.rarityType,
-    rarity: slot.rarity,
-    icon: slot.icon,
-    imagePath: '',
-    artImageId: null,
-    artPrompt: '',
-  }
-}
-
-function resetStagedReward() {
-  Object.assign(stagedReward, createEmptyRewardDraft(rewardSlots[0]))
-}
-
-function fallbackRewardIcon(reward: Pick<RewardDraft, 'rewardType' | 'rarityType'>) {
-  if (reward.rewardType === 'SKILL' && reward.rarityType === 'RARE') return 'kind-icon:comet'
-  if (reward.rewardType === 'SKILL') return 'kind-icon:bolt'
-  if (reward.rewardType === 'ITEM' && reward.rarityType === 'RARE') return 'kind-icon:gem'
-  return 'kind-icon:backpack'
-}
-
 function isRewardSlotKey(value: unknown): value is RewardSlotKey {
   return typeof value === 'string' && rewardSlots.some((slot) => slot.key === value)
 }
-
-const selectedDreamLabel = computed(() => {
-  return dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)?.label || ''
-})
-
-const rewardSkillText = computed(() => {
-  return sheet.rewards
-    .filter((reward) => reward.rewardType === 'SKILL')
-    .map((reward) => `${reward.label}: ${reward.power}`)
-    .join('\n')
-})
-
-const rewardInventoryText = computed(() => {
-  return sheet.rewards
-    .filter((reward) => reward.rewardType === 'ITEM')
-    .map((reward) => `${reward.label}: ${reward.text}`)
-    .join('\n')
-})
 
 function rollFrom(key: string, fallback: string) {
   try {
@@ -1825,6 +1661,8 @@ function cardButtonClass(card: CharacterPromptCard) {
 
 onMounted(async () => {
   randomStore.initialize()
+  sheet.userId = userStore.userId || 10
+  sheet.designer = getDesignerName()
   await fetchDreams()
   reshuffleDeck()
 })

@@ -1291,7 +1291,6 @@ function statTierByKey(key: string): RarityTier {
     sheet.stats.find((stat) => stat.key === key)?.value ?? 0,
   )
 }
-
 function syncSheetStatTiers() {
   sheet.luck = statTierByKey('luck')
   sheet.might = statTierByKey('swol')
@@ -1299,8 +1298,8 @@ function syncSheetStatTiers() {
   sheet.grace = statTierByKey('flexibility')
   sheet.charm = statTierByKey('rizz')
   sheet.grit = statTierByKey('empathy')
+  sheet.empathy = statTierByKey('empathy')
 }
-
 function selectCardByKey(key: string) {
   if (key === 'identity-group') return
 
@@ -1570,7 +1569,8 @@ function clearSheetField(field: keyof BuilderSheet) {
     field === 'wits' ||
     field === 'grace' ||
     field === 'charm' ||
-    field === 'grit'
+    field === 'grit' ||
+    field === 'empathy'
   ) {
     sheet[field] = 'COMMON'
     return
@@ -2038,6 +2038,7 @@ function resetBuilder() {
   sheet.grace = fresh.grace
   sheet.charm = fresh.charm
   sheet.grit = fresh.grit
+  sheet.empathy = fresh.empathy
 
   resetStatRows(sheet.stats, fresh.stats)
   resetStatRows(sheet.goalStats, fresh.goalStats)

@@ -12,10 +12,6 @@
       :title="avatarToggleTitle"
       @click="handleAvatarClick"
     >
-      <page-image
-        class="m-0 block h-full w-full rounded-2xl object-cover object-center p-0"
-      />
-
       <div
         v-if="showViewportBadge"
         class="pointer-events-none absolute left-[4%] right-[4%] top-2 z-50 flex justify-start"

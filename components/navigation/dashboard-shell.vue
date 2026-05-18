@@ -61,21 +61,7 @@
       <div class="flex items-center gap-4 p-4">
         <!-- Page image / icon anchor — scaled up -->
         <div class="relative shrink-0">
-          <img
-            v-if="headerImage"
-            :src="headerImage"
-            alt=""
-            class="h-16 w-16 rounded-xl border border-base-300 object-cover shadow-sm"
-          />
-          <div
-            v-else
-            class="flex h-16 w-16 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-sm"
-          >
-            <Icon
-              :name="activeTabConfig.icon || fallbackIcon"
-              class="h-8 w-8 text-primary"
-            />
-          </div>
+          <page-image />
           <span
             class="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-base-100 bg-primary"
           />

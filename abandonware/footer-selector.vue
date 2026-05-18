@@ -11,7 +11,7 @@
 import { computed, watchEffect, type Component } from 'vue'
 import ButterflyFooter from '~/abandonware/butterfly-footer.vue'
 import BotFooter from '~/abandonware/bot-footer.vue'
-import ArtFooter from '@/components/art/art-footer.vue'
+import ArtFooter from './art-footer.vue'
 import ScenarioFooter from '~/abandonware/scenario-footer.vue'
 import ThemeFooter from '~/abandonware/theme-footer.vue'
 import UserFooter from '~/abandonware/user-footer.vue'

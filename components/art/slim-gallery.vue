@@ -328,7 +328,7 @@
         <button
           v-for="p in pageRange"
           :key="p"
-          class="btn btn-xs rounded-lg min-w-[2rem]"
+          class="btn btn-xs rounded-lg min-w-8"
           :class="p === currentPage ? 'btn-primary' : 'btn-ghost'"
           type="button"
           @click="currentPage = p"

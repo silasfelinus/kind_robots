@@ -407,7 +407,7 @@
           </div>
 
           <pre
-            class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-300 p-3 text-[11px]"
+            class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap wrap-break-word rounded-xl bg-base-300 p-3 text-[11px]"
             >{{ toPrettyJson(selectedRow.art) }}</pre
           >
         </div>
@@ -428,7 +428,7 @@
           </div>
 
           <pre
-            class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-300 p-3 text-[11px]"
+            class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap wrap-break-word rounded-xl bg-base-300 p-3 text-[11px]"
             >{{ selectedInspectPayload }}</pre
           >
         </div>
@@ -1286,7 +1286,7 @@ function buildRow(art: LegacyArt): LegacyRow {
       promptText,
       collectionLabel,
       createdAtValue,
-      matchedImage: match.image,
+      matchedImage: match.image ?? null,
       matchReason: match.reason,
       lastReport: report,
     }
@@ -1305,7 +1305,7 @@ function buildRow(art: LegacyArt): LegacyRow {
       promptText,
       collectionLabel,
       createdAtValue,
-      matchedImage: match.image,
+      matchedImage: match.image ?? null,
       matchReason: match.reason,
       lastReport: report,
     }
@@ -1324,7 +1324,7 @@ function buildRow(art: LegacyArt): LegacyRow {
       promptText,
       collectionLabel,
       createdAtValue,
-      matchedImage: match.image,
+      matchedImage: match.image ?? null,
       matchReason: match.reason,
       lastReport: report,
     }
@@ -1343,7 +1343,7 @@ function buildRow(art: LegacyArt): LegacyRow {
       promptText,
       collectionLabel,
       createdAtValue,
-      matchedImage: match.image,
+      matchedImage: match.image ?? null,
       matchReason: match.reason,
       lastReport: null,
     }
@@ -1596,7 +1596,7 @@ async function deleteArtShell(
 
   const before = snapshotArt(art)
   const reportId = `${art.id}-${Date.now()}`
-  const image = matchedImage || findMatchingArtImage(art).image
+  const image = matchedImage || findMatchingArtImage(art).image || null
 
   try {
     log(

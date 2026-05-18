@@ -1,33 +1,33 @@
 <!-- /components/builders/character-builder.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
-    <header class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 lg:flex-row lg:items-start lg:justify-between">
+  <section
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
+    <header
+      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 lg:flex-row lg:items-start lg:justify-between"
+    >
       <div class="min-w-0">
-        <h2 class="flex items-center gap-2 text-2xl font-black text-base-content">
+        <h2
+          class="flex items-center gap-2 text-2xl font-black text-base-content"
+        >
           <Icon name="kind-icon:mask" class="h-7 w-7 text-primary" />
           Character Builder
         </h2>
 
         <p class="mt-1 max-w-3xl text-sm text-base-content/70">
-          Build a character by playing prompt cards. Finish a card to place it on the sheet. Remove a sheet entry to restore its card. Elegant little goblin loop.
+          Build a character by playing prompt cards. Finish a card to place it
+          on the sheet. Remove a sheet entry to restore its card. Elegant little
+          goblin loop.
         </p>
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <button
-          class="btn rounded-xl"
-          type="button"
-          @click="reshuffleDeck"
-        >
+        <button class="btn rounded-xl" type="button" @click="reshuffleDeck">
           <Icon name="kind-icon:refresh" class="h-4 w-4" />
           Reshuffle
         </button>
 
-        <button
-          class="btn rounded-xl"
-          type="button"
-          @click="resetBuilder"
-        >
+        <button class="btn rounded-xl" type="button" @click="resetBuilder">
           <Icon name="kind-icon:trash" class="h-4 w-4" />
           Clear
         </button>
@@ -58,19 +58,20 @@
 
       <aside class="flex min-h-0 flex-col gap-3">
         <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-lg font-bold text-base-content"
+          >
             <Icon name="kind-icon:cards" class="h-5 w-5 text-primary" />
             Active Prompt
           </h3>
 
-          <div
-            v-if="activeCard"
-            class="mt-3 flex flex-col gap-3"
-          >
+          <div v-if="activeCard" class="mt-3 flex flex-col gap-3">
             <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                  <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  <p
+                    class="text-xs font-bold uppercase tracking-[0.18em] text-primary"
+                  >
                     {{ activeCard.label }}
                   </p>
 
@@ -79,7 +80,9 @@
                   </h4>
                 </div>
 
-                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-base-100 text-xl text-primary">
+                <div
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-base-100 text-xl text-primary"
+                >
                   {{ activeCard.flourish }}
                 </div>
               </div>
@@ -88,24 +91,22 @@
                 {{ activeStep.body }}
               </p>
 
-              <div
-                v-if="activeCard.steps.length > 1"
-                class="mt-3 flex gap-1"
-              >
+              <div v-if="activeCard.steps.length > 1" class="mt-3 flex gap-1">
                 <span
                   v-for="step in activeCard.steps"
                   :key="step.key"
                   class="h-2 flex-1 rounded-full"
-                  :class="step.key === activeStep.key ? 'bg-primary' : 'bg-base-300'"
+                  :class="
+                    step.key === activeStep.key ? 'bg-primary' : 'bg-base-300'
+                  "
                 />
               </div>
             </div>
 
-            <label
-              v-if="activeStep.inputType === 'short'"
-              class="form-control"
-            >
-              <span class="label-text font-bold">{{ activeStep.inputLabel }}</span>
+            <label v-if="activeStep.inputType === 'short'" class="form-control">
+              <span class="label-text font-bold">{{
+                activeStep.inputLabel
+              }}</span>
 
               <input
                 v-model="activeValue"
@@ -119,7 +120,9 @@
               v-else-if="activeStep.inputType === 'long'"
               class="form-control"
             >
-              <span class="label-text font-bold">{{ activeStep.inputLabel }}</span>
+              <span class="label-text font-bold">{{
+                activeStep.inputLabel
+              }}</span>
 
               <textarea
                 v-model="activeValue"
@@ -133,7 +136,8 @@
               class="flex flex-col gap-3"
             >
               <p class="text-sm text-base-content/70">
-                Tap a number block, then choose a stat slot. Each number can only be used once.
+                Tap a number block, then choose a stat slot. Each number can
+                only be used once.
               </p>
 
               <div class="flex flex-wrap gap-2">
@@ -141,9 +145,14 @@
                   v-for="block in statBlocks"
                   :key="block"
                   class="btn btn-sm rounded-xl"
-                  :class="selectedStatBlock === block ? 'btn-primary' : 'btn-outline'"
+                  :class="
+                    selectedStatBlock === block ? 'btn-primary' : 'btn-outline'
+                  "
                   type="button"
-                  :disabled="usedDraftStatBlocks.includes(block) && selectedStatBlock !== block"
+                  :disabled="
+                    usedDraftStatBlocks.includes(block) &&
+                    selectedStatBlock !== block
+                  "
                   @click="selectedStatBlock = block"
                 >
                   {{ block }}
@@ -165,7 +174,9 @@
                     @click.stop
                   />
 
-                  <span class="flex h-11 items-center justify-center rounded-2xl bg-base-300 text-xl font-black text-primary">
+                  <span
+                    class="flex h-11 items-center justify-center rounded-2xl bg-base-300 text-xl font-black text-primary"
+                  >
                     {{ stat.value || '—' }}
                   </span>
                 </button>
@@ -177,7 +188,9 @@
               class="flex flex-col gap-3"
             >
               <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   {{ activeRewardSlot?.label || 'Reward' }}
                 </p>
 
@@ -335,8 +348,12 @@
           </div>
         </section>
 
-        <section class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-base-content">
+        <section
+          class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-4"
+        >
+          <h3
+            class="flex items-center gap-2 text-lg font-bold text-base-content"
+          >
             <Icon name="kind-icon:blueprint" class="h-5 w-5 text-primary" />
             Builder Notes
           </h3>
@@ -362,7 +379,9 @@
             </label>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-              <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <p
+                class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+              >
                 Save Status
               </p>
 
@@ -372,7 +391,9 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-              <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <p
+                class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+              >
                 Required Cards
               </p>
 
@@ -387,8 +408,16 @@
                   </span>
 
                   <Icon
-                    :name="completedCards[card.key] ? 'kind-icon:check' : 'kind-icon:circle'"
-                    :class="completedCards[card.key] ? 'h-4 w-4 text-success' : 'h-4 w-4 text-base-content/30'"
+                    :name="
+                      completedCards[card.key]
+                        ? 'kind-icon:check'
+                        : 'kind-icon:circle'
+                    "
+                    :class="
+                      completedCards[card.key]
+                        ? 'h-4 w-4 text-success'
+                        : 'h-4 w-4 text-base-content/30'
+                    "
                   />
                 </div>
               </div>
@@ -426,11 +455,10 @@
             {{ card.flourish }}
           </div>
 
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-base-300 group-hover:bg-primary/20">
-            <Icon
-              :name="card.icon"
-              class="h-5 w-5 text-primary"
-            />
+          <div
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-base-300 group-hover:bg-primary/20"
+          >
+            <Icon :name="card.icon" class="h-5 w-5 text-primary" />
           </div>
 
           <div class="min-w-0 pr-5">
@@ -454,23 +482,6 @@ import type { Character, Dream, Reward } from '~/prisma/generated/prisma/client'
 import { useUserStore } from '@/stores/userStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { handleError, performFetch } from '@/stores/utils'
-import {
-  createEmptyCharacterSheet,
-  createEmptyRewardDraft,
-  defaultCharacterStats,
-  defaultGoalStats,
-  defaultRewardSlots,
-  fallbackRewardIcon,
-} from '@/types/characterBuilder'
-import type {
-  CharacterPromptCard,
-  CharacterPromptStep,
-  CharacterRewardDraft,
-  CharacterSheetDraft,
-  CharacterSheetStat,
-  RewardPromptSlot,
-  RewardSlotKey,
-} from '@/types/characterBuilder'
 
 type SelectOption = {
   id: number
@@ -493,6 +504,242 @@ type PerformFetchResult<T> = {
   data?: T
   message?: string
   statusCode?: number
+}
+
+type CharacterPromptInputType = 'short' | 'long' | 'stats' | 'reward' | 'art'
+
+type CharacterStringField =
+  | 'name'
+  | 'honorific'
+  | 'title'
+  | 'role'
+  | 'genre'
+  | 'species'
+  | 'characterClass'
+  | 'alignment'
+  | 'genderIdentity'
+  | 'presentation'
+  | 'personality'
+  | 'drive'
+  | 'backstory'
+  | 'achievements'
+  | 'skills'
+  | 'inventory'
+  | 'quirks'
+  | 'artPrompt'
+
+type RewardSlotKey = 'common-skill' | 'rare-skill' | 'common-item' | 'rare-item'
+
+type CharacterPromptStep = {
+  key: string
+  title: string
+  body: string
+  inputLabel: string
+  placeholder: string
+  inputType: CharacterPromptInputType
+  field?: CharacterStringField
+}
+
+type CharacterPromptCard = {
+  key: string
+  label: string
+  title: string
+  icon: string
+  flourish: string
+  prompt: string
+  required?: boolean
+  rewardSlotKey?: RewardSlotKey
+  restoresFields: Array<keyof CharacterSheetDraft | RewardSlotKey>
+  unlockWhen?: () => boolean
+  steps: CharacterPromptStep[]
+}
+
+type CharacterSheetStat = {
+  key: string
+  name: string
+  value: number
+}
+
+type RewardKind = 'SKILL' | 'ITEM'
+type RewardRarityType = 'COMMON' | 'RARE'
+
+type RewardPromptSlot = {
+  key: RewardSlotKey
+  label: string
+  description: string
+  rewardType: RewardKind
+  rarityType: RewardRarityType
+  rarity: number
+  icon: string
+}
+
+type CharacterRewardDraft = {
+  id: number | null
+  slotKey: RewardSlotKey
+  label: string
+  text: string
+  power: string
+  collection: string
+  rewardType: RewardKind
+  rarityType: RewardRarityType
+  rarity: number
+  icon: string
+  imagePath: string
+  artImageId: number | null
+  artPrompt: string
+}
+
+type CharacterSheetDraft = {
+  id: number | null
+  name: string
+  honorific: string
+  title: string
+  role: string
+  genre: string
+  species: string
+  characterClass: string
+  alignment: string
+  genderIdentity: string
+  presentation: string
+  personality: string
+  drive: string
+  backstory: string
+  achievements: string
+  skills: string
+  inventory: string
+  quirks: string
+  artPrompt: string
+  artImageId: number | null
+  imagePath: string | null
+  userId: number
+  designer: string | null
+  isPublic: boolean
+  isMature: boolean
+  isActive: boolean
+  stats: CharacterSheetStat[]
+  goalStats: CharacterSheetStat[]
+  rewards: CharacterRewardDraft[]
+}
+
+function defaultCharacterStats(): CharacterSheetStat[] {
+  return [
+    { key: 'luck', name: 'Luck', value: 0 },
+    { key: 'swol', name: 'Swol', value: 0 },
+    { key: 'wits', name: 'Wits', value: 0 },
+    { key: 'flexibility', name: 'Flexibility', value: 0 },
+    { key: 'rizz', name: 'Rizz', value: 0 },
+    { key: 'empathy', name: 'Empathy', value: 0 },
+  ]
+}
+
+function defaultGoalStats(): CharacterSheetStat[] {
+  return [
+    { key: 'principled-chaotic', name: 'Principled|Chaotic', value: 0 },
+    { key: 'introvert-extrovert', name: 'Introvert|Extrovert', value: 0 },
+    { key: 'passive-aggressive', name: 'Passive|Aggressive', value: 0 },
+    { key: 'optimist-pessimist', name: 'Optimist|Pessimist', value: 0 },
+  ]
+}
+
+function defaultRewardSlots(): RewardPromptSlot[] {
+  return [
+    {
+      key: 'common-skill',
+      label: 'Common Skill',
+      description: 'A reliable character skill for everyday story problems.',
+      rewardType: 'SKILL',
+      rarityType: 'COMMON',
+      rarity: 1,
+      icon: 'kind-icon:bolt',
+    },
+    {
+      key: 'rare-skill',
+      label: 'Rare Skill',
+      description: 'A signature character skill with dramatic table energy.',
+      rewardType: 'SKILL',
+      rarityType: 'RARE',
+      rarity: 2,
+      icon: 'kind-icon:comet',
+    },
+    {
+      key: 'common-item',
+      label: 'Common Item',
+      description: 'A practical piece of gear with just enough weird sauce.',
+      rewardType: 'ITEM',
+      rarityType: 'COMMON',
+      rarity: 1,
+      icon: 'kind-icon:backpack',
+    },
+    {
+      key: 'rare-item',
+      label: 'Rare Item',
+      description: 'A strange treasure with story gravity.',
+      rewardType: 'ITEM',
+      rarityType: 'RARE',
+      rarity: 2,
+      icon: 'kind-icon:gem',
+    },
+  ]
+}
+
+function createEmptyRewardDraft(slot: RewardPromptSlot): CharacterRewardDraft {
+  return {
+    id: null,
+    slotKey: slot.key,
+    label: '',
+    text: '',
+    power: '',
+    collection: 'starting-character-reward',
+    rewardType: slot.rewardType,
+    rarityType: slot.rarityType,
+    rarity: slot.rarity,
+    icon: slot.icon,
+    imagePath: '',
+    artImageId: null,
+    artPrompt: '',
+  }
+}
+
+function createEmptyCharacterSheet(userId: number): CharacterSheetDraft {
+  return {
+    id: null,
+    name: '',
+    honorific: 'adventurer',
+    title: '',
+    role: '',
+    genre: '',
+    species: '',
+    characterClass: '',
+    alignment: '',
+    genderIdentity: '',
+    presentation: '',
+    personality: '',
+    drive: '',
+    backstory: '',
+    achievements: '',
+    skills: '',
+    inventory: '',
+    quirks: '',
+    artPrompt: '',
+    artImageId: null,
+    imagePath: null,
+    userId,
+    designer: null,
+    isPublic: true,
+    isMature: false,
+    isActive: true,
+    stats: defaultCharacterStats(),
+    goalStats: defaultGoalStats(),
+    rewards: [],
+  }
+}
+
+function fallbackRewardIcon(draft: CharacterRewardDraft) {
+  if (draft.rewardType === 'SKILL') {
+    return draft.rarityType === 'RARE' ? 'kind-icon:comet' : 'kind-icon:bolt'
+  }
+
+  return draft.rarityType === 'RARE' ? 'kind-icon:gem' : 'kind-icon:backpack'
 }
 
 const CHARACTER_ENDPOINT = '/api/character'
@@ -520,8 +767,12 @@ const saveError = ref('')
 
 const statBlocks = [1, 2, 3, 4, 5, 6]
 const rewardSlots = defaultRewardSlots()
-const stagedReward = reactive<CharacterRewardDraft>(createEmptyRewardDraft(rewardSlots[0]))
-const sheet = reactive<CharacterSheetDraft>(createEmptyCharacterSheet(userStore.userId || 10))
+const stagedReward = reactive<CharacterRewardDraft>(
+  createEmptyRewardDraft(rewardSlots[0]),
+)
+const sheet = reactive<CharacterSheetDraft>(
+  createEmptyCharacterSheet(userStore.userId || 10),
+)
 
 const saveButtonLabel = computed(() => {
   return selectedCharacterId.value ? 'Update Character' : 'Save Character'
@@ -534,7 +785,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose their role',
     icon: 'kind-icon:mask',
     flourish: '⚜',
-    prompt: 'Decide what job they serve in the story, even if they immediately swerve out of it.',
+    prompt:
+      'Decide what job they serve in the story, even if they immediately swerve out of it.',
     required: true,
     restoresFields: ['role', 'genre'],
     steps: [
@@ -564,7 +816,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Name the troublemaker',
     icon: 'kind-icon:signature',
     flourish: '✒',
-    prompt: 'Give them a name with history, bad timing, and excellent lighting.',
+    prompt:
+      'Give them a name with history, bad timing, and excellent lighting.',
     required: true,
     restoresFields: ['name', 'honorific', 'title'],
     steps: [
@@ -603,7 +856,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose species and calling',
     icon: 'kind-icon:species',
     flourish: '❦',
-    prompt: 'What are they, and what do they do when destiny starts knocking on the furniture?',
+    prompt:
+      'What are they, and what do they do when destiny starts knocking on the furniture?',
     required: true,
     restoresFields: ['species', 'characterClass', 'alignment'],
     steps: [
@@ -642,7 +896,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose gender and presentation',
     icon: 'kind-icon:person',
     flourish: '☾',
-    prompt: 'How do they move through the world? Pick identity, presentation, and first impressions.',
+    prompt:
+      'How do they move through the world? Pick identity, presentation, and first impressions.',
     required: true,
     restoresFields: ['genderIdentity', 'presentation'],
     steps: [
@@ -672,7 +927,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Give them a social operating system',
     icon: 'kind-icon:heart',
     flourish: '✦',
-    prompt: 'How do they talk, panic, charm, lie, sulk, flirt with danger, and avoid lessons?',
+    prompt:
+      'How do they talk, panic, charm, lie, sulk, flirt with danger, and avoid lessons?',
     required: true,
     restoresFields: ['personality', 'drive'],
     steps: [
@@ -690,7 +946,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
         title: 'Drive',
         body: 'What do they want badly enough to make a questionable decision?',
         inputLabel: 'Drive',
-        placeholder: 'To recover a lost name, protect a sibling, overthrow brunch...',
+        placeholder:
+          'To recover a lost name, protect a sibling, overthrow brunch...',
         inputType: 'long',
         field: 'drive',
       },
@@ -702,7 +959,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Arrange their strengths',
     icon: 'kind-icon:activity',
     flourish: '♛',
-    prompt: 'Place 1 through 6 onto their stats. One tiny number. One heroic number.',
+    prompt:
+      'Place 1 through 6 onto their stats. One tiny number. One heroic number.',
     required: true,
     restoresFields: ['stats'],
     steps: [
@@ -722,7 +980,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Reveal the glorious problem',
     icon: 'kind-icon:story',
     flourish: '§',
-    prompt: 'What happened to them, what do they want, and what emotional furniture are they tripping over?',
+    prompt:
+      'What happened to them, what do they want, and what emotional furniture are they tripping over?',
     required: true,
     restoresFields: ['backstory', 'achievements', 'quirks'],
     steps: [
@@ -761,7 +1020,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose a reliable trick',
     icon: 'kind-icon:bolt',
     flourish: '✧',
-    prompt: 'A practical skill they can use often. Useful, flavorful, not universe-breaking.',
+    prompt:
+      'A practical skill they can use often. Useful, flavorful, not universe-breaking.',
     required: true,
     rewardSlotKey: 'common-skill',
     restoresFields: ['common-skill'],
@@ -783,7 +1043,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Choose their signature move',
     icon: 'kind-icon:comet',
     flourish: '✶',
-    prompt: 'One rare skill that feels special. The table should say, wait, you can do WHAT?',
+    prompt:
+      'One rare skill that feels special. The table should say, wait, you can do WHAT?',
     required: true,
     rewardSlotKey: 'rare-skill',
     restoresFields: ['rare-skill'],
@@ -805,7 +1066,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Pack a useful item',
     icon: 'kind-icon:backpack',
     flourish: '◆',
-    prompt: 'An everyday item with personality. Useful tools are better when mildly cursed.',
+    prompt:
+      'An everyday item with personality. Useful tools are better when mildly cursed.',
     required: true,
     rewardSlotKey: 'common-item',
     restoresFields: ['common-item'],
@@ -827,7 +1089,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Claim a strange treasure',
     icon: 'kind-icon:gem',
     flourish: '❖',
-    prompt: 'A rare item with story gravity. Loot, leverage, or a terrible idea with excellent branding.',
+    prompt:
+      'A rare item with story gravity. Loot, leverage, or a terrible idea with excellent branding.',
     required: true,
     rewardSlotKey: 'rare-item',
     restoresFields: ['rare-item'],
@@ -849,7 +1112,8 @@ const promptCards = computed<CharacterPromptCard[]>(() => [
     title: 'Create their portrait',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    prompt: 'Turn the sheet into a portrait prompt. Costume, expression, silhouette, mood, and drama.',
+    prompt:
+      'Turn the sheet into a portrait prompt. Costume, expression, silhouette, mood, and drama.',
     restoresFields: ['artPrompt', 'imagePath', 'artImageId'],
     unlockWhen: () => canCreateArt.value,
     steps: [
@@ -887,7 +1151,10 @@ const isLastStep = computed(() => {
 
 const activeRewardSlot = computed(() => {
   if (!activeCard.value?.rewardSlotKey) return null
-  return rewardSlots.find((slot) => slot.key === activeCard.value?.rewardSlotKey) ?? null
+  return (
+    rewardSlots.find((slot) => slot.key === activeCard.value?.rewardSlotKey) ??
+    null
+  )
 })
 
 const rewardSlotDescription = computed(() => {
@@ -902,7 +1169,15 @@ const usedDraftStatBlocks = computed(() => {
 })
 
 const canChooseRewards = computed(() => {
-  return ['role', 'name', 'origin', 'identity', 'personality', 'stats', 'background'].every((key) => completedCards[key])
+  return [
+    'role',
+    'name',
+    'origin',
+    'identity',
+    'personality',
+    'stats',
+    'background',
+  ].every((key) => completedCards[key])
 })
 
 const canCreateArt = computed(() => {
@@ -926,13 +1201,18 @@ const canSave = computed(() => {
 })
 
 const saveStatus = computed(() => {
-  if (selectedCharacterId.value) return `Saved as character #${selectedCharacterId.value}. Tiny legend notarized.`
-  if (!canSave.value) return 'Finish identity, stats, background, and the four reward cards before saving.'
+  if (selectedCharacterId.value)
+    return `Saved as character #${selectedCharacterId.value}. Tiny legend notarized.`
+  if (!canSave.value)
+    return 'Finish identity, stats, background, and the four reward cards before saving.'
   return 'Ready to save.'
 })
 
 const selectedDreamLabel = computed(() => {
-  return dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)?.label || ''
+  return (
+    dreamOptions.value.find((dream) => dream.id === selectedDreamId.value)
+      ?.label || ''
+  )
 })
 
 const rewardSkillText = computed(() => {
@@ -986,12 +1266,17 @@ function prepareCardStage(card: CharacterPromptCard) {
   }
 
   if (card.key === 'stats') {
-    resetStatRows(draftStats, sheet.stats.map((stat) => ({ ...stat })))
+    resetStatRows(
+      draftStats,
+      sheet.stats.map((stat) => ({ ...stat })),
+    )
   }
 
   if (card.rewardSlotKey) {
     const slot = rewardSlots.find((item) => item.key === card.rewardSlotKey)
-    const existing = sheet.rewards.find((reward) => reward.slotKey === card.rewardSlotKey)
+    const existing = sheet.rewards.find(
+      (reward) => reward.slotKey === card.rewardSlotKey,
+    )
 
     if (existing) {
       Object.assign(stagedReward, existing)
@@ -1010,7 +1295,11 @@ function loadActiveStepValue() {
 }
 
 function commitActiveStepValue() {
-  if (activeStep.value.inputType !== 'short' && activeStep.value.inputType !== 'long') return
+  if (
+    activeStep.value.inputType !== 'short' &&
+    activeStep.value.inputType !== 'long'
+  )
+    return
   stagedValues[activeStep.value.key] = activeValue.value.trim()
 }
 
@@ -1040,11 +1329,15 @@ function finishActiveCard() {
 
   if (activeCard.value.key === 'stats') {
     if (!isStatAllocationComplete()) {
-      saveError.value = 'Assign each stat a unique value from 1 to 6 before adding it to the sheet.'
+      saveError.value =
+        'Assign each stat a unique value from 1 to 6 before adding it to the sheet.'
       return
     }
 
-    resetStatRows(sheet.stats, draftStats.map((stat) => ({ ...stat })))
+    resetStatRows(
+      sheet.stats,
+      draftStats.map((stat) => ({ ...stat })),
+    )
     completeCard('stats')
     closeCardAndChooseNext()
     return
@@ -1058,7 +1351,9 @@ function finishActiveCard() {
   }
 
   if (activeCard.value.key === 'art') {
-    completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId)
+    completedCards.art = Boolean(
+      sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId,
+    )
     closeCardAndChooseNext()
     return
   }
@@ -1091,7 +1386,8 @@ function closeCardAndChooseNext() {
   selectedStatBlock.value = null
   resetStaging()
 
-  const next = visibleDeck.value.find((card) => card.key !== previousKey) || null
+  const next =
+    visibleDeck.value.find((card) => card.key !== previousKey) || null
 
   if (next) {
     selectCard(next)
@@ -1222,20 +1518,47 @@ function suggestForActiveStep() {
   const cardKey = activeCard.value.key
 
   if (stepKey === 'role') activeValue.value = rollFrom('role', 'companion')
-  else if (stepKey === 'genre') activeValue.value = rollFrom('genre', 'gothic comedy')
+  else if (stepKey === 'genre')
+    activeValue.value = rollFrom('genre', 'gothic comedy')
   else if (stepKey === 'name') activeValue.value = rollFrom('name', 'Mira Voss')
-  else if (stepKey === 'honorific') activeValue.value = rollFrom('honorific', 'adventurer')
-  else if (stepKey === 'title') activeValue.value = rollFrom('title', 'The Lantern of Wrong Tuesdays')
-  else if (stepKey === 'species') activeValue.value = rollFrom('species', 'Moon-Moth Human')
-  else if (stepKey === 'characterClass') activeValue.value = rollFrom('class', 'Oracle')
-  else if (stepKey === 'alignment') activeValue.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom('personality', 'Helpful')}`
-  else if (stepKey === 'genderIdentity') activeValue.value = rollFrom('gender', 'unknown')
-  else if (stepKey === 'presentation') activeValue.value = rollFrom('presentation', 'ceremonial and slightly dangerous')
-  else if (stepKey === 'personality') activeValue.value = rollFrom('personality', 'Warm, theatrical, and allergic to simple answers.')
-  else if (stepKey === 'drive') activeValue.value = rollFrom('drive', 'to recover something everyone else insists was never lost')
+  else if (stepKey === 'honorific')
+    activeValue.value = rollFrom('honorific', 'adventurer')
+  else if (stepKey === 'title')
+    activeValue.value = rollFrom('title', 'The Lantern of Wrong Tuesdays')
+  else if (stepKey === 'species')
+    activeValue.value = rollFrom('species', 'Moon-Moth Human')
+  else if (stepKey === 'characterClass')
+    activeValue.value = rollFrom('class', 'Oracle')
+  else if (stepKey === 'alignment')
+    activeValue.value = `${rollFrom('adjective', 'Chaotic')} ${rollFrom('personality', 'Helpful')}`
+  else if (stepKey === 'genderIdentity')
+    activeValue.value = rollFrom('gender', 'unknown')
+  else if (stepKey === 'presentation')
+    activeValue.value = rollFrom(
+      'presentation',
+      'ceremonial and slightly dangerous',
+    )
+  else if (stepKey === 'personality')
+    activeValue.value = rollFrom(
+      'personality',
+      'Warm, theatrical, and allergic to simple answers.',
+    )
+  else if (stepKey === 'drive')
+    activeValue.value = rollFrom(
+      'drive',
+      'to recover something everyone else insists was never lost',
+    )
   else if (stepKey === 'backstory') activeValue.value = buildBackstoryText()
-  else if (stepKey === 'achievements') activeValue.value = rollFrom('achievement', 'Survived a duel with a polite ghost.')
-  else if (stepKey === 'quirks') activeValue.value = [rollFrom('quirk', 'apologizes to furniture'), rollFrom('quirk', 'counts exits before compliments')].join(', ')
+  else if (stepKey === 'achievements')
+    activeValue.value = rollFrom(
+      'achievement',
+      'Survived a duel with a polite ghost.',
+    )
+  else if (stepKey === 'quirks')
+    activeValue.value = [
+      rollFrom('quirk', 'apologizes to furniture'),
+      rollFrom('quirk', 'counts exits before compliments'),
+    ].join(', ')
   else if (activeStep.value.inputType === 'stats') rollStats()
   else if (activeStep.value.inputType === 'reward') rollReward(cardKey)
   else if (activeStep.value.inputType === 'art') buildArtPrompt()
@@ -1283,8 +1606,12 @@ function commitRewardCard(slotKey: RewardSlotKey) {
   const reward: CharacterRewardDraft = {
     slotKey,
     label: stagedReward.label.trim() || slot.label,
-    text: stagedReward.text.trim() || `${slot.label} for ${sheet.name || 'this character'}.`,
-    power: stagedReward.power.trim() || 'Provides a useful advantage when the story calls for it.',
+    text:
+      stagedReward.text.trim() ||
+      `${slot.label} for ${sheet.name || 'this character'}.`,
+    power:
+      stagedReward.power.trim() ||
+      'Provides a useful advantage when the story calls for it.',
     collection: 'starting-character-reward',
     rewardType: slot.rewardType,
     rarityType: slot.rarityType,
@@ -1351,7 +1678,9 @@ function buildBackstoryText() {
     stagedValues.personality || sheet.personality
       ? `Personality: ${stagedValues.personality || sheet.personality}`
       : '',
-    selectedDreamLabel.value ? `They are connected to ${selectedDreamLabel.value}.` : '',
+    selectedDreamLabel.value
+      ? `They are connected to ${selectedDreamLabel.value}.`
+      : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -1359,7 +1688,10 @@ function buildBackstoryText() {
 
 function buildArtPrompt() {
   const rewardText = sheet.rewards
-    .map((reward) => `${reward.rarityType.toLowerCase()} ${reward.rewardType.toLowerCase()}: ${reward.label}`)
+    .map(
+      (reward) =>
+        `${reward.rarityType.toLowerCase()} ${reward.rewardType.toLowerCase()}: ${reward.label}`,
+    )
     .join(', ')
 
   sheet.artPrompt = [
@@ -1392,12 +1724,15 @@ function updateCharacterArt(payload: ArtCreatorPayload) {
   sheet.artPrompt = payload.prompt || sheet.artPrompt
   sheet.imagePath = payload.imagePath || sheet.imagePath
   sheet.artImageId = payload.artImageId || sheet.artImageId
-  completedCards.art = Boolean(sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId)
+  completedCards.art = Boolean(
+    sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId,
+  )
 }
 
 async function saveCharacter() {
   if (!canSave.value) {
-    saveError.value = 'Finish identity, stats, background, and all four reward cards before saving.'
+    saveError.value =
+      'Finish identity, stats, background, and all four reward cards before saving.'
     return
   }
 
@@ -1464,7 +1799,9 @@ async function saveCharacter() {
     }
 
     const method = sheet.id ? 'PATCH' : 'POST'
-    const endpoint = sheet.id ? `${CHARACTER_ENDPOINT}/${sheet.id}` : CHARACTER_ENDPOINT
+    const endpoint = sheet.id
+      ? `${CHARACTER_ENDPOINT}/${sheet.id}`
+      : CHARACTER_ENDPOINT
 
     const response = (await performFetch<Character>(endpoint, {
       method,
@@ -1481,7 +1818,8 @@ async function saveCharacter() {
     saveMessage.value = `Saved character #${response.data.id}. Plot goblin successfully released.`
   } catch (error) {
     handleError(error, 'saving character from character-builder')
-    saveError.value = error instanceof Error ? error.message : 'Failed to save character.'
+    saveError.value =
+      error instanceof Error ? error.message : 'Failed to save character.'
   } finally {
     isSaving.value = false
   }
@@ -1521,7 +1859,9 @@ async function saveRewardDrafts() {
     })) as PerformFetchResult<Reward>
 
     if (!response.success || !response.data) {
-      throw new Error(response.message || `Failed to save reward: ${draft.label}`)
+      throw new Error(
+        response.message || `Failed to save reward: ${draft.label}`,
+      )
     }
 
     draft.id = response.data.id
@@ -1533,7 +1873,9 @@ async function saveRewardDrafts() {
 
 async function fetchDreams() {
   try {
-    const response = (await performFetch<Dream[]>('/api/dream')) as PerformFetchResult<Dream[]>
+    const response = (await performFetch<Dream[]>(
+      '/api/dream',
+    )) as PerformFetchResult<Dream[]>
 
     if (!response.success || !Array.isArray(response.data)) {
       dreamOptions.value = []
@@ -1612,12 +1954,17 @@ function resetStaging() {
   Object.assign(stagedReward, createEmptyRewardDraft(rewardSlots[0]))
 }
 
-function resetStatRows(target: CharacterSheetStat[], defaults: CharacterSheetStat[]) {
+function resetStatRows(
+  target: CharacterSheetStat[],
+  defaults: CharacterSheetStat[],
+) {
   target.splice(0, target.length, ...defaults)
 }
 
 function isRewardSlotKey(value: unknown): value is RewardSlotKey {
-  return typeof value === 'string' && rewardSlots.some((slot) => slot.key === value)
+  return (
+    typeof value === 'string' && rewardSlots.some((slot) => slot.key === value)
+  )
 }
 
 function rollFrom(key: string, fallback: string) {

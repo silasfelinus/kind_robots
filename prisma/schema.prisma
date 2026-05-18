@@ -275,7 +275,6 @@ tagId           Int?
 Art             Art?           @relation(fields: [artId], references: [id])
 ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
 Bot             Bot?           @relation(fields: [botId], references: [id])
-Character       Character?     @relation(fields: [characterId], references: [id])
 Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
 Prompt          Prompt?        @relation(fields: [promptId], references: [id])
 Reactions       Reaction[]
@@ -314,13 +313,7 @@ model ButterflyRecord {
   @@index([butterflyId], map: "ButterflyRecord_butterflyId_fkey")
 }
 
-enum ChallengeRating {
-  TERRIBLE
-  WEAK
-  AVERAGE
-  STRONG
-  EXCEPTIONAL
-}
+
 
 model Character {
   id             Int       @id @default(autoincrement())
@@ -373,7 +366,6 @@ model Character {
   Rewards        Reward[]   @relation("CharacterToReward")
   Scenarios      Scenario[] @relation("CharacterToScenario")
   Dreams         Dream[]    @relation("CharacterToDream")
-  Butterflies    Butterfly[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])

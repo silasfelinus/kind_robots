@@ -60,10 +60,13 @@
       <!-- Row 1: image anchor + title + controls -->
       <div class="flex items-center gap-4 p-4">
         <!-- Page image / icon anchor — scaled up -->
-        <div class="relative shrink-0">
+        <!-- After (gives page-image a sized box to fill) -->
+        <div
+          class="relative h-16 w-16 shrink-0 rounded-xl border border-base-300 shadow-sm"
+        >
           <page-image />
           <span
-            class="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-base-100 bg-primary"
+            class="absolute -bottom-1 -right-1 z-10 h-3.5 w-3.5 rounded-full border-2 border-base-100 bg-primary"
           />
         </div>
 

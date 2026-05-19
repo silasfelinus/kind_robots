@@ -263,35 +263,32 @@ model Butterfly {
   Collections     ButterflyRecord[]
 
   artId           Int?
-artCollectionId Int?
-botId           Int?
-characterId     Int?
-pitchId         Int?
-promptId        Int?
-rewardId        Int?
-scenarioId      Int?
-tagId           Int?
+  artCollectionId Int?
+  botId           Int?
+  characterId     Int?
+  pitchId         Int?
+  promptId        Int?
+  scenarioId      Int?
+  tagId           Int?
 
-Art             Art?           @relation(fields: [artId], references: [id])
-ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
-Bot             Bot?           @relation(fields: [botId], references: [id])
-Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
-Prompt          Prompt?        @relation(fields: [promptId], references: [id])
-Reactions       Reaction[]
-Reward          Reward?        @relation(fields: [rewardId], references: [id])
-Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
-Tag             Tag?           @relation(fields: [tagId], references: [id])
+  Art             Art?           @relation(fields: [artId], references: [id])
+  ArtCollection   ArtCollection? @relation(fields: [artCollectionId], references: [id])
+  Bot             Bot?           @relation(fields: [botId], references: [id])
+  Pitch           Pitch?         @relation(fields: [pitchId], references: [id])
+  Prompt          Prompt?        @relation(fields: [promptId], references: [id])
+  Reactions       Reaction[]
+  Scenario        Scenario?      @relation(fields: [scenarioId], references: [id])
+  Tag             Tag?           @relation(fields: [tagId], references: [id])
 
   @@index([userId], map: "Butterfly_userId_fkey")
   @@index([artId],           map: "Butterfly_artId_fkey")
-@@index([artCollectionId], map: "Butterfly_artCollectionId_fkey")
-@@index([botId],           map: "Butterfly_botId_fkey")
-@@index([characterId],     map: "Butterfly_characterId_fkey")
-@@index([pitchId],         map: "Butterfly_pitchId_fkey")
-@@index([promptId],        map: "Butterfly_promptId_fkey")
-@@index([rewardId],        map: "Butterfly_rewardId_fkey")
-@@index([scenarioId],      map: "Butterfly_scenarioId_fkey")
-@@index([tagId],           map: "Butterfly_tagId_fkey")
+  @@index([artCollectionId], map: "Butterfly_artCollectionId_fkey")
+  @@index([botId],           map: "Butterfly_botId_fkey")
+  @@index([characterId],     map: "Butterfly_characterId_fkey")
+  @@index([pitchId],         map: "Butterfly_pitchId_fkey")
+  @@index([promptId],        map: "Butterfly_promptId_fkey")
+  @@index([scenarioId],      map: "Butterfly_scenarioId_fkey")
+  @@index([tagId],           map: "Butterfly_tagId_fkey")
 }
 
 /// Records which butterflies each user has caught.
@@ -802,7 +799,6 @@ model Reward {
   User        User?      @relation(fields: [userId], references: [id])
   Characters  Character[] @relation("CharacterToReward")
   Dreams      Dream[]     @relation("DreamToReward")
-  Butterflies Butterfly[]
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])

@@ -32,11 +32,8 @@ export type CharacterStatKey =
   | 'charm'
   | 'empathy'
 
-export type RewardSlotKey =
-  | 'common-skill'
-  | 'rare-skill'
-  | 'common-item'
-  | 'rare-item'
+// Three skill slots — matches builder and schema
+export type RewardSlotKey = 'common-skill' | 'uncommon-skill' | 'rare-skill'
 
 export type RandomizerKeys =
   | 'name'
@@ -67,20 +64,22 @@ export type CharacterRewardDraft = {
 export type RewardPromptSlot = {
   key: RewardSlotKey
   label: string
+  description?: string // optional flavor text shown in the sheet
   rewardType: RewardType
   rarity: Rarity
   icon: string
 }
 
+// Matches Character schema exactly — class and gender, no characterClass/genderIdentity
 export type CharacterSheetDraft = {
   id: number | null
   name: string
   honorific: string
   title: string
   role: string
-  characterClass: string
+  class: string // schema: class
   species: string
-  genderIdentity: string
+  gender: string // schema: gender
   presentation: string
   genre: string
   alignment: string
@@ -114,30 +113,12 @@ export const characterStatFields: Array<{
   key: CharacterStatKey
   label: string
 }> = [
-  {
-    key: 'luck',
-    label: 'Luck',
-  },
-  {
-    key: 'might',
-    label: 'Might',
-  },
-  {
-    key: 'wits',
-    label: 'Wits',
-  },
-  {
-    key: 'grace',
-    label: 'Grace',
-  },
-  {
-    key: 'charm',
-    label: 'Charm',
-  },
-  {
-    key: 'empathy',
-    label: 'Empathy',
-  },
+  { key: 'luck', label: 'Luck' },
+  { key: 'might', label: 'Might' },
+  { key: 'wits', label: 'Wits' },
+  { key: 'grace', label: 'Grace' },
+  { key: 'charm', label: 'Charm' },
+  { key: 'empathy', label: 'Empathy' },
 ]
 
 export const randomizerMap: Record<RandomizerKeys, () => string | Rarity> = {
@@ -161,7 +142,6 @@ export function getRandomValue<K extends RandomizerKeys>(
   key: K,
 ): RandomizerReturnType[K] | null {
   const fn = randomizerMap[key]
-
   return fn ? (fn() as RandomizerReturnType[K]) : null
 }
 
@@ -170,7 +150,6 @@ export function updateFieldWithRandomValue(
   key: RandomizerKeys,
 ) {
   const value = getRandomValue(key)
-
   if (value !== null) {
     form[key] = value as never
   }
@@ -178,13 +157,11 @@ export function updateFieldWithRandomValue(
 
 export function randomRarity(): Rarity {
   const roll = Math.random()
-
   if (roll < 0.45) return 'COMMON'
   if (roll < 0.7) return 'UNCOMMON'
   if (roll < 0.87) return 'RARE'
   if (roll < 0.96) return 'EPIC'
   if (roll < 0.995) return 'LEGENDARY'
-
   return 'MYTHIC'
 }
 
@@ -199,35 +176,32 @@ export function rerollStats(): Record<CharacterStatKey, Rarity> {
   }
 }
 
+// Three skill slots — common, uncommon, rare
 export function defaultRewardSlots(): RewardPromptSlot[] {
   return [
     {
       key: 'common-skill',
       label: 'Common Skill',
+      description: 'A reliable skill for everyday story problems.',
       rewardType: 'SKILL',
       rarity: 'COMMON',
       icon: 'kind-icon:bolt',
     },
     {
-      key: 'rare-skill',
-      label: 'Rare Skill',
+      key: 'uncommon-skill',
+      label: 'Uncommon Skill',
+      description: 'A specialized edge that surprises when it lands.',
       rewardType: 'SKILL',
-      rarity: 'RARE',
+      rarity: 'UNCOMMON',
       icon: 'kind-icon:comet',
     },
     {
-      key: 'common-item',
-      label: 'Common Item',
-      rewardType: 'ITEM',
-      rarity: 'COMMON',
-      icon: 'kind-icon:backpack',
-    },
-    {
-      key: 'rare-item',
-      label: 'Rare Item',
-      rewardType: 'ITEM',
+      key: 'rare-skill',
+      label: 'Rare Skill',
+      description: 'The signature move that earns a dramatic pause.',
+      rewardType: 'SKILL',
       rarity: 'RARE',
-      icon: 'kind-icon:gem',
+      icon: 'kind-icon:sparkles',
     },
   ]
 }
@@ -251,6 +225,7 @@ export function createEmptyRewardDraft(
   }
 }
 
+// Matches schema field names — class and gender
 export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
   return {
     id: null,
@@ -258,9 +233,9 @@ export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
     honorific: 'adventurer',
     title: '',
     role: '',
-    characterClass: '',
+    class: '', // schema: class
     species: '',
-    genderIdentity: '',
+    gender: '', // schema: gender
     presentation: '',
     genre: '',
     alignment: '',
@@ -289,7 +264,10 @@ export function createEmptyCharacterSheet(userId = 10): CharacterSheetDraft {
 
 export function fallbackRewardIcon(draft: CharacterRewardDraft): string {
   if (draft.icon) return draft.icon
-  if (draft.rewardType === 'SKILL') return 'kind-icon:bolt'
-  if (draft.rewardType === 'ITEM') return 'kind-icon:gem'
+  if (draft.rewardType === 'SKILL') {
+    if (draft.rarity === 'RARE') return 'kind-icon:sparkles'
+    if (draft.rarity === 'UNCOMMON') return 'kind-icon:comet'
+    return 'kind-icon:bolt'
+  }
   return 'kind-icon:gift'
 }

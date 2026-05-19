@@ -44,9 +44,6 @@ export default defineEventHandler(async (event) => {
         prompt: promptData.prompt,
         creationSource: resolvedSource as any,
         User: { connect: { id: authenticatedUserId } },
-        ...(promptData.galleryId && {
-          Gallery: { connect: { id: promptData.galleryId } },
-        }),
         ...(promptData.pitchId && {
           Pitch: { connect: { id: promptData.pitchId } },
         }),

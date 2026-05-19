@@ -128,13 +128,6 @@
               <span class="label">
                 <span class="label-text font-bold">Gallery ID</span>
               </span>
-
-              <input
-                v-model.number="promptStore.promptForm.galleryId"
-                type="number"
-                class="input input-bordered w-full bg-base-200"
-                min="1"
-              />
             </label>
 
             <label class="form-control">
@@ -583,7 +576,6 @@ function resetForAdd() {
 
   promptStore.setPromptForm({
     userId: userStore.userId || 10,
-    galleryId: 21,
     creationSource: 'HUMAN',
   })
 
@@ -615,7 +607,6 @@ function seedPrompt() {
       promptStore.promptForm.prompt ||
       'a cheerful robot archivist cataloging impossible butterflies, cozy studio lighting, whimsical sci-fi',
     userId: promptStore.promptForm.userId ?? userStore.userId ?? 10,
-    galleryId: promptStore.promptForm.galleryId ?? 21,
     creationSource: promptStore.promptForm.creationSource || 'HUMAN',
   })
 

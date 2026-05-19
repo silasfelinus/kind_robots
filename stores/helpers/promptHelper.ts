@@ -27,7 +27,6 @@ export function buildPromptPayload(p: Partial<Prompt>): Partial<Prompt> {
     userId: p.userId ?? 1,
     pitchId: p.pitchId ?? null,
     botId: p.botId ?? null,
-    galleryId: p.galleryId ?? null,
     artImageId: p.artImageId ?? null,
     creationSource: 'UNKNOWN',
   }

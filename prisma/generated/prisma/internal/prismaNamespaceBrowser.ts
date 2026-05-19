@@ -72,12 +72,7 @@ export const ModelName = {
   Server: 'Server',
   SmartIcon: 'SmartIcon',
   Theme: 'Theme',
-  User: 'User',
-  MilestoneToUser: 'MilestoneToUser',
-  RewardToUser: 'RewardToUser',
-  Gallery: 'Gallery',
-  Tag: 'Tag',
-  ReactionToTag: 'ReactionToTag'
+  User: 'User'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -193,17 +188,9 @@ export const ButterflyScalarFieldEnum = {
   wingSpeed: 'wingSpeed',
   scale: 'scale',
   rarityNumber: 'rarityNumber',
-  artImageId: 'artImageId',
   designer: 'designer',
   userId: 'userId',
-  isPublic: 'isPublic',
-  artCollectionId: 'artCollectionId',
-  botId: 'botId',
-  characterId: 'characterId',
-  pitchId: 'pitchId',
-  promptId: 'promptId',
-  scenarioId: 'scenarioId',
-  tagId: 'tagId'
+  isPublic: 'isPublic'
 } as const
 
 export type ButterflyScalarFieldEnum = (typeof ButterflyScalarFieldEnum)[keyof typeof ButterflyScalarFieldEnum]
@@ -325,7 +312,6 @@ export const DreamScalarFieldEnum = {
   textServerId: 'textServerId',
   artServerId: 'artServerId',
   artCollectionId: 'artCollectionId',
-  galleryId: 'galleryId',
   scenarioId: 'scenarioId',
   isPublic: 'isPublic',
   isMature: 'isMature',
@@ -414,7 +400,6 @@ export const PromptScalarFieldEnum = {
   updatedAt: 'updatedAt',
   prompt: 'prompt',
   userId: 'userId',
-  galleryId: 'galleryId',
   pitchId: 'pitchId',
   botId: 'botId',
   artImageId: 'artImageId',
@@ -441,11 +426,9 @@ export const ReactionScalarFieldEnum = {
   rating: 'rating',
   artImageId: 'artImageId',
   botId: 'botId',
-  galleryId: 'galleryId',
   promptId: 'promptId',
   resourceId: 'resourceId',
   rewardId: 'rewardId',
-  tagId: 'tagId',
   chatId: 'chatId',
   dreamId: 'dreamId',
   artCollectionId: 'artCollectionId',
@@ -698,69 +681,6 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const MilestoneToUserScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type MilestoneToUserScalarFieldEnum = (typeof MilestoneToUserScalarFieldEnum)[keyof typeof MilestoneToUserScalarFieldEnum]
-
-
-export const RewardToUserScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type RewardToUserScalarFieldEnum = (typeof RewardToUserScalarFieldEnum)[keyof typeof RewardToUserScalarFieldEnum]
-
-
-export const GalleryScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  name: 'name',
-  description: 'description',
-  url: 'url',
-  custodian: 'custodian',
-  content: 'content',
-  highlightImage: 'highlightImage',
-  imagePaths: 'imagePaths',
-  isMature: 'isMature',
-  userId: 'userId',
-  isPublic: 'isPublic',
-  isActive: 'isActive'
-} as const
-
-export type GalleryScalarFieldEnum = (typeof GalleryScalarFieldEnum)[keyof typeof GalleryScalarFieldEnum]
-
-
-export const TagScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  label: 'label',
-  title: 'title',
-  flavorText: 'flavorText',
-  pitch: 'pitch',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  userId: 'userId',
-  artImageId: 'artImageId',
-  isActive: 'isActive',
-  artPrompt: 'artPrompt'
-} as const
-
-export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
-
-
-export const ReactionToTagScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ReactionToTagScalarFieldEnum = (typeof ReactionToTagScalarFieldEnum)[keyof typeof ReactionToTagScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1101,28 +1021,4 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-export const GalleryOrderByRelevanceFieldEnum = {
-  name: 'name',
-  description: 'description',
-  url: 'url',
-  custodian: 'custodian',
-  content: 'content',
-  highlightImage: 'highlightImage',
-  imagePaths: 'imagePaths'
-} as const
-
-export type GalleryOrderByRelevanceFieldEnum = (typeof GalleryOrderByRelevanceFieldEnum)[keyof typeof GalleryOrderByRelevanceFieldEnum]
-
-
-export const TagOrderByRelevanceFieldEnum = {
-  label: 'label',
-  title: 'title',
-  flavorText: 'flavorText',
-  pitch: 'pitch',
-  artPrompt: 'artPrompt'
-} as const
-
-export type TagOrderByRelevanceFieldEnum = (typeof TagOrderByRelevanceFieldEnum)[keyof typeof TagOrderByRelevanceFieldEnum]
 

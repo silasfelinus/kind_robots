@@ -405,12 +405,7 @@ export const ModelName = {
   Server: 'Server',
   SmartIcon: 'SmartIcon',
   Theme: 'Theme',
-  User: 'User',
-  MilestoneToUser: 'MilestoneToUser',
-  RewardToUser: 'RewardToUser',
-  Gallery: 'Gallery',
-  Tag: 'Tag',
-  ReactionToTag: 'ReactionToTag'
+  User: 'User'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -426,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "milestoneToUser" | "rewardToUser" | "gallery" | "tag" | "reactionToTag"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1882,336 +1877,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    MilestoneToUser: {
-      payload: Prisma.$MilestoneToUserPayload<ExtArgs>
-      fields: Prisma.MilestoneToUserFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.MilestoneToUserFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.MilestoneToUserFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>
-        }
-        findFirst: {
-          args: Prisma.MilestoneToUserFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.MilestoneToUserFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>
-        }
-        findMany: {
-          args: Prisma.MilestoneToUserFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>[]
-        }
-        create: {
-          args: Prisma.MilestoneToUserCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>
-        }
-        createMany: {
-          args: Prisma.MilestoneToUserCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.MilestoneToUserDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>
-        }
-        update: {
-          args: Prisma.MilestoneToUserUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>
-        }
-        deleteMany: {
-          args: Prisma.MilestoneToUserDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.MilestoneToUserUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.MilestoneToUserUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MilestoneToUserPayload>
-        }
-        aggregate: {
-          args: Prisma.MilestoneToUserAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMilestoneToUser>
-        }
-        groupBy: {
-          args: Prisma.MilestoneToUserGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MilestoneToUserGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.MilestoneToUserCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MilestoneToUserCountAggregateOutputType> | number
-        }
-      }
-    }
-    RewardToUser: {
-      payload: Prisma.$RewardToUserPayload<ExtArgs>
-      fields: Prisma.RewardToUserFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.RewardToUserFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.RewardToUserFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>
-        }
-        findFirst: {
-          args: Prisma.RewardToUserFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.RewardToUserFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>
-        }
-        findMany: {
-          args: Prisma.RewardToUserFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>[]
-        }
-        create: {
-          args: Prisma.RewardToUserCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>
-        }
-        createMany: {
-          args: Prisma.RewardToUserCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.RewardToUserDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>
-        }
-        update: {
-          args: Prisma.RewardToUserUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>
-        }
-        deleteMany: {
-          args: Prisma.RewardToUserDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.RewardToUserUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.RewardToUserUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RewardToUserPayload>
-        }
-        aggregate: {
-          args: Prisma.RewardToUserAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRewardToUser>
-        }
-        groupBy: {
-          args: Prisma.RewardToUserGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RewardToUserGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.RewardToUserCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RewardToUserCountAggregateOutputType> | number
-        }
-      }
-    }
-    Gallery: {
-      payload: Prisma.$GalleryPayload<ExtArgs>
-      fields: Prisma.GalleryFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.GalleryFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.GalleryFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        findFirst: {
-          args: Prisma.GalleryFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.GalleryFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        findMany: {
-          args: Prisma.GalleryFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>[]
-        }
-        create: {
-          args: Prisma.GalleryCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        createMany: {
-          args: Prisma.GalleryCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.GalleryDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        update: {
-          args: Prisma.GalleryUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        deleteMany: {
-          args: Prisma.GalleryDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.GalleryUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.GalleryUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        aggregate: {
-          args: Prisma.GalleryAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateGallery>
-        }
-        groupBy: {
-          args: Prisma.GalleryGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GalleryGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.GalleryCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GalleryCountAggregateOutputType> | number
-        }
-      }
-    }
-    Tag: {
-      payload: Prisma.$TagPayload<ExtArgs>
-      fields: Prisma.TagFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TagFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        findFirst: {
-          args: Prisma.TagFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        findMany: {
-          args: Prisma.TagFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
-        }
-        create: {
-          args: Prisma.TagCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        createMany: {
-          args: Prisma.TagCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.TagDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        update: {
-          args: Prisma.TagUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        deleteMany: {
-          args: Prisma.TagDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TagUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.TagUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        aggregate: {
-          args: Prisma.TagAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTag>
-        }
-        groupBy: {
-          args: Prisma.TagGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TagCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType> | number
-        }
-      }
-    }
-    ReactionToTag: {
-      payload: Prisma.$ReactionToTagPayload<ExtArgs>
-      fields: Prisma.ReactionToTagFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ReactionToTagFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ReactionToTagFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        findFirst: {
-          args: Prisma.ReactionToTagFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ReactionToTagFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        findMany: {
-          args: Prisma.ReactionToTagFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>[]
-        }
-        create: {
-          args: Prisma.ReactionToTagCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        createMany: {
-          args: Prisma.ReactionToTagCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ReactionToTagDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        update: {
-          args: Prisma.ReactionToTagUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        deleteMany: {
-          args: Prisma.ReactionToTagDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ReactionToTagUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ReactionToTagUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        aggregate: {
-          args: Prisma.ReactionToTagAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateReactionToTag>
-        }
-        groupBy: {
-          args: Prisma.ReactionToTagGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ReactionToTagGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ReactionToTagCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ReactionToTagCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -2348,17 +2013,9 @@ export const ButterflyScalarFieldEnum = {
   wingSpeed: 'wingSpeed',
   scale: 'scale',
   rarityNumber: 'rarityNumber',
-  artImageId: 'artImageId',
   designer: 'designer',
   userId: 'userId',
-  isPublic: 'isPublic',
-  artCollectionId: 'artCollectionId',
-  botId: 'botId',
-  characterId: 'characterId',
-  pitchId: 'pitchId',
-  promptId: 'promptId',
-  scenarioId: 'scenarioId',
-  tagId: 'tagId'
+  isPublic: 'isPublic'
 } as const
 
 export type ButterflyScalarFieldEnum = (typeof ButterflyScalarFieldEnum)[keyof typeof ButterflyScalarFieldEnum]
@@ -2480,7 +2137,6 @@ export const DreamScalarFieldEnum = {
   textServerId: 'textServerId',
   artServerId: 'artServerId',
   artCollectionId: 'artCollectionId',
-  galleryId: 'galleryId',
   scenarioId: 'scenarioId',
   isPublic: 'isPublic',
   isMature: 'isMature',
@@ -2569,7 +2225,6 @@ export const PromptScalarFieldEnum = {
   updatedAt: 'updatedAt',
   prompt: 'prompt',
   userId: 'userId',
-  galleryId: 'galleryId',
   pitchId: 'pitchId',
   botId: 'botId',
   artImageId: 'artImageId',
@@ -2596,11 +2251,9 @@ export const ReactionScalarFieldEnum = {
   rating: 'rating',
   artImageId: 'artImageId',
   botId: 'botId',
-  galleryId: 'galleryId',
   promptId: 'promptId',
   resourceId: 'resourceId',
   rewardId: 'rewardId',
-  tagId: 'tagId',
   chatId: 'chatId',
   dreamId: 'dreamId',
   artCollectionId: 'artCollectionId',
@@ -2853,69 +2506,6 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const MilestoneToUserScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type MilestoneToUserScalarFieldEnum = (typeof MilestoneToUserScalarFieldEnum)[keyof typeof MilestoneToUserScalarFieldEnum]
-
-
-export const RewardToUserScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type RewardToUserScalarFieldEnum = (typeof RewardToUserScalarFieldEnum)[keyof typeof RewardToUserScalarFieldEnum]
-
-
-export const GalleryScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  name: 'name',
-  description: 'description',
-  url: 'url',
-  custodian: 'custodian',
-  content: 'content',
-  highlightImage: 'highlightImage',
-  imagePaths: 'imagePaths',
-  isMature: 'isMature',
-  userId: 'userId',
-  isPublic: 'isPublic',
-  isActive: 'isActive'
-} as const
-
-export type GalleryScalarFieldEnum = (typeof GalleryScalarFieldEnum)[keyof typeof GalleryScalarFieldEnum]
-
-
-export const TagScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  label: 'label',
-  title: 'title',
-  flavorText: 'flavorText',
-  pitch: 'pitch',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  userId: 'userId',
-  artImageId: 'artImageId',
-  isActive: 'isActive',
-  artPrompt: 'artPrompt'
-} as const
-
-export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
-
-
-export const ReactionToTagScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ReactionToTagScalarFieldEnum = (typeof ReactionToTagScalarFieldEnum)[keyof typeof ReactionToTagScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -3258,30 +2848,6 @@ export const UserOrderByRelevanceFieldEnum = {
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
 
 
-export const GalleryOrderByRelevanceFieldEnum = {
-  name: 'name',
-  description: 'description',
-  url: 'url',
-  custodian: 'custodian',
-  content: 'content',
-  highlightImage: 'highlightImage',
-  imagePaths: 'imagePaths'
-} as const
-
-export type GalleryOrderByRelevanceFieldEnum = (typeof GalleryOrderByRelevanceFieldEnum)[keyof typeof GalleryOrderByRelevanceFieldEnum]
-
-
-export const TagOrderByRelevanceFieldEnum = {
-  label: 'label',
-  title: 'title',
-  flavorText: 'flavorText',
-  pitch: 'pitch',
-  artPrompt: 'artPrompt'
-} as const
-
-export type TagOrderByRelevanceFieldEnum = (typeof TagOrderByRelevanceFieldEnum)[keyof typeof TagOrderByRelevanceFieldEnum]
-
-
 
 /**
  * Field references
@@ -3566,11 +3132,6 @@ export type GlobalOmitConfig = {
   smartIcon?: Prisma.SmartIconOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
-  milestoneToUser?: Prisma.MilestoneToUserOmit
-  rewardToUser?: Prisma.RewardToUserOmit
-  gallery?: Prisma.GalleryOmit
-  tag?: Prisma.TagOmit
-  reactionToTag?: Prisma.ReactionToTagOmit
 }
 
 /* Types for Logging */

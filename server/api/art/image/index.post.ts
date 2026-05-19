@@ -226,9 +226,6 @@ function buildCreateData(
     Characters: connectMany(
       mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
     ),
-    Butterflies: connectMany(
-      mergeIds(body.butterflyIds, body.butterflyId ? [body.butterflyId] : []),
-    ),
     Dreams: connectMany(body.dreamIds),
     Scenarios: connectMany(body.scenarioIds),
     Reactions: connectMany(body.reactionIds),

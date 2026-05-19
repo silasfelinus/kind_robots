@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Pitch
- * A Pitch is a big picture idea that is meant to be fuel for a project that can become art assets, text assets, and physical swag. A Pitch can contain a collection of Prompts, which is an implementation of the Pitch. for example, a Pitch of "wild colors" could contain a series of prompts like "lavender armadillo;  green curd; rainbow sunburn". it can be represented by an artImage for it's overall vibe, but also collect Art objects if they are inspired by the Pitch 
+ * A Pitch is a big picture tag system that is meant to be fuel for a project that can become art assets, text assets, and physical swag. It can be parents, siblings, or children with other pitches.
  */
 export type PitchModel = runtime.Types.Result.DefaultSelection<Prisma.$PitchPayload>
 
@@ -336,13 +336,11 @@ export type PitchWhereInput = {
   creationSource?: Prisma.EnumCreationSourceFilter<"Pitch"> | $Enums.CreationSource
   isActive?: Prisma.BoolFilter<"Pitch"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
-  Butterflies?: Prisma.ButterflyListRelationFilter
-  Dream?: Prisma.DreamListRelationFilter
+  Dreams?: Prisma.DreamListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Prompt?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
-  Tag?: Prisma.TagListRelationFilter
 }
 
 export type PitchOrderByWithRelationInput = {
@@ -365,13 +363,11 @@ export type PitchOrderByWithRelationInput = {
   creationSource?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
-  Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
-  Dream?: Prisma.DreamOrderByRelationAggregateInput
+  Dreams?: Prisma.DreamOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
-  Tag?: Prisma.TagOrderByRelationAggregateInput
   _relevance?: Prisma.PitchOrderByRelevanceInput
 }
 
@@ -398,13 +394,11 @@ export type PitchWhereUniqueInput = Prisma.AtLeast<{
   creationSource?: Prisma.EnumCreationSourceFilter<"Pitch"> | $Enums.CreationSource
   isActive?: Prisma.BoolFilter<"Pitch"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
-  Butterflies?: Prisma.ButterflyListRelationFilter
-  Dream?: Prisma.DreamListRelationFilter
+  Dreams?: Prisma.DreamListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Prompt?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
-  Tag?: Prisma.TagListRelationFilter
 }, "id">
 
 export type PitchOrderByWithAggregationInput = {
@@ -476,13 +470,11 @@ export type PitchCreateInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPitchInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateInput = {
@@ -505,11 +497,9 @@ export type PitchUncheckedCreateInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUpdateInput = {
@@ -529,13 +519,11 @@ export type PitchUpdateInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutPitchNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateInput = {
@@ -558,11 +546,9 @@ export type PitchUncheckedUpdateInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateManyInput = {
@@ -769,36 +755,20 @@ export type PitchUncheckedUpdateManyWithoutArtImageNestedInput = {
   deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
 }
 
-export type PitchCreateNestedOneWithoutButterfliesInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutButterfliesInput, Prisma.PitchUncheckedCreateWithoutButterfliesInput>
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutButterfliesInput
+export type PitchCreateNestedOneWithoutDreamsInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutDreamsInput, Prisma.PitchUncheckedCreateWithoutDreamsInput>
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutDreamsInput
   connect?: Prisma.PitchWhereUniqueInput
 }
 
-export type PitchUpdateOneWithoutButterfliesNestedInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutButterfliesInput, Prisma.PitchUncheckedCreateWithoutButterfliesInput>
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutButterfliesInput
-  upsert?: Prisma.PitchUpsertWithoutButterfliesInput
+export type PitchUpdateOneWithoutDreamsNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutDreamsInput, Prisma.PitchUncheckedCreateWithoutDreamsInput>
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutDreamsInput
+  upsert?: Prisma.PitchUpsertWithoutDreamsInput
   disconnect?: Prisma.PitchWhereInput | boolean
   delete?: Prisma.PitchWhereInput | boolean
   connect?: Prisma.PitchWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchUpdateToOneWithWhereWithoutButterfliesInput, Prisma.PitchUpdateWithoutButterfliesInput>, Prisma.PitchUncheckedUpdateWithoutButterfliesInput>
-}
-
-export type PitchCreateNestedOneWithoutDreamInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutDreamInput, Prisma.PitchUncheckedCreateWithoutDreamInput>
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutDreamInput
-  connect?: Prisma.PitchWhereUniqueInput
-}
-
-export type PitchUpdateOneWithoutDreamNestedInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutDreamInput, Prisma.PitchUncheckedCreateWithoutDreamInput>
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutDreamInput
-  upsert?: Prisma.PitchUpsertWithoutDreamInput
-  disconnect?: Prisma.PitchWhereInput | boolean
-  delete?: Prisma.PitchWhereInput | boolean
-  connect?: Prisma.PitchWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchUpdateToOneWithWhereWithoutDreamInput, Prisma.PitchUpdateWithoutDreamInput>, Prisma.PitchUncheckedUpdateWithoutDreamInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchUpdateToOneWithWhereWithoutDreamsInput, Prisma.PitchUpdateWithoutDreamsInput>, Prisma.PitchUncheckedUpdateWithoutDreamsInput>
 }
 
 export type EnumPitchTypeFieldUpdateOperationsInput = {
@@ -883,44 +853,6 @@ export type PitchUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
 }
 
-export type PitchCreateNestedManyWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutTagInput, Prisma.PitchUncheckedCreateWithoutTagInput> | Prisma.PitchCreateWithoutTagInput[] | Prisma.PitchUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutTagInput | Prisma.PitchCreateOrConnectWithoutTagInput[]
-  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-}
-
-export type PitchUncheckedCreateNestedManyWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutTagInput, Prisma.PitchUncheckedCreateWithoutTagInput> | Prisma.PitchCreateWithoutTagInput[] | Prisma.PitchUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutTagInput | Prisma.PitchCreateOrConnectWithoutTagInput[]
-  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-}
-
-export type PitchUpdateManyWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutTagInput, Prisma.PitchUncheckedCreateWithoutTagInput> | Prisma.PitchCreateWithoutTagInput[] | Prisma.PitchUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutTagInput | Prisma.PitchCreateOrConnectWithoutTagInput[]
-  upsert?: Prisma.PitchUpsertWithWhereUniqueWithoutTagInput | Prisma.PitchUpsertWithWhereUniqueWithoutTagInput[]
-  set?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  disconnect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  delete?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  update?: Prisma.PitchUpdateWithWhereUniqueWithoutTagInput | Prisma.PitchUpdateWithWhereUniqueWithoutTagInput[]
-  updateMany?: Prisma.PitchUpdateManyWithWhereWithoutTagInput | Prisma.PitchUpdateManyWithWhereWithoutTagInput[]
-  deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
-}
-
-export type PitchUncheckedUpdateManyWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.PitchCreateWithoutTagInput, Prisma.PitchUncheckedCreateWithoutTagInput> | Prisma.PitchCreateWithoutTagInput[] | Prisma.PitchUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutTagInput | Prisma.PitchCreateOrConnectWithoutTagInput[]
-  upsert?: Prisma.PitchUpsertWithWhereUniqueWithoutTagInput | Prisma.PitchUpsertWithWhereUniqueWithoutTagInput[]
-  set?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  disconnect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  delete?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  connect?: Prisma.PitchWhereUniqueInput | Prisma.PitchWhereUniqueInput[]
-  update?: Prisma.PitchUpdateWithWhereUniqueWithoutTagInput | Prisma.PitchUpdateWithWhereUniqueWithoutTagInput[]
-  updateMany?: Prisma.PitchUpdateManyWithWhereWithoutTagInput | Prisma.PitchUpdateManyWithWhereWithoutTagInput[]
-  deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
-}
-
 export type PitchCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -938,12 +870,10 @@ export type PitchCreateWithoutArtImageInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPitchInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutArtImageInput = {
@@ -965,11 +895,9 @@ export type PitchUncheckedCreateWithoutArtImageInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutArtImageInput = {
@@ -1023,7 +951,7 @@ export type PitchScalarWhereInput = {
   artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
 }
 
-export type PitchCreateWithoutButterfliesInput = {
+export type PitchCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   title?: string | null
@@ -1040,15 +968,13 @@ export type PitchCreateWithoutButterfliesInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
 }
 
-export type PitchUncheckedCreateWithoutButterfliesInput = {
+export type PitchUncheckedCreateWithoutDreamsInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1068,29 +994,27 @@ export type PitchUncheckedCreateWithoutButterfliesInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
 }
 
-export type PitchCreateOrConnectWithoutButterfliesInput = {
+export type PitchCreateOrConnectWithoutDreamsInput = {
   where: Prisma.PitchWhereUniqueInput
-  create: Prisma.XOR<Prisma.PitchCreateWithoutButterfliesInput, Prisma.PitchUncheckedCreateWithoutButterfliesInput>
+  create: Prisma.XOR<Prisma.PitchCreateWithoutDreamsInput, Prisma.PitchUncheckedCreateWithoutDreamsInput>
 }
 
-export type PitchUpsertWithoutButterfliesInput = {
-  update: Prisma.XOR<Prisma.PitchUpdateWithoutButterfliesInput, Prisma.PitchUncheckedUpdateWithoutButterfliesInput>
-  create: Prisma.XOR<Prisma.PitchCreateWithoutButterfliesInput, Prisma.PitchUncheckedCreateWithoutButterfliesInput>
+export type PitchUpsertWithoutDreamsInput = {
+  update: Prisma.XOR<Prisma.PitchUpdateWithoutDreamsInput, Prisma.PitchUncheckedUpdateWithoutDreamsInput>
+  create: Prisma.XOR<Prisma.PitchCreateWithoutDreamsInput, Prisma.PitchUncheckedCreateWithoutDreamsInput>
   where?: Prisma.PitchWhereInput
 }
 
-export type PitchUpdateToOneWithWhereWithoutButterfliesInput = {
+export type PitchUpdateToOneWithWhereWithoutDreamsInput = {
   where?: Prisma.PitchWhereInput
-  data: Prisma.XOR<Prisma.PitchUpdateWithoutButterfliesInput, Prisma.PitchUncheckedUpdateWithoutButterfliesInput>
+  data: Prisma.XOR<Prisma.PitchUpdateWithoutDreamsInput, Prisma.PitchUncheckedUpdateWithoutDreamsInput>
 }
 
-export type PitchUpdateWithoutButterfliesInput = {
+export type PitchUpdateWithoutDreamsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1107,15 +1031,13 @@ export type PitchUpdateWithoutButterfliesInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
 }
 
-export type PitchUncheckedUpdateWithoutButterfliesInput = {
+export type PitchUncheckedUpdateWithoutDreamsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1135,128 +1057,8 @@ export type PitchUncheckedUpdateWithoutButterfliesInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
-}
-
-export type PitchCreateWithoutDreamInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title?: string | null
-  pitch: string
-  designer?: string | null
-  flavorText?: string | null
-  highlightImage?: string | null
-  PitchType?: $Enums.PitchType
-  isMature?: boolean
-  isPublic?: boolean
-  description?: string | null
-  examples?: string | null
-  icon?: string | null
-  creationSource?: $Enums.CreationSource
-  isActive?: boolean
-  artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
-  User?: Prisma.UserCreateNestedOneWithoutPitchesInput
-  Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
-}
-
-export type PitchUncheckedCreateWithoutDreamInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title?: string | null
-  pitch: string
-  designer?: string | null
-  flavorText?: string | null
-  highlightImage?: string | null
-  PitchType?: $Enums.PitchType
-  isMature?: boolean
-  isPublic?: boolean
-  userId?: number | null
-  description?: string | null
-  artImageId?: number | null
-  examples?: string | null
-  icon?: string | null
-  creationSource?: $Enums.CreationSource
-  isActive?: boolean
-  artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
-}
-
-export type PitchCreateOrConnectWithoutDreamInput = {
-  where: Prisma.PitchWhereUniqueInput
-  create: Prisma.XOR<Prisma.PitchCreateWithoutDreamInput, Prisma.PitchUncheckedCreateWithoutDreamInput>
-}
-
-export type PitchUpsertWithoutDreamInput = {
-  update: Prisma.XOR<Prisma.PitchUpdateWithoutDreamInput, Prisma.PitchUncheckedUpdateWithoutDreamInput>
-  create: Prisma.XOR<Prisma.PitchCreateWithoutDreamInput, Prisma.PitchUncheckedCreateWithoutDreamInput>
-  where?: Prisma.PitchWhereInput
-}
-
-export type PitchUpdateToOneWithWhereWithoutDreamInput = {
-  where?: Prisma.PitchWhereInput
-  data: Prisma.XOR<Prisma.PitchUpdateWithoutDreamInput, Prisma.PitchUncheckedUpdateWithoutDreamInput>
-}
-
-export type PitchUpdateWithoutDreamInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.StringFieldUpdateOperationsInput | string
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
-  User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
-  Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
-}
-
-export type PitchUncheckedUpdateWithoutDreamInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.StringFieldUpdateOperationsInput | string
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateWithoutPromptInput = {
@@ -1276,12 +1078,10 @@ export type PitchCreateWithoutPromptInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPitchInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutPromptInput = {
@@ -1304,10 +1104,8 @@ export type PitchUncheckedCreateWithoutPromptInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutPromptInput = {
@@ -1343,12 +1141,10 @@ export type PitchUpdateWithoutPromptInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutPitchNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutPromptInput = {
@@ -1371,10 +1167,8 @@ export type PitchUncheckedUpdateWithoutPromptInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateWithoutReactionsInput = {
@@ -1394,12 +1188,10 @@ export type PitchCreateWithoutReactionsInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPitchInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutReactionsInput = {
@@ -1422,10 +1214,8 @@ export type PitchUncheckedCreateWithoutReactionsInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutReactionsInput = {
@@ -1461,12 +1251,10 @@ export type PitchUpdateWithoutReactionsInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutPitchNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutReactionsInput = {
@@ -1489,10 +1277,8 @@ export type PitchUncheckedUpdateWithoutReactionsInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateWithoutUserInput = {
@@ -1512,12 +1298,10 @@ export type PitchCreateWithoutUserInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPitchInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutUserInput = {
@@ -1539,11 +1323,9 @@ export type PitchUncheckedCreateWithoutUserInput = {
   creationSource?: $Enums.CreationSource
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutUserInput = {
@@ -1570,78 +1352,6 @@ export type PitchUpdateWithWhereUniqueWithoutUserInput = {
 export type PitchUpdateManyWithWhereWithoutUserInput = {
   where: Prisma.PitchScalarWhereInput
   data: Prisma.XOR<Prisma.PitchUpdateManyMutationInput, Prisma.PitchUncheckedUpdateManyWithoutUserInput>
-}
-
-export type PitchCreateWithoutTagInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title?: string | null
-  pitch: string
-  designer?: string | null
-  flavorText?: string | null
-  highlightImage?: string | null
-  PitchType?: $Enums.PitchType
-  isMature?: boolean
-  isPublic?: boolean
-  description?: string | null
-  examples?: string | null
-  icon?: string | null
-  creationSource?: $Enums.CreationSource
-  isActive?: boolean
-  artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamCreateNestedManyWithoutPitchInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
-  User?: Prisma.UserCreateNestedOneWithoutPitchesInput
-  Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
-}
-
-export type PitchUncheckedCreateWithoutTagInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title?: string | null
-  pitch: string
-  designer?: string | null
-  flavorText?: string | null
-  highlightImage?: string | null
-  PitchType?: $Enums.PitchType
-  isMature?: boolean
-  isPublic?: boolean
-  userId?: number | null
-  description?: string | null
-  artImageId?: number | null
-  examples?: string | null
-  icon?: string | null
-  creationSource?: $Enums.CreationSource
-  isActive?: boolean
-  artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPitchInput
-  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
-  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
-}
-
-export type PitchCreateOrConnectWithoutTagInput = {
-  where: Prisma.PitchWhereUniqueInput
-  create: Prisma.XOR<Prisma.PitchCreateWithoutTagInput, Prisma.PitchUncheckedCreateWithoutTagInput>
-}
-
-export type PitchUpsertWithWhereUniqueWithoutTagInput = {
-  where: Prisma.PitchWhereUniqueInput
-  update: Prisma.XOR<Prisma.PitchUpdateWithoutTagInput, Prisma.PitchUncheckedUpdateWithoutTagInput>
-  create: Prisma.XOR<Prisma.PitchCreateWithoutTagInput, Prisma.PitchUncheckedCreateWithoutTagInput>
-}
-
-export type PitchUpdateWithWhereUniqueWithoutTagInput = {
-  where: Prisma.PitchWhereUniqueInput
-  data: Prisma.XOR<Prisma.PitchUpdateWithoutTagInput, Prisma.PitchUncheckedUpdateWithoutTagInput>
-}
-
-export type PitchUpdateManyWithWhereWithoutTagInput = {
-  where: Prisma.PitchScalarWhereInput
-  data: Prisma.XOR<Prisma.PitchUpdateManyMutationInput, Prisma.PitchUncheckedUpdateManyWithoutTagInput>
 }
 
 export type PitchCreateManyArtImageInput = {
@@ -1682,12 +1392,10 @@ export type PitchUpdateWithoutArtImageInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutPitchNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutArtImageInput = {
@@ -1709,11 +1417,9 @@ export type PitchUncheckedUpdateWithoutArtImageInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateManyWithoutArtImageInput = {
@@ -1775,12 +1481,10 @@ export type PitchUpdateWithoutUserInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutPitchNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutUserInput = {
@@ -1802,11 +1506,9 @@ export type PitchUncheckedUpdateWithoutUserInput = {
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateManyWithoutUserInput = {
@@ -1830,98 +1532,21 @@ export type PitchUncheckedUpdateManyWithoutUserInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type PitchUpdateWithoutTagInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.StringFieldUpdateOperationsInput | string
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUpdateManyWithoutPitchNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
-  User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
-  Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
-}
-
-export type PitchUncheckedUpdateWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.StringFieldUpdateOperationsInput | string
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPitchNestedInput
-  Dream?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
-  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
-}
-
-export type PitchUncheckedUpdateManyWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.StringFieldUpdateOperationsInput | string
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
 
 /**
  * Count Type PitchCountOutputType
  */
 
 export type PitchCountOutputType = {
-  Butterflies: number
-  Dream: number
+  Dreams: number
   Prompt: number
   Reactions: number
-  Tag: number
 }
 
 export type PitchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Butterflies?: boolean | PitchCountOutputTypeCountButterfliesArgs
-  Dream?: boolean | PitchCountOutputTypeCountDreamArgs
+  Dreams?: boolean | PitchCountOutputTypeCountDreamsArgs
   Prompt?: boolean | PitchCountOutputTypeCountPromptArgs
   Reactions?: boolean | PitchCountOutputTypeCountReactionsArgs
-  Tag?: boolean | PitchCountOutputTypeCountTagArgs
 }
 
 /**
@@ -1937,14 +1562,7 @@ export type PitchCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
 /**
  * PitchCountOutputType without action
  */
-export type PitchCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ButterflyWhereInput
-}
-
-/**
- * PitchCountOutputType without action
- */
-export type PitchCountOutputTypeCountDreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PitchCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DreamWhereInput
 }
 
@@ -1960,13 +1578,6 @@ export type PitchCountOutputTypeCountPromptArgs<ExtArgs extends runtime.Types.Ex
  */
 export type PitchCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReactionWhereInput
-}
-
-/**
- * PitchCountOutputType without action
- */
-export type PitchCountOutputTypeCountTagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TagWhereInput
 }
 
 
@@ -1990,13 +1601,11 @@ export type PitchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   creationSource?: boolean
   isActive?: boolean
   artPrompt?: boolean
-  Butterflies?: boolean | Prisma.Pitch$ButterfliesArgs<ExtArgs>
-  Dream?: boolean | Prisma.Pitch$DreamArgs<ExtArgs>
+  Dreams?: boolean | Prisma.Pitch$DreamsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Pitch$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Pitch$UserArgs<ExtArgs>
   Prompt?: boolean | Prisma.Pitch$PromptArgs<ExtArgs>
   Reactions?: boolean | Prisma.Pitch$ReactionsArgs<ExtArgs>
-  Tag?: boolean | Prisma.Pitch$TagArgs<ExtArgs>
   _count?: boolean | Prisma.PitchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pitch"]>
 
@@ -2026,26 +1635,22 @@ export type PitchSelectScalar = {
 
 export type PitchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "pitch" | "designer" | "flavorText" | "highlightImage" | "PitchType" | "isMature" | "isPublic" | "userId" | "description" | "artImageId" | "examples" | "icon" | "creationSource" | "isActive" | "artPrompt", ExtArgs["result"]["pitch"]>
 export type PitchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Butterflies?: boolean | Prisma.Pitch$ButterfliesArgs<ExtArgs>
-  Dream?: boolean | Prisma.Pitch$DreamArgs<ExtArgs>
+  Dreams?: boolean | Prisma.Pitch$DreamsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Pitch$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Pitch$UserArgs<ExtArgs>
   Prompt?: boolean | Prisma.Pitch$PromptArgs<ExtArgs>
   Reactions?: boolean | Prisma.Pitch$ReactionsArgs<ExtArgs>
-  Tag?: boolean | Prisma.Pitch$TagArgs<ExtArgs>
   _count?: boolean | Prisma.PitchCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $PitchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Pitch"
   objects: {
-    Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
-    Dream: Prisma.$DreamPayload<ExtArgs>[]
+    Dreams: Prisma.$DreamPayload<ExtArgs>[]
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
-    Tag: Prisma.$TagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2407,13 +2012,11 @@ readonly fields: PitchFieldRefs;
  */
 export interface Prisma__PitchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Butterflies<T extends Prisma.Pitch$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Dream<T extends Prisma.Pitch$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$DreamArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Dreams<T extends Prisma.Pitch$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImage<T extends Prisma.Pitch$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Pitch$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Pitch$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$PromptArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Pitch$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Tag<T extends Prisma.Pitch$TagArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$TagArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2810,33 +2413,9 @@ export type PitchDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Pitch.Butterflies
+ * Pitch.Dreams
  */
-export type Pitch$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Butterfly
-   */
-  select?: Prisma.ButterflySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Butterfly
-   */
-  omit?: Prisma.ButterflyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ButterflyInclude<ExtArgs> | null
-  where?: Prisma.ButterflyWhereInput
-  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
-  cursor?: Prisma.ButterflyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
-}
-
-/**
- * Pitch.Dream
- */
-export type Pitch$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Pitch$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Dream
    */
@@ -2941,30 +2520,6 @@ export type Pitch$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
-}
-
-/**
- * Pitch.Tag
- */
-export type Pitch$TagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Tag
-   */
-  select?: Prisma.TagSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Tag
-   */
-  omit?: Prisma.TagOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TagInclude<ExtArgs> | null
-  where?: Prisma.TagWhereInput
-  orderBy?: Prisma.TagOrderByWithRelationInput | Prisma.TagOrderByWithRelationInput[]
-  cursor?: Prisma.TagWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.TagScalarFieldEnum | Prisma.TagScalarFieldEnum[]
 }
 
 /**

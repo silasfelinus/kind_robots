@@ -10,12 +10,10 @@ import type {
   Character,
   Chat,
   Dream,
-  Gallery,
   Pitch,
   Reaction,
   Reward,
   Scenario,
-  Tag,
   User,
 } from '~/prisma/generated/prisma/client'
 
@@ -42,11 +40,9 @@ export interface DreamWithRelations extends Dream {
   Pitch?: Pitch | null
   ArtImage?: Partial<ArtImage> | null
   ArtCollection?: (ArtCollection & { artImage?: ArtImage[] }) | null
-  Gallery?: Gallery | null
   Scenario?: Scenario | null
   Characters?: Character[]
   Rewards?: Reward[]
-  Tags?: Tag[]
   Chats?: DreamChatWithRelations[]
   Reactions?: Reaction[]
   _count?: {
@@ -197,7 +193,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
     () => selectedDream.value?.Characters ?? [],
   )
   const selectedDreamItems = computed(() => selectedDream.value?.Rewards ?? [])
-  const selectedDreamTags = computed(() => selectedDream.value?.Tags ?? [])
   const selectedDreamCollectionArt = computed(
     () => selectedDream.value?.ArtCollection?.artImage ?? [],
   )
@@ -207,7 +202,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       selectedDream.value?.ArtImage?.imagePath ??
       selectedDream.value?.ArtImage?.path ??
       selectedDream.value?.ArtImage?.fileName ??
-      selectedDream.value?.Gallery?.highlightImage ??
       ''
     )
   })
@@ -317,13 +311,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
       textServerId: dream.textServerId ?? null,
       artServerId: dream.artServerId ?? null,
       artCollectionId: dream.artCollectionId ?? null,
-      galleryId: dream.galleryId ?? null,
       scenarioId: dream.scenarioId ?? null,
       isPublic: dream.isPublic,
       isMature: dream.isMature,
       isActive: dream.isActive,
       createCollection: false,
-      tagIds: dream.Tags?.map((tag) => tag.id) ?? [],
       characterIds: dream.Characters?.map((character) => character.id) ?? [],
       rewardIds: dream.Rewards?.map((reward) => reward.id) ?? [],
     }
@@ -346,7 +338,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       artServerId:
         overrides.artServerId ?? userStore.user?.preferredArtServerId ?? null,
       artCollectionId: overrides.artCollectionId ?? null,
-      galleryId: overrides.galleryId ?? null,
       scenarioId: overrides.scenarioId ?? null,
       isPublic: overrides.isPublic ?? true,
       isMature: overrides.isMature ?? false,
@@ -544,7 +535,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
         textServerId: payload.textServerId ?? null,
         artServerId: payload.artServerId ?? null,
         artCollectionId: payload.artCollectionId ?? null,
-        galleryId: payload.galleryId ?? null,
         scenarioId: payload.scenarioId ?? null,
         isPublic: payload.isPublic ?? true,
         isMature: payload.isMature ?? false,
@@ -1161,7 +1151,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
     selectedDreamChats,
     selectedDreamCast,
     selectedDreamItems,
-    selectedDreamTags,
     selectedDreamCurrentImage,
     selectedDreamCollectionArt,
     selectedDreamSummary,

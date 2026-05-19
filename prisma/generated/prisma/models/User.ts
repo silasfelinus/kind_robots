@@ -640,7 +640,6 @@ export type UserWhereInput = {
   Characters?: Prisma.CharacterListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
-  Gallery?: Prisma.GalleryListRelationFilter
   Logs?: Prisma.LogListRelationFilter
   Milestones?: Prisma.MilestoneRecordListRelationFilter
   Pitches?: Prisma.PitchListRelationFilter
@@ -651,7 +650,6 @@ export type UserWhereInput = {
   Scenarios?: Prisma.ScenarioListRelationFilter
   Servers?: Prisma.ServerListRelationFilter
   SmartIcons?: Prisma.SmartIconListRelationFilter
-  Tag?: Prisma.TagListRelationFilter
   Themes?: Prisma.ThemeListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
 }
@@ -718,7 +716,6 @@ export type UserOrderByWithRelationInput = {
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
-  Gallery?: Prisma.GalleryOrderByRelationAggregateInput
   Logs?: Prisma.LogOrderByRelationAggregateInput
   Milestones?: Prisma.MilestoneRecordOrderByRelationAggregateInput
   Pitches?: Prisma.PitchOrderByRelationAggregateInput
@@ -729,7 +726,6 @@ export type UserOrderByWithRelationInput = {
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
   Servers?: Prisma.ServerOrderByRelationAggregateInput
   SmartIcons?: Prisma.SmartIconOrderByRelationAggregateInput
-  Tag?: Prisma.TagOrderByRelationAggregateInput
   Themes?: Prisma.ThemeOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   _relevance?: Prisma.UserOrderByRelevanceInput
@@ -800,7 +796,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Characters?: Prisma.CharacterListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
-  Gallery?: Prisma.GalleryListRelationFilter
   Logs?: Prisma.LogListRelationFilter
   Milestones?: Prisma.MilestoneRecordListRelationFilter
   Pitches?: Prisma.PitchListRelationFilter
@@ -811,7 +806,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Scenarios?: Prisma.ScenarioListRelationFilter
   Servers?: Prisma.ServerListRelationFilter
   SmartIcons?: Prisma.SmartIconListRelationFilter
-  Tag?: Prisma.TagListRelationFilter
   Themes?: Prisma.ThemeListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
 }, "id" | "username" | "email">
@@ -996,7 +990,6 @@ export type UserCreateInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -1007,7 +1000,6 @@ export type UserCreateInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -1074,7 +1066,6 @@ export type UserUncheckedCreateInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -1085,7 +1076,6 @@ export type UserUncheckedCreateInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1149,7 +1139,6 @@ export type UserUpdateInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -1160,7 +1149,6 @@ export type UserUpdateInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -1227,7 +1215,6 @@ export type UserUncheckedUpdateInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -1238,7 +1225,6 @@ export type UserUncheckedUpdateInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1962,38 +1948,6 @@ export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
 }
 
-export type UserCreateNestedOneWithoutGalleryInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutGalleryInput, Prisma.UserUncheckedCreateWithoutGalleryInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGalleryInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutGalleryNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutGalleryInput, Prisma.UserUncheckedCreateWithoutGalleryInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGalleryInput
-  upsert?: Prisma.UserUpsertWithoutGalleryInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGalleryInput, Prisma.UserUpdateWithoutGalleryInput>, Prisma.UserUncheckedUpdateWithoutGalleryInput>
-}
-
-export type UserCreateNestedOneWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTagInput, Prisma.UserUncheckedCreateWithoutTagInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTagInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutTagInput, Prisma.UserUncheckedCreateWithoutTagInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTagInput
-  upsert?: Prisma.UserUpsertWithoutTagInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTagInput, Prisma.UserUpdateWithoutTagInput>, Prisma.UserUncheckedUpdateWithoutTagInput>
-}
-
 export type UserCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2053,7 +2007,6 @@ export type UserCreateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -2064,7 +2017,6 @@ export type UserCreateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -2130,7 +2082,6 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -2141,7 +2092,6 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2210,7 +2160,6 @@ export type UserCreateWithoutArtImageInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -2221,7 +2170,6 @@ export type UserCreateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
 }
 
@@ -2286,7 +2234,6 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -2297,7 +2244,6 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2381,7 +2327,6 @@ export type UserUpdateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -2392,7 +2337,6 @@ export type UserUpdateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -2458,7 +2402,6 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -2469,7 +2412,6 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2607,7 +2549,6 @@ export type UserCreateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -2618,7 +2559,6 @@ export type UserCreateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -2684,7 +2624,6 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -2695,7 +2634,6 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2774,7 +2712,6 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -2785,7 +2722,6 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -2851,7 +2787,6 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -2862,7 +2797,6 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2925,7 +2859,6 @@ export type UserCreateWithoutBotsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -2936,7 +2869,6 @@ export type UserCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -3002,7 +2934,6 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -3013,7 +2944,6 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3092,7 +3022,6 @@ export type UserUpdateWithoutBotsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -3103,7 +3032,6 @@ export type UserUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -3169,7 +3097,6 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -3180,7 +3107,6 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3243,7 +3169,6 @@ export type UserCreateWithoutButterfliesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -3254,7 +3179,6 @@ export type UserCreateWithoutButterfliesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -3320,7 +3244,6 @@ export type UserUncheckedCreateWithoutButterfliesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -3331,7 +3254,6 @@ export type UserUncheckedCreateWithoutButterfliesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3410,7 +3332,6 @@ export type UserUpdateWithoutButterfliesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -3421,7 +3342,6 @@ export type UserUpdateWithoutButterfliesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -3487,7 +3407,6 @@ export type UserUncheckedUpdateWithoutButterfliesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -3498,7 +3417,6 @@ export type UserUncheckedUpdateWithoutButterfliesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3561,7 +3479,6 @@ export type UserCreateWithoutButterflyRecordsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -3572,7 +3489,6 @@ export type UserCreateWithoutButterflyRecordsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -3638,7 +3554,6 @@ export type UserUncheckedCreateWithoutButterflyRecordsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -3649,7 +3564,6 @@ export type UserUncheckedCreateWithoutButterflyRecordsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3728,7 +3642,6 @@ export type UserUpdateWithoutButterflyRecordsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -3739,7 +3652,6 @@ export type UserUpdateWithoutButterflyRecordsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -3805,7 +3717,6 @@ export type UserUncheckedUpdateWithoutButterflyRecordsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -3816,7 +3727,6 @@ export type UserUncheckedUpdateWithoutButterflyRecordsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3879,7 +3789,6 @@ export type UserCreateWithoutCharactersInput = {
   ButterflyRecords?: Prisma.ButterflyRecordCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -3890,7 +3799,6 @@ export type UserCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -3956,7 +3864,6 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -3967,7 +3874,6 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4046,7 +3952,6 @@ export type UserUpdateWithoutCharactersInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -4057,7 +3962,6 @@ export type UserUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -4123,7 +4027,6 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -4134,7 +4037,6 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4197,7 +4099,6 @@ export type UserCreateWithoutChatsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordCreateNestedManyWithoutUserInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -4208,7 +4109,6 @@ export type UserCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -4274,7 +4174,6 @@ export type UserUncheckedCreateWithoutChatsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutUserInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -4285,7 +4184,6 @@ export type UserUncheckedCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4364,7 +4262,6 @@ export type UserUpdateWithoutChatsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUpdateManyWithoutUserNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -4375,7 +4272,6 @@ export type UserUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -4441,7 +4337,6 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutUserNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -4452,7 +4347,6 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4515,7 +4409,6 @@ export type UserCreateWithoutDreamsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordCreateNestedManyWithoutUserInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -4526,7 +4419,6 @@ export type UserCreateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -4592,7 +4484,6 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutUserInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -4603,7 +4494,6 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4682,7 +4572,6 @@ export type UserUpdateWithoutDreamsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUpdateManyWithoutUserNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -4693,7 +4582,6 @@ export type UserUpdateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -4759,7 +4647,6 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   ButterflyRecords?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutUserNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -4770,7 +4657,6 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4834,7 +4720,6 @@ export type UserCreateWithoutLogsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
@@ -4844,7 +4729,6 @@ export type UserCreateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -4911,7 +4795,6 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
@@ -4921,7 +4804,6 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5001,7 +4883,6 @@ export type UserUpdateWithoutLogsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
@@ -5011,7 +4892,6 @@ export type UserUpdateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -5078,7 +4958,6 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
@@ -5088,7 +4967,6 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5152,7 +5030,6 @@ export type UserCreateWithoutMilestonesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
@@ -5162,7 +5039,6 @@ export type UserCreateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -5229,7 +5105,6 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
@@ -5239,7 +5114,6 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5319,7 +5193,6 @@ export type UserUpdateWithoutMilestonesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
@@ -5329,7 +5202,6 @@ export type UserUpdateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -5396,7 +5268,6 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
@@ -5406,7 +5277,6 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5470,7 +5340,6 @@ export type UserCreateWithoutPitchesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
@@ -5480,7 +5349,6 @@ export type UserCreateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -5547,7 +5415,6 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
@@ -5557,7 +5424,6 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5637,7 +5503,6 @@ export type UserUpdateWithoutPitchesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
@@ -5647,7 +5512,6 @@ export type UserUpdateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -5714,7 +5578,6 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
@@ -5724,7 +5587,6 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5788,7 +5650,6 @@ export type UserCreateWithoutPromptsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -5798,7 +5659,6 @@ export type UserCreateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -5865,7 +5725,6 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -5875,7 +5734,6 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5955,7 +5813,6 @@ export type UserUpdateWithoutPromptsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -5965,7 +5822,6 @@ export type UserUpdateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -6032,7 +5888,6 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -6042,7 +5897,6 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6106,7 +5960,6 @@ export type UserCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -6116,7 +5969,6 @@ export type UserCreateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -6183,7 +6035,6 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -6193,7 +6044,6 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6273,7 +6123,6 @@ export type UserUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -6283,7 +6132,6 @@ export type UserUpdateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -6350,7 +6198,6 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -6360,7 +6207,6 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6424,7 +6270,6 @@ export type UserCreateWithoutResourcesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -6434,7 +6279,6 @@ export type UserCreateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -6501,7 +6345,6 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -6511,7 +6354,6 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6591,7 +6433,6 @@ export type UserUpdateWithoutResourcesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -6601,7 +6442,6 @@ export type UserUpdateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -6668,7 +6508,6 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -6678,7 +6517,6 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6742,7 +6580,6 @@ export type UserCreateWithoutRewardsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -6752,7 +6589,6 @@ export type UserCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -6819,7 +6655,6 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -6829,7 +6664,6 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6909,7 +6743,6 @@ export type UserUpdateWithoutRewardsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -6919,7 +6752,6 @@ export type UserUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -6986,7 +6818,6 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -6996,7 +6827,6 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7060,7 +6890,6 @@ export type UserCreateWithoutScenariosInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -7070,7 +6899,6 @@ export type UserCreateWithoutScenariosInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -7137,7 +6965,6 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -7147,7 +6974,6 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7227,7 +7053,6 @@ export type UserUpdateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -7237,7 +7062,6 @@ export type UserUpdateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -7304,7 +7128,6 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -7314,7 +7137,6 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7378,7 +7200,6 @@ export type UserCreateWithoutServersInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -7388,7 +7209,6 @@ export type UserCreateWithoutServersInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -7455,7 +7275,6 @@ export type UserUncheckedCreateWithoutServersInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -7465,7 +7284,6 @@ export type UserUncheckedCreateWithoutServersInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7545,7 +7363,6 @@ export type UserUpdateWithoutServersInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -7555,7 +7372,6 @@ export type UserUpdateWithoutServersInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -7622,7 +7438,6 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -7632,7 +7447,6 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7696,7 +7510,6 @@ export type UserCreateWithoutSmartIconsInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -7706,7 +7519,6 @@ export type UserCreateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
@@ -7773,7 +7585,6 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -7783,7 +7594,6 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
   Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7863,7 +7673,6 @@ export type UserUpdateWithoutSmartIconsInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -7873,7 +7682,6 @@ export type UserUpdateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
@@ -7940,7 +7748,6 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -7950,7 +7757,6 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -8014,7 +7820,6 @@ export type UserCreateWithoutThemesInput = {
   Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
@@ -8025,7 +7830,6 @@ export type UserCreateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
 }
 
@@ -8091,7 +7895,6 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
   Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
@@ -8102,7 +7905,6 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
   SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutThemesInput = {
@@ -8181,7 +7983,6 @@ export type UserUpdateWithoutThemesInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -8192,7 +7993,6 @@ export type UserUpdateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
 }
 
@@ -8258,7 +8058,6 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -8269,643 +8068,6 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutGalleryInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  username: string
-  email?: string | null
-  questPoints?: number
-  emailVerified?: Date | string | null
-  name?: string | null
-  address1?: string | null
-  address2?: string | null
-  avatarImage?: string | null
-  bio?: string | null
-  birthday?: Date | string | null
-  city?: string | null
-  country?: string | null
-  discordUrl?: string | null
-  facebookUrl?: string | null
-  instagramUrl?: string | null
-  kindrobotsUrl?: string | null
-  languages?: string | null
-  phone?: string | null
-  state?: string | null
-  timezone?: string | null
-  twitterUrl?: string | null
-  apiKey?: string | null
-  password?: string | null
-  karma?: number
-  mana?: number
-  clickRecord?: number | null
-  matchRecord?: number | null
-  showMature?: boolean
-  Role?: $Enums.Role
-  token?: string | null
-  designerName?: string | null
-  googleEmail?: string | null
-  googleId?: string | null
-  blockList?: string | null
-  isPublic?: boolean
-  smartBar?: string | null
-  customIcons?: boolean
-  isMember?: boolean
-  preferredArtServerId?: number | null
-  preferredTextServerId?: number | null
-  memberUntil?: Date | string | null
-  stripeCustomerId?: string | null
-  artModels?: string | null
-  lastReward?: string | null
-  textModels?: string | null
-  vibes?: string | null
-  hiddenServerIds?: string | null
-  isActive?: boolean
-  artPrompt?: string | null
-  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
-  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutUserInput
-  ButterflyRecords?: Prisma.ButterflyRecordCreateNestedManyWithoutUserInput
-  Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
-  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
-  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
-  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
-  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagCreateNestedManyWithoutUserInput
-  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
-}
-
-export type UserUncheckedCreateWithoutGalleryInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  username: string
-  email?: string | null
-  questPoints?: number
-  emailVerified?: Date | string | null
-  name?: string | null
-  address1?: string | null
-  address2?: string | null
-  avatarImage?: string | null
-  bio?: string | null
-  birthday?: Date | string | null
-  city?: string | null
-  country?: string | null
-  discordUrl?: string | null
-  facebookUrl?: string | null
-  instagramUrl?: string | null
-  kindrobotsUrl?: string | null
-  languages?: string | null
-  phone?: string | null
-  state?: string | null
-  timezone?: string | null
-  twitterUrl?: string | null
-  apiKey?: string | null
-  password?: string | null
-  karma?: number
-  mana?: number
-  clickRecord?: number | null
-  matchRecord?: number | null
-  showMature?: boolean
-  Role?: $Enums.Role
-  artImageId?: number | null
-  token?: string | null
-  designerName?: string | null
-  googleEmail?: string | null
-  googleId?: string | null
-  blockList?: string | null
-  isPublic?: boolean
-  smartBar?: string | null
-  customIcons?: boolean
-  isMember?: boolean
-  preferredArtServerId?: number | null
-  preferredTextServerId?: number | null
-  memberUntil?: Date | string | null
-  stripeCustomerId?: string | null
-  artModels?: string | null
-  lastReward?: string | null
-  textModels?: string | null
-  vibes?: string | null
-  hiddenServerIds?: string | null
-  isActive?: boolean
-  artPrompt?: string | null
-  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
-  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutUserInput
-  ButterflyRecords?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutUserInput
-  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
-  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
-  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
-  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
-  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Tag?: Prisma.TagUncheckedCreateNestedManyWithoutUserInput
-  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutGalleryInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutGalleryInput, Prisma.UserUncheckedCreateWithoutGalleryInput>
-}
-
-export type UserUpsertWithoutGalleryInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutGalleryInput, Prisma.UserUncheckedUpdateWithoutGalleryInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutGalleryInput, Prisma.UserUncheckedCreateWithoutGalleryInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutGalleryInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutGalleryInput, Prisma.UserUncheckedUpdateWithoutGalleryInput>
-}
-
-export type UserUpdateWithoutGalleryInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  mana?: Prisma.IntFieldUpdateOperationsInput | number
-  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
-  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutUserNestedInput
-  ButterflyRecords?: Prisma.ButterflyRecordUpdateManyWithoutUserNestedInput
-  Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
-  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
-  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
-  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
-  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
-  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
-}
-
-export type UserUncheckedUpdateWithoutGalleryInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  mana?: Prisma.IntFieldUpdateOperationsInput | number
-  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
-  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutUserNestedInput
-  ButterflyRecords?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutUserNestedInput
-  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
-  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
-  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
-  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
-  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
-  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutTagInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  username: string
-  email?: string | null
-  questPoints?: number
-  emailVerified?: Date | string | null
-  name?: string | null
-  address1?: string | null
-  address2?: string | null
-  avatarImage?: string | null
-  bio?: string | null
-  birthday?: Date | string | null
-  city?: string | null
-  country?: string | null
-  discordUrl?: string | null
-  facebookUrl?: string | null
-  instagramUrl?: string | null
-  kindrobotsUrl?: string | null
-  languages?: string | null
-  phone?: string | null
-  state?: string | null
-  timezone?: string | null
-  twitterUrl?: string | null
-  apiKey?: string | null
-  password?: string | null
-  karma?: number
-  mana?: number
-  clickRecord?: number | null
-  matchRecord?: number | null
-  showMature?: boolean
-  Role?: $Enums.Role
-  token?: string | null
-  designerName?: string | null
-  googleEmail?: string | null
-  googleId?: string | null
-  blockList?: string | null
-  isPublic?: boolean
-  smartBar?: string | null
-  customIcons?: boolean
-  isMember?: boolean
-  preferredArtServerId?: number | null
-  preferredTextServerId?: number | null
-  memberUntil?: Date | string | null
-  stripeCustomerId?: string | null
-  artModels?: string | null
-  lastReward?: string | null
-  textModels?: string | null
-  vibes?: string | null
-  hiddenServerIds?: string | null
-  isActive?: boolean
-  artPrompt?: string | null
-  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
-  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutUserInput
-  ButterflyRecords?: Prisma.ButterflyRecordCreateNestedManyWithoutUserInput
-  Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryCreateNestedManyWithoutUserInput
-  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
-  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
-  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
-  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
-  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
-  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
-}
-
-export type UserUncheckedCreateWithoutTagInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  username: string
-  email?: string | null
-  questPoints?: number
-  emailVerified?: Date | string | null
-  name?: string | null
-  address1?: string | null
-  address2?: string | null
-  avatarImage?: string | null
-  bio?: string | null
-  birthday?: Date | string | null
-  city?: string | null
-  country?: string | null
-  discordUrl?: string | null
-  facebookUrl?: string | null
-  instagramUrl?: string | null
-  kindrobotsUrl?: string | null
-  languages?: string | null
-  phone?: string | null
-  state?: string | null
-  timezone?: string | null
-  twitterUrl?: string | null
-  apiKey?: string | null
-  password?: string | null
-  karma?: number
-  mana?: number
-  clickRecord?: number | null
-  matchRecord?: number | null
-  showMature?: boolean
-  Role?: $Enums.Role
-  artImageId?: number | null
-  token?: string | null
-  designerName?: string | null
-  googleEmail?: string | null
-  googleId?: string | null
-  blockList?: string | null
-  isPublic?: boolean
-  smartBar?: string | null
-  customIcons?: boolean
-  isMember?: boolean
-  preferredArtServerId?: number | null
-  preferredTextServerId?: number | null
-  memberUntil?: Date | string | null
-  stripeCustomerId?: string | null
-  artModels?: string | null
-  lastReward?: string | null
-  textModels?: string | null
-  vibes?: string | null
-  hiddenServerIds?: string | null
-  isActive?: boolean
-  artPrompt?: string | null
-  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
-  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutUserInput
-  ButterflyRecords?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutUserInput
-  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
-  Gallery?: Prisma.GalleryUncheckedCreateNestedManyWithoutUserInput
-  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
-  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
-  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
-  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
-  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
-  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
-  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutTagInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutTagInput, Prisma.UserUncheckedCreateWithoutTagInput>
-}
-
-export type UserUpsertWithoutTagInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutTagInput, Prisma.UserUncheckedUpdateWithoutTagInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutTagInput, Prisma.UserUncheckedCreateWithoutTagInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutTagInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutTagInput, Prisma.UserUncheckedUpdateWithoutTagInput>
-}
-
-export type UserUpdateWithoutTagInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  mana?: Prisma.IntFieldUpdateOperationsInput | number
-  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
-  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutUserNestedInput
-  ButterflyRecords?: Prisma.ButterflyRecordUpdateManyWithoutUserNestedInput
-  Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
-  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
-  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
-  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
-  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
-  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
-}
-
-export type UserUncheckedUpdateWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
-  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  mana?: Prisma.IntFieldUpdateOperationsInput | number
-  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
-  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutUserNestedInput
-  ButterflyRecords?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutUserNestedInput
-  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
-  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
-  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
-  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
-  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
-  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
-  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -9023,7 +8185,6 @@ export type UserUpdateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
@@ -9034,7 +8195,6 @@ export type UserUpdateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
 }
 
@@ -9099,7 +8259,6 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
-  Gallery?: Prisma.GalleryUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
@@ -9110,7 +8269,6 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
   SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
-  Tag?: Prisma.TagUncheckedUpdateManyWithoutUserNestedInput
   Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -9183,7 +8341,6 @@ export type UserCountOutputType = {
   Characters: number
   Chats: number
   Dreams: number
-  Gallery: number
   Logs: number
   Milestones: number
   Pitches: number
@@ -9194,7 +8351,6 @@ export type UserCountOutputType = {
   Scenarios: number
   Servers: number
   SmartIcons: number
-  Tag: number
   Themes: number
 }
 
@@ -9207,7 +8363,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Characters?: boolean | UserCountOutputTypeCountCharactersArgs
   Chats?: boolean | UserCountOutputTypeCountChatsArgs
   Dreams?: boolean | UserCountOutputTypeCountDreamsArgs
-  Gallery?: boolean | UserCountOutputTypeCountGalleryArgs
   Logs?: boolean | UserCountOutputTypeCountLogsArgs
   Milestones?: boolean | UserCountOutputTypeCountMilestonesArgs
   Pitches?: boolean | UserCountOutputTypeCountPitchesArgs
@@ -9218,7 +8373,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Scenarios?: boolean | UserCountOutputTypeCountScenariosArgs
   Servers?: boolean | UserCountOutputTypeCountServersArgs
   SmartIcons?: boolean | UserCountOutputTypeCountSmartIconsArgs
-  Tag?: boolean | UserCountOutputTypeCountTagArgs
   Themes?: boolean | UserCountOutputTypeCountThemesArgs
 }
 
@@ -9286,13 +8440,6 @@ export type UserCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Exte
  */
 export type UserCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DreamWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountGalleryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.GalleryWhereInput
 }
 
 /**
@@ -9368,13 +8515,6 @@ export type UserCountOutputTypeCountSmartIconsArgs<ExtArgs extends runtime.Types
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountTagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TagWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountThemesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ThemeWhereInput
 }
@@ -9442,7 +8582,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Characters?: boolean | Prisma.User$CharactersArgs<ExtArgs>
   Chats?: boolean | Prisma.User$ChatsArgs<ExtArgs>
   Dreams?: boolean | Prisma.User$DreamsArgs<ExtArgs>
-  Gallery?: boolean | Prisma.User$GalleryArgs<ExtArgs>
   Logs?: boolean | Prisma.User$LogsArgs<ExtArgs>
   Milestones?: boolean | Prisma.User$MilestonesArgs<ExtArgs>
   Pitches?: boolean | Prisma.User$PitchesArgs<ExtArgs>
@@ -9453,7 +8592,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Scenarios?: boolean | Prisma.User$ScenariosArgs<ExtArgs>
   Servers?: boolean | Prisma.User$ServersArgs<ExtArgs>
   SmartIcons?: boolean | Prisma.User$SmartIconsArgs<ExtArgs>
-  Tag?: boolean | Prisma.User$TagArgs<ExtArgs>
   Themes?: boolean | Prisma.User$ThemesArgs<ExtArgs>
   ArtImage?: boolean | Prisma.User$ArtImageArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -9527,7 +8665,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Characters?: boolean | Prisma.User$CharactersArgs<ExtArgs>
   Chats?: boolean | Prisma.User$ChatsArgs<ExtArgs>
   Dreams?: boolean | Prisma.User$DreamsArgs<ExtArgs>
-  Gallery?: boolean | Prisma.User$GalleryArgs<ExtArgs>
   Logs?: boolean | Prisma.User$LogsArgs<ExtArgs>
   Milestones?: boolean | Prisma.User$MilestonesArgs<ExtArgs>
   Pitches?: boolean | Prisma.User$PitchesArgs<ExtArgs>
@@ -9538,7 +8675,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Scenarios?: boolean | Prisma.User$ScenariosArgs<ExtArgs>
   Servers?: boolean | Prisma.User$ServersArgs<ExtArgs>
   SmartIcons?: boolean | Prisma.User$SmartIconsArgs<ExtArgs>
-  Tag?: boolean | Prisma.User$TagArgs<ExtArgs>
   Themes?: boolean | Prisma.User$ThemesArgs<ExtArgs>
   ArtImage?: boolean | Prisma.User$ArtImageArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -9555,7 +8691,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Characters: Prisma.$CharacterPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
-    Gallery: Prisma.$GalleryPayload<ExtArgs>[]
     Logs: Prisma.$LogPayload<ExtArgs>[]
     Milestones: Prisma.$MilestoneRecordPayload<ExtArgs>[]
     Pitches: Prisma.$PitchPayload<ExtArgs>[]
@@ -9566,7 +8701,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
     Servers: Prisma.$ServerPayload<ExtArgs>[]
     SmartIcons: Prisma.$SmartIconPayload<ExtArgs>[]
-    Tag: Prisma.$TagPayload<ExtArgs>[]
     Themes: Prisma.$ThemePayload<ExtArgs>[]
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
   }
@@ -9972,7 +9106,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Characters<T extends Prisma.User$CharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$CharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.User$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dreams<T extends Prisma.User$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Gallery<T extends Prisma.User$GalleryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$GalleryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GalleryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Logs<T extends Prisma.User$LogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Milestones<T extends Prisma.User$MilestonesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$MilestonesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MilestoneRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Pitches<T extends Prisma.User$PitchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PitchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9983,7 +9116,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Scenarios<T extends Prisma.User$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Servers<T extends Prisma.User$ServersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ServersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   SmartIcons<T extends Prisma.User$SmartIconsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SmartIconsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SmartIconPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Tag<T extends Prisma.User$TagArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$TagArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Themes<T extends Prisma.User$ThemesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ThemesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImage<T extends Prisma.User$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -10608,30 +9740,6 @@ export type User$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 
 /**
- * User.Gallery
- */
-export type User$GalleryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Gallery
-   */
-  select?: Prisma.GallerySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Gallery
-   */
-  omit?: Prisma.GalleryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.GalleryInclude<ExtArgs> | null
-  where?: Prisma.GalleryWhereInput
-  orderBy?: Prisma.GalleryOrderByWithRelationInput | Prisma.GalleryOrderByWithRelationInput[]
-  cursor?: Prisma.GalleryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.GalleryScalarFieldEnum | Prisma.GalleryScalarFieldEnum[]
-}
-
-/**
  * User.Logs
  */
 export type User$LogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -10869,30 +9977,6 @@ export type User$SmartIconsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.SmartIconScalarFieldEnum | Prisma.SmartIconScalarFieldEnum[]
-}
-
-/**
- * User.Tag
- */
-export type User$TagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Tag
-   */
-  select?: Prisma.TagSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Tag
-   */
-  omit?: Prisma.TagOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TagInclude<ExtArgs> | null
-  where?: Prisma.TagWhereInput
-  orderBy?: Prisma.TagOrderByWithRelationInput | Prisma.TagOrderByWithRelationInput[]
-  cursor?: Prisma.TagWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.TagScalarFieldEnum | Prisma.TagScalarFieldEnum[]
 }
 
 /**

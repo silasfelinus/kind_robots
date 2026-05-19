@@ -98,10 +98,6 @@
           Bot {{ prompt.botId }}
         </span>
 
-        <span v-if="prompt.galleryId" class="badge badge-accent badge-sm">
-          Gallery {{ prompt.galleryId }}
-        </span>
-
         <span v-if="prompt.artImageId" class="badge badge-info badge-sm">
           Image {{ prompt.artImageId }}
         </span>

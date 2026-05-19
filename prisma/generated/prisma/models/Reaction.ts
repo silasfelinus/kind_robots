@@ -34,11 +34,9 @@ export type ReactionAvgAggregateOutputType = {
   rating: number | null
   artImageId: number | null
   botId: number | null
-  galleryId: number | null
   promptId: number | null
   resourceId: number | null
   rewardId: number | null
-  tagId: number | null
   chatId: number | null
   dreamId: number | null
   artCollectionId: number | null
@@ -56,11 +54,9 @@ export type ReactionSumAggregateOutputType = {
   rating: number | null
   artImageId: number | null
   botId: number | null
-  galleryId: number | null
   promptId: number | null
   resourceId: number | null
   rewardId: number | null
-  tagId: number | null
   chatId: number | null
   dreamId: number | null
   artCollectionId: number | null
@@ -83,11 +79,9 @@ export type ReactionMinAggregateOutputType = {
   rating: number | null
   artImageId: number | null
   botId: number | null
-  galleryId: number | null
   promptId: number | null
   resourceId: number | null
   rewardId: number | null
-  tagId: number | null
   chatId: number | null
   dreamId: number | null
   artCollectionId: number | null
@@ -110,11 +104,9 @@ export type ReactionMaxAggregateOutputType = {
   rating: number | null
   artImageId: number | null
   botId: number | null
-  galleryId: number | null
   promptId: number | null
   resourceId: number | null
   rewardId: number | null
-  tagId: number | null
   chatId: number | null
   dreamId: number | null
   artCollectionId: number | null
@@ -137,11 +129,9 @@ export type ReactionCountAggregateOutputType = {
   rating: number
   artImageId: number
   botId: number
-  galleryId: number
   promptId: number
   resourceId: number
   rewardId: number
-  tagId: number
   chatId: number
   dreamId: number
   artCollectionId: number
@@ -161,11 +151,9 @@ export type ReactionAvgAggregateInputType = {
   rating?: true
   artImageId?: true
   botId?: true
-  galleryId?: true
   promptId?: true
   resourceId?: true
   rewardId?: true
-  tagId?: true
   chatId?: true
   dreamId?: true
   artCollectionId?: true
@@ -183,11 +171,9 @@ export type ReactionSumAggregateInputType = {
   rating?: true
   artImageId?: true
   botId?: true
-  galleryId?: true
   promptId?: true
   resourceId?: true
   rewardId?: true
-  tagId?: true
   chatId?: true
   dreamId?: true
   artCollectionId?: true
@@ -210,11 +196,9 @@ export type ReactionMinAggregateInputType = {
   rating?: true
   artImageId?: true
   botId?: true
-  galleryId?: true
   promptId?: true
   resourceId?: true
   rewardId?: true
-  tagId?: true
   chatId?: true
   dreamId?: true
   artCollectionId?: true
@@ -237,11 +221,9 @@ export type ReactionMaxAggregateInputType = {
   rating?: true
   artImageId?: true
   botId?: true
-  galleryId?: true
   promptId?: true
   resourceId?: true
   rewardId?: true
-  tagId?: true
   chatId?: true
   dreamId?: true
   artCollectionId?: true
@@ -264,11 +246,9 @@ export type ReactionCountAggregateInputType = {
   rating?: true
   artImageId?: true
   botId?: true
-  galleryId?: true
   promptId?: true
   resourceId?: true
   rewardId?: true
-  tagId?: true
   chatId?: true
   dreamId?: true
   artCollectionId?: true
@@ -378,11 +358,9 @@ export type ReactionGroupByOutputType = {
   rating: number
   artImageId: number | null
   botId: number | null
-  galleryId: number | null
   promptId: number | null
   resourceId: number | null
   rewardId: number | null
-  tagId: number | null
   chatId: number | null
   dreamId: number | null
   artCollectionId: number | null
@@ -428,11 +406,9 @@ export type ReactionWhereInput = {
   rating?: Prisma.IntFilter<"Reaction"> | number
   artImageId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   botId?: Prisma.IntNullableFilter<"Reaction"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   promptId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   resourceId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   rewardId?: Prisma.IntNullableFilter<"Reaction"> | number | null
-  tagId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   chatId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   dreamId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
@@ -448,13 +424,11 @@ export type ReactionWhereInput = {
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
-  Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
   Resource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
-  Tag?: Prisma.XOR<Prisma.TagNullableScalarRelationFilter, Prisma.TagWhereInput> | null
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -472,11 +446,9 @@ export type ReactionOrderByWithRelationInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   botId?: Prisma.SortOrderInput | Prisma.SortOrder
-  galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   promptId?: Prisma.SortOrderInput | Prisma.SortOrder
   resourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   rewardId?: Prisma.SortOrderInput | Prisma.SortOrder
-  tagId?: Prisma.SortOrderInput | Prisma.SortOrder
   chatId?: Prisma.SortOrderInput | Prisma.SortOrder
   dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -492,13 +464,11 @@ export type ReactionOrderByWithRelationInput = {
   Chat?: Prisma.ChatOrderByWithRelationInput
   Component?: Prisma.ComponentOrderByWithRelationInput
   Dream?: Prisma.DreamOrderByWithRelationInput
-  Gallery?: Prisma.GalleryOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
   Resource?: Prisma.ResourceOrderByWithRelationInput
   Reward?: Prisma.RewardOrderByWithRelationInput
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
-  Tag?: Prisma.TagOrderByWithRelationInput
   Theme?: Prisma.ThemeOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ReactionOrderByRelevanceInput
@@ -520,11 +490,9 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   rating?: Prisma.IntFilter<"Reaction"> | number
   artImageId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   botId?: Prisma.IntNullableFilter<"Reaction"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   promptId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   resourceId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   rewardId?: Prisma.IntNullableFilter<"Reaction"> | number | null
-  tagId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   chatId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   dreamId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
@@ -540,13 +508,11 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
-  Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
   Resource?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   Reward?: Prisma.XOR<Prisma.RewardNullableScalarRelationFilter, Prisma.RewardWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
-  Tag?: Prisma.XOR<Prisma.TagNullableScalarRelationFilter, Prisma.TagWhereInput> | null
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "id">
@@ -564,11 +530,9 @@ export type ReactionOrderByWithAggregationInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   botId?: Prisma.SortOrderInput | Prisma.SortOrder
-  galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   promptId?: Prisma.SortOrderInput | Prisma.SortOrder
   resourceId?: Prisma.SortOrderInput | Prisma.SortOrder
   rewardId?: Prisma.SortOrderInput | Prisma.SortOrder
-  tagId?: Prisma.SortOrderInput | Prisma.SortOrder
   chatId?: Prisma.SortOrderInput | Prisma.SortOrder
   dreamId?: Prisma.SortOrderInput | Prisma.SortOrder
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -599,11 +563,9 @@ export type ReactionScalarWhereWithAggregatesInput = {
   rating?: Prisma.IntWithAggregatesFilter<"Reaction"> | number
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   botId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
-  galleryId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   promptId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   resourceId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   rewardId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
-  tagId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   chatId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   dreamId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
   artCollectionId?: Prisma.IntNullableWithAggregatesFilter<"Reaction"> | number | null
@@ -628,13 +590,11 @@ export type ReactionCreateInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -652,11 +612,9 @@ export type ReactionUncheckedCreateInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -681,13 +639,11 @@ export type ReactionUpdateInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -705,11 +661,9 @@ export type ReactionUncheckedUpdateInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -732,11 +686,9 @@ export type ReactionCreateManyInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -768,11 +720,9 @@ export type ReactionUncheckedUpdateManyInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -811,11 +761,9 @@ export type ReactionCountOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   resourceId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
-  tagId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
@@ -833,11 +781,9 @@ export type ReactionAvgOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   resourceId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
-  tagId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
@@ -860,11 +806,9 @@ export type ReactionMaxOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   resourceId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
-  tagId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
@@ -887,11 +831,9 @@ export type ReactionMinOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   resourceId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
-  tagId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
@@ -909,11 +851,9 @@ export type ReactionSumOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   promptId?: Prisma.SortOrder
   resourceId?: Prisma.SortOrder
   rewardId?: Prisma.SortOrder
-  tagId?: Prisma.SortOrder
   chatId?: Prisma.SortOrder
   dreamId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
@@ -1561,90 +1501,6 @@ export type ReactionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
 }
 
-export type ReactionCreateNestedManyWithoutGalleryInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutGalleryInput, Prisma.ReactionUncheckedCreateWithoutGalleryInput> | Prisma.ReactionCreateWithoutGalleryInput[] | Prisma.ReactionUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutGalleryInput | Prisma.ReactionCreateOrConnectWithoutGalleryInput[]
-  createMany?: Prisma.ReactionCreateManyGalleryInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUncheckedCreateNestedManyWithoutGalleryInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutGalleryInput, Prisma.ReactionUncheckedCreateWithoutGalleryInput> | Prisma.ReactionCreateWithoutGalleryInput[] | Prisma.ReactionUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutGalleryInput | Prisma.ReactionCreateOrConnectWithoutGalleryInput[]
-  createMany?: Prisma.ReactionCreateManyGalleryInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUpdateManyWithoutGalleryNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutGalleryInput, Prisma.ReactionUncheckedCreateWithoutGalleryInput> | Prisma.ReactionCreateWithoutGalleryInput[] | Prisma.ReactionUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutGalleryInput | Prisma.ReactionCreateOrConnectWithoutGalleryInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutGalleryInput | Prisma.ReactionUpsertWithWhereUniqueWithoutGalleryInput[]
-  createMany?: Prisma.ReactionCreateManyGalleryInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutGalleryInput | Prisma.ReactionUpdateWithWhereUniqueWithoutGalleryInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutGalleryInput | Prisma.ReactionUpdateManyWithWhereWithoutGalleryInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
-export type ReactionUncheckedUpdateManyWithoutGalleryNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutGalleryInput, Prisma.ReactionUncheckedCreateWithoutGalleryInput> | Prisma.ReactionCreateWithoutGalleryInput[] | Prisma.ReactionUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutGalleryInput | Prisma.ReactionCreateOrConnectWithoutGalleryInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutGalleryInput | Prisma.ReactionUpsertWithWhereUniqueWithoutGalleryInput[]
-  createMany?: Prisma.ReactionCreateManyGalleryInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutGalleryInput | Prisma.ReactionUpdateWithWhereUniqueWithoutGalleryInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutGalleryInput | Prisma.ReactionUpdateManyWithWhereWithoutGalleryInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
-export type ReactionCreateNestedManyWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutTagInput, Prisma.ReactionUncheckedCreateWithoutTagInput> | Prisma.ReactionCreateWithoutTagInput[] | Prisma.ReactionUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutTagInput | Prisma.ReactionCreateOrConnectWithoutTagInput[]
-  createMany?: Prisma.ReactionCreateManyTagInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUncheckedCreateNestedManyWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutTagInput, Prisma.ReactionUncheckedCreateWithoutTagInput> | Prisma.ReactionCreateWithoutTagInput[] | Prisma.ReactionUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutTagInput | Prisma.ReactionCreateOrConnectWithoutTagInput[]
-  createMany?: Prisma.ReactionCreateManyTagInputEnvelope
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-}
-
-export type ReactionUpdateManyWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutTagInput, Prisma.ReactionUncheckedCreateWithoutTagInput> | Prisma.ReactionCreateWithoutTagInput[] | Prisma.ReactionUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutTagInput | Prisma.ReactionCreateOrConnectWithoutTagInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutTagInput | Prisma.ReactionUpsertWithWhereUniqueWithoutTagInput[]
-  createMany?: Prisma.ReactionCreateManyTagInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutTagInput | Prisma.ReactionUpdateWithWhereUniqueWithoutTagInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutTagInput | Prisma.ReactionUpdateManyWithWhereWithoutTagInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
-export type ReactionUncheckedUpdateManyWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.ReactionCreateWithoutTagInput, Prisma.ReactionUncheckedCreateWithoutTagInput> | Prisma.ReactionCreateWithoutTagInput[] | Prisma.ReactionUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ReactionCreateOrConnectWithoutTagInput | Prisma.ReactionCreateOrConnectWithoutTagInput[]
-  upsert?: Prisma.ReactionUpsertWithWhereUniqueWithoutTagInput | Prisma.ReactionUpsertWithWhereUniqueWithoutTagInput[]
-  createMany?: Prisma.ReactionCreateManyTagInputEnvelope
-  set?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  disconnect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  delete?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  connect?: Prisma.ReactionWhereUniqueInput | Prisma.ReactionWhereUniqueInput[]
-  update?: Prisma.ReactionUpdateWithWhereUniqueWithoutTagInput | Prisma.ReactionUpdateWithWhereUniqueWithoutTagInput[]
-  updateMany?: Prisma.ReactionUpdateManyWithWhereWithoutTagInput | Prisma.ReactionUpdateManyWithWhereWithoutTagInput[]
-  deleteMany?: Prisma.ReactionScalarWhereInput | Prisma.ReactionScalarWhereInput[]
-}
-
 export type ReactionCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1659,13 +1515,11 @@ export type ReactionCreateWithoutArtImageInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -1682,11 +1536,9 @@ export type ReactionUncheckedCreateWithoutArtImageInput = {
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -1738,11 +1590,9 @@ export type ReactionScalarWhereInput = {
   rating?: Prisma.IntFilter<"Reaction"> | number
   artImageId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   botId?: Prisma.IntNullableFilter<"Reaction"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   promptId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   resourceId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   rewardId?: Prisma.IntNullableFilter<"Reaction"> | number | null
-  tagId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   chatId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   dreamId?: Prisma.IntNullableFilter<"Reaction"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Reaction"> | number | null
@@ -1766,13 +1616,11 @@ export type ReactionCreateWithoutArtCollectionInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -1790,11 +1638,9 @@ export type ReactionUncheckedCreateWithoutArtCollectionInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   butterflyId?: number | null
@@ -1843,13 +1689,11 @@ export type ReactionCreateWithoutBotInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -1866,11 +1710,9 @@ export type ReactionUncheckedCreateWithoutBotInput = {
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
   artImageId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -1920,13 +1762,11 @@ export type ReactionCreateWithoutButterflyInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -1944,11 +1784,9 @@ export type ReactionUncheckedCreateWithoutButterflyInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -1997,13 +1835,11 @@ export type ReactionCreateWithoutCharacterInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2021,11 +1857,9 @@ export type ReactionUncheckedCreateWithoutCharacterInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2074,13 +1908,11 @@ export type ReactionCreateWithoutChatInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2098,11 +1930,9 @@ export type ReactionUncheckedCreateWithoutChatInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
   butterflyId?: number | null
@@ -2151,13 +1981,11 @@ export type ReactionCreateWithoutComponentInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2174,11 +2002,9 @@ export type ReactionUncheckedCreateWithoutComponentInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2228,13 +2054,11 @@ export type ReactionCreateWithoutDreamInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2252,11 +2076,9 @@ export type ReactionUncheckedCreateWithoutDreamInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   artCollectionId?: number | null
   butterflyId?: number | null
@@ -2306,12 +2128,10 @@ export type ReactionCreateWithoutPitchInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2328,11 +2148,9 @@ export type ReactionUncheckedCreateWithoutPitchInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2383,12 +2201,10 @@ export type ReactionCreateWithoutPromptInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2406,10 +2222,8 @@ export type ReactionUncheckedCreateWithoutPromptInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2460,12 +2274,10 @@ export type ReactionCreateWithoutResourceInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2483,10 +2295,8 @@ export type ReactionUncheckedCreateWithoutResourceInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2537,12 +2347,10 @@ export type ReactionCreateWithoutRewardInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2560,10 +2368,8 @@ export type ReactionUncheckedCreateWithoutRewardInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2614,12 +2420,10 @@ export type ReactionCreateWithoutScenarioInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
@@ -2637,11 +2441,9 @@ export type ReactionUncheckedCreateWithoutScenarioInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2691,13 +2493,11 @@ export type ReactionCreateWithoutThemeInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
 }
 
@@ -2714,11 +2514,9 @@ export type ReactionUncheckedCreateWithoutThemeInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2768,13 +2566,11 @@ export type ReactionCreateWithoutUserInput = {
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
 }
 
@@ -2790,11 +2586,9 @@ export type ReactionUncheckedCreateWithoutUserInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -2830,160 +2624,6 @@ export type ReactionUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutUserInput>
 }
 
-export type ReactionCreateWithoutGalleryInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
-  Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
-  Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
-  Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
-  Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
-  Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
-  Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Tag?: Prisma.TagCreateNestedOneWithoutReactionInput
-  Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
-  User: Prisma.UserCreateNestedOneWithoutReactionsInput
-}
-
-export type ReactionUncheckedCreateWithoutGalleryInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  pitchId?: number | null
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  tagId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  butterflyId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-}
-
-export type ReactionCreateOrConnectWithoutGalleryInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutGalleryInput, Prisma.ReactionUncheckedCreateWithoutGalleryInput>
-}
-
-export type ReactionCreateManyGalleryInputEnvelope = {
-  data: Prisma.ReactionCreateManyGalleryInput | Prisma.ReactionCreateManyGalleryInput[]
-  skipDuplicates?: boolean
-}
-
-export type ReactionUpsertWithWhereUniqueWithoutGalleryInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.ReactionUpdateWithoutGalleryInput, Prisma.ReactionUncheckedUpdateWithoutGalleryInput>
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutGalleryInput, Prisma.ReactionUncheckedCreateWithoutGalleryInput>
-}
-
-export type ReactionUpdateWithWhereUniqueWithoutGalleryInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.ReactionUpdateWithoutGalleryInput, Prisma.ReactionUncheckedUpdateWithoutGalleryInput>
-}
-
-export type ReactionUpdateManyWithWhereWithoutGalleryInput = {
-  where: Prisma.ReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutGalleryInput>
-}
-
-export type ReactionCreateWithoutTagInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutReactionsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutReactionsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutReactionsInput
-  Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
-  Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
-  Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
-  Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
-  Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutReactionInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
-  Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
-  Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
-  Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
-  Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
-  Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
-  User: Prisma.UserCreateNestedOneWithoutReactionsInput
-}
-
-export type ReactionUncheckedCreateWithoutTagInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  pitchId?: number | null
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  galleryId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  butterflyId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-}
-
-export type ReactionCreateOrConnectWithoutTagInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutTagInput, Prisma.ReactionUncheckedCreateWithoutTagInput>
-}
-
-export type ReactionCreateManyTagInputEnvelope = {
-  data: Prisma.ReactionCreateManyTagInput | Prisma.ReactionCreateManyTagInput[]
-  skipDuplicates?: boolean
-}
-
-export type ReactionUpsertWithWhereUniqueWithoutTagInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.ReactionUpdateWithoutTagInput, Prisma.ReactionUncheckedUpdateWithoutTagInput>
-  create: Prisma.XOR<Prisma.ReactionCreateWithoutTagInput, Prisma.ReactionUncheckedCreateWithoutTagInput>
-}
-
-export type ReactionUpdateWithWhereUniqueWithoutTagInput = {
-  where: Prisma.ReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.ReactionUpdateWithoutTagInput, Prisma.ReactionUncheckedUpdateWithoutTagInput>
-}
-
-export type ReactionUpdateManyWithWhereWithoutTagInput = {
-  where: Prisma.ReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.ReactionUpdateManyMutationInput, Prisma.ReactionUncheckedUpdateManyWithoutTagInput>
-}
-
 export type ReactionCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
@@ -2996,11 +2636,9 @@ export type ReactionCreateManyArtImageInput = {
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3024,13 +2662,11 @@ export type ReactionUpdateWithoutArtImageInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3047,11 +2683,9 @@ export type ReactionUncheckedUpdateWithoutArtImageInput = {
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3073,11 +2707,9 @@ export type ReactionUncheckedUpdateManyWithoutArtImageInput = {
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3100,11 +2732,9 @@ export type ReactionCreateManyArtCollectionInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   butterflyId?: number | null
@@ -3127,13 +2757,11 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3151,11 +2779,9 @@ export type ReactionUncheckedUpdateWithoutArtCollectionInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3177,11 +2803,9 @@ export type ReactionUncheckedUpdateManyWithoutArtCollectionInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3202,11 +2826,9 @@ export type ReactionCreateManyBotInput = {
   reactionCategory?: $Enums.Reaction_reactionCategory
   rating?: number
   artImageId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3230,13 +2852,11 @@ export type ReactionUpdateWithoutBotInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3253,11 +2873,9 @@ export type ReactionUncheckedUpdateWithoutBotInput = {
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3279,11 +2897,9 @@ export type ReactionUncheckedUpdateManyWithoutBotInput = {
   reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3306,11 +2922,9 @@ export type ReactionCreateManyButterflyInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3333,13 +2947,11 @@ export type ReactionUpdateWithoutButterflyInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3357,11 +2969,9 @@ export type ReactionUncheckedUpdateWithoutButterflyInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3383,11 +2993,9 @@ export type ReactionUncheckedUpdateManyWithoutButterflyInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3409,11 +3017,9 @@ export type ReactionCreateManyCharacterInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3436,13 +3042,11 @@ export type ReactionUpdateWithoutCharacterInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3460,11 +3064,9 @@ export type ReactionUncheckedUpdateWithoutCharacterInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3486,11 +3088,9 @@ export type ReactionUncheckedUpdateManyWithoutCharacterInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3512,11 +3112,9 @@ export type ReactionCreateManyChatInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
   butterflyId?: number | null
@@ -3539,13 +3137,11 @@ export type ReactionUpdateWithoutChatInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3563,11 +3159,9 @@ export type ReactionUncheckedUpdateWithoutChatInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3589,11 +3183,9 @@ export type ReactionUncheckedUpdateManyWithoutChatInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3614,11 +3206,9 @@ export type ReactionCreateManyComponentInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3642,13 +3232,11 @@ export type ReactionUpdateWithoutComponentInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3665,11 +3253,9 @@ export type ReactionUncheckedUpdateWithoutComponentInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3691,11 +3277,9 @@ export type ReactionUncheckedUpdateManyWithoutComponentInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3718,11 +3302,9 @@ export type ReactionCreateManyDreamInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   artCollectionId?: number | null
   butterflyId?: number | null
@@ -3745,13 +3327,11 @@ export type ReactionUpdateWithoutDreamInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3769,11 +3349,9 @@ export type ReactionUncheckedUpdateWithoutDreamInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3795,11 +3373,9 @@ export type ReactionUncheckedUpdateManyWithoutDreamInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3820,11 +3396,9 @@ export type ReactionCreateManyPitchInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3849,12 +3423,10 @@ export type ReactionUpdateWithoutPitchInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3871,11 +3443,9 @@ export type ReactionUncheckedUpdateWithoutPitchInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3897,11 +3467,9 @@ export type ReactionUncheckedUpdateManyWithoutPitchInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3924,10 +3492,8 @@ export type ReactionCreateManyPromptInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -3952,12 +3518,10 @@ export type ReactionUpdateWithoutPromptInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -3975,10 +3539,8 @@ export type ReactionUncheckedUpdateWithoutPromptInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4001,10 +3563,8 @@ export type ReactionUncheckedUpdateManyWithoutPromptInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4027,10 +3587,8 @@ export type ReactionCreateManyResourceInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -4055,12 +3613,10 @@ export type ReactionUpdateWithoutResourceInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -4078,10 +3634,8 @@ export type ReactionUncheckedUpdateWithoutResourceInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4104,10 +3658,8 @@ export type ReactionUncheckedUpdateManyWithoutResourceInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4130,10 +3682,8 @@ export type ReactionCreateManyRewardInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -4158,12 +3708,10 @@ export type ReactionUpdateWithoutRewardInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -4181,10 +3729,8 @@ export type ReactionUncheckedUpdateWithoutRewardInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4207,10 +3753,8 @@ export type ReactionUncheckedUpdateManyWithoutRewardInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4233,11 +3777,9 @@ export type ReactionCreateManyScenarioInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -4261,12 +3803,10 @@ export type ReactionUpdateWithoutScenarioInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
@@ -4284,11 +3824,9 @@ export type ReactionUncheckedUpdateWithoutScenarioInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4310,11 +3848,9 @@ export type ReactionUncheckedUpdateManyWithoutScenarioInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4336,11 +3872,9 @@ export type ReactionCreateManyThemeInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -4364,13 +3898,11 @@ export type ReactionUpdateWithoutThemeInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
 }
 
@@ -4387,11 +3919,9 @@ export type ReactionUncheckedUpdateWithoutThemeInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4413,11 +3943,9 @@ export type ReactionUncheckedUpdateManyWithoutThemeInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4438,11 +3966,9 @@ export type ReactionCreateManyUserInput = {
   rating?: number
   artImageId?: number | null
   botId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
-  tagId?: number | null
   chatId?: number | null
   dreamId?: number | null
   artCollectionId?: number | null
@@ -4467,13 +3993,11 @@ export type ReactionUpdateWithoutUserInput = {
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
 }
 
@@ -4489,11 +4013,9 @@ export type ReactionUncheckedUpdateWithoutUserInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4515,214 +4037,6 @@ export type ReactionUncheckedUpdateManyWithoutUserInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionCreateManyGalleryInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  pitchId?: number | null
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  tagId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  butterflyId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-}
-
-export type ReactionUpdateWithoutGalleryInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
-  Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
-  Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
-  Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
-  Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
-  Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
-  Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutReactionNestedInput
-  Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
-  User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-}
-
-export type ReactionUncheckedUpdateWithoutGalleryInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionUncheckedUpdateManyWithoutGalleryInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionCreateManyTagInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  comment?: string | null
-  userId: number
-  pitchId?: number | null
-  componentId?: number | null
-  reactionType: $Enums.ReactionType
-  reactionCategory?: $Enums.Reaction_reactionCategory
-  rating?: number
-  artImageId?: number | null
-  botId?: number | null
-  galleryId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  dreamId?: number | null
-  artCollectionId?: number | null
-  butterflyId?: number | null
-  characterId?: number | null
-  scenarioId?: number | null
-  themeId?: number | null
-}
-
-export type ReactionUpdateWithoutTagInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutReactionsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutReactionsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutReactionsNestedInput
-  Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
-  Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
-  Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
-  Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
-  Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutReactionNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
-  Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
-  Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
-  Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
-  Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
-  Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
-  User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-}
-
-export type ReactionUncheckedUpdateWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  chatId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  dreamId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  butterflyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  themeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ReactionUncheckedUpdateManyWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  componentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reactionType?: Prisma.EnumReactionTypeFieldUpdateOperationsInput | $Enums.ReactionType
-  reactionCategory?: Prisma.EnumReaction_reactionCategoryFieldUpdateOperationsInput | $Enums.Reaction_reactionCategory
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   resourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   rewardId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4750,11 +4064,9 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   rating?: boolean
   artImageId?: boolean
   botId?: boolean
-  galleryId?: boolean
   promptId?: boolean
   resourceId?: boolean
   rewardId?: boolean
-  tagId?: boolean
   chatId?: boolean
   dreamId?: boolean
   artCollectionId?: boolean
@@ -4770,13 +4082,11 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Chat?: boolean | Prisma.Reaction$ChatArgs<ExtArgs>
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
   Dream?: boolean | Prisma.Reaction$DreamArgs<ExtArgs>
-  Gallery?: boolean | Prisma.Reaction$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Reaction$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Reaction$PromptArgs<ExtArgs>
   Resource?: boolean | Prisma.Reaction$ResourceArgs<ExtArgs>
   Reward?: boolean | Prisma.Reaction$RewardArgs<ExtArgs>
   Scenario?: boolean | Prisma.Reaction$ScenarioArgs<ExtArgs>
-  Tag?: boolean | Prisma.Reaction$TagArgs<ExtArgs>
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["reaction"]>
@@ -4796,11 +4106,9 @@ export type ReactionSelectScalar = {
   rating?: boolean
   artImageId?: boolean
   botId?: boolean
-  galleryId?: boolean
   promptId?: boolean
   resourceId?: boolean
   rewardId?: boolean
-  tagId?: boolean
   chatId?: boolean
   dreamId?: boolean
   artCollectionId?: boolean
@@ -4810,7 +4118,7 @@ export type ReactionSelectScalar = {
   themeId?: boolean
 }
 
-export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "pitchId" | "componentId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "galleryId" | "promptId" | "resourceId" | "rewardId" | "tagId" | "chatId" | "dreamId" | "artCollectionId" | "butterflyId" | "characterId" | "scenarioId" | "themeId", ExtArgs["result"]["reaction"]>
+export type ReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "comment" | "userId" | "pitchId" | "componentId" | "reactionType" | "reactionCategory" | "rating" | "artImageId" | "botId" | "promptId" | "resourceId" | "rewardId" | "chatId" | "dreamId" | "artCollectionId" | "butterflyId" | "characterId" | "scenarioId" | "themeId", ExtArgs["result"]["reaction"]>
 export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtCollection?: boolean | Prisma.Reaction$ArtCollectionArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reaction$ArtImageArgs<ExtArgs>
@@ -4820,13 +4128,11 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Chat?: boolean | Prisma.Reaction$ChatArgs<ExtArgs>
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
   Dream?: boolean | Prisma.Reaction$DreamArgs<ExtArgs>
-  Gallery?: boolean | Prisma.Reaction$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Reaction$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Reaction$PromptArgs<ExtArgs>
   Resource?: boolean | Prisma.Reaction$ResourceArgs<ExtArgs>
   Reward?: boolean | Prisma.Reaction$RewardArgs<ExtArgs>
   Scenario?: boolean | Prisma.Reaction$ScenarioArgs<ExtArgs>
-  Tag?: boolean | Prisma.Reaction$TagArgs<ExtArgs>
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -4842,13 +4148,11 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Chat: Prisma.$ChatPayload<ExtArgs> | null
     Component: Prisma.$ComponentPayload<ExtArgs> | null
     Dream: Prisma.$DreamPayload<ExtArgs> | null
-    Gallery: Prisma.$GalleryPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
     Resource: Prisma.$ResourcePayload<ExtArgs> | null
     Reward: Prisma.$RewardPayload<ExtArgs> | null
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
-    Tag: Prisma.$TagPayload<ExtArgs> | null
     Theme: Prisma.$ThemePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs>
   }
@@ -4865,11 +4169,9 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     rating: number
     artImageId: number | null
     botId: number | null
-    galleryId: number | null
     promptId: number | null
     resourceId: number | null
     rewardId: number | null
-    tagId: number | null
     chatId: number | null
     dreamId: number | null
     artCollectionId: number | null
@@ -5225,13 +4527,11 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   Chat<T extends Prisma.Reaction$ChatArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ChatArgs<ExtArgs>>): Prisma.Prisma__ChatClient<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Component<T extends Prisma.Reaction$ComponentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ComponentArgs<ExtArgs>>): Prisma.Prisma__ComponentClient<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Dream<T extends Prisma.Reaction$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Gallery<T extends Prisma.Reaction$GalleryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$GalleryArgs<ExtArgs>>): Prisma.Prisma__GalleryClient<runtime.Types.Result.GetResult<Prisma.$GalleryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Reaction$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Reaction$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Resource<T extends Prisma.Reaction$ResourceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ResourceArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Reward<T extends Prisma.Reaction$RewardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$RewardArgs<ExtArgs>>): Prisma.Prisma__RewardClient<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Scenario<T extends Prisma.Reaction$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Tag<T extends Prisma.Reaction$TagArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$TagArgs<ExtArgs>>): Prisma.Prisma__TagClient<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Theme<T extends Prisma.Reaction$ThemeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ThemeArgs<ExtArgs>>): Prisma.Prisma__ThemeClient<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -5275,11 +4575,9 @@ export interface ReactionFieldRefs {
   readonly rating: Prisma.FieldRef<"Reaction", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly botId: Prisma.FieldRef<"Reaction", 'Int'>
-  readonly galleryId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly promptId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly resourceId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly rewardId: Prisma.FieldRef<"Reaction", 'Int'>
-  readonly tagId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly chatId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly dreamId: Prisma.FieldRef<"Reaction", 'Int'>
   readonly artCollectionId: Prisma.FieldRef<"Reaction", 'Int'>
@@ -5787,25 +5085,6 @@ export type Reaction$DreamArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Reaction.Gallery
- */
-export type Reaction$GalleryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Gallery
-   */
-  select?: Prisma.GallerySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Gallery
-   */
-  omit?: Prisma.GalleryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.GalleryInclude<ExtArgs> | null
-  where?: Prisma.GalleryWhereInput
-}
-
-/**
  * Reaction.Pitch
  */
 export type Reaction$PitchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5898,25 +5177,6 @@ export type Reaction$ScenarioArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   include?: Prisma.ScenarioInclude<ExtArgs> | null
   where?: Prisma.ScenarioWhereInput
-}
-
-/**
- * Reaction.Tag
- */
-export type Reaction$TagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Tag
-   */
-  select?: Prisma.TagSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Tag
-   */
-  omit?: Prisma.TagOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TagInclude<ExtArgs> | null
-  where?: Prisma.TagWhereInput
 }
 
 /**

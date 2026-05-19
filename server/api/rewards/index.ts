@@ -45,7 +45,7 @@ export const rewardInclude = {
   ArtImage: true,
   Characters: true,
   Dreams: true,
-  Butterflies: true,
+  Reactions: true,
   User: {
     select: {
       id: true,

@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data,
+      reward: data,
       statusCode: 200,
     }
   } catch (error: unknown) {

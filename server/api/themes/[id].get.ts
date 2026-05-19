@@ -16,7 +16,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Theme not found.' })
 
     event.node.res.statusCode = 200
-    return { success: true, data: parseTheme(row) }
+    const theme = parseTheme(row)
+
+    return {
+      success: true,
+      data: theme,
+      theme,
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500

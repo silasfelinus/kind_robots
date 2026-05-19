@@ -1,4 +1,4 @@
-<!-- /components/builders/character-sheet.vue -->
+<!-- /components/characters/character-sheet.vue -->
 <template>
   <section
     class="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-300"

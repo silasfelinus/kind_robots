@@ -35,10 +35,6 @@ export type Bot = Prisma.BotModel
 /**
  * Model Butterfly
  * Butterfly is the source of truth for each collectible species.
- * Runtime-only fields (x, y, z, goal, rotation, status, zIndex) live in the
- * butterflyStore — nothing positional is persisted here.
- * name and message are the personality core; treat them as immutable post-seed.
- * wingTopColor / wingBottomColor stored as HSL strings: "hsl(210,70%,55%)"
  */
 export type Butterfly = Prisma.ButterflyModel
 /**
@@ -87,7 +83,7 @@ export type Milestone = Prisma.MilestoneModel
 export type MilestoneRecord = Prisma.MilestoneRecordModel
 /**
  * Model Pitch
- * A Pitch is a big picture idea that is meant to be fuel for a project that can become art assets, text assets, and physical swag. A Pitch can contain a collection of Prompts, which is an implementation of the Pitch. for example, a Pitch of "wild colors" could contain a series of prompts like "lavender armadillo;  green curd; rainbow sunburn". it can be represented by an artImage for it's overall vibe, but also collect Art objects if they are inspired by the Pitch 
+ * A Pitch is a big picture tag system that is meant to be fuel for a project that can become art assets, text assets, and physical swag. It can be parents, siblings, or children with other pitches.
  */
 export type Pitch = Prisma.PitchModel
 /**
@@ -112,7 +108,7 @@ export type Resource = Prisma.ResourceModel
 export type Reward = Prisma.RewardModel
 /**
  * Model Scenario
- * Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, Art, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
+ * Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, ArtImage, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
  */
 export type Scenario = Prisma.ScenarioModel
 /**
@@ -135,28 +131,3 @@ export type Theme = Prisma.ThemeModel
  * our user model. default test user is userId=10. 
  */
 export type User = Prisma.UserModel
-/**
- * Model MilestoneToUser
- * 
- */
-export type MilestoneToUser = Prisma.MilestoneToUserModel
-/**
- * Model RewardToUser
- * 
- */
-export type RewardToUser = Prisma.RewardToUserModel
-/**
- * Model Gallery
- * 
- */
-export type Gallery = Prisma.GalleryModel
-/**
- * Model Tag
- * 
- */
-export type Tag = Prisma.TagModel
-/**
- * Model ReactionToTag
- * 
- */
-export type ReactionToTag = Prisma.ReactionToTagModel

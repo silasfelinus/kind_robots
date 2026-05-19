@@ -527,75 +527,6 @@ async function assertConnectableRecord({
   })
 }
 
-async function findOrCreateTag({
-  label,
-  actor,
-}: {
-  label: string
-  actor: ChatGptActor
-}): Promise<{ id: number }> {
-  const existingTag = await prisma.tag.findFirst({
-    where: {
-      label,
-      userId: getActorUserId(actor),
-    },
-    select: {
-      id: true,
-    },
-  })
-
-  if (existingTag) return existingTag
-
-  return prisma.tag.create({
-    data: {
-      label,
-      title: label,
-      userId: getActorUserId(actor),
-      isPublic: true,
-      isMature: false,
-      isActive: true,
-    },
-    select: {
-      id: true,
-    },
-  })
-}
-
-async function createOrConnectTags({
-  imageId,
-  tags,
-  actor,
-}: {
-  imageId: number
-  tags?: string[]
-  actor: ChatGptActor
-}) {
-  if (!tags?.length) return
-
-  const uniqueTags = [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))]
-
-  if (!uniqueTags.length) return
-
-  await Promise.all(
-    uniqueTags.map(async (label) => {
-      const tag = await findOrCreateTag({
-        label,
-        actor,
-      })
-
-      await prisma.artImage.update({
-        where: {
-          id: imageId,
-        },
-        data: {},
-        select: {
-          id: true,
-        },
-      })
-    }),
-  )
-}
-
 async function connectImageToRecord({
   imageId,
   ref,
@@ -880,12 +811,6 @@ export async function uploadImage({
   await connectImageToRecords({
     imageId,
     refs: input.connectTo,
-    actor,
-  })
-
-  await createOrConnectTags({
-    imageId,
-    tags: input.tags,
     actor,
   })
 

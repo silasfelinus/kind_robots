@@ -85,7 +85,6 @@ type ListConnectionKey =
   | 'Characters'
   | 'Components'
   | 'Milestones'
-  | 'Butterflies'
   | 'Scenarios'
   | 'Dreams'
   | 'Reactions'
@@ -314,14 +313,6 @@ export default defineEventHandler(async (event) => {
       mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
       cleanIds(body.disconnectCharacterIds),
       Boolean(body.clearCharacters),
-    )
-
-    addListConnection(
-      data,
-      'Butterflies',
-      mergeIds(body.butterflyIds, body.butterflyId ? [body.butterflyId] : []),
-      cleanIds(body.disconnectButterflyIds),
-      Boolean(body.clearButterflies),
     )
 
     addListConnection(

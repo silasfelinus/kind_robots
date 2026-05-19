@@ -29,7 +29,6 @@ export type AggregatePrompt = {
 export type PromptAvgAggregateOutputType = {
   id: number | null
   userId: number | null
-  galleryId: number | null
   pitchId: number | null
   botId: number | null
   artImageId: number | null
@@ -38,7 +37,6 @@ export type PromptAvgAggregateOutputType = {
 export type PromptSumAggregateOutputType = {
   id: number | null
   userId: number | null
-  galleryId: number | null
   pitchId: number | null
   botId: number | null
   artImageId: number | null
@@ -50,7 +48,6 @@ export type PromptMinAggregateOutputType = {
   updatedAt: Date | null
   prompt: string | null
   userId: number | null
-  galleryId: number | null
   pitchId: number | null
   botId: number | null
   artImageId: number | null
@@ -67,7 +64,6 @@ export type PromptMaxAggregateOutputType = {
   updatedAt: Date | null
   prompt: string | null
   userId: number | null
-  galleryId: number | null
   pitchId: number | null
   botId: number | null
   artImageId: number | null
@@ -84,7 +80,6 @@ export type PromptCountAggregateOutputType = {
   updatedAt: number
   prompt: number
   userId: number
-  galleryId: number
   pitchId: number
   botId: number
   artImageId: number
@@ -100,7 +95,6 @@ export type PromptCountAggregateOutputType = {
 export type PromptAvgAggregateInputType = {
   id?: true
   userId?: true
-  galleryId?: true
   pitchId?: true
   botId?: true
   artImageId?: true
@@ -109,7 +103,6 @@ export type PromptAvgAggregateInputType = {
 export type PromptSumAggregateInputType = {
   id?: true
   userId?: true
-  galleryId?: true
   pitchId?: true
   botId?: true
   artImageId?: true
@@ -121,7 +114,6 @@ export type PromptMinAggregateInputType = {
   updatedAt?: true
   prompt?: true
   userId?: true
-  galleryId?: true
   pitchId?: true
   botId?: true
   artImageId?: true
@@ -138,7 +130,6 @@ export type PromptMaxAggregateInputType = {
   updatedAt?: true
   prompt?: true
   userId?: true
-  galleryId?: true
   pitchId?: true
   botId?: true
   artImageId?: true
@@ -155,7 +146,6 @@ export type PromptCountAggregateInputType = {
   updatedAt?: true
   prompt?: true
   userId?: true
-  galleryId?: true
   pitchId?: true
   botId?: true
   artImageId?: true
@@ -259,7 +249,6 @@ export type PromptGroupByOutputType = {
   updatedAt: Date | null
   prompt: string
   userId: number | null
-  galleryId: number | null
   pitchId: number | null
   botId: number | null
   artImageId: number | null
@@ -299,7 +288,6 @@ export type PromptWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Prompt"> | Date | string | null
   prompt?: Prisma.StringFilter<"Prompt"> | string
   userId?: Prisma.IntNullableFilter<"Prompt"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   pitchId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   botId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Prompt"> | number | null
@@ -308,11 +296,9 @@ export type PromptWhereInput = {
   isPublic?: Prisma.BoolFilter<"Prompt"> | boolean
   isActive?: Prisma.BoolFilter<"Prompt"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Prompt"> | string | null
-  Butterflies?: Prisma.ButterflyListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
@@ -324,7 +310,6 @@ export type PromptOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   prompt?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
   botId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -333,11 +318,9 @@ export type PromptOrderByWithRelationInput = {
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
-  Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Bot?: Prisma.BotOrderByWithRelationInput
-  Gallery?: Prisma.GalleryOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
@@ -353,7 +336,6 @@ export type PromptWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"Prompt"> | Date | string | null
   prompt?: Prisma.StringFilter<"Prompt"> | string
   userId?: Prisma.IntNullableFilter<"Prompt"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   pitchId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   botId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Prompt"> | number | null
@@ -362,11 +344,9 @@ export type PromptWhereUniqueInput = Prisma.AtLeast<{
   isPublic?: Prisma.BoolFilter<"Prompt"> | boolean
   isActive?: Prisma.BoolFilter<"Prompt"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Prompt"> | string | null
-  Butterflies?: Prisma.ButterflyListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
-  Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
@@ -378,7 +358,6 @@ export type PromptOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   prompt?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
-  galleryId?: Prisma.SortOrderInput | Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
   botId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -403,7 +382,6 @@ export type PromptScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Prompt"> | Date | string | null
   prompt?: Prisma.StringWithAggregatesFilter<"Prompt"> | string
   userId?: Prisma.IntNullableWithAggregatesFilter<"Prompt"> | number | null
-  galleryId?: Prisma.IntNullableWithAggregatesFilter<"Prompt"> | number | null
   pitchId?: Prisma.IntNullableWithAggregatesFilter<"Prompt"> | number | null
   botId?: Prisma.IntNullableWithAggregatesFilter<"Prompt"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Prompt"> | number | null
@@ -423,11 +401,9 @@ export type PromptCreateInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
+  Bot?: Prisma.BotCreateNestedOneWithoutPromptsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
   User?: Prisma.UserCreateNestedOneWithoutPromptsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
@@ -439,7 +415,6 @@ export type PromptUncheckedCreateInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   artImageId?: number | null
@@ -448,7 +423,6 @@ export type PromptUncheckedCreateInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
 }
@@ -462,11 +436,9 @@ export type PromptUpdateInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutPromptsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
   User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
@@ -478,7 +450,6 @@ export type PromptUncheckedUpdateInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -487,7 +458,6 @@ export type PromptUncheckedUpdateInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
 }
@@ -498,7 +468,6 @@ export type PromptCreateManyInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   artImageId?: number | null
@@ -526,7 +495,6 @@ export type PromptUncheckedUpdateManyInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -564,7 +532,6 @@ export type PromptCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -578,7 +545,6 @@ export type PromptCountOrderByAggregateInput = {
 export type PromptAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -590,7 +556,6 @@ export type PromptMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -607,7 +572,6 @@ export type PromptMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -621,7 +585,6 @@ export type PromptMinOrderByAggregateInput = {
 export type PromptSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  galleryId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
   botId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -709,22 +672,6 @@ export type PromptUncheckedUpdateManyWithoutBotNestedInput = {
   update?: Prisma.PromptUpdateWithWhereUniqueWithoutBotInput | Prisma.PromptUpdateWithWhereUniqueWithoutBotInput[]
   updateMany?: Prisma.PromptUpdateManyWithWhereWithoutBotInput | Prisma.PromptUpdateManyWithWhereWithoutBotInput[]
   deleteMany?: Prisma.PromptScalarWhereInput | Prisma.PromptScalarWhereInput[]
-}
-
-export type PromptCreateNestedOneWithoutButterfliesInput = {
-  create?: Prisma.XOR<Prisma.PromptCreateWithoutButterfliesInput, Prisma.PromptUncheckedCreateWithoutButterfliesInput>
-  connectOrCreate?: Prisma.PromptCreateOrConnectWithoutButterfliesInput
-  connect?: Prisma.PromptWhereUniqueInput
-}
-
-export type PromptUpdateOneWithoutButterfliesNestedInput = {
-  create?: Prisma.XOR<Prisma.PromptCreateWithoutButterfliesInput, Prisma.PromptUncheckedCreateWithoutButterfliesInput>
-  connectOrCreate?: Prisma.PromptCreateOrConnectWithoutButterfliesInput
-  upsert?: Prisma.PromptUpsertWithoutButterfliesInput
-  disconnect?: Prisma.PromptWhereInput | boolean
-  delete?: Prisma.PromptWhereInput | boolean
-  connect?: Prisma.PromptWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PromptUpdateToOneWithWhereWithoutButterfliesInput, Prisma.PromptUpdateWithoutButterfliesInput>, Prisma.PromptUncheckedUpdateWithoutButterfliesInput>
 }
 
 export type PromptCreateNestedOneWithoutChatsInput = {
@@ -843,48 +790,6 @@ export type PromptUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.PromptScalarWhereInput | Prisma.PromptScalarWhereInput[]
 }
 
-export type PromptCreateNestedManyWithoutGalleryInput = {
-  create?: Prisma.XOR<Prisma.PromptCreateWithoutGalleryInput, Prisma.PromptUncheckedCreateWithoutGalleryInput> | Prisma.PromptCreateWithoutGalleryInput[] | Prisma.PromptUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.PromptCreateOrConnectWithoutGalleryInput | Prisma.PromptCreateOrConnectWithoutGalleryInput[]
-  createMany?: Prisma.PromptCreateManyGalleryInputEnvelope
-  connect?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-}
-
-export type PromptUncheckedCreateNestedManyWithoutGalleryInput = {
-  create?: Prisma.XOR<Prisma.PromptCreateWithoutGalleryInput, Prisma.PromptUncheckedCreateWithoutGalleryInput> | Prisma.PromptCreateWithoutGalleryInput[] | Prisma.PromptUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.PromptCreateOrConnectWithoutGalleryInput | Prisma.PromptCreateOrConnectWithoutGalleryInput[]
-  createMany?: Prisma.PromptCreateManyGalleryInputEnvelope
-  connect?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-}
-
-export type PromptUpdateManyWithoutGalleryNestedInput = {
-  create?: Prisma.XOR<Prisma.PromptCreateWithoutGalleryInput, Prisma.PromptUncheckedCreateWithoutGalleryInput> | Prisma.PromptCreateWithoutGalleryInput[] | Prisma.PromptUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.PromptCreateOrConnectWithoutGalleryInput | Prisma.PromptCreateOrConnectWithoutGalleryInput[]
-  upsert?: Prisma.PromptUpsertWithWhereUniqueWithoutGalleryInput | Prisma.PromptUpsertWithWhereUniqueWithoutGalleryInput[]
-  createMany?: Prisma.PromptCreateManyGalleryInputEnvelope
-  set?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  disconnect?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  delete?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  connect?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  update?: Prisma.PromptUpdateWithWhereUniqueWithoutGalleryInput | Prisma.PromptUpdateWithWhereUniqueWithoutGalleryInput[]
-  updateMany?: Prisma.PromptUpdateManyWithWhereWithoutGalleryInput | Prisma.PromptUpdateManyWithWhereWithoutGalleryInput[]
-  deleteMany?: Prisma.PromptScalarWhereInput | Prisma.PromptScalarWhereInput[]
-}
-
-export type PromptUncheckedUpdateManyWithoutGalleryNestedInput = {
-  create?: Prisma.XOR<Prisma.PromptCreateWithoutGalleryInput, Prisma.PromptUncheckedCreateWithoutGalleryInput> | Prisma.PromptCreateWithoutGalleryInput[] | Prisma.PromptUncheckedCreateWithoutGalleryInput[]
-  connectOrCreate?: Prisma.PromptCreateOrConnectWithoutGalleryInput | Prisma.PromptCreateOrConnectWithoutGalleryInput[]
-  upsert?: Prisma.PromptUpsertWithWhereUniqueWithoutGalleryInput | Prisma.PromptUpsertWithWhereUniqueWithoutGalleryInput[]
-  createMany?: Prisma.PromptCreateManyGalleryInputEnvelope
-  set?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  disconnect?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  delete?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  connect?: Prisma.PromptWhereUniqueInput | Prisma.PromptWhereUniqueInput[]
-  update?: Prisma.PromptUpdateWithWhereUniqueWithoutGalleryInput | Prisma.PromptUpdateWithWhereUniqueWithoutGalleryInput[]
-  updateMany?: Prisma.PromptUpdateManyWithWhereWithoutGalleryInput | Prisma.PromptUpdateManyWithWhereWithoutGalleryInput[]
-  deleteMany?: Prisma.PromptScalarWhereInput | Prisma.PromptScalarWhereInput[]
-}
-
 export type PromptCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -894,10 +799,8 @@ export type PromptCreateWithoutArtImageInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
+  Bot?: Prisma.BotCreateNestedOneWithoutPromptsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
   User?: Prisma.UserCreateNestedOneWithoutPromptsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
@@ -909,7 +812,6 @@ export type PromptUncheckedCreateWithoutArtImageInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   creationSource?: $Enums.CreationSource
@@ -917,7 +819,6 @@ export type PromptUncheckedCreateWithoutArtImageInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
 }
@@ -957,7 +858,6 @@ export type PromptScalarWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"Prompt"> | Date | string | null
   prompt?: Prisma.StringFilter<"Prompt"> | string
   userId?: Prisma.IntNullableFilter<"Prompt"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   pitchId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   botId?: Prisma.IntNullableFilter<"Prompt"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Prompt"> | number | null
@@ -977,10 +877,8 @@ export type PromptCreateWithoutBotInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
   User?: Prisma.UserCreateNestedOneWithoutPromptsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
@@ -992,7 +890,6 @@ export type PromptUncheckedCreateWithoutBotInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   artImageId?: number | null
   creationSource?: $Enums.CreationSource
@@ -1000,7 +897,6 @@ export type PromptUncheckedCreateWithoutBotInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
 }
@@ -1031,96 +927,6 @@ export type PromptUpdateManyWithWhereWithoutBotInput = {
   data: Prisma.XOR<Prisma.PromptUpdateManyMutationInput, Prisma.PromptUncheckedUpdateManyWithoutBotInput>
 }
 
-export type PromptCreateWithoutButterfliesInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  prompt: string
-  creationSource?: $Enums.CreationSource
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-  Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
-  User?: Prisma.UserCreateNestedOneWithoutPromptsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
-}
-
-export type PromptUncheckedCreateWithoutButterfliesInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  prompt: string
-  userId?: number | null
-  galleryId?: number | null
-  pitchId?: number | null
-  botId?: number | null
-  artImageId?: number | null
-  creationSource?: $Enums.CreationSource
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
-}
-
-export type PromptCreateOrConnectWithoutButterfliesInput = {
-  where: Prisma.PromptWhereUniqueInput
-  create: Prisma.XOR<Prisma.PromptCreateWithoutButterfliesInput, Prisma.PromptUncheckedCreateWithoutButterfliesInput>
-}
-
-export type PromptUpsertWithoutButterfliesInput = {
-  update: Prisma.XOR<Prisma.PromptUpdateWithoutButterfliesInput, Prisma.PromptUncheckedUpdateWithoutButterfliesInput>
-  create: Prisma.XOR<Prisma.PromptCreateWithoutButterfliesInput, Prisma.PromptUncheckedCreateWithoutButterfliesInput>
-  where?: Prisma.PromptWhereInput
-}
-
-export type PromptUpdateToOneWithWhereWithoutButterfliesInput = {
-  where?: Prisma.PromptWhereInput
-  data: Prisma.XOR<Prisma.PromptUpdateWithoutButterfliesInput, Prisma.PromptUncheckedUpdateWithoutButterfliesInput>
-}
-
-export type PromptUpdateWithoutButterfliesInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
-  User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
-}
-
-export type PromptUncheckedUpdateWithoutButterfliesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
-}
-
 export type PromptCreateWithoutChatsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1130,10 +936,8 @@ export type PromptCreateWithoutChatsInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
+  Bot?: Prisma.BotCreateNestedOneWithoutPromptsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
   User?: Prisma.UserCreateNestedOneWithoutPromptsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
@@ -1145,7 +949,6 @@ export type PromptUncheckedCreateWithoutChatsInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   artImageId?: number | null
@@ -1154,7 +957,6 @@ export type PromptUncheckedCreateWithoutChatsInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
 }
 
@@ -1183,10 +985,8 @@ export type PromptUpdateWithoutChatsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutPromptsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
   User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
@@ -1198,7 +998,6 @@ export type PromptUncheckedUpdateWithoutChatsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1207,7 +1006,6 @@ export type PromptUncheckedUpdateWithoutChatsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
 }
 
@@ -1220,11 +1018,9 @@ export type PromptCreateWithoutPitchInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
+  Bot?: Prisma.BotCreateNestedOneWithoutPromptsInput
   User?: Prisma.UserCreateNestedOneWithoutPromptsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
 }
@@ -1235,7 +1031,6 @@ export type PromptUncheckedCreateWithoutPitchInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   botId?: number | null
   artImageId?: number | null
   creationSource?: $Enums.CreationSource
@@ -1243,7 +1038,6 @@ export type PromptUncheckedCreateWithoutPitchInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
 }
@@ -1283,11 +1077,9 @@ export type PromptCreateWithoutReactionsInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
+  Bot?: Prisma.BotCreateNestedOneWithoutPromptsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
   User?: Prisma.UserCreateNestedOneWithoutPromptsInput
 }
@@ -1298,7 +1090,6 @@ export type PromptUncheckedCreateWithoutReactionsInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   artImageId?: number | null
@@ -1307,7 +1098,6 @@ export type PromptUncheckedCreateWithoutReactionsInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
 }
 
@@ -1336,11 +1126,9 @@ export type PromptUpdateWithoutReactionsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutPromptsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
   User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
 }
@@ -1351,7 +1139,6 @@ export type PromptUncheckedUpdateWithoutReactionsInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1360,7 +1147,6 @@ export type PromptUncheckedUpdateWithoutReactionsInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
 }
 
@@ -1373,11 +1159,9 @@ export type PromptCreateWithoutUserInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutPromptInput
+  Bot?: Prisma.BotCreateNestedOneWithoutPromptsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
 }
@@ -1387,7 +1171,6 @@ export type PromptUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   prompt: string
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   artImageId?: number | null
@@ -1396,7 +1179,6 @@ export type PromptUncheckedCreateWithoutUserInput = {
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
 }
@@ -1427,76 +1209,12 @@ export type PromptUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.PromptUpdateManyMutationInput, Prisma.PromptUncheckedUpdateManyWithoutUserInput>
 }
 
-export type PromptCreateWithoutGalleryInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  prompt: string
-  creationSource?: $Enums.CreationSource
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutPromptInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutPromptInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPromptsInput
-  Bot?: Prisma.BotCreateNestedOneWithoutPromptInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutPromptInput
-  User?: Prisma.UserCreateNestedOneWithoutPromptsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutPromptInput
-}
-
-export type PromptUncheckedCreateWithoutGalleryInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  prompt: string
-  userId?: number | null
-  pitchId?: number | null
-  botId?: number | null
-  artImageId?: number | null
-  creationSource?: $Enums.CreationSource
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutPromptInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutPromptInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPromptInput
-}
-
-export type PromptCreateOrConnectWithoutGalleryInput = {
-  where: Prisma.PromptWhereUniqueInput
-  create: Prisma.XOR<Prisma.PromptCreateWithoutGalleryInput, Prisma.PromptUncheckedCreateWithoutGalleryInput>
-}
-
-export type PromptCreateManyGalleryInputEnvelope = {
-  data: Prisma.PromptCreateManyGalleryInput | Prisma.PromptCreateManyGalleryInput[]
-  skipDuplicates?: boolean
-}
-
-export type PromptUpsertWithWhereUniqueWithoutGalleryInput = {
-  where: Prisma.PromptWhereUniqueInput
-  update: Prisma.XOR<Prisma.PromptUpdateWithoutGalleryInput, Prisma.PromptUncheckedUpdateWithoutGalleryInput>
-  create: Prisma.XOR<Prisma.PromptCreateWithoutGalleryInput, Prisma.PromptUncheckedCreateWithoutGalleryInput>
-}
-
-export type PromptUpdateWithWhereUniqueWithoutGalleryInput = {
-  where: Prisma.PromptWhereUniqueInput
-  data: Prisma.XOR<Prisma.PromptUpdateWithoutGalleryInput, Prisma.PromptUncheckedUpdateWithoutGalleryInput>
-}
-
-export type PromptUpdateManyWithWhereWithoutGalleryInput = {
-  where: Prisma.PromptScalarWhereInput
-  data: Prisma.XOR<Prisma.PromptUpdateManyMutationInput, Prisma.PromptUncheckedUpdateManyWithoutGalleryInput>
-}
-
 export type PromptCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   creationSource?: $Enums.CreationSource
@@ -1515,10 +1233,8 @@ export type PromptUpdateWithoutArtImageInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutPromptsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
   User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
@@ -1530,7 +1246,6 @@ export type PromptUncheckedUpdateWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
@@ -1538,7 +1253,6 @@ export type PromptUncheckedUpdateWithoutArtImageInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
 }
@@ -1549,7 +1263,6 @@ export type PromptUncheckedUpdateManyWithoutArtImageInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
@@ -1565,7 +1278,6 @@ export type PromptCreateManyBotInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   artImageId?: number | null
   creationSource?: $Enums.CreationSource
@@ -1584,10 +1296,8 @@ export type PromptUpdateWithoutBotInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
   User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
@@ -1599,7 +1309,6 @@ export type PromptUncheckedUpdateWithoutBotInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
@@ -1607,7 +1316,6 @@ export type PromptUncheckedUpdateWithoutBotInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
 }
@@ -1618,7 +1326,6 @@ export type PromptUncheckedUpdateManyWithoutBotInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
@@ -1634,7 +1341,6 @@ export type PromptCreateManyPitchInput = {
   updatedAt?: Date | string | null
   prompt: string
   userId?: number | null
-  galleryId?: number | null
   botId?: number | null
   artImageId?: number | null
   creationSource?: $Enums.CreationSource
@@ -1653,11 +1359,9 @@ export type PromptUpdateWithoutPitchInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutPromptsNestedInput
   User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
 }
@@ -1668,7 +1372,6 @@ export type PromptUncheckedUpdateWithoutPitchInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
@@ -1676,7 +1379,6 @@ export type PromptUncheckedUpdateWithoutPitchInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
 }
@@ -1687,7 +1389,6 @@ export type PromptUncheckedUpdateManyWithoutPitchInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
@@ -1702,7 +1403,6 @@ export type PromptCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   prompt: string
-  galleryId?: number | null
   pitchId?: number | null
   botId?: number | null
   artImageId?: number | null
@@ -1722,11 +1422,9 @@ export type PromptUpdateWithoutUserInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutPromptNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutPromptsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
 }
@@ -1736,7 +1434,6 @@ export type PromptUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1745,7 +1442,6 @@ export type PromptUncheckedUpdateWithoutUserInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
 }
@@ -1755,76 +1451,6 @@ export type PromptUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type PromptCreateManyGalleryInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  prompt: string
-  userId?: number | null
-  pitchId?: number | null
-  botId?: number | null
-  artImageId?: number | null
-  creationSource?: $Enums.CreationSource
-  isMature?: boolean
-  isPublic?: boolean
-  isActive?: boolean
-  artPrompt?: string | null
-}
-
-export type PromptUpdateWithoutGalleryInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutPromptNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutPromptNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutPromptsNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutPromptNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutPromptNestedInput
-  User?: Prisma.UserUpdateOneWithoutPromptsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutPromptNestedInput
-}
-
-export type PromptUncheckedUpdateWithoutGalleryInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutPromptNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutPromptNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPromptNestedInput
-}
-
-export type PromptUncheckedUpdateManyWithoutGalleryInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  prompt?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1841,13 +1467,11 @@ export type PromptUncheckedUpdateManyWithoutGalleryInput = {
  */
 
 export type PromptCountOutputType = {
-  Butterflies: number
   Chats: number
   Reactions: number
 }
 
 export type PromptCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Butterflies?: boolean | PromptCountOutputTypeCountButterfliesArgs
   Chats?: boolean | PromptCountOutputTypeCountChatsArgs
   Reactions?: boolean | PromptCountOutputTypeCountReactionsArgs
 }
@@ -1860,13 +1484,6 @@ export type PromptCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
    * Select specific fields to fetch from the PromptCountOutputType
    */
   select?: Prisma.PromptCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * PromptCountOutputType without action
- */
-export type PromptCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ButterflyWhereInput
 }
 
 /**
@@ -1890,7 +1507,6 @@ export type PromptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   updatedAt?: boolean
   prompt?: boolean
   userId?: boolean
-  galleryId?: boolean
   pitchId?: boolean
   botId?: boolean
   artImageId?: boolean
@@ -1899,11 +1515,9 @@ export type PromptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   isPublic?: boolean
   isActive?: boolean
   artPrompt?: boolean
-  Butterflies?: boolean | Prisma.Prompt$ButterfliesArgs<ExtArgs>
   Chats?: boolean | Prisma.Prompt$ChatsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Prompt$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Prompt$BotArgs<ExtArgs>
-  Gallery?: boolean | Prisma.Prompt$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Prompt$PitchArgs<ExtArgs>
   User?: boolean | Prisma.Prompt$UserArgs<ExtArgs>
   Reactions?: boolean | Prisma.Prompt$ReactionsArgs<ExtArgs>
@@ -1918,7 +1532,6 @@ export type PromptSelectScalar = {
   updatedAt?: boolean
   prompt?: boolean
   userId?: boolean
-  galleryId?: boolean
   pitchId?: boolean
   botId?: boolean
   artImageId?: boolean
@@ -1929,13 +1542,11 @@ export type PromptSelectScalar = {
   artPrompt?: boolean
 }
 
-export type PromptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "prompt" | "userId" | "galleryId" | "pitchId" | "botId" | "artImageId" | "creationSource" | "isMature" | "isPublic" | "isActive" | "artPrompt", ExtArgs["result"]["prompt"]>
+export type PromptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "prompt" | "userId" | "pitchId" | "botId" | "artImageId" | "creationSource" | "isMature" | "isPublic" | "isActive" | "artPrompt", ExtArgs["result"]["prompt"]>
 export type PromptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Butterflies?: boolean | Prisma.Prompt$ButterfliesArgs<ExtArgs>
   Chats?: boolean | Prisma.Prompt$ChatsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Prompt$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Prompt$BotArgs<ExtArgs>
-  Gallery?: boolean | Prisma.Prompt$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Prompt$PitchArgs<ExtArgs>
   User?: boolean | Prisma.Prompt$UserArgs<ExtArgs>
   Reactions?: boolean | Prisma.Prompt$ReactionsArgs<ExtArgs>
@@ -1945,11 +1556,9 @@ export type PromptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type $PromptPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Prompt"
   objects: {
-    Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Bot: Prisma.$BotPayload<ExtArgs> | null
-    Gallery: Prisma.$GalleryPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
@@ -1960,7 +1569,6 @@ export type $PromptPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     updatedAt: Date | null
     prompt: string
     userId: number | null
-    galleryId: number | null
     pitchId: number | null
     botId: number | null
     artImageId: number | null
@@ -2309,11 +1917,9 @@ readonly fields: PromptFieldRefs;
  */
 export interface Prisma__PromptClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Butterflies<T extends Prisma.Prompt$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.Prompt$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImage<T extends Prisma.Prompt$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Bot<T extends Prisma.Prompt$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Gallery<T extends Prisma.Prompt$GalleryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$GalleryArgs<ExtArgs>>): Prisma.Prisma__GalleryClient<runtime.Types.Result.GetResult<Prisma.$GalleryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Prompt$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Prompt$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Reactions<T extends Prisma.Prompt$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prompt$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2351,7 +1957,6 @@ export interface PromptFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"Prompt", 'DateTime'>
   readonly prompt: Prisma.FieldRef<"Prompt", 'String'>
   readonly userId: Prisma.FieldRef<"Prompt", 'Int'>
-  readonly galleryId: Prisma.FieldRef<"Prompt", 'Int'>
   readonly pitchId: Prisma.FieldRef<"Prompt", 'Int'>
   readonly botId: Prisma.FieldRef<"Prompt", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Prompt", 'Int'>
@@ -2708,30 +2313,6 @@ export type PromptDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Prompt.Butterflies
- */
-export type Prompt$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Butterfly
-   */
-  select?: Prisma.ButterflySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Butterfly
-   */
-  omit?: Prisma.ButterflyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ButterflyInclude<ExtArgs> | null
-  where?: Prisma.ButterflyWhereInput
-  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
-  cursor?: Prisma.ButterflyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
-}
-
-/**
  * Prompt.Chats
  */
 export type Prompt$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2791,25 +2372,6 @@ export type Prompt$BotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.BotInclude<ExtArgs> | null
   where?: Prisma.BotWhereInput
-}
-
-/**
- * Prompt.Gallery
- */
-export type Prompt$GalleryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Gallery
-   */
-  select?: Prisma.GallerySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Gallery
-   */
-  omit?: Prisma.GalleryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.GalleryInclude<ExtArgs> | null
-  where?: Prisma.GalleryWhereInput
 }
 
 /**

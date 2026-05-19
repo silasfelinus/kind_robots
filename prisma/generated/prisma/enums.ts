@@ -156,7 +156,6 @@ export const PitchType = {
   TITLE: 'TITLE',
   VIBE: 'VIBE',
   BOT: 'BOT',
-  ARTGALLERY: 'ARTGALLERY',
   INSPIRATION: 'INSPIRATION',
   DREAM: 'DREAM'
 } as const
@@ -198,7 +197,6 @@ export type CreationSource = (typeof CreationSource)[keyof typeof CreationSource
 
 
 export const Reaction_reactionCategory = {
-  ART: 'ART',
   ART_IMAGE: 'ART_IMAGE',
   ART_COLLECTION: 'ART_COLLECTION',
   BOT: 'BOT',
@@ -207,7 +205,6 @@ export const Reaction_reactionCategory = {
   CHAT_EXCHANGE: 'CHAT_EXCHANGE',
   COMPONENT: 'COMPONENT',
   DREAM: 'DREAM',
-  GALLERY: 'GALLERY',
   MESSAGE: 'MESSAGE',
   PITCH: 'PITCH',
   POST: 'POST',
@@ -215,7 +212,6 @@ export const Reaction_reactionCategory = {
   RESOURCE: 'RESOURCE',
   REWARD: 'REWARD',
   SCENARIO: 'SCENARIO',
-  TAG: 'TAG',
   THEME: 'THEME'
 } as const
 

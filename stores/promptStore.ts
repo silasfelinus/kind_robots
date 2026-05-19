@@ -112,7 +112,6 @@ function normalizePromptForm(input: Partial<PromptForm>): PromptForm {
     ...input,
     prompt: input.prompt || '',
     userId: input.userId ?? 10,
-    galleryId: input.galleryId ?? 21,
     creationSource: (input.creationSource || 'HUMAN') as CreationSource,
   } as PromptForm
 }
@@ -530,7 +529,6 @@ export const usePromptStore = defineStore('promptStore', () => {
             ...payload,
             prompt: cleanPrompt,
             userId: payload.userId ?? userStore.userId ?? 10,
-            galleryId: payload.galleryId ?? 21,
             creationSource: payload.creationSource ?? 'HUMAN',
           }),
         })

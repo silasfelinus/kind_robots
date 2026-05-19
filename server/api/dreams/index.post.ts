@@ -132,7 +132,6 @@ export default defineEventHandler(async (event) => {
       textServerId: normalizeNullableId(body.textServerId),
       artServerId: normalizeNullableId(body.artServerId),
       artCollectionId,
-      galleryId: normalizeNullableId(body.galleryId),
       scenarioId: normalizeNullableId(body.scenarioId),
       accessMode,
       privacyCode,

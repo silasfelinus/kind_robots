@@ -607,22 +607,12 @@ const connectedModelId = computed<number | null>(() => {
   }
 })
 
-const connectedModelField = computed<string | null>(() => {
-  switch (connectedModelType.value) {
-    case 'Bot':
-      return 'botId'
-    case 'Character':
-      return 'characterId'
-    case 'Dream':
-      return 'dreamId'
-    case 'Pitch':
-      return 'pitchId'
-    case 'Reward':
-      return 'rewardId'
-    case 'Scenario':
-      return 'scenarioId'
-    default:
-      return null
+const connectedModelPayload = computed(() => {
+  if (!connectedModelType.value || !connectedModelId.value) return null
+
+  return {
+    model: connectedModelType.value,
+    modelId: connectedModelId.value,
   }
 })
 
@@ -744,8 +734,7 @@ function appendBoolean(formData: FormData, key: string, value: boolean) {
 
 function buildImageFormData(file: File): FormData {
   const formData = new FormData()
-  const modelField = connectedModelField.value
-  const modelId = connectedModelId.value
+  const modelConnection = connectedModelPayload.value
   const collectionId = selectedCollection.value?.id ?? null
 
   formData.append('file', file)
@@ -773,8 +762,9 @@ function buildImageFormData(file: File): FormData {
   appendBoolean(formData, 'isPublic', imageForm.isPublic)
   appendBoolean(formData, 'isMature', imageForm.isMature)
 
-  if (modelField && modelId) {
-    formData.append(modelField, String(modelId))
+  if (modelConnection) {
+    formData.append('connectedModelType', modelConnection.model)
+    formData.append('connectedModelId', String(modelConnection.modelId))
   }
 
   return formData
@@ -818,7 +808,7 @@ async function handleBatchUpload() {
   }
 
   if (succeeded.length) {
-    message.value = `Uploaded ${succeeded.length} ArtImage${succeeded.length === 1 ? '' : 's'}.`
+    message.value = `Uploaded ${succeeded.length} art image${succeeded.length === 1 ? '' : 's'}.`
   }
 
   isUploading.value = false

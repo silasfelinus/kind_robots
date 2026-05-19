@@ -724,7 +724,6 @@ export type ServerWhereInput = {
   lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFilter<"Server"> | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFilter<"Server"> | $Enums.ServerTransport
-  Arts?: Prisma.ArtListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
@@ -799,7 +798,6 @@ export type ServerOrderByWithRelationInput = {
   lastStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   generationEngine?: Prisma.SortOrder
   defaultTransport?: Prisma.SortOrder
-  Arts?: Prisma.ArtOrderByRelationAggregateInput
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   Bots?: Prisma.BotOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
@@ -878,7 +876,6 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   lastStatus?: Prisma.EnumServerStatusNullableFilter<"Server"> | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFilter<"Server"> | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFilter<"Server"> | $Enums.ServerTransport
-  Arts?: Prisma.ArtListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
@@ -1097,7 +1094,6 @@ export type ServerCreateInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -1172,7 +1168,6 @@ export type ServerUncheckedCreateInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -1244,7 +1239,6 @@ export type ServerUpdateInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -1319,7 +1313,6 @@ export type ServerUncheckedUpdateInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -1777,22 +1770,6 @@ export type ServerSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type ServerCreateNestedOneWithoutArtsInput = {
-  create?: Prisma.XOR<Prisma.ServerCreateWithoutArtsInput, Prisma.ServerUncheckedCreateWithoutArtsInput>
-  connectOrCreate?: Prisma.ServerCreateOrConnectWithoutArtsInput
-  connect?: Prisma.ServerWhereUniqueInput
-}
-
-export type ServerUpdateOneWithoutArtsNestedInput = {
-  create?: Prisma.XOR<Prisma.ServerCreateWithoutArtsInput, Prisma.ServerUncheckedCreateWithoutArtsInput>
-  connectOrCreate?: Prisma.ServerCreateOrConnectWithoutArtsInput
-  upsert?: Prisma.ServerUpsertWithoutArtsInput
-  disconnect?: Prisma.ServerWhereInput | boolean
-  delete?: Prisma.ServerWhereInput | boolean
-  connect?: Prisma.ServerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ServerUpdateToOneWithWhereWithoutArtsInput, Prisma.ServerUpdateWithoutArtsInput>, Prisma.ServerUncheckedUpdateWithoutArtsInput>
-}
-
 export type ServerCreateNestedOneWithoutArtImagesInput = {
   create?: Prisma.XOR<Prisma.ServerCreateWithoutArtImagesInput, Prisma.ServerUncheckedCreateWithoutArtImagesInput>
   connectOrCreate?: Prisma.ServerCreateOrConnectWithoutArtImagesInput
@@ -1949,312 +1926,6 @@ export type ServerUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ServerScalarWhereInput | Prisma.ServerScalarWhereInput[]
 }
 
-export type ServerCreateWithoutArtsInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  title: string
-  label?: string | null
-  description?: string | null
-  serverType?: $Enums.ServerType
-  category?: string | null
-  baseUrl: string
-  endpointPath?: string | null
-  healthPath?: string | null
-  artPrompt?: string | null
-  isActive?: boolean
-  isMature?: boolean
-  isPublic?: boolean
-  isOfficial?: boolean
-  isDefault?: boolean
-  isEditable?: boolean
-  browserBaseUrl?: string | null
-  backendBaseUrl?: string | null
-  workflowPath?: string | null
-  workflowJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  workflowVersion?: string | null
-  defaultWidth?: number
-  defaultHeight?: number
-  defaultSteps?: number | null
-  defaultCfg?: number | null
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  accessMode?: $Enums.ServerAccessMode
-  requiresClientSideCheck?: boolean
-  isPrivateNetwork?: boolean
-  allowBrowserRequests?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  apiKey?: string | null
-  useOidc?: boolean
-  oidcProvider?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  supportsFlux?: boolean
-  supportsKontext?: boolean
-  supportsInpaint?: boolean
-  supportsOutpaint?: boolean
-  supportsImageEdit?: boolean
-  supportsWorkflowUpload?: boolean
-  supportsBatch?: boolean
-  apiLink?: string | null
-  model?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  generationEngine?: $Enums.ServerGenerationEngine
-  defaultTransport?: $Enums.ServerTransport
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
-  Bots?: Prisma.BotCreateNestedManyWithoutServerInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
-  user?: Prisma.UserCreateNestedOneWithoutServersInput
-}
-
-export type ServerUncheckedCreateWithoutArtsInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  title: string
-  label?: string | null
-  description?: string | null
-  serverType?: $Enums.ServerType
-  category?: string | null
-  baseUrl: string
-  endpointPath?: string | null
-  healthPath?: string | null
-  userId?: number | null
-  artPrompt?: string | null
-  isActive?: boolean
-  isMature?: boolean
-  isPublic?: boolean
-  isOfficial?: boolean
-  isDefault?: boolean
-  isEditable?: boolean
-  browserBaseUrl?: string | null
-  backendBaseUrl?: string | null
-  workflowPath?: string | null
-  workflowJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  workflowVersion?: string | null
-  defaultWidth?: number
-  defaultHeight?: number
-  defaultSteps?: number | null
-  defaultCfg?: number | null
-  defaultSampler?: string | null
-  defaultScheduler?: string | null
-  accessMode?: $Enums.ServerAccessMode
-  requiresClientSideCheck?: boolean
-  isPrivateNetwork?: boolean
-  allowBrowserRequests?: boolean
-  requiresApiKey?: boolean
-  apiKeyName?: string | null
-  apiKey?: string | null
-  useOidc?: boolean
-  oidcProvider?: string | null
-  supportsTxt2Img?: boolean
-  supportsImg2Img?: boolean
-  supportsChat?: boolean
-  supportsComfyWorkflow?: boolean
-  supportsCheckpointOverride?: boolean
-  supportsSampler?: boolean
-  supportsNegativePrompt?: boolean
-  supportsSeed?: boolean
-  supportsSteps?: boolean
-  supportsVideo?: boolean
-  supportsFlux?: boolean
-  supportsKontext?: boolean
-  supportsInpaint?: boolean
-  supportsOutpaint?: boolean
-  supportsImageEdit?: boolean
-  supportsWorkflowUpload?: boolean
-  supportsBatch?: boolean
-  apiLink?: string | null
-  model?: string | null
-  designer?: string | null
-  version?: string | null
-  notes?: string | null
-  sortOrder?: number
-  lastCheckedAt?: Date | string | null
-  lastStatus?: $Enums.ServerStatus | null
-  generationEngine?: $Enums.ServerGenerationEngine
-  defaultTransport?: $Enums.ServerTransport
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
-  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
-  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
-}
-
-export type ServerCreateOrConnectWithoutArtsInput = {
-  where: Prisma.ServerWhereUniqueInput
-  create: Prisma.XOR<Prisma.ServerCreateWithoutArtsInput, Prisma.ServerUncheckedCreateWithoutArtsInput>
-}
-
-export type ServerUpsertWithoutArtsInput = {
-  update: Prisma.XOR<Prisma.ServerUpdateWithoutArtsInput, Prisma.ServerUncheckedUpdateWithoutArtsInput>
-  create: Prisma.XOR<Prisma.ServerCreateWithoutArtsInput, Prisma.ServerUncheckedCreateWithoutArtsInput>
-  where?: Prisma.ServerWhereInput
-}
-
-export type ServerUpdateToOneWithWhereWithoutArtsInput = {
-  where?: Prisma.ServerWhereInput
-  data: Prisma.XOR<Prisma.ServerUpdateWithoutArtsInput, Prisma.ServerUncheckedUpdateWithoutArtsInput>
-}
-
-export type ServerUpdateWithoutArtsInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
-  Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
-  user?: Prisma.UserUpdateOneWithoutServersNestedInput
-}
-
-export type ServerUncheckedUpdateWithoutArtsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  serverType?: Prisma.EnumServerTypeFieldUpdateOperationsInput | $Enums.ServerType
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  endpointPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  healthPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isOfficial?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isEditable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  browserBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  backendBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workflowJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultWidth?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultHeight?: Prisma.IntFieldUpdateOperationsInput | number
-  defaultSteps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  defaultCfg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  defaultSampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultScheduler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessMode?: Prisma.EnumServerAccessModeFieldUpdateOperationsInput | $Enums.ServerAccessMode
-  requiresClientSideCheck?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPrivateNetwork?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  allowBrowserRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  requiresApiKey?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  useOidc?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  oidcProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supportsTxt2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImg2Img?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsChat?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsComfyWorkflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsCheckpointOverride?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSampler?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsNegativePrompt?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSeed?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsSteps?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsVideo?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsFlux?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsInpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsImageEdit?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  supportsBatch?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCheckedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
-  generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
-  defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
-  Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
-  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
-}
-
 export type ServerCreateWithoutArtImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2320,7 +1991,6 @@ export type ServerCreateWithoutArtImagesInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
@@ -2394,7 +2064,6 @@ export type ServerUncheckedCreateWithoutArtImagesInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
@@ -2481,7 +2150,6 @@ export type ServerUpdateWithoutArtImagesInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
@@ -2555,7 +2223,6 @@ export type ServerUncheckedUpdateWithoutArtImagesInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
@@ -2626,7 +2293,6 @@ export type ServerCreateWithoutBotsInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
@@ -2700,7 +2366,6 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
@@ -2787,7 +2452,6 @@ export type ServerUpdateWithoutBotsInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
@@ -2861,7 +2525,6 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
@@ -2932,7 +2595,6 @@ export type ServerCreateWithoutChatsInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Resources?: Prisma.ResourceCreateNestedManyWithoutServersInput
@@ -3006,7 +2668,6 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutServersInput
@@ -3093,7 +2754,6 @@ export type ServerUpdateWithoutChatsInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Resources?: Prisma.ResourceUpdateManyWithoutServersNestedInput
@@ -3167,7 +2827,6 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Resources?: Prisma.ResourceUncheckedUpdateManyWithoutServersNestedInput
@@ -3238,7 +2897,6 @@ export type ServerCreateWithoutResourcesInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -3312,7 +2970,6 @@ export type ServerUncheckedCreateWithoutResourcesInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -3476,7 +3133,6 @@ export type ServerCreateWithoutUserInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatCreateNestedManyWithoutServerInput
@@ -3549,7 +3205,6 @@ export type ServerUncheckedCreateWithoutUserInput = {
   lastStatus?: $Enums.ServerStatus | null
   generationEngine?: $Enums.ServerGenerationEngine
   defaultTransport?: $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedCreateNestedManyWithoutServerInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutServerInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutServerInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutServerInput
@@ -3647,7 +3302,6 @@ export type ServerUpdateWithoutResourcesInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -3721,7 +3375,6 @@ export type ServerUncheckedUpdateWithoutResourcesInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -3929,7 +3582,6 @@ export type ServerUpdateWithoutUserInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutServerNestedInput
@@ -4002,7 +3654,6 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   lastStatus?: Prisma.NullableEnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus | null
   generationEngine?: Prisma.EnumServerGenerationEngineFieldUpdateOperationsInput | $Enums.ServerGenerationEngine
   defaultTransport?: Prisma.EnumServerTransportFieldUpdateOperationsInput | $Enums.ServerTransport
-  Arts?: Prisma.ArtUncheckedUpdateManyWithoutServerNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutServerNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutServerNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutServerNestedInput
@@ -4083,7 +3734,6 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
  */
 
 export type ServerCountOutputType = {
-  Arts: number
   ArtImages: number
   Bots: number
   Chats: number
@@ -4091,7 +3741,6 @@ export type ServerCountOutputType = {
 }
 
 export type ServerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Arts?: boolean | ServerCountOutputTypeCountArtsArgs
   ArtImages?: boolean | ServerCountOutputTypeCountArtImagesArgs
   Bots?: boolean | ServerCountOutputTypeCountBotsArgs
   Chats?: boolean | ServerCountOutputTypeCountChatsArgs
@@ -4106,13 +3755,6 @@ export type ServerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
    * Select specific fields to fetch from the ServerCountOutputType
    */
   select?: Prisma.ServerCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * ServerCountOutputType without action
- */
-export type ServerCountOutputTypeCountArtsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ArtWhereInput
 }
 
 /**
@@ -4211,7 +3853,6 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   lastStatus?: boolean
   generationEngine?: boolean
   defaultTransport?: boolean
-  Arts?: boolean | Prisma.Server$ArtsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
   Chats?: boolean | Prisma.Server$ChatsArgs<ExtArgs>
@@ -4293,7 +3934,6 @@ export type ServerSelectScalar = {
 
 export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "artPrompt" | "isActive" | "isMature" | "isPublic" | "isOfficial" | "isDefault" | "isEditable" | "browserBaseUrl" | "backendBaseUrl" | "workflowPath" | "workflowJson" | "workflowVersion" | "defaultWidth" | "defaultHeight" | "defaultSteps" | "defaultCfg" | "defaultSampler" | "defaultScheduler" | "accessMode" | "requiresClientSideCheck" | "isPrivateNetwork" | "allowBrowserRequests" | "requiresApiKey" | "apiKeyName" | "apiKey" | "useOidc" | "oidcProvider" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "supportsFlux" | "supportsKontext" | "supportsInpaint" | "supportsOutpaint" | "supportsImageEdit" | "supportsWorkflowUpload" | "supportsBatch" | "apiLink" | "model" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "generationEngine" | "defaultTransport", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Arts?: boolean | Prisma.Server$ArtsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
   Chats?: boolean | Prisma.Server$ChatsArgs<ExtArgs>
@@ -4305,7 +3945,6 @@ export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Server"
   objects: {
-    Arts: Prisma.$ArtPayload<ExtArgs>[]
     ArtImages: Prisma.$ArtImagePayload<ExtArgs>[]
     Bots: Prisma.$BotPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
@@ -4719,7 +4358,6 @@ readonly fields: ServerFieldRefs;
  */
 export interface Prisma__ServerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Arts<T extends Prisma.Server$ArtsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ArtsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImages<T extends Prisma.Server$ArtImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ArtImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Bots<T extends Prisma.Server$BotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$BotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.Server$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Server$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5165,30 +4803,6 @@ export type ServerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Servers to delete.
    */
   limit?: number
-}
-
-/**
- * Server.Arts
- */
-export type Server$ArtsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Art
-   */
-  select?: Prisma.ArtSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Art
-   */
-  omit?: Prisma.ArtOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtInclude<ExtArgs> | null
-  where?: Prisma.ArtWhereInput
-  orderBy?: Prisma.ArtOrderByWithRelationInput | Prisma.ArtOrderByWithRelationInput[]
-  cursor?: Prisma.ArtWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ArtScalarFieldEnum | Prisma.ArtScalarFieldEnum[]
 }
 
 /**

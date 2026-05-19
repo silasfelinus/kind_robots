@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Arts
- * const arts = await prisma.art.findMany()
+ * // Fetch zero or more ArtImages
+ * const artImages = await prisma.artImage.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,11 +41,6 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
-/**
- * Model Art
- * Art is the old art directory asset. It didn't have the data itself, but could point to the data. I'm now phazing it out as it makes more sense to point directly to the artImage and filter out the data when needed, but there is still a lot of imagePath stored that needs to be migrated before Art can retire
- */
-export type Art = Prisma.ArtModel
 /**
  * Model ArtImage
  * ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
@@ -179,11 +174,6 @@ export type User = Prisma.UserModel
  * 
  */
 export type ReactionToTag = Prisma.ReactionToTagModel
-/**
- * Model ArtToProduct
- * 
- */
-export type ArtToProduct = Prisma.ArtToProductModel
 /**
  * Model MilestoneToUser
  * 

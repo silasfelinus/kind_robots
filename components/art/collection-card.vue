@@ -5,8 +5,8 @@
     :compact="compact"
     :show-reaction="showReaction"
     :target-id="collection.id"
-    target-type="gallery"
-    reaction-category="GALLERY"
+    target-type="artCollection"
+    reaction-category="ART_COLLECTION"
     :target-title="collectionLabel"
     :card-class="isHiddenMature ? 'opacity-70' : ''"
     @select="selectCollection"
@@ -262,7 +262,7 @@ const props = withDefaults(
     showMature: false,
     autoLoadPreviewImage: true,
     fallbackImage: '/images/backtree.webp',
-    fallbackIcon: 'kind-icon:gallery',
+    fallbackIcon: 'kind-icon:folder',
     imageHeightClass: 'h-40',
     previewArtImage: null,
   },

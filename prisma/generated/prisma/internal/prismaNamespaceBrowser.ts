@@ -51,7 +51,6 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Art: 'Art',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -77,7 +76,6 @@ export const ModelName = {
   Theme: 'Theme',
   User: 'User',
   ReactionToTag: 'ReactionToTag',
-  ArtToProduct: 'ArtToProduct',
   MilestoneToUser: 'MilestoneToUser',
   RewardToUser: 'RewardToUser'
 } as const
@@ -98,44 +96,10 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const ArtScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  path: 'path',
-  checkpoint: 'checkpoint',
-  checkpointResourceId: 'checkpointResourceId',
-  sampler: 'sampler',
-  seed: 'seed',
-  steps: 'steps',
-  designer: 'designer',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  isActive: 'isActive',
-  promptId: 'promptId',
-  userId: 'userId',
-  pitchId: 'pitchId',
-  galleryId: 'galleryId',
-  promptString: 'promptString',
-  cfg: 'cfg',
-  cfgHalf: 'cfgHalf',
-  serverId: 'serverId',
-  serverName: 'serverName',
-  serverUrl: 'serverUrl',
-  artImageId: 'artImageId',
-  imagePath: 'imagePath',
-  genres: 'genres',
-  negativePrompt: 'negativePrompt'
-} as const
-
-export type ArtScalarFieldEnum = (typeof ArtScalarFieldEnum)[keyof typeof ArtScalarFieldEnum]
-
-
 export const ArtImageScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  galleryId: 'galleryId',
   userId: 'userId',
   imageData: 'imageData',
   thumbnailData: 'thumbnailData',
@@ -143,7 +107,6 @@ export const ArtImageScalarFieldEnum = {
   fileType: 'fileType',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
-  rarity: 'rarity',
   path: 'path',
   promptString: 'promptString',
   negativePrompt: 'negativePrompt',
@@ -161,18 +124,7 @@ export const ArtImageScalarFieldEnum = {
   isActive: 'isActive',
   serverId: 'serverId',
   serverName: 'serverName',
-  serverUrl: 'serverUrl',
-  artId: 'artId',
-  botId: 'botId',
-  componentId: 'componentId',
-  milestoneId: 'milestoneId',
-  pitchId: 'pitchId',
-  promptId: 'promptId',
-  resourceId: 'resourceId',
-  rewardId: 'rewardId',
-  chatId: 'chatId',
-  characterId: 'characterId',
-  butterflyId: 'butterflyId'
+  serverUrl: 'serverUrl'
 } as const
 
 export type ArtImageScalarFieldEnum = (typeof ArtImageScalarFieldEnum)[keyof typeof ArtImageScalarFieldEnum]
@@ -245,7 +197,6 @@ export const ButterflyScalarFieldEnum = {
   designer: 'designer',
   userId: 'userId',
   isPublic: 'isPublic',
-  artId: 'artId',
   artCollectionId: 'artCollectionId',
   botId: 'botId',
   characterId: 'characterId',
@@ -370,7 +321,6 @@ export const DreamScalarFieldEnum = {
   currentPrompt: 'currentPrompt',
   userId: 'userId',
   pitchId: 'pitchId',
-  artId: 'artId',
   artImageId: 'artImageId',
   textServerId: 'textServerId',
   artServerId: 'artServerId',
@@ -507,7 +457,6 @@ export const ReactionScalarFieldEnum = {
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
   rating: 'rating',
-  artId: 'artId',
   artImageId: 'artImageId',
   artCollectionId: 'artCollectionId',
   botId: 'botId',
@@ -798,14 +747,6 @@ export const ReactionToTagScalarFieldEnum = {
 export type ReactionToTagScalarFieldEnum = (typeof ReactionToTagScalarFieldEnum)[keyof typeof ReactionToTagScalarFieldEnum]
 
 
-export const ArtToProductScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ArtToProductScalarFieldEnum = (typeof ArtToProductScalarFieldEnum)[keyof typeof ArtToProductScalarFieldEnum]
-
-
 export const MilestoneToUserScalarFieldEnum = {
   A: 'A',
   B: 'B'
@@ -844,22 +785,6 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
-export const ArtOrderByRelevanceFieldEnum = {
-  path: 'path',
-  checkpoint: 'checkpoint',
-  sampler: 'sampler',
-  designer: 'designer',
-  promptString: 'promptString',
-  serverName: 'serverName',
-  serverUrl: 'serverUrl',
-  imagePath: 'imagePath',
-  genres: 'genres',
-  negativePrompt: 'negativePrompt'
-} as const
-
-export type ArtOrderByRelevanceFieldEnum = (typeof ArtOrderByRelevanceFieldEnum)[keyof typeof ArtOrderByRelevanceFieldEnum]
 
 
 export const ArtImageOrderByRelevanceFieldEnum = {

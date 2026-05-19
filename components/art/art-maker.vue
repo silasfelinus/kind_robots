@@ -10,7 +10,7 @@
         >
           <div>
             <h1 class="text-2xl font-black text-primary sm:text-3xl">
-              🎨 Art Generator
+              🖼️ Image Generator
             </h1>
 
             <p class="mt-1 max-w-3xl text-sm text-base-content/70 sm:text-base">
@@ -60,7 +60,7 @@
             class="select select-bordered w-full rounded-2xl bg-base-200"
             :disabled="isGenerating || isLoading"
           >
-            <option :value="null" disabled>Select art server...</option>
+            <option :value="null" disabled>Select image server...</option>
 
             <option
               v-for="server in artServers"
@@ -119,7 +119,7 @@
             class="select select-bordered w-full rounded-2xl bg-base-200"
             :disabled="isGenerating || isLoading"
           >
-            <option :value="null">Generated Art only</option>
+            <option :value="null">Generated images only</option>
 
             <option
               v-for="collection in collectionOptions"
@@ -132,7 +132,7 @@
 
           <span class="label">
             <span class="label-text-alt text-base-content/60">
-              Generated art is always saved. This adds a second destination.
+              Generated images are always saved. This adds a second destination.
             </span>
           </span>
 
@@ -342,7 +342,7 @@
               class="loading loading-spinner loading-sm"
             />
             <icon v-else name="kind-icon:sparkles" class="h-6 w-6" />
-            {{ isGenerating ? 'Generating...' : 'Generate Art' }}
+            {{ isGenerating ? 'Generating...' : 'Generate Image' }}
           </button>
         </aside>
       </section>
@@ -355,7 +355,7 @@
             <h2 class="text-lg font-bold text-primary">Latest Result</h2>
 
             <p class="text-sm text-base-content/60">
-              Generated art appears here after the pixel goblin clocks out.
+              Generated image appears here after the pixel goblin clocks out.
             </p>
           </div>
 
@@ -584,10 +584,10 @@ function getCheckpointLabel(checkpoint: CheckpointResource): string {
 
 function configureArtImageUpload() {
   uploadStore.setTarget({
-    model: 'Art',
+    model: 'ArtImage',
     modelId: null,
-    galleryName: 'artUploads',
-    collectionLabel: 'uploads',
+    galleryName: 'artImageUploads',
+    collectionLabel: 'image uploads',
     promptString: '[UploadedArtImage]',
     path: '[UploadedArtImage]',
     buttonLabel: 'Upload remix image',
@@ -626,7 +626,7 @@ function goToSelectedTab() {
 }
 
 function handleRemixUploaded() {
-  setMessage('success', 'Remix image uploaded. Opening selected art.')
+  setMessage('success', 'Remix image uploaded. Opening selected image.')
   goToSelectedTab()
 }
 
@@ -667,7 +667,7 @@ async function loadGenerator() {
     configureArtImageUpload()
   } catch (error) {
     const value =
-      error instanceof Error ? error.message : 'Failed to load art generator.'
+      error instanceof Error ? error.message : 'Failed to load image generator.'
 
     setMessage('error', value)
     errorStore.addError(ErrorType.GENERAL_ERROR, value)
@@ -716,7 +716,7 @@ async function generateArt() {
       throw new Error(result.message || 'Generation failed.')
     }
 
-    setMessage('success', result.message || 'Art generated.')
+    setMessage('success', result.message || 'Image generated.')
     goToSelectedTab()
   } catch (error) {
     const value = error instanceof Error ? error.message : 'Generation failed.'

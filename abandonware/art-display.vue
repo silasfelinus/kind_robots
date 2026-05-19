@@ -1,3 +1,4 @@
+@ts-nocheck
 <template>
   <div
     v-if="art"
@@ -43,7 +44,7 @@ import artInfo from './art-info.vue'
 import artControl from './art-control.vue'
 
 const artStore = useArtStore()
-const art = computed(() => artStore.currentArt)
+const art = computed(() => artStore.selectedArt)
 const artImage = computed(() => artStore.currentArtImage)
 
 const computedArtImage = computed(() => {

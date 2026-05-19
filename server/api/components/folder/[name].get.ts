@@ -19,9 +19,6 @@ export default defineEventHandler(async (event) => {
       where: {
         folderName,
       },
-      include: {
-        Tags: true, // Include tags related to the component
-      },
     })
 
     if (!data.length) {

@@ -13,6 +13,7 @@ import type {
 import {
   getModelStatusEngine,
   type ServerRuntimeReport,
+  cleanWorkflowJson,
 } from './helpers/serverHelper'
 
 export interface ServerForm extends Partial<Server> {}
@@ -89,6 +90,35 @@ type ServerHealthApiResponse = FetchResponse<
 type ServerInitializeOptions = {
   force?: boolean
   fetchRemote?: boolean
+}
+
+function parseHiddenServerIds(value: unknown): number[] {
+  if (Array.isArray(value)) {
+    return value.filter((id): id is number => Number.isInteger(id))
+  }
+
+  if (typeof value !== 'string') {
+    return []
+  }
+
+  try {
+    const parsed = JSON.parse(value)
+
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+
+    return parsed.filter((id): id is number => Number.isInteger(id))
+  } catch {
+    return value
+      .split(',')
+      .map((id) => Number(id.trim()))
+      .filter((id) => Number.isInteger(id))
+  }
+}
+
+function stringifyHiddenServerIds(ids: number[]): string {
+  return JSON.stringify([...new Set(ids.filter((id) => Number.isInteger(id)))])
 }
 
 type SetActiveServerOptions = {
@@ -231,11 +261,7 @@ export const useServerStore = defineStore('serverStore', () => {
   const errorStore = useErrorStore()
 
   const hiddenServerIds = computed<number[]>(() => {
-    const ids = userStore.user?.hiddenServerIds
-
-    if (!Array.isArray(ids)) return []
-
-    return ids.filter((id): id is number => typeof id === 'number')
+    return parseHiddenServerIds(userStore.user?.hiddenServerIds)
   })
 
   const hiddenServerIdSet = computed<Set<number>>(
@@ -1057,7 +1083,7 @@ export const useServerStore = defineStore('serverStore', () => {
 
     try {
       await userStore.updateUser({
-        hiddenServerIds: nextHiddenServerIds,
+        hiddenServerIds: stringifyHiddenServerIds(nextHiddenServerIds),
       })
 
       if (activeArtServerId.value === id) {
@@ -1109,7 +1135,7 @@ export const useServerStore = defineStore('serverStore', () => {
 
     try {
       await userStore.updateUser({
-        hiddenServerIds: nextHiddenServerIds,
+        hiddenServerIds: stringifyHiddenServerIds(nextHiddenServerIds),
       })
 
       syncToLocalStorage()
@@ -1882,7 +1908,7 @@ export const useServerStore = defineStore('serverStore', () => {
           backendBaseUrl: source.backendBaseUrl,
 
           workflowPath: source.workflowPath,
-          workflowJson: source.workflowJson,
+          workflowJson: cleanWorkflowJson(source.workflowJson),
           workflowVersion: source.workflowVersion,
 
           supportsImageEdit: source.supportsImageEdit,

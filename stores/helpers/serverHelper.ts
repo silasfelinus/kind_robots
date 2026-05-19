@@ -127,7 +127,6 @@ export function normalizeModelName(value: unknown): string {
   return value.trim().replace(/^['"]|['"]$/g, '')
 }
 
-
 export function normalizeCheckpointNameForCompare(value: unknown): string {
   return normalizeCheckpointName(value)
     .toLowerCase()
@@ -136,6 +135,27 @@ export function normalizeCheckpointNameForCompare(value: unknown): string {
     .replace(/[\s_-]*v\d+(\.\d+)?$/i, '')
     .replace(/[^a-z0-9]+/g, '')
     .trim()
+}
+
+export function cleanWorkflowJson(value: unknown): string | null | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+
+  if (value === null) {
+    return null
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed.length ? trimmed : null
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return null
+  }
 }
 
 export function modelNamesMatch(left: unknown, right: unknown): boolean {

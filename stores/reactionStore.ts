@@ -4,12 +4,12 @@ import { ref, computed } from 'vue'
 import type {
   Reaction,
   ReactionType,
-  ReactionCategory,
+  Reaction_reactionCategory,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 
 export type ReactionTypeEnum = `${ReactionType}`
-export type ReactionCategoryEnum = `${ReactionCategory}`
+export type ReactionCategoryEnum = `${Reaction_reactionCategory}`
 
 export const reactionTypes: ReactionTypeEnum[] = [
   'LOVED',
@@ -21,7 +21,6 @@ export const reactionTypes: ReactionTypeEnum[] = [
 ]
 
 export const reactionCategories: ReactionCategoryEnum[] = [
-  'ART',
   'ART_IMAGE',
   'ART_COLLECTION',
   'BOT',
@@ -504,4 +503,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
   }
 })
 
-export type { Reaction, ReactionType, ReactionCategory }
+export type {
+  Reaction,
+  ReactionType,
+  Reaction_reactionCategory as ReactionCategory,
+}

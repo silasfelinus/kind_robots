@@ -114,9 +114,7 @@ export default defineEventHandler(async (event) => {
             },
           },
           ArtCollection: true,
-          Gallery: true,
           Scenario: true,
-          Tags: true,
           Characters: true,
           Rewards: true,
           _count: {
@@ -164,9 +162,6 @@ export default defineEventHandler(async (event) => {
       await tx.dream.update({
         where: { id },
         data: {
-          Tags: {
-            set: [],
-          },
           Characters: {
             set: [],
           },

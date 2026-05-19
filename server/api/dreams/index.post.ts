@@ -162,19 +162,9 @@ export default defineEventHandler(async (event) => {
           },
         },
         ArtCollection: true,
-        Gallery: true,
         Scenario: true,
         Characters: true,
         Rewards: true,
-        Tags: true,
-        _count: {
-          select: {
-            Chats: true,
-            Reactions: true,
-            Characters: true,
-            Rewards: true,
-          },
-        },
       },
     })
 

@@ -10,13 +10,10 @@ import prisma from '../../utils/prisma'
 export type RewardRelationInput = {
   characterIds?: number[]
   dreamIds?: number[]
-  butterflyIds?: number[]
   setCharacterIds?: number[]
   setDreamIds?: number[]
-  setButterflyIds?: number[]
   removeCharacterIds?: number[]
   removeDreamIds?: number[]
-  removeButterflyIds?: number[]
 }
 
 export type RewardMutationInput = Partial<
@@ -137,7 +134,6 @@ function buildCreateData(
   const artImageId = toPositiveInt(input.artImageId)
   const characterIds = toPositiveIntArray(input.characterIds)
   const dreamIds = toPositiveIntArray(input.dreamIds)
-  const butterflyIds = toPositiveIntArray(input.butterflyIds)
 
   return {
     text,
@@ -172,11 +168,6 @@ function buildCreateData(
     ...(dreamIds.length && {
       Dreams: {
         connect: connectMany(dreamIds),
-      },
-    }),
-    ...(butterflyIds.length && {
-      Butterflies: {
-        connect: connectMany(butterflyIds),
       },
     }),
   }
@@ -227,13 +218,10 @@ function buildUpdateData(input: RewardMutationInput): Prisma.RewardUpdateInput {
 
   const characterIds = toPositiveIntArray(input.characterIds)
   const dreamIds = toPositiveIntArray(input.dreamIds)
-  const butterflyIds = toPositiveIntArray(input.butterflyIds)
   const setCharacterIds = toPositiveIntArray(input.setCharacterIds)
   const setDreamIds = toPositiveIntArray(input.setDreamIds)
-  const setButterflyIds = toPositiveIntArray(input.setButterflyIds)
   const removeCharacterIds = toPositiveIntArray(input.removeCharacterIds)
   const removeDreamIds = toPositiveIntArray(input.removeDreamIds)
-  const removeButterflyIds = toPositiveIntArray(input.removeButterflyIds)
 
   if (
     characterIds.length ||
@@ -263,24 +251,6 @@ function buildUpdateData(input: RewardMutationInput): Prisma.RewardUpdateInput {
       }),
       ...(removeDreamIds.length && {
         disconnect: connectMany(removeDreamIds),
-      }),
-    }
-  }
-
-  if (
-    butterflyIds.length ||
-    setButterflyIds.length ||
-    removeButterflyIds.length
-  ) {
-    data.Butterflies = {
-      ...(setButterflyIds.length && {
-        set: connectMany(setButterflyIds),
-      }),
-      ...(butterflyIds.length && {
-        connect: connectMany(butterflyIds),
-      }),
-      ...(removeButterflyIds.length && {
-        disconnect: connectMany(removeButterflyIds),
       }),
     }
   }

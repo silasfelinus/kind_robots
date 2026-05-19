@@ -1,4 +1,3 @@
-// /server/api/rewards/batch.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { createRewardsBatch, type RewardMutationInput } from './'
 import { errorHandler } from '../../utils/error'
@@ -24,11 +23,29 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    for (const rewardData of rewardsData) {
-      if (rewardData.userId && rewardData.userId !== user.id) {
+    if (rewardsData.length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'Reward batch cannot be empty.',
+      })
+    }
+
+    for (const [index, rewardData] of rewardsData.entries()) {
+      if (!rewardData || typeof rewardData !== 'object') {
+        throw createError({
+          statusCode: 400,
+          message: `Invalid reward at index ${index}. Expected an object.`,
+        })
+      }
+
+      if (
+        rewardData.userId !== undefined &&
+        rewardData.userId !== null &&
+        rewardData.userId !== user.id
+      ) {
         throw createError({
           statusCode: 403,
-          message: 'User ID in reward does not match the authenticated user.',
+          message: `User ID in reward at index ${index} does not match the authenticated user.`,
         })
       }
     }

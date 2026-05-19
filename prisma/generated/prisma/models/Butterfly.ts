@@ -408,16 +408,16 @@ export type ButterflyWhereInput = {
   promptId?: Prisma.IntNullableFilter<"Butterfly"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"Butterfly"> | number | null
   tagId?: Prisma.IntNullableFilter<"Butterfly"> | number | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Collections?: Prisma.ButterflyRecordListRelationFilter
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
-  Reactions?: Prisma.ReactionListRelationFilter
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Tag?: Prisma.XOR<Prisma.TagNullableScalarRelationFilter, Prisma.TagWhereInput> | null
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  Collections?: Prisma.ButterflyRecordListRelationFilter
+  Reactions?: Prisma.ReactionListRelationFilter
 }
 
 export type ButterflyOrderByWithRelationInput = {
@@ -443,16 +443,16 @@ export type ButterflyOrderByWithRelationInput = {
   promptId?: Prisma.SortOrderInput | Prisma.SortOrder
   scenarioId?: Prisma.SortOrderInput | Prisma.SortOrder
   tagId?: Prisma.SortOrderInput | Prisma.SortOrder
-  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
-  User?: Prisma.UserOrderByWithRelationInput
-  Collections?: Prisma.ButterflyRecordOrderByRelationAggregateInput
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
+  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Bot?: Prisma.BotOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
-  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
   Tag?: Prisma.TagOrderByWithRelationInput
+  User?: Prisma.UserOrderByWithRelationInput
+  Collections?: Prisma.ButterflyRecordOrderByRelationAggregateInput
+  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.ButterflyOrderByRelevanceInput
 }
 
@@ -482,16 +482,16 @@ export type ButterflyWhereUniqueInput = Prisma.AtLeast<{
   promptId?: Prisma.IntNullableFilter<"Butterfly"> | number | null
   scenarioId?: Prisma.IntNullableFilter<"Butterfly"> | number | null
   tagId?: Prisma.IntNullableFilter<"Butterfly"> | number | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Collections?: Prisma.ButterflyRecordListRelationFilter
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
+  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
-  Reactions?: Prisma.ReactionListRelationFilter
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Tag?: Prisma.XOR<Prisma.TagNullableScalarRelationFilter, Prisma.TagWhereInput> | null
+  User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  Collections?: Prisma.ButterflyRecordListRelationFilter
+  Reactions?: Prisma.ReactionListRelationFilter
 }, "id" | "name" | "rarityNumber">
 
 export type ButterflyOrderByWithAggregationInput = {
@@ -566,16 +566,16 @@ export type ButterflyCreateInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateInput = {
@@ -619,16 +619,16 @@ export type ButterflyUpdateInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateInput = {
@@ -1149,48 +1149,6 @@ export type ButterflyUncheckedUpdateManyWithoutScenarioNestedInput = {
   deleteMany?: Prisma.ButterflyScalarWhereInput | Prisma.ButterflyScalarWhereInput[]
 }
 
-export type ButterflyCreateNestedManyWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
-  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
-  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-}
-
-export type ButterflyUncheckedCreateNestedManyWithoutTagInput = {
-  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
-  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
-  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-}
-
-export type ButterflyUpdateManyWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
-  upsert?: Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput[]
-  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
-  set?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  disconnect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  delete?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  update?: Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput[]
-  updateMany?: Prisma.ButterflyUpdateManyWithWhereWithoutTagInput | Prisma.ButterflyUpdateManyWithWhereWithoutTagInput[]
-  deleteMany?: Prisma.ButterflyScalarWhereInput | Prisma.ButterflyScalarWhereInput[]
-}
-
-export type ButterflyUncheckedUpdateManyWithoutTagNestedInput = {
-  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
-  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
-  upsert?: Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput[]
-  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
-  set?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  disconnect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  delete?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
-  update?: Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput[]
-  updateMany?: Prisma.ButterflyUpdateManyWithWhereWithoutTagInput | Prisma.ButterflyUpdateManyWithWhereWithoutTagInput[]
-  deleteMany?: Prisma.ButterflyScalarWhereInput | Prisma.ButterflyScalarWhereInput[]
-}
-
 export type ButterflyCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.ButterflyCreateWithoutUserInput, Prisma.ButterflyUncheckedCreateWithoutUserInput> | Prisma.ButterflyCreateWithoutUserInput[] | Prisma.ButterflyUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutUserInput | Prisma.ButterflyCreateOrConnectWithoutUserInput[]
@@ -1233,6 +1191,48 @@ export type ButterflyUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ButterflyScalarWhereInput | Prisma.ButterflyScalarWhereInput[]
 }
 
+export type ButterflyCreateNestedManyWithoutTagInput = {
+  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
+  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
+  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+}
+
+export type ButterflyUncheckedCreateNestedManyWithoutTagInput = {
+  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
+  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
+  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+}
+
+export type ButterflyUpdateManyWithoutTagNestedInput = {
+  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
+  upsert?: Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput[]
+  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
+  set?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  disconnect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  delete?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  update?: Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput[]
+  updateMany?: Prisma.ButterflyUpdateManyWithWhereWithoutTagInput | Prisma.ButterflyUpdateManyWithWhereWithoutTagInput[]
+  deleteMany?: Prisma.ButterflyScalarWhereInput | Prisma.ButterflyScalarWhereInput[]
+}
+
+export type ButterflyUncheckedUpdateManyWithoutTagNestedInput = {
+  create?: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput> | Prisma.ButterflyCreateWithoutTagInput[] | Prisma.ButterflyUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.ButterflyCreateOrConnectWithoutTagInput | Prisma.ButterflyCreateOrConnectWithoutTagInput[]
+  upsert?: Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpsertWithWhereUniqueWithoutTagInput[]
+  createMany?: Prisma.ButterflyCreateManyTagInputEnvelope
+  set?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  disconnect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  delete?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  connect?: Prisma.ButterflyWhereUniqueInput | Prisma.ButterflyWhereUniqueInput[]
+  update?: Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput | Prisma.ButterflyUpdateWithWhereUniqueWithoutTagInput[]
+  updateMany?: Prisma.ButterflyUpdateManyWithWhereWithoutTagInput | Prisma.ButterflyUpdateManyWithWhereWithoutTagInput[]
+  deleteMany?: Prisma.ButterflyScalarWhereInput | Prisma.ButterflyScalarWhereInput[]
+}
+
 export type ButterflyCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1247,15 +1247,15 @@ export type ButterflyCreateWithoutArtImageInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutArtImageInput = {
@@ -1353,14 +1353,14 @@ export type ButterflyCreateWithoutArtCollectionInput = {
   isPublic?: boolean
   characterId?: number | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutArtCollectionInput = {
@@ -1429,15 +1429,15 @@ export type ButterflyCreateWithoutBotInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutBotInput = {
@@ -1506,15 +1506,15 @@ export type ButterflyCreateWithoutCollectionsInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutCollectionsInput = {
@@ -1573,15 +1573,15 @@ export type ButterflyUpdateWithoutCollectionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutCollectionsInput = {
@@ -1624,15 +1624,15 @@ export type ButterflyCreateWithoutPitchInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutPitchInput = {
@@ -1701,15 +1701,15 @@ export type ButterflyCreateWithoutPromptInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutPromptInput = {
@@ -1778,15 +1778,15 @@ export type ButterflyCreateWithoutReactionsInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutReactionsInput = {
@@ -1845,15 +1845,15 @@ export type ButterflyUpdateWithoutReactionsInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutReactionsInput = {
@@ -1896,15 +1896,15 @@ export type ButterflyCreateWithoutScenarioInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
 }
 
 export type ButterflyUncheckedCreateWithoutScenarioInput = {
@@ -1959,83 +1959,6 @@ export type ButterflyUpdateManyWithWhereWithoutScenarioInput = {
   data: Prisma.XOR<Prisma.ButterflyUpdateManyMutationInput, Prisma.ButterflyUncheckedUpdateManyWithoutScenarioInput>
 }
 
-export type ButterflyCreateWithoutTagInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  name: string
-  message: string
-  wingTopColor: string
-  wingBottomColor: string
-  speed: number
-  wingSpeed: number
-  scale: number
-  rarityNumber: number
-  designer?: string | null
-  isPublic?: boolean
-  characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
-  Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
-  Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
-  Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-}
-
-export type ButterflyUncheckedCreateWithoutTagInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  name: string
-  message: string
-  wingTopColor: string
-  wingBottomColor: string
-  speed: number
-  wingSpeed: number
-  scale: number
-  rarityNumber: number
-  artImageId?: number | null
-  designer?: string | null
-  userId?: number | null
-  isPublic?: boolean
-  artCollectionId?: number | null
-  botId?: number | null
-  characterId?: number | null
-  pitchId?: number | null
-  promptId?: number | null
-  scenarioId?: number | null
-  Collections?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutButterflyInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutButterflyInput
-}
-
-export type ButterflyCreateOrConnectWithoutTagInput = {
-  where: Prisma.ButterflyWhereUniqueInput
-  create: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput>
-}
-
-export type ButterflyCreateManyTagInputEnvelope = {
-  data: Prisma.ButterflyCreateManyTagInput | Prisma.ButterflyCreateManyTagInput[]
-  skipDuplicates?: boolean
-}
-
-export type ButterflyUpsertWithWhereUniqueWithoutTagInput = {
-  where: Prisma.ButterflyWhereUniqueInput
-  update: Prisma.XOR<Prisma.ButterflyUpdateWithoutTagInput, Prisma.ButterflyUncheckedUpdateWithoutTagInput>
-  create: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput>
-}
-
-export type ButterflyUpdateWithWhereUniqueWithoutTagInput = {
-  where: Prisma.ButterflyWhereUniqueInput
-  data: Prisma.XOR<Prisma.ButterflyUpdateWithoutTagInput, Prisma.ButterflyUncheckedUpdateWithoutTagInput>
-}
-
-export type ButterflyUpdateManyWithWhereWithoutTagInput = {
-  where: Prisma.ButterflyScalarWhereInput
-  data: Prisma.XOR<Prisma.ButterflyUpdateManyMutationInput, Prisma.ButterflyUncheckedUpdateManyWithoutTagInput>
-}
-
 export type ButterflyCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2050,15 +1973,15 @@ export type ButterflyCreateWithoutUserInput = {
   designer?: string | null
   isPublic?: boolean
   characterId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
-  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
   Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
-  Tag?: Prisma.TagCreateNestedOneWithoutButterfliesInput
+  Tag?: Prisma.TagCreateNestedOneWithoutButterflyInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
 }
 
 export type ButterflyUncheckedCreateWithoutUserInput = {
@@ -2113,6 +2036,83 @@ export type ButterflyUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.ButterflyUpdateManyMutationInput, Prisma.ButterflyUncheckedUpdateManyWithoutUserInput>
 }
 
+export type ButterflyCreateWithoutTagInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  message: string
+  wingTopColor: string
+  wingBottomColor: string
+  speed: number
+  wingSpeed: number
+  scale: number
+  rarityNumber: number
+  designer?: string | null
+  isPublic?: boolean
+  characterId?: number | null
+  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutButterfliesInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutButterfliesInput
+  Bot?: Prisma.BotCreateNestedOneWithoutButterfliesInput
+  Pitch?: Prisma.PitchCreateNestedOneWithoutButterfliesInput
+  Prompt?: Prisma.PromptCreateNestedOneWithoutButterfliesInput
+  Scenario?: Prisma.ScenarioCreateNestedOneWithoutButterfliesInput
+  User?: Prisma.UserCreateNestedOneWithoutButterfliesInput
+  Collections?: Prisma.ButterflyRecordCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutButterflyInput
+}
+
+export type ButterflyUncheckedCreateWithoutTagInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  message: string
+  wingTopColor: string
+  wingBottomColor: string
+  speed: number
+  wingSpeed: number
+  scale: number
+  rarityNumber: number
+  artImageId?: number | null
+  designer?: string | null
+  userId?: number | null
+  isPublic?: boolean
+  artCollectionId?: number | null
+  botId?: number | null
+  characterId?: number | null
+  pitchId?: number | null
+  promptId?: number | null
+  scenarioId?: number | null
+  Collections?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutButterflyInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutButterflyInput
+}
+
+export type ButterflyCreateOrConnectWithoutTagInput = {
+  where: Prisma.ButterflyWhereUniqueInput
+  create: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput>
+}
+
+export type ButterflyCreateManyTagInputEnvelope = {
+  data: Prisma.ButterflyCreateManyTagInput | Prisma.ButterflyCreateManyTagInput[]
+  skipDuplicates?: boolean
+}
+
+export type ButterflyUpsertWithWhereUniqueWithoutTagInput = {
+  where: Prisma.ButterflyWhereUniqueInput
+  update: Prisma.XOR<Prisma.ButterflyUpdateWithoutTagInput, Prisma.ButterflyUncheckedUpdateWithoutTagInput>
+  create: Prisma.XOR<Prisma.ButterflyCreateWithoutTagInput, Prisma.ButterflyUncheckedCreateWithoutTagInput>
+}
+
+export type ButterflyUpdateWithWhereUniqueWithoutTagInput = {
+  where: Prisma.ButterflyWhereUniqueInput
+  data: Prisma.XOR<Prisma.ButterflyUpdateWithoutTagInput, Prisma.ButterflyUncheckedUpdateWithoutTagInput>
+}
+
+export type ButterflyUpdateManyWithWhereWithoutTagInput = {
+  where: Prisma.ButterflyScalarWhereInput
+  data: Prisma.XOR<Prisma.ButterflyUpdateManyMutationInput, Prisma.ButterflyUncheckedUpdateManyWithoutTagInput>
+}
+
 export type ButterflyCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
@@ -2151,15 +2151,15 @@ export type ButterflyUpdateWithoutArtImageInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutArtImageInput = {
@@ -2251,14 +2251,14 @@ export type ButterflyUpdateWithoutArtCollectionInput = {
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutArtCollectionInput = {
@@ -2349,15 +2349,15 @@ export type ButterflyUpdateWithoutBotInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutBotInput = {
@@ -2448,15 +2448,15 @@ export type ButterflyUpdateWithoutPitchInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutPitchInput = {
@@ -2547,15 +2547,15 @@ export type ButterflyUpdateWithoutPromptInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutPromptInput = {
@@ -2646,15 +2646,15 @@ export type ButterflyUpdateWithoutScenarioInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutScenarioInput = {
@@ -2707,105 +2707,6 @@ export type ButterflyUncheckedUpdateManyWithoutScenarioInput = {
   tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type ButterflyCreateManyTagInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  name: string
-  message: string
-  wingTopColor: string
-  wingBottomColor: string
-  speed: number
-  wingSpeed: number
-  scale: number
-  rarityNumber: number
-  artImageId?: number | null
-  designer?: string | null
-  userId?: number | null
-  isPublic?: boolean
-  artCollectionId?: number | null
-  botId?: number | null
-  characterId?: number | null
-  pitchId?: number | null
-  promptId?: number | null
-  scenarioId?: number | null
-}
-
-export type ButterflyUpdateWithoutTagInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  wingTopColor?: Prisma.StringFieldUpdateOperationsInput | string
-  wingBottomColor?: Prisma.StringFieldUpdateOperationsInput | string
-  speed?: Prisma.FloatFieldUpdateOperationsInput | number
-  wingSpeed?: Prisma.FloatFieldUpdateOperationsInput | number
-  scale?: Prisma.FloatFieldUpdateOperationsInput | number
-  rarityNumber?: Prisma.IntFieldUpdateOperationsInput | number
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
-  Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
-  Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
-  Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-}
-
-export type ButterflyUncheckedUpdateWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  wingTopColor?: Prisma.StringFieldUpdateOperationsInput | string
-  wingBottomColor?: Prisma.StringFieldUpdateOperationsInput | string
-  speed?: Prisma.FloatFieldUpdateOperationsInput | number
-  wingSpeed?: Prisma.FloatFieldUpdateOperationsInput | number
-  scale?: Prisma.FloatFieldUpdateOperationsInput | number
-  rarityNumber?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Collections?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutButterflyNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutButterflyNestedInput
-}
-
-export type ButterflyUncheckedUpdateManyWithoutTagInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  wingTopColor?: Prisma.StringFieldUpdateOperationsInput | string
-  wingBottomColor?: Prisma.StringFieldUpdateOperationsInput | string
-  speed?: Prisma.FloatFieldUpdateOperationsInput | number
-  wingSpeed?: Prisma.FloatFieldUpdateOperationsInput | number
-  scale?: Prisma.FloatFieldUpdateOperationsInput | number
-  rarityNumber?: Prisma.IntFieldUpdateOperationsInput | number
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
 export type ButterflyCreateManyUserInput = {
   id?: number
   createdAt?: Date | string
@@ -2844,15 +2745,15 @@ export type ButterflyUpdateWithoutUserInput = {
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
-  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
   Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
-  Tag?: Prisma.TagUpdateOneWithoutButterfliesNestedInput
+  Tag?: Prisma.TagUpdateOneWithoutButterflyNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
 }
 
 export type ButterflyUncheckedUpdateWithoutUserInput = {
@@ -2903,6 +2804,105 @@ export type ButterflyUncheckedUpdateManyWithoutUserInput = {
   promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type ButterflyCreateManyTagInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  message: string
+  wingTopColor: string
+  wingBottomColor: string
+  speed: number
+  wingSpeed: number
+  scale: number
+  rarityNumber: number
+  artImageId?: number | null
+  designer?: string | null
+  userId?: number | null
+  isPublic?: boolean
+  artCollectionId?: number | null
+  botId?: number | null
+  characterId?: number | null
+  pitchId?: number | null
+  promptId?: number | null
+  scenarioId?: number | null
+}
+
+export type ButterflyUpdateWithoutTagInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  wingTopColor?: Prisma.StringFieldUpdateOperationsInput | string
+  wingBottomColor?: Prisma.StringFieldUpdateOperationsInput | string
+  speed?: Prisma.FloatFieldUpdateOperationsInput | number
+  wingSpeed?: Prisma.FloatFieldUpdateOperationsInput | number
+  scale?: Prisma.FloatFieldUpdateOperationsInput | number
+  rarityNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutButterfliesNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutButterfliesNestedInput
+  Bot?: Prisma.BotUpdateOneWithoutButterfliesNestedInput
+  Pitch?: Prisma.PitchUpdateOneWithoutButterfliesNestedInput
+  Prompt?: Prisma.PromptUpdateOneWithoutButterfliesNestedInput
+  Scenario?: Prisma.ScenarioUpdateOneWithoutButterfliesNestedInput
+  User?: Prisma.UserUpdateOneWithoutButterfliesNestedInput
+  Collections?: Prisma.ButterflyRecordUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutButterflyNestedInput
+}
+
+export type ButterflyUncheckedUpdateWithoutTagInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  wingTopColor?: Prisma.StringFieldUpdateOperationsInput | string
+  wingBottomColor?: Prisma.StringFieldUpdateOperationsInput | string
+  speed?: Prisma.FloatFieldUpdateOperationsInput | number
+  wingSpeed?: Prisma.FloatFieldUpdateOperationsInput | number
+  scale?: Prisma.FloatFieldUpdateOperationsInput | number
+  rarityNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Collections?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutButterflyNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutButterflyNestedInput
+}
+
+export type ButterflyUncheckedUpdateManyWithoutTagInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  wingTopColor?: Prisma.StringFieldUpdateOperationsInput | string
+  wingBottomColor?: Prisma.StringFieldUpdateOperationsInput | string
+  speed?: Prisma.FloatFieldUpdateOperationsInput | number
+  wingSpeed?: Prisma.FloatFieldUpdateOperationsInput | number
+  scale?: Prisma.FloatFieldUpdateOperationsInput | number
+  rarityNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  characterId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  promptId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -2968,16 +2968,16 @@ export type ButterflySelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   promptId?: boolean
   scenarioId?: boolean
   tagId?: boolean
-  ArtImage?: boolean | Prisma.Butterfly$ArtImageArgs<ExtArgs>
-  User?: boolean | Prisma.Butterfly$UserArgs<ExtArgs>
-  Collections?: boolean | Prisma.Butterfly$CollectionsArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Butterfly$ArtCollectionArgs<ExtArgs>
+  ArtImage?: boolean | Prisma.Butterfly$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Butterfly$BotArgs<ExtArgs>
   Pitch?: boolean | Prisma.Butterfly$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Butterfly$PromptArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Butterfly$ReactionsArgs<ExtArgs>
   Scenario?: boolean | Prisma.Butterfly$ScenarioArgs<ExtArgs>
   Tag?: boolean | Prisma.Butterfly$TagArgs<ExtArgs>
+  User?: boolean | Prisma.Butterfly$UserArgs<ExtArgs>
+  Collections?: boolean | Prisma.Butterfly$CollectionsArgs<ExtArgs>
+  Reactions?: boolean | Prisma.Butterfly$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ButterflyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["butterfly"]>
 
@@ -3010,32 +3010,32 @@ export type ButterflySelectScalar = {
 
 export type ButterflyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "message" | "wingTopColor" | "wingBottomColor" | "speed" | "wingSpeed" | "scale" | "rarityNumber" | "artImageId" | "designer" | "userId" | "isPublic" | "artCollectionId" | "botId" | "characterId" | "pitchId" | "promptId" | "scenarioId" | "tagId", ExtArgs["result"]["butterfly"]>
 export type ButterflyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ArtImage?: boolean | Prisma.Butterfly$ArtImageArgs<ExtArgs>
-  User?: boolean | Prisma.Butterfly$UserArgs<ExtArgs>
-  Collections?: boolean | Prisma.Butterfly$CollectionsArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Butterfly$ArtCollectionArgs<ExtArgs>
+  ArtImage?: boolean | Prisma.Butterfly$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Butterfly$BotArgs<ExtArgs>
   Pitch?: boolean | Prisma.Butterfly$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Butterfly$PromptArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Butterfly$ReactionsArgs<ExtArgs>
   Scenario?: boolean | Prisma.Butterfly$ScenarioArgs<ExtArgs>
   Tag?: boolean | Prisma.Butterfly$TagArgs<ExtArgs>
+  User?: boolean | Prisma.Butterfly$UserArgs<ExtArgs>
+  Collections?: boolean | Prisma.Butterfly$CollectionsArgs<ExtArgs>
+  Reactions?: boolean | Prisma.Butterfly$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.ButterflyCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ButterflyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Butterfly"
   objects: {
-    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
-    User: Prisma.$UserPayload<ExtArgs> | null
-    Collections: Prisma.$ButterflyRecordPayload<ExtArgs>[]
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
+    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Bot: Prisma.$BotPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
-    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
     Tag: Prisma.$TagPayload<ExtArgs> | null
+    User: Prisma.$UserPayload<ExtArgs> | null
+    Collections: Prisma.$ButterflyRecordPayload<ExtArgs>[]
+    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3423,16 +3423,16 @@ readonly fields: ButterflyFieldRefs;
  */
 export interface Prisma__ButterflyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  ArtImage<T extends Prisma.Butterfly$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  User<T extends Prisma.Butterfly$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Collections<T extends Prisma.Butterfly$CollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$CollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollection<T extends Prisma.Butterfly$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ArtImage<T extends Prisma.Butterfly$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Bot<T extends Prisma.Butterfly$BotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$BotArgs<ExtArgs>>): Prisma.Prisma__BotClient<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Butterfly$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Butterfly$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Reactions<T extends Prisma.Butterfly$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Scenario<T extends Prisma.Butterfly$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Tag<T extends Prisma.Butterfly$TagArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$TagArgs<ExtArgs>>): Prisma.Prisma__TagClient<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.Butterfly$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Collections<T extends Prisma.Butterfly$CollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$CollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Reactions<T extends Prisma.Butterfly$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Butterfly$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3832,68 +3832,6 @@ export type ButterflyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * Butterfly.ArtImage
- */
-export type Butterfly$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtImage
-   */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtImage
-   */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
-}
-
-/**
- * Butterfly.User
- */
-export type Butterfly$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
-}
-
-/**
- * Butterfly.Collections
- */
-export type Butterfly$CollectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ButterflyRecord
-   */
-  select?: Prisma.ButterflyRecordSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ButterflyRecord
-   */
-  omit?: Prisma.ButterflyRecordOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ButterflyRecordInclude<ExtArgs> | null
-  where?: Prisma.ButterflyRecordWhereInput
-  orderBy?: Prisma.ButterflyRecordOrderByWithRelationInput | Prisma.ButterflyRecordOrderByWithRelationInput[]
-  cursor?: Prisma.ButterflyRecordWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ButterflyRecordScalarFieldEnum | Prisma.ButterflyRecordScalarFieldEnum[]
-}
-
-/**
  * Butterfly.ArtCollection
  */
 export type Butterfly$ArtCollectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3910,6 +3848,25 @@ export type Butterfly$ArtCollectionArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.ArtCollectionInclude<ExtArgs> | null
   where?: Prisma.ArtCollectionWhereInput
+}
+
+/**
+ * Butterfly.ArtImage
+ */
+export type Butterfly$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtImage
+   */
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtImage
+   */
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
 }
 
 /**
@@ -3970,30 +3927,6 @@ export type Butterfly$PromptArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Butterfly.Reactions
- */
-export type Butterfly$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Reaction
-   */
-  select?: Prisma.ReactionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Reaction
-   */
-  omit?: Prisma.ReactionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ReactionInclude<ExtArgs> | null
-  where?: Prisma.ReactionWhereInput
-  orderBy?: Prisma.ReactionOrderByWithRelationInput | Prisma.ReactionOrderByWithRelationInput[]
-  cursor?: Prisma.ReactionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
-}
-
-/**
  * Butterfly.Scenario
  */
 export type Butterfly$ScenarioArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4029,6 +3962,73 @@ export type Butterfly$TagArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.TagInclude<ExtArgs> | null
   where?: Prisma.TagWhereInput
+}
+
+/**
+ * Butterfly.User
+ */
+export type Butterfly$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Butterfly.Collections
+ */
+export type Butterfly$CollectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ButterflyRecord
+   */
+  select?: Prisma.ButterflyRecordSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ButterflyRecord
+   */
+  omit?: Prisma.ButterflyRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ButterflyRecordInclude<ExtArgs> | null
+  where?: Prisma.ButterflyRecordWhereInput
+  orderBy?: Prisma.ButterflyRecordOrderByWithRelationInput | Prisma.ButterflyRecordOrderByWithRelationInput[]
+  cursor?: Prisma.ButterflyRecordWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ButterflyRecordScalarFieldEnum | Prisma.ButterflyRecordScalarFieldEnum[]
+}
+
+/**
+ * Butterfly.Reactions
+ */
+export type Butterfly$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reaction
+   */
+  select?: Prisma.ReactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reaction
+   */
+  omit?: Prisma.ReactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReactionInclude<ExtArgs> | null
+  where?: Prisma.ReactionWhereInput
+  orderBy?: Prisma.ReactionOrderByWithRelationInput | Prisma.ReactionOrderByWithRelationInput[]
+  cursor?: Prisma.ReactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
 }
 
 /**

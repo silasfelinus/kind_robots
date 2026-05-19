@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Gallery
- * our mostly-obsolete system for collecting images. It assumed data was kept as physical files on disk, and is still used to access the original seed images, which are only partly digitized and used primarily for our Memory Match game, which is the clearest proof of concept that all of this can be used for a functional purpose.
+ * 
  */
 export type GalleryModel = runtime.Types.Result.DefaultSelection<Prisma.$GalleryPayload>
 
@@ -47,10 +47,10 @@ export type GalleryMinAggregateOutputType = {
   content: string | null
   highlightImage: string | null
   imagePaths: string | null
+  isMature: boolean | null
   userId: number | null
   isPublic: boolean | null
   isActive: boolean | null
-  isMature: boolean | null
 }
 
 export type GalleryMaxAggregateOutputType = {
@@ -64,10 +64,10 @@ export type GalleryMaxAggregateOutputType = {
   content: string | null
   highlightImage: string | null
   imagePaths: string | null
+  isMature: boolean | null
   userId: number | null
   isPublic: boolean | null
   isActive: boolean | null
-  isMature: boolean | null
 }
 
 export type GalleryCountAggregateOutputType = {
@@ -81,10 +81,10 @@ export type GalleryCountAggregateOutputType = {
   content: number
   highlightImage: number
   imagePaths: number
+  isMature: number
   userId: number
   isPublic: number
   isActive: number
-  isMature: number
   _all: number
 }
 
@@ -110,10 +110,10 @@ export type GalleryMinAggregateInputType = {
   content?: true
   highlightImage?: true
   imagePaths?: true
+  isMature?: true
   userId?: true
   isPublic?: true
   isActive?: true
-  isMature?: true
 }
 
 export type GalleryMaxAggregateInputType = {
@@ -127,10 +127,10 @@ export type GalleryMaxAggregateInputType = {
   content?: true
   highlightImage?: true
   imagePaths?: true
+  isMature?: true
   userId?: true
   isPublic?: true
   isActive?: true
-  isMature?: true
 }
 
 export type GalleryCountAggregateInputType = {
@@ -144,10 +144,10 @@ export type GalleryCountAggregateInputType = {
   content?: true
   highlightImage?: true
   imagePaths?: true
+  isMature?: true
   userId?: true
   isPublic?: true
   isActive?: true
-  isMature?: true
   _all?: true
 }
 
@@ -248,10 +248,10 @@ export type GalleryGroupByOutputType = {
   content: string
   highlightImage: string | null
   imagePaths: string | null
+  isMature: boolean
   userId: number | null
   isPublic: boolean
   isActive: boolean
-  isMature: boolean
   _count: GalleryCountAggregateOutputType | null
   _avg: GalleryAvgAggregateOutputType | null
   _sum: GallerySumAggregateOutputType | null
@@ -288,14 +288,14 @@ export type GalleryWhereInput = {
   content?: Prisma.StringFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableFilter<"Gallery"> | string | null
+  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolFilter<"Gallery"> | boolean
   isActive?: Prisma.BoolFilter<"Gallery"> | boolean
-  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
+  Dream?: Prisma.DreamListRelationFilter
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Prompts?: Prisma.PromptListRelationFilter
-  Reactions?: Prisma.ReactionListRelationFilter
-  Dreams?: Prisma.DreamListRelationFilter
+  Prompt?: Prisma.PromptListRelationFilter
+  Reaction?: Prisma.ReactionListRelationFilter
 }
 
 export type GalleryOrderByWithRelationInput = {
@@ -309,14 +309,14 @@ export type GalleryOrderByWithRelationInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePaths?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
+  Dream?: Prisma.DreamOrderByRelationAggregateInput
   User?: Prisma.UserOrderByWithRelationInput
-  Prompts?: Prisma.PromptOrderByRelationAggregateInput
-  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
-  Dreams?: Prisma.DreamOrderByRelationAggregateInput
+  Prompt?: Prisma.PromptOrderByRelationAggregateInput
+  Reaction?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.GalleryOrderByRelevanceInput
 }
 
@@ -334,14 +334,14 @@ export type GalleryWhereUniqueInput = Prisma.AtLeast<{
   content?: Prisma.StringFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableFilter<"Gallery"> | string | null
+  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolFilter<"Gallery"> | boolean
   isActive?: Prisma.BoolFilter<"Gallery"> | boolean
-  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
+  Dream?: Prisma.DreamListRelationFilter
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Prompts?: Prisma.PromptListRelationFilter
-  Reactions?: Prisma.ReactionListRelationFilter
-  Dreams?: Prisma.DreamListRelationFilter
+  Prompt?: Prisma.PromptListRelationFilter
+  Reaction?: Prisma.ReactionListRelationFilter
 }, "id">
 
 export type GalleryOrderByWithAggregationInput = {
@@ -355,10 +355,10 @@ export type GalleryOrderByWithAggregationInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePaths?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   _count?: Prisma.GalleryCountOrderByAggregateInput
   _avg?: Prisma.GalleryAvgOrderByAggregateInput
   _max?: Prisma.GalleryMaxOrderByAggregateInput
@@ -380,10 +380,10 @@ export type GalleryScalarWhereWithAggregatesInput = {
   content?: Prisma.StringWithAggregatesFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableWithAggregatesFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableWithAggregatesFilter<"Gallery"> | string | null
+  isMature?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
-  isMature?: Prisma.BoolWithAggregatesFilter<"Gallery"> | boolean
 }
 
 export type GalleryCreateInput = {
@@ -396,13 +396,13 @@ export type GalleryCreateInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  User?: Prisma.UserCreateNestedOneWithoutGalleryInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
 }
 
 export type GalleryUncheckedCreateInput = {
@@ -416,13 +416,13 @@ export type GalleryUncheckedCreateInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
 }
 
 export type GalleryUpdateInput = {
@@ -435,13 +435,13 @@ export type GalleryUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  User?: Prisma.UserUpdateOneWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
 }
 
 export type GalleryUncheckedUpdateInput = {
@@ -455,13 +455,13 @@ export type GalleryUncheckedUpdateInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
 }
 
 export type GalleryCreateManyInput = {
@@ -475,10 +475,10 @@ export type GalleryCreateManyInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
 }
 
 export type GalleryUpdateManyMutationInput = {
@@ -491,9 +491,9 @@ export type GalleryUpdateManyMutationInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GalleryUncheckedUpdateManyInput = {
@@ -507,15 +507,25 @@ export type GalleryUncheckedUpdateManyInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GalleryNullableScalarRelationFilter = {
   is?: Prisma.GalleryWhereInput | null
   isNot?: Prisma.GalleryWhereInput | null
+}
+
+export type GalleryListRelationFilter = {
+  every?: Prisma.GalleryWhereInput
+  some?: Prisma.GalleryWhereInput
+  none?: Prisma.GalleryWhereInput
+}
+
+export type GalleryOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type GalleryOrderByRelevanceInput = {
@@ -535,10 +545,10 @@ export type GalleryCountOrderByAggregateInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   imagePaths?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
 }
 
 export type GalleryAvgOrderByAggregateInput = {
@@ -557,10 +567,10 @@ export type GalleryMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   imagePaths?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
 }
 
 export type GalleryMinOrderByAggregateInput = {
@@ -574,10 +584,10 @@ export type GalleryMinOrderByAggregateInput = {
   content?: Prisma.SortOrder
   highlightImage?: Prisma.SortOrder
   imagePaths?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
 }
 
 export type GallerySumOrderByAggregateInput = {
@@ -585,62 +595,52 @@ export type GallerySumOrderByAggregateInput = {
   userId?: Prisma.SortOrder
 }
 
-export type GalleryListRelationFilter = {
-  every?: Prisma.GalleryWhereInput
-  some?: Prisma.GalleryWhereInput
-  none?: Prisma.GalleryWhereInput
-}
-
-export type GalleryOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
-export type GalleryCreateNestedOneWithoutDreamsInput = {
-  create?: Prisma.XOR<Prisma.GalleryCreateWithoutDreamsInput, Prisma.GalleryUncheckedCreateWithoutDreamsInput>
-  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutDreamsInput
+export type GalleryCreateNestedOneWithoutDreamInput = {
+  create?: Prisma.XOR<Prisma.GalleryCreateWithoutDreamInput, Prisma.GalleryUncheckedCreateWithoutDreamInput>
+  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutDreamInput
   connect?: Prisma.GalleryWhereUniqueInput
 }
 
-export type GalleryUpdateOneWithoutDreamsNestedInput = {
-  create?: Prisma.XOR<Prisma.GalleryCreateWithoutDreamsInput, Prisma.GalleryUncheckedCreateWithoutDreamsInput>
-  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutDreamsInput
-  upsert?: Prisma.GalleryUpsertWithoutDreamsInput
+export type GalleryUpdateOneWithoutDreamNestedInput = {
+  create?: Prisma.XOR<Prisma.GalleryCreateWithoutDreamInput, Prisma.GalleryUncheckedCreateWithoutDreamInput>
+  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutDreamInput
+  upsert?: Prisma.GalleryUpsertWithoutDreamInput
   disconnect?: Prisma.GalleryWhereInput | boolean
   delete?: Prisma.GalleryWhereInput | boolean
   connect?: Prisma.GalleryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GalleryUpdateToOneWithWhereWithoutDreamsInput, Prisma.GalleryUpdateWithoutDreamsInput>, Prisma.GalleryUncheckedUpdateWithoutDreamsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GalleryUpdateToOneWithWhereWithoutDreamInput, Prisma.GalleryUpdateWithoutDreamInput>, Prisma.GalleryUncheckedUpdateWithoutDreamInput>
 }
 
-export type GalleryCreateNestedOneWithoutPromptsInput = {
-  create?: Prisma.XOR<Prisma.GalleryCreateWithoutPromptsInput, Prisma.GalleryUncheckedCreateWithoutPromptsInput>
-  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutPromptsInput
+export type GalleryCreateNestedOneWithoutPromptInput = {
+  create?: Prisma.XOR<Prisma.GalleryCreateWithoutPromptInput, Prisma.GalleryUncheckedCreateWithoutPromptInput>
+  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutPromptInput
   connect?: Prisma.GalleryWhereUniqueInput
 }
 
-export type GalleryUpdateOneWithoutPromptsNestedInput = {
-  create?: Prisma.XOR<Prisma.GalleryCreateWithoutPromptsInput, Prisma.GalleryUncheckedCreateWithoutPromptsInput>
-  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutPromptsInput
-  upsert?: Prisma.GalleryUpsertWithoutPromptsInput
+export type GalleryUpdateOneWithoutPromptNestedInput = {
+  create?: Prisma.XOR<Prisma.GalleryCreateWithoutPromptInput, Prisma.GalleryUncheckedCreateWithoutPromptInput>
+  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutPromptInput
+  upsert?: Prisma.GalleryUpsertWithoutPromptInput
   disconnect?: Prisma.GalleryWhereInput | boolean
   delete?: Prisma.GalleryWhereInput | boolean
   connect?: Prisma.GalleryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GalleryUpdateToOneWithWhereWithoutPromptsInput, Prisma.GalleryUpdateWithoutPromptsInput>, Prisma.GalleryUncheckedUpdateWithoutPromptsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GalleryUpdateToOneWithWhereWithoutPromptInput, Prisma.GalleryUpdateWithoutPromptInput>, Prisma.GalleryUncheckedUpdateWithoutPromptInput>
 }
 
-export type GalleryCreateNestedOneWithoutReactionsInput = {
-  create?: Prisma.XOR<Prisma.GalleryCreateWithoutReactionsInput, Prisma.GalleryUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutReactionsInput
+export type GalleryCreateNestedOneWithoutReactionInput = {
+  create?: Prisma.XOR<Prisma.GalleryCreateWithoutReactionInput, Prisma.GalleryUncheckedCreateWithoutReactionInput>
+  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutReactionInput
   connect?: Prisma.GalleryWhereUniqueInput
 }
 
-export type GalleryUpdateOneWithoutReactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.GalleryCreateWithoutReactionsInput, Prisma.GalleryUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutReactionsInput
-  upsert?: Prisma.GalleryUpsertWithoutReactionsInput
+export type GalleryUpdateOneWithoutReactionNestedInput = {
+  create?: Prisma.XOR<Prisma.GalleryCreateWithoutReactionInput, Prisma.GalleryUncheckedCreateWithoutReactionInput>
+  connectOrCreate?: Prisma.GalleryCreateOrConnectWithoutReactionInput
+  upsert?: Prisma.GalleryUpsertWithoutReactionInput
   disconnect?: Prisma.GalleryWhereInput | boolean
   delete?: Prisma.GalleryWhereInput | boolean
   connect?: Prisma.GalleryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GalleryUpdateToOneWithWhereWithoutReactionsInput, Prisma.GalleryUpdateWithoutReactionsInput>, Prisma.GalleryUncheckedUpdateWithoutReactionsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GalleryUpdateToOneWithWhereWithoutReactionInput, Prisma.GalleryUpdateWithoutReactionInput>, Prisma.GalleryUncheckedUpdateWithoutReactionInput>
 }
 
 export type GalleryCreateNestedManyWithoutUserInput = {
@@ -685,7 +685,7 @@ export type GalleryUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.GalleryScalarWhereInput | Prisma.GalleryScalarWhereInput[]
 }
 
-export type GalleryCreateWithoutDreamsInput = {
+export type GalleryCreateWithoutDreamInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
@@ -695,15 +695,15 @@ export type GalleryCreateWithoutDreamsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
+  User?: Prisma.UserCreateNestedOneWithoutGalleryInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
 }
 
-export type GalleryUncheckedCreateWithoutDreamsInput = {
+export type GalleryUncheckedCreateWithoutDreamInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -714,31 +714,31 @@ export type GalleryUncheckedCreateWithoutDreamsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
 }
 
-export type GalleryCreateOrConnectWithoutDreamsInput = {
+export type GalleryCreateOrConnectWithoutDreamInput = {
   where: Prisma.GalleryWhereUniqueInput
-  create: Prisma.XOR<Prisma.GalleryCreateWithoutDreamsInput, Prisma.GalleryUncheckedCreateWithoutDreamsInput>
+  create: Prisma.XOR<Prisma.GalleryCreateWithoutDreamInput, Prisma.GalleryUncheckedCreateWithoutDreamInput>
 }
 
-export type GalleryUpsertWithoutDreamsInput = {
-  update: Prisma.XOR<Prisma.GalleryUpdateWithoutDreamsInput, Prisma.GalleryUncheckedUpdateWithoutDreamsInput>
-  create: Prisma.XOR<Prisma.GalleryCreateWithoutDreamsInput, Prisma.GalleryUncheckedCreateWithoutDreamsInput>
+export type GalleryUpsertWithoutDreamInput = {
+  update: Prisma.XOR<Prisma.GalleryUpdateWithoutDreamInput, Prisma.GalleryUncheckedUpdateWithoutDreamInput>
+  create: Prisma.XOR<Prisma.GalleryCreateWithoutDreamInput, Prisma.GalleryUncheckedCreateWithoutDreamInput>
   where?: Prisma.GalleryWhereInput
 }
 
-export type GalleryUpdateToOneWithWhereWithoutDreamsInput = {
+export type GalleryUpdateToOneWithWhereWithoutDreamInput = {
   where?: Prisma.GalleryWhereInput
-  data: Prisma.XOR<Prisma.GalleryUpdateWithoutDreamsInput, Prisma.GalleryUncheckedUpdateWithoutDreamsInput>
+  data: Prisma.XOR<Prisma.GalleryUpdateWithoutDreamInput, Prisma.GalleryUncheckedUpdateWithoutDreamInput>
 }
 
-export type GalleryUpdateWithoutDreamsInput = {
+export type GalleryUpdateWithoutDreamInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -748,15 +748,15 @@ export type GalleryUpdateWithoutDreamsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
+  User?: Prisma.UserUpdateOneWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
 }
 
-export type GalleryUncheckedUpdateWithoutDreamsInput = {
+export type GalleryUncheckedUpdateWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -767,15 +767,15 @@ export type GalleryUncheckedUpdateWithoutDreamsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
 }
 
-export type GalleryCreateWithoutPromptsInput = {
+export type GalleryCreateWithoutPromptInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
@@ -785,15 +785,15 @@ export type GalleryCreateWithoutPromptsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  User?: Prisma.UserCreateNestedOneWithoutGalleryInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
 }
 
-export type GalleryUncheckedCreateWithoutPromptsInput = {
+export type GalleryUncheckedCreateWithoutPromptInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -804,31 +804,31 @@ export type GalleryUncheckedCreateWithoutPromptsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
 }
 
-export type GalleryCreateOrConnectWithoutPromptsInput = {
+export type GalleryCreateOrConnectWithoutPromptInput = {
   where: Prisma.GalleryWhereUniqueInput
-  create: Prisma.XOR<Prisma.GalleryCreateWithoutPromptsInput, Prisma.GalleryUncheckedCreateWithoutPromptsInput>
+  create: Prisma.XOR<Prisma.GalleryCreateWithoutPromptInput, Prisma.GalleryUncheckedCreateWithoutPromptInput>
 }
 
-export type GalleryUpsertWithoutPromptsInput = {
-  update: Prisma.XOR<Prisma.GalleryUpdateWithoutPromptsInput, Prisma.GalleryUncheckedUpdateWithoutPromptsInput>
-  create: Prisma.XOR<Prisma.GalleryCreateWithoutPromptsInput, Prisma.GalleryUncheckedCreateWithoutPromptsInput>
+export type GalleryUpsertWithoutPromptInput = {
+  update: Prisma.XOR<Prisma.GalleryUpdateWithoutPromptInput, Prisma.GalleryUncheckedUpdateWithoutPromptInput>
+  create: Prisma.XOR<Prisma.GalleryCreateWithoutPromptInput, Prisma.GalleryUncheckedCreateWithoutPromptInput>
   where?: Prisma.GalleryWhereInput
 }
 
-export type GalleryUpdateToOneWithWhereWithoutPromptsInput = {
+export type GalleryUpdateToOneWithWhereWithoutPromptInput = {
   where?: Prisma.GalleryWhereInput
-  data: Prisma.XOR<Prisma.GalleryUpdateWithoutPromptsInput, Prisma.GalleryUncheckedUpdateWithoutPromptsInput>
+  data: Prisma.XOR<Prisma.GalleryUpdateWithoutPromptInput, Prisma.GalleryUncheckedUpdateWithoutPromptInput>
 }
 
-export type GalleryUpdateWithoutPromptsInput = {
+export type GalleryUpdateWithoutPromptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -838,15 +838,15 @@ export type GalleryUpdateWithoutPromptsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  User?: Prisma.UserUpdateOneWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
 }
 
-export type GalleryUncheckedUpdateWithoutPromptsInput = {
+export type GalleryUncheckedUpdateWithoutPromptInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -857,15 +857,15 @@ export type GalleryUncheckedUpdateWithoutPromptsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
 }
 
-export type GalleryCreateWithoutReactionsInput = {
+export type GalleryCreateWithoutReactionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   name: string
@@ -875,15 +875,15 @@ export type GalleryCreateWithoutReactionsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutGalleriesInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  User?: Prisma.UserCreateNestedOneWithoutGalleryInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutGalleryInput
 }
 
-export type GalleryUncheckedCreateWithoutReactionsInput = {
+export type GalleryUncheckedCreateWithoutReactionInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -894,31 +894,31 @@ export type GalleryUncheckedCreateWithoutReactionsInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   userId?: number | null
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
 }
 
-export type GalleryCreateOrConnectWithoutReactionsInput = {
+export type GalleryCreateOrConnectWithoutReactionInput = {
   where: Prisma.GalleryWhereUniqueInput
-  create: Prisma.XOR<Prisma.GalleryCreateWithoutReactionsInput, Prisma.GalleryUncheckedCreateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.GalleryCreateWithoutReactionInput, Prisma.GalleryUncheckedCreateWithoutReactionInput>
 }
 
-export type GalleryUpsertWithoutReactionsInput = {
-  update: Prisma.XOR<Prisma.GalleryUpdateWithoutReactionsInput, Prisma.GalleryUncheckedUpdateWithoutReactionsInput>
-  create: Prisma.XOR<Prisma.GalleryCreateWithoutReactionsInput, Prisma.GalleryUncheckedCreateWithoutReactionsInput>
+export type GalleryUpsertWithoutReactionInput = {
+  update: Prisma.XOR<Prisma.GalleryUpdateWithoutReactionInput, Prisma.GalleryUncheckedUpdateWithoutReactionInput>
+  create: Prisma.XOR<Prisma.GalleryCreateWithoutReactionInput, Prisma.GalleryUncheckedCreateWithoutReactionInput>
   where?: Prisma.GalleryWhereInput
 }
 
-export type GalleryUpdateToOneWithWhereWithoutReactionsInput = {
+export type GalleryUpdateToOneWithWhereWithoutReactionInput = {
   where?: Prisma.GalleryWhereInput
-  data: Prisma.XOR<Prisma.GalleryUpdateWithoutReactionsInput, Prisma.GalleryUncheckedUpdateWithoutReactionsInput>
+  data: Prisma.XOR<Prisma.GalleryUpdateWithoutReactionInput, Prisma.GalleryUncheckedUpdateWithoutReactionInput>
 }
 
-export type GalleryUpdateWithoutReactionsInput = {
+export type GalleryUpdateWithoutReactionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -928,15 +928,15 @@ export type GalleryUpdateWithoutReactionsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneWithoutGalleriesNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  User?: Prisma.UserUpdateOneWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
 }
 
-export type GalleryUncheckedUpdateWithoutReactionsInput = {
+export type GalleryUncheckedUpdateWithoutReactionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -947,12 +947,12 @@ export type GalleryUncheckedUpdateWithoutReactionsInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
 }
 
 export type GalleryCreateWithoutUserInput = {
@@ -965,12 +965,12 @@ export type GalleryCreateWithoutUserInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  Prompts?: Prisma.PromptCreateNestedManyWithoutGalleryInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutGalleryInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutGalleryInput
 }
 
 export type GalleryUncheckedCreateWithoutUserInput = {
@@ -984,12 +984,12 @@ export type GalleryUncheckedCreateWithoutUserInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutGalleryInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutGalleryInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutGalleryInput
 }
 
 export type GalleryCreateOrConnectWithoutUserInput = {
@@ -1032,10 +1032,10 @@ export type GalleryScalarWhereInput = {
   content?: Prisma.StringFilter<"Gallery"> | string
   highlightImage?: Prisma.StringNullableFilter<"Gallery"> | string | null
   imagePaths?: Prisma.StringNullableFilter<"Gallery"> | string | null
+  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
   userId?: Prisma.IntNullableFilter<"Gallery"> | number | null
   isPublic?: Prisma.BoolFilter<"Gallery"> | boolean
   isActive?: Prisma.BoolFilter<"Gallery"> | boolean
-  isMature?: Prisma.BoolFilter<"Gallery"> | boolean
 }
 
 export type GalleryCreateManyUserInput = {
@@ -1049,9 +1049,9 @@ export type GalleryCreateManyUserInput = {
   content: string
   highlightImage?: string | null
   imagePaths?: string | null
+  isMature?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
 }
 
 export type GalleryUpdateWithoutUserInput = {
@@ -1064,12 +1064,12 @@ export type GalleryUpdateWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Prompts?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutGalleryNestedInput
 }
 
 export type GalleryUncheckedUpdateWithoutUserInput = {
@@ -1083,12 +1083,12 @@ export type GalleryUncheckedUpdateWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutGalleryNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutGalleryNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutGalleryNestedInput
 }
 
 export type GalleryUncheckedUpdateManyWithoutUserInput = {
@@ -1102,9 +1102,9 @@ export type GalleryUncheckedUpdateManyWithoutUserInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePaths?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -1113,15 +1113,15 @@ export type GalleryUncheckedUpdateManyWithoutUserInput = {
  */
 
 export type GalleryCountOutputType = {
-  Prompts: number
-  Reactions: number
-  Dreams: number
+  Dream: number
+  Prompt: number
+  Reaction: number
 }
 
 export type GalleryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Prompts?: boolean | GalleryCountOutputTypeCountPromptsArgs
-  Reactions?: boolean | GalleryCountOutputTypeCountReactionsArgs
-  Dreams?: boolean | GalleryCountOutputTypeCountDreamsArgs
+  Dream?: boolean | GalleryCountOutputTypeCountDreamArgs
+  Prompt?: boolean | GalleryCountOutputTypeCountPromptArgs
+  Reaction?: boolean | GalleryCountOutputTypeCountReactionArgs
 }
 
 /**
@@ -1137,22 +1137,22 @@ export type GalleryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * GalleryCountOutputType without action
  */
-export type GalleryCountOutputTypeCountPromptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type GalleryCountOutputTypeCountDreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DreamWhereInput
+}
+
+/**
+ * GalleryCountOutputType without action
+ */
+export type GalleryCountOutputTypeCountPromptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PromptWhereInput
 }
 
 /**
  * GalleryCountOutputType without action
  */
-export type GalleryCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type GalleryCountOutputTypeCountReactionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReactionWhereInput
-}
-
-/**
- * GalleryCountOutputType without action
- */
-export type GalleryCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DreamWhereInput
 }
 
 
@@ -1167,14 +1167,14 @@ export type GallerySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   content?: boolean
   highlightImage?: boolean
   imagePaths?: boolean
+  isMature?: boolean
   userId?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
+  Dream?: boolean | Prisma.Gallery$DreamArgs<ExtArgs>
   User?: boolean | Prisma.Gallery$UserArgs<ExtArgs>
-  Prompts?: boolean | Prisma.Gallery$PromptsArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Gallery$ReactionsArgs<ExtArgs>
-  Dreams?: boolean | Prisma.Gallery$DreamsArgs<ExtArgs>
+  Prompt?: boolean | Prisma.Gallery$PromptArgs<ExtArgs>
+  Reaction?: boolean | Prisma.Gallery$ReactionArgs<ExtArgs>
   _count?: boolean | Prisma.GalleryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["gallery"]>
 
@@ -1191,28 +1191,28 @@ export type GallerySelectScalar = {
   content?: boolean
   highlightImage?: boolean
   imagePaths?: boolean
+  isMature?: boolean
   userId?: boolean
   isPublic?: boolean
   isActive?: boolean
-  isMature?: boolean
 }
 
-export type GalleryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "description" | "url" | "custodian" | "content" | "highlightImage" | "imagePaths" | "userId" | "isPublic" | "isActive" | "isMature", ExtArgs["result"]["gallery"]>
+export type GalleryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "description" | "url" | "custodian" | "content" | "highlightImage" | "imagePaths" | "isMature" | "userId" | "isPublic" | "isActive", ExtArgs["result"]["gallery"]>
 export type GalleryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Dream?: boolean | Prisma.Gallery$DreamArgs<ExtArgs>
   User?: boolean | Prisma.Gallery$UserArgs<ExtArgs>
-  Prompts?: boolean | Prisma.Gallery$PromptsArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Gallery$ReactionsArgs<ExtArgs>
-  Dreams?: boolean | Prisma.Gallery$DreamsArgs<ExtArgs>
+  Prompt?: boolean | Prisma.Gallery$PromptArgs<ExtArgs>
+  Reaction?: boolean | Prisma.Gallery$ReactionArgs<ExtArgs>
   _count?: boolean | Prisma.GalleryCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $GalleryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Gallery"
   objects: {
+    Dream: Prisma.$DreamPayload<ExtArgs>[]
     User: Prisma.$UserPayload<ExtArgs> | null
-    Prompts: Prisma.$PromptPayload<ExtArgs>[]
-    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
-    Dreams: Prisma.$DreamPayload<ExtArgs>[]
+    Prompt: Prisma.$PromptPayload<ExtArgs>[]
+    Reaction: Prisma.$ReactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1225,10 +1225,10 @@ export type $GalleryPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     content: string
     highlightImage: string | null
     imagePaths: string | null
+    isMature: boolean
     userId: number | null
     isPublic: boolean
     isActive: boolean
-    isMature: boolean
   }, ExtArgs["result"]["gallery"]>
   composites: {}
 }
@@ -1569,10 +1569,10 @@ readonly fields: GalleryFieldRefs;
  */
 export interface Prisma__GalleryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Dream<T extends Prisma.Gallery$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$DreamArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   User<T extends Prisma.Gallery$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Prompts<T extends Prisma.Gallery$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Reactions<T extends Prisma.Gallery$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Dreams<T extends Prisma.Gallery$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Prompt<T extends Prisma.Gallery$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$PromptArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Reaction<T extends Prisma.Gallery$ReactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Gallery$ReactionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1612,10 +1612,10 @@ export interface GalleryFieldRefs {
   readonly content: Prisma.FieldRef<"Gallery", 'String'>
   readonly highlightImage: Prisma.FieldRef<"Gallery", 'String'>
   readonly imagePaths: Prisma.FieldRef<"Gallery", 'String'>
+  readonly isMature: Prisma.FieldRef<"Gallery", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Gallery", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Gallery", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Gallery", 'Boolean'>
-  readonly isMature: Prisma.FieldRef<"Gallery", 'Boolean'>
 }
     
 
@@ -1964,6 +1964,30 @@ export type GalleryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * Gallery.Dream
+ */
+export type Gallery$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Dream
+   */
+  select?: Prisma.DreamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Dream
+   */
+  omit?: Prisma.DreamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DreamInclude<ExtArgs> | null
+  where?: Prisma.DreamWhereInput
+  orderBy?: Prisma.DreamOrderByWithRelationInput | Prisma.DreamOrderByWithRelationInput[]
+  cursor?: Prisma.DreamWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DreamScalarFieldEnum | Prisma.DreamScalarFieldEnum[]
+}
+
+/**
  * Gallery.User
  */
 export type Gallery$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1983,9 +2007,9 @@ export type Gallery$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 }
 
 /**
- * Gallery.Prompts
+ * Gallery.Prompt
  */
-export type Gallery$PromptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Gallery$PromptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Prompt
    */
@@ -2007,9 +2031,9 @@ export type Gallery$PromptsArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Gallery.Reactions
+ * Gallery.Reaction
  */
-export type Gallery$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Gallery$ReactionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Reaction
    */
@@ -2028,30 +2052,6 @@ export type Gallery$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
-}
-
-/**
- * Gallery.Dreams
- */
-export type Gallery$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Dream
-   */
-  select?: Prisma.DreamSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Dream
-   */
-  omit?: Prisma.DreamOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DreamInclude<ExtArgs> | null
-  where?: Prisma.DreamWhereInput
-  orderBy?: Prisma.DreamOrderByWithRelationInput | Prisma.DreamOrderByWithRelationInput[]
-  cursor?: Prisma.DreamWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DreamScalarFieldEnum | Prisma.DreamScalarFieldEnum[]
 }
 
 /**

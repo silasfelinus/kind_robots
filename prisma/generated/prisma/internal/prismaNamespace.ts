@@ -393,7 +393,6 @@ export const ModelName = {
   Chat: 'Chat',
   Component: 'Component',
   Dream: 'Dream',
-  Gallery: 'Gallery',
   Log: 'Log',
   Milestone: 'Milestone',
   MilestoneRecord: 'MilestoneRecord',
@@ -405,12 +404,13 @@ export const ModelName = {
   Scenario: 'Scenario',
   Server: 'Server',
   SmartIcon: 'SmartIcon',
-  Tag: 'Tag',
   Theme: 'Theme',
   User: 'User',
-  ReactionToTag: 'ReactionToTag',
   MilestoneToUser: 'MilestoneToUser',
-  RewardToUser: 'RewardToUser'
+  RewardToUser: 'RewardToUser',
+  Gallery: 'Gallery',
+  Tag: 'Tag',
+  ReactionToTag: 'ReactionToTag'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -426,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "milestoneToUser" | "rewardToUser"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user" | "milestoneToUser" | "rewardToUser" | "gallery" | "tag" | "reactionToTag"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1021,72 +1021,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DreamCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DreamCountAggregateOutputType> | number
-        }
-      }
-    }
-    Gallery: {
-      payload: Prisma.$GalleryPayload<ExtArgs>
-      fields: Prisma.GalleryFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.GalleryFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.GalleryFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        findFirst: {
-          args: Prisma.GalleryFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.GalleryFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        findMany: {
-          args: Prisma.GalleryFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>[]
-        }
-        create: {
-          args: Prisma.GalleryCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        createMany: {
-          args: Prisma.GalleryCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.GalleryDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        update: {
-          args: Prisma.GalleryUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        deleteMany: {
-          args: Prisma.GalleryDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.GalleryUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.GalleryUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
-        }
-        aggregate: {
-          args: Prisma.GalleryAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateGallery>
-        }
-        groupBy: {
-          args: Prisma.GalleryGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GalleryGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.GalleryCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GalleryCountAggregateOutputType> | number
         }
       }
     }
@@ -1816,72 +1750,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Tag: {
-      payload: Prisma.$TagPayload<ExtArgs>
-      fields: Prisma.TagFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TagFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        findFirst: {
-          args: Prisma.TagFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        findMany: {
-          args: Prisma.TagFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
-        }
-        create: {
-          args: Prisma.TagCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        createMany: {
-          args: Prisma.TagCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.TagDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        update: {
-          args: Prisma.TagUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        deleteMany: {
-          args: Prisma.TagDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TagUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.TagUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
-        }
-        aggregate: {
-          args: Prisma.TagAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTag>
-        }
-        groupBy: {
-          args: Prisma.TagGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TagCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType> | number
-        }
-      }
-    }
     Theme: {
       payload: Prisma.$ThemePayload<ExtArgs>
       fields: Prisma.ThemeFieldRefs
@@ -2011,72 +1879,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
-        }
-      }
-    }
-    ReactionToTag: {
-      payload: Prisma.$ReactionToTagPayload<ExtArgs>
-      fields: Prisma.ReactionToTagFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ReactionToTagFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ReactionToTagFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        findFirst: {
-          args: Prisma.ReactionToTagFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ReactionToTagFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        findMany: {
-          args: Prisma.ReactionToTagFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>[]
-        }
-        create: {
-          args: Prisma.ReactionToTagCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        createMany: {
-          args: Prisma.ReactionToTagCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ReactionToTagDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        update: {
-          args: Prisma.ReactionToTagUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        deleteMany: {
-          args: Prisma.ReactionToTagDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ReactionToTagUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ReactionToTagUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
-        }
-        aggregate: {
-          args: Prisma.ReactionToTagAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateReactionToTag>
-        }
-        groupBy: {
-          args: Prisma.ReactionToTagGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ReactionToTagGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ReactionToTagCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ReactionToTagCountAggregateOutputType> | number
         }
       }
     }
@@ -2212,6 +2014,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Gallery: {
+      payload: Prisma.$GalleryPayload<ExtArgs>
+      fields: Prisma.GalleryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GalleryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GalleryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
+        }
+        findFirst: {
+          args: Prisma.GalleryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GalleryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
+        }
+        findMany: {
+          args: Prisma.GalleryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>[]
+        }
+        create: {
+          args: Prisma.GalleryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
+        }
+        createMany: {
+          args: Prisma.GalleryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.GalleryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
+        }
+        update: {
+          args: Prisma.GalleryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
+        }
+        deleteMany: {
+          args: Prisma.GalleryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GalleryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.GalleryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GalleryPayload>
+        }
+        aggregate: {
+          args: Prisma.GalleryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGallery>
+        }
+        groupBy: {
+          args: Prisma.GalleryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GalleryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GalleryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GalleryCountAggregateOutputType> | number
+        }
+      }
+    }
+    Tag: {
+      payload: Prisma.$TagPayload<ExtArgs>
+      fields: Prisma.TagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        findFirst: {
+          args: Prisma.TagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        findMany: {
+          args: Prisma.TagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        create: {
+          args: Prisma.TagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        createMany: {
+          args: Prisma.TagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.TagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        update: {
+          args: Prisma.TagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        deleteMany: {
+          args: Prisma.TagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.TagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        aggregate: {
+          args: Prisma.TagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTag>
+        }
+        groupBy: {
+          args: Prisma.TagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType> | number
+        }
+      }
+    }
+    ReactionToTag: {
+      payload: Prisma.$ReactionToTagPayload<ExtArgs>
+      fields: Prisma.ReactionToTagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReactionToTagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReactionToTagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
+        }
+        findFirst: {
+          args: Prisma.ReactionToTagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReactionToTagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
+        }
+        findMany: {
+          args: Prisma.ReactionToTagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>[]
+        }
+        create: {
+          args: Prisma.ReactionToTagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
+        }
+        createMany: {
+          args: Prisma.ReactionToTagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ReactionToTagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
+        }
+        update: {
+          args: Prisma.ReactionToTagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReactionToTagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReactionToTagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ReactionToTagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReactionToTagPayload>
+        }
+        aggregate: {
+          args: Prisma.ReactionToTagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReactionToTag>
+        }
+        groupBy: {
+          args: Prisma.ReactionToTagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReactionToTagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReactionToTagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReactionToTagCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2253,33 +2253,33 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const ArtImageScalarFieldEnum = {
   id: 'id',
+  imageData: 'imageData',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
-  imageData: 'imageData',
-  thumbnailData: 'thumbnailData',
   fileName: 'fileName',
   fileType: 'fileType',
-  artPrompt: 'artPrompt',
-  imagePath: 'imagePath',
-  path: 'path',
-  promptString: 'promptString',
-  negativePrompt: 'negativePrompt',
-  checkpoint: 'checkpoint',
-  checkpointResourceId: 'checkpointResourceId',
-  sampler: 'sampler',
-  seed: 'seed',
-  steps: 'steps',
   cfg: 'cfg',
   cfgHalf: 'cfgHalf',
+  checkpoint: 'checkpoint',
+  checkpointResourceId: 'checkpointResourceId',
   designer: 'designer',
   genres: 'genres',
-  isPublic: 'isPublic',
+  imagePath: 'imagePath',
   isMature: 'isMature',
-  isActive: 'isActive',
+  isPublic: 'isPublic',
+  negativePrompt: 'negativePrompt',
+  path: 'path',
+  promptString: 'promptString',
+  sampler: 'sampler',
+  seed: 'seed',
   serverId: 'serverId',
   serverName: 'serverName',
-  serverUrl: 'serverUrl'
+  serverUrl: 'serverUrl',
+  steps: 'steps',
+  thumbnailData: 'thumbnailData',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ArtImageScalarFieldEnum = (typeof ArtImageScalarFieldEnum)[keyof typeof ArtImageScalarFieldEnum]
@@ -2293,10 +2293,10 @@ export const ArtCollectionScalarFieldEnum = {
   label: 'label',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  isActive: 'isActive',
-  artPrompt: 'artPrompt',
   description: 'description',
-  username: 'username'
+  username: 'username',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ArtCollectionScalarFieldEnum = (typeof ArtCollectionScalarFieldEnum)[keyof typeof ArtCollectionScalarFieldEnum]
@@ -2320,17 +2320,17 @@ export const BotScalarFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
-  artPrompt: 'artPrompt',
   isPublic: 'isPublic',
-  isMature: 'isMature',
-  isActive: 'isActive',
   underConstruction: 'underConstruction',
   canDelete: 'canDelete',
   userId: 'userId',
   designer: 'designer',
   serverId: 'serverId',
   serverName: 'serverName',
-  artImageId: 'artImageId'
+  artImageId: 'artImageId',
+  isMature: 'isMature',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
@@ -2380,36 +2380,36 @@ export const CharacterScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   name: 'name',
-  honorific: 'honorific',
-  title: 'title',
-  role: 'role',
-  class: 'class',
-  species: 'species',
-  gender: 'gender',
-  presentation: 'presentation',
-  genre: 'genre',
-  alignment: 'alignment',
-  personality: 'personality',
-  drive: 'drive',
-  backstory: 'backstory',
   achievements: 'achievements',
-  quirks: 'quirks',
-  luck: 'luck',
-  might: 'might',
-  wits: 'wits',
-  grace: 'grace',
-  charm: 'charm',
-  empathy: 'empathy',
-  artPrompt: 'artPrompt',
-  artImageId: 'artImageId',
-  imagePath: 'imagePath',
+  alignment: 'alignment',
   experience: 'experience',
   level: 'level',
-  designer: 'designer',
+  class: 'class',
+  species: 'species',
+  backstory: 'backstory',
+  drive: 'drive',
+  quirks: 'quirks',
+  genre: 'genre',
+  artImageId: 'artImageId',
   isPublic: 'isPublic',
+  userId: 'userId',
+  artPrompt: 'artPrompt',
+  honorific: 'honorific',
+  imagePath: 'imagePath',
+  designer: 'designer',
+  personality: 'personality',
   isMature: 'isMature',
   isActive: 'isActive',
-  userId: 'userId'
+  charm: 'charm',
+  empathy: 'empathy',
+  grace: 'grace',
+  luck: 'luck',
+  might: 'might',
+  presentation: 'presentation',
+  role: 'role',
+  title: 'title',
+  wits: 'wits',
+  gender: 'gender'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
@@ -2424,6 +2424,7 @@ export const ChatScalarFieldEnum = {
   recipient: 'recipient',
   content: 'content',
   title: 'title',
+  isPublic: 'isPublic',
   isFavorite: 'isFavorite',
   previousEntryId: 'previousEntryId',
   originId: 'originId',
@@ -2437,12 +2438,11 @@ export const ChatScalarFieldEnum = {
   botResponse: 'botResponse',
   characterId: 'characterId',
   isRead: 'isRead',
-  isPublic: 'isPublic',
-  isActive: 'isActive',
   isMature: 'isMature',
-  dreamId: 'dreamId',
   serverId: 'serverId',
-  serverName: 'serverName'
+  serverName: 'serverName',
+  dreamId: 'dreamId',
+  isActive: 'isActive'
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
@@ -2482,35 +2482,15 @@ export const DreamScalarFieldEnum = {
   artCollectionId: 'artCollectionId',
   galleryId: 'galleryId',
   scenarioId: 'scenarioId',
-  artPrompt: 'artPrompt',
-  accessMode: 'accessMode',
-  privacyCode: 'privacyCode',
   isPublic: 'isPublic',
   isMature: 'isMature',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  accessMode: 'accessMode',
+  privacyCode: 'privacyCode',
+  artPrompt: 'artPrompt'
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
-
-
-export const GalleryScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  name: 'name',
-  description: 'description',
-  url: 'url',
-  custodian: 'custodian',
-  content: 'content',
-  highlightImage: 'highlightImage',
-  imagePaths: 'imagePaths',
-  userId: 'userId',
-  isPublic: 'isPublic',
-  isActive: 'isActive',
-  isMature: 'isMature'
-} as const
-
-export type GalleryScalarFieldEnum = (typeof GalleryScalarFieldEnum)[keyof typeof GalleryScalarFieldEnum]
 
 
 export const LogScalarFieldEnum = {
@@ -2538,8 +2518,8 @@ export const MilestoneScalarFieldEnum = {
   tooltip: 'tooltip',
   isActive: 'isActive',
   isRepeatable: 'isRepeatable',
-  artPrompt: 'artPrompt',
-  artImageId: 'artImageId'
+  artImageId: 'artImageId',
+  artPrompt: 'artPrompt'
 } as const
 
 export type MilestoneScalarFieldEnum = (typeof MilestoneScalarFieldEnum)[keyof typeof MilestoneScalarFieldEnum]
@@ -2568,16 +2548,16 @@ export const PitchScalarFieldEnum = {
   flavorText: 'flavorText',
   highlightImage: 'highlightImage',
   PitchType: 'PitchType',
-  creationSource: 'creationSource',
-  artPrompt: 'artPrompt',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  isActive: 'isActive',
   userId: 'userId',
   description: 'description',
   artImageId: 'artImageId',
   examples: 'examples',
-  icon: 'icon'
+  icon: 'icon',
+  creationSource: 'creationSource',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
 } as const
 
 export type PitchScalarFieldEnum = (typeof PitchScalarFieldEnum)[keyof typeof PitchScalarFieldEnum]
@@ -2590,14 +2570,14 @@ export const PromptScalarFieldEnum = {
   prompt: 'prompt',
   userId: 'userId',
   galleryId: 'galleryId',
-  artPrompt: 'artPrompt',
+  pitchId: 'pitchId',
+  botId: 'botId',
+  artImageId: 'artImageId',
+  creationSource: 'creationSource',
   isMature: 'isMature',
   isPublic: 'isPublic',
   isActive: 'isActive',
-  creationSource: 'creationSource',
-  pitchId: 'pitchId',
-  botId: 'botId',
-  artImageId: 'artImageId'
+  artPrompt: 'artPrompt'
 } as const
 
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
@@ -2609,24 +2589,24 @@ export const ReactionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   comment: 'comment',
   userId: 'userId',
+  pitchId: 'pitchId',
+  componentId: 'componentId',
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
   rating: 'rating',
   artImageId: 'artImageId',
-  artCollectionId: 'artCollectionId',
   botId: 'botId',
-  butterflyId: 'butterflyId',
-  characterId: 'characterId',
-  chatId: 'chatId',
-  componentId: 'componentId',
-  dreamId: 'dreamId',
   galleryId: 'galleryId',
-  pitchId: 'pitchId',
   promptId: 'promptId',
   resourceId: 'resourceId',
   rewardId: 'rewardId',
-  scenarioId: 'scenarioId',
   tagId: 'tagId',
+  chatId: 'chatId',
+  dreamId: 'dreamId',
+  artCollectionId: 'artCollectionId',
+  butterflyId: 'butterflyId',
+  characterId: 'characterId',
+  scenarioId: 'scenarioId',
   themeId: 'themeId'
 } as const
 
@@ -2645,15 +2625,15 @@ export const ResourceScalarFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
-  artPrompt: 'artPrompt',
-  isPublic: 'isPublic',
   isMature: 'isMature',
-  isActive: 'isActive',
   resourceType: 'resourceType',
-  supportedServer: 'supportedServer',
   userId: 'userId',
   artImageId: 'artImageId',
-  generation: 'generation'
+  generation: 'generation',
+  supportedServer: 'supportedServer',
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]
@@ -2669,14 +2649,14 @@ export const RewardScalarFieldEnum = {
   collection: 'collection',
   rarity: 'rarity',
   label: 'label',
-  rewardType: 'rewardType',
   userId: 'userId',
   artImageId: 'artImageId',
   imagePath: 'imagePath',
-  artPrompt: 'artPrompt',
-  isPublic: 'isPublic',
   isMature: 'isMature',
-  isActive: 'isActive'
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt',
+  rewardType: 'rewardType'
 } as const
 
 export type RewardScalarFieldEnum = (typeof RewardScalarFieldEnum)[keyof typeof RewardScalarFieldEnum]
@@ -2717,33 +2697,13 @@ export const ServerScalarFieldEnum = {
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
   userId: 'userId',
-  artPrompt: 'artPrompt',
-  isActive: 'isActive',
-  isMature: 'isMature',
   isPublic: 'isPublic',
   isOfficial: 'isOfficial',
   isDefault: 'isDefault',
+  isActive: 'isActive',
   isEditable: 'isEditable',
-  browserBaseUrl: 'browserBaseUrl',
-  backendBaseUrl: 'backendBaseUrl',
-  workflowPath: 'workflowPath',
-  workflowJson: 'workflowJson',
-  workflowVersion: 'workflowVersion',
-  defaultWidth: 'defaultWidth',
-  defaultHeight: 'defaultHeight',
-  defaultSteps: 'defaultSteps',
-  defaultCfg: 'defaultCfg',
-  defaultSampler: 'defaultSampler',
-  defaultScheduler: 'defaultScheduler',
-  accessMode: 'accessMode',
-  requiresClientSideCheck: 'requiresClientSideCheck',
-  isPrivateNetwork: 'isPrivateNetwork',
-  allowBrowserRequests: 'allowBrowserRequests',
   requiresApiKey: 'requiresApiKey',
   apiKeyName: 'apiKeyName',
-  apiKey: 'apiKey',
-  useOidc: 'useOidc',
-  oidcProvider: 'oidcProvider',
   supportsTxt2Img: 'supportsTxt2Img',
   supportsImg2Img: 'supportsImg2Img',
   supportsChat: 'supportsChat',
@@ -2754,23 +2714,43 @@ export const ServerScalarFieldEnum = {
   supportsSeed: 'supportsSeed',
   supportsSteps: 'supportsSteps',
   supportsVideo: 'supportsVideo',
-  supportsFlux: 'supportsFlux',
-  supportsKontext: 'supportsKontext',
-  supportsInpaint: 'supportsInpaint',
-  supportsOutpaint: 'supportsOutpaint',
-  supportsImageEdit: 'supportsImageEdit',
-  supportsWorkflowUpload: 'supportsWorkflowUpload',
-  supportsBatch: 'supportsBatch',
   apiLink: 'apiLink',
   model: 'model',
+  apiKey: 'apiKey',
   designer: 'designer',
   version: 'version',
   notes: 'notes',
   sortOrder: 'sortOrder',
   lastCheckedAt: 'lastCheckedAt',
   lastStatus: 'lastStatus',
+  oidcProvider: 'oidcProvider',
+  useOidc: 'useOidc',
+  accessMode: 'accessMode',
+  allowBrowserRequests: 'allowBrowserRequests',
+  isPrivateNetwork: 'isPrivateNetwork',
+  requiresClientSideCheck: 'requiresClientSideCheck',
+  backendBaseUrl: 'backendBaseUrl',
+  browserBaseUrl: 'browserBaseUrl',
+  defaultCfg: 'defaultCfg',
+  defaultHeight: 'defaultHeight',
+  defaultSampler: 'defaultSampler',
+  defaultScheduler: 'defaultScheduler',
+  defaultSteps: 'defaultSteps',
+  defaultTransport: 'defaultTransport',
+  defaultWidth: 'defaultWidth',
   generationEngine: 'generationEngine',
-  defaultTransport: 'defaultTransport'
+  supportsBatch: 'supportsBatch',
+  supportsFlux: 'supportsFlux',
+  supportsImageEdit: 'supportsImageEdit',
+  supportsInpaint: 'supportsInpaint',
+  supportsKontext: 'supportsKontext',
+  supportsOutpaint: 'supportsOutpaint',
+  supportsWorkflowUpload: 'supportsWorkflowUpload',
+  workflowJson: 'workflowJson',
+  workflowPath: 'workflowPath',
+  workflowVersion: 'workflowVersion',
+  isMature: 'isMature',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ServerScalarFieldEnum = (typeof ServerScalarFieldEnum)[keyof typeof ServerScalarFieldEnum]
@@ -2788,33 +2768,14 @@ export const SmartIconScalarFieldEnum = {
   label: 'label',
   link: 'link',
   component: 'component',
-  isMature: 'isMature',
   isPublic: 'isPublic',
   description: 'description',
   category: 'category',
-  modelType: 'modelType'
+  modelType: 'modelType',
+  isMature: 'isMature'
 } as const
 
 export type SmartIconScalarFieldEnum = (typeof SmartIconScalarFieldEnum)[keyof typeof SmartIconScalarFieldEnum]
-
-
-export const TagScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  label: 'label',
-  title: 'title',
-  flavorText: 'flavorText',
-  pitch: 'pitch',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  isActive: 'isActive',
-  userId: 'userId',
-  artImageId: 'artImageId',
-  artPrompt: 'artPrompt'
-} as const
-
-export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
 
 
 export const ThemeScalarFieldEnum = {
@@ -2823,12 +2784,12 @@ export const ThemeScalarFieldEnum = {
   values: 'values',
   userId: 'userId',
   isPublic: 'isPublic',
-  isActive: 'isActive',
   createdAt: 'createdAt',
   tagline: 'tagline',
   room: 'room',
   colorScheme: 'colorScheme',
   prefersDark: 'prefersDark',
+  isActive: 'isActive',
   artPrompt: 'artPrompt'
 } as const
 
@@ -2874,9 +2835,7 @@ export const UserScalarFieldEnum = {
   googleEmail: 'googleEmail',
   googleId: 'googleId',
   blockList: 'blockList',
-  artPrompt: 'artPrompt',
   isPublic: 'isPublic',
-  isActive: 'isActive',
   smartBar: 'smartBar',
   customIcons: 'customIcons',
   isMember: 'isMember',
@@ -2888,18 +2847,12 @@ export const UserScalarFieldEnum = {
   lastReward: 'lastReward',
   textModels: 'textModels',
   vibes: 'vibes',
-  hiddenServerIds: 'hiddenServerIds'
+  hiddenServerIds: 'hiddenServerIds',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const ReactionToTagScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ReactionToTagScalarFieldEnum = (typeof ReactionToTagScalarFieldEnum)[keyof typeof ReactionToTagScalarFieldEnum]
 
 
 export const MilestoneToUserScalarFieldEnum = {
@@ -2918,20 +2871,59 @@ export const RewardToUserScalarFieldEnum = {
 export type RewardToUserScalarFieldEnum = (typeof RewardToUserScalarFieldEnum)[keyof typeof RewardToUserScalarFieldEnum]
 
 
+export const GalleryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  name: 'name',
+  description: 'description',
+  url: 'url',
+  custodian: 'custodian',
+  content: 'content',
+  highlightImage: 'highlightImage',
+  imagePaths: 'imagePaths',
+  isMature: 'isMature',
+  userId: 'userId',
+  isPublic: 'isPublic',
+  isActive: 'isActive'
+} as const
+
+export type GalleryScalarFieldEnum = (typeof GalleryScalarFieldEnum)[keyof typeof GalleryScalarFieldEnum]
+
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  label: 'label',
+  title: 'title',
+  flavorText: 'flavorText',
+  pitch: 'pitch',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  userId: 'userId',
+  artImageId: 'artImageId',
+  isActive: 'isActive',
+  artPrompt: 'artPrompt'
+} as const
+
+export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+export const ReactionToTagScalarFieldEnum = {
+  A: 'A',
+  B: 'B'
+} as const
+
+export type ReactionToTagScalarFieldEnum = (typeof ReactionToTagScalarFieldEnum)[keyof typeof ReactionToTagScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
-
-
-export const NullableJsonNullValueInput = {
-  DbNull: DbNull,
-  JsonNull: JsonNull
-} as const
-
-export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -2944,20 +2936,20 @@ export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 export const ArtImageOrderByRelevanceFieldEnum = {
   imageData: 'imageData',
-  thumbnailData: 'thumbnailData',
   fileName: 'fileName',
   fileType: 'fileType',
-  artPrompt: 'artPrompt',
-  imagePath: 'imagePath',
-  path: 'path',
-  promptString: 'promptString',
-  negativePrompt: 'negativePrompt',
   checkpoint: 'checkpoint',
-  sampler: 'sampler',
   designer: 'designer',
   genres: 'genres',
+  imagePath: 'imagePath',
+  negativePrompt: 'negativePrompt',
+  path: 'path',
+  promptString: 'promptString',
+  sampler: 'sampler',
   serverName: 'serverName',
-  serverUrl: 'serverUrl'
+  serverUrl: 'serverUrl',
+  thumbnailData: 'thumbnailData',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevanceFieldEnum)[keyof typeof ArtImageOrderByRelevanceFieldEnum]
@@ -2965,9 +2957,9 @@ export type ArtImageOrderByRelevanceFieldEnum = (typeof ArtImageOrderByRelevance
 
 export const ArtCollectionOrderByRelevanceFieldEnum = {
   label: 'label',
-  artPrompt: 'artPrompt',
   description: 'description',
-  username: 'username'
+  username: 'username',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ArtCollectionOrderByRelevanceFieldEnum = (typeof ArtCollectionOrderByRelevanceFieldEnum)[keyof typeof ArtCollectionOrderByRelevanceFieldEnum]
@@ -2988,9 +2980,9 @@ export const BotOrderByRelevanceFieldEnum = {
   modules: 'modules',
   sampleResponse: 'sampleResponse',
   tagline: 'tagline',
-  artPrompt: 'artPrompt',
   designer: 'designer',
-  serverName: 'serverName'
+  serverName: 'serverName',
+  artPrompt: 'artPrompt'
 } as const
 
 export type BotOrderByRelevanceFieldEnum = (typeof BotOrderByRelevanceFieldEnum)[keyof typeof BotOrderByRelevanceFieldEnum]
@@ -3009,23 +3001,23 @@ export type ButterflyOrderByRelevanceFieldEnum = (typeof ButterflyOrderByRelevan
 
 export const CharacterOrderByRelevanceFieldEnum = {
   name: 'name',
-  honorific: 'honorific',
-  title: 'title',
-  role: 'role',
+  achievements: 'achievements',
+  alignment: 'alignment',
   class: 'class',
   species: 'species',
-  gender: 'gender',
-  presentation: 'presentation',
-  genre: 'genre',
-  alignment: 'alignment',
-  personality: 'personality',
-  drive: 'drive',
   backstory: 'backstory',
-  achievements: 'achievements',
+  drive: 'drive',
   quirks: 'quirks',
+  genre: 'genre',
   artPrompt: 'artPrompt',
+  honorific: 'honorific',
   imagePath: 'imagePath',
-  designer: 'designer'
+  designer: 'designer',
+  personality: 'personality',
+  presentation: 'presentation',
+  role: 'role',
+  title: 'title',
+  gender: 'gender'
 } as const
 
 export type CharacterOrderByRelevanceFieldEnum = (typeof CharacterOrderByRelevanceFieldEnum)[keyof typeof CharacterOrderByRelevanceFieldEnum]
@@ -3061,24 +3053,11 @@ export const DreamOrderByRelevanceFieldEnum = {
   description: 'description',
   currentVibe: 'currentVibe',
   currentPrompt: 'currentPrompt',
-  artPrompt: 'artPrompt',
-  privacyCode: 'privacyCode'
+  privacyCode: 'privacyCode',
+  artPrompt: 'artPrompt'
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
-
-
-export const GalleryOrderByRelevanceFieldEnum = {
-  name: 'name',
-  description: 'description',
-  url: 'url',
-  custodian: 'custodian',
-  content: 'content',
-  highlightImage: 'highlightImage',
-  imagePaths: 'imagePaths'
-} as const
-
-export type GalleryOrderByRelevanceFieldEnum = (typeof GalleryOrderByRelevanceFieldEnum)[keyof typeof GalleryOrderByRelevanceFieldEnum]
 
 
 export const LogOrderByRelevanceFieldEnum = {
@@ -3116,10 +3095,10 @@ export const PitchOrderByRelevanceFieldEnum = {
   designer: 'designer',
   flavorText: 'flavorText',
   highlightImage: 'highlightImage',
-  artPrompt: 'artPrompt',
   description: 'description',
   examples: 'examples',
-  icon: 'icon'
+  icon: 'icon',
+  artPrompt: 'artPrompt'
 } as const
 
 export type PitchOrderByRelevanceFieldEnum = (typeof PitchOrderByRelevanceFieldEnum)[keyof typeof PitchOrderByRelevanceFieldEnum]
@@ -3149,8 +3128,8 @@ export const ResourceOrderByRelevanceFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
-  artPrompt: 'artPrompt',
-  generation: 'generation'
+  generation: 'generation',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ResourceOrderByRelevanceFieldEnum = (typeof ResourceOrderByRelevanceFieldEnum)[keyof typeof ResourceOrderByRelevanceFieldEnum]
@@ -3183,23 +3162,6 @@ export const ScenarioOrderByRelevanceFieldEnum = {
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]
 
 
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
 export const ServerOrderByRelevanceFieldEnum = {
   title: 'title',
   label: 'label',
@@ -3208,21 +3170,22 @@ export const ServerOrderByRelevanceFieldEnum = {
   baseUrl: 'baseUrl',
   endpointPath: 'endpointPath',
   healthPath: 'healthPath',
-  artPrompt: 'artPrompt',
-  browserBaseUrl: 'browserBaseUrl',
-  backendBaseUrl: 'backendBaseUrl',
-  workflowPath: 'workflowPath',
-  workflowVersion: 'workflowVersion',
-  defaultSampler: 'defaultSampler',
-  defaultScheduler: 'defaultScheduler',
   apiKeyName: 'apiKeyName',
-  apiKey: 'apiKey',
-  oidcProvider: 'oidcProvider',
   apiLink: 'apiLink',
   model: 'model',
+  apiKey: 'apiKey',
   designer: 'designer',
   version: 'version',
-  notes: 'notes'
+  notes: 'notes',
+  oidcProvider: 'oidcProvider',
+  backendBaseUrl: 'backendBaseUrl',
+  browserBaseUrl: 'browserBaseUrl',
+  defaultSampler: 'defaultSampler',
+  defaultScheduler: 'defaultScheduler',
+  workflowJson: 'workflowJson',
+  workflowPath: 'workflowPath',
+  workflowVersion: 'workflowVersion',
+  artPrompt: 'artPrompt'
 } as const
 
 export type ServerOrderByRelevanceFieldEnum = (typeof ServerOrderByRelevanceFieldEnum)[keyof typeof ServerOrderByRelevanceFieldEnum]
@@ -3242,17 +3205,6 @@ export const SmartIconOrderByRelevanceFieldEnum = {
 } as const
 
 export type SmartIconOrderByRelevanceFieldEnum = (typeof SmartIconOrderByRelevanceFieldEnum)[keyof typeof SmartIconOrderByRelevanceFieldEnum]
-
-
-export const TagOrderByRelevanceFieldEnum = {
-  label: 'label',
-  title: 'title',
-  flavorText: 'flavorText',
-  pitch: 'pitch',
-  artPrompt: 'artPrompt'
-} as const
-
-export type TagOrderByRelevanceFieldEnum = (typeof TagOrderByRelevanceFieldEnum)[keyof typeof TagOrderByRelevanceFieldEnum]
 
 
 export const ThemeOrderByRelevanceFieldEnum = {
@@ -3293,16 +3245,41 @@ export const UserOrderByRelevanceFieldEnum = {
   googleEmail: 'googleEmail',
   googleId: 'googleId',
   blockList: 'blockList',
-  artPrompt: 'artPrompt',
   smartBar: 'smartBar',
   stripeCustomerId: 'stripeCustomerId',
   artModels: 'artModels',
   lastReward: 'lastReward',
   textModels: 'textModels',
-  vibes: 'vibes'
+  vibes: 'vibes',
+  hiddenServerIds: 'hiddenServerIds',
+  artPrompt: 'artPrompt'
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const GalleryOrderByRelevanceFieldEnum = {
+  name: 'name',
+  description: 'description',
+  url: 'url',
+  custodian: 'custodian',
+  content: 'content',
+  highlightImage: 'highlightImage',
+  imagePaths: 'imagePaths'
+} as const
+
+export type GalleryOrderByRelevanceFieldEnum = (typeof GalleryOrderByRelevanceFieldEnum)[keyof typeof GalleryOrderByRelevanceFieldEnum]
+
+
+export const TagOrderByRelevanceFieldEnum = {
+  label: 'label',
+  title: 'title',
+  flavorText: 'flavorText',
+  pitch: 'pitch',
+  artPrompt: 'artPrompt'
+} as const
+
+export type TagOrderByRelevanceFieldEnum = (typeof TagOrderByRelevanceFieldEnum)[keyof typeof TagOrderByRelevanceFieldEnum]
 
 
 
@@ -3319,16 +3296,16 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'String'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
     
 
 
 /**
- * Reference to a field of type 'String'
+ * Reference to a field of type 'DateTime'
  */
-export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
@@ -3389,9 +3366,9 @@ export type EnumReactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
- * Reference to a field of type 'ReactionCategory'
+ * Reference to a field of type 'Reaction_reactionCategory'
  */
-export type EnumReactionCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReactionCategory'>
+export type EnumReaction_reactionCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Reaction_reactionCategory'>
     
 
 
@@ -3424,16 +3401,9 @@ export type EnumServerTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'Json'
+ * Reference to a field of type 'ServerStatus'
  */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerStatus'>
     
 
 
@@ -3445,9 +3415,9 @@ export type EnumServerAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'ServerStatus'
+ * Reference to a field of type 'ServerTransport'
  */
-export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerStatus'>
+export type EnumServerTransportFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerTransport'>
     
 
 
@@ -3455,13 +3425,6 @@ export type EnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'ServerGenerationEngine'
  */
 export type EnumServerGenerationEngineFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerGenerationEngine'>
-    
-
-
-/**
- * Reference to a field of type 'ServerTransport'
- */
-export type EnumServerTransportFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServerTransport'>
     
 
 
@@ -3590,7 +3553,6 @@ export type GlobalOmitConfig = {
   chat?: Prisma.ChatOmit
   component?: Prisma.ComponentOmit
   dream?: Prisma.DreamOmit
-  gallery?: Prisma.GalleryOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit
   milestoneRecord?: Prisma.MilestoneRecordOmit
@@ -3602,12 +3564,13 @@ export type GlobalOmitConfig = {
   scenario?: Prisma.ScenarioOmit
   server?: Prisma.ServerOmit
   smartIcon?: Prisma.SmartIconOmit
-  tag?: Prisma.TagOmit
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
-  reactionToTag?: Prisma.ReactionToTagOmit
   milestoneToUser?: Prisma.MilestoneToUserOmit
   rewardToUser?: Prisma.RewardToUserOmit
+  gallery?: Prisma.GalleryOmit
+  tag?: Prisma.TagOmit
+  reactionToTag?: Prisma.ReactionToTagOmit
 }
 
 /* Types for Logging */

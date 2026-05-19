@@ -226,8 +226,8 @@ export type ButterflyRecordWhereInput = {
   updatedAt?: Prisma.DateTimeNullableFilter<"ButterflyRecord"> | Date | string | null
   userId?: Prisma.IntFilter<"ButterflyRecord"> | number
   butterflyId?: Prisma.IntFilter<"ButterflyRecord"> | number
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Butterfly?: Prisma.XOR<Prisma.ButterflyScalarRelationFilter, Prisma.ButterflyWhereInput>
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type ButterflyRecordOrderByWithRelationInput = {
@@ -236,8 +236,8 @@ export type ButterflyRecordOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   butterflyId?: Prisma.SortOrder
-  User?: Prisma.UserOrderByWithRelationInput
   Butterfly?: Prisma.ButterflyOrderByWithRelationInput
+  User?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ButterflyRecordWhereUniqueInput = Prisma.AtLeast<{
@@ -250,8 +250,8 @@ export type ButterflyRecordWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeNullableFilter<"ButterflyRecord"> | Date | string | null
   userId?: Prisma.IntFilter<"ButterflyRecord"> | number
   butterflyId?: Prisma.IntFilter<"ButterflyRecord"> | number
-  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Butterfly?: Prisma.XOR<Prisma.ButterflyScalarRelationFilter, Prisma.ButterflyWhereInput>
+  User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "userId_butterflyId">
 
 export type ButterflyRecordOrderByWithAggregationInput = {
@@ -281,8 +281,8 @@ export type ButterflyRecordScalarWhereWithAggregatesInput = {
 export type ButterflyRecordCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
-  User: Prisma.UserCreateNestedOneWithoutButterflyRecordsInput
   Butterfly: Prisma.ButterflyCreateNestedOneWithoutCollectionsInput
+  User: Prisma.UserCreateNestedOneWithoutButterflyRecordsInput
 }
 
 export type ButterflyRecordUncheckedCreateInput = {
@@ -296,8 +296,8 @@ export type ButterflyRecordUncheckedCreateInput = {
 export type ButterflyRecordUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  User?: Prisma.UserUpdateOneRequiredWithoutButterflyRecordsNestedInput
   Butterfly?: Prisma.ButterflyUpdateOneRequiredWithoutCollectionsNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutButterflyRecordsNestedInput
 }
 
 export type ButterflyRecordUncheckedUpdateInput = {
@@ -615,8 +615,8 @@ export type ButterflyRecordSelect<ExtArgs extends runtime.Types.Extensions.Inter
   updatedAt?: boolean
   userId?: boolean
   butterflyId?: boolean
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Butterfly?: boolean | Prisma.ButterflyDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["butterflyRecord"]>
 
 
@@ -631,15 +631,15 @@ export type ButterflyRecordSelectScalar = {
 
 export type ButterflyRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "butterflyId", ExtArgs["result"]["butterflyRecord"]>
 export type ButterflyRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Butterfly?: boolean | Prisma.ButterflyDefaultArgs<ExtArgs>
+  User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $ButterflyRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ButterflyRecord"
   objects: {
-    User: Prisma.$UserPayload<ExtArgs>
     Butterfly: Prisma.$ButterflyPayload<ExtArgs>
+    User: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -987,8 +987,8 @@ readonly fields: ButterflyRecordFieldRefs;
  */
 export interface Prisma__ButterflyRecordClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Butterfly<T extends Prisma.ButterflyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ButterflyDefaultArgs<ExtArgs>>): Prisma.Prisma__ButterflyClient<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

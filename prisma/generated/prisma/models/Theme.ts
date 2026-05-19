@@ -42,12 +42,12 @@ export type ThemeMinAggregateOutputType = {
   values: string | null
   userId: number | null
   isPublic: boolean | null
-  isActive: boolean | null
   createdAt: Date | null
   tagline: string | null
   room: string | null
   colorScheme: string | null
   prefersDark: boolean | null
+  isActive: boolean | null
   artPrompt: string | null
 }
 
@@ -57,12 +57,12 @@ export type ThemeMaxAggregateOutputType = {
   values: string | null
   userId: number | null
   isPublic: boolean | null
-  isActive: boolean | null
   createdAt: Date | null
   tagline: string | null
   room: string | null
   colorScheme: string | null
   prefersDark: boolean | null
+  isActive: boolean | null
   artPrompt: string | null
 }
 
@@ -72,12 +72,12 @@ export type ThemeCountAggregateOutputType = {
   values: number
   userId: number
   isPublic: number
-  isActive: number
   createdAt: number
   tagline: number
   room: number
   colorScheme: number
   prefersDark: number
+  isActive: number
   artPrompt: number
   _all: number
 }
@@ -99,12 +99,12 @@ export type ThemeMinAggregateInputType = {
   values?: true
   userId?: true
   isPublic?: true
-  isActive?: true
   createdAt?: true
   tagline?: true
   room?: true
   colorScheme?: true
   prefersDark?: true
+  isActive?: true
   artPrompt?: true
 }
 
@@ -114,12 +114,12 @@ export type ThemeMaxAggregateInputType = {
   values?: true
   userId?: true
   isPublic?: true
-  isActive?: true
   createdAt?: true
   tagline?: true
   room?: true
   colorScheme?: true
   prefersDark?: true
+  isActive?: true
   artPrompt?: true
 }
 
@@ -129,12 +129,12 @@ export type ThemeCountAggregateInputType = {
   values?: true
   userId?: true
   isPublic?: true
-  isActive?: true
   createdAt?: true
   tagline?: true
   room?: true
   colorScheme?: true
   prefersDark?: true
+  isActive?: true
   artPrompt?: true
   _all?: true
 }
@@ -231,12 +231,12 @@ export type ThemeGroupByOutputType = {
   values: string
   userId: number | null
   isPublic: boolean
-  isActive: boolean
   createdAt: Date
   tagline: string | null
   room: string | null
   colorScheme: string
   prefersDark: boolean
+  isActive: boolean
   artPrompt: string | null
   _count: ThemeCountAggregateOutputType | null
   _avg: ThemeAvgAggregateOutputType | null
@@ -269,15 +269,15 @@ export type ThemeWhereInput = {
   values?: Prisma.StringFilter<"Theme"> | string
   userId?: Prisma.IntNullableFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolFilter<"Theme"> | boolean
-  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableFilter<"Theme"> | string | null
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Theme"> | string | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type ThemeOrderByWithRelationInput = {
@@ -286,15 +286,15 @@ export type ThemeOrderByWithRelationInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   room?: Prisma.SortOrderInput | Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  user?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ThemeOrderByRelevanceInput
 }
 
@@ -307,15 +307,15 @@ export type ThemeWhereUniqueInput = Prisma.AtLeast<{
   values?: Prisma.StringFilter<"Theme"> | string
   userId?: Prisma.IntNullableFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolFilter<"Theme"> | boolean
-  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableFilter<"Theme"> | string | null
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Theme"> | string | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Reactions?: Prisma.ReactionListRelationFilter
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "name">
 
 export type ThemeOrderByWithAggregationInput = {
@@ -324,12 +324,12 @@ export type ThemeOrderByWithAggregationInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   room?: Prisma.SortOrderInput | Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ThemeCountOrderByAggregateInput
   _avg?: Prisma.ThemeAvgOrderByAggregateInput
@@ -347,12 +347,12 @@ export type ThemeScalarWhereWithAggregatesInput = {
   values?: Prisma.StringWithAggregatesFilter<"Theme"> | string
   userId?: Prisma.IntNullableWithAggregatesFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
-  isActive?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
   room?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringWithAggregatesFilter<"Theme"> | string
   prefersDark?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Theme"> | boolean
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Theme"> | string | null
 }
 
@@ -360,15 +360,15 @@ export type ThemeCreateInput = {
   name: string
   values: string
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
-  user?: Prisma.UserCreateNestedOneWithoutThemesInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutThemeInput
+  user?: Prisma.UserCreateNestedOneWithoutThemesInput
 }
 
 export type ThemeUncheckedCreateInput = {
@@ -377,12 +377,12 @@ export type ThemeUncheckedCreateInput = {
   values: string
   userId?: number | null
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutThemeInput
 }
@@ -391,15 +391,15 @@ export type ThemeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  user?: Prisma.UserUpdateOneWithoutThemesNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutThemeNestedInput
+  user?: Prisma.UserUpdateOneWithoutThemesNestedInput
 }
 
 export type ThemeUncheckedUpdateInput = {
@@ -408,12 +408,12 @@ export type ThemeUncheckedUpdateInput = {
   values?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutThemeNestedInput
 }
@@ -424,12 +424,12 @@ export type ThemeCreateManyInput = {
   values: string
   userId?: number | null
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
 }
 
@@ -437,12 +437,12 @@ export type ThemeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -452,12 +452,12 @@ export type ThemeUncheckedUpdateManyInput = {
   values?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -478,12 +478,12 @@ export type ThemeCountOrderByAggregateInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   room?: Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -498,12 +498,12 @@ export type ThemeMaxOrderByAggregateInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   room?: Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -513,12 +513,12 @@ export type ThemeMinOrderByAggregateInput = {
   values?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
   room?: Prisma.SortOrder
   colorScheme?: Prisma.SortOrder
   prefersDark?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -599,12 +599,12 @@ export type ThemeCreateWithoutReactionsInput = {
   name: string
   values: string
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
   user?: Prisma.UserCreateNestedOneWithoutThemesInput
 }
@@ -615,12 +615,12 @@ export type ThemeUncheckedCreateWithoutReactionsInput = {
   values: string
   userId?: number | null
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
 }
 
@@ -644,12 +644,12 @@ export type ThemeUpdateWithoutReactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutThemesNestedInput
 }
@@ -660,12 +660,12 @@ export type ThemeUncheckedUpdateWithoutReactionsInput = {
   values?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -673,12 +673,12 @@ export type ThemeCreateWithoutUserInput = {
   name: string
   values: string
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
   Reactions?: Prisma.ReactionCreateNestedManyWithoutThemeInput
 }
@@ -688,12 +688,12 @@ export type ThemeUncheckedCreateWithoutUserInput = {
   name: string
   values: string
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutThemeInput
 }
@@ -733,12 +733,12 @@ export type ThemeScalarWhereInput = {
   values?: Prisma.StringFilter<"Theme"> | string
   userId?: Prisma.IntNullableFilter<"Theme"> | number | null
   isPublic?: Prisma.BoolFilter<"Theme"> | boolean
-  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Theme"> | Date | string
   tagline?: Prisma.StringNullableFilter<"Theme"> | string | null
   room?: Prisma.StringNullableFilter<"Theme"> | string | null
   colorScheme?: Prisma.StringFilter<"Theme"> | string
   prefersDark?: Prisma.BoolFilter<"Theme"> | boolean
+  isActive?: Prisma.BoolFilter<"Theme"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Theme"> | string | null
 }
 
@@ -747,12 +747,12 @@ export type ThemeCreateManyUserInput = {
   name: string
   values: string
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: Date | string
   tagline?: string | null
   room?: string | null
   colorScheme?: string
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: string | null
 }
 
@@ -760,12 +760,12 @@ export type ThemeUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUpdateManyWithoutThemeNestedInput
 }
@@ -775,12 +775,12 @@ export type ThemeUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutThemeNestedInput
 }
@@ -790,12 +790,12 @@ export type ThemeUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   values?: Prisma.StringFieldUpdateOperationsInput | string
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   room?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   colorScheme?: Prisma.StringFieldUpdateOperationsInput | string
   prefersDark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -836,15 +836,15 @@ export type ThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   values?: boolean
   userId?: boolean
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: boolean
   tagline?: boolean
   room?: boolean
   colorScheme?: boolean
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: boolean
-  user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
+  user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   _count?: boolean | Prisma.ThemeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["theme"]>
 
@@ -856,27 +856,27 @@ export type ThemeSelectScalar = {
   values?: boolean
   userId?: boolean
   isPublic?: boolean
-  isActive?: boolean
   createdAt?: boolean
   tagline?: boolean
   room?: boolean
   colorScheme?: boolean
   prefersDark?: boolean
+  isActive?: boolean
   artPrompt?: boolean
 }
 
-export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "isActive" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark" | "artPrompt", ExtArgs["result"]["theme"]>
+export type ThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "values" | "userId" | "isPublic" | "createdAt" | "tagline" | "room" | "colorScheme" | "prefersDark" | "isActive" | "artPrompt", ExtArgs["result"]["theme"]>
 export type ThemeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   Reactions?: boolean | Prisma.Theme$ReactionsArgs<ExtArgs>
+  user?: boolean | Prisma.Theme$userArgs<ExtArgs>
   _count?: boolean | Prisma.ThemeCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $ThemePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Theme"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs> | null
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -884,12 +884,12 @@ export type $ThemePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     values: string
     userId: number | null
     isPublic: boolean
-    isActive: boolean
     createdAt: Date
     tagline: string | null
     room: string | null
     colorScheme: string
     prefersDark: boolean
+    isActive: boolean
     artPrompt: string | null
   }, ExtArgs["result"]["theme"]>
   composites: {}
@@ -1231,8 +1231,8 @@ readonly fields: ThemeFieldRefs;
  */
 export interface Prisma__ThemeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.Theme$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Theme$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Reactions<T extends Prisma.Theme$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Theme$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user<T extends Prisma.Theme$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Theme$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1267,12 +1267,12 @@ export interface ThemeFieldRefs {
   readonly values: Prisma.FieldRef<"Theme", 'String'>
   readonly userId: Prisma.FieldRef<"Theme", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Theme", 'Boolean'>
-  readonly isActive: Prisma.FieldRef<"Theme", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Theme", 'DateTime'>
   readonly tagline: Prisma.FieldRef<"Theme", 'String'>
   readonly room: Prisma.FieldRef<"Theme", 'String'>
   readonly colorScheme: Prisma.FieldRef<"Theme", 'String'>
   readonly prefersDark: Prisma.FieldRef<"Theme", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Theme", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"Theme", 'String'>
 }
     
@@ -1622,25 +1622,6 @@ export type ThemeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Theme.user
- */
-export type Theme$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
-}
-
-/**
  * Theme.Reactions
  */
 export type Theme$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1662,6 +1643,25 @@ export type Theme$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
+}
+
+/**
+ * Theme.user
+ */
+export type Theme$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

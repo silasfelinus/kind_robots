@@ -71,11 +71,6 @@ export type Component = Prisma.ComponentModel
  */
 export type Dream = Prisma.DreamModel
 /**
- * Model Gallery
- * our mostly-obsolete system for collecting images. It assumed data was kept as physical files on disk, and is still used to access the original seed images, which are only partly digitized and used primarily for our Memory Match game, which is the clearest proof of concept that all of this can be used for a functional purpose.
- */
-export type Gallery = Prisma.GalleryModel
-/**
  * Model Log
  * our woefully underutilized log function, but it's there.
  */
@@ -131,11 +126,6 @@ export type Server = Prisma.ServerModel
  */
 export type SmartIcon = Prisma.SmartIconModel
 /**
- * Model Tag
- * 
- */
-export type Tag = Prisma.TagModel
-/**
  * Model Theme
  * 
  */
@@ -146,11 +136,6 @@ export type Theme = Prisma.ThemeModel
  */
 export type User = Prisma.UserModel
 /**
- * Model ReactionToTag
- * 
- */
-export type ReactionToTag = Prisma.ReactionToTagModel
-/**
  * Model MilestoneToUser
  * 
  */
@@ -160,3 +145,18 @@ export type MilestoneToUser = Prisma.MilestoneToUserModel
  * 
  */
 export type RewardToUser = Prisma.RewardToUserModel
+/**
+ * Model Gallery
+ * 
+ */
+export type Gallery = Prisma.GalleryModel
+/**
+ * Model Tag
+ * 
+ */
+export type Tag = Prisma.TagModel
+/**
+ * Model ReactionToTag
+ * 
+ */
+export type ReactionToTag = Prisma.ReactionToTagModel

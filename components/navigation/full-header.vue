@@ -3,49 +3,57 @@
   <header
     ref="headerRoot"
     :key="headerKey"
-    class="relative isolate z-30 flex h-full w-full min-w-0 items-stretch gap-1 overflow-visible"
+    class="relative isolate z-30 overflow-visible"
   >
-    <!-- ── Left sidebar toggle — always visible ── -->
-    <button
-      type="button"
-      :title="sidebarLeftTitle"
-      :aria-label="sidebarLeftTitle"
-      class="group relative z-10 flex shrink-0 items-center justify-center rounded-xl border border-base-300/80 bg-base-200/80 px-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content active:translate-y-0 active:scale-95"
-      @click="displayStore.toggleLeftSidebar()"
-    >
-      <Icon
-        :name="sidebarLeftIcon"
-        class="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
-      />
-    </button>
+    <!--
+      ── Content wrapper ──
+      Uses overflow-hidden + h-full so its children clip naturally when the
+      outer wrapper collapses to height:0.  The toggle pill lives *outside*
+      this div so it always overflows into the visible area.
+    -->
+    <div class="flex h-full w-full min-w-0 items-stretch gap-1 overflow-hidden">
+      <!-- ── Left sidebar toggle ── -->
+      <button
+        type="button"
+        :title="sidebarLeftTitle"
+        :aria-label="sidebarLeftTitle"
+        class="group relative z-10 flex shrink-0 items-center justify-center rounded-xl border border-base-300/80 bg-base-200/80 px-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content active:translate-y-0 active:scale-95"
+        @click="displayStore.toggleLeftSidebar()"
+      >
+        <Icon
+          :name="sidebarLeftIcon"
+          class="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+        />
+      </button>
 
-    <!-- ── Center: smart-icons always visible ── -->
-    <div class="flex h-full min-w-0 flex-1 items-stretch px-1">
-      <smart-icons
-        class="h-full w-full min-w-0"
-        :prepend-icons="prependIcons"
-      />
+      <!-- ── Center: smart-icons ── -->
+      <div class="flex h-full min-w-0 flex-1 items-stretch px-1">
+        <smart-icons
+          class="h-full w-full min-w-0"
+          :prepend-icons="prependIcons"
+        />
+      </div>
+
+      <!-- ── Right sidebar toggle ── -->
+      <button
+        type="button"
+        :title="sidebarRightTitle"
+        :aria-label="sidebarRightTitle"
+        class="group relative z-10 flex shrink-0 items-center justify-center rounded-xl border border-base-300/80 bg-base-200/80 px-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content active:translate-y-0 active:scale-95"
+        @click="displayStore.toggleRightSidebar()"
+      >
+        <Icon
+          :name="sidebarRightIcon"
+          class="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
+        />
+      </button>
     </div>
-
-    <!-- ── Right sidebar toggle — always visible ── -->
-    <button
-      type="button"
-      :title="sidebarRightTitle"
-      :aria-label="sidebarRightTitle"
-      class="group relative z-10 flex shrink-0 items-center justify-center rounded-xl border border-base-300/80 bg-base-200/80 px-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content active:translate-y-0 active:scale-95"
-      @click="displayStore.toggleRightSidebar()"
-    >
-      <Icon
-        :name="sidebarRightIcon"
-        class="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110"
-      />
-    </button>
 
     <!--
       ── Header toggle pill ──
-      Straddles the bottom edge of the header via translate-y-1/2.
-      overflow-visible on the header lets it escape into the content area.
-      Larger than before — easier to tap on mobile.
+      Lives outside the overflow-hidden content wrapper so it always escapes
+      into the visible area even when the header has collapsed to height:0.
+      The pill only toggles between open and compact — never hides the header.
     -->
     <button
       type="button"
@@ -92,24 +100,28 @@ const headerState = computed(() => displayStore.headerState)
 const isOpen = computed(() => headerState.value === 'open')
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
-// ── Header toggle (two-state: open ↔ compact only) ────────────────────────
+// ── Header toggle (open ↔ compact only) ───────────────────────────────────
 
-/** Flip between open and compact; never goes to hidden. */
+/**
+ * Toggles between open and compact.
+ * If somehow stuck on 'hidden' or 'disabled', always recovers to 'open'.
+ * The header is never driven to 'hidden' from this pill — fullscreen is the
+ * only legitimate path to a hidden header, and that's a separate toggle.
+ */
 function handleHeaderToggle() {
-  if (isOpen.value) {
-    displayStore.changeState('headerState', 'compact')
-  } else {
-    displayStore.changeState('headerState', 'open')
-  }
+  displayStore.changeState(
+    'headerState',
+    headerState.value === 'open' ? 'compact' : 'open',
+  )
 }
 
 const headerToggleTitle = computed(() =>
   isOpen.value ? 'Compact header' : 'Expand header',
 )
 
-// Chevron direction describes the current state so the click action is obvious:
-// open  → chevron-up   (header is tall — click to shrink)
-// compact → chevron-down (header is short — click to grow)
+// Chevron direction describes what clicking will DO:
+// open    → chevron-up   (header is tall — click shrinks it)
+// anything else → chevron-down (click expands it)
 const headerToggleIcon = computed(() =>
   isOpen.value ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down',
 )
@@ -126,8 +138,6 @@ const sidebarRightTitle = computed(() =>
   sidebarRightState.value === 'open' ? 'Close right panel' : 'Open right panel',
 )
 
-// Panel-left / panel-right chevrons: arrow points toward the panel when closed,
-// away from it when open — universally legible affordance.
 const sidebarLeftIcon = computed(() =>
   sidebarLeftState.value === 'open'
     ? 'kind-icon:chevron-left'

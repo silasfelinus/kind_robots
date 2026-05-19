@@ -48,11 +48,11 @@ export type SmartIconMinAggregateOutputType = {
   label: string | null
   link: string | null
   component: string | null
-  isMature: boolean | null
   isPublic: boolean | null
   description: string | null
   category: string | null
   modelType: string | null
+  isMature: boolean | null
 }
 
 export type SmartIconMaxAggregateOutputType = {
@@ -67,11 +67,11 @@ export type SmartIconMaxAggregateOutputType = {
   label: string | null
   link: string | null
   component: string | null
-  isMature: boolean | null
   isPublic: boolean | null
   description: string | null
   category: string | null
   modelType: string | null
+  isMature: boolean | null
 }
 
 export type SmartIconCountAggregateOutputType = {
@@ -86,11 +86,11 @@ export type SmartIconCountAggregateOutputType = {
   label: number
   link: number
   component: number
-  isMature: number
   isPublic: number
   description: number
   category: number
   modelType: number
+  isMature: number
   _all: number
 }
 
@@ -117,11 +117,11 @@ export type SmartIconMinAggregateInputType = {
   label?: true
   link?: true
   component?: true
-  isMature?: true
   isPublic?: true
   description?: true
   category?: true
   modelType?: true
+  isMature?: true
 }
 
 export type SmartIconMaxAggregateInputType = {
@@ -136,11 +136,11 @@ export type SmartIconMaxAggregateInputType = {
   label?: true
   link?: true
   component?: true
-  isMature?: true
   isPublic?: true
   description?: true
   category?: true
   modelType?: true
+  isMature?: true
 }
 
 export type SmartIconCountAggregateInputType = {
@@ -155,11 +155,11 @@ export type SmartIconCountAggregateInputType = {
   label?: true
   link?: true
   component?: true
-  isMature?: true
   isPublic?: true
   description?: true
   category?: true
   modelType?: true
+  isMature?: true
   _all?: true
 }
 
@@ -261,11 +261,11 @@ export type SmartIconGroupByOutputType = {
   label: string | null
   link: string | null
   component: string | null
-  isMature: boolean
   isPublic: boolean
   description: string | null
   category: string | null
   modelType: string | null
+  isMature: boolean
   _count: SmartIconCountAggregateOutputType | null
   _avg: SmartIconAvgAggregateOutputType | null
   _sum: SmartIconSumAggregateOutputType | null
@@ -303,11 +303,11 @@ export type SmartIconWhereInput = {
   label?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   link?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   component?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
-  isMature?: Prisma.BoolFilter<"SmartIcon"> | boolean
   isPublic?: Prisma.BoolFilter<"SmartIcon"> | boolean
   description?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   category?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   modelType?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
+  isMature?: Prisma.BoolFilter<"SmartIcon"> | boolean
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
@@ -323,11 +323,11 @@ export type SmartIconOrderByWithRelationInput = {
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   link?: Prisma.SortOrderInput | Prisma.SortOrder
   component?: Prisma.SortOrderInput | Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   modelType?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.SmartIconOrderByRelevanceInput
 }
@@ -347,11 +347,11 @@ export type SmartIconWhereUniqueInput = Prisma.AtLeast<{
   label?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   link?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   component?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
-  isMature?: Prisma.BoolFilter<"SmartIcon"> | boolean
   isPublic?: Prisma.BoolFilter<"SmartIcon"> | boolean
   description?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   category?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   modelType?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
+  isMature?: Prisma.BoolFilter<"SmartIcon"> | boolean
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
@@ -367,11 +367,11 @@ export type SmartIconOrderByWithAggregationInput = {
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   link?: Prisma.SortOrderInput | Prisma.SortOrder
   component?: Prisma.SortOrderInput | Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   modelType?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
   _count?: Prisma.SmartIconCountOrderByAggregateInput
   _avg?: Prisma.SmartIconAvgOrderByAggregateInput
   _max?: Prisma.SmartIconMaxOrderByAggregateInput
@@ -394,11 +394,11 @@ export type SmartIconScalarWhereWithAggregatesInput = {
   label?: Prisma.StringNullableWithAggregatesFilter<"SmartIcon"> | string | null
   link?: Prisma.StringNullableWithAggregatesFilter<"SmartIcon"> | string | null
   component?: Prisma.StringNullableWithAggregatesFilter<"SmartIcon"> | string | null
-  isMature?: Prisma.BoolWithAggregatesFilter<"SmartIcon"> | boolean
   isPublic?: Prisma.BoolWithAggregatesFilter<"SmartIcon"> | boolean
   description?: Prisma.StringNullableWithAggregatesFilter<"SmartIcon"> | string | null
   category?: Prisma.StringNullableWithAggregatesFilter<"SmartIcon"> | string | null
   modelType?: Prisma.StringNullableWithAggregatesFilter<"SmartIcon"> | string | null
+  isMature?: Prisma.BoolWithAggregatesFilter<"SmartIcon"> | boolean
 }
 
 export type SmartIconCreateInput = {
@@ -411,11 +411,11 @@ export type SmartIconCreateInput = {
   label?: string | null
   link?: string | null
   component?: string | null
-  isMature?: boolean
   isPublic?: boolean
   description?: string | null
   category?: string | null
   modelType?: string | null
+  isMature?: boolean
   User?: Prisma.UserCreateNestedOneWithoutSmartIconsInput
 }
 
@@ -431,11 +431,11 @@ export type SmartIconUncheckedCreateInput = {
   label?: string | null
   link?: string | null
   component?: string | null
-  isMature?: boolean
   isPublic?: boolean
   description?: string | null
   category?: string | null
   modelType?: string | null
+  isMature?: boolean
 }
 
 export type SmartIconUpdateInput = {
@@ -448,11 +448,11 @@ export type SmartIconUpdateInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneWithoutSmartIconsNestedInput
 }
 
@@ -468,11 +468,11 @@ export type SmartIconUncheckedUpdateInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type SmartIconCreateManyInput = {
@@ -487,11 +487,11 @@ export type SmartIconCreateManyInput = {
   label?: string | null
   link?: string | null
   component?: string | null
-  isMature?: boolean
   isPublic?: boolean
   description?: string | null
   category?: string | null
   modelType?: string | null
+  isMature?: boolean
 }
 
 export type SmartIconUpdateManyMutationInput = {
@@ -504,11 +504,11 @@ export type SmartIconUpdateManyMutationInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type SmartIconUncheckedUpdateManyInput = {
@@ -523,11 +523,11 @@ export type SmartIconUncheckedUpdateManyInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type SmartIconOrderByRelevanceInput = {
@@ -548,11 +548,11 @@ export type SmartIconCountOrderByAggregateInput = {
   label?: Prisma.SortOrder
   link?: Prisma.SortOrder
   component?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   description?: Prisma.SortOrder
   category?: Prisma.SortOrder
   modelType?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
 }
 
 export type SmartIconAvgOrderByAggregateInput = {
@@ -572,11 +572,11 @@ export type SmartIconMaxOrderByAggregateInput = {
   label?: Prisma.SortOrder
   link?: Prisma.SortOrder
   component?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   description?: Prisma.SortOrder
   category?: Prisma.SortOrder
   modelType?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
 }
 
 export type SmartIconMinOrderByAggregateInput = {
@@ -591,11 +591,11 @@ export type SmartIconMinOrderByAggregateInput = {
   label?: Prisma.SortOrder
   link?: Prisma.SortOrder
   component?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   description?: Prisma.SortOrder
   category?: Prisma.SortOrder
   modelType?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
 }
 
 export type SmartIconSumOrderByAggregateInput = {
@@ -665,11 +665,11 @@ export type SmartIconCreateWithoutUserInput = {
   label?: string | null
   link?: string | null
   component?: string | null
-  isMature?: boolean
   isPublic?: boolean
   description?: string | null
   category?: string | null
   modelType?: string | null
+  isMature?: boolean
 }
 
 export type SmartIconUncheckedCreateWithoutUserInput = {
@@ -683,11 +683,11 @@ export type SmartIconUncheckedCreateWithoutUserInput = {
   label?: string | null
   link?: string | null
   component?: string | null
-  isMature?: boolean
   isPublic?: boolean
   description?: string | null
   category?: string | null
   modelType?: string | null
+  isMature?: boolean
 }
 
 export type SmartIconCreateOrConnectWithoutUserInput = {
@@ -731,11 +731,11 @@ export type SmartIconScalarWhereInput = {
   label?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   link?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   component?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
-  isMature?: Prisma.BoolFilter<"SmartIcon"> | boolean
   isPublic?: Prisma.BoolFilter<"SmartIcon"> | boolean
   description?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   category?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
   modelType?: Prisma.StringNullableFilter<"SmartIcon"> | string | null
+  isMature?: Prisma.BoolFilter<"SmartIcon"> | boolean
 }
 
 export type SmartIconCreateManyUserInput = {
@@ -749,11 +749,11 @@ export type SmartIconCreateManyUserInput = {
   label?: string | null
   link?: string | null
   component?: string | null
-  isMature?: boolean
   isPublic?: boolean
   description?: string | null
   category?: string | null
   modelType?: string | null
+  isMature?: boolean
 }
 
 export type SmartIconUpdateWithoutUserInput = {
@@ -766,11 +766,11 @@ export type SmartIconUpdateWithoutUserInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type SmartIconUncheckedUpdateWithoutUserInput = {
@@ -784,11 +784,11 @@ export type SmartIconUncheckedUpdateWithoutUserInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type SmartIconUncheckedUpdateManyWithoutUserInput = {
@@ -802,11 +802,11 @@ export type SmartIconUncheckedUpdateManyWithoutUserInput = {
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   link?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   component?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   modelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -823,11 +823,11 @@ export type SmartIconSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   label?: boolean
   link?: boolean
   component?: boolean
-  isMature?: boolean
   isPublic?: boolean
   description?: boolean
   category?: boolean
   modelType?: boolean
+  isMature?: boolean
   User?: boolean | Prisma.SmartIcon$UserArgs<ExtArgs>
 }, ExtArgs["result"]["smartIcon"]>
 
@@ -845,14 +845,14 @@ export type SmartIconSelectScalar = {
   label?: boolean
   link?: boolean
   component?: boolean
-  isMature?: boolean
   isPublic?: boolean
   description?: boolean
   category?: boolean
   modelType?: boolean
+  isMature?: boolean
 }
 
-export type SmartIconOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "type" | "designer" | "userId" | "icon" | "label" | "link" | "component" | "isMature" | "isPublic" | "description" | "category" | "modelType", ExtArgs["result"]["smartIcon"]>
+export type SmartIconOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "type" | "designer" | "userId" | "icon" | "label" | "link" | "component" | "isPublic" | "description" | "category" | "modelType" | "isMature", ExtArgs["result"]["smartIcon"]>
 export type SmartIconInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.SmartIcon$UserArgs<ExtArgs>
 }
@@ -874,11 +874,11 @@ export type $SmartIconPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     label: string | null
     link: string | null
     component: string | null
-    isMature: boolean
     isPublic: boolean
     description: string | null
     category: string | null
     modelType: string | null
+    isMature: boolean
   }, ExtArgs["result"]["smartIcon"]>
   composites: {}
 }
@@ -1260,11 +1260,11 @@ export interface SmartIconFieldRefs {
   readonly label: Prisma.FieldRef<"SmartIcon", 'String'>
   readonly link: Prisma.FieldRef<"SmartIcon", 'String'>
   readonly component: Prisma.FieldRef<"SmartIcon", 'String'>
-  readonly isMature: Prisma.FieldRef<"SmartIcon", 'Boolean'>
   readonly isPublic: Prisma.FieldRef<"SmartIcon", 'Boolean'>
   readonly description: Prisma.FieldRef<"SmartIcon", 'String'>
   readonly category: Prisma.FieldRef<"SmartIcon", 'String'>
   readonly modelType: Prisma.FieldRef<"SmartIcon", 'String'>
+  readonly isMature: Prisma.FieldRef<"SmartIcon", 'Boolean'>
 }
     
 

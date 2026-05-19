@@ -116,31 +116,6 @@ export const ReactionType = {
 export type ReactionType = (typeof ReactionType)[keyof typeof ReactionType]
 
 
-export const ReactionCategory = {
-  ART: 'ART',
-  ART_IMAGE: 'ART_IMAGE',
-  ART_COLLECTION: 'ART_COLLECTION',
-  BOT: 'BOT',
-  BUTTERFLY: 'BUTTERFLY',
-  CHARACTER: 'CHARACTER',
-  CHAT_EXCHANGE: 'CHAT_EXCHANGE',
-  COMPONENT: 'COMPONENT',
-  DREAM: 'DREAM',
-  GALLERY: 'GALLERY',
-  MESSAGE: 'MESSAGE',
-  PITCH: 'PITCH',
-  POST: 'POST',
-  PROMPT: 'PROMPT',
-  RESOURCE: 'RESOURCE',
-  REWARD: 'REWARD',
-  SCENARIO: 'SCENARIO',
-  TAG: 'TAG',
-  THEME: 'THEME'
-} as const
-
-export type ReactionCategory = (typeof ReactionCategory)[keyof typeof ReactionCategory]
-
-
 export const Role = {
   SYSTEM: 'SYSTEM',
   USER: 'USER',
@@ -220,3 +195,28 @@ export const CreationSource = {
 } as const
 
 export type CreationSource = (typeof CreationSource)[keyof typeof CreationSource]
+
+
+export const Reaction_reactionCategory = {
+  ART: 'ART',
+  ART_IMAGE: 'ART_IMAGE',
+  ART_COLLECTION: 'ART_COLLECTION',
+  BOT: 'BOT',
+  BUTTERFLY: 'BUTTERFLY',
+  CHARACTER: 'CHARACTER',
+  CHAT_EXCHANGE: 'CHAT_EXCHANGE',
+  COMPONENT: 'COMPONENT',
+  DREAM: 'DREAM',
+  GALLERY: 'GALLERY',
+  MESSAGE: 'MESSAGE',
+  PITCH: 'PITCH',
+  POST: 'POST',
+  PROMPT: 'PROMPT',
+  RESOURCE: 'RESOURCE',
+  REWARD: 'REWARD',
+  SCENARIO: 'SCENARIO',
+  TAG: 'TAG',
+  THEME: 'THEME'
+} as const
+
+export type Reaction_reactionCategory = (typeof Reaction_reactionCategory)[keyof typeof Reaction_reactionCategory]

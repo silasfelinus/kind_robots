@@ -48,9 +48,9 @@ export type TagMinAggregateOutputType = {
   pitch: string | null
   isPublic: boolean | null
   isMature: boolean | null
-  isActive: boolean | null
   userId: number | null
   artImageId: number | null
+  isActive: boolean | null
   artPrompt: string | null
 }
 
@@ -64,9 +64,9 @@ export type TagMaxAggregateOutputType = {
   pitch: string | null
   isPublic: boolean | null
   isMature: boolean | null
-  isActive: boolean | null
   userId: number | null
   artImageId: number | null
+  isActive: boolean | null
   artPrompt: string | null
 }
 
@@ -80,9 +80,9 @@ export type TagCountAggregateOutputType = {
   pitch: number
   isPublic: number
   isMature: number
-  isActive: number
   userId: number
   artImageId: number
+  isActive: number
   artPrompt: number
   _all: number
 }
@@ -110,9 +110,9 @@ export type TagMinAggregateInputType = {
   pitch?: true
   isPublic?: true
   isMature?: true
-  isActive?: true
   userId?: true
   artImageId?: true
+  isActive?: true
   artPrompt?: true
 }
 
@@ -126,9 +126,9 @@ export type TagMaxAggregateInputType = {
   pitch?: true
   isPublic?: true
   isMature?: true
-  isActive?: true
   userId?: true
   artImageId?: true
+  isActive?: true
   artPrompt?: true
 }
 
@@ -142,9 +142,9 @@ export type TagCountAggregateInputType = {
   pitch?: true
   isPublic?: true
   isMature?: true
-  isActive?: true
   userId?: true
   artImageId?: true
+  isActive?: true
   artPrompt?: true
   _all?: true
 }
@@ -245,9 +245,9 @@ export type TagGroupByOutputType = {
   pitch: string | null
   isPublic: boolean | null
   isMature: boolean
-  isActive: boolean
   userId: number | null
   artImageId: number | null
+  isActive: boolean
   artPrompt: string | null
   _count: TagCountAggregateOutputType | null
   _avg: TagAvgAggregateOutputType | null
@@ -284,18 +284,18 @@ export type TagWhereInput = {
   pitch?: Prisma.StringNullableFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolFilter<"Tag"> | boolean
-  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableFilter<"Tag"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Tag"> | number | null
+  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Tag"> | string | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  ArtImages?: Prisma.ArtImageListRelationFilter
-  Reactions?: Prisma.ReactionListRelationFilter
+  Butterfly?: Prisma.ButterflyListRelationFilter
+  Reaction?: Prisma.ReactionListRelationFilter
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Components?: Prisma.ComponentListRelationFilter
-  Pitches?: Prisma.PitchListRelationFilter
-  Butterflies?: Prisma.ButterflyListRelationFilter
-  Dreams?: Prisma.DreamListRelationFilter
+  ArtImage_ArtImageToTag?: Prisma.ArtImageListRelationFilter
+  Component?: Prisma.ComponentListRelationFilter
+  Dream?: Prisma.DreamListRelationFilter
+  Pitch?: Prisma.PitchListRelationFilter
 }
 
 export type TagOrderByWithRelationInput = {
@@ -308,18 +308,18 @@ export type TagOrderByWithRelationInput = {
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
-  ArtImage?: Prisma.ArtImageOrderByWithRelationInput
-  ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
-  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  Butterfly?: Prisma.ButterflyOrderByRelationAggregateInput
+  Reaction?: Prisma.ReactionOrderByRelationAggregateInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
-  Components?: Prisma.ComponentOrderByRelationAggregateInput
-  Pitches?: Prisma.PitchOrderByRelationAggregateInput
-  Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
-  Dreams?: Prisma.DreamOrderByRelationAggregateInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageOrderByRelationAggregateInput
+  Component?: Prisma.ComponentOrderByRelationAggregateInput
+  Dream?: Prisma.DreamOrderByRelationAggregateInput
+  Pitch?: Prisma.PitchOrderByRelationAggregateInput
   _relevance?: Prisma.TagOrderByRelevanceInput
 }
 
@@ -337,17 +337,17 @@ export type TagWhereUniqueInput = Prisma.AtLeast<{
   pitch?: Prisma.StringNullableFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolFilter<"Tag"> | boolean
-  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableFilter<"Tag"> | number | null
+  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Tag"> | string | null
-  ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
-  ArtImages?: Prisma.ArtImageListRelationFilter
-  Reactions?: Prisma.ReactionListRelationFilter
+  Butterfly?: Prisma.ButterflyListRelationFilter
+  Reaction?: Prisma.ReactionListRelationFilter
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Components?: Prisma.ComponentListRelationFilter
-  Pitches?: Prisma.PitchListRelationFilter
-  Butterflies?: Prisma.ButterflyListRelationFilter
-  Dreams?: Prisma.DreamListRelationFilter
+  ArtImage_ArtImageToTag?: Prisma.ArtImageListRelationFilter
+  Component?: Prisma.ComponentListRelationFilter
+  Dream?: Prisma.DreamListRelationFilter
+  Pitch?: Prisma.PitchListRelationFilter
 }, "id" | "artImageId">
 
 export type TagOrderByWithAggregationInput = {
@@ -360,9 +360,9 @@ export type TagOrderByWithAggregationInput = {
   pitch?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TagCountOrderByAggregateInput
   _avg?: Prisma.TagAvgOrderByAggregateInput
@@ -384,9 +384,9 @@ export type TagScalarWhereWithAggregatesInput = {
   pitch?: Prisma.StringNullableWithAggregatesFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableWithAggregatesFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Tag"> | boolean
-  isActive?: Prisma.BoolWithAggregatesFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Tag"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Tag"> | number | null
+  isActive?: Prisma.BoolWithAggregatesFilter<"Tag"> | boolean
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Tag"> | string | null
 }
 
@@ -401,14 +401,14 @@ export type TagCreateInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateInput = {
@@ -421,16 +421,16 @@ export type TagUncheckedCreateInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagUpdateInput = {
@@ -444,14 +444,14 @@ export type TagUpdateInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateInput = {
@@ -464,16 +464,16 @@ export type TagUncheckedUpdateInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagCreateManyInput = {
@@ -486,9 +486,9 @@ export type TagCreateManyInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
 }
 
@@ -515,21 +515,21 @@ export type TagUncheckedUpdateManyInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type TagNullableScalarRelationFilter = {
+  is?: Prisma.TagWhereInput | null
+  isNot?: Prisma.TagWhereInput | null
 }
 
 export type TagListRelationFilter = {
   every?: Prisma.TagWhereInput
   some?: Prisma.TagWhereInput
   none?: Prisma.TagWhereInput
-}
-
-export type TagNullableScalarRelationFilter = {
-  is?: Prisma.TagWhereInput | null
-  isNot?: Prisma.TagWhereInput | null
 }
 
 export type TagOrderByRelationAggregateInput = {
@@ -552,9 +552,9 @@ export type TagCountOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -574,9 +574,9 @@ export type TagMaxOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -590,9 +590,9 @@ export type TagMinOrderByAggregateInput = {
   pitch?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
 }
 
@@ -602,220 +602,220 @@ export type TagSumOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
 }
 
-export type TagCreateNestedManyWithoutArtImagesInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImagesInput, Prisma.TagUncheckedCreateWithoutArtImagesInput> | Prisma.TagCreateWithoutArtImagesInput[] | Prisma.TagUncheckedCreateWithoutArtImagesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImagesInput | Prisma.TagCreateOrConnectWithoutArtImagesInput[]
-  connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-}
-
-export type TagCreateNestedOneWithoutArtImageInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImageInput, Prisma.TagUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImageInput
+export type TagCreateNestedOneWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_Tag_artImageIdToArtImageInput
   connect?: Prisma.TagWhereUniqueInput
 }
 
-export type TagUncheckedCreateNestedManyWithoutArtImagesInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImagesInput, Prisma.TagUncheckedCreateWithoutArtImagesInput> | Prisma.TagCreateWithoutArtImagesInput[] | Prisma.TagUncheckedCreateWithoutArtImagesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImagesInput | Prisma.TagCreateOrConnectWithoutArtImagesInput[]
+export type TagCreateNestedManyWithoutArtImage_ArtImageToTagInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput> | Prisma.TagCreateWithoutArtImage_ArtImageToTagInput[] | Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput | Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUncheckedCreateNestedOneWithoutArtImageInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImageInput, Prisma.TagUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImageInput
+export type TagUncheckedCreateNestedOneWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_Tag_artImageIdToArtImageInput
   connect?: Prisma.TagWhereUniqueInput
 }
 
-export type TagUpdateManyWithoutArtImagesNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImagesInput, Prisma.TagUncheckedCreateWithoutArtImagesInput> | Prisma.TagCreateWithoutArtImagesInput[] | Prisma.TagUncheckedCreateWithoutArtImagesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImagesInput | Prisma.TagCreateOrConnectWithoutArtImagesInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutArtImagesInput | Prisma.TagUpsertWithWhereUniqueWithoutArtImagesInput[]
-  set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
+export type TagUncheckedCreateNestedManyWithoutArtImage_ArtImageToTagInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput> | Prisma.TagCreateWithoutArtImage_ArtImageToTagInput[] | Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput | Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutArtImagesInput | Prisma.TagUpdateWithWhereUniqueWithoutArtImagesInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutArtImagesInput | Prisma.TagUpdateManyWithWhereWithoutArtImagesInput[]
-  deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagUpdateOneWithoutArtImageNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImageInput, Prisma.TagUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImageInput
-  upsert?: Prisma.TagUpsertWithoutArtImageInput
+export type TagUpdateOneWithoutArtImage_Tag_artImageIdToArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_Tag_artImageIdToArtImageInput
+  upsert?: Prisma.TagUpsertWithoutArtImage_Tag_artImageIdToArtImageInput
   disconnect?: Prisma.TagWhereInput | boolean
   delete?: Prisma.TagWhereInput | boolean
   connect?: Prisma.TagWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutArtImageInput, Prisma.TagUpdateWithoutArtImageInput>, Prisma.TagUncheckedUpdateWithoutArtImageInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUpdateWithoutArtImage_Tag_artImageIdToArtImageInput>, Prisma.TagUncheckedUpdateWithoutArtImage_Tag_artImageIdToArtImageInput>
 }
 
-export type TagUncheckedUpdateManyWithoutArtImagesNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImagesInput, Prisma.TagUncheckedCreateWithoutArtImagesInput> | Prisma.TagCreateWithoutArtImagesInput[] | Prisma.TagUncheckedCreateWithoutArtImagesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImagesInput | Prisma.TagCreateOrConnectWithoutArtImagesInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutArtImagesInput | Prisma.TagUpsertWithWhereUniqueWithoutArtImagesInput[]
+export type TagUpdateManyWithoutArtImage_ArtImageToTagNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput> | Prisma.TagCreateWithoutArtImage_ArtImageToTagInput[] | Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput | Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutArtImage_ArtImageToTagInput | Prisma.TagUpsertWithWhereUniqueWithoutArtImage_ArtImageToTagInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutArtImagesInput | Prisma.TagUpdateWithWhereUniqueWithoutArtImagesInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutArtImagesInput | Prisma.TagUpdateManyWithWhereWithoutArtImagesInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutArtImage_ArtImageToTagInput | Prisma.TagUpdateWithWhereUniqueWithoutArtImage_ArtImageToTagInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutArtImage_ArtImageToTagInput | Prisma.TagUpdateManyWithWhereWithoutArtImage_ArtImageToTagInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagUncheckedUpdateOneWithoutArtImageNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImageInput, Prisma.TagUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImageInput
-  upsert?: Prisma.TagUpsertWithoutArtImageInput
+export type TagUncheckedUpdateOneWithoutArtImage_Tag_artImageIdToArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_Tag_artImageIdToArtImageInput
+  upsert?: Prisma.TagUpsertWithoutArtImage_Tag_artImageIdToArtImageInput
   disconnect?: Prisma.TagWhereInput | boolean
   delete?: Prisma.TagWhereInput | boolean
   connect?: Prisma.TagWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutArtImageInput, Prisma.TagUpdateWithoutArtImageInput>, Prisma.TagUncheckedUpdateWithoutArtImageInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUpdateWithoutArtImage_Tag_artImageIdToArtImageInput>, Prisma.TagUncheckedUpdateWithoutArtImage_Tag_artImageIdToArtImageInput>
 }
 
-export type TagCreateNestedOneWithoutButterfliesInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutButterfliesInput
+export type TagUncheckedUpdateManyWithoutArtImage_ArtImageToTagNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput> | Prisma.TagCreateWithoutArtImage_ArtImageToTagInput[] | Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput | Prisma.TagCreateOrConnectWithoutArtImage_ArtImageToTagInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutArtImage_ArtImageToTagInput | Prisma.TagUpsertWithWhereUniqueWithoutArtImage_ArtImageToTagInput[]
+  set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
+  disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
+  delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
+  connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutArtImage_ArtImageToTagInput | Prisma.TagUpdateWithWhereUniqueWithoutArtImage_ArtImageToTagInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutArtImage_ArtImageToTagInput | Prisma.TagUpdateManyWithWhereWithoutArtImage_ArtImageToTagInput[]
+  deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
+}
+
+export type TagCreateNestedOneWithoutButterflyInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutButterflyInput, Prisma.TagUncheckedCreateWithoutButterflyInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutButterflyInput
   connect?: Prisma.TagWhereUniqueInput
 }
 
-export type TagUpdateOneWithoutButterfliesNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutButterfliesInput
-  upsert?: Prisma.TagUpsertWithoutButterfliesInput
+export type TagUpdateOneWithoutButterflyNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutButterflyInput, Prisma.TagUncheckedCreateWithoutButterflyInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutButterflyInput
+  upsert?: Prisma.TagUpsertWithoutButterflyInput
   disconnect?: Prisma.TagWhereInput | boolean
   delete?: Prisma.TagWhereInput | boolean
   connect?: Prisma.TagWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutButterfliesInput, Prisma.TagUpdateWithoutButterfliesInput>, Prisma.TagUncheckedUpdateWithoutButterfliesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutButterflyInput, Prisma.TagUpdateWithoutButterflyInput>, Prisma.TagUncheckedUpdateWithoutButterflyInput>
 }
 
-export type TagCreateNestedManyWithoutComponentsInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentsInput, Prisma.TagUncheckedCreateWithoutComponentsInput> | Prisma.TagCreateWithoutComponentsInput[] | Prisma.TagUncheckedCreateWithoutComponentsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentsInput | Prisma.TagCreateOrConnectWithoutComponentsInput[]
+export type TagCreateNestedManyWithoutComponentInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentInput, Prisma.TagUncheckedCreateWithoutComponentInput> | Prisma.TagCreateWithoutComponentInput[] | Prisma.TagUncheckedCreateWithoutComponentInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentInput | Prisma.TagCreateOrConnectWithoutComponentInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUncheckedCreateNestedManyWithoutComponentsInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentsInput, Prisma.TagUncheckedCreateWithoutComponentsInput> | Prisma.TagCreateWithoutComponentsInput[] | Prisma.TagUncheckedCreateWithoutComponentsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentsInput | Prisma.TagCreateOrConnectWithoutComponentsInput[]
+export type TagUncheckedCreateNestedManyWithoutComponentInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentInput, Prisma.TagUncheckedCreateWithoutComponentInput> | Prisma.TagCreateWithoutComponentInput[] | Prisma.TagUncheckedCreateWithoutComponentInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentInput | Prisma.TagCreateOrConnectWithoutComponentInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUpdateManyWithoutComponentsNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentsInput, Prisma.TagUncheckedCreateWithoutComponentsInput> | Prisma.TagCreateWithoutComponentsInput[] | Prisma.TagUncheckedCreateWithoutComponentsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentsInput | Prisma.TagCreateOrConnectWithoutComponentsInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutComponentsInput | Prisma.TagUpsertWithWhereUniqueWithoutComponentsInput[]
+export type TagUpdateManyWithoutComponentNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentInput, Prisma.TagUncheckedCreateWithoutComponentInput> | Prisma.TagCreateWithoutComponentInput[] | Prisma.TagUncheckedCreateWithoutComponentInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentInput | Prisma.TagCreateOrConnectWithoutComponentInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutComponentInput | Prisma.TagUpsertWithWhereUniqueWithoutComponentInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutComponentsInput | Prisma.TagUpdateWithWhereUniqueWithoutComponentsInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutComponentsInput | Prisma.TagUpdateManyWithWhereWithoutComponentsInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutComponentInput | Prisma.TagUpdateWithWhereUniqueWithoutComponentInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutComponentInput | Prisma.TagUpdateManyWithWhereWithoutComponentInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagUncheckedUpdateManyWithoutComponentsNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentsInput, Prisma.TagUncheckedCreateWithoutComponentsInput> | Prisma.TagCreateWithoutComponentsInput[] | Prisma.TagUncheckedCreateWithoutComponentsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentsInput | Prisma.TagCreateOrConnectWithoutComponentsInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutComponentsInput | Prisma.TagUpsertWithWhereUniqueWithoutComponentsInput[]
+export type TagUncheckedUpdateManyWithoutComponentNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutComponentInput, Prisma.TagUncheckedCreateWithoutComponentInput> | Prisma.TagCreateWithoutComponentInput[] | Prisma.TagUncheckedCreateWithoutComponentInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutComponentInput | Prisma.TagCreateOrConnectWithoutComponentInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutComponentInput | Prisma.TagUpsertWithWhereUniqueWithoutComponentInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutComponentsInput | Prisma.TagUpdateWithWhereUniqueWithoutComponentsInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutComponentsInput | Prisma.TagUpdateManyWithWhereWithoutComponentsInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutComponentInput | Prisma.TagUpdateWithWhereUniqueWithoutComponentInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutComponentInput | Prisma.TagUpdateManyWithWhereWithoutComponentInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagCreateNestedManyWithoutDreamsInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamsInput, Prisma.TagUncheckedCreateWithoutDreamsInput> | Prisma.TagCreateWithoutDreamsInput[] | Prisma.TagUncheckedCreateWithoutDreamsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamsInput | Prisma.TagCreateOrConnectWithoutDreamsInput[]
+export type TagCreateNestedManyWithoutDreamInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamInput, Prisma.TagUncheckedCreateWithoutDreamInput> | Prisma.TagCreateWithoutDreamInput[] | Prisma.TagUncheckedCreateWithoutDreamInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamInput | Prisma.TagCreateOrConnectWithoutDreamInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUncheckedCreateNestedManyWithoutDreamsInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamsInput, Prisma.TagUncheckedCreateWithoutDreamsInput> | Prisma.TagCreateWithoutDreamsInput[] | Prisma.TagUncheckedCreateWithoutDreamsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamsInput | Prisma.TagCreateOrConnectWithoutDreamsInput[]
+export type TagUncheckedCreateNestedManyWithoutDreamInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamInput, Prisma.TagUncheckedCreateWithoutDreamInput> | Prisma.TagCreateWithoutDreamInput[] | Prisma.TagUncheckedCreateWithoutDreamInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamInput | Prisma.TagCreateOrConnectWithoutDreamInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUpdateManyWithoutDreamsNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamsInput, Prisma.TagUncheckedCreateWithoutDreamsInput> | Prisma.TagCreateWithoutDreamsInput[] | Prisma.TagUncheckedCreateWithoutDreamsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamsInput | Prisma.TagCreateOrConnectWithoutDreamsInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutDreamsInput | Prisma.TagUpsertWithWhereUniqueWithoutDreamsInput[]
+export type TagUpdateManyWithoutDreamNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamInput, Prisma.TagUncheckedCreateWithoutDreamInput> | Prisma.TagCreateWithoutDreamInput[] | Prisma.TagUncheckedCreateWithoutDreamInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamInput | Prisma.TagCreateOrConnectWithoutDreamInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutDreamInput | Prisma.TagUpsertWithWhereUniqueWithoutDreamInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutDreamsInput | Prisma.TagUpdateWithWhereUniqueWithoutDreamsInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutDreamsInput | Prisma.TagUpdateManyWithWhereWithoutDreamsInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutDreamInput | Prisma.TagUpdateWithWhereUniqueWithoutDreamInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutDreamInput | Prisma.TagUpdateManyWithWhereWithoutDreamInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagUncheckedUpdateManyWithoutDreamsNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamsInput, Prisma.TagUncheckedCreateWithoutDreamsInput> | Prisma.TagCreateWithoutDreamsInput[] | Prisma.TagUncheckedCreateWithoutDreamsInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamsInput | Prisma.TagCreateOrConnectWithoutDreamsInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutDreamsInput | Prisma.TagUpsertWithWhereUniqueWithoutDreamsInput[]
+export type TagUncheckedUpdateManyWithoutDreamNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutDreamInput, Prisma.TagUncheckedCreateWithoutDreamInput> | Prisma.TagCreateWithoutDreamInput[] | Prisma.TagUncheckedCreateWithoutDreamInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutDreamInput | Prisma.TagCreateOrConnectWithoutDreamInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutDreamInput | Prisma.TagUpsertWithWhereUniqueWithoutDreamInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutDreamsInput | Prisma.TagUpdateWithWhereUniqueWithoutDreamsInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutDreamsInput | Prisma.TagUpdateManyWithWhereWithoutDreamsInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutDreamInput | Prisma.TagUpdateWithWhereUniqueWithoutDreamInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutDreamInput | Prisma.TagUpdateManyWithWhereWithoutDreamInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagCreateNestedManyWithoutPitchesInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchesInput, Prisma.TagUncheckedCreateWithoutPitchesInput> | Prisma.TagCreateWithoutPitchesInput[] | Prisma.TagUncheckedCreateWithoutPitchesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchesInput | Prisma.TagCreateOrConnectWithoutPitchesInput[]
+export type TagCreateNestedManyWithoutPitchInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchInput, Prisma.TagUncheckedCreateWithoutPitchInput> | Prisma.TagCreateWithoutPitchInput[] | Prisma.TagUncheckedCreateWithoutPitchInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchInput | Prisma.TagCreateOrConnectWithoutPitchInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUncheckedCreateNestedManyWithoutPitchesInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchesInput, Prisma.TagUncheckedCreateWithoutPitchesInput> | Prisma.TagCreateWithoutPitchesInput[] | Prisma.TagUncheckedCreateWithoutPitchesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchesInput | Prisma.TagCreateOrConnectWithoutPitchesInput[]
+export type TagUncheckedCreateNestedManyWithoutPitchInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchInput, Prisma.TagUncheckedCreateWithoutPitchInput> | Prisma.TagCreateWithoutPitchInput[] | Prisma.TagUncheckedCreateWithoutPitchInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchInput | Prisma.TagCreateOrConnectWithoutPitchInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
 }
 
-export type TagUpdateManyWithoutPitchesNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchesInput, Prisma.TagUncheckedCreateWithoutPitchesInput> | Prisma.TagCreateWithoutPitchesInput[] | Prisma.TagUncheckedCreateWithoutPitchesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchesInput | Prisma.TagCreateOrConnectWithoutPitchesInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutPitchesInput | Prisma.TagUpsertWithWhereUniqueWithoutPitchesInput[]
+export type TagUpdateManyWithoutPitchNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchInput, Prisma.TagUncheckedCreateWithoutPitchInput> | Prisma.TagCreateWithoutPitchInput[] | Prisma.TagUncheckedCreateWithoutPitchInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchInput | Prisma.TagCreateOrConnectWithoutPitchInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutPitchInput | Prisma.TagUpsertWithWhereUniqueWithoutPitchInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutPitchesInput | Prisma.TagUpdateWithWhereUniqueWithoutPitchesInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutPitchesInput | Prisma.TagUpdateManyWithWhereWithoutPitchesInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutPitchInput | Prisma.TagUpdateWithWhereUniqueWithoutPitchInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutPitchInput | Prisma.TagUpdateManyWithWhereWithoutPitchInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagUncheckedUpdateManyWithoutPitchesNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchesInput, Prisma.TagUncheckedCreateWithoutPitchesInput> | Prisma.TagCreateWithoutPitchesInput[] | Prisma.TagUncheckedCreateWithoutPitchesInput[]
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchesInput | Prisma.TagCreateOrConnectWithoutPitchesInput[]
-  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutPitchesInput | Prisma.TagUpsertWithWhereUniqueWithoutPitchesInput[]
+export type TagUncheckedUpdateManyWithoutPitchNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutPitchInput, Prisma.TagUncheckedCreateWithoutPitchInput> | Prisma.TagCreateWithoutPitchInput[] | Prisma.TagUncheckedCreateWithoutPitchInput[]
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutPitchInput | Prisma.TagCreateOrConnectWithoutPitchInput[]
+  upsert?: Prisma.TagUpsertWithWhereUniqueWithoutPitchInput | Prisma.TagUpsertWithWhereUniqueWithoutPitchInput[]
   set?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   disconnect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   delete?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
   connect?: Prisma.TagWhereUniqueInput | Prisma.TagWhereUniqueInput[]
-  update?: Prisma.TagUpdateWithWhereUniqueWithoutPitchesInput | Prisma.TagUpdateWithWhereUniqueWithoutPitchesInput[]
-  updateMany?: Prisma.TagUpdateManyWithWhereWithoutPitchesInput | Prisma.TagUpdateManyWithWhereWithoutPitchesInput[]
+  update?: Prisma.TagUpdateWithWhereUniqueWithoutPitchInput | Prisma.TagUpdateWithWhereUniqueWithoutPitchInput[]
+  updateMany?: Prisma.TagUpdateManyWithWhereWithoutPitchInput | Prisma.TagUpdateManyWithWhereWithoutPitchInput[]
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagCreateNestedOneWithoutReactionsInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutReactionsInput, Prisma.TagUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutReactionsInput
+export type TagCreateNestedOneWithoutReactionInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutReactionInput, Prisma.TagUncheckedCreateWithoutReactionInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutReactionInput
   connect?: Prisma.TagWhereUniqueInput
 }
 
-export type TagUpdateOneWithoutReactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutReactionsInput, Prisma.TagUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutReactionsInput
-  upsert?: Prisma.TagUpsertWithoutReactionsInput
+export type TagUpdateOneWithoutReactionNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutReactionInput, Prisma.TagUncheckedCreateWithoutReactionInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutReactionInput
+  upsert?: Prisma.TagUpsertWithoutReactionInput
   disconnect?: Prisma.TagWhereInput | boolean
   delete?: Prisma.TagWhereInput | boolean
   connect?: Prisma.TagWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutReactionsInput, Prisma.TagUpdateWithoutReactionsInput>, Prisma.TagUncheckedUpdateWithoutReactionsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutReactionInput, Prisma.TagUpdateWithoutReactionInput>, Prisma.TagUncheckedUpdateWithoutReactionInput>
 }
 
 export type TagCreateNestedManyWithoutUserInput = {
@@ -860,7 +860,7 @@ export type TagUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
-export type TagCreateWithoutArtImagesInput = {
+export type TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label: string
@@ -871,16 +871,16 @@ export type TagCreateWithoutArtImagesInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutArtImagesInput = {
+export type TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -890,82 +890,134 @@ export type TagUncheckedCreateWithoutArtImagesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
+  userId?: number | null
   isActive?: boolean
+  artPrompt?: string | null
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
+}
+
+export type TagCreateOrConnectWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  where: Prisma.TagWhereUniqueInput
+  create: Prisma.XOR<Prisma.TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput>
+}
+
+export type TagCreateWithoutArtImage_ArtImageToTagInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  title: string
+  flavorText?: string | null
+  pitch?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
+}
+
+export type TagUncheckedCreateWithoutArtImage_ArtImageToTagInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  title: string
+  flavorText?: string | null
+  pitch?: string | null
+  isPublic?: boolean | null
+  isMature?: boolean
   userId?: number | null
   artImageId?: number | null
-  artPrompt?: string | null
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
-}
-
-export type TagCreateOrConnectWithoutArtImagesInput = {
-  where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutArtImagesInput, Prisma.TagUncheckedCreateWithoutArtImagesInput>
-}
-
-export type TagCreateWithoutArtImageInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  label: string
-  title: string
-  flavorText?: string | null
-  pitch?: string | null
-  isPublic?: boolean | null
-  isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutArtImageInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  label: string
-  title: string
-  flavorText?: string | null
-  pitch?: string | null
-  isPublic?: boolean | null
-  isMature?: boolean
-  isActive?: boolean
-  userId?: number | null
-  artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
-}
-
-export type TagCreateOrConnectWithoutArtImageInput = {
+export type TagCreateOrConnectWithoutArtImage_ArtImageToTagInput = {
   where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutArtImageInput, Prisma.TagUncheckedCreateWithoutArtImageInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput>
 }
 
-export type TagUpsertWithWhereUniqueWithoutArtImagesInput = {
+export type TagUpsertWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  update: Prisma.XOR<Prisma.TagUpdateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedUpdateWithoutArtImage_Tag_artImageIdToArtImageInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedCreateWithoutArtImage_Tag_artImageIdToArtImageInput>
+  where?: Prisma.TagWhereInput
+}
+
+export type TagUpdateToOneWithWhereWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  where?: Prisma.TagWhereInput
+  data: Prisma.XOR<Prisma.TagUpdateWithoutArtImage_Tag_artImageIdToArtImageInput, Prisma.TagUncheckedUpdateWithoutArtImage_Tag_artImageIdToArtImageInput>
+}
+
+export type TagUpdateWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
+}
+
+export type TagUncheckedUpdateWithoutArtImage_Tag_artImageIdToArtImageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
+}
+
+export type TagUpsertWithWhereUniqueWithoutArtImage_ArtImageToTagInput = {
   where: Prisma.TagWhereUniqueInput
-  update: Prisma.XOR<Prisma.TagUpdateWithoutArtImagesInput, Prisma.TagUncheckedUpdateWithoutArtImagesInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutArtImagesInput, Prisma.TagUncheckedCreateWithoutArtImagesInput>
+  update: Prisma.XOR<Prisma.TagUpdateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedUpdateWithoutArtImage_ArtImageToTagInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedCreateWithoutArtImage_ArtImageToTagInput>
 }
 
-export type TagUpdateWithWhereUniqueWithoutArtImagesInput = {
+export type TagUpdateWithWhereUniqueWithoutArtImage_ArtImageToTagInput = {
   where: Prisma.TagWhereUniqueInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutArtImagesInput, Prisma.TagUncheckedUpdateWithoutArtImagesInput>
+  data: Prisma.XOR<Prisma.TagUpdateWithoutArtImage_ArtImageToTagInput, Prisma.TagUncheckedUpdateWithoutArtImage_ArtImageToTagInput>
 }
 
-export type TagUpdateManyWithWhereWithoutArtImagesInput = {
+export type TagUpdateManyWithWhereWithoutArtImage_ArtImageToTagInput = {
   where: Prisma.TagScalarWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutArtImagesInput>
+  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutArtImage_ArtImageToTagInput>
 }
 
 export type TagScalarWhereInput = {
@@ -981,65 +1033,13 @@ export type TagScalarWhereInput = {
   pitch?: Prisma.StringNullableFilter<"Tag"> | string | null
   isPublic?: Prisma.BoolNullableFilter<"Tag"> | boolean | null
   isMature?: Prisma.BoolFilter<"Tag"> | boolean
-  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   userId?: Prisma.IntNullableFilter<"Tag"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Tag"> | number | null
+  isActive?: Prisma.BoolFilter<"Tag"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Tag"> | string | null
 }
 
-export type TagUpsertWithoutArtImageInput = {
-  update: Prisma.XOR<Prisma.TagUpdateWithoutArtImageInput, Prisma.TagUncheckedUpdateWithoutArtImageInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutArtImageInput, Prisma.TagUncheckedCreateWithoutArtImageInput>
-  where?: Prisma.TagWhereInput
-}
-
-export type TagUpdateToOneWithWhereWithoutArtImageInput = {
-  where?: Prisma.TagWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutArtImageInput, Prisma.TagUncheckedUpdateWithoutArtImageInput>
-}
-
-export type TagUpdateWithoutArtImageInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
-}
-
-export type TagUncheckedUpdateWithoutArtImageInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
-}
-
-export type TagCreateWithoutButterfliesInput = {
+export type TagCreateWithoutButterflyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label: string
@@ -1050,16 +1050,16 @@ export type TagCreateWithoutButterfliesInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutButterfliesInput = {
+export type TagUncheckedCreateWithoutButterflyInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1069,34 +1069,34 @@ export type TagUncheckedCreateWithoutButterfliesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
-export type TagCreateOrConnectWithoutButterfliesInput = {
+export type TagCreateOrConnectWithoutButterflyInput = {
   where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutButterflyInput, Prisma.TagUncheckedCreateWithoutButterflyInput>
 }
 
-export type TagUpsertWithoutButterfliesInput = {
-  update: Prisma.XOR<Prisma.TagUpdateWithoutButterfliesInput, Prisma.TagUncheckedUpdateWithoutButterfliesInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutButterfliesInput, Prisma.TagUncheckedCreateWithoutButterfliesInput>
+export type TagUpsertWithoutButterflyInput = {
+  update: Prisma.XOR<Prisma.TagUpdateWithoutButterflyInput, Prisma.TagUncheckedUpdateWithoutButterflyInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutButterflyInput, Prisma.TagUncheckedCreateWithoutButterflyInput>
   where?: Prisma.TagWhereInput
 }
 
-export type TagUpdateToOneWithWhereWithoutButterfliesInput = {
+export type TagUpdateToOneWithWhereWithoutButterflyInput = {
   where?: Prisma.TagWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutButterfliesInput, Prisma.TagUncheckedUpdateWithoutButterfliesInput>
+  data: Prisma.XOR<Prisma.TagUpdateWithoutButterflyInput, Prisma.TagUncheckedUpdateWithoutButterflyInput>
 }
 
-export type TagUpdateWithoutButterfliesInput = {
+export type TagUpdateWithoutButterflyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1107,16 +1107,16 @@ export type TagUpdateWithoutButterfliesInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateWithoutButterfliesInput = {
+export type TagUncheckedUpdateWithoutButterflyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1126,18 +1126,18 @@ export type TagUncheckedUpdateWithoutButterfliesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
-export type TagCreateWithoutComponentsInput = {
+export type TagCreateWithoutComponentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label: string
@@ -1148,16 +1148,16 @@ export type TagCreateWithoutComponentsInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutComponentsInput = {
+export type TagUncheckedCreateWithoutComponentInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1167,39 +1167,39 @@ export type TagUncheckedCreateWithoutComponentsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
-export type TagCreateOrConnectWithoutComponentsInput = {
+export type TagCreateOrConnectWithoutComponentInput = {
   where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutComponentsInput, Prisma.TagUncheckedCreateWithoutComponentsInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutComponentInput, Prisma.TagUncheckedCreateWithoutComponentInput>
 }
 
-export type TagUpsertWithWhereUniqueWithoutComponentsInput = {
+export type TagUpsertWithWhereUniqueWithoutComponentInput = {
   where: Prisma.TagWhereUniqueInput
-  update: Prisma.XOR<Prisma.TagUpdateWithoutComponentsInput, Prisma.TagUncheckedUpdateWithoutComponentsInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutComponentsInput, Prisma.TagUncheckedCreateWithoutComponentsInput>
+  update: Prisma.XOR<Prisma.TagUpdateWithoutComponentInput, Prisma.TagUncheckedUpdateWithoutComponentInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutComponentInput, Prisma.TagUncheckedCreateWithoutComponentInput>
 }
 
-export type TagUpdateWithWhereUniqueWithoutComponentsInput = {
+export type TagUpdateWithWhereUniqueWithoutComponentInput = {
   where: Prisma.TagWhereUniqueInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutComponentsInput, Prisma.TagUncheckedUpdateWithoutComponentsInput>
+  data: Prisma.XOR<Prisma.TagUpdateWithoutComponentInput, Prisma.TagUncheckedUpdateWithoutComponentInput>
 }
 
-export type TagUpdateManyWithWhereWithoutComponentsInput = {
+export type TagUpdateManyWithWhereWithoutComponentInput = {
   where: Prisma.TagScalarWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutComponentsInput>
+  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutComponentInput>
 }
 
-export type TagCreateWithoutDreamsInput = {
+export type TagCreateWithoutDreamInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label: string
@@ -1210,16 +1210,16 @@ export type TagCreateWithoutDreamsInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutDreamsInput = {
+export type TagUncheckedCreateWithoutDreamInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1229,39 +1229,39 @@ export type TagUncheckedCreateWithoutDreamsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
-export type TagCreateOrConnectWithoutDreamsInput = {
+export type TagCreateOrConnectWithoutDreamInput = {
   where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutDreamsInput, Prisma.TagUncheckedCreateWithoutDreamsInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutDreamInput, Prisma.TagUncheckedCreateWithoutDreamInput>
 }
 
-export type TagUpsertWithWhereUniqueWithoutDreamsInput = {
+export type TagUpsertWithWhereUniqueWithoutDreamInput = {
   where: Prisma.TagWhereUniqueInput
-  update: Prisma.XOR<Prisma.TagUpdateWithoutDreamsInput, Prisma.TagUncheckedUpdateWithoutDreamsInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutDreamsInput, Prisma.TagUncheckedCreateWithoutDreamsInput>
+  update: Prisma.XOR<Prisma.TagUpdateWithoutDreamInput, Prisma.TagUncheckedUpdateWithoutDreamInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutDreamInput, Prisma.TagUncheckedCreateWithoutDreamInput>
 }
 
-export type TagUpdateWithWhereUniqueWithoutDreamsInput = {
+export type TagUpdateWithWhereUniqueWithoutDreamInput = {
   where: Prisma.TagWhereUniqueInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutDreamsInput, Prisma.TagUncheckedUpdateWithoutDreamsInput>
+  data: Prisma.XOR<Prisma.TagUpdateWithoutDreamInput, Prisma.TagUncheckedUpdateWithoutDreamInput>
 }
 
-export type TagUpdateManyWithWhereWithoutDreamsInput = {
+export type TagUpdateManyWithWhereWithoutDreamInput = {
   where: Prisma.TagScalarWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutDreamsInput>
+  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutDreamInput>
 }
 
-export type TagCreateWithoutPitchesInput = {
+export type TagCreateWithoutPitchInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label: string
@@ -1272,16 +1272,16 @@ export type TagCreateWithoutPitchesInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutPitchesInput = {
+export type TagUncheckedCreateWithoutPitchInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1291,39 +1291,39 @@ export type TagUncheckedCreateWithoutPitchesInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
 }
 
-export type TagCreateOrConnectWithoutPitchesInput = {
+export type TagCreateOrConnectWithoutPitchInput = {
   where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutPitchesInput, Prisma.TagUncheckedCreateWithoutPitchesInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutPitchInput, Prisma.TagUncheckedCreateWithoutPitchInput>
 }
 
-export type TagUpsertWithWhereUniqueWithoutPitchesInput = {
+export type TagUpsertWithWhereUniqueWithoutPitchInput = {
   where: Prisma.TagWhereUniqueInput
-  update: Prisma.XOR<Prisma.TagUpdateWithoutPitchesInput, Prisma.TagUncheckedUpdateWithoutPitchesInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutPitchesInput, Prisma.TagUncheckedCreateWithoutPitchesInput>
+  update: Prisma.XOR<Prisma.TagUpdateWithoutPitchInput, Prisma.TagUncheckedUpdateWithoutPitchInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutPitchInput, Prisma.TagUncheckedCreateWithoutPitchInput>
 }
 
-export type TagUpdateWithWhereUniqueWithoutPitchesInput = {
+export type TagUpdateWithWhereUniqueWithoutPitchInput = {
   where: Prisma.TagWhereUniqueInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutPitchesInput, Prisma.TagUncheckedUpdateWithoutPitchesInput>
+  data: Prisma.XOR<Prisma.TagUpdateWithoutPitchInput, Prisma.TagUncheckedUpdateWithoutPitchInput>
 }
 
-export type TagUpdateManyWithWhereWithoutPitchesInput = {
+export type TagUpdateManyWithWhereWithoutPitchInput = {
   where: Prisma.TagScalarWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutPitchesInput>
+  data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutPitchInput>
 }
 
-export type TagCreateWithoutReactionsInput = {
+export type TagCreateWithoutReactionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   label: string
@@ -1334,16 +1334,16 @@ export type TagCreateWithoutReactionsInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  User?: Prisma.UserCreateNestedOneWithoutTagsInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  User?: Prisma.UserCreateNestedOneWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
-export type TagUncheckedCreateWithoutReactionsInput = {
+export type TagUncheckedCreateWithoutReactionInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1353,34 +1353,34 @@ export type TagUncheckedCreateWithoutReactionsInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   userId?: number | null
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
-export type TagCreateOrConnectWithoutReactionsInput = {
+export type TagCreateOrConnectWithoutReactionInput = {
   where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutReactionsInput, Prisma.TagUncheckedCreateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutReactionInput, Prisma.TagUncheckedCreateWithoutReactionInput>
 }
 
-export type TagUpsertWithoutReactionsInput = {
-  update: Prisma.XOR<Prisma.TagUpdateWithoutReactionsInput, Prisma.TagUncheckedUpdateWithoutReactionsInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutReactionsInput, Prisma.TagUncheckedCreateWithoutReactionsInput>
+export type TagUpsertWithoutReactionInput = {
+  update: Prisma.XOR<Prisma.TagUpdateWithoutReactionInput, Prisma.TagUncheckedUpdateWithoutReactionInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutReactionInput, Prisma.TagUncheckedCreateWithoutReactionInput>
   where?: Prisma.TagWhereInput
 }
 
-export type TagUpdateToOneWithWhereWithoutReactionsInput = {
+export type TagUpdateToOneWithWhereWithoutReactionInput = {
   where?: Prisma.TagWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutReactionsInput, Prisma.TagUncheckedUpdateWithoutReactionsInput>
+  data: Prisma.XOR<Prisma.TagUpdateWithoutReactionInput, Prisma.TagUncheckedUpdateWithoutReactionInput>
 }
 
-export type TagUpdateWithoutReactionsInput = {
+export type TagUpdateWithoutReactionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1391,16 +1391,16 @@ export type TagUpdateWithoutReactionsInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateWithoutReactionsInput = {
+export type TagUncheckedUpdateWithoutReactionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1410,15 +1410,15 @@ export type TagUncheckedUpdateWithoutReactionsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagCreateWithoutUserInput = {
@@ -1432,13 +1432,13 @@ export type TagCreateWithoutUserInput = {
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutTagOwnerInput
-  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionCreateNestedManyWithoutTagInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageCreateNestedOneWithoutTag_Tag_artImageIdToArtImageInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutUserInput = {
@@ -1451,15 +1451,15 @@ export type TagUncheckedCreateWithoutUserInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
-  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTagsInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
-  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagsInput
-  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutTagsInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
-  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutTagsInput
+  Butterfly?: Prisma.ButterflyUncheckedCreateNestedManyWithoutTagInput
+  Reaction?: Prisma.ReactionUncheckedCreateNestedManyWithoutTagInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedCreateNestedManyWithoutTag_ArtImageToTagInput
+  Component?: Prisma.ComponentUncheckedCreateNestedManyWithoutTagInput
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutTagInput
+  Pitch?: Prisma.PitchUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutUserInput = {
@@ -1488,7 +1488,7 @@ export type TagUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.TagUpdateManyMutationInput, Prisma.TagUncheckedUpdateManyWithoutUserInput>
 }
 
-export type TagUpdateWithoutArtImagesInput = {
+export type TagUpdateWithoutArtImage_ArtImageToTagInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1499,16 +1499,16 @@ export type TagUpdateWithoutArtImagesInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateWithoutArtImagesInput = {
+export type TagUncheckedUpdateWithoutArtImage_ArtImageToTagInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1518,18 +1518,18 @@ export type TagUncheckedUpdateWithoutArtImagesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateManyWithoutArtImagesInput = {
+export type TagUncheckedUpdateManyWithoutArtImage_ArtImageToTagInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1539,13 +1539,13 @@ export type TagUncheckedUpdateManyWithoutArtImagesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type TagUpdateWithoutComponentsInput = {
+export type TagUpdateWithoutComponentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1556,16 +1556,16 @@ export type TagUpdateWithoutComponentsInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateWithoutComponentsInput = {
+export type TagUncheckedUpdateWithoutComponentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1575,18 +1575,18 @@ export type TagUncheckedUpdateWithoutComponentsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateManyWithoutComponentsInput = {
+export type TagUncheckedUpdateManyWithoutComponentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1596,13 +1596,13 @@ export type TagUncheckedUpdateManyWithoutComponentsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type TagUpdateWithoutDreamsInput = {
+export type TagUpdateWithoutDreamInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1613,16 +1613,16 @@ export type TagUpdateWithoutDreamsInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateWithoutDreamsInput = {
+export type TagUncheckedUpdateWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1632,18 +1632,18 @@ export type TagUncheckedUpdateWithoutDreamsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateManyWithoutDreamsInput = {
+export type TagUncheckedUpdateManyWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1653,13 +1653,13 @@ export type TagUncheckedUpdateManyWithoutDreamsInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type TagUpdateWithoutPitchesInput = {
+export type TagUpdateWithoutPitchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   label?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1670,16 +1670,16 @@ export type TagUpdateWithoutPitchesInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  User?: Prisma.UserUpdateOneWithoutTagsNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  User?: Prisma.UserUpdateOneWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateWithoutPitchesInput = {
+export type TagUncheckedUpdateWithoutPitchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1689,18 +1689,18 @@ export type TagUncheckedUpdateWithoutPitchesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
 }
 
-export type TagUncheckedUpdateManyWithoutPitchesInput = {
+export type TagUncheckedUpdateManyWithoutPitchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1710,9 +1710,9 @@ export type TagUncheckedUpdateManyWithoutPitchesInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1726,8 +1726,8 @@ export type TagCreateManyUserInput = {
   pitch?: string | null
   isPublic?: boolean | null
   isMature?: boolean
-  isActive?: boolean
   artImageId?: number | null
+  isActive?: boolean
   artPrompt?: string | null
 }
 
@@ -1742,13 +1742,13 @@ export type TagUpdateWithoutUserInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutTagOwnerNestedInput
-  ArtImages?: Prisma.ArtImageUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUpdateManyWithoutTagNestedInput
+  ArtImage_Tag_artImageIdToArtImage?: Prisma.ArtImageUpdateOneWithoutTag_Tag_artImageIdToArtImageNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutUserInput = {
@@ -1761,15 +1761,15 @@ export type TagUncheckedUpdateWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutTagsNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
-  Components?: Prisma.ComponentUncheckedUpdateManyWithoutTagsNestedInput
-  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutTagsNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
-  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutTagsNestedInput
+  Butterfly?: Prisma.ButterflyUncheckedUpdateManyWithoutTagNestedInput
+  Reaction?: Prisma.ReactionUncheckedUpdateManyWithoutTagNestedInput
+  ArtImage_ArtImageToTag?: Prisma.ArtImageUncheckedUpdateManyWithoutTag_ArtImageToTagNestedInput
+  Component?: Prisma.ComponentUncheckedUpdateManyWithoutTagNestedInput
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutTagNestedInput
+  Pitch?: Prisma.PitchUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateManyWithoutUserInput = {
@@ -1782,8 +1782,8 @@ export type TagUncheckedUpdateManyWithoutUserInput = {
   pitch?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1793,21 +1793,21 @@ export type TagUncheckedUpdateManyWithoutUserInput = {
  */
 
 export type TagCountOutputType = {
-  ArtImages: number
-  Reactions: number
-  Components: number
-  Pitches: number
-  Butterflies: number
-  Dreams: number
+  Butterfly: number
+  Reaction: number
+  ArtImage_ArtImageToTag: number
+  Component: number
+  Dream: number
+  Pitch: number
 }
 
 export type TagCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ArtImages?: boolean | TagCountOutputTypeCountArtImagesArgs
-  Reactions?: boolean | TagCountOutputTypeCountReactionsArgs
-  Components?: boolean | TagCountOutputTypeCountComponentsArgs
-  Pitches?: boolean | TagCountOutputTypeCountPitchesArgs
-  Butterflies?: boolean | TagCountOutputTypeCountButterfliesArgs
-  Dreams?: boolean | TagCountOutputTypeCountDreamsArgs
+  Butterfly?: boolean | TagCountOutputTypeCountButterflyArgs
+  Reaction?: boolean | TagCountOutputTypeCountReactionArgs
+  ArtImage_ArtImageToTag?: boolean | TagCountOutputTypeCountArtImage_ArtImageToTagArgs
+  Component?: boolean | TagCountOutputTypeCountComponentArgs
+  Dream?: boolean | TagCountOutputTypeCountDreamArgs
+  Pitch?: boolean | TagCountOutputTypeCountPitchArgs
 }
 
 /**
@@ -1823,43 +1823,43 @@ export type TagCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensio
 /**
  * TagCountOutputType without action
  */
-export type TagCountOutputTypeCountArtImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ArtImageWhereInput
-}
-
-/**
- * TagCountOutputType without action
- */
-export type TagCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ReactionWhereInput
-}
-
-/**
- * TagCountOutputType without action
- */
-export type TagCountOutputTypeCountComponentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ComponentWhereInput
-}
-
-/**
- * TagCountOutputType without action
- */
-export type TagCountOutputTypeCountPitchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PitchWhereInput
-}
-
-/**
- * TagCountOutputType without action
- */
-export type TagCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type TagCountOutputTypeCountButterflyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ButterflyWhereInput
 }
 
 /**
  * TagCountOutputType without action
  */
-export type TagCountOutputTypeCountDreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type TagCountOutputTypeCountReactionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReactionWhereInput
+}
+
+/**
+ * TagCountOutputType without action
+ */
+export type TagCountOutputTypeCountArtImage_ArtImageToTagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArtImageWhereInput
+}
+
+/**
+ * TagCountOutputType without action
+ */
+export type TagCountOutputTypeCountComponentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ComponentWhereInput
+}
+
+/**
+ * TagCountOutputType without action
+ */
+export type TagCountOutputTypeCountDreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DreamWhereInput
+}
+
+/**
+ * TagCountOutputType without action
+ */
+export type TagCountOutputTypeCountPitchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PitchWhereInput
 }
 
 
@@ -1873,18 +1873,18 @@ export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   pitch?: boolean
   isPublic?: boolean
   isMature?: boolean
-  isActive?: boolean
   userId?: boolean
   artImageId?: boolean
+  isActive?: boolean
   artPrompt?: boolean
-  ArtImage?: boolean | Prisma.Tag$ArtImageArgs<ExtArgs>
-  ArtImages?: boolean | Prisma.Tag$ArtImagesArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Tag$ReactionsArgs<ExtArgs>
+  Butterfly?: boolean | Prisma.Tag$ButterflyArgs<ExtArgs>
+  Reaction?: boolean | Prisma.Tag$ReactionArgs<ExtArgs>
+  ArtImage_Tag_artImageIdToArtImage?: boolean | Prisma.Tag$ArtImage_Tag_artImageIdToArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Tag$UserArgs<ExtArgs>
-  Components?: boolean | Prisma.Tag$ComponentsArgs<ExtArgs>
-  Pitches?: boolean | Prisma.Tag$PitchesArgs<ExtArgs>
-  Butterflies?: boolean | Prisma.Tag$ButterfliesArgs<ExtArgs>
-  Dreams?: boolean | Prisma.Tag$DreamsArgs<ExtArgs>
+  ArtImage_ArtImageToTag?: boolean | Prisma.Tag$ArtImage_ArtImageToTagArgs<ExtArgs>
+  Component?: boolean | Prisma.Tag$ComponentArgs<ExtArgs>
+  Dream?: boolean | Prisma.Tag$DreamArgs<ExtArgs>
+  Pitch?: boolean | Prisma.Tag$PitchArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tag"]>
 
@@ -1900,36 +1900,36 @@ export type TagSelectScalar = {
   pitch?: boolean
   isPublic?: boolean
   isMature?: boolean
-  isActive?: boolean
   userId?: boolean
   artImageId?: boolean
+  isActive?: boolean
   artPrompt?: boolean
 }
 
-export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "label" | "title" | "flavorText" | "pitch" | "isPublic" | "isMature" | "isActive" | "userId" | "artImageId" | "artPrompt", ExtArgs["result"]["tag"]>
+export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "label" | "title" | "flavorText" | "pitch" | "isPublic" | "isMature" | "userId" | "artImageId" | "isActive" | "artPrompt", ExtArgs["result"]["tag"]>
 export type TagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ArtImage?: boolean | Prisma.Tag$ArtImageArgs<ExtArgs>
-  ArtImages?: boolean | Prisma.Tag$ArtImagesArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Tag$ReactionsArgs<ExtArgs>
+  Butterfly?: boolean | Prisma.Tag$ButterflyArgs<ExtArgs>
+  Reaction?: boolean | Prisma.Tag$ReactionArgs<ExtArgs>
+  ArtImage_Tag_artImageIdToArtImage?: boolean | Prisma.Tag$ArtImage_Tag_artImageIdToArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Tag$UserArgs<ExtArgs>
-  Components?: boolean | Prisma.Tag$ComponentsArgs<ExtArgs>
-  Pitches?: boolean | Prisma.Tag$PitchesArgs<ExtArgs>
-  Butterflies?: boolean | Prisma.Tag$ButterfliesArgs<ExtArgs>
-  Dreams?: boolean | Prisma.Tag$DreamsArgs<ExtArgs>
+  ArtImage_ArtImageToTag?: boolean | Prisma.Tag$ArtImage_ArtImageToTagArgs<ExtArgs>
+  Component?: boolean | Prisma.Tag$ComponentArgs<ExtArgs>
+  Dream?: boolean | Prisma.Tag$DreamArgs<ExtArgs>
+  Pitch?: boolean | Prisma.Tag$PitchArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Tag"
   objects: {
-    ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
-    ArtImages: Prisma.$ArtImagePayload<ExtArgs>[]
-    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    Butterfly: Prisma.$ButterflyPayload<ExtArgs>[]
+    Reaction: Prisma.$ReactionPayload<ExtArgs>[]
+    ArtImage_Tag_artImageIdToArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
-    Components: Prisma.$ComponentPayload<ExtArgs>[]
-    Pitches: Prisma.$PitchPayload<ExtArgs>[]
-    Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
-    Dreams: Prisma.$DreamPayload<ExtArgs>[]
+    ArtImage_ArtImageToTag: Prisma.$ArtImagePayload<ExtArgs>[]
+    Component: Prisma.$ComponentPayload<ExtArgs>[]
+    Dream: Prisma.$DreamPayload<ExtArgs>[]
+    Pitch: Prisma.$PitchPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1941,9 +1941,9 @@ export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     pitch: string | null
     isPublic: boolean | null
     isMature: boolean
-    isActive: boolean
     userId: number | null
     artImageId: number | null
+    isActive: boolean
     artPrompt: string | null
   }, ExtArgs["result"]["tag"]>
   composites: {}
@@ -2285,14 +2285,14 @@ readonly fields: TagFieldRefs;
  */
 export interface Prisma__TagClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  ArtImage<T extends Prisma.Tag$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ArtImages<T extends Prisma.Tag$ArtImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ArtImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Reactions<T extends Prisma.Tag$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Butterfly<T extends Prisma.Tag$ButterflyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ButterflyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Reaction<T extends Prisma.Tag$ReactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ReactionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ArtImage_Tag_artImageIdToArtImage<T extends Prisma.Tag$ArtImage_Tag_artImageIdToArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ArtImage_Tag_artImageIdToArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Tag$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Components<T extends Prisma.Tag$ComponentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ComponentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Pitches<T extends Prisma.Tag$PitchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$PitchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Butterflies<T extends Prisma.Tag$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Dreams<T extends Prisma.Tag$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ArtImage_ArtImageToTag<T extends Prisma.Tag$ArtImage_ArtImageToTagArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ArtImage_ArtImageToTagArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Component<T extends Prisma.Tag$ComponentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$ComponentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Dream<T extends Prisma.Tag$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$DreamArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Pitch<T extends Prisma.Tag$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$PitchArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2331,9 +2331,9 @@ export interface TagFieldRefs {
   readonly pitch: Prisma.FieldRef<"Tag", 'String'>
   readonly isPublic: Prisma.FieldRef<"Tag", 'Boolean'>
   readonly isMature: Prisma.FieldRef<"Tag", 'Boolean'>
-  readonly isActive: Prisma.FieldRef<"Tag", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Tag", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Tag", 'Int'>
+  readonly isActive: Prisma.FieldRef<"Tag", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"Tag", 'String'>
 }
     
@@ -2683,52 +2683,33 @@ export type TagDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Tag.ArtImage
+ * Tag.Butterfly
  */
-export type Tag$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Tag$ButterflyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ArtImage
+   * Select specific fields to fetch from the Butterfly
    */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  select?: Prisma.ButterflySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ArtImage
+   * Omit specific fields from the Butterfly
    */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  omit?: Prisma.ButterflyOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
-}
-
-/**
- * Tag.ArtImages
- */
-export type Tag$ArtImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ArtImage
-   */
-  select?: Prisma.ArtImageSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ArtImage
-   */
-  omit?: Prisma.ArtImageOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtImageInclude<ExtArgs> | null
-  where?: Prisma.ArtImageWhereInput
-  orderBy?: Prisma.ArtImageOrderByWithRelationInput | Prisma.ArtImageOrderByWithRelationInput[]
-  cursor?: Prisma.ArtImageWhereUniqueInput
+  include?: Prisma.ButterflyInclude<ExtArgs> | null
+  where?: Prisma.ButterflyWhereInput
+  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
+  cursor?: Prisma.ButterflyWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ArtImageScalarFieldEnum | Prisma.ArtImageScalarFieldEnum[]
+  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
 }
 
 /**
- * Tag.Reactions
+ * Tag.Reaction
  */
-export type Tag$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Tag$ReactionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Reaction
    */
@@ -2747,6 +2728,25 @@ export type Tag$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
+}
+
+/**
+ * Tag.ArtImage_Tag_artImageIdToArtImage
+ */
+export type Tag$ArtImage_Tag_artImageIdToArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtImage
+   */
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtImage
+   */
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
 }
 
 /**
@@ -2769,9 +2769,33 @@ export type Tag$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 }
 
 /**
- * Tag.Components
+ * Tag.ArtImage_ArtImageToTag
  */
-export type Tag$ComponentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Tag$ArtImage_ArtImageToTagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArtImage
+   */
+  select?: Prisma.ArtImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArtImage
+   */
+  omit?: Prisma.ArtImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArtImageInclude<ExtArgs> | null
+  where?: Prisma.ArtImageWhereInput
+  orderBy?: Prisma.ArtImageOrderByWithRelationInput | Prisma.ArtImageOrderByWithRelationInput[]
+  cursor?: Prisma.ArtImageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArtImageScalarFieldEnum | Prisma.ArtImageScalarFieldEnum[]
+}
+
+/**
+ * Tag.Component
+ */
+export type Tag$ComponentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Component
    */
@@ -2793,57 +2817,9 @@ export type Tag$ComponentsArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Tag.Pitches
+ * Tag.Dream
  */
-export type Tag$PitchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Pitch
-   */
-  select?: Prisma.PitchSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Pitch
-   */
-  omit?: Prisma.PitchOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.PitchInclude<ExtArgs> | null
-  where?: Prisma.PitchWhereInput
-  orderBy?: Prisma.PitchOrderByWithRelationInput | Prisma.PitchOrderByWithRelationInput[]
-  cursor?: Prisma.PitchWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.PitchScalarFieldEnum | Prisma.PitchScalarFieldEnum[]
-}
-
-/**
- * Tag.Butterflies
- */
-export type Tag$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Butterfly
-   */
-  select?: Prisma.ButterflySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Butterfly
-   */
-  omit?: Prisma.ButterflyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ButterflyInclude<ExtArgs> | null
-  where?: Prisma.ButterflyWhereInput
-  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
-  cursor?: Prisma.ButterflyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
-}
-
-/**
- * Tag.Dreams
- */
-export type Tag$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Tag$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Dream
    */
@@ -2862,6 +2838,30 @@ export type Tag$DreamsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.DreamScalarFieldEnum | Prisma.DreamScalarFieldEnum[]
+}
+
+/**
+ * Tag.Pitch
+ */
+export type Tag$PitchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Pitch
+   */
+  select?: Prisma.PitchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Pitch
+   */
+  omit?: Prisma.PitchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PitchInclude<ExtArgs> | null
+  where?: Prisma.PitchWhereInput
+  orderBy?: Prisma.PitchOrderByWithRelationInput | Prisma.PitchOrderByWithRelationInput[]
+  cursor?: Prisma.PitchWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PitchScalarFieldEnum | Prisma.PitchScalarFieldEnum[]
 }
 
 /**

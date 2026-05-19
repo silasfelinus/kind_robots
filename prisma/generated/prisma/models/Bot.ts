@@ -58,10 +58,7 @@ export type BotMinAggregateOutputType = {
   modules: string | null
   sampleResponse: string | null
   tagline: string | null
-  artPrompt: string | null
   isPublic: boolean | null
-  isMature: boolean | null
-  isActive: boolean | null
   underConstruction: boolean | null
   canDelete: boolean | null
   userId: number | null
@@ -69,6 +66,9 @@ export type BotMinAggregateOutputType = {
   serverId: number | null
   serverName: string | null
   artImageId: number | null
+  isMature: boolean | null
+  isActive: boolean | null
+  artPrompt: string | null
 }
 
 export type BotMaxAggregateOutputType = {
@@ -89,10 +89,7 @@ export type BotMaxAggregateOutputType = {
   modules: string | null
   sampleResponse: string | null
   tagline: string | null
-  artPrompt: string | null
   isPublic: boolean | null
-  isMature: boolean | null
-  isActive: boolean | null
   underConstruction: boolean | null
   canDelete: boolean | null
   userId: number | null
@@ -100,6 +97,9 @@ export type BotMaxAggregateOutputType = {
   serverId: number | null
   serverName: string | null
   artImageId: number | null
+  isMature: boolean | null
+  isActive: boolean | null
+  artPrompt: string | null
 }
 
 export type BotCountAggregateOutputType = {
@@ -120,10 +120,7 @@ export type BotCountAggregateOutputType = {
   modules: number
   sampleResponse: number
   tagline: number
-  artPrompt: number
   isPublic: number
-  isMature: number
-  isActive: number
   underConstruction: number
   canDelete: number
   userId: number
@@ -131,6 +128,9 @@ export type BotCountAggregateOutputType = {
   serverId: number
   serverName: number
   artImageId: number
+  isMature: number
+  isActive: number
+  artPrompt: number
   _all: number
 }
 
@@ -167,10 +167,7 @@ export type BotMinAggregateInputType = {
   modules?: true
   sampleResponse?: true
   tagline?: true
-  artPrompt?: true
   isPublic?: true
-  isMature?: true
-  isActive?: true
   underConstruction?: true
   canDelete?: true
   userId?: true
@@ -178,6 +175,9 @@ export type BotMinAggregateInputType = {
   serverId?: true
   serverName?: true
   artImageId?: true
+  isMature?: true
+  isActive?: true
+  artPrompt?: true
 }
 
 export type BotMaxAggregateInputType = {
@@ -198,10 +198,7 @@ export type BotMaxAggregateInputType = {
   modules?: true
   sampleResponse?: true
   tagline?: true
-  artPrompt?: true
   isPublic?: true
-  isMature?: true
-  isActive?: true
   underConstruction?: true
   canDelete?: true
   userId?: true
@@ -209,6 +206,9 @@ export type BotMaxAggregateInputType = {
   serverId?: true
   serverName?: true
   artImageId?: true
+  isMature?: true
+  isActive?: true
+  artPrompt?: true
 }
 
 export type BotCountAggregateInputType = {
@@ -229,10 +229,7 @@ export type BotCountAggregateInputType = {
   modules?: true
   sampleResponse?: true
   tagline?: true
-  artPrompt?: true
   isPublic?: true
-  isMature?: true
-  isActive?: true
   underConstruction?: true
   canDelete?: true
   userId?: true
@@ -240,6 +237,9 @@ export type BotCountAggregateInputType = {
   serverId?: true
   serverName?: true
   artImageId?: true
+  isMature?: true
+  isActive?: true
+  artPrompt?: true
   _all?: true
 }
 
@@ -347,10 +347,7 @@ export type BotGroupByOutputType = {
   modules: string | null
   sampleResponse: string | null
   tagline: string | null
-  artPrompt: string | null
   isPublic: boolean
-  isMature: boolean
-  isActive: boolean
   underConstruction: boolean
   canDelete: boolean
   userId: number | null
@@ -358,6 +355,9 @@ export type BotGroupByOutputType = {
   serverId: number | null
   serverName: string | null
   artImageId: number | null
+  isMature: boolean
+  isActive: boolean
+  artPrompt: string | null
   _count: BotCountAggregateOutputType | null
   _avg: BotAvgAggregateOutputType | null
   _sum: BotSumAggregateOutputType | null
@@ -401,10 +401,7 @@ export type BotWhereInput = {
   modules?: Prisma.StringNullableFilter<"Bot"> | string | null
   sampleResponse?: Prisma.StringNullableFilter<"Bot"> | string | null
   tagline?: Prisma.StringNullableFilter<"Bot"> | string | null
-  artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   isPublic?: Prisma.BoolFilter<"Bot"> | boolean
-  isMature?: Prisma.BoolFilter<"Bot"> | boolean
-  isActive?: Prisma.BoolFilter<"Bot"> | boolean
   underConstruction?: Prisma.BoolFilter<"Bot"> | boolean
   canDelete?: Prisma.BoolFilter<"Bot"> | boolean
   userId?: Prisma.IntNullableFilter<"Bot"> | number | null
@@ -412,13 +409,16 @@ export type BotWhereInput = {
   serverId?: Prisma.IntNullableFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  isMature?: Prisma.BoolFilter<"Bot"> | boolean
+  isActive?: Prisma.BoolFilter<"Bot"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Chats?: Prisma.ChatListRelationFilter
-  Prompts?: Prisma.PromptListRelationFilter
-  Reactions?: Prisma.ReactionListRelationFilter
   Butterflies?: Prisma.ButterflyListRelationFilter
+  Chats?: Prisma.ChatListRelationFilter
+  Prompt?: Prisma.PromptListRelationFilter
+  Reactions?: Prisma.ReactionListRelationFilter
 }
 
 export type BotOrderByWithRelationInput = {
@@ -439,10 +439,7 @@ export type BotOrderByWithRelationInput = {
   modules?: Prisma.SortOrderInput | Prisma.SortOrder
   sampleResponse?: Prisma.SortOrderInput | Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
-  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   canDelete?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -450,13 +447,16 @@ export type BotOrderByWithRelationInput = {
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   Server?: Prisma.ServerOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
-  Chats?: Prisma.ChatOrderByRelationAggregateInput
-  Prompts?: Prisma.PromptOrderByRelationAggregateInput
-  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   Butterflies?: Prisma.ButterflyOrderByRelationAggregateInput
+  Chats?: Prisma.ChatOrderByRelationAggregateInput
+  Prompt?: Prisma.PromptOrderByRelationAggregateInput
+  Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   _relevance?: Prisma.BotOrderByRelevanceInput
 }
 
@@ -481,10 +481,7 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   modules?: Prisma.StringNullableFilter<"Bot"> | string | null
   sampleResponse?: Prisma.StringNullableFilter<"Bot"> | string | null
   tagline?: Prisma.StringNullableFilter<"Bot"> | string | null
-  artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   isPublic?: Prisma.BoolFilter<"Bot"> | boolean
-  isMature?: Prisma.BoolFilter<"Bot"> | boolean
-  isActive?: Prisma.BoolFilter<"Bot"> | boolean
   underConstruction?: Prisma.BoolFilter<"Bot"> | boolean
   canDelete?: Prisma.BoolFilter<"Bot"> | boolean
   userId?: Prisma.IntNullableFilter<"Bot"> | number | null
@@ -492,13 +489,16 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   serverId?: Prisma.IntNullableFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  isMature?: Prisma.BoolFilter<"Bot"> | boolean
+  isActive?: Prisma.BoolFilter<"Bot"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   Server?: Prisma.XOR<Prisma.ServerNullableScalarRelationFilter, Prisma.ServerWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  Chats?: Prisma.ChatListRelationFilter
-  Prompts?: Prisma.PromptListRelationFilter
-  Reactions?: Prisma.ReactionListRelationFilter
   Butterflies?: Prisma.ButterflyListRelationFilter
+  Chats?: Prisma.ChatListRelationFilter
+  Prompt?: Prisma.PromptListRelationFilter
+  Reactions?: Prisma.ReactionListRelationFilter
 }, "id" | "name">
 
 export type BotOrderByWithAggregationInput = {
@@ -519,10 +519,7 @@ export type BotOrderByWithAggregationInput = {
   modules?: Prisma.SortOrderInput | Prisma.SortOrder
   sampleResponse?: Prisma.SortOrderInput | Prisma.SortOrder
   tagline?: Prisma.SortOrderInput | Prisma.SortOrder
-  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   canDelete?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -530,6 +527,9 @@ export type BotOrderByWithAggregationInput = {
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.BotCountOrderByAggregateInput
   _avg?: Prisma.BotAvgOrderByAggregateInput
   _max?: Prisma.BotMaxOrderByAggregateInput
@@ -558,10 +558,7 @@ export type BotScalarWhereWithAggregatesInput = {
   modules?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   sampleResponse?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   tagline?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
-  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
-  isMature?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
-  isActive?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   underConstruction?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   canDelete?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
@@ -569,6 +566,9 @@ export type BotScalarWhereWithAggregatesInput = {
   serverId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
+  isMature?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
 }
 
 export type BotCreateInput = {
@@ -588,21 +588,21 @@ export type BotCreateInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateInput = {
@@ -623,10 +623,7 @@ export type BotUncheckedCreateInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
@@ -634,10 +631,13 @@ export type BotUncheckedCreateInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotUpdateInput = {
@@ -657,21 +657,21 @@ export type BotUpdateInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateInput = {
@@ -692,10 +692,7 @@ export type BotUncheckedUpdateInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -703,10 +700,13 @@ export type BotUncheckedUpdateInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateManyInput = {
@@ -727,10 +727,7 @@ export type BotCreateManyInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
@@ -738,6 +735,9 @@ export type BotCreateManyInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
 }
 
 export type BotUpdateManyMutationInput = {
@@ -757,14 +757,14 @@ export type BotUpdateManyMutationInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BotUncheckedUpdateManyInput = {
@@ -785,10 +785,7 @@ export type BotUncheckedUpdateManyInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -796,6 +793,9 @@ export type BotUncheckedUpdateManyInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BotListRelationFilter = {
@@ -832,10 +832,7 @@ export type BotCountOrderByAggregateInput = {
   modules?: Prisma.SortOrder
   sampleResponse?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
-  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   canDelete?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -843,6 +840,9 @@ export type BotCountOrderByAggregateInput = {
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type BotAvgOrderByAggregateInput = {
@@ -870,10 +870,7 @@ export type BotMaxOrderByAggregateInput = {
   modules?: Prisma.SortOrder
   sampleResponse?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
-  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   canDelete?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -881,6 +878,9 @@ export type BotMaxOrderByAggregateInput = {
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type BotMinOrderByAggregateInput = {
@@ -901,10 +901,7 @@ export type BotMinOrderByAggregateInput = {
   modules?: Prisma.SortOrder
   sampleResponse?: Prisma.SortOrder
   tagline?: Prisma.SortOrder
-  artPrompt?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   underConstruction?: Prisma.SortOrder
   canDelete?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -912,6 +909,9 @@ export type BotMinOrderByAggregateInput = {
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
 }
 
 export type BotSumOrderByAggregateInput = {
@@ -1000,20 +1000,20 @@ export type BotUpdateOneWithoutChatsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutChatsInput, Prisma.BotUpdateWithoutChatsInput>, Prisma.BotUncheckedUpdateWithoutChatsInput>
 }
 
-export type BotCreateNestedOneWithoutPromptsInput = {
-  create?: Prisma.XOR<Prisma.BotCreateWithoutPromptsInput, Prisma.BotUncheckedCreateWithoutPromptsInput>
-  connectOrCreate?: Prisma.BotCreateOrConnectWithoutPromptsInput
+export type BotCreateNestedOneWithoutPromptInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutPromptInput, Prisma.BotUncheckedCreateWithoutPromptInput>
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutPromptInput
   connect?: Prisma.BotWhereUniqueInput
 }
 
-export type BotUpdateOneWithoutPromptsNestedInput = {
-  create?: Prisma.XOR<Prisma.BotCreateWithoutPromptsInput, Prisma.BotUncheckedCreateWithoutPromptsInput>
-  connectOrCreate?: Prisma.BotCreateOrConnectWithoutPromptsInput
-  upsert?: Prisma.BotUpsertWithoutPromptsInput
+export type BotUpdateOneWithoutPromptNestedInput = {
+  create?: Prisma.XOR<Prisma.BotCreateWithoutPromptInput, Prisma.BotUncheckedCreateWithoutPromptInput>
+  connectOrCreate?: Prisma.BotCreateOrConnectWithoutPromptInput
+  upsert?: Prisma.BotUpsertWithoutPromptInput
   disconnect?: Prisma.BotWhereInput | boolean
   delete?: Prisma.BotWhereInput | boolean
   connect?: Prisma.BotWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutPromptsInput, Prisma.BotUpdateWithoutPromptsInput>, Prisma.BotUncheckedUpdateWithoutPromptsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BotUpdateToOneWithWhereWithoutPromptInput, Prisma.BotUpdateWithoutPromptInput>, Prisma.BotUncheckedUpdateWithoutPromptInput>
 }
 
 export type BotCreateNestedOneWithoutReactionsInput = {
@@ -1133,20 +1133,20 @@ export type BotCreateWithoutArtImageInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutArtImageInput = {
@@ -1167,20 +1167,20 @@ export type BotUncheckedCreateWithoutArtImageInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
   designer?: string
   serverId?: number | null
   serverName?: string | null
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutArtImageInput = {
@@ -1230,10 +1230,7 @@ export type BotScalarWhereInput = {
   modules?: Prisma.StringNullableFilter<"Bot"> | string | null
   sampleResponse?: Prisma.StringNullableFilter<"Bot"> | string | null
   tagline?: Prisma.StringNullableFilter<"Bot"> | string | null
-  artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
   isPublic?: Prisma.BoolFilter<"Bot"> | boolean
-  isMature?: Prisma.BoolFilter<"Bot"> | boolean
-  isActive?: Prisma.BoolFilter<"Bot"> | boolean
   underConstruction?: Prisma.BoolFilter<"Bot"> | boolean
   canDelete?: Prisma.BoolFilter<"Bot"> | boolean
   userId?: Prisma.IntNullableFilter<"Bot"> | number | null
@@ -1241,6 +1238,9 @@ export type BotScalarWhereInput = {
   serverId?: Prisma.IntNullableFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  isMature?: Prisma.BoolFilter<"Bot"> | boolean
+  isActive?: Prisma.BoolFilter<"Bot"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
 }
 
 export type BotCreateWithoutButterfliesInput = {
@@ -1260,19 +1260,19 @@ export type BotCreateWithoutButterfliesInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
 }
 
@@ -1294,10 +1294,7 @@ export type BotUncheckedCreateWithoutButterfliesInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
@@ -1305,8 +1302,11 @@ export type BotUncheckedCreateWithoutButterfliesInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
 }
 
@@ -1343,19 +1343,19 @@ export type BotUpdateWithoutButterfliesInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
 }
 
@@ -1377,10 +1377,7 @@ export type BotUncheckedUpdateWithoutButterfliesInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1388,8 +1385,11 @@ export type BotUncheckedUpdateWithoutButterfliesInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
 }
 
@@ -1410,20 +1410,20 @@ export type BotCreateWithoutChatsInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutChatsInput = {
@@ -1444,10 +1444,7 @@ export type BotUncheckedCreateWithoutChatsInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
@@ -1455,9 +1452,12 @@ export type BotUncheckedCreateWithoutChatsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutChatsInput = {
@@ -1493,20 +1493,20 @@ export type BotUpdateWithoutChatsInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutChatsInput = {
@@ -1527,10 +1527,7 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1538,12 +1535,15 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
 }
 
-export type BotCreateWithoutPromptsInput = {
+export type BotCreateWithoutPromptInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   BotType: string
@@ -1560,23 +1560,23 @@ export type BotCreateWithoutPromptsInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
   Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
-  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
 }
 
-export type BotUncheckedCreateWithoutPromptsInput = {
+export type BotUncheckedCreateWithoutPromptInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1594,10 +1594,7 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
@@ -1605,28 +1602,31 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
-  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
 }
 
-export type BotCreateOrConnectWithoutPromptsInput = {
+export type BotCreateOrConnectWithoutPromptInput = {
   where: Prisma.BotWhereUniqueInput
-  create: Prisma.XOR<Prisma.BotCreateWithoutPromptsInput, Prisma.BotUncheckedCreateWithoutPromptsInput>
+  create: Prisma.XOR<Prisma.BotCreateWithoutPromptInput, Prisma.BotUncheckedCreateWithoutPromptInput>
 }
 
-export type BotUpsertWithoutPromptsInput = {
-  update: Prisma.XOR<Prisma.BotUpdateWithoutPromptsInput, Prisma.BotUncheckedUpdateWithoutPromptsInput>
-  create: Prisma.XOR<Prisma.BotCreateWithoutPromptsInput, Prisma.BotUncheckedCreateWithoutPromptsInput>
+export type BotUpsertWithoutPromptInput = {
+  update: Prisma.XOR<Prisma.BotUpdateWithoutPromptInput, Prisma.BotUncheckedUpdateWithoutPromptInput>
+  create: Prisma.XOR<Prisma.BotCreateWithoutPromptInput, Prisma.BotUncheckedCreateWithoutPromptInput>
   where?: Prisma.BotWhereInput
 }
 
-export type BotUpdateToOneWithWhereWithoutPromptsInput = {
+export type BotUpdateToOneWithWhereWithoutPromptInput = {
   where?: Prisma.BotWhereInput
-  data: Prisma.XOR<Prisma.BotUpdateWithoutPromptsInput, Prisma.BotUncheckedUpdateWithoutPromptsInput>
+  data: Prisma.XOR<Prisma.BotUpdateWithoutPromptInput, Prisma.BotUncheckedUpdateWithoutPromptInput>
 }
 
-export type BotUpdateWithoutPromptsInput = {
+export type BotUpdateWithoutPromptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   BotType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1643,23 +1643,23 @@ export type BotUpdateWithoutPromptsInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
-  Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
 }
 
-export type BotUncheckedUpdateWithoutPromptsInput = {
+export type BotUncheckedUpdateWithoutPromptInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1677,10 +1677,7 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1688,9 +1685,12 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
-  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutReactionsInput = {
@@ -1710,20 +1710,20 @@ export type BotCreateWithoutReactionsInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutReactionsInput = {
@@ -1744,10 +1744,7 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
@@ -1755,9 +1752,12 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutReactionsInput = {
@@ -1793,20 +1793,20 @@ export type BotUpdateWithoutReactionsInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutReactionsInput = {
@@ -1827,10 +1827,7 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1838,9 +1835,12 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotCreateWithoutServerInput = {
@@ -1860,20 +1860,20 @@ export type BotCreateWithoutServerInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   User?: Prisma.UserCreateNestedOneWithoutBotsInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutServerInput = {
@@ -1894,20 +1894,20 @@ export type BotUncheckedCreateWithoutServerInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
   designer?: string
   serverName?: string | null
   artImageId?: number | null
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutServerInput = {
@@ -1953,20 +1953,20 @@ export type BotCreateWithoutUserInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutBotsInput
   Server?: Prisma.ServerCreateNestedOneWithoutBotsInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutBotInput
 }
 
 export type BotUncheckedCreateWithoutUserInput = {
@@ -1987,20 +1987,20 @@ export type BotUncheckedCreateWithoutUserInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
-  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutBotInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutBotInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutBotInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutBotInput
 }
 
 export type BotCreateOrConnectWithoutUserInput = {
@@ -2047,16 +2047,16 @@ export type BotCreateManyArtImageInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
   designer?: string
   serverId?: number | null
   serverName?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
 }
 
 export type BotUpdateWithoutArtImageInput = {
@@ -2076,20 +2076,20 @@ export type BotUpdateWithoutArtImageInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutArtImageInput = {
@@ -2110,20 +2110,20 @@ export type BotUncheckedUpdateWithoutArtImageInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutArtImageInput = {
@@ -2144,16 +2144,16 @@ export type BotUncheckedUpdateManyWithoutArtImageInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BotCreateManyServerInput = {
@@ -2174,16 +2174,16 @@ export type BotCreateManyServerInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: number | null
   designer?: string
   serverName?: string | null
   artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
 }
 
 export type BotUpdateWithoutServerInput = {
@@ -2203,20 +2203,20 @@ export type BotUpdateWithoutServerInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   User?: Prisma.UserUpdateOneWithoutBotsNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutServerInput = {
@@ -2237,20 +2237,20 @@ export type BotUncheckedUpdateWithoutServerInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutServerInput = {
@@ -2271,16 +2271,16 @@ export type BotUncheckedUpdateManyWithoutServerInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BotCreateManyUserInput = {
@@ -2301,16 +2301,16 @@ export type BotCreateManyUserInput = {
   modules?: string | null
   sampleResponse?: string | null
   tagline?: string | null
-  artPrompt?: string | null
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   designer?: string
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: string | null
 }
 
 export type BotUpdateWithoutUserInput = {
@@ -2330,20 +2330,20 @@ export type BotUpdateWithoutUserInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutBotsNestedInput
   Server?: Prisma.ServerUpdateOneWithoutBotsNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateWithoutUserInput = {
@@ -2364,20 +2364,20 @@ export type BotUncheckedUpdateWithoutUserInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
-  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutBotNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutBotNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutBotNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutBotNestedInput
 }
 
 export type BotUncheckedUpdateManyWithoutUserInput = {
@@ -2398,16 +2398,16 @@ export type BotUncheckedUpdateManyWithoutUserInput = {
   modules?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -2416,17 +2416,17 @@ export type BotUncheckedUpdateManyWithoutUserInput = {
  */
 
 export type BotCountOutputType = {
-  Chats: number
-  Prompts: number
-  Reactions: number
   Butterflies: number
+  Chats: number
+  Prompt: number
+  Reactions: number
 }
 
 export type BotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Chats?: boolean | BotCountOutputTypeCountChatsArgs
-  Prompts?: boolean | BotCountOutputTypeCountPromptsArgs
-  Reactions?: boolean | BotCountOutputTypeCountReactionsArgs
   Butterflies?: boolean | BotCountOutputTypeCountButterfliesArgs
+  Chats?: boolean | BotCountOutputTypeCountChatsArgs
+  Prompt?: boolean | BotCountOutputTypeCountPromptArgs
+  Reactions?: boolean | BotCountOutputTypeCountReactionsArgs
 }
 
 /**
@@ -2442,6 +2442,13 @@ export type BotCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensio
 /**
  * BotCountOutputType without action
  */
+export type BotCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ButterflyWhereInput
+}
+
+/**
+ * BotCountOutputType without action
+ */
 export type BotCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ChatWhereInput
 }
@@ -2449,7 +2456,7 @@ export type BotCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Exten
 /**
  * BotCountOutputType without action
  */
-export type BotCountOutputTypeCountPromptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type BotCountOutputTypeCountPromptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PromptWhereInput
 }
 
@@ -2458,13 +2465,6 @@ export type BotCountOutputTypeCountPromptsArgs<ExtArgs extends runtime.Types.Ext
  */
 export type BotCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReactionWhereInput
-}
-
-/**
- * BotCountOutputType without action
- */
-export type BotCountOutputTypeCountButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ButterflyWhereInput
 }
 
 
@@ -2486,10 +2486,7 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   modules?: boolean
   sampleResponse?: boolean
   tagline?: boolean
-  artPrompt?: boolean
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: boolean
@@ -2497,13 +2494,16 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   serverId?: boolean
   serverName?: boolean
   artImageId?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: boolean
   ArtImage?: boolean | Prisma.Bot$ArtImageArgs<ExtArgs>
   Server?: boolean | Prisma.Bot$ServerArgs<ExtArgs>
   User?: boolean | Prisma.Bot$UserArgs<ExtArgs>
-  Chats?: boolean | Prisma.Bot$ChatsArgs<ExtArgs>
-  Prompts?: boolean | Prisma.Bot$PromptsArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
   Butterflies?: boolean | Prisma.Bot$ButterfliesArgs<ExtArgs>
+  Chats?: boolean | Prisma.Bot$ChatsArgs<ExtArgs>
+  Prompt?: boolean | Prisma.Bot$PromptArgs<ExtArgs>
+  Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.BotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bot"]>
 
@@ -2527,10 +2527,7 @@ export type BotSelectScalar = {
   modules?: boolean
   sampleResponse?: boolean
   tagline?: boolean
-  artPrompt?: boolean
   isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
   underConstruction?: boolean
   canDelete?: boolean
   userId?: boolean
@@ -2538,17 +2535,20 @@ export type BotSelectScalar = {
   serverId?: boolean
   serverName?: boolean
   artImageId?: boolean
+  isMature?: boolean
+  isActive?: boolean
+  artPrompt?: boolean
 }
 
-export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "artPrompt" | "isPublic" | "isMature" | "isActive" | "underConstruction" | "canDelete" | "userId" | "designer" | "serverId" | "serverName" | "artImageId", ExtArgs["result"]["bot"]>
+export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "designer" | "serverId" | "serverName" | "artImageId" | "isMature" | "isActive" | "artPrompt", ExtArgs["result"]["bot"]>
 export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Bot$ArtImageArgs<ExtArgs>
   Server?: boolean | Prisma.Bot$ServerArgs<ExtArgs>
   User?: boolean | Prisma.Bot$UserArgs<ExtArgs>
-  Chats?: boolean | Prisma.Bot$ChatsArgs<ExtArgs>
-  Prompts?: boolean | Prisma.Bot$PromptsArgs<ExtArgs>
-  Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
   Butterflies?: boolean | Prisma.Bot$ButterfliesArgs<ExtArgs>
+  Chats?: boolean | Prisma.Bot$ChatsArgs<ExtArgs>
+  Prompt?: boolean | Prisma.Bot$PromptArgs<ExtArgs>
+  Reactions?: boolean | Prisma.Bot$ReactionsArgs<ExtArgs>
   _count?: boolean | Prisma.BotCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2558,10 +2558,10 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     Server: Prisma.$ServerPayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
-    Chats: Prisma.$ChatPayload<ExtArgs>[]
-    Prompts: Prisma.$PromptPayload<ExtArgs>[]
-    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
     Butterflies: Prisma.$ButterflyPayload<ExtArgs>[]
+    Chats: Prisma.$ChatPayload<ExtArgs>[]
+    Prompt: Prisma.$PromptPayload<ExtArgs>[]
+    Reactions: Prisma.$ReactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2581,10 +2581,7 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     modules: string | null
     sampleResponse: string | null
     tagline: string | null
-    artPrompt: string | null
     isPublic: boolean
-    isMature: boolean
-    isActive: boolean
     underConstruction: boolean
     canDelete: boolean
     userId: number | null
@@ -2592,6 +2589,9 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     serverId: number | null
     serverName: string | null
     artImageId: number | null
+    isMature: boolean
+    isActive: boolean
+    artPrompt: string | null
   }, ExtArgs["result"]["bot"]>
   composites: {}
 }
@@ -2935,10 +2935,10 @@ export interface Prisma__BotClient<T, Null = never, ExtArgs extends runtime.Type
   ArtImage<T extends Prisma.Bot$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Server<T extends Prisma.Bot$ServerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ServerArgs<ExtArgs>>): Prisma.Prisma__ServerClient<runtime.Types.Result.GetResult<Prisma.$ServerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Bot$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Chats<T extends Prisma.Bot$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Prompts<T extends Prisma.Bot$PromptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$PromptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Reactions<T extends Prisma.Bot$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Butterflies<T extends Prisma.Bot$ButterfliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ButterfliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ButterflyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Chats<T extends Prisma.Bot$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Prompt<T extends Prisma.Bot$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$PromptArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Reactions<T extends Prisma.Bot$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bot$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2985,10 +2985,7 @@ export interface BotFieldRefs {
   readonly modules: Prisma.FieldRef<"Bot", 'String'>
   readonly sampleResponse: Prisma.FieldRef<"Bot", 'String'>
   readonly tagline: Prisma.FieldRef<"Bot", 'String'>
-  readonly artPrompt: Prisma.FieldRef<"Bot", 'String'>
   readonly isPublic: Prisma.FieldRef<"Bot", 'Boolean'>
-  readonly isMature: Prisma.FieldRef<"Bot", 'Boolean'>
-  readonly isActive: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly underConstruction: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly canDelete: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Bot", 'Int'>
@@ -2996,6 +2993,9 @@ export interface BotFieldRefs {
   readonly serverId: Prisma.FieldRef<"Bot", 'Int'>
   readonly serverName: Prisma.FieldRef<"Bot", 'String'>
   readonly artImageId: Prisma.FieldRef<"Bot", 'Int'>
+  readonly isMature: Prisma.FieldRef<"Bot", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Bot", 'Boolean'>
+  readonly artPrompt: Prisma.FieldRef<"Bot", 'String'>
 }
     
 
@@ -3401,6 +3401,30 @@ export type Bot$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 }
 
 /**
+ * Bot.Butterflies
+ */
+export type Bot$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Butterfly
+   */
+  select?: Prisma.ButterflySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Butterfly
+   */
+  omit?: Prisma.ButterflyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ButterflyInclude<ExtArgs> | null
+  where?: Prisma.ButterflyWhereInput
+  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
+  cursor?: Prisma.ButterflyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
+}
+
+/**
  * Bot.Chats
  */
 export type Bot$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3425,9 +3449,9 @@ export type Bot$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 }
 
 /**
- * Bot.Prompts
+ * Bot.Prompt
  */
-export type Bot$PromptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Bot$PromptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Prompt
    */
@@ -3470,30 +3494,6 @@ export type Bot$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
-}
-
-/**
- * Bot.Butterflies
- */
-export type Bot$ButterfliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Butterfly
-   */
-  select?: Prisma.ButterflySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Butterfly
-   */
-  omit?: Prisma.ButterflyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ButterflyInclude<ExtArgs> | null
-  where?: Prisma.ButterflyWhereInput
-  orderBy?: Prisma.ButterflyOrderByWithRelationInput | Prisma.ButterflyOrderByWithRelationInput[]
-  cursor?: Prisma.ButterflyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ButterflyScalarFieldEnum | Prisma.ButterflyScalarFieldEnum[]
 }
 
 /**

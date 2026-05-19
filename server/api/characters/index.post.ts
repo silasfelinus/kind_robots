@@ -103,7 +103,6 @@ export default defineEventHandler(async (event) => {
       'scenarioIds',
     )
     const dreamIds = normalizeIdArray(characterData.dreamIds, 'dreamIds')
-    const pitchIds = normalizeIdArray(characterData.pitchIds, 'pitchIds')
 
     const fullData: Prisma.CharacterCreateInput = {
       User: {
@@ -183,7 +182,6 @@ export default defineEventHandler(async (event) => {
         Rewards: true,
         Scenarios: true,
         Dreams: true,
-        Pitches: true,
       },
     })
 

@@ -185,7 +185,6 @@ export default defineEventHandler(async (event) => {
             Reactions: true,
             Characters: true,
             Rewards: true,
-            Scenarios: true,
             ArtCollections: true,
             Pitches: true,
           },

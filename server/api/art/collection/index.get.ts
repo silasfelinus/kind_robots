@@ -108,7 +108,6 @@ export default defineEventHandler(async () => {
         },
         _count: {
           select: {
-            art: true,
             ArtImages: true,
           },
         },

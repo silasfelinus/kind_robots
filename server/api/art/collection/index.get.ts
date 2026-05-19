@@ -94,12 +94,6 @@ export default defineEventHandler(async () => {
         artPrompt: true,
         description: true,
         username: true,
-        art: {
-          orderBy: {
-            id: 'desc',
-          },
-          select: legacyArtListSelect,
-        },
         ArtImages: {
           orderBy: {
             id: 'desc',

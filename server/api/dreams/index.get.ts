@@ -175,7 +175,6 @@ export default defineEventHandler(async (event) => {
               },
             },
           },
-          Scenarios: true,
           Characters: true,
           Rewards: true,
           Pitches: true,

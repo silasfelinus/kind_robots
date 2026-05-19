@@ -3,6 +3,21 @@
   <div
     class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
+    <button
+      class="btn btn-xs btn-ghost absolute right-2 top-2 z-50 flex h-8 min-h-0 flex-col gap-0 rounded-xl border border-base-300 bg-base-100 px-2 leading-none shadow-sm"
+      type="button"
+      :title="showHeader ? 'Hide header' : 'Show header'"
+      @click="toggleHeader"
+    >
+      <Icon
+        :name="showHeader ? 'kind-icon:collapse' : 'kind-icon:expand'"
+        class="h-3.5 w-3.5"
+      />
+      <span class="text-[0.55rem] font-black uppercase tracking-wider">
+        {{ showHeader ? 'Hide' : 'Show' }}
+      </span>
+    </button>
+
     <header
       v-if="showHeader"
       class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
@@ -141,18 +156,6 @@
             >
               <Icon name="kind-icon:refresh" class="h-4 w-4" />
               <span class="hidden sm:inline">{{ refreshLabel }}</span>
-            </button>
-
-            <button
-              class="btn btn-sm btn-ghost flex h-10 min-h-0 flex-col gap-0 rounded-xl border border-base-300 bg-base-100 px-3 leading-none"
-              type="button"
-              title="Hide header"
-              @click="toggleHeader"
-            >
-              <Icon name="kind-icon:collapse" class="h-4 w-4" />
-              <span class="text-[0.6rem] font-black uppercase tracking-wider">
-                Hide
-              </span>
             </button>
           </div>
         </section>

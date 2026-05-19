@@ -1,51 +1,57 @@
-<!-- /components/content/art/art-control.vue -->
+<!-- /abandonware/art-control.vue -->
 <template>
   <div class="space-y-4">
     <h2 class="text-xl font-bold">⚙️ Controls</h2>
 
     <button
       class="btn btn-primary w-full"
-      @click="setAsAvatar"
+      type="button"
       :disabled="!canUse"
+      @click="setAsAvatar"
     >
       Set as Avatar
     </button>
 
     <button
       class="btn btn-accent w-full"
-      @click="addToFavorites"
+      type="button"
       :disabled="!canUse"
+      @click="addToFavorites"
     >
       Add to Favorites
     </button>
 
-    <button class="btn btn-info w-full" @click="copyPrompt" :disabled="!canUse">
+    <button
+      class="btn btn-info w-full"
+      type="button"
+      :disabled="!canUse"
+      @click="copyPrompt"
+    >
       Copy Prompt
     </button>
 
-    <button class="btn btn-warning w-full" @click="showSwag = !showSwag">
+    <button
+      class="btn btn-warning w-full"
+      type="button"
+      @click="showSwag = !showSwag"
+    >
       🎁 Print Swag
     </button>
 
     <div
       v-if="showSwag"
-      class="rounded-2xl border border-base-300 p-4 bg-base-200"
+      class="rounded-2xl border border-base-300 bg-base-200 p-4"
     >
-      <print-swag
-        :artImageId="props.art.artImageId ?? undefined"
-        @close="showSwag = false"
-      />
+      <print-swag :art-image-id="props.artImage.id" @close="showSwag = false" />
     </div>
 
     <div class="space-y-2">
       <label class="block font-semibold">Add to Collection</label>
+
       <select v-model="selectedLabel" class="select select-bordered w-full">
         <option disabled value="">-- Select Existing --</option>
-        <option
-          v-for="label in userCollections"
-          :key="label ?? ''"
-          :value="label"
-        >
+
+        <option v-for="label in userCollections" :key="label" :value="label">
           {{ label }}
         </option>
       </select>
@@ -58,8 +64,9 @@
 
       <button
         class="btn btn-success w-full"
-        @click="addToCollection"
+        type="button"
         :disabled="!canUse || (!selectedLabel && !customLabel)"
+        @click="addToCollection"
       >
         ➕ Add to Collection
       </button>
@@ -67,18 +74,22 @@
 
     <art-reactions />
 
-    <button class="btn w-full" @click="emit('close')">Close Display</button>
+    <button class="btn w-full" type="button" @click="emit('close')">
+      Close Display
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
-import type { Art } from '@/stores/artStore'
 
-const props = defineProps<{ art: Art }>()
-const emit = defineEmits(['close'])
+const props = defineProps<{ artImage: ArtImage }>()
+const emit = defineEmits<{
+  close: []
+}>()
 
 const userStore = useUserStore()
 const collectionStore = useCollectionStore()
@@ -87,58 +98,86 @@ const selectedLabel = ref('')
 const customLabel = ref('')
 const showSwag = ref(false)
 
-const canUse = computed(() => !!userStore.userId)
+const canUse = computed(() => Boolean(userStore.userId))
 
 const userCollections = computed(() => {
   return collectionStore.collections
-    .filter((col: { userId: any }) => col.userId === userStore.userId)
-    .map((col: { label: any }) => col.label)
+    .filter((collection) => collection.userId === userStore.userId)
+    .map((collection) => collection.label)
+    .filter((label): label is string => Boolean(label))
 })
 
-const setAsAvatar = async () => {
+async function ensureCollectionByLabel(label: string) {
+  const userId = Number(userStore.userId ?? userStore.user?.id ?? 10)
+
+  const existing = collectionStore.collections.find((collection) => {
+    return collection.userId === userId && collection.label === label
+  })
+
+  if (existing) return existing
+
+  return await collectionStore.createCollection(label, userId, true, false)
+}
+
+async function setAsAvatar() {
   try {
-    await userStore.updateUserInfo({ artImageId: props.art.artImageId })
-    await collectionStore.addArtToCollection({
-      artId: props.art.id,
-      label: 'avatars',
+    await userStore.updateUserInfo({ artImageId: props.artImage.id })
+
+    const collection = await ensureCollectionByLabel('avatars')
+
+    await collectionStore.addArtImageToCollection({
+      artImageId: props.artImage.id,
+      collectionId: collection.id,
     })
+
     alert('Avatar set!')
-  } catch (err) {
-    console.error('Set avatar error:', err)
+  } catch (error) {
+    console.error('Set avatar error:', error)
   }
 }
 
-const addToFavorites = async () => {
+async function addToFavorites() {
   try {
-    await collectionStore.addArtToCollection({
-      artId: props.art.id,
-      label: 'favorites',
+    const collection = await ensureCollectionByLabel('favorites')
+
+    await collectionStore.addArtImageToCollection({
+      artImageId: props.artImage.id,
+      collectionId: collection.id,
     })
+
     alert('Added to favorites!')
-  } catch (err) {
-    console.error('Favorites error:', err)
+  } catch (error) {
+    console.error('Favorites error:', error)
   }
 }
 
-const copyPrompt = async () => {
+async function copyPrompt() {
   try {
-    await navigator.clipboard.writeText(props.art.promptString || '')
+    await navigator.clipboard.writeText(props.artImage.promptString || '')
     alert('Prompt copied to clipboard!')
-  } catch (err) {
-    console.error('Copy failed:', err)
+  } catch (error) {
+    console.error('Copy failed:', error)
   }
 }
 
-const addToCollection = async () => {
-  const label = customLabel.value || selectedLabel.value
+async function addToCollection() {
+  const label = customLabel.value.trim() || selectedLabel.value.trim()
   if (!label) return
+
   try {
-    await collectionStore.addArtToCollection({ artId: props.art.id, label })
+    const collection = await ensureCollectionByLabel(label)
+
+    await collectionStore.addArtImageToCollection({
+      artImageId: props.artImage.id,
+      collectionId: collection.id,
+    })
+
     alert(`Added to "${label}" collection!`)
+
     selectedLabel.value = ''
     customLabel.value = ''
-  } catch (err) {
-    console.error('Collection error:', err)
+  } catch (error) {
+    console.error('Collection error:', error)
   }
 }
 </script>

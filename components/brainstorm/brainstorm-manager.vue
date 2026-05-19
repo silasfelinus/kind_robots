@@ -1080,11 +1080,11 @@ async function generateArtImage() {
       isMature: pitchForm.isMature ?? false,
     } as Parameters<typeof artStore.generateArt>[0])
 
-    if (!result.success) {
+    if (!result.success || !result.data) {
       throw new Error(result.message || 'Art generation failed.')
     }
 
-    const artImageId = result.data?.artImageId
+    const artImageId = result.data.id
 
     if (selectedPitch.value && artImageId) {
       await pitchStore.updatePitch(selectedPitch.value.id, {
@@ -1118,12 +1118,11 @@ async function saveCurrentPrompt() {
 
 async function createLinkedPrompt(
   prompt: string,
-  pitchId?: number,
+  _pitchId?: number,
   creationSource: CreationSourceType = 'HUMAN',
 ) {
   const payload: Partial<Prompt> = {
     prompt,
-    pitchId,
     userId: userStore.userId || 10,
     creationSource: creationSource as never,
   }

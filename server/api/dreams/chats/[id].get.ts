@@ -35,8 +35,6 @@ const artImageSelect = {
   createdAt: true,
   updatedAt: true,
   userId: true,
-  artId: true,
-  galleryId: true,
 } satisfies Prisma.ArtImageSelect
 
 function getDreamId(event: H3Event): number {

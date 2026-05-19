@@ -18,7 +18,6 @@ type PatchUser = {
 }
 
 type ArtImageConnectionBody = {
-  artId?: number | null
   botId?: number | null
   componentId?: number | null
   milestoneId?: number | null
@@ -29,7 +28,6 @@ type ArtImageConnectionBody = {
   chatId?: number | null
   characterId?: number | null
   butterflyId?: number | null
-  galleryId?: number | null
   userId?: number | null
   serverId?: number | null
   checkpointResourceId?: number | null
@@ -37,28 +35,65 @@ type ArtImageConnectionBody = {
   dreamIds?: number[]
   scenarioIds?: number[]
   reactionIds?: number[]
-  tagIds?: number[]
   butterflyIds?: number[]
   artCollectionIds?: number[]
+  botIds?: number[]
+  componentIds?: number[]
+  milestoneIds?: number[]
+  pitchIds?: number[]
+  promptIds?: number[]
+  resourceIds?: number[]
+  rewardIds?: number[]
+  chatIds?: number[]
+  characterIds?: number[]
 
   disconnectDreamIds?: number[]
   disconnectScenarioIds?: number[]
   disconnectReactionIds?: number[]
-  disconnectTagIds?: number[]
   disconnectButterflyIds?: number[]
   disconnectArtCollectionIds?: number[]
-
-  tagOwnerId?: number | null
+  disconnectBotIds?: number[]
+  disconnectComponentIds?: number[]
+  disconnectMilestoneIds?: number[]
+  disconnectPitchIds?: number[]
+  disconnectPromptIds?: number[]
+  disconnectResourceIds?: number[]
+  disconnectRewardIds?: number[]
+  disconnectChatIds?: number[]
+  disconnectCharacterIds?: number[]
 
   clearDirectLinks?: boolean
   clearDreams?: boolean
   clearScenarios?: boolean
   clearReactions?: boolean
-  clearTags?: boolean
   clearButterflies?: boolean
   clearArtCollections?: boolean
-  clearTagOwner?: boolean
+  clearBots?: boolean
+  clearComponents?: boolean
+  clearMilestones?: boolean
+  clearPitches?: boolean
+  clearPrompts?: boolean
+  clearResources?: boolean
+  clearRewards?: boolean
+  clearChats?: boolean
+  clearCharacters?: boolean
 }
+
+type ListConnectionKey =
+  | 'Bots'
+  | 'Chats'
+  | 'Characters'
+  | 'Components'
+  | 'Milestones'
+  | 'Butterflies'
+  | 'Scenarios'
+  | 'Dreams'
+  | 'Reactions'
+  | 'Pitches'
+  | 'Prompts'
+  | 'Rewards'
+  | 'Resources'
+  | 'ArtCollections'
 
 function isAdminUser(user: ValidatedUser | null | undefined): boolean {
   if (!user) return false
@@ -99,6 +134,10 @@ function cleanIds(values: unknown): number[] {
     .filter((value) => Number.isInteger(value) && value > 0)
 }
 
+function mergeIds(...groups: unknown[]): number[] {
+  return [...new Set(groups.flatMap((group) => cleanIds(group)))]
+}
+
 function connectMany(ids: number[]) {
   return ids.length ? ids.map((id) => ({ id })) : undefined
 }
@@ -107,23 +146,27 @@ function disconnectMany(ids: number[]) {
   return ids.length ? ids.map((id) => ({ id })) : undefined
 }
 
-function setDirectLink(
+function addListConnection(
   data: Prisma.ArtImageUpdateInput,
-  key:
-    | 'Art'
-    | 'Bot'
-    | 'Component'
-    | 'Milestone'
-    | 'Pitch'
-    | 'Prompt'
-    | 'Resource'
-    | 'Reward'
-    | 'Chat'
-    | 'Character'
-    | 'Gallery'
-    | 'User'
-    | 'Server'
-    | 'CheckpointResource',
+  key: ListConnectionKey,
+  connectIds: number[],
+  disconnectIds: number[],
+  clear = false,
+): void {
+  if (!connectIds.length && !disconnectIds.length && !clear) return
+
+  data[key] = {
+    ...(clear ? { set: [] } : {}),
+    ...(connectIds.length ? { connect: connectMany(connectIds) } : {}),
+    ...(disconnectIds.length
+      ? { disconnect: disconnectMany(disconnectIds) }
+      : {}),
+  } as never
+}
+
+function setOptionalSingleRelation(
+  data: Prisma.ArtImageUpdateInput,
+  key: 'User' | 'Server' | 'CheckpointResource',
   id: unknown,
 ): void {
   if (id === undefined) return
@@ -139,30 +182,6 @@ function setDirectLink(
     : {
         disconnect: true,
       }
-}
-
-function addListConnection(
-  data: Prisma.ArtImageUpdateInput,
-  key:
-    | 'Dreams'
-    | 'Scenarios'
-    | 'Reactions'
-    | 'Tags'
-    | 'Butterflies'
-    | 'ArtCollections',
-  connectIds: number[],
-  disconnectIds: number[],
-  clear = false,
-): void {
-  if (!connectIds.length && !disconnectIds.length && !clear) return
-
-  data[key] = {
-    ...(clear ? { set: [] } : {}),
-    ...(connectIds.length ? { connect: connectMany(connectIds) } : {}),
-    ...(disconnectIds.length
-      ? { disconnect: disconnectMany(disconnectIds) }
-      : {}),
-  } as never
 }
 
 export default defineEventHandler(async (event) => {
@@ -212,42 +231,95 @@ export default defineEventHandler(async (event) => {
     const data: Prisma.ArtImageUpdateInput = {}
 
     if (body.clearDirectLinks) {
-      data.Art = { disconnect: true }
-      data.Bot = { disconnect: true }
-      data.Component = { disconnect: true }
-      data.Milestone = { disconnect: true }
-      data.Pitch = { disconnect: true }
-      data.Prompt = { disconnect: true }
-      data.Resource = { disconnect: true }
-      data.Reward = { disconnect: true }
-      data.Chat = { disconnect: true }
-      data.Character = { disconnect: true }
+      data.User = { disconnect: true }
       data.Server = { disconnect: true }
       data.CheckpointResource = { disconnect: true }
     }
 
-    setDirectLink(data, 'Art', body.artId)
-    setDirectLink(data, 'Bot', body.botId)
-    setDirectLink(data, 'Component', body.componentId)
-    setDirectLink(data, 'Milestone', body.milestoneId)
-    setDirectLink(data, 'Pitch', body.pitchId)
-    setDirectLink(data, 'Prompt', body.promptId)
-    setDirectLink(data, 'Resource', body.resourceId)
-    setDirectLink(data, 'Reward', body.rewardId)
-    setDirectLink(data, 'Chat', body.chatId)
-    setDirectLink(data, 'Character', body.characterId)
-    setDirectLink(data, 'Gallery', body.galleryId)
-    setDirectLink(data, 'User', body.userId)
-    setDirectLink(data, 'Server', body.serverId)
-    setDirectLink(data, 'CheckpointResource', body.checkpointResourceId)
+    setOptionalSingleRelation(data, 'User', body.userId)
+    setOptionalSingleRelation(data, 'Server', body.serverId)
+    setOptionalSingleRelation(
+      data,
+      'CheckpointResource',
+      body.checkpointResourceId,
+    )
+
+    addListConnection(
+      data,
+      'Bots',
+      mergeIds(body.botIds, body.botId ? [body.botId] : []),
+      cleanIds(body.disconnectBotIds),
+      Boolean(body.clearBots),
+    )
+
+    addListConnection(
+      data,
+      'Components',
+      mergeIds(body.componentIds, body.componentId ? [body.componentId] : []),
+      cleanIds(body.disconnectComponentIds),
+      Boolean(body.clearComponents),
+    )
+
+    addListConnection(
+      data,
+      'Milestones',
+      mergeIds(body.milestoneIds, body.milestoneId ? [body.milestoneId] : []),
+      cleanIds(body.disconnectMilestoneIds),
+      Boolean(body.clearMilestones),
+    )
+
+    addListConnection(
+      data,
+      'Pitches',
+      mergeIds(body.pitchIds, body.pitchId ? [body.pitchId] : []),
+      cleanIds(body.disconnectPitchIds),
+      Boolean(body.clearPitches),
+    )
+
+    addListConnection(
+      data,
+      'Prompts',
+      mergeIds(body.promptIds, body.promptId ? [body.promptId] : []),
+      cleanIds(body.disconnectPromptIds),
+      Boolean(body.clearPrompts),
+    )
+
+    addListConnection(
+      data,
+      'Resources',
+      mergeIds(body.resourceIds, body.resourceId ? [body.resourceId] : []),
+      cleanIds(body.disconnectResourceIds),
+      Boolean(body.clearResources),
+    )
+
+    addListConnection(
+      data,
+      'Rewards',
+      mergeIds(body.rewardIds, body.rewardId ? [body.rewardId] : []),
+      cleanIds(body.disconnectRewardIds),
+      Boolean(body.clearRewards),
+    )
+
+    addListConnection(
+      data,
+      'Chats',
+      mergeIds(body.chatIds, body.chatId ? [body.chatId] : []),
+      cleanIds(body.disconnectChatIds),
+      Boolean(body.clearChats),
+    )
+
+    addListConnection(
+      data,
+      'Characters',
+      mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
+      cleanIds(body.disconnectCharacterIds),
+      Boolean(body.clearCharacters),
+    )
 
     addListConnection(
       data,
       'Butterflies',
-      cleanIds([
-        ...(body.butterflyId ? [body.butterflyId] : []),
-        ...cleanIds(body.butterflyIds),
-      ]),
+      mergeIds(body.butterflyIds, body.butterflyId ? [body.butterflyId] : []),
       cleanIds(body.disconnectButterflyIds),
       Boolean(body.clearButterflies),
     )
@@ -278,50 +350,11 @@ export default defineEventHandler(async (event) => {
 
     addListConnection(
       data,
-      'Tags',
-      cleanIds(body.tagIds),
-      cleanIds(body.disconnectTagIds),
-      Boolean(body.clearTags),
-    )
-
-    addListConnection(
-      data,
-      'Butterflies',
-      cleanIds([
-        ...(body.butterflyId ? [body.butterflyId] : []),
-        ...cleanIds(body.butterflyIds),
-      ]),
-      cleanIds(body.disconnectButterflyIds),
-      Boolean(body.clearButterflies),
-    )
-
-    addListConnection(
-      data,
       'ArtCollections',
       cleanIds(body.artCollectionIds),
       cleanIds(body.disconnectArtCollectionIds),
       Boolean(body.clearArtCollections),
     )
-
-    if (body.clearTagOwner) {
-      data.TagOwner = {
-        disconnect: true,
-      }
-    }
-
-    if (body.tagOwnerId !== undefined) {
-      const tagOwnerId = cleanId(body.tagOwnerId)
-
-      data.TagOwner = tagOwnerId
-        ? {
-            connect: {
-              id: tagOwnerId,
-            },
-          }
-        : {
-            disconnect: true,
-          }
-    }
 
     if (Object.keys(data).length === 0) {
       throw createError({

@@ -9,7 +9,6 @@ const artImageListSelect = {
   id: true,
   createdAt: true,
   updatedAt: true,
-  galleryId: true,
   userId: true,
   fileName: true,
   fileType: true,
@@ -28,49 +27,11 @@ const artImageListSelect = {
   genres: true,
   isPublic: true,
   isMature: true,
-  artId: true,
-  pitchId: true,
-  promptId: true,
-  resourceId: true,
-  rewardId: true,
-  characterId: true,
-  botId: true,
-  componentId: true,
-  milestoneId: true,
-  chatId: true,
-  serverId: true,
-  serverName: true,
-  serverUrl: true,
-} as const
-
-const legacyArtListSelect = {
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  userId: true,
-  isMature: true,
-  isPublic: true,
   isActive: true,
-  path: true,
-  imagePath: true,
-  promptString: true,
-  negativePrompt: true,
-  checkpoint: true,
-  checkpointResourceId: true,
-  sampler: true,
-  seed: true,
-  steps: true,
-  cfg: true,
-  cfgHalf: true,
-  designer: true,
-  genres: true,
-  galleryId: true,
   promptId: true,
-  pitchId: true,
   serverId: true,
   serverName: true,
   serverUrl: true,
-  artImageId: true,
 } as const
 
 type PatchCollectionBody = {
@@ -78,9 +39,9 @@ type PatchCollectionBody = {
   description?: unknown
   isPublic?: unknown
   isMature?: unknown
-  artIds?: unknown
-  addArtIds?: unknown
-  removeArtIds?: unknown
+  artImageIds?: unknown
+  addArtImageIds?: unknown
+  removeArtImageIds?: unknown
   mode?: unknown
 }
 
@@ -106,13 +67,16 @@ function normalizeIdArray(value: unknown, fieldName: string): number[] {
   return [...new Set(ids)]
 }
 
-async function assertArtIdsExist(artIds: number[], fieldName: string) {
-  if (!artIds.length) return
+async function assertArtImageIdsExist(
+  artImageIds: number[],
+  fieldName: string,
+) {
+  if (!artImageIds.length) return
 
-  const validArt = await prisma.art.findMany({
+  const validImages = await prisma.artImage.findMany({
     where: {
       id: {
-        in: artIds,
+        in: artImageIds,
       },
     },
     select: {
@@ -120,14 +84,29 @@ async function assertArtIdsExist(artIds: number[], fieldName: string) {
     },
   })
 
-  const validIds = new Set(validArt.map((art) => art.id))
-  const missing = artIds.filter((id) => !validIds.has(id))
+  const validIds = new Set(validImages.map((image) => image.id))
+  const missing = artImageIds.filter((id) => !validIds.has(id))
 
   if (missing.length) {
     throw createError({
       statusCode: 404,
-      message: `Missing art IDs in ${fieldName}: ${missing.join(', ')}`,
+      message: `Missing art image IDs in ${fieldName}: ${missing.join(', ')}`,
     })
+  }
+}
+
+function mergeArtImageRelationUpdate(
+  updateData: Prisma.ArtCollectionUpdateInput,
+  nextUpdate: Prisma.ArtImageUpdateManyWithoutArtCollectionsNestedInput,
+): void {
+  const existingUpdate =
+    updateData.ArtImages && typeof updateData.ArtImages === 'object'
+      ? updateData.ArtImages
+      : {}
+
+  updateData.ArtImages = {
+    ...existingUpdate,
+    ...nextUpdate,
   }
 }
 
@@ -178,7 +157,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody<PatchCollectionBody>(event)
-
     const updateData: Prisma.ArtCollectionUpdateInput = {}
 
     if (typeof body.label === 'string') {
@@ -197,52 +175,46 @@ export default defineEventHandler(async (event) => {
       updateData.isMature = body.isMature
     }
 
-    const artIds = normalizeIdArray(body.artIds, 'artIds')
-    const addArtIds = normalizeIdArray(body.addArtIds, 'addArtIds')
-    const removeArtIds = normalizeIdArray(body.removeArtIds, 'removeArtIds')
+    const artImageIds = normalizeIdArray(body.artImageIds, 'artImageIds')
+    const addArtImageIds = normalizeIdArray(
+      body.addArtImageIds,
+      'addArtImageIds',
+    )
+    const removeArtImageIds = normalizeIdArray(
+      body.removeArtImageIds,
+      'removeArtImageIds',
+    )
 
     const mode = typeof body.mode === 'string' ? body.mode : 'replace'
 
-    if (artIds.length && mode === 'add') {
-      await assertArtIdsExist(artIds, 'artIds')
+    if (artImageIds.length && mode === 'add') {
+      await assertArtImageIdsExist(artImageIds, 'artImageIds')
 
-      updateData.art = {
-        connect: artIds.map((id) => ({ id })),
-      }
-    } else if (artIds.length) {
-      await assertArtIdsExist(artIds, 'artIds')
+      mergeArtImageRelationUpdate(updateData, {
+        connect: artImageIds.map((id) => ({ id })),
+      })
+    } else if (artImageIds.length) {
+      await assertArtImageIdsExist(artImageIds, 'artImageIds')
 
-      updateData.art = {
-        set: artIds.map((id) => ({ id })),
-      }
+      mergeArtImageRelationUpdate(updateData, {
+        set: artImageIds.map((id) => ({ id })),
+      })
     }
 
-    if (addArtIds.length) {
-      await assertArtIdsExist(addArtIds, 'addArtIds')
+    if (addArtImageIds.length) {
+      await assertArtImageIdsExist(addArtImageIds, 'addArtImageIds')
 
-      const existingArtUpdate =
-        updateData.art && typeof updateData.art === 'object'
-          ? updateData.art
-          : {}
-
-      updateData.art = {
-        ...existingArtUpdate,
-        connect: addArtIds.map((id) => ({ id })),
-      }
+      mergeArtImageRelationUpdate(updateData, {
+        connect: addArtImageIds.map((id) => ({ id })),
+      })
     }
 
-    if (removeArtIds.length) {
-      await assertArtIdsExist(removeArtIds, 'removeArtIds')
+    if (removeArtImageIds.length) {
+      await assertArtImageIdsExist(removeArtImageIds, 'removeArtImageIds')
 
-      const existingArtUpdate =
-        updateData.art && typeof updateData.art === 'object'
-          ? updateData.art
-          : {}
-
-      updateData.art = {
-        ...existingArtUpdate,
-        disconnect: removeArtIds.map((id) => ({ id })),
-      }
+      mergeArtImageRelationUpdate(updateData, {
+        disconnect: removeArtImageIds.map((id) => ({ id })),
+      })
     }
 
     if (!Object.keys(updateData).length) {
@@ -269,12 +241,6 @@ export default defineEventHandler(async (event) => {
         artPrompt: true,
         description: true,
         username: true,
-        art: {
-          orderBy: {
-            id: 'desc',
-          },
-          select: legacyArtListSelect,
-        },
         ArtImages: {
           orderBy: {
             id: 'desc',
@@ -283,7 +249,6 @@ export default defineEventHandler(async (event) => {
         },
         _count: {
           select: {
-            art: true,
             ArtImages: true,
           },
         },

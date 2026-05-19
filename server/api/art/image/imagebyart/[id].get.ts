@@ -1,41 +1,46 @@
 // /server/api/art/image/imagebyart/[id].get.ts
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 
 export default defineEventHandler(async (event) => {
-  try {
-    const artId = Number(event.context.params?.id)
+  const artImageId = Number(event.context.params?.id)
 
-    if (isNaN(artId) || artId <= 0) {
-      return errorHandler({
-        success: false,
-        message: 'Invalid art ID provided',
+  try {
+    if (!Number.isInteger(artImageId) || artImageId <= 0) {
+      throw createError({
         statusCode: 400,
+        message: 'Invalid art image ID provided.',
       })
     }
 
     const data = await prisma.artImage.findUnique({
-      where: { artId },
+      where: {
+        id: artImageId,
+      },
     })
 
     if (!data) {
-      return errorHandler({
-        success: false,
-        message: `ArtImage with artId ${artId} not found`,
+      throw createError({
         statusCode: 404,
+        message: `ArtImage with ID ${artImageId} not found.`,
       })
     }
 
-    return { success: true, data }
-  } catch (error) {
-    return errorHandler({
+    return {
+      success: true,
+      data,
+      message: 'ArtImage fetched successfully.',
+    }
+  } catch (error: unknown) {
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+
+    return {
       success: false,
+      data: null,
       message:
-        error instanceof Error
-          ? error.message
-          : 'Unknown error occurred while fetching the art image',
-      statusCode: 500,
-    })
+        handled.message || `Failed to fetch ArtImage with ID ${artImageId}.`,
+    }
   }
 })

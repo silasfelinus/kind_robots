@@ -1,5 +1,5 @@
 import prisma from '../../utils/prisma'
-import type { Prompt, Art } from '~/prisma/generated/prisma/client'
+import type { Prompt, ArtImage } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../utils/error'
 import { createError } from 'h3' // Ensure createError is imported for specific error handling
 
@@ -43,19 +43,36 @@ export async function fetchAllPrompts(): Promise<Prompt[]> {
   }
 }
 
-export async function fetchArtByPromptId(promptId: number): Promise<Art[]> {
+export async function fetchArtByPromptId(
+  promptId: number,
+): Promise<ArtImage[]> {
   try {
-    const artPieces = await prisma.art.findMany({
-      where: { promptId },
+    const artPieces = await prisma.artImage.findMany({
+      where: {
+        Prompts: {
+          some: {
+            id: promptId,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     })
+
     return artPieces
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : 'An unknown error occurred.'
-    console.error(`Error fetching Art by Prompt ID ${promptId}:`, errorMessage)
+
+    console.error(
+      `Error fetching ArtImages by Prompt ID ${promptId}:`,
+      errorMessage,
+    )
+
     throw errorHandler({
       success: false,
-      message: `Failed to fetch Art for Prompt ID ${promptId}: ${errorMessage}`,
+      message: `Failed to fetch ArtImages for Prompt ID ${promptId}: ${errorMessage}`,
       statusCode: 500,
     })
   }

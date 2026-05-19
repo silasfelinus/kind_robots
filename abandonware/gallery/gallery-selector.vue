@@ -1,4 +1,5 @@
 <!-- /components/content/gallery/gallery-selector.vue -->
+@ts-nocheck
 <template>
   <div>
     <label for="gallery-select">Select Gallery:</label>

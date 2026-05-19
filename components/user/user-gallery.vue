@@ -75,7 +75,6 @@ import { useChatStore } from '@/stores/chatStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
 import type {
-  Art,
   ArtImage,
   ArtCollection,
   Chat,
@@ -89,7 +88,7 @@ const collectionStore = useCollectionStore()
 const users = computed(() => userStore.users || [])
 const selectedUserId = ref<number | null>(null)
 
-const userCollections = ref<Record<number, Art[]>>({})
+const userCollections = ref<Record<number, ArtImage[]>>({})
 const artImages = ref<Record<number, string>>({})
 
 async function toggleCollection(userId: number) {
@@ -106,13 +105,14 @@ async function toggleCollection(userId: number) {
     )) as ArtCollection[]
 
     const userArt = collections.flatMap((collection: ArtCollection) => {
-      const maybeArt = (collection as unknown as { art?: Art[] }).art
+      const maybeArt = (collection as unknown as { artImage?: ArtImage[] })
+        .artImage
       return Array.isArray(maybeArt) ? maybeArt : []
     })
 
     userCollections.value = { ...userCollections.value, [userId]: userArt }
 
-    const artIds = userArt.map((art: Art) => art.id)
+    const artIds = userArt.map((art: ArtImage) => art.id)
     await fetchArtImages(artIds)
   }
 }
@@ -137,8 +137,8 @@ function handleImageError(artId: number) {
   artImages.value[artId] = '/images/kindtitle.webp'
 }
 
-function shouldShowPath(art: Art): boolean {
-  return !art.artImageId && !!art.path
+function shouldShowPath(artImage: ArtImage): boolean {
+  return !artImage.id && !!artImage.path
 }
 
 async function sendMessage(userId: number) {

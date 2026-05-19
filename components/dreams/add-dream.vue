@@ -276,7 +276,7 @@
             <label class="form-control">
               <span class="label-text font-bold">Art ID</span>
               <input
-                v-model.number="dreamStore.dreamForm.artId"
+                v-model.number="dreamStore.dreamForm.artImageId"
                 class="input input-bordered rounded-2xl"
                 type="number"
                 min="1"
@@ -576,8 +576,8 @@ const linkedContext = computed(() => [
   },
   {
     label: 'Art',
-    value: dreamStore.dreamForm.artId
-      ? `#${dreamStore.dreamForm.artId}`
+    value: dreamStore.dreamForm.artImageId
+      ? `#${dreamStore.dreamForm.artImageId}`
       : 'none',
     icon: 'kind-icon:paintbrush',
   },

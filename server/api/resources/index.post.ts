@@ -13,7 +13,7 @@ import type {
 type ResourceConnectionsInput = {
   serverIds?: number[]
   artImageId?: number | null
-  artIdsAsCheckpoint?: number[]
+  artImageIdsAsCheckpoint?: number[]
 }
 
 type ResourcePostBody = Partial<Resource> & {
@@ -29,7 +29,7 @@ type SavedResource = Prisma.ResourceGetPayload<{
   include: {
     Servers: true
     ArtImage: true
-    ArtsAsCheckpoint: true
+    ArtImages: true
   }
 }>
 
@@ -67,6 +67,7 @@ function normalizeConnections(
     ...connections,
     serverIds: connections.serverIds ?? resourceData.serverIds,
     artImageId: connections.artImageId ?? resourceData.artImageId,
+    artImageIdsAsCheckpoint: connections.artImageIdsAsCheckpoint,
   }
 
   if (!isOptionalNumberArray(normalized.serverIds)) {
@@ -83,10 +84,10 @@ function normalizeConnections(
     })
   }
 
-  if (!isOptionalNumberArray(normalized.artIdsAsCheckpoint)) {
+  if (!isOptionalNumberArray(normalized.artImageIdsAsCheckpoint)) {
     throw createError({
       statusCode: 400,
-      message: '"artIdsAsCheckpoint" must be an array of art IDs.',
+      message: '"artImageIdsAsCheckpoint" must be an array of art image IDs.',
     })
   }
 
@@ -163,10 +164,10 @@ function toResourceCreateInput(
           },
         }
       : undefined,
-    ArtsAsCheckpoint: connections.artIdsAsCheckpoint?.length
+    ArtImages: connections.artImageIdsAsCheckpoint?.length
       ? {
-          connect: connections.artIdsAsCheckpoint.map((artId) => ({
-            id: artId,
+          connect: connections.artImageIdsAsCheckpoint.map((artImageId) => ({
+            id: artImageId,
           })),
         }
       : undefined,
@@ -222,10 +223,10 @@ function toResourceUpdateInput(
                 id: connections.artImageId,
               },
             },
-    ArtsAsCheckpoint: connections.artIdsAsCheckpoint
+    ArtImages: connections.artImageIdsAsCheckpoint
       ? {
-          set: connections.artIdsAsCheckpoint.map((artId) => ({
-            id: artId,
+          set: connections.artImageIdsAsCheckpoint.map((artImageId) => ({
+            id: artImageId,
           })),
         }
       : undefined,
@@ -245,7 +246,7 @@ async function saveResource(
     include: {
       Servers: true,
       ArtImage: true,
-      ArtsAsCheckpoint: true,
+      ArtImages: true,
     },
   })
 }

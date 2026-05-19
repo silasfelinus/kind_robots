@@ -1,4 +1,5 @@
 <!-- /components/navigation/art-footer.vue -->
+@ts-nocheck
 <template>
   <div
     v-if="footerState !== 'hidden'"

@@ -248,9 +248,7 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm">
-                Private
-              </span>
+              <span v-else class="badge badge-ghost badge-sm"> Private </span>
 
               <span
                 v-if="characterStore.selectedCharacter.isMature"
@@ -490,7 +488,7 @@ const selectedCharacterDescription = computed(() => {
     character.personality ||
     character.drive ||
     character.quirks ||
-    character.skills ||
+    character.achievements ||
     'No character description yet.'
   )
 })
@@ -677,20 +675,24 @@ onMounted(async () => {
 })
 
 function characterMatchesSearch(character: Character, query: string) {
-  const haystack = [
-    character.name,
-    character.honorific,
-    character.species,
-    character.class,
-    character.genre,
-    character.personality,
-    character.backstory,
-    character.quirks,
-    character.inventory,
-    character.skills,
-    character.drive,
-    character.artPrompt,
-  ]
+const haystack = [
+  character.name,
+  character.honorific,
+  character.title,
+  character.role,
+  character.species,
+  character.class,
+  character.gender,
+  character.presentation,
+  character.genre,
+  character.alignment,
+  character.personality,
+  character.backstory,
+  character.achievements,
+  character.quirks,
+  character.drive,
+  character.artPrompt,
+]
     .filter(Boolean)
     .join(' ')
     .toLowerCase()

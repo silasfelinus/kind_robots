@@ -1,7 +1,7 @@
 // /stores/promptStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Art, Prompt } from '~/prisma/generated/prisma/client'
+import type { ArtImage, Prompt } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { useUserStore } from './userStore'
 import {
@@ -120,7 +120,7 @@ function normalizePromptForm(input: Partial<PromptForm>): PromptForm {
 export const usePromptStore = defineStore('promptStore', () => {
   const prompts = ref<Prompt[]>([])
   const promptForm = ref<PromptForm>({})
-  const artByPromptId = ref<Record<number, Art[]>>({})
+  const artByPromptId = ref<Record<number, ArtImage[]>>({})
   const selectedPrompt = ref<Prompt | null>(null)
 
   const promptField = ref('kind robots')
@@ -140,7 +140,9 @@ export const usePromptStore = defineStore('promptStore', () => {
   const fetchPromptByIdPromises = ref<Record<number, Promise<Prompt | null>>>(
     {},
   )
-  const fetchArtByPromptIdPromises = ref<Record<number, Promise<Art[]>>>({})
+  const fetchArtByPromptIdPromises = ref<Record<number, Promise<ArtImage[]>>>(
+    {},
+  )
   const createPromptPromise = ref<Promise<PromptMutationResult> | null>(null)
   const updatePromptPromises = ref<
     Record<number, Promise<PromptMutationResult>>
@@ -248,7 +250,7 @@ export const usePromptStore = defineStore('promptStore', () => {
       null,
     )
 
-    artByPromptId.value = safeParseObject<Record<number, Art[]>>(
+    artByPromptId.value = safeParseObject<Record<number, ArtImage[]>>(
       safeGetLocalStorage(storageKeys.artByPromptId),
       {},
     )
@@ -468,7 +470,7 @@ export const usePromptStore = defineStore('promptStore', () => {
     return fetchPromptByIdPromises.value[promptId]
   }
 
-  async function fetchArtByPromptId(promptId: number): Promise<Art[]> {
+  async function fetchArtByPromptId(promptId: number): Promise<ArtImage[]> {
     if (artByPromptId.value[promptId]) {
       return artByPromptId.value[promptId]
     }
@@ -481,7 +483,7 @@ export const usePromptStore = defineStore('promptStore', () => {
       try {
         clearError()
 
-        const response = await performFetch<Art[]>(
+        const response = await performFetch<ArtImage[]>(
           `/api/art/prompt/${promptId}`,
         )
 

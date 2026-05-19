@@ -3,14 +3,14 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { saveImage } from '../../../utils/saveImage'
-import type { Art, Server } from '~/prisma/generated/prisma/client'
+import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
   validateAndLoadDesignerName,
-  validateAndLoadGalleryId,
   validateAndLoadPitchId,
   validateAndLoadPromptId,
   validateAndLoadUserId,
+  validateAndLoadArtCollectionId,
 } from '..'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import {
@@ -86,7 +86,7 @@ const comfyPollIntervalMs = 1_500
 
 export default defineEventHandler(async (event) => {
   let imageId: number | null = null
-  let newArt: Art | null = null
+  let newArt: ArtImage | null = null
 
   try {
     const requestData: ComfyGenerateRequestData = await readBody(event)
@@ -146,12 +146,22 @@ export default defineEventHandler(async (event) => {
       requestData,
       validatedData,
     )
+
+    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+
+    const requestDataWithPitch = {
+      ...requestData,
+      pitchId: validatedData.pitchId,
+    }
+
     validatedData.promptId = await validateAndLoadPromptId(
-      requestData,
+      requestDataWithPitch,
       validatedData,
     )
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
+
+    validatedData.artCollectionId =
+      await validateAndLoadArtCollectionId(requestDataWithPitch)
+
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
     const rawCfg = Number(requestData.cfg)
@@ -199,9 +209,12 @@ export default defineEventHandler(async (event) => {
 
     const savedImage = await saveImage(
       base64Image,
-      requestData.galleryName || 'cafefred',
-      validatedData.userId,
-      validatedData.galleryId,
+      requestData.artCollectionLabel ||
+        requestData.collectionLabel ||
+        requestData.collection ||
+        'comfy',
+      validatedData.userId ?? user.id,
+      validatedData.artCollectionId ?? 0,
     )
 
     imageId = savedImage.id
@@ -218,9 +231,15 @@ export default defineEventHandler(async (event) => {
       server,
     })
 
-    newArt = await prisma.art.create({
+    newArt = await prisma.artImage.update({
+      where: {
+        id: imageId,
+      },
       data: {
         path: savedImage.fileName,
+        imagePath: savedImage.fileName,
+        fileName: savedImage.fileName,
+        fileType: 'png',
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
         checkpoint: resolvedCheckpoint.checkpoint,
@@ -230,25 +249,37 @@ export default defineEventHandler(async (event) => {
         steps: requestData.steps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),
+        artPrompt: requestData.promptString.trim(),
         negativePrompt: requestData.negativePrompt ?? null,
         isPublic: requestData.isPublic ?? true,
         isMature: requestData.isMature ?? false,
-        userId: validatedData.userId,
-        promptId: validatedData.promptId ?? null,
-        pitchId: validatedData.pitchId ?? null,
-        galleryId: validatedData.galleryId ?? null,
-        artImageId: imageId,
+        userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server),
+        Pitches: validatedData.pitchId
+          ? {
+              connect: {
+                id: validatedData.pitchId,
+              },
+            }
+          : undefined,
+        Prompts: validatedData.promptId
+          ? {
+              connect: {
+                id: validatedData.promptId,
+              },
+            }
+          : undefined,
+        ArtCollections: validatedData.artCollectionId
+          ? {
+              connect: {
+                id: validatedData.artCollectionId,
+              },
+            }
+          : undefined,
       },
     })
-
-    await prisma.artImage.update({
-      where: { id: imageId },
-      data: { artId: newArt.id },
-    })
-
     await prisma.user.update({
       where: { id: user.id },
       data: { karma: user.karma - 1 },

@@ -6,8 +6,8 @@ import { saveImage } from '../../utils/saveImage'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
+  validateAndLoadArtCollectionId,
   validateAndLoadDesignerName,
-  validateAndLoadGalleryId,
   validateAndLoadPitchId,
   validateAndLoadPromptId,
   validateAndLoadUserId,
@@ -132,13 +132,21 @@ export default defineEventHandler(async (event) => {
       validatedData,
     )
 
+    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+
+    const requestDataWithPitch = {
+      ...requestData,
+      pitchId: validatedData.pitchId,
+    }
+
     validatedData.promptId = await validateAndLoadPromptId(
-      requestData,
+      requestDataWithPitch,
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
+    validatedData.artCollectionId =
+      await validateAndLoadArtCollectionId(requestDataWithPitch)
+
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
     const rawCfg = Number(requestData.cfg)
@@ -189,9 +197,12 @@ export default defineEventHandler(async (event) => {
 
     const savedImage = await saveImage(
       base64Image,
-      requestData.galleryName || 'cafefred',
-      validatedData.userId,
-      validatedData.galleryId,
+      requestData.artCollectionLabel ||
+        requestData.collectionLabel ||
+        requestData.collection ||
+        'generated',
+      validatedData.userId ?? user.id,
+      validatedData.artCollectionId ?? 0,
     )
 
     if (!savedImage.id) {
@@ -237,13 +248,31 @@ export default defineEventHandler(async (event) => {
         negativePrompt: requestData.negativePrompt ?? null,
         isPublic: requestData.isPublic ?? true,
         isMature: requestData.isMature ?? false,
-        userId: validatedData.userId,
-        promptId: validatedData.promptId ?? null,
-        pitchId: validatedData.pitchId ?? null,
-        galleryId: validatedData.galleryId ?? null,
+        userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server, 'backend'),
+        Pitches: validatedData.pitchId
+          ? {
+              connect: {
+                id: validatedData.pitchId,
+              },
+            }
+          : undefined,
+        Prompts: validatedData.promptId
+          ? {
+              connect: {
+                id: validatedData.promptId,
+              },
+            }
+          : undefined,
+        ArtCollections: validatedData.artCollectionId
+          ? {
+              connect: {
+                id: validatedData.artCollectionId,
+              },
+            }
+          : undefined,
       },
     })
 

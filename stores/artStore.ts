@@ -99,7 +99,7 @@ export interface GenerateArtData {
   maskImageBase64?: string | null
 }
 
-export type ArtImageConnectionInput = {
+type ArtImageConnectionInput = {
   userId?: number | null
   serverId?: number | null
   checkpointResourceId?: number | null

@@ -128,7 +128,6 @@ export default defineEventHandler(async (event) => {
       currentPrompt: body.currentPrompt ?? null,
       userId: user.id,
       pitchId: normalizeNullableId(body.pitchId),
-      artId: normalizeNullableId(body.artId),
       artImageId: normalizeNullableId(body.artImageId),
       textServerId: normalizeNullableId(body.textServerId),
       artServerId: normalizeNullableId(body.artServerId),

@@ -1,14 +1,86 @@
+// /server/api/characters/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
 import prisma from '../../utils/prisma'
-import type { Prisma, Character } from '~/prisma/generated/prisma/client'
+import type {
+  Prisma,
+  Character,
+  Rarity,
+} from '~/prisma/generated/prisma/client'
+
+type CharacterCreateBody = Partial<Character> & {
+  rewardIds?: number[]
+  scenarioIds?: number[]
+  dreamIds?: number[]
+  pitchIds?: number[]
+}
+
+const fallbackRarity: Rarity = 'COMMON'
+
+function normalizeRarity(value: unknown): Rarity {
+  if (
+    value === 'COMMON' ||
+    value === 'UNCOMMON' ||
+    value === 'RARE' ||
+    value === 'EPIC' ||
+    value === 'LEGENDARY' ||
+    value === 'MYTHIC'
+  ) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    const rarityByNumber: Record<number, Rarity> = {
+      1: 'COMMON',
+      2: 'UNCOMMON',
+      3: 'RARE',
+      4: 'EPIC',
+      5: 'LEGENDARY',
+      6: 'MYTHIC',
+    }
+
+    return rarityByNumber[value] ?? fallbackRarity
+  }
+
+  return fallbackRarity
+}
+
+function normalizeIdArray(value: unknown, fieldName: string): number[] {
+  if (typeof value === 'undefined') return []
+
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must be an array of IDs.`,
+    })
+  }
+
+  const ids = value.map((entry) => Number(entry))
+
+  if (!ids.every((id) => Number.isInteger(id) && id > 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `${fieldName} must contain only positive integers.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
+function cleanText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function cleanShortText(value: unknown): string | null {
+  const text = cleanText(value)
+  return text ? text.slice(0, 764) : null
+}
 
 export default defineEventHandler(async (event) => {
   try {
-    console.log('[OLD CHARACTER CREATE ROUTE] hit character create')
-    // Authenticate using API key
     const { isValid, user } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -16,76 +88,103 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const authenticatedUserId = user.id
+    const characterData = await readBody<CharacterCreateBody>(event)
 
-    // Read and validate character data from the request body
-    const characterData = await readBody<
-      Partial<Character> & { rewardIds?: number[] }
-    >(event)
-
-    // Ensure required "name" field is provided and is a string
     if (!characterData.name || typeof characterData.name !== 'string') {
-      event.node.res.statusCode = 400
-      return {
-        success: false,
-        data: null,
+      throw createError({
+        statusCode: 400,
         message: 'The "name" field is required and must be a string.',
-      }
+      })
     }
 
-    // Handle Rewards if provided
-    let rewardsConnect: Prisma.RewardWhereUniqueInput[] | undefined
-    if (characterData.rewardIds && Array.isArray(characterData.rewardIds)) {
-      rewardsConnect = characterData.rewardIds.map((id: number) => ({ id }))
-    }
+    const rewardIds = normalizeIdArray(characterData.rewardIds, 'rewardIds')
+    const scenarioIds = normalizeIdArray(
+      characterData.scenarioIds,
+      'scenarioIds',
+    )
+    const dreamIds = normalizeIdArray(characterData.dreamIds, 'dreamIds')
+    const pitchIds = normalizeIdArray(characterData.pitchIds, 'pitchIds')
 
-    // Prepare the full character data
     const fullData: Prisma.CharacterCreateInput = {
-      User: { connect: { id: authenticatedUserId } },
-      name: characterData.name,
-      honorific: characterData.honorific || null, // Add this line
-      alignment: characterData.alignment || null,
-      level: characterData.level || 1,
-      experience: characterData.experience || 0,
-      class: characterData.class || null,
-      species: characterData.species || null,
-      backstory: characterData.backstory || null,
-      drive: characterData.drive || null,
-      inventory: characterData.inventory || null,
-      statName1: characterData.statName1 || 'Luck',
-      statValue1: characterData.statValue1 || 51,
-      statName2: characterData.statName2 || 'Swol',
-      statValue2: characterData.statValue2 || 55,
-      statName3: characterData.statName3 || 'Wits',
-      statValue3: characterData.statValue3 || 53,
-      statName4: characterData.statName4 || 'Flexibility',
-      statValue4: characterData.statValue4 || 57,
-      statName5: characterData.statName5 || 'Rizz',
-      statValue5: characterData.statValue5 || 45,
-      statName6: characterData.statName6 || 'Empathy',
-      statValue6: characterData.statValue6 || 99,
-      goalStat1Name: characterData.goalStat1Name || 'Principled|Chaotic',
-      goalStat1Value: characterData.goalStat1Value || 0,
-      goalStat2Name: characterData.goalStat2Name || 'Social|Individual',
-      goalStat2Value: characterData.goalStat2Value || 0,
-      goalStat3Name: characterData.goalStat3Name || 'Active|Receptive',
-      goalStat3Value: characterData.goalStat3Value || 0,
-      goalStat4Name: characterData.goalStat4Name || 'Kindness|Self-Support',
-      goalStat4Value: characterData.goalStat4Value || 0,
-      quirks: characterData.quirks || null,
-      skills: characterData.skills || null,
-      genre: characterData.genre || null,
-      artPrompt: characterData.artPrompt || null,
-      artImageId: characterData.artImageId || null,
-      Rewards: rewardsConnect ? { connect: rewardsConnect } : undefined, // Add rewards
-      imagePath: characterData.imagePath || null,
+      User: {
+        connect: {
+          id: user.id,
+        },
+      },
+
+      name: characterData.name.trim(),
+      honorific: cleanShortText(characterData.honorific) ?? 'adventurer',
+      title: cleanShortText(characterData.title),
+      role: cleanShortText(characterData.role),
+      class: cleanShortText(characterData.class),
+      species: cleanShortText(characterData.species),
+      gender: cleanShortText(characterData.gender),
+      presentation: cleanShortText(characterData.presentation),
+      genre: cleanShortText(characterData.genre),
+      alignment: cleanShortText(characterData.alignment),
+      personality: cleanText(characterData.personality),
+      drive: cleanShortText(characterData.drive),
+      backstory: cleanText(characterData.backstory),
+      achievements: cleanShortText(characterData.achievements),
+      quirks: cleanText(characterData.quirks),
+
+      luck: normalizeRarity(characterData.luck),
+      might: normalizeRarity(characterData.might),
+      wits: normalizeRarity(characterData.wits),
+      grace: normalizeRarity(characterData.grace),
+      charm: normalizeRarity(characterData.charm),
+      empathy: normalizeRarity(characterData.empathy),
+
+      artPrompt: cleanText(characterData.artPrompt),
+      imagePath: cleanShortText(characterData.imagePath),
+      experience: Number.isInteger(characterData.experience)
+        ? Number(characterData.experience)
+        : 0,
+      level:
+        Number.isInteger(characterData.level) && Number(characterData.level) > 0
+          ? Number(characterData.level)
+          : 1,
+      designer: cleanShortText(characterData.designer),
+      isPublic: characterData.isPublic ?? true,
+      isMature: characterData.isMature ?? false,
       isActive: characterData.isActive ?? true,
+
+      ArtImage: characterData.artImageId
+        ? {
+            connect: {
+              id: characterData.artImageId,
+            },
+          }
+        : undefined,
+
+      Rewards: rewardIds.length
+        ? {
+            connect: rewardIds.map((id) => ({ id })),
+          }
+        : undefined,
+
+      Scenarios: scenarioIds.length
+        ? {
+            connect: scenarioIds.map((id) => ({ id })),
+          }
+        : undefined,
+
+      Dreams: dreamIds.length
+        ? {
+            connect: dreamIds.map((id) => ({ id })),
+          }
+        : undefined,
     }
 
-    // Create the character and return a success response
     const data = await prisma.character.create({
       data: fullData,
-      include: { Rewards: true }, // Include rewards in the response
+      include: {
+        ArtImage: true,
+        Rewards: true,
+        Scenarios: true,
+        Dreams: true,
+        Pitches: true,
+      },
     })
 
     event.node.res.statusCode = 201
@@ -96,9 +195,9 @@ export default defineEventHandler(async (event) => {
       message: 'Character created successfully.',
     }
   } catch (error: unknown) {
-    // Handle errors using the centralized error handler
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
+
     return {
       success: false,
       data: null,

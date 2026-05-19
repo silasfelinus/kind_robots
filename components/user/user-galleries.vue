@@ -267,9 +267,10 @@ const sectionDisplayModes = reactive<Record<SectionKey, SectionDisplayMode>>({
 const activeUserId = computed(() => userStore.user?.id ?? null)
 
 const artItems = computed(() => {
-  return getUserOwnedItems(artStore.art)
+  return getUserOwnedItems(
+    getStoreArray(artStore, ['artImages', 'safeArtImages', 'images']),
+  )
 })
-
 const botItems = computed(() => {
   return getUserOwnedItems(getStoreArray(botStore, ['bots', 'botList']))
 })

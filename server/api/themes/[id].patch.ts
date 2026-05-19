@@ -86,10 +86,13 @@ export default defineEventHandler(async (event) => {
 
     const updated = await prisma.theme.update({ where: { id }, data })
     event.node.res.statusCode = 200
+    const theme = parseTheme(updated)
+
     return {
       success: true,
       message: 'Theme updated successfully.',
-      theme: parseTheme(updated),
+      data: theme,
+      theme,
       statusCode: 200,
     }
   } catch (error) {

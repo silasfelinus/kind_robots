@@ -8,28 +8,44 @@ import { parseTheme } from '@/server/api/themes/index'
 export default defineEventHandler(async (event) => {
   try {
     const { isValid, user } = await validateApiKey(event)
-    const includeUser = isValid && user?.id
+    const includeUser = Boolean(isValid && user?.id)
 
     const rows = await prisma.theme.findMany({
       where: includeUser
-        ? { OR: [{ isPublic: true }, { userId: user!.id }] }
-        : { isPublic: true },
-      orderBy: { createdAt: 'desc' },
+        ? {
+            OR: [{ isPublic: true }, { userId: user!.id }],
+          }
+        : {
+            isPublic: true,
+          },
+      orderBy: {
+        createdAt: 'desc',
+      },
     })
 
+    const themes = rows.map(parseTheme)
+
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: includeUser
-        ? `Themes retrieved for user ${user!.id}`
+        ? `Themes retrieved for user ${user!.id}.`
         : 'Public themes retrieved successfully.',
       data: {
-        themes: rows.map(parseTheme),
+        themes,
       },
+      themes,
+      count: themes.length,
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
+
     event.node.res.statusCode = statusCode || 500
-    return { success: false, message }
+
+    return {
+      success: false,
+      message: message || 'Failed to retrieve themes.',
+    }
   }
 })

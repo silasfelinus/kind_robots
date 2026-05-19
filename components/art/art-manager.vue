@@ -52,7 +52,7 @@
         </div>
       </section>
 
-      <slim-gallery
+      <art-gallery
         v-else-if="currentTab === 'gallery'"
         variant="dashboard"
         :show-header="false"

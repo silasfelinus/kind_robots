@@ -177,7 +177,6 @@ export default defineEventHandler(async (event) => {
           },
           Characters: true,
           Rewards: true,
-          Pitches: true,
         },
       }),
       prisma.dream.count({ where }),

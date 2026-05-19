@@ -41,7 +41,6 @@ model ArtImage {
   Server                       Server?         @relation("ArtImageGeneratorServer", fields: [serverId], references: [id])
   User                         User?           @relation("ArtImageCreator", fields: [userId], references: [id])
   Bots                         Bot[]
-  Butterflies                  Butterfly[]
   Characters                   Character[]
   Chats                        Chat[]
   Components                   Component[]
@@ -53,20 +52,18 @@ model ArtImage {
   Resources                    Resource[]      @relation("ResourcePreviewImage")
   Rewards                      Reward[]
   Scenarios                    Scenario[]
-  Tag_Tag_artImageIdToArtImage Tag?            @relation("Tag_artImageIdToArtImage")
   UserProfiles                 User[]          @relation("UserProfileImage")
   ArtCollections               ArtCollection[] @relation("ArtCollectionToArtImage")
-  Tag_ArtImageToTag            Tag[]           @relation("ArtImageToTag")
 
-  @@index([userId], map: "ArtImage_userId_fkey")
+  @@index([userId],               map: "ArtImage_userId_fkey")
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
-  @@index([serverId], map: "ArtImage_serverId_fkey")
+  @@index([serverId],             map: "ArtImage_serverId_fkey")
 }
 
 model ArtCollection {
-  id          Int         @id @default(autoincrement())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime?   @default(now()) @updatedAt
+  id                              Int         @id @default(autoincrement())
+  createdAt                       DateTime    @default(now())
+  updatedAt                       DateTime?   @default(now()) @updatedAt
   userId      Int         @default(10)
   label       String?
   isMature    Boolean     @default(false)
@@ -76,8 +73,7 @@ model ArtCollection {
   isActive    Boolean     @default(true)
   artPrompt   String?     @db.Text
   User        User        @relation(fields: [userId], references: [id])
-  Butterflies Butterfly[]
-  Dream       Dream[]
+  Dreams       Dream[]
   Reactions   Reaction[]
   ArtImages   ArtImage[]  @relation("ArtCollectionToArtImage")
 
@@ -116,9 +112,8 @@ model Bot {
   ArtImage          ArtImage?   @relation(fields: [artImageId], references: [id])
   Server            Server?     @relation(fields: [serverId], references: [id])
   User              User?       @relation(fields: [userId], references: [id])
-  Butterflies       Butterfly[]
   Chats             Chat[]
-  Prompt            Prompt[]
+  Prompts            Prompt[]
   Reactions         Reaction[]
 
   @@index([userId], map: "Bot_userId_fkey")
@@ -127,64 +122,28 @@ model Bot {
 }
 
 /// Butterfly is the source of truth for each collectible species.
-/// Runtime-only fields (x, y, z, goal, rotation, status, zIndex) live in the
-/// butterflyStore — nothing positional is persisted here.
-/// name and message are the personality core; treat them as immutable post-seed.
-/// wingTopColor / wingBottomColor stored as HSL strings: "hsl(210,70%,55%)"
 model Butterfly {
   id              Int               @id @default(autoincrement())
   createdAt       DateTime          @default(now())
   updatedAt       DateTime?         @default(now()) @updatedAt
-  /// The funny generated name — also used as display identity in the game UI.
-  /// Maps to the `id` field in butterflyHelper's Butterfly interface at runtime.
   name            String            @unique @db.VarChar(255)
-  /// One-line character description shown in the capture modal.
   message         String            @db.VarChar(764)
-  /// Stored so the gallery can render caught butterflies without spawning them.
+  
   wingTopColor    String            @db.VarChar(64)
   wingBottomColor String            @db.VarChar(64)
-  /// Flight personality — read by createNewButterfly() at spawn time.
-  /// speed maps to butterflyHelper speedRange output (Float, e.g. 0.3–0.8)
-  /// wingSpeed maps to wingSpeedRange output (Float, e.g. 0.06–0.15)
-  /// scale maps to the scale field on the Butterfly interface (Float, e.g. 0.7–1.3)
   speed           Float
   wingSpeed       Float
   scale           Float
-  /// Stable 1-based slot index for the field guide gallery.
-  /// Assigned at seed time and never changed — it's the gallery key.
   rarityNumber    Int               @unique
-  /// Optional: attach art to a butterfly for a richer gallery detail view later.
-  artImageId      Int?
   designer        String?           @db.VarChar(255)
   userId          Int?              @default(1)
   isPublic        Boolean           @default(true)
-  artCollectionId Int?
-  botId           Int?
-  characterId     Int?
-  pitchId         Int?
-  promptId        Int?
-  scenarioId      Int?
-  tagId           Int?
-  ArtCollection   ArtCollection?    @relation(fields: [artCollectionId], references: [id])
-  ArtImage        ArtImage?         @relation(fields: [artImageId], references: [id])
-  Bot             Bot?              @relation(fields: [botId], references: [id])
-  Pitch           Pitch?            @relation(fields: [pitchId], references: [id])
-  Prompt          Prompt?           @relation(fields: [promptId], references: [id])
-  Scenario        Scenario?         @relation(fields: [scenarioId], references: [id])
-  Tag             Tag?              @relation(fields: [tagId], references: [id])
   User            User?             @relation(fields: [userId], references: [id])
   Collections     ButterflyRecord[]
   Reactions       Reaction[]
 
   @@index([userId], map: "Butterfly_userId_fkey")
-  @@index([artCollectionId], map: "Butterfly_artCollectionId_fkey")
-  @@index([botId], map: "Butterfly_botId_fkey")
-  @@index([characterId], map: "Butterfly_characterId_fkey")
-  @@index([pitchId], map: "Butterfly_pitchId_fkey")
-  @@index([promptId], map: "Butterfly_promptId_fkey")
-  @@index([scenarioId], map: "Butterfly_scenarioId_fkey")
-  @@index([artImageId], map: "Butterfly_artImageId_fkey")
-  @@index([tagId], map: "Butterfly_tagId_fkey")
+
 }
 
 /// Records which butterflies each user has caught.
@@ -318,7 +277,6 @@ model Component {
   artImageId        Int?
   ArtImage          ArtImage?  @relation(fields: [artImageId], references: [id])
   Reactions         Reaction[]
-  Tag               Tag[]
 
   @@index([artImageId], map: "Component_artImageId_fkey")
 }
@@ -338,7 +296,6 @@ model Dream {
   textServerId    Int?
   artServerId     Int?
   artCollectionId Int?
-  galleryId       Int?
   scenarioId      Int?
   isPublic        Boolean         @default(true)
   isMature        Boolean         @default(false)
@@ -349,14 +306,12 @@ model Dream {
   Chats           Chat[]
   ArtCollection   ArtCollection?  @relation(fields: [artCollectionId], references: [id])
   ArtImage        ArtImage?       @relation(fields: [artImageId], references: [id])
-  Gallery         Gallery?        @relation(fields: [galleryId], references: [id])
   Pitch           Pitch?          @relation(fields: [pitchId], references: [id])
   Scenario        Scenario?       @relation(fields: [scenarioId], references: [id])
   User            User            @relation(fields: [userId], references: [id])
   Reactions       Reaction[]
   Characters      Character[]     @relation("CharacterToDream")
   Rewards         Reward[]        @relation("DreamToReward")
-  Tag             Tag[]
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
@@ -364,7 +319,6 @@ model Dream {
   @@index([isPublic])
   @@index([isActive])
   @@index([artCollectionId])
-  @@index([galleryId])
   @@index([pitchId])
   @@index([scenarioId])
 }
@@ -420,7 +374,7 @@ model MilestoneRecord {
   @@index([userId], map: "MilestoneRecord_userId_fkey")
 }
 
-/// A Pitch is a big picture idea that is meant to be fuel for a project that can become art assets, text assets, and physical swag. A Pitch can contain a collection of Prompts, which is an implementation of the Pitch. for example, a Pitch of "wild colors" could contain a series of prompts like "lavender armadillo;  green curd; rainbow sunburn". it can be represented by an artImage for it's overall vibe, but also collect Art objects if they are inspired by the Pitch 
+/// A Pitch is a big picture tag system that is meant to be fuel for a project that can become art assets, text assets, and physical swag. It can be parents, siblings, or children with other pitches.
 model Pitch {
   id             Int            @id @default(autoincrement())
   createdAt      DateTime       @default(now())
@@ -441,13 +395,11 @@ model Pitch {
   creationSource CreationSource @default(HUMAN)
   isActive       Boolean        @default(true)
   artPrompt      String?        @db.Text
-  Butterflies    Butterfly[]
-  Dream          Dream[]
+  Dreams          Dream[]
   ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
   User           User?          @relation(fields: [userId], references: [id])
   Prompt         Prompt[]
   Reactions      Reaction[]
-  Tag            Tag[]
 
   @@index([userId], map: "Pitch_userId_fkey")
   @@index([artImageId], map: "Pitch_artImageId_fkey")
@@ -460,7 +412,6 @@ model Prompt {
   updatedAt      DateTime?      @default(now()) @updatedAt
   prompt         String         @db.Text
   userId         Int?           @default(1)
-  galleryId      Int?           @default(21)
   pitchId        Int?
   botId          Int?
   artImageId     Int?
@@ -469,11 +420,9 @@ model Prompt {
   isPublic       Boolean        @default(true)
   isActive       Boolean        @default(true)
   artPrompt      String?        @db.Text
-  Butterflies    Butterfly[]
   Chats          Chat[]
   ArtImage       ArtImage?      @relation(fields: [artImageId], references: [id])
   Bot            Bot?           @relation(fields: [botId], references: [id])
-  Gallery        Gallery?       @relation(fields: [galleryId], references: [id])
   Pitch          Pitch?         @relation(fields: [pitchId], references: [id])
   User           User?          @relation(fields: [userId], references: [id])
   Reactions      Reaction[]
@@ -481,7 +430,6 @@ model Prompt {
   @@index([userId], map: "Prompt_userId_fkey")
   @@index([artImageId], map: "Prompt_artImageId_fkey")
   @@index([botId], map: "Prompt_botId_fkey")
-  @@index([galleryId], map: "Prompt_galleryId_fkey")
   @@index([pitchId], map: "Prompt_pitchId_fkey")
 }
 
@@ -494,15 +442,13 @@ model Reaction {
   pitchId          Int?
   componentId      Int?
   reactionType     ReactionType
-  reactionCategory Reaction_reactionCategory @default(ART)
+  reactionCategory Reaction_reactionCategory @default(ART_IMAGE)
   rating           Int                       @default(0)
   artImageId       Int?
   botId            Int?
-  galleryId        Int?
   promptId         Int?
   resourceId       Int?
   rewardId         Int?
-  tagId            Int?
   chatId           Int?
   dreamId          Int?
   artCollectionId  Int?
@@ -518,13 +464,11 @@ model Reaction {
   Chat             Chat?                     @relation(fields: [chatId], references: [id])
   Component        Component?                @relation(fields: [componentId], references: [id])
   Dream            Dream?                    @relation(fields: [dreamId], references: [id])
-  Gallery          Gallery?                  @relation(fields: [galleryId], references: [id])
   Pitch            Pitch?                    @relation(fields: [pitchId], references: [id])
   Prompt           Prompt?                   @relation(fields: [promptId], references: [id])
   Resource         Resource?                 @relation(fields: [resourceId], references: [id])
   Reward           Reward?                   @relation(fields: [rewardId], references: [id])
   Scenario         Scenario?                 @relation(fields: [scenarioId], references: [id])
-  Tag              Tag?                      @relation(fields: [tagId], references: [id])
   Theme            Theme?                    @relation(fields: [themeId], references: [id])
   User             User                      @relation(fields: [userId], references: [id])
 
@@ -543,8 +487,6 @@ model Reaction {
   @@index([rewardId], map: "Reaction_rewardId_fkey")
   @@index([scenarioId], map: "Reaction_scenarioId_fkey")
   @@index([themeId], map: "Reaction_themeId_fkey")
-  @@index([galleryId], map: "Reaction_galleryId_fkey")
-  @@index([tagId], map: "Reaction_tagId_fkey")
 }
 
 /// This should also be used if a user wants to add a custom art or text checkpoints
@@ -609,7 +551,7 @@ model Reward {
   @@index([artImageId], map: "Reward_artImageId_fkey")
 }
 
-/// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, Art, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
+/// Scenarios are meant to be chatroom settings or storytelling scenarios that incorporate other elements like Character, prompt, ArtImage, etc. A user is given options to continue the scenario with a skill check, inventory item, Reward, or custom prompt. The idea is to generate a story through the back and forth exchange.
 model Scenario {
   id           Int         @id @default(autoincrement())
   createdAt    DateTime    @default(now())
@@ -627,7 +569,6 @@ model Scenario {
   isMature     Boolean     @default(false)
   isPublic     Boolean     @default(true)
   isActive     Boolean     @default(true)
-  Butterflies  Butterfly[]
   Dream        Dream[]
   Reactions    Reaction[]
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
@@ -822,7 +763,6 @@ model User {
   Characters            Character[]
   Chats                 Chat[]
   Dreams                Dream[]
-  Gallery               Gallery[]
   Logs                  Log[]
   Milestones            MilestoneRecord[]
   Pitches               Pitch[]
@@ -833,88 +773,12 @@ model User {
   Scenarios             Scenario[]
   Servers               Server[]
   SmartIcons            SmartIcon[]
-  Tag                   Tag[]
   Themes                Theme[]
   ArtImage              ArtImage?         @relation("UserProfileImage", fields: [artImageId], references: [id])
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }
 
-model MilestoneToUser {
-  A Int
-  B Int
-
-  @@id([A, B])
-  @@index([B], map: "_MilestoneToUser_B_index")
-  @@map("_MilestoneToUser")
-}
-
-model RewardToUser {
-  A Int
-  B Int
-
-  @@id([A, B])
-  @@index([B], map: "_RewardToUser_B_index")
-  @@map("_RewardToUser")
-}
-
-model Gallery {
-  id             Int        @id @default(autoincrement())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime?  @default(now())
-  name           String     @db.VarChar(256)
-  description    String?    @db.Text
-  url            String?    @db.VarChar(256)
-  custodian      String?    @db.VarChar(256)
-  content        String     @db.VarChar(764)
-  highlightImage String?    @db.VarChar(256)
-  imagePaths     String?    @db.Text
-  isMature       Boolean    @default(false)
-  userId         Int?       @default(1)
-  isPublic       Boolean    @default(true)
-  isActive       Boolean    @default(true)
-  Dream          Dream[]
-  User           User?      @relation(fields: [userId], references: [id])
-  Prompt         Prompt[]
-  Reaction       Reaction[]
-
-  @@index([userId], map: "Gallery_userId_fkey")
-}
-
-model Tag {
-  id                                Int         @id @default(autoincrement())
-  createdAt                         DateTime    @default(now())
-  updatedAt                         DateTime?   @default(now())
-  label                             String      @db.VarChar(256)
-  title                             String      @db.VarChar(256)
-  flavorText                        String?     @db.VarChar(764)
-  pitch                             String?     @db.VarChar(764)
-  isPublic                          Boolean?    @default(true)
-  isMature                          Boolean     @default(false)
-  userId                            Int?        @default(1)
-  artImageId                        Int?        @unique
-  isActive                          Boolean     @default(true)
-  artPrompt                         String?     @db.Text
-  Butterfly                         Butterfly[]
-  Reaction                          Reaction[]
-  ArtImage_Tag_artImageIdToArtImage ArtImage?   @relation("Tag_artImageIdToArtImage", fields: [artImageId], references: [id])
-  User                              User?       @relation(fields: [userId], references: [id])
-  ArtImage_ArtImageToTag            ArtImage[]  @relation("ArtImageToTag")
-  Component                         Component[]
-  Dream                             Dream[]
-  Pitch                             Pitch[]
-
-  @@index([userId], map: "Tag_userId_fkey")
-}
-
-model ReactionToTag {
-  A Int
-  B Int
-
-  @@id([A, B])
-  @@index([B], map: "_ReactionToTag_B_index")
-  @@map("_ReactionToTag")
-}
 
 enum DreamAccessMode {
   OPEN
@@ -1030,7 +894,6 @@ enum PitchType {
   TITLE
   VIBE
   BOT
-  ARTGALLERY
   INSPIRATION
   DREAM
 }
@@ -1060,7 +923,6 @@ enum CreationSource {
 }
 
 enum Reaction_reactionCategory {
-  ART
   ART_IMAGE
   ART_COLLECTION
   BOT
@@ -1069,7 +931,6 @@ enum Reaction_reactionCategory {
   CHAT_EXCHANGE
   COMPONENT
   DREAM
-  GALLERY
   MESSAGE
   PITCH
   POST
@@ -1077,6 +938,5 @@ enum Reaction_reactionCategory {
   RESOURCE
   REWARD
   SCENARIO
-  TAG
   THEME
 }

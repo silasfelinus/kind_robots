@@ -223,7 +223,7 @@ function assertValidImageData(imageData: string) {
     base64: cleanBase64,
     bytes,
   }
-} 
+}
 
 const directArtImageForeignKeyByResource: Partial<
   Record<ImageConnectResource, string>
@@ -587,13 +587,7 @@ async function createOrConnectTags({
         where: {
           id: imageId,
         },
-        data: {
-          Tags: {
-            connect: {
-              id: tag.id,
-            },
-          },
-        },
+        data: {},
         select: {
           id: true,
         },
@@ -913,7 +907,7 @@ export async function uploadImage({
     data: connectedImage,
     message: 'Image uploaded successfully.',
   }
-} 
+}
 
 export async function getImage({
   id,

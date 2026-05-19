@@ -140,30 +140,6 @@ function buildArtImageSelect(
     serverUrl: true,
     imageData: includeImageData,
     thumbnailData: includeThumbnailData,
-    Tags: includeTags
-      ? {
-          select: {
-            id: true,
-            label: true,
-            title: true,
-            isPublic: true,
-            isMature: true,
-            userId: true,
-          },
-        }
-      : false,
-    TagOwner: includeTags
-      ? {
-          select: {
-            id: true,
-            label: true,
-            title: true,
-            isPublic: true,
-            isMature: true,
-            userId: true,
-          },
-        }
-      : false,
   }
 }
 

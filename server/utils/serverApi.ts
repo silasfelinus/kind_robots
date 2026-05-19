@@ -171,28 +171,21 @@ function asNullableNumber(value: unknown): number | null {
   return null
 }
 
-function asJson(
-  value: unknown,
-): Prisma.InputJsonValue | typeof Prisma.JsonNull {
-  if (!value) return Prisma.JsonNull
+function asNullableLongText(value: unknown): string | null {
+  if (value === null || value === undefined) {
+    return null
+  }
 
   if (typeof value === 'string') {
     const text = value.trim()
-
-    if (!text) return Prisma.JsonNull
-
-    try {
-      return JSON.parse(text) as Prisma.InputJsonValue
-    } catch {
-      return Prisma.JsonNull
-    }
+    return text ? text : null
   }
 
-  if (typeof value === 'object') {
-    return value as Prisma.InputJsonValue
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return null
   }
-
-  return Prisma.JsonNull
 }
 
 function asEnum<T extends string>(
@@ -268,13 +261,13 @@ function optionalNullableNumber(
   ;(data as Record<string, unknown>)[key] = asNullableNumber(body[key])
 }
 
-function optionalJson(
+function optionalLongText(
   data: Prisma.ServerUpdateInput,
   body: ServerBody,
   key: string,
 ): void {
   if (!(key in body)) return
-  ;(data as Record<string, unknown>)[key] = asJson(body[key])
+  ;(data as Record<string, unknown>)[key] = asNullableLongText(body[key])
 }
 
 export function buildServerCreateData(
@@ -322,7 +315,7 @@ export function buildServerCreateData(
     healthPath: asNullableString(body.healthPath),
 
     workflowPath: asNullableString(body.workflowPath),
-    workflowJson: asJson(body.workflowJson),
+    workflowJson: asNullableLongText(body.workflowJson),
     workflowVersion: asNullableString(body.workflowVersion),
 
     userId: typeof body.userId === 'number' ? body.userId : user.id,
@@ -405,7 +398,7 @@ export function buildServerUpdateData(
   optionalString(data, body, 'healthPath')
 
   optionalString(data, body, 'workflowPath')
-  optionalJson(data, body, 'workflowJson')
+  optionalLongText(data, body, 'workflowJson')
   optionalString(data, body, 'workflowVersion')
 
   optionalBoolean(data, body, 'isPublic')

@@ -67,6 +67,7 @@ export default defineEventHandler(async (event) => {
         errors,
         count,
         data: rewards,
+        rewards,
         statusCode: event.node.res.statusCode,
       }
     }
@@ -75,8 +76,10 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
+      message: `${count} reward(s) created successfully.`,
       count,
       data: rewards,
+      rewards,
       statusCode: 201,
     }
   } catch (error: unknown) {

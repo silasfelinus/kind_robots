@@ -694,7 +694,6 @@ async function generateArt() {
       isMature: artStore.artForm.isMature,
       isPublic: artStore.artForm.isPublic,
       seed: artStore.artForm.seed,
-      galleryId: artStore.artForm.galleryId,
       promptId: artStore.artForm.promptId,
       pitchId: artStore.artForm.pitchId,
       serverId: selectedServerId.value,

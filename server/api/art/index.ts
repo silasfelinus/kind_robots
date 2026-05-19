@@ -1,4 +1,5 @@
 // ~/server/api/art/index.ts
+import { createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { generateSillyName } from './../../../utils/useRandomName'
 import type { PitchType } from '~/prisma/generated/prisma/client'
@@ -16,7 +17,7 @@ export type RequestData = {
   description?: string | null
   flavorText?: string | null
   highlightImage?: string | null
-  PitchType: PitchType | null
+  PitchType?: PitchType | null
   isMature?: boolean
   isPublic?: boolean
   promptString: string
@@ -28,19 +29,17 @@ export type RequestData = {
   pitch?: string | null
   playerId?: number | null
   playerName?: string | null
-  galleryId?: number | null
-  galleryName?: string | null
+  artCollectionId?: number | null
+  artCollectionLabel?: string | null
+  collectionLabel?: string | null
+  collection?: string | null
 }
 
 export async function validateAndLoadUserId(
   data: RequestData,
   validatedData: Partial<RequestData>,
 ): Promise<number> {
-  console.log('🔍 Validating and loading User ID...')
-  if (!data.username && !data.userId) {
-    console.warn('No userName or userId provided.')
-    return 0
-  }
+  if (!data.username && !data.userId) return 10
 
   try {
     if (data.username) {
@@ -52,155 +51,175 @@ export async function validateAndLoadUserId(
           Role: 'USER',
         },
       })
+
       validatedData.username = user.username
       return user.id
     }
 
-    if (data.userId) {
-      return data.userId
-    }
+    if (data.userId) return data.userId
   } catch (error) {
     console.error('Error loading user:', error)
-    throw new Error('User validation failed.')
+    throw createError({
+      statusCode: 400,
+      message: 'User validation failed.',
+    })
   }
 
-  return 0
+  return 10
+}
+
+export async function validateAndLoadPitchId(
+  data: RequestData,
+): Promise<number | null> {
+  if (data.pitchId) {
+    const existingPitch = await prisma.pitch.findUnique({
+      where: { id: data.pitchId },
+    })
+
+    if (!existingPitch) {
+      throw createError({
+        statusCode: 400,
+        message: `Invalid pitchId: ${data.pitchId}. Pitch does not exist.`,
+      })
+    }
+
+    return data.pitchId
+  }
+
+  const pitchText = data.pitch?.trim()
+
+  if (!pitchText) return null
+
+  const existingPitch = await prisma.pitch.findFirst({
+    where: { pitch: pitchText },
+  })
+
+  if (existingPitch) return existingPitch.id
+
+  const newPitch = await prisma.pitch.create({
+    data: {
+      title: data.title || pitchText.slice(0, 80) || 'Untitled Pitch',
+      pitch: pitchText,
+      designer: data.designer,
+      flavorText: data.flavorText || '',
+      highlightImage: data.highlightImage || '',
+      PitchType: data.PitchType || 'ARTPITCH',
+      isMature: data.isMature || false,
+      isPublic: data.isPublic ?? true,
+      userId: data.userId || null,
+    },
+  })
+
+  return newPitch.id
 }
 
 export async function validateAndLoadPromptId(
   data: RequestData,
   validatedData: Partial<RequestData>,
 ): Promise<number> {
-  console.log('🔍 Validating and loading Prompt ID...')
+  const promptString = data.promptString?.trim()
 
-  if (!data.promptString) {
-    console.warn('No prompt provided.')
-    throw new Error('Prompt validation failed.')
+  if (!promptString) {
+    throw createError({
+      statusCode: 400,
+      message: 'Prompt validation failed.',
+    })
   }
 
   try {
     const existingPrompt = await prisma.prompt.findFirst({
-      where: { prompt: data.promptString },
+      where: { prompt: promptString },
     })
 
     if (existingPrompt) {
+      if (data.pitchId) {
+        await prisma.prompt.update({
+          where: { id: existingPrompt.id },
+          data: {
+            Pitch: {
+              connect: { id: data.pitchId },
+            },
+          },
+        })
+      }
+
       return existingPrompt.id
-    } else {
-      const newPrompt = await prisma.prompt.create({
-        data: {
-          prompt: data.promptString,
-          userId: validatedData.userId || 10,
-          galleryId: data.galleryId ?? 21,
-          pitchId: data.pitchId ?? null,
-        },
-      })
-      return newPrompt.id
-    }
-  } catch (error) {
-    console.error('Error loading prompt:', error)
-    throw new Error('Prompt validation failed.')
-  }
-}
-
-export async function validateAndLoadPitchId(
-  data: RequestData,
-): Promise<number | null> {
-  const start = Date.now()
-  console.log(`[⏱️ ${start}] 🔍 Begin validateAndLoadPitchId()`)
-
-  if (data.pitchId) {
-    console.log(`[⏱️ ${Date.now()}] ⌛ Checking pitchId: ${data.pitchId}`)
-    const existingPitch = await prisma.pitch.findUnique({
-      where: { id: data.pitchId },
-    })
-    console.log(`[⏱️ ${Date.now()}] ✅ pitchId lookup complete`)
-
-    if (!existingPitch) {
-      console.warn(
-        `[⛔ ${Date.now()}] ❌ Invalid pitchId: ${data.pitchId} does not exist`,
-      )
-      throw createError({
-        statusCode: 400,
-        message: `Invalid pitchId: ${data.pitchId}. Pitch does not exist.`,
-      })
-    }
-    console.log(`[✅ ${Date.now()}] Returning pitchId: ${data.pitchId}`)
-    return data.pitchId
-  }
-
-  if (data.pitch) {
-    console.log(`[⏱️ ${Date.now()}] 🔍 Searching for pitch text match`)
-    const existingPitch = await prisma.pitch.findFirst({
-      where: { pitch: data.pitch },
-    })
-
-    if (existingPitch) {
-      console.log(
-        `[✅ ${Date.now()}] Reused existing pitch ID: ${existingPitch.id}`,
-      )
-      return existingPitch.id
     }
 
-    console.log(`[🛠️ ${Date.now()}] Creating new pitch...`)
-    const newPitch = await prisma.pitch.create({
+    const newPrompt = await prisma.prompt.create({
       data: {
-        title: data.title || 'Untitled',
-        pitch: data.pitch,
-        designer: data.designer,
-        flavorText: data.flavorText || '',
-        highlightImage: data.highlightImage || '',
-        PitchType: data.PitchType || 'ARTPITCH',
-        isMature: data.isMature || false,
+        prompt: promptString,
+        artPrompt: promptString,
+        userId: validatedData.userId || data.userId || 10,
+        isMature: data.isMature ?? false,
         isPublic: data.isPublic ?? true,
-        userId: data.userId || null,
+        Pitches: data.pitchId
+          ? {
+              connect: { id: data.pitchId },
+            }
+          : undefined,
       },
     })
 
-    console.log(`[✅ ${Date.now()}] New pitch created with ID: ${newPitch.id}`)
-    return newPitch.id
+    return newPrompt.id
+  } catch (error) {
+    console.error('Error loading prompt:', error)
+    throw createError({
+      statusCode: 400,
+      message: 'Prompt validation failed.',
+    })
   }
-
-  console.log(`[⚠️ ${Date.now()}] No pitch or pitchId provided.`)
-  return null
 }
 
-export async function validateAndLoadGalleryId(
+export async function validateAndLoadArtCollectionId(
   data: RequestData,
-): Promise<number> {
-  console.log('🔍 Validating and loading gallery ID...')
+): Promise<number | null> {
+  if (data.artCollectionId) {
+    const existingCollection = await prisma.artCollection.findUnique({
+      where: { id: data.artCollectionId },
+    })
 
-  try {
-    if (data.galleryId === undefined) {
-      const galleryName = data.galleryName ?? 'cafefred'
-
-      const existingGallery = await prisma.gallery.findFirst({
-        where: { name: galleryName },
+    if (!existingCollection) {
+      throw createError({
+        statusCode: 400,
+        message: `Invalid artCollectionId: ${data.artCollectionId}. ArtCollection does not exist.`,
       })
-
-      if (existingGallery) {
-        return existingGallery.id
-      } else {
-        const newGallery = await prisma.gallery.create({
-          data: {
-            name: galleryName,
-            content: '',
-            userId: data.userId || null,
-            isMature: data.isMature || false,
-            isPublic: data.isPublic || true,
-          },
-        })
-        return newGallery.id
-      }
     }
 
-    return data.galleryId ?? 21
-  } catch (error) {
-    console.error('Error loading gallery:', error)
-    throw new Error('Gallery validation failed.')
+    return data.artCollectionId
   }
+
+  const label =
+    data.artCollectionLabel?.trim() ||
+    data.collectionLabel?.trim() ||
+    data.collection?.trim()
+
+  if (!label) return null
+
+  const userId = data.userId || 10
+
+  const existingCollection = await prisma.artCollection.findFirst({
+    where: {
+      label,
+      userId,
+    },
+  })
+
+  if (existingCollection) return existingCollection.id
+
+  const newCollection = await prisma.artCollection.create({
+    data: {
+      label,
+      userId,
+      isMature: data.isMature ?? false,
+      isPublic: data.isPublic ?? true,
+      artPrompt: data.promptString || null,
+    },
+  })
+
+  return newCollection.id
 }
 
 export function validateAndLoadDesignerName(data: RequestData): string {
-  console.log('🔍 Validating and loading designer name...')
   return data.designer ?? data.username ?? generateSillyName() ?? 'Kind Guest'
 }

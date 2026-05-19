@@ -1,7 +1,7 @@
 // /stores/collectionStore.ts
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs, watch } from 'vue'
-import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { performFetch, handleError } from './utils'
 import {
@@ -36,15 +36,12 @@ type ArtWithRelations = Art & {
 }
 
 type CollectionWithRelations = ArtCollection & {
-  Art?: ArtWithRelations[]
-  art?: ArtWithRelations[]
   ArtImages?: ArtImage[]
   artImages?: ArtImage[]
   images?: ArtImage[]
 }
 
 type NormalizedCollection = ArtCollection & {
-  Art?: Art[]
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
   images?: ArtImage[]
@@ -54,12 +51,6 @@ type CollectionState = {
   collections: ArtCollection[]
   currentCollection: ArtCollection | null
   autoSave: boolean
-}
-
-type AddArtToCollectionInput = {
-  artId: number
-  collectionId?: number
-  label?: string
 }
 
 type AddArtImageToCollectionInput = {
@@ -73,8 +64,8 @@ type CollectionPatchInput = {
   description?: string
   isPublic?: boolean
   isMature?: boolean
-  addArtIds?: number[]
-  removeArtIds?: number[]
+  artImageIds?: number[]
+  disconnectArtImageIds?: number[]
 }
 
 function isValidId(value: unknown): value is number {
@@ -106,28 +97,15 @@ function sanitizeCollectionArt(entry: ArtWithRelations): Art {
 function normalizeCollection(
   collection: CollectionWithRelations,
 ): ArtCollection {
-  const rawArtSource = collection.art ?? collection.Art ?? []
-  const rawArt = Array.isArray(rawArtSource)
-    ? rawArtSource.map((entry) => entry as ArtWithRelations)
-    : []
-
-  const art = rawArt.map((entry) => sanitizeCollectionArt(entry))
-
   const directImages = [
     ...(collection.artImages ?? []),
     ...(collection.ArtImages ?? []),
     ...(collection.images ?? []),
   ].filter(isArtImagePayload)
 
-  const imagesFromArt = rawArt.flatMap((entry) => {
-    const media = entry as Record<string, unknown>
-
-    return [media.ArtImage, media.artImage].filter(isArtImagePayload)
-  })
-
   const imageMap = new Map<number, ArtImage>()
 
-  for (const image of [...directImages, ...imagesFromArt]) {
+  for (const image of directImages) {
     imageMap.set(image.id, image)
   }
 
@@ -135,7 +113,6 @@ function normalizeCollection(
 
   return {
     ...collection,
-    art,
     artImages,
     ArtImages: artImages,
   } as NormalizedCollection
@@ -356,16 +333,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     return fetchPromise.value
   }
 
-  function getUncollectedArt(): Art[] {
-    const collectedIds = state.collections
-      .filter((collection) => collection.userId === userStore.userId)
-      .flatMap((collection) => collection.art.map((art) => art.id))
-
-    return artStore.art.filter((art) => {
-      return art.userId === userStore.userId && !collectedIds.includes(art.id)
-    })
-  }
-
   function getUncollectedArtImages(): ArtImage[] {
     const collectedIds = new Set(allCollectionArtImageIds.value)
 
@@ -550,59 +517,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     return await getOrCreateCollectionByLabel(safeLabel)
   }
 
-  async function addArtToCollection(
-    input: AddArtToCollectionInput,
-  ): Promise<void>
-  async function addArtToCollection(
-    collectionId: number,
-    artId: number,
-  ): Promise<void>
-  async function addArtToCollection(
-    inputOrCollectionId: AddArtToCollectionInput | number,
-    maybeArtId?: number,
-  ): Promise<void> {
-    const input =
-      typeof inputOrCollectionId === 'number'
-        ? {
-            collectionId: inputOrCollectionId,
-            artId: Number(maybeArtId),
-          }
-        : inputOrCollectionId
-
-    if (!isValidId(input.artId)) return
-
-    const lockKey = `art:${input.collectionId ?? input.label ?? 'new'}:${
-      input.artId
-    }`
-
-    if (mutationLocks.value[lockKey]) {
-      return mutationLocks.value[lockKey]
-    }
-
-    mutationLocks.value[lockKey] = (async () => {
-      try {
-        const collection = await resolveCollectionForMutation({
-          collectionId: input.collectionId,
-          label: input.label,
-        })
-
-        if (collectionIncludesArtId(collection, input.artId)) {
-          return
-        }
-
-        await patchCollection(collection.id, {
-          addArtIds: [input.artId],
-        })
-      } catch (error) {
-        handleError(error, 'adding art to collection')
-      } finally {
-        delete mutationLocks.value[lockKey]
-      }
-    })()
-
-    return mutationLocks.value[lockKey]
-  }
-
   async function addArtImageToCollection(
     input: AddArtImageToCollectionInput,
   ): Promise<void>
@@ -671,52 +585,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     })()
 
     return mutationLocks.value[lockKey]
-  }
-
-  async function removeArtFromCollection(
-    artId: number,
-    collectionId: number,
-  ): Promise<void> {
-    const success = await removeArtFromCollectionServer(collectionId, artId)
-
-    if (success) {
-      const collection = findCollectionByIdLocal(collectionId)
-
-      if (collection) {
-        removeArtFromLocalCollection(collection, artId)
-      }
-    }
-  }
-
-  async function removeArtFromCollectionServer(
-    collectionId: number,
-    artId: number,
-  ): Promise<boolean> {
-    try {
-      const response = await performFetch(
-        `/api/art/collection/${collectionId}/${artId}`,
-        { method: 'DELETE' },
-      )
-
-      if (!response.success) {
-        throw new Error(
-          response.message || 'Failed to remove art from collection',
-        )
-      }
-
-      const collection = findCollectionByIdLocal(collectionId)
-
-      if (collection) {
-        collection.art = collection.art.filter((art) => {
-          return art.id !== artId
-        })
-      }
-
-      return true
-    } catch (error) {
-      handleError(error, 'removing art from collection')
-      return false
-    }
   }
 
   async function removeArtImageFromCollection(
@@ -954,10 +822,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     deleteCollectionById,
     patchCollection,
 
-    addArtToCollection,
-    removeArtFromCollection,
-    removeArtFromCollectionServer,
-
     addArtImageToCollection,
     removeArtImageFromCollection,
     removeArtImageFromCollectionServer,
@@ -970,7 +834,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     getCollectionImages,
     getCollectionImageIds,
     getCollectionArtImages,
-    getUncollectedArt,
     getUncollectedArtImages,
     getOrCreateCollectionByLabel,
     getOrCreateGeneratedArtCollection,

@@ -3,12 +3,9 @@ import { errorHandler } from './error'
 import path from 'path'
 import fs from 'fs/promises'
 
-
 export async function saveImage(
   base64Image: string,
-  galleryName: string,
   userId: number,
-  galleryId: number,
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
@@ -20,7 +17,6 @@ export async function saveImage(
     // Always save to the database
     const savedImage = await prisma.artImage.create({
       data: {
-        galleryId,
         imageData: base64Image, // store base64 image
         fileName: fileName ?? 'Kind Image', // Ensure fileName is never null
         userId,
@@ -29,10 +25,7 @@ export async function saveImage(
 
     // Optionally save to the local filesystem in development
     if (!isProduction) {
-      const dirPath = path.join(
-        process.env.IMAGES_PATH || './public/images',
-        galleryName,
-      )
+      const dirPath = path.join(process.env.IMAGES_PATH || './public/images')
       const filePath = path.join(dirPath, fileName)
 
       // Ensure the gallery directory exists

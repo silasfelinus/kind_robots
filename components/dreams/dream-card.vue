@@ -46,12 +46,12 @@
         </p>
 
         <p
-          v-if="collectionArt.length"
+          v-if="collectionArtImages.length"
           class="mt-2 flex items-center gap-1 text-xs font-bold text-accent"
         >
           <Icon name="kind-icon:image" class="h-3.5 w-3.5" />
-          {{ collectionArt.length }} collection image{{
-            collectionArt.length === 1 ? '' : 's'
+          {{ collectionArtImages.length }} collection image{{
+            collectionArtImages.length === 1 ? '' : 's'
           }}
         </p>
       </div>
@@ -158,29 +158,61 @@ const isSelected = computed(() => {
   return props.selected || dreamStore.selectedDream?.id === props.dream.id
 })
 
-const collectionArt = computed(() => props.dream.ArtCollection?.art ?? [])
+type DreamArtImagePreview = {
+  id?: number
+  imagePath?: string | null
+  path?: string | null
+  fileName?: string | null
+}
 
-const randomCollectionArt = computed(() => {
-  if (!collectionArt.value.length) return null
+type DreamArtCollectionPreview = {
+  ArtImages?: DreamArtImagePreview[] | null
+  artImages?: DreamArtImagePreview[] | null
+}
+
+const collectionArtImages = computed<DreamArtImagePreview[]>(() => {
+  const dream = props.dream as DreamWithRelations & {
+    ArtCollection?:
+      | DreamArtCollectionPreview
+      | DreamArtCollectionPreview[]
+      | null
+    ArtCollections?: DreamArtCollectionPreview[] | null
+  }
+
+  const collections = Array.isArray(dream.ArtCollections)
+    ? dream.ArtCollections
+    : Array.isArray(dream.ArtCollection)
+      ? dream.ArtCollection
+      : dream.ArtCollection
+        ? [dream.ArtCollection]
+        : []
+
+  return collections.flatMap((collection) => {
+    return collection.ArtImages ?? collection.artImages ?? []
+  })
+})
+
+const randomCollectionArtImage = computed(() => {
+  if (!collectionArtImages.value.length) return null
 
   const index =
     Math.abs(
-      props.dream.id + props.dream.title.length + collectionArt.value.length,
-    ) % collectionArt.value.length
+      props.dream.id +
+        props.dream.title.length +
+        collectionArtImages.value.length,
+    ) % collectionArtImages.value.length
 
-  return collectionArt.value[index] ?? null
+  return collectionArtImages.value[index] ?? null
 })
 
 const previewImage = computed(() => {
   return (
-    randomCollectionArt.value?.imagePath ||
-    randomCollectionArt.value?.path ||
-    props.dream.Art?.imagePath ||
-    props.dream.Art?.path ||
+    randomCollectionArtImage.value?.imagePath ||
+    randomCollectionArtImage.value?.path ||
+    randomCollectionArtImage.value?.fileName ||
     props.dream.ArtImage?.imagePath ||
     props.dream.ArtImage?.path ||
     props.dream.ArtImage?.fileName ||
-    props.dream.Gallery?.highlightImage ||
     ''
   )
 })

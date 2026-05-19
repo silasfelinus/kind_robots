@@ -1,7 +1,7 @@
 // /stores/pitchStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Art, Pitch, Prompt } from '~/prisma/generated/prisma/client'
+import type { ArtImage, Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { performFetch, handleError } from './utils'
@@ -159,7 +159,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
   const selectedTitle = ref<Pitch | null>(null)
 
   const newestPitches = ref<Pitch[]>([])
-  const galleryArt = ref<Record<number, Art[]>>({})
+  const galleryArt = ref<Record<number, ArtImage[]>>({})
 
   const loading = ref(false)
   const isSaving = ref(false)
@@ -171,7 +171,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
 
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchPromise = ref<Promise<Pitch[]> | null>(null)
-  const fetchArtForPitchPromises = ref<Record<number, Promise<Art[]>>>({})
+  const fetchArtForPitchPromises = ref<Record<number, Promise<ArtImage[]>>>({})
   const createPitchPromise = ref<Promise<PitchMutationResult> | null>(null)
   const updatePitchPromise = ref<Record<number, Promise<PitchMutationResult>>>(
     {},
@@ -325,7 +325,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
       selectedPitch.value = normalizePitch(selectedPitch.value)
     }
 
-    galleryArt.value = safeParseObject<Record<number, Art[]>>(
+    galleryArt.value = safeParseObject<Record<number, ArtImage[]>>(
       safeGetLocalStorage(storageKeys.galleryArt),
       {},
     )
@@ -605,7 +605,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
     }
   }
 
-  async function fetchArtForPitch(pitchId: number): Promise<Art[]> {
+  async function fetchArtForPitch(pitchId: number): Promise<ArtImage[]> {
     if (galleryArt.value[pitchId]) return galleryArt.value[pitchId]
 
     if (fetchArtForPitchPromises.value[pitchId]) {
@@ -616,7 +616,7 @@ export const usePitchStore = defineStore('pitchStore', () => {
       try {
         clearError()
 
-        const res = await performFetch<Art[]>(`/api/pitches/art/${pitchId}`)
+        const res = await performFetch<ArtImage[]>(`/api/pitches/art/${pitchId}`)
 
         if (res.success) {
           galleryArt.value[pitchId] = res.data || []

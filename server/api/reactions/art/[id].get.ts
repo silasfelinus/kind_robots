@@ -1,48 +1,52 @@
-// server/api/reactions/art/[id].get.ts
-import { defineEventHandler } from 'h3'
+// /server/api/reactions/art/[id].get.ts
+import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
-  try {
-    // Extract artId from the route parameters
-    const artId = Number(event.context.params?.id)
+  const artImageId = Number(event.context.params?.id)
 
-    // Validate artId
-    if (isNaN(artId) || artId <= 0) {
-      event.node.res.statusCode = 400
-      throw new Error('A valid art ID is required.')
+  try {
+    if (!Number.isInteger(artImageId) || artImageId <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'A valid art image ID is required.',
+      })
     }
 
-    // Fetch reactions associated with the given artId
     const reactions = await prisma.reaction.findMany({
-      where: { artId },
+      where: {
+        artImageId,
+      },
       include: {
-        User: true, // Include user data if required
+        User: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     })
 
-    if (!reactions || reactions.length === 0) {
-      event.node.res.statusCode = 404
-      return {
-        success: false,
-        data: {
-          message: `No reactions found for art with ID ${artId}.`,
-        },
-      }
-    }
-
-    // Return the reactions within a data object
     return {
       success: true,
-      data: { reactions },
+      data: {
+        reactions,
+      },
+      message: reactions.length
+        ? 'Reactions found.'
+        : `No reactions found for art image ${artImageId}.`,
     }
   } catch (error: unknown) {
-    console.error(
-      `Error fetching reactions for art ID ${event.context.params?.id}:`,
-      error,
-    )
-    // Use the errorHandler for consistent error handling
-    return errorHandler(error)
+    const handledError = errorHandler(error)
+    event.node.res.statusCode = handledError.statusCode || 500
+
+    return {
+      success: false,
+      message:
+        handledError.message ||
+        `Failed to fetch reactions for art image ${artImageId}.`,
+      data: {
+        reactions: [],
+      },
+    }
   }
 })

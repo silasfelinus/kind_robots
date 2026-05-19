@@ -1,4 +1,5 @@
 <!-- /components/content/gallery/gallery-viewer.vue -->
+@ts-nocheck
 <template>
   <div>
     <!-- Display gallery cards -->

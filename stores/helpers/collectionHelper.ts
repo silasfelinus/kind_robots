@@ -1,6 +1,6 @@
 // /stores/helpers/collectionHelper.ts
 import type {
-  Art,
+  ArtImage,
   ArtCollection as PrismaArtCollection,
 } from '~/prisma/generated/prisma/client'
 
@@ -16,25 +16,25 @@ type CollectionCore = {
 
 export type ArtCollection = CollectionCore &
   Partial<PrismaArtCollection> & {
-    art: Art[]
+    art: ArtImage[]
     username: string | null
     description: string | null
   }
 
 export function addArtToCollectionLocal(
   collection: ArtCollection,
-  art: Art,
+  artImage: ArtImage,
 ): void {
   if (!collection.art) collection.art = []
-  const exists = collection.art.some((a: Art) => a.id === art.id)
-  if (!exists) collection.art.push(art)
+  const exists = collection.art.some((a: ArtImage) => a.id === artImage.id)
+  if (!exists) collection.art.push(artImage)
 }
 
 export function isArtInCollection(
   collection: ArtCollection,
   artId: number,
 ): boolean {
-  return collection.art?.some((a: Art) => a.id === artId) || false
+  return collection.art?.some((a: ArtImage) => a.id === artId) || false
 }
 
 export function findCollectionByUserAndLabel(
@@ -53,14 +53,14 @@ export function getCollectedArtIds(
 ): number[] {
   return collections
     .filter((c: ArtCollection) => c.userId === userId)
-    .flatMap((c: ArtCollection) => c.art.map((a: Art) => a.id))
+    .flatMap((c: ArtCollection) => c.art.map((a: ArtImage) => a.id))
 }
 
 export function collectionIncludesArtId(
   collection: ArtCollection,
   artId: number,
 ): boolean {
-  return !!collection.art?.some((a: Art) => a.id === artId)
+  return !!collection.art?.some((a: ArtImage) => a.id === artId)
 }
 
 export function removeArtFromLocalCollection(
@@ -68,7 +68,7 @@ export function removeArtFromLocalCollection(
   artId: number,
 ): void {
   if (!collection.art) return
-  collection.art = collection.art.filter((a: Art) => a.id !== artId)
+  collection.art = collection.art.filter((a: ArtImage) => a.id !== artId)
 }
 
 export function findCollectionById(

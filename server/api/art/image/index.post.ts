@@ -5,7 +5,6 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 
 type CreateArtImagePayload = {
-  galleryId?: number | null
   userId?: number | null
   imageData?: string | null
   thumbnailData?: string | null
@@ -32,7 +31,7 @@ type CreateArtImagePayload = {
   serverId?: number | null
   serverName?: string | null
   serverUrl?: string | null
-  artId?: number | null
+
   botId?: number | null
   componentId?: number | null
   milestoneId?: number | null
@@ -42,10 +41,21 @@ type CreateArtImagePayload = {
   rewardId?: number | null
   chatId?: number | null
   characterId?: number | null
+  butterflyId?: number | null
+
+  botIds?: number[]
+  componentIds?: number[]
+  milestoneIds?: number[]
+  pitchIds?: number[]
+  promptIds?: number[]
+  resourceIds?: number[]
+  rewardIds?: number[]
+  chatIds?: number[]
+  characterIds?: number[]
+  butterflyIds?: number[]
   dreamIds?: number[]
   scenarioIds?: number[]
   reactionIds?: number[]
-  tagIds?: number[]
   artCollectionIds?: number[]
 }
 
@@ -74,6 +84,12 @@ function cleanPositiveIds(values?: Array<number | null | undefined>): number[] {
   return [...new Set(values)]
     .map((value) => Number(value))
     .filter((value) => Number.isInteger(value) && value > 0)
+}
+
+function mergeIds(
+  ...groups: Array<Array<number | null | undefined> | undefined>
+): number[] {
+  return [...new Set(groups.flatMap((group) => cleanPositiveIds(group)))]
 }
 
 function connectById(id?: number | null) {
@@ -163,8 +179,6 @@ function buildCreateData(
     fileName,
     fileType,
     imagePath,
-    rarity: cleanNumber(body.rarity),
-
     path,
     promptString: cleanText(body.promptString),
     artPrompt: cleanText(body.artPrompt),
@@ -177,34 +191,47 @@ function buildCreateData(
     cfgHalf: cleanBoolean(body.cfgHalf),
     designer: cleanText(body.designer),
     genres: cleanText(body.genres),
-
     isPublic: cleanBoolean(body.isPublic),
     isMature: cleanBoolean(body.isMature),
     isActive: body.isActive ?? true,
-
     serverName: cleanText(body.serverName),
     serverUrl: cleanText(body.serverUrl),
 
     User: connectById(body.userId),
-    Gallery: connectById(body.galleryId),
     Server: connectById(body.serverId),
     CheckpointResource: connectById(body.checkpointResourceId),
 
-    Art: connectById(body.artId),
-    Bot: connectById(body.botId),
-    Component: connectById(body.componentId),
-    Milestone: connectById(body.milestoneId),
-    Pitch: connectById(body.pitchId),
-    Prompt: connectById(body.promptId),
-    Resource: connectById(body.resourceId),
-    Reward: connectById(body.rewardId),
-    Chat: connectById(body.chatId),
-    Character: connectById(body.characterId),
-
+    Bots: connectMany(mergeIds(body.botIds, body.botId ? [body.botId] : [])),
+    Components: connectMany(
+      mergeIds(body.componentIds, body.componentId ? [body.componentId] : []),
+    ),
+    Milestones: connectMany(
+      mergeIds(body.milestoneIds, body.milestoneId ? [body.milestoneId] : []),
+    ),
+    Pitches: connectMany(
+      mergeIds(body.pitchIds, body.pitchId ? [body.pitchId] : []),
+    ),
+    Prompts: connectMany(
+      mergeIds(body.promptIds, body.promptId ? [body.promptId] : []),
+    ),
+    Resources: connectMany(
+      mergeIds(body.resourceIds, body.resourceId ? [body.resourceId] : []),
+    ),
+    Rewards: connectMany(
+      mergeIds(body.rewardIds, body.rewardId ? [body.rewardId] : []),
+    ),
+    Chats: connectMany(
+      mergeIds(body.chatIds, body.chatId ? [body.chatId] : []),
+    ),
+    Characters: connectMany(
+      mergeIds(body.characterIds, body.characterId ? [body.characterId] : []),
+    ),
+    Butterflies: connectMany(
+      mergeIds(body.butterflyIds, body.butterflyId ? [body.butterflyId] : []),
+    ),
     Dreams: connectMany(body.dreamIds),
     Scenarios: connectMany(body.scenarioIds),
     Reactions: connectMany(body.reactionIds),
-    Tags: connectMany(body.tagIds),
     ArtCollections: connectMany(body.artCollectionIds),
   }
 }

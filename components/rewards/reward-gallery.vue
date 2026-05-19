@@ -98,7 +98,7 @@
           <option value="all">All rarities</option>
 
           <option v-for="rarity in rarities" :key="rarity" :value="rarity">
-            Rarity {{ rarity }}
+            {{ rarity }}
           </option>
         </select>
 
@@ -252,7 +252,7 @@
               </span>
 
               <span class="badge badge-outline badge-sm">
-                Rarity {{ rewardStore.selectedReward.rarity }}
+                {{ rewardStore.selectedReward.rarity }}
               </span>
 
               <span
@@ -315,6 +315,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useRewardStore } from '@/stores/rewardStore'
+import type { Rarity } from '@/stores/rewardStore'
 import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
@@ -360,11 +361,20 @@ const rewardStore = useRewardStore()
 const userStore = useUserStore()
 
 const selectedCollection = ref<string>('all')
-const selectedRarity = ref<string | number>('all')
+const selectedRarity = ref<Rarity | 'all'>('all')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const showRewardForm = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
+
+const rarityOrder: Record<Rarity, number> = {
+  COMMON: 1,
+  UNCOMMON: 2,
+  RARE: 3,
+  EPIC: 4,
+  LEGENDARY: 5,
+  MYTHIC: 6,
+}
 
 const isDropdownMode = computed(() => props.variant === 'dropdown')
 
@@ -443,32 +453,6 @@ const canEditSelected = computed(() => {
   return reward.userId === currentUserId.value
 })
 
-const collections = computed(() => {
-  const set = new Set<string>()
-
-  for (const reward of visibleRewards.value) {
-    const collection = reward.collection?.trim()
-
-    if (collection) {
-      set.add(collection)
-    }
-  }
-
-  return Array.from(set).sort()
-})
-
-const rarities = computed(() => {
-  const set = new Set<number>()
-
-  for (const reward of visibleRewards.value) {
-    if (Number.isFinite(reward.rarity)) {
-      set.add(reward.rarity)
-    }
-  }
-
-  return Array.from(set).sort((a, b) => a - b)
-})
-
 const galleryRewards = computed<Reward[]>(() => {
   let rewards = rewardStore.rewards
 
@@ -489,6 +473,34 @@ const visibleRewards = computed<Reward[]>(() => {
   return galleryRewards.value
 })
 
+const collections = computed(() => {
+  const set = new Set<string>()
+
+  for (const reward of visibleRewards.value) {
+    const collection = reward.collection?.trim()
+
+    if (collection) {
+      set.add(collection)
+    }
+  }
+
+  return Array.from(set).sort()
+})
+
+const rarities = computed(() => {
+  const set = new Set<Rarity>()
+
+  for (const reward of visibleRewards.value) {
+    if (reward.rarity) {
+      set.add(reward.rarity)
+    }
+  }
+
+  return Array.from(set).sort((a, b) => {
+    return rarityOrder[a] - rarityOrder[b]
+  })
+})
+
 const filteredRewards = computed<Reward[]>(() => {
   let rewards = visibleRewards.value
 
@@ -500,7 +512,7 @@ const filteredRewards = computed<Reward[]>(() => {
 
   if (selectedRarity.value !== 'all') {
     rewards = rewards.filter((reward) => {
-      return reward.rarity === Number(selectedRarity.value)
+      return reward.rarity === selectedRarity.value
     })
   }
 

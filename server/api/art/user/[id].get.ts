@@ -1,7 +1,7 @@
 // server/api/art/user/[id].get.ts
 
 import { defineEventHandler } from 'h3'
-import type { Art } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 
@@ -22,8 +22,8 @@ export default defineEventHandler(async (event) => {
 })
 
 // Function to fetch Art entries by User ID
-export async function fetchArtByUserId(userId: number): Promise<Art[]> {
-  return await prisma.art.findMany({
+export async function fetchArtByUserId(userId: number): Promise<ArtImage[]> {
+  return await prisma.artImage.findMany({
     where: { userId },
     orderBy: {
       createdAt: 'desc', // Optionally order by most recent first

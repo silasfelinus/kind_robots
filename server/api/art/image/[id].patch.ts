@@ -20,16 +20,15 @@ type PatchUser = {
 const ART_IMAGE_PATCH_FIELDS = new Set<
   keyof Prisma.ArtImageUncheckedUpdateInput
 >([
-  'galleryId',
   'userId',
   'imageData',
   'thumbnailData',
   'fileName',
   'fileType',
   'imagePath',
-  'rarity',
   'path',
   'promptString',
+  'artPrompt',
   'negativePrompt',
   'checkpoint',
   'checkpointResourceId',
@@ -42,20 +41,10 @@ const ART_IMAGE_PATCH_FIELDS = new Set<
   'genres',
   'isPublic',
   'isMature',
+  'isActive',
   'serverId',
   'serverName',
   'serverUrl',
-  'artId',
-  'botId',
-  'componentId',
-  'milestoneId',
-  'pitchId',
-  'promptId',
-  'resourceId',
-  'rewardId',
-  'chatId',
-  'characterId',
-  'butterflyId',
 ])
 
 function isAdminUser(user: ValidatedUser | null | undefined): boolean {

@@ -1,18 +1,19 @@
 <!-- /components/navigation/smart-image.vue -->
+@ts-nocheck
 <template>
   <div
     ref="wrapRef"
-    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] cursor-pointer [perspective:1200px]"
+    class="relative w-full rounded-2xl border border-base-300 bg-base-200/70 overflow-hidden flex items-center justify-center aspect-video md:aspect-21/9 lg:aspect-3/1 cursor-pointer perspective-distant"
     @click="spinOnce"
   >
     <div
       ref="innerRef"
-      class="relative w-full h-full [transform-style:preserve-3d]"
+      class="relative w-full h-full transform-3d"
       :style="innerStyle"
       @transitionend="onTransitionEnd"
     >
       <div
-        class="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+        class="absolute inset-0 w-full h-full backface-hidden"
         :style="faceStyle(0)"
       >
         <img
@@ -25,7 +26,7 @@
       </div>
 
       <div
-        class="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+        class="absolute inset-0 w-full h-full backface-hidden"
         :style="faceStyle(1)"
       >
         <img
@@ -38,7 +39,7 @@
       </div>
 
       <div
-        class="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+        class="absolute inset-0 w-full h-full backface-hidden"
         :style="faceStyle(2)"
       >
         <img

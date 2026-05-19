@@ -1,35 +1,37 @@
+<!-- /abandonware/art-display.vue -->
 @ts-nocheck
 <template>
   <div
-    v-if="art"
-    class="fixed inset-0 z-50 flex items-center justify-center p-[5vh] sm:p-[5vw] bg-black bg-opacity-70"
+    v-if="artImage"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-[5vh] sm:p-[5vw]"
     @click.self="closeDisplay"
   >
     <div
-      class="relative w-full h-full max-w-[90vw] max-h-[90vh] overflow-auto rounded-xl shadow-xl bg-base-100 border border-accent p-6 flex flex-col gap-6"
+      class="relative flex h-full max-h-[90vh] w-full max-w-[90vw] flex-col gap-6 overflow-auto rounded-xl border border-accent bg-base-100 p-6 shadow-xl"
     >
-      <!-- Close Button -->
       <div class="flex justify-end">
-        <button class="btn btn-sm btn-error" @click="closeDisplay">
+        <button
+          class="btn btn-sm btn-error"
+          type="button"
+          @click="closeDisplay"
+        >
           ❌ Close
         </button>
       </div>
 
-      <!-- Content Layout -->
-      <div class="flex flex-col lg:flex-row gap-6 h-full">
-        <!-- Art Image -->
-        <div class="w-full lg:w-2/3 flex justify-center items-center">
+      <div class="flex h-full flex-col gap-6 lg:flex-row">
+        <div class="flex w-full items-center justify-center lg:w-2/3">
           <img
             v-if="computedArtImage"
             :src="computedArtImage"
-            class="max-w-full max-h-[60vh] rounded border border-base-content"
+            class="max-h-[60vh] max-w-full rounded border border-base-content"
+            alt="Selected art image"
           />
         </div>
 
-        <!-- Info + Controls -->
-        <div class="w-full lg:w-1/3 flex flex-col gap-4">
-          <art-info :art="art" />
-          <art-control :art="art" />
+        <div class="flex w-full flex-col gap-4 lg:w-1/3">
+          <art-info :art-image="artImage" />
+          <art-control :art-image="artImage" @close="closeDisplay" />
         </div>
       </div>
     </div>
@@ -37,37 +39,30 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/art-display.vue
-import { computed, watchEffect } from 'vue'
+// /abandonware/art-display.vue
+import { computed } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import artInfo from './art-info.vue'
 import artControl from './art-control.vue'
 
 const artStore = useArtStore()
-const art = computed(() => artStore.selectedArt)
+
 const artImage = computed(() => artStore.currentArtImage)
 
 const computedArtImage = computed(() => {
-  if (artImage.value?.imageData) {
-    return `data:image/${artImage.value.fileType};base64,${artImage.value.imageData}`
+  const image = artImage.value
+
+  if (!image) return ''
+
+  if (image.imageData) {
+    return `data:image/${image.fileType || 'png'};base64,${image.imageData}`
   }
-  if (art.value?.path) return art.value.path
-  return ''
+
+  return image.imagePath || image.path || ''
 })
 
-const closeDisplay = () => {
+function closeDisplay() {
   console.log('🛑 Closing art-display')
-  artStore.currentArt = null
-  artStore.currentArtImage = null
+  artStore.deselectArtImage()
 }
-
-// 🔁 Re-fetch artImage if needed
-watchEffect(async () => {
-  if (art.value?.artImageId && (!artImage.value || !artImage.value.imageData)) {
-    const fetched = await artStore.getOrFetchArtImageById(art.value.artImageId)
-    if (fetched?.imageData) {
-      artStore.currentArtImage = fetched
-    }
-  }
-})
 </script>

@@ -1,7 +1,7 @@
 // /stores/rewardStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Reward } from '~/prisma/generated/prisma/client'
+import type { Reward, Rarity } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { useNavStore } from '@/stores/navStore'
 
@@ -13,6 +13,45 @@ type RewardInitializeOptions = {
 }
 
 export interface RewardForm extends Partial<Reward> {}
+
+const rarityOrder: Record<Rarity, number> = {
+  COMMON: 1,
+  UNCOMMON: 2,
+  RARE: 3,
+  EPIC: 4,
+  LEGENDARY: 5,
+  MYTHIC: 6,
+}
+
+const fallbackRarity: Rarity = 'COMMON'
+
+function normalizeRarity(value: unknown): Rarity {
+  if (
+    value === 'COMMON' ||
+    value === 'UNCOMMON' ||
+    value === 'RARE' ||
+    value === 'EPIC' ||
+    value === 'LEGENDARY' ||
+    value === 'MYTHIC'
+  ) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    const rarityByNumber: Record<number, Rarity> = {
+      1: 'COMMON',
+      2: 'UNCOMMON',
+      3: 'RARE',
+      4: 'EPIC',
+      5: 'LEGENDARY',
+      6: 'MYTHIC',
+    }
+
+    return rarityByNumber[value] ?? fallbackRarity
+  }
+
+  return fallbackRarity
+}
 
 const rewardsStorageKey = 'rewards'
 const rewardFormStorageKey = 'rewardForm'
@@ -77,7 +116,9 @@ function isValidReward(reward: Reward): boolean {
 }
 
 function sortRewards(a: Reward, b: Reward): number {
-  const rarityDelta = (a.rarity ?? 999) - (b.rarity ?? 999)
+  const rarityDelta =
+    rarityOrder[normalizeRarity(a.rarity)] -
+    rarityOrder[normalizeRarity(b.rarity)]
 
   if (rarityDelta !== 0) {
     return rarityDelta
@@ -103,7 +144,7 @@ function toRewardPayload(form: RewardForm): Partial<Reward> {
     collection: form.collection?.trim() || 'general',
     icon: form.icon?.trim() || 'kind-icon:gift',
     label: form.label?.trim() || null,
-    rarity: Number.isFinite(Number(form.rarity)) ? Number(form.rarity) : 5,
+    rarity: normalizeRarity(form.rarity),
     userId: form.userId ?? null,
     artImageId: form.artImageId ?? null,
     imagePath: form.imagePath ?? null,
@@ -118,7 +159,7 @@ function createDefaultRewardForm(): RewardForm {
     collection: 'general',
     icon: 'kind-icon:gift',
     label: '',
-    rarity: 5,
+    rarity: fallbackRarity,
     userId: null,
     artImageId: null,
     imagePath: null,
@@ -728,4 +769,4 @@ export const useRewardStore = defineStore('rewardStore', () => {
   }
 })
 
-export type { Reward }
+export type { Reward, Rarity }

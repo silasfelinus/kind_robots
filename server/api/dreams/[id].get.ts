@@ -1,32 +1,14 @@
 // /server/api/dreams/[id].get.ts
-import { defineEventHandler, createError, getQuery } from 'h3'
+import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
 import type { H3Event } from 'h3'
-import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   assertDreamAccess,
   getProvidedDreamCode,
   redactDreamAccess,
 } from './index'
-
-const artImageSelect = {
-  id: true,
-  fileName: true,
-  fileType: true,
-  createdAt: true,
-  updatedAt: true,
-  userId: true,
-  artId: true,
-  galleryId: true,
-} satisfies Prisma.ArtImageSelect
-
-const userSelect = {
-  id: true,
-  username: true,
-  avatarImage: true,
-} satisfies Prisma.UserSelect
 
 function getDreamId(event: H3Event): number {
   const id = Number(event.context.params?.id)
@@ -41,217 +23,174 @@ function getDreamId(event: H3Event): number {
   return id
 }
 
-function parsePositiveInt(
-  value: unknown,
-  fallback: number,
-  max: number,
-): number {
-  const parsed = Number(value)
-
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return fallback
-  }
-
-  return Math.min(parsed, max)
-}
-
-function parseBoolean(value: unknown): boolean {
-  return value === true || value === 'true'
-}
-
-function getDreamInclude(options: {
-  artLimit: number
-  chatLimit: number
-  includeChats: boolean
-  includeReactions: boolean
-}) {
-  const { artLimit, chatLimit, includeChats, includeReactions } = options
-
-  return {
-    User: {
-      select: userSelect,
-    },
-    Pitch: true,
-    Art: true,
-    ArtImage: {
-      select: artImageSelect,
-    },
-    ArtCollection: {
-      include: {
-        art: {
-          orderBy: { createdAt: 'desc' },
-          take: artLimit,
-          select: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-            path: true,
-            checkpoint: true,
-            checkpointResourceId: true,
-            sampler: true,
-            seed: true,
-            steps: true,
-            designer: true,
-            isPublic: true,
-            isMature: true,
-            promptId: true,
-            userId: true,
-            pitchId: true,
-            galleryId: true,
-            promptString: true,
-            cfg: true,
-            cfgHalf: true,
-            serverId: true,
-            serverName: true,
-            artImageId: true,
-            imagePath: true,
-            genres: true,
-            negativePrompt: true,
-          },
-        },
-      },
-    },
-    Gallery: true,
-    Scenario: {
-      include: {
-        ArtImage: {
-          select: artImageSelect,
-        },
-        Characters: {
-          select: {
-            id: true,
-            name: true,
-            honorific: true,
-            species: true,
-            class: true,
-            personality: true,
-            imagePath: true,
-            artImageId: true,
-            isPublic: true,
-            isMature: true,
-            userId: true,
-          },
-        },
-      },
-    },
-    Characters: {
-      select: {
-        id: true,
-        name: true,
-        honorific: true,
-        species: true,
-        class: true,
-        alignment: true,
-        level: true,
-        backstory: true,
-        drive: true,
-        inventory: true,
-        quirks: true,
-        skills: true,
-        genre: true,
-        imagePath: true,
-        artImageId: true,
-        artPrompt: true,
-        designer: true,
-        personality: true,
-        isPublic: true,
-        isMature: true,
-        userId: true,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-    },
-    Rewards: {
-      select: {
-        id: true,
-        icon: true,
-        text: true,
-        power: true,
-        collection: true,
-        rarity: true,
-        label: true,
-        userId: true,
-        artImageId: true,
-        imagePath: true,
-        artPrompt: true,
-        isPublic: true,
-        isMature: true,
-      },
-      orderBy: [
-        {
-          rarity: 'desc',
-        },
-        {
-          updatedAt: 'desc',
-        },
-      ],
-    },
-    Tags: true,
-    Reactions: includeReactions
-      ? {
-          orderBy: { createdAt: 'desc' },
-          take: 20,
-          include: {
-            User: {
-              select: userSelect,
-            },
-          },
-        }
-      : false,
-    Chats: includeChats
-      ? {
-          orderBy: { createdAt: 'asc' },
-          take: chatLimit,
-          include: {
-            User: {
-              select: userSelect,
-            },
-            Prompt: true,
-            ArtImage: {
-              select: artImageSelect,
-            },
-            Reactions: true,
-          },
-        }
-      : false,
-    _count: {
-      select: {
-        Chats: true,
-        Reactions: true,
-        Characters: true,
-        Rewards: true,
-      },
-    },
-  } satisfies Prisma.DreamInclude
-}
-
 export default defineEventHandler(async (event) => {
   let id = 0
 
   try {
     id = getDreamId(event)
 
-    const query = getQuery(event)
     const { isValid, user } = await validateApiKey(event)
     const userId = isValid && user ? user.id : null
     const userRole = isValid && user ? user.Role : null
     const providedCode = getProvidedDreamCode(event)
 
-    const artLimit = parsePositiveInt(query.artLimit, 48, 96)
-    const chatLimit = parsePositiveInt(query.chatLimit, 100, 200)
-    const includeChats = !parseBoolean(query.skipChats)
-    const includeReactions = !parseBoolean(query.skipReactions)
-    const includeMature = parseBoolean(query.includeMature)
-
     const data = await prisma.dream.findUnique({
       where: { id },
-      include: getDreamInclude({
-        artLimit,
-        chatLimit,
-        includeChats,
-        includeReactions,
-      }),
+      include: {
+        User: {
+          select: {
+            id: true,
+            username: true,
+            avatarImage: true,
+          },
+        },
+        ArtImage: {
+          select: {
+            id: true,
+            fileName: true,
+            fileType: true,
+            imagePath: true,
+            path: true,
+            artPrompt: true,
+            promptString: true,
+            userId: true,
+            isPublic: true,
+            isMature: true,
+          },
+        },
+        ArtCollections: {
+          select: {
+            id: true,
+            label: true,
+            description: true,
+            isPublic: true,
+            isMature: true,
+            isActive: true,
+            artPrompt: true,
+            ArtImages: {
+              orderBy: {
+                createdAt: 'desc',
+              },
+              take: 12,
+              select: {
+                id: true,
+                fileName: true,
+                fileType: true,
+                imagePath: true,
+                path: true,
+                artPrompt: true,
+                promptString: true,
+                userId: true,
+                isPublic: true,
+                isMature: true,
+              },
+            },
+          },
+        },
+        Characters: {
+          select: {
+            id: true,
+            name: true,
+            honorific: true,
+            title: true,
+            role: true,
+            species: true,
+            class: true,
+            gender: true,
+            presentation: true,
+            alignment: true,
+            genre: true,
+            personality: true,
+            drive: true,
+            backstory: true,
+            quirks: true,
+            imagePath: true,
+            artImageId: true,
+            artPrompt: true,
+            isPublic: true,
+            isMature: true,
+            userId: true,
+          },
+          orderBy: {
+            updatedAt: 'desc',
+          },
+        },
+        Rewards: {
+          select: {
+            id: true,
+            icon: true,
+            text: true,
+            power: true,
+            collection: true,
+            rarity: true,
+            label: true,
+            userId: true,
+            artImageId: true,
+            imagePath: true,
+            artPrompt: true,
+            isPublic: true,
+            isMature: true,
+          },
+          orderBy: {
+            updatedAt: 'desc',
+          },
+        },
+        Scenarios: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            intros: true,
+            userId: true,
+            artImageId: true,
+            imagePath: true,
+            locations: true,
+            artPrompt: true,
+            genres: true,
+            inspirations: true,
+            isPublic: true,
+            isMature: true,
+            isActive: true,
+          },
+          orderBy: {
+            updatedAt: 'desc',
+          },
+        },
+        Pitches: {
+          select: {
+            id: true,
+            title: true,
+            pitch: true,
+            designer: true,
+            flavorText: true,
+            highlightImage: true,
+            PitchType: true,
+            artPrompt: true,
+            isPublic: true,
+            isMature: true,
+            isActive: true,
+            userId: true,
+            artImageId: true,
+            description: true,
+            examples: true,
+            icon: true,
+          },
+          orderBy: {
+            updatedAt: 'desc',
+          },
+        },
+        _count: {
+          select: {
+            Chats: true,
+            Reactions: true,
+            Characters: true,
+            Rewards: true,
+            Scenarios: true,
+            ArtCollections: true,
+            Pitches: true,
+          },
+        },
+      },
     })
 
     if (!data) {
@@ -272,15 +211,8 @@ export default defineEventHandler(async (event) => {
       action: 'view',
     })
 
-    if (data.isMature && !includeMature && !isOwner && !isAdmin) {
-      throw createError({
-        statusCode: 403,
-        message:
-          'This dream is marked mature and cannot be viewed with the current filters.',
-      })
-    }
-
     event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'Dream fetched successfully.',

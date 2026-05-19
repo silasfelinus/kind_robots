@@ -13,11 +13,6 @@ export const loadBotStore = async () => {
   return useBotStore()
 }
 
-export const loadGalleryStore = async () => {
-  const { useGalleryStore } = await import('@/stores/galleryStore')
-  return useGalleryStore()
-}
-
 export const loadComponentStore = async () => {
   const { useComponentStore } = await import('@/stores/componentStore')
   return useComponentStore()
@@ -31,11 +26,6 @@ export const loadChatStore = async () => {
 export const loadUserStore = async () => {
   const { useUserStore } = await import('@/stores/userStore')
   return useUserStore()
-}
-
-export const loadTagStore = async () => {
-  const { useTagStore } = await import('@/stores/tagStore')
-  return useTagStore()
 }
 
 export const loadDisplayStore = async () => {

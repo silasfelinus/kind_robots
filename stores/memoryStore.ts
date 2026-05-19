@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import confetti from 'canvas-confetti'
-import type { Art } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useDisplayStore } from './displayStore'
 import { useMilestoneStore } from './milestoneStore'
 import { useUserStore } from './userStore'
@@ -263,7 +263,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const rewardTextPrompt = ref('')
   const rewardArtPrompt = ref('')
   const rewardText = ref('')
-  const rewardArt = ref<Art | null>(null)
+  const rewardArt = ref<ArtImage | null>(null)
   const rewardLoading = ref(false)
   const rewardTextLoading = ref(false)
   const rewardArtLoading = ref(false)
@@ -840,7 +840,9 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     }
   }
 
-  async function generateRewardArt(artPrompt: string): Promise<Art | null> {
+  async function generateRewardArt(
+    artPrompt: string,
+  ): Promise<ArtImage | null> {
     rewardArtLoading.value = true
 
     try {
@@ -856,7 +858,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
           'blurry, low quality, scary horror, gore, grimdark, unreadable text, watermark',
         pitch: rewardTitle.value || 'Memory Dungeon Reward',
         userId: userStore.userId || 10,
-        galleryId: null,
         checkpoint: artStore.artForm.checkpoint || '',
         sampler: artStore.artForm.sampler || '',
         steps: artStore.artForm.steps ?? 25,

@@ -4,7 +4,6 @@ import { computed, ref } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { useArtStore } from '@/stores/artStore'
-import { useGalleryStore } from '@/stores/galleryStore'
 import { useUserStore } from '@/stores/userStore'
 import {
   randomizerMap,
@@ -88,7 +87,9 @@ function sortCharacters(a: Character, b: Character): number {
   return aName.localeCompare(bName)
 }
 
-function normalizeCharacterId(input: number | string | Character | null | undefined) {
+function normalizeCharacterId(
+  input: number | string | Character | null | undefined,
+) {
   if (typeof input === 'number') return Number.isInteger(input) ? input : 0
 
   if (typeof input === 'string') {
@@ -260,7 +261,10 @@ export const useCharacterStore = defineStore('characterStore', () => {
           syncToLocalStorage()
         }
 
-        if (selectedCharacter.value?.artImageId || characterForm.value.artImageId) {
+        if (
+          selectedCharacter.value?.artImageId ||
+          characterForm.value.artImageId
+        ) {
           await updateArtImagePath()
         }
 
@@ -474,9 +478,16 @@ export const useCharacterStore = defineStore('characterStore', () => {
     try {
       const image = await artStore.getArtImageById(artImageId)
 
-      artImagePath.value = image
-        ? `data:image/${image.fileType};base64,${image.imageData}`
-        : characterPlaceholder
+      if (image?.imageData) {
+        artImagePath.value = `data:image/${image.fileType || 'png'};base64,${
+          image.imageData
+        }`
+      } else if (image?.imagePath || image?.path) {
+        artImagePath.value =
+          image.imagePath || image.path || characterPlaceholder
+      } else {
+        artImagePath.value = characterPlaceholder
+      }
     } catch (error) {
       handleError(error, 'updating character art image path')
       artImagePath.value = characterPlaceholder
@@ -634,27 +645,39 @@ export const useCharacterStore = defineStore('characterStore', () => {
     try {
       clearError()
 
-      const galleryStore = useGalleryStore()
+      const artStore = useArtStore()
 
-      if (!galleryStore.initialized) {
-        await galleryStore.initialize()
-      }
+      await artStore.initialize({
+        fetchRemote: true,
+        hydrateImages: true,
+      })
 
-      const randomGalleryImage = await galleryStore.changeToRandomImage()
+      const images = artStore.safeArtImages.length
+        ? artStore.safeArtImages
+        : artStore.artImages
+
+      const randomImage = images.length
+        ? images[Math.floor(Math.random() * images.length)]
+        : null
+
       const randomStats = rerollStats()
 
       characterForm.value = {
         ...createDefaultCharacterForm(),
         ...randomStats,
-        imagePath: randomGalleryImage || '/images/bot.webp',
+        artImageId: randomImage?.id ?? null,
+        imagePath:
+          randomImage?.imagePath || randomImage?.path || '/images/bot.webp',
         isPublic: true,
       }
 
       generatedCharacter.value = { ...characterForm.value }
+
       artImagePath.value =
         typeof characterForm.value.imagePath === 'string'
           ? characterForm.value.imagePath
           : characterPlaceholder
+
       syncToLocalStorage()
     } catch (error) {
       handleError(error, 'generating random character')
@@ -760,8 +783,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
       })
 
       if (response.success && response.data) {
-        characterForm.value.artImageId = response.data.artImageId
-        characterForm.value.imagePath = null
+        characterForm.value.artImageId = response.data.id
+        characterForm.value.imagePath =
+          response.data.imagePath || response.data.path || null
         await updateArtImagePath()
         syncToLocalStorage()
       }

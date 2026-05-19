@@ -1,4 +1,5 @@
 <!-- /components/content/weird/scenario-uploader.vue -->
+@ts-nocheck
 <template>
   <div class="scenario-uploader">
     <!-- File Input -->

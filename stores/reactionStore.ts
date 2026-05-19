@@ -30,7 +30,6 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'CHAT_EXCHANGE',
   'COMPONENT',
   'DREAM',
-  'GALLERY',
   'MESSAGE',
   'PITCH',
   'POST',
@@ -38,12 +37,10 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'RESOURCE',
   'REWARD',
   'SCENARIO',
-  'TAG',
   'THEME',
 ]
 
 export type ReactionTargetType =
-  | 'art'
   | 'artImage'
   | 'artCollection'
   | 'bot'
@@ -52,19 +49,16 @@ export type ReactionTargetType =
   | 'chat'
   | 'component'
   | 'dream'
-  | 'gallery'
   | 'pitch'
   | 'prompt'
   | 'resource'
   | 'reward'
   | 'scenario'
-  | 'tag'
   | 'theme'
 
 type ReactionFetchKey = `${ReactionTargetType}:${number}`
 
 type ReactionTargetIdKey =
-  | 'artId'
   | 'artImageId'
   | 'artCollectionId'
   | 'botId'
@@ -73,13 +67,11 @@ type ReactionTargetIdKey =
   | 'chatId'
   | 'componentId'
   | 'dreamId'
-  | 'galleryId'
   | 'pitchId'
   | 'promptId'
   | 'resourceId'
   | 'rewardId'
   | 'scenarioId'
-  | 'tagId'
   | 'themeId'
 
 type AddReactionPayload = {
@@ -88,7 +80,6 @@ type AddReactionPayload = {
   rating: number
   comment?: string
   reactionCategory?: ReactionCategoryEnum
-  artId?: number | null
   artImageId?: number | null
   artCollectionId?: number | null
   botId?: number | null
@@ -97,13 +88,11 @@ type AddReactionPayload = {
   chatId?: number | null
   componentId?: number | null
   dreamId?: number | null
-  galleryId?: number | null
   pitchId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
   scenarioId?: number | null
-  tagId?: number | null
   themeId?: number | null
 }
 
@@ -114,7 +103,6 @@ type UpdateReactionPayload = {
 }
 
 const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> = {
-  art: 'artId',
   artImage: 'artImageId',
   artCollection: 'artCollectionId',
   bot: 'botId',
@@ -123,13 +111,11 @@ const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> = {
   chat: 'chatId',
   component: 'componentId',
   dream: 'dreamId',
-  gallery: 'galleryId',
   pitch: 'pitchId',
   prompt: 'promptId',
   resource: 'resourceId',
   reward: 'rewardId',
   scenario: 'scenarioId',
-  tag: 'tagId',
   theme: 'themeId',
 }
 
@@ -222,8 +208,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
     return getReactionsByTarget.value('component', componentId)
   })
 
-  const getReactionsByArtId = computed(() => (artId: number) => {
-    return getReactionsByTarget.value('art', artId)
+  const getReactionsByArtImageId = computed(() => (artImageId: number) => {
+    return getReactionsByTarget.value('artImage', artImageId)
   })
 
   const getUserReactionForComponent = computed(() => {
@@ -231,10 +217,9 @@ export const useReactionStore = defineStore('reactionStore', () => {
       return getUserReactionForTarget.value('component', componentId, userId)
     }
   })
-
-  const getUserReactionForArt = computed(() => {
-    return (artId: number, userId: number) => {
-      return getUserReactionForTarget.value('art', artId, userId)
+  const getUserReactionForArtImage = computed(() => {
+    return (artImageId: number, userId: number) => {
+      return getUserReactionForTarget.value('artImage', artImageId, userId)
     }
   })
 
@@ -362,11 +347,11 @@ export const useReactionStore = defineStore('reactionStore', () => {
     return fetchPromises.value[key]
   }
 
-  async function fetchReactionsByArtId(
-    artId: number,
+  async function fetchReactionsByArtImageId(
+    artImageId: number,
     force = false,
   ): Promise<Reaction[]> {
-    return fetchReactionsByTarget('art', artId, force)
+    return fetchReactionsByTarget('artImage', artImageId, force)
   }
 
   async function fetchReactionsByComponentId(
@@ -502,19 +487,20 @@ export const useReactionStore = defineStore('reactionStore', () => {
     getReactionsByTarget,
     getUserReactionForTarget,
     getReactionsByComponentId,
-    getReactionsByArtId,
     getUserReactionForComponent,
-    getUserReactionForArt,
+
+    getReactionsByArtImageId,
+    getUserReactionForArtImage,
 
     initialize,
     resetInitialization,
     resetReactionsForKey,
     fetchReactionsByTarget,
-    fetchReactionsByArtId,
     fetchReactionsByComponentId,
     addReaction,
     updateReaction,
     deleteReaction,
+    fetchReactionsByArtImageId,
   }
 })
 

@@ -1,4 +1,5 @@
 <!-- /components/content/art/art-gallery.vue -->
+@ts-nocheck
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
@@ -422,7 +423,6 @@
           <span class="hidden sm:inline">Close</span>
         </button>
       </div>
-
     </section>
 
     <!-- ── Main scrollable content ── -->
@@ -1473,7 +1473,6 @@ async function refresh() {
       artStore.fetchAllArt(true),
       artStore.fetchAllArtImages({ force: true }), // initialize already does this — pick one
       collectionStore.fetchCollections(true),
-    
     ])
     if (activeCollection.value?.id && activeCollection.value.id !== -1) {
       const fresh = collectionStore.collections.find(

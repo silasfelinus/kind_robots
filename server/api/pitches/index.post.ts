@@ -45,7 +45,13 @@ export default defineEventHandler(async (event) => {
       artPrompt: pitchData.artPrompt || null,
       description: pitchData.description || null,
       examples: pitchData.examples || null,
-      artImageId: pitchData.artImageId || null,
+      ArtImage: pitchData.artImageId
+        ? {
+            connect: {
+              id: pitchData.artImageId,
+            },
+          }
+        : undefined,
       creationSource: pitchData.creationSource || 'UNKNOWN',
     }
 

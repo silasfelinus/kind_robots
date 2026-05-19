@@ -24,7 +24,7 @@ type ApiResponse<T> = {
   message?: string
 }
 
-type ArtWithRelations = Art & {
+type ArtWithRelations = ArtImage & {
   ArtImage?: ArtImage | null
   artImage?: ArtImage | null
   ArtCollections?: unknown
@@ -78,7 +78,7 @@ function isArtImagePayload(value: unknown): value is ArtImage {
   )
 }
 
-function sanitizeCollectionArt(entry: ArtWithRelations): Art {
+function sanitizeCollectionArt(entry: ArtWithRelations): ArtImage {
   const {
     ArtImage,
     artImage,
@@ -91,7 +91,7 @@ function sanitizeCollectionArt(entry: ArtWithRelations): Art {
     ...rest
   } = entry
 
-  return rest as Art
+  return rest as ArtImage
 }
 
 function normalizeCollection(

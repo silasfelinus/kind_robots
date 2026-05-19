@@ -5,7 +5,6 @@ import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import type {
-  Art,
   ArtCollection,
   ArtImage,
   Character,
@@ -41,9 +40,8 @@ export interface DreamChatForm extends Partial<Chat> {
 export interface DreamWithRelations extends Dream {
   User?: Pick<User, 'id' | 'username' | 'avatarImage'> | null
   Pitch?: Pitch | null
-  Art?: Art | null
   ArtImage?: Partial<ArtImage> | null
-  ArtCollection?: (ArtCollection & { art?: Art[] }) | null
+  ArtCollection?: (ArtCollection & { artImage?: ArtImage[] }) | null
   Gallery?: Gallery | null
   Scenario?: Scenario | null
   Characters?: Character[]
@@ -201,12 +199,11 @@ export const useDreamStore = defineStore('dreamStore', () => {
   const selectedDreamItems = computed(() => selectedDream.value?.Rewards ?? [])
   const selectedDreamTags = computed(() => selectedDream.value?.Tags ?? [])
   const selectedDreamCollectionArt = computed(
-    () => selectedDream.value?.ArtCollection?.art ?? [],
+    () => selectedDream.value?.ArtCollection?.artImage ?? [],
   )
 
   const selectedDreamCurrentImage = computed(() => {
     return (
-      selectedDream.value?.Art?.imagePath ??
       selectedDream.value?.ArtImage?.imagePath ??
       selectedDream.value?.ArtImage?.path ??
       selectedDream.value?.ArtImage?.fileName ??
@@ -316,7 +313,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       currentPrompt: dream.currentPrompt ?? dream.currentVibe,
       userId: dream.userId,
       pitchId: dream.pitchId ?? null,
-      artId: dream.artId ?? null,
       artImageId: dream.artImageId ?? null,
       textServerId: dream.textServerId ?? null,
       artServerId: dream.artServerId ?? null,
@@ -344,7 +340,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
       currentPrompt: overrides.currentPrompt ?? currentVibe,
       userId: currentUserId.value,
       pitchId: overrides.pitchId ?? null,
-      artId: overrides.artId ?? null,
       artImageId: overrides.artImageId ?? null,
       textServerId:
         overrides.textServerId ?? userStore.user?.preferredTextServerId ?? null,
@@ -545,7 +540,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
         currentPrompt: payload.currentPrompt ?? currentVibe,
         userId: currentUserId.value,
         pitchId: payload.pitchId ?? null,
-        artId: payload.artId ?? null,
         artImageId: payload.artImageId ?? null,
         textServerId: payload.textServerId ?? null,
         artServerId: payload.artServerId ?? null,
@@ -1063,7 +1057,6 @@ export const useDreamStore = defineStore('dreamStore', () => {
     }
 
     return await updateDream(selectedDream.value.id, {
-      artId: art.id,
       artImageId: art.artImageId ?? null,
       addArtToCollection: true,
       updateNote: 'Updated the active Dream image.',

@@ -1,3 +1,4 @@
+@ts-nocheck
 <!-- /components/content/prompts/pitch-gallery-old.vue -->
 <template>
   <div class="relative bg-base-300 rounded-2xl m-1 p-0">

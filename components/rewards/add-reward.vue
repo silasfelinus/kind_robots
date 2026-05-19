@@ -94,13 +94,18 @@
             <span class="label-text font-bold">Rarity</span>
           </span>
 
-          <input
-            v-model.number="rewardStore.rewardForm.rarity"
-            type="number"
-            min="0"
-            step="1"
-            class="input input-bordered w-full bg-base-100"
-          />
+          <select
+            v-model="rewardStore.rewardForm.rarity"
+            class="select select-bordered w-full bg-base-100"
+          >
+            <option
+              v-for="rarity in rarityOptions"
+              :key="rarity"
+              :value="rarity"
+            >
+              {{ rarity }}
+            </option>
+          </select>
         </label>
       </section>
 
@@ -241,7 +246,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
-import { useRewardStore } from '@/stores/rewardStore'
+import { useRewardStore, type Rarity } from '@/stores/rewardStore'
 import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -253,6 +258,15 @@ const props = withDefaults(
     mode: 'add',
   },
 )
+
+const rarityOptions: Rarity[] = [
+  'COMMON',
+  'UNCOMMON',
+  'RARE',
+  'EPIC',
+  'LEGENDARY',
+  'MYTHIC',
+]
 
 const emit = defineEmits<{
   saved: []
@@ -328,7 +342,6 @@ function configureRewardImageUpload() {
     model: 'Reward',
     modelId:
       rewardStore.selectedReward?.id ?? rewardStore.rewardForm.id ?? null,
-    galleryName: 'rewardUploads',
     collectionLabel: 'rewards',
     promptString:
       rewardStore.rewardForm.artPrompt ||
@@ -377,7 +390,7 @@ function resetForAdd() {
       collection: 'general',
       icon: 'kind-icon:gift',
       label: '',
-      rarity: 5,
+      rarity: 'COMMON',
       userId: userStore.userId || 10,
       artImageId: null,
       imagePath: null,
@@ -419,8 +432,8 @@ async function generateArtImage() {
     if (response.success && response.data) {
       rewardStore.rewardForm = {
         ...rewardStore.rewardForm,
-        imagePath: null,
-        artImageId: response.data.artImageId,
+        imagePath: response.data.imagePath || response.data.path || null,
+        artImageId: response.data.id,
       }
 
       statusTone.value = 'success'

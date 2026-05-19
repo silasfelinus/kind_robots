@@ -269,7 +269,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useChoiceStore } from '@/stores/choiceStore'
-import { useGalleryStore } from '@/stores/galleryStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useUploadStore } from '@/stores/uploadStore'
 import { useUserStore } from '@/stores/userStore'
@@ -289,7 +288,6 @@ const emit = defineEmits<{
 
 const artStore = useArtStore()
 const choiceStore = useChoiceStore()
-const galleryStore = useGalleryStore()
 const scenarioStore = useScenarioStore()
 const uploadStore = useUploadStore()
 const userStore = useUserStore()
@@ -363,7 +361,6 @@ function configureScenarioImageUpload() {
       scenarioStore.selectedScenario?.id ??
       scenarioStore.scenarioForm.id ??
       null,
-    galleryName: 'scenarioUploads',
     collectionLabel: 'scenarios',
     promptString:
       scenarioStore.scenarioForm.artPrompt ||
@@ -480,17 +477,42 @@ function removeIntro(index: number) {
   setIntros(intros.value.filter((_, entryIndex) => entryIndex !== index))
 }
 
+function getRandomArtImage() {
+  const images = artStore.safeArtImages.length
+    ? artStore.safeArtImages
+    : artStore.artImages
+
+  if (!images.length) return null
+
+  const image = images[Math.floor(Math.random() * images.length)]
+
+  if (!image) return null
+
+  return {
+    id: image.id,
+    imagePath: image.imagePath || image.path || null,
+  }
+}
+
 async function changeToRandomImage() {
   try {
-    const randomImage = await galleryStore.changeToRandomImage()
+    if (!artStore.artImages.length && !artStore.safeArtImages.length) {
+      await artStore.initialize({
+        fetchRemote: true,
+        hydrateImages: false,
+        initializeServerStore: false,
+      })
+    }
 
-    if (randomImage) {
-      uploadedPreviewImage.value = randomImage
+    const randomImage = getRandomArtImage()
+
+    if (randomImage?.imagePath) {
+      uploadedPreviewImage.value = randomImage.imagePath
 
       scenarioStore.scenarioForm = {
         ...scenarioStore.scenarioForm,
-        imagePath: randomImage,
-        artImageId: null,
+        imagePath: randomImage.imagePath,
+        artImageId: randomImage.id,
       }
 
       statusTone.value = 'success'
@@ -507,7 +529,6 @@ async function changeToRandomImage() {
     statusMessage.value = 'Error picking random scenario image.'
   }
 }
-
 async function generateArtImage() {
   const artPrompt = scenarioStore.scenarioForm.artPrompt?.trim()
 
@@ -528,12 +549,13 @@ async function generateArtImage() {
     })
 
     if (response.success && response.data) {
-      uploadedPreviewImage.value = null
+      uploadedPreviewImage.value =
+        response.data.imagePath || response.data.path || null
 
       scenarioStore.scenarioForm = {
         ...scenarioStore.scenarioForm,
-        imagePath: null,
-        artImageId: response.data.artImageId,
+        imagePath: uploadedPreviewImage.value,
+        artImageId: response.data.id,
       }
 
       statusTone.value = 'success'

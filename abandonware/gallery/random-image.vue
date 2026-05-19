@@ -1,4 +1,5 @@
 <!-- /components/content/gallery/random-image.vue -->
+@ts-nocheck
 <template>
   <div class="random-image-container">
     <!-- Display the random image if available -->

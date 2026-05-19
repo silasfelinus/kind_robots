@@ -19,8 +19,6 @@ const artImageSelect = {
   createdAt: true,
   updatedAt: true,
   userId: true,
-  artId: true,
-  galleryId: true,
 } satisfies Prisma.ArtImageSelect
 
 const allowedDreamChatTypes: ChatType[] = [

@@ -24,7 +24,6 @@ import { usePitchStore } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useReactionStore } from '@/stores/reactionStore'
 import { useRewardStore } from '@/stores/rewardStore'
-import { useGalleryStore } from '@/stores/galleryStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useWeirdStore } from '@/stores/weirdStore'
 import { useConsoleStore } from '@/stores/consoleStore'
@@ -52,7 +51,6 @@ const reactionStore = useReactionStore()
 const rewardStore = useRewardStore()
 const chatStore = useChatStore()
 const characterStore = useCharacterStore()
-const galleryStore = useGalleryStore()
 const scenarioStore = useScenarioStore()
 const weirdStore = useWeirdStore()
 const consoleStore = useConsoleStore()
@@ -137,7 +135,6 @@ async function initializeStores() {
     await Promise.all([
       artStore.initialize?.(),
       botStore.initialize?.(),
-      galleryStore.initialize?.(),
       chatStore.initialize?.(),
     ])
 

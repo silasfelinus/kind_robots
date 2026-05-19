@@ -1,4 +1,5 @@
 <!-- /components/layout/smart-container.vue -->
+@ts-nocheck
 <template>
   <div :class="containerClass">
     <!-- Optional name -->
@@ -14,7 +15,7 @@
     />
 
     <!-- Optional path -->
-    <div v-if="path" class="text-sm text-base-content/60 break-words">
+    <div v-if="path" class="text-sm text-base-content/60 wrap-break-word">
       {{ path }}
     </div>
 

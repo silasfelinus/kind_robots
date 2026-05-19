@@ -272,12 +272,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import type {
-  Art,
-  ArtImage,
-  Pitch,
-  Prompt,
-} from '~/prisma/generated/prisma/client'
+import type { ArtImage, Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
@@ -285,7 +280,7 @@ import { useUserStore } from '@/stores/userStore'
 
 type PitchWithRelations = Pitch & {
   Prompts?: Prompt[]
-  Art?: Art[]
+  ArtImage?: ArtImage[]
 }
 
 const props = withDefaults(
@@ -368,7 +363,7 @@ const promptCount = computed(() => {
 
 const artCount = computed(() => {
   return (
-    props.pitch.Art?.length ||
+    props.pitch.ArtImage?.length ||
     pitchStore.galleryArt[props.pitch.id]?.length ||
     0
   )

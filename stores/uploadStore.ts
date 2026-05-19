@@ -1,13 +1,13 @@
 // /stores/uploadStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 
 export type ImageUploadModel =
-  | 'Art'
+  | 'ArtImage'
   | 'Bot'
   | 'Butterfly'
   | 'Character'
@@ -34,18 +34,14 @@ export type ConnectableModel =
 
 export interface ImageUploadApplyData {
   artImageId: number
-  artId: number
   imageData?: string | null
   imagePath?: string | null
   artImage: ArtImage
-  art: Art
 }
 
 export interface CollectionApplyData {
-  artIds: number[]
   artImageIds: number[]
   collectionLabel: string
-  arts: Art[]
   artImages: ArtImage[]
   connectedModelType?: ConnectableModel | null
   connectedModelId?: number | null
@@ -56,8 +52,10 @@ export interface ImageUploadTarget {
   modelId?: number | null
   galleryId?: number | null
   galleryName?: string
+  collectionId?: number | null
   collectionLabel?: string | null
   promptString?: string
+  artPrompt?: string
   path?: string
   buttonLabel?: string
   icon?: string
@@ -71,7 +69,6 @@ export interface ImageUploadResult {
   message: string
   fileName?: string
   artImage?: ArtImage
-  art?: Art
 }
 
 export interface BatchUploadResult {
@@ -88,32 +85,34 @@ export const useUploadStore = defineStore('UploadStore', () => {
   const error = ref<string | null>(null)
   const message = ref<string | null>(null)
   const lastArtImage = ref<ArtImage | null>(null)
-  const lastArt = ref<Art | null>(null)
 
   const uploadProgress = ref(0)
   const uploadTotal = ref(0)
-  const lastBatchArts = ref<Art[]>([])
   const lastBatchArtImages = ref<ArtImage[]>([])
 
   const hasActiveTarget = computed(() => Boolean(activeTarget.value?.model))
-  const uploadPercent = computed(() =>
-    uploadTotal.value > 0
-      ? Math.round((uploadProgress.value / uploadTotal.value) * 100)
-      : 0,
-  )
+
+  const uploadPercent = computed(() => {
+    if (uploadTotal.value <= 0) return 0
+    return Math.round((uploadProgress.value / uploadTotal.value) * 100)
+  })
 
   function setTarget(target: ImageUploadTarget): void {
     activeTarget.value = {
       galleryId: 21,
       galleryName: 'userUpload',
+      collectionId: null,
       collectionLabel: null,
       promptString: '[UploadedImage]',
+      artPrompt: '[UploadedImage]',
       path: '[UploadedImage]',
       buttonLabel: 'Upload image',
       icon: 'kind-icon:camera',
       showPreview: true,
       ...target,
+      model: target.model === 'ArtImage' ? 'ArtImage' : target.model,
     }
+
     error.value = null
     message.value = null
   }
@@ -123,8 +122,6 @@ export const useUploadStore = defineStore('UploadStore', () => {
     error.value = null
     message.value = null
     lastArtImage.value = null
-    lastArt.value = null
-    lastBatchArts.value = []
     lastBatchArtImages.value = []
     uploadProgress.value = 0
     uploadTotal.value = 0
@@ -136,87 +133,187 @@ export const useUploadStore = defineStore('UploadStore', () => {
       : 'PNG, JPEG, or WebP only'
   }
 
-  // ── Core per-file pipeline ────────────────────────────────────────────────
-  // artStore.uploadImage returns { success, data } where data is the freshly
-  // created ArtImage. We capture that return value directly — the previous bug
-  // used artStore.artImages.at(-1) which returned whatever was already last in
-  // the store array (image 343) instead of the image that was just created.
+  function appendOptionalString(
+    formData: FormData,
+    key: string,
+    value: string | null | undefined,
+  ): void {
+    const cleanValue = typeof value === 'string' ? value.trim() : ''
+    if (cleanValue) formData.append(key, cleanValue)
+  }
+
+  function appendOptionalNumber(
+    formData: FormData,
+    key: string,
+    value: number | null | undefined,
+  ): void {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      formData.append(key, String(value))
+    }
+  }
+
+  function getCurrentUser() {
+    const userStore = useUserStore()
+
+    return {
+      userId: userStore.userId ?? userStore.user?.id ?? 10,
+      username: userStore.username ?? userStore.user?.username ?? 'Kind Guest',
+    }
+  }
+
+  function getSelectedCollectionId(target: ImageUploadTarget): number | null {
+    const collectionStore = useCollectionStore()
+    const targetCollectionId = target.collectionId ?? null
+
+    if (targetCollectionId && targetCollectionId > 0) {
+      return targetCollectionId
+    }
+
+    const selectedCollectionId = collectionStore.currentCollection?.id ?? null
+
+    return selectedCollectionId && selectedCollectionId > 0
+      ? selectedCollectionId
+      : null
+  }
+
+  function getSelectedCollectionLabel(
+    target: ImageUploadTarget,
+    fallback?: string,
+  ): string {
+    const collectionStore = useCollectionStore()
+
+    return (
+      collectionStore.currentCollection?.label?.trim() ||
+      fallback?.trim() ||
+      target.collectionLabel?.trim() ||
+      'My Uploads'
+    )
+  }
+
+  function buildUploadFormData(
+    file: File,
+    target: ImageUploadTarget,
+    userId: number,
+    username: string,
+    collectionLabel?: string,
+    connectedModelType?: ConnectableModel | null,
+    connectedModelId?: number | null,
+  ): FormData {
+    const formData = new FormData()
+    const galleryId = target.galleryId ?? 21
+    const galleryName = target.galleryName ?? 'userUpload'
+    const collectionId = getSelectedCollectionId(target)
+
+    formData.append('image', file)
+    formData.append('galleryName', galleryName)
+    formData.append('galleryId', String(galleryId))
+    formData.append('userId', String(userId))
+    formData.append('fileType', file.type)
+    formData.append('fileName', file.name)
+    formData.append('designer', username)
+
+    appendOptionalString(
+      formData,
+      'promptString',
+      target.promptString || target.artPrompt || '[UploadedImage]',
+    )
+    appendOptionalString(
+      formData,
+      'artPrompt',
+      target.artPrompt || target.promptString || '[UploadedImage]',
+    )
+    appendOptionalString(formData, 'path', target.path || '[UploadedImage]')
+    appendOptionalString(formData, 'collectionLabel', collectionLabel)
+
+    appendOptionalNumber(formData, 'artCollectionId', collectionId)
+    appendOptionalNumber(formData, 'collectionId', collectionId)
+
+    if (connectedModelType && connectedModelId) {
+      formData.append('connectedModelType', connectedModelType)
+      formData.append('connectedModelId', String(connectedModelId))
+    }
+
+    return formData
+  }
+
+  async function attachImageToSelectedCollection(
+    artImage: ArtImage,
+    target: ImageUploadTarget,
+    collectionLabel?: string,
+  ): Promise<void> {
+    const collectionStore = useCollectionStore()
+    const selectedCollection = collectionStore.currentCollection
+    const selectedCollectionId =
+      target.collectionId && target.collectionId > 0
+        ? target.collectionId
+        : selectedCollection?.id
+
+    if (selectedCollectionId && selectedCollectionId > 0) {
+      if (typeof collectionStore.addArtImageToCollection === 'function') {
+        await collectionStore.addArtImageToCollection({
+          artImageId: artImage.id,
+          collectionId: selectedCollectionId,
+        })
+      }
+      return
+    }
+
+    const label = collectionLabel?.trim() || target.collectionLabel?.trim()
+
+    if (!label) return
+
+    if (typeof collectionStore.addArtImageToCollection === 'function') {
+      await collectionStore.addArtImageToCollection({
+        artImageId: artImage.id,
+        label,
+      })
+    }
+  }
+
   async function uploadSingleFile(
     file: File,
     target: ImageUploadTarget,
     userId: number,
     username: string,
     collectionLabel?: string,
-  ): Promise<{ artImage: ArtImage; art: Art }> {
+    connectedModelType?: ConnectableModel | null,
+    connectedModelId?: number | null,
+  ): Promise<ArtImage> {
     const artStore = useArtStore()
-    const collectionStore = useCollectionStore()
 
-    const galleryName = target.galleryName ?? 'userUpload'
-    const galleryId = target.galleryId ?? 21
-
-    // Step 1 — upload and capture the returned ArtImage directly.
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('galleryName', galleryName)
-    formData.append('galleryId', String(galleryId))
-    formData.append('userId', String(userId))
-    formData.append('fileType', file.type)
+    const formData = buildUploadFormData(
+      file,
+      target,
+      userId,
+      username,
+      collectionLabel,
+      connectedModelType,
+      connectedModelId,
+    )
 
     const uploadResult = await artStore.uploadImage(formData)
 
     if (!uploadResult.success || !uploadResult.data) {
-      throw new Error(uploadResult.message || 'Image upload failed')
+      throw new Error(uploadResult.message || 'Image upload failed.')
     }
 
-    const artImage = uploadResult.data // real ID, not .at(-1)
+    const artImage = uploadResult.data
 
-    // Step 2 — create Art record with the explicit artImageId from step 1.
-    const art = await artStore.createArt({
-      promptString: target.promptString ?? '[UploadedImage]',
-      path: target.path ?? '[UploadedImage]',
-      galleryId,
-      userId,
-      designer: username,
-      artImageId: artImage.id,
-      pitchId: null,
-      promptId: null,
-      seed: null,
-      steps: null,
-    })
+    await attachImageToSelectedCollection(artImage, target, collectionLabel)
 
-    // Step 3 — back-link ArtImage → Art.
-    await artStore.updateArtImageWithArtId(artImage.id, art.id)
-
-    // Step 4 — add to collection if requested.
-    const selectedCollection = collectionStore.currentCollection
-
-    if (selectedCollection?.id && selectedCollection.id > 0) {
-      await collectionStore.addArtToCollection({
-        artId: art.id,
-        collectionId: selectedCollection.id,
-      })
-    } else {
-      const label = collectionLabel?.trim() || target.collectionLabel
-
-      if (label) {
-        await collectionStore.addArtToCollection({ artId: art.id, label })
-      }
-    }
-
-    // Step 5 — push into store so the gallery updates without a full refresh.
-    artStore.addOrUpdateArt(art)
-
-    return { artImage, art }
+    return artImage
   }
 
   async function uploadForActiveTarget(file: File): Promise<ImageUploadResult> {
     const target = activeTarget.value
+
     if (!target) {
-      error.value = 'No upload target selected'
+      error.value = 'No upload target selected.'
       return { success: false, message: error.value }
     }
 
     const validationError = validateFile(file)
+
     if (validationError) {
       error.value = validationError
       return { success: false, message: validationError }
@@ -227,39 +324,37 @@ export const useUploadStore = defineStore('UploadStore', () => {
     message.value = null
 
     try {
-      const userStore = useUserStore()
-      const userId = userStore.userId ?? userStore.user?.id ?? 10
-      const username =
-        userStore.username ?? userStore.user?.username ?? 'Kind Guest'
+      const { userId, username } = getCurrentUser()
 
-      const { artImage, art } = await uploadSingleFile(
-        file,
-        target,
-        userId,
-        username,
-      )
+      const artImage = await uploadSingleFile(file, target, userId, username)
 
       lastArtImage.value = artImage
-      lastArt.value = art
 
       if (target.applyImage) {
         await target.applyImage({
           artImageId: artImage.id,
-          artId: art.id,
           imageData: artImage.imageData,
-          imagePath: artImage.path,
+          imagePath: artImage.imagePath || artImage.path,
           artImage,
-          art,
         })
       }
 
-      message.value = 'Image uploaded'
-      return { success: true, message: message.value, artImage, art }
+      message.value = 'Image uploaded.'
+
+      return {
+        success: true,
+        message: message.value,
+        artImage,
+      }
     } catch (caught) {
       const fallback =
-        caught instanceof Error ? caught.message : 'Upload failed'
+        caught instanceof Error ? caught.message : 'Upload failed.'
       error.value = fallback
-      return { success: false, message: fallback }
+
+      return {
+        success: false,
+        message: fallback,
+      }
     } finally {
       isUploading.value = false
     }
@@ -272,19 +367,25 @@ export const useUploadStore = defineStore('UploadStore', () => {
     connectedModelId?: number | null,
   ): Promise<BatchUploadResult> {
     const target = activeTarget.value
+
     if (!target) {
-      error.value = 'No upload target selected'
+      error.value = 'No upload target selected.'
       return {
         succeeded: [],
-        failed: [{ success: false, message: 'No upload target' }],
+        failed: [{ success: false, message: 'No upload target selected.' }],
         total: 0,
       }
     }
 
-    const validFiles = files.filter((f) => !validateFile(f))
-    if (validFiles.length === 0) {
-      error.value = 'No valid image files to upload'
-      return { succeeded: [], failed: [], total: 0 }
+    const validFiles = files.filter((file) => !validateFile(file))
+
+    if (!validFiles.length) {
+      error.value = 'No valid image files to upload.'
+      return {
+        succeeded: [],
+        failed: [],
+        total: 0,
+      }
     }
 
     isUploading.value = true
@@ -292,59 +393,52 @@ export const useUploadStore = defineStore('UploadStore', () => {
     uploadTotal.value = validFiles.length
     error.value = null
     message.value = null
-    lastBatchArts.value = []
     lastBatchArtImages.value = []
 
-    const userStore = useUserStore()
-    const userId = userStore.userId ?? userStore.user?.id ?? 10
-    const username =
-      userStore.username ?? userStore.user?.username ?? 'Kind Guest'
-    const selectedCollection = useCollectionStore().currentCollection
-
-    const label =
-      selectedCollection?.label?.trim() ||
-      collectionLabel?.trim() ||
-      target.collectionLabel ||
-      'My Uploads'
-
+    const { userId, username } = getCurrentUser()
+    const label = getSelectedCollectionLabel(target, collectionLabel)
     const succeeded: ImageUploadResult[] = []
     const failed: ImageUploadResult[] = []
 
     for (const file of validFiles) {
       try {
-        const { artImage, art } = await uploadSingleFile(
+        const artImage = await uploadSingleFile(
           file,
           target,
           userId,
           username,
+          label,
+          connectedModelType,
+          connectedModelId,
         )
 
-        lastBatchArts.value.push(art)
         lastBatchArtImages.value.push(artImage)
-        lastArt.value = art
         lastArtImage.value = artImage
 
         succeeded.push({
           success: true,
-          message: `${file.name} uploaded`,
+          message: `${file.name} uploaded.`,
           fileName: file.name,
           artImage,
-          art,
         })
       } catch (caught) {
-        const msg = caught instanceof Error ? caught.message : 'Upload failed'
-        failed.push({ success: false, message: msg, fileName: file.name })
+        const fallback =
+          caught instanceof Error ? caught.message : 'Upload failed.'
+
+        failed.push({
+          success: false,
+          message: fallback,
+          fileName: file.name,
+        })
       } finally {
         uploadProgress.value++
       }
     }
 
-    if (target.applyCollection && lastBatchArts.value.length > 0) {
+    if (target.applyCollection && lastBatchArtImages.value.length) {
       await target.applyCollection({
-        artIds: lastBatchArts.value.map((a) => a.id),
-        artImageIds: lastBatchArtImages.value.map((i) => i.id),
+        artImageIds: lastBatchArtImages.value.map((image) => image.id),
         collectionLabel: label,
-        arts: [...lastBatchArts.value],
         artImages: [...lastBatchArtImages.value],
         connectedModelType: connectedModelType ?? null,
         connectedModelId: connectedModelId ?? null,
@@ -353,15 +447,20 @@ export const useUploadStore = defineStore('UploadStore', () => {
 
     const skipped = files.length - validFiles.length
     const parts: string[] = [
-      `${succeeded.length} image${succeeded.length !== 1 ? 's' : ''} uploaded to "${label}"`,
+      `${succeeded.length} image${succeeded.length === 1 ? '' : 's'} uploaded to "${label}"`,
     ]
+
     if (failed.length) parts.push(`${failed.length} failed`)
-    if (skipped) parts.push(`${skipped} skipped (invalid type)`)
+    if (skipped) parts.push(`${skipped} skipped, invalid type`)
 
     message.value = parts.join(' · ')
     isUploading.value = false
 
-    return { succeeded, failed, total: validFiles.length }
+    return {
+      succeeded,
+      failed,
+      total: validFiles.length,
+    }
   }
 
   return {
@@ -370,12 +469,10 @@ export const useUploadStore = defineStore('UploadStore', () => {
     error,
     message,
     lastArtImage,
-    lastArt,
     hasActiveTarget,
     uploadProgress,
     uploadTotal,
     uploadPercent,
-    lastBatchArts,
     lastBatchArtImages,
     setTarget,
     clearTarget,

@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import type {
-  Art,
   ArtImage,
   Reaction,
   Server,
@@ -16,16 +15,12 @@ import { useAnimationStore } from '@/stores/animationStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
-import { artListPresets } from '@/stores/seeds/artList'
 import { useNavStore } from '@/stores/navStore'
+import { artListPresets } from '@/stores/seeds/artList'
 import {
   getArtImagesByIds,
-  removeImageById,
-  parseStoredArt,
-  updateArtImageWithArtId,
   getCachedArtImageById,
   getOrFetchArtImageById,
-  updateArtImageId,
 } from '@/stores/helpers/artHelper'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import {
@@ -39,7 +34,7 @@ type ApiResponse<T> = {
   message?: string
 }
 
-type ArtInitializeOptions = {
+type ArtStoreInitializeOptions = {
   force?: boolean
   fetchRemote?: boolean
   hydrateImages?: boolean
@@ -47,12 +42,20 @@ type ArtInitializeOptions = {
   initializeCollections?: boolean
 }
 
-interface ArtGenerationRoute {
-  transport: ArtGenerationTransport
-  engine: ArtGenerationEngine
+type ArtImageFetchOptions = {
+  force?: boolean
+  includeImageData?: boolean
+  includeThumbnailData?: boolean
+  includeTags?: boolean
 }
-export type ArtGenerationEngine = 'a1111' | 'comfy' | 'flux' | 'kontext'
-export type ArtGenerationTransport = 'browser' | 'backend'
+
+interface ArtImageGenerationRoute {
+  transport: ArtImageGenerationTransport
+  engine: ArtImageGenerationEngine
+}
+
+export type ArtImageGenerationEngine = 'a1111' | 'comfy' | 'flux' | 'kontext'
+export type ArtImageGenerationTransport = 'browser' | 'backend'
 
 export interface GenerateArtData {
   promptString: string
@@ -81,8 +84,8 @@ export interface GenerateArtData {
   serverId?: number | null
   serverName?: string | null
 
-  engine?: ArtGenerationEngine
-  transport?: ArtGenerationTransport
+  engine?: ArtImageGenerationEngine
+  transport?: ArtImageGenerationTransport
   workflow?: Record<string, unknown> | null
 
   width?: number | null
@@ -95,42 +98,8 @@ export interface GenerateArtData {
   sourceImageBase64?: string | null
   maskImageBase64?: string | null
 }
-type CreateArtInput = {
-  promptString: string
-  path: string | null
-  seed: number | null
-  steps: number | null
-  galleryId: number | null
-  promptId: number | null
-  pitchId: number | null
-  userId: number | null
-  designer: string | null
-  artImageId: number | null
-  serverId?: number | null
-  serverName?: string | null
-  serverUrl?: string | null
-  checkpoint?: string | null
-  sampler?: string | null
-  cfg?: number | null
-  cfgHalf?: boolean | null
-  isPublic?: boolean | null
-  isMature?: boolean | null
-  negativePrompt?: string | null
-  imagePath?: string | null
-  genres?: string | null
-}
 
 export type ArtImageConnectionInput = {
-  artId?: number | null
-  botId?: number | null
-  componentId?: number | null
-  milestoneId?: number | null
-  pitchId?: number | null
-  promptId?: number | null
-  resourceId?: number | null
-  rewardId?: number | null
-  chatId?: number | null
-  characterId?: number | null
   galleryId?: number | null
   userId?: number | null
   serverId?: number | null
@@ -162,140 +131,43 @@ export type ArtImageConnectionInput = {
   clearTagOwner?: boolean
 }
 
-type ArtImageFetchOptions = {
-  force?: boolean
-  includeImageData?: boolean
-  includeThumbnailData?: boolean
-  includeTags?: boolean
+type ArtImagePatchInput = Partial<ArtImage> & {
+  rarity?: number | null
+  connectedModelType?: string | null
+  connectedModelId?: number | null
 }
 
-type ArtImagePatchInput = Partial<
-  Pick<
-    ArtImage,
-    | 'galleryId'
-    | 'userId'
-    | 'imageData'
-    | 'thumbnailData'
-    | 'fileName'
-    | 'fileType'
-    | 'imagePath'
-    | 'rarity'
-    | 'path'
-    | 'promptString'
-    | 'negativePrompt'
-    | 'checkpoint'
-    | 'checkpointResourceId'
-    | 'sampler'
-    | 'seed'
-    | 'steps'
-    | 'cfg'
-    | 'cfgHalf'
-    | 'designer'
-    | 'genres'
-    | 'isPublic'
-    | 'isMature'
-    | 'serverId'
-    | 'serverName'
-    | 'serverUrl'
-    | 'artId'
-    | 'botId'
-    | 'componentId'
-    | 'milestoneId'
-    | 'pitchId'
-    | 'promptId'
-    | 'resourceId'
-    | 'rewardId'
-    | 'chatId'
-    | 'characterId'
-    | 'butterflyId'
-  >
->
-
-type ArtPatchInput = Partial<
-  Pick<
-    Art,
-    | 'path'
-    | 'checkpoint'
-    | 'checkpointResourceId'
-    | 'sampler'
-    | 'seed'
-    | 'steps'
-    | 'designer'
-    | 'isPublic'
-    | 'isMature'
-    | 'promptId'
-    | 'userId'
-    | 'pitchId'
-    | 'galleryId'
-    | 'promptString'
-    | 'cfg'
-    | 'cfgHalf'
-    | 'serverId'
-    | 'serverName'
-    | 'serverUrl'
-    | 'artImageId'
-    | 'imagePath'
-    | 'genres'
-    | 'negativePrompt'
-  >
->
-
-type ArtImageSyncFields = Partial<
-  Pick<
-    ArtImage,
-    | 'galleryId'
-    | 'userId'
-    | 'path'
-    | 'promptString'
-    | 'negativePrompt'
-    | 'checkpoint'
-    | 'checkpointResourceId'
-    | 'sampler'
-    | 'seed'
-    | 'steps'
-    | 'cfg'
-    | 'cfgHalf'
-    | 'designer'
-    | 'genres'
-    | 'isPublic'
-    | 'isMature'
-    | 'serverId'
-    | 'serverName'
-    | 'serverUrl'
-    | 'artId'
-  >
->
+type ArtImageCreateInput = Partial<ArtImage> &
+  Record<string, unknown> & {
+    rarity?: number | null
+    connectedModelType?: string | null
+    connectedModelId?: number | null
+  }
 
 type ArtStoreState = {
-  art: Art[]
   artImages: ArtImage[]
   tags: Tag[]
   reactions: Reaction[]
   loading: boolean
   error: string
   isInitialized: boolean
-  currentArt: Art | null
   currentArtImage: ArtImage | null
   processedArtPrompt: string
   pitch: string
   currentPage: number
-  totalArtCount: number
+  totalArtImageCount: number
   pageSize: number
   collections: ArtCollection[]
-  collectedArt: Art[]
-  uncollectedArt: Art[]
   currentCollection: ArtCollection | null
-  generatedArt: Art[]
+  generatedArtImages: ArtImage[]
   artForm: GenerateArtData
   artListSelections: Record<string, string[]>
   previousArtTab: string | null
 }
 
 const isClient = typeof window !== 'undefined'
-const artStorageKey = 'art'
 const artImagesStorageKey = 'artImages'
 const maxStoredImages = 150
-const maxStoredArt = 300
 const fetchAllArtImagesPromise = ref<Promise<ArtImage[]> | null>(null)
 
 function safeGetLocalStorage(key: string): string | null {
@@ -327,27 +199,26 @@ function safeParseArtImages(raw: string | null): ArtImage[] {
   }
 }
 
-function sanitizeArt(art: Art): Art {
-  const cleaned = { ...art } as Record<string, unknown>
-  // Strip Prisma back-relations that create circular structures
-  delete cleaned.ArtImage
-  delete cleaned.ArtCollections
-  delete cleaned.artCollections
-  delete cleaned.Tags
-  delete cleaned.Reactions
-  delete cleaned.Gallery
-  delete cleaned.Server
-  return cleaned as Art
-}
-
 function sanitizeArtImage(image: ArtImage): ArtImage {
   const cleaned = { ...image } as Record<string, unknown>
-  delete cleaned.Art
   delete cleaned.Tags
   delete cleaned.Reactions
   delete cleaned.Gallery
   delete cleaned.Server
+  delete cleaned.User
+  delete cleaned.ArtCollections
+  delete cleaned.Dreams
+  delete cleaned.Scenarios
+  delete cleaned.Butterflies
   return cleaned as ArtImage
+}
+
+function stripHeavyImageFields(image: ArtImage): ArtImage {
+  return {
+    ...image,
+    imageData: null,
+    thumbnailData: null,
+  }
 }
 
 function limitByNewestId<T extends { id: number }>(
@@ -355,10 +226,6 @@ function limitByNewestId<T extends { id: number }>(
   limit: number,
 ): T[] {
   return [...items].sort((a, b) => b.id - a.id).slice(0, limit)
-}
-
-function sortNewestArt(a: Art, b: Art): number {
-  return b.id - a.id
 }
 
 function sortNewestArtImages(a: ArtImage, b: ArtImage): number {
@@ -369,27 +236,40 @@ function isValidId(value: unknown): value is number {
   return Number.isInteger(value) && Number(value) > 0
 }
 
+function mergeUniqueArtImages(
+  existing: ArtImage[],
+  incoming: ArtImage[],
+): ArtImage[] {
+  const map = new Map<number, ArtImage>()
+
+  for (const image of existing) {
+    map.set(image.id, image)
+  }
+
+  for (const image of incoming) {
+    map.set(image.id, image)
+  }
+
+  return Array.from(map.values()).sort(sortNewestArtImages)
+}
+
 export const useArtStore = defineStore('artStore', () => {
   const state = reactive<ArtStoreState>({
-    art: [],
     artImages: [],
     tags: [],
     reactions: [],
     loading: false,
     error: '',
     isInitialized: false,
-    currentArt: null,
     currentArtImage: null,
     processedArtPrompt: '',
     pitch: '',
     currentPage: 1,
-    totalArtCount: 0,
+    totalArtImageCount: 0,
     pageSize: 100,
     collections: [],
-    collectedArt: [],
-    uncollectedArt: [],
     currentCollection: null,
-    generatedArt: [],
+    generatedArtImages: [],
     artListSelections: {},
     previousArtTab: null,
     artForm: {
@@ -422,11 +302,9 @@ export const useArtStore = defineStore('artStore', () => {
   const animationStore = useAnimationStore()
   const navStore = useNavStore()
 
-  const hoverArt = ref<Art | null>(null)
+  const hoverArtImage = ref<ArtImage | null>(null)
   const initializing = ref(false)
   const initializePromise = ref<Promise<void> | null>(null)
-  const fetchAllArtPromise = ref<Promise<Art[]> | null>(null)
-  const fetchArtPagePromise = ref<Record<string, Promise<Art[]>>>({})
   const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>(
     {},
   )
@@ -435,80 +313,55 @@ export const useArtStore = defineStore('artStore', () => {
     return useCollectionStore()
   }
 
-  const hasCachedArt = computed(() => state.art.length > 0)
   const hasCachedImages = computed(() => state.artImages.length > 0)
 
   const currentImagePath = computed(() => {
     const image = state.currentArtImage as
-      | (ArtImage & { imageData?: string | null })
+      | (ArtImage & { imageData?: string | null; path?: string | null })
       | null
 
     if (image?.imageData) {
       return `data:image/${image.fileType || 'png'};base64,${image.imageData}`
     }
 
-    return (
-      image?.imagePath ||
-      state.currentArt?.imagePath ||
-      state.currentArt?.path ||
-      ''
-    )
+    return image?.imagePath || image?.path || ''
   })
 
-  const generatedArtCount = computed(() => state.generatedArt.length)
-
-  const artById = computed(() => {
-    return new Map(state.art.map((art) => [art.id, art]))
-  })
+  const generatedArtImageCount = computed(() => state.generatedArtImages.length)
 
   const imageById = computed(() => {
     return new Map(state.artImages.map((image) => [image.id, image]))
   })
 
-  async function updateArtImageConnections(
-    id: number,
-    connections: ArtImageConnectionInput,
-  ): Promise<ApiResponse<ArtImage>> {
-    try {
-      clearError()
+  const publicArtImages = computed(() => {
+    return state.artImages.filter((image) => image.isPublic)
+  })
 
-      const response = await performFetch<ArtImage>(
-        `/api/art/image/connections/${id}`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify(connections),
-          headers: { 'Content-Type': 'application/json' },
-        },
+  const matureArtImages = computed(() => {
+    return state.artImages.filter((image) => image.isMature)
+  })
+
+  const safeArtImages = computed(() => {
+    return state.artImages.filter((image) => !image.isMature)
+  })
+
+  const unlinkedArtImages = computed(() => {
+    return state.artImages.filter((image) => {
+      const record = image as ArtImage & Record<string, unknown>
+      return (
+        !record.botId &&
+        !record.componentId &&
+        !record.milestoneId &&
+        !record.pitchId &&
+        !record.promptId &&
+        !record.resourceId &&
+        !record.rewardId &&
+        !record.chatId &&
+        !record.characterId &&
+        !record.butterflyId
       )
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update art image links.')
-      }
-
-      addOrUpdateArtImages([response.data])
-
-      if (state.currentArtImage?.id === id) {
-        state.currentArtImage = response.data
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Art image links updated.',
-      }
-    } catch (error) {
-      handleError(error, 'updating art image links')
-      setError(error, 'Failed to update art image links.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update art image links.',
-      }
-    }
-  }
+    })
+  })
 
   const getPromptString = computed<string>(() => {
     const baseSelections = Object.entries(state.artListSelections)
@@ -534,110 +387,6 @@ export const useArtStore = defineStore('artStore', () => {
       .join(', ')
   })
 
-  const artImageByArtId = computed(() => {
-    const map = new Map<number, ArtImage>()
-
-    for (const image of state.artImages) {
-      if (image.artId) {
-        map.set(image.artId, image)
-      }
-    }
-
-    return map
-  })
-
-  const artByImageId = computed(() => {
-    const map = new Map<number, Art>()
-
-    for (const art of state.art) {
-      if (art.artImageId) {
-        map.set(art.artImageId, art)
-      }
-    }
-
-    return map
-  })
-
-  const publicArt = computed(() => {
-    return state.art.filter((art) => art.isPublic)
-  })
-
-  const matureArt = computed(() => {
-    return state.art.filter((art) => art.isMature)
-  })
-
-  const safeArt = computed(() => {
-    return state.art.filter((art) => !art.isMature)
-  })
-
-  const artWithImages = computed(() => {
-    return state.art.filter((art) => {
-      if (art.artImageId) return true
-      return artImageByArtId.value.has(art.id)
-    })
-  })
-
-  const artWithoutImages = computed(() => {
-    return state.art.filter((art) => {
-      if (art.artImageId) return false
-      return !artImageByArtId.value.has(art.id)
-    })
-  })
-
-  const publicArtImages = computed(() => {
-    return state.artImages.filter((image) => image.isPublic)
-  })
-
-  const matureArtImages = computed(() => {
-    return state.artImages.filter((image) => image.isMature)
-  })
-
-  const safeArtImages = computed(() => {
-    return state.artImages.filter((image) => !image.isMature)
-  })
-
-  const linkedArtImages = computed(() => {
-    return state.artImages.filter((image) => image.artId)
-  })
-
-  const unlinkedArtImages = computed(() => {
-    return state.artImages.filter((image) => {
-      return (
-        !image.artId &&
-        !image.botId &&
-        !image.componentId &&
-        !image.milestoneId &&
-        !image.pitchId &&
-        !image.promptId &&
-        !image.resourceId &&
-        !image.rewardId &&
-        !image.chatId &&
-        !image.characterId &&
-        !image.butterflyId
-      )
-    })
-  })
-
-  const artImagePairs = computed(() => {
-    return state.art
-      .map((art) => {
-        const viaForward = art.artImageId
-          ? imageById.value.get(art.artImageId)
-          : undefined
-        const viaBack = artImageByArtId.value.get(art.id)
-        const artImage = viaForward || viaBack || null
-
-        return {
-          art,
-          artImage,
-          hasForwardLink: Boolean(viaForward),
-          hasBackLink: Boolean(viaBack),
-          isBidirectional: Boolean(viaForward && viaBack),
-        }
-      })
-      .filter((pair) => pair.artImage)
-  })
-
   const getNegativePromptString = computed<string>(() => {
     return (state.artListSelections.__negative__ || []).join(', ')
   })
@@ -650,56 +399,8 @@ export const useArtStore = defineStore('artStore', () => {
     state.error = ''
   }
 
-  function setHoverArt(art: Art | null): void {
-    hoverArt.value = art
-  }
-
-  function persistArt(): void {
-    const trimmed = limitByNewestId(state.art, maxStoredArt)
-    safeSetLocalStorage(artStorageKey, JSON.stringify(trimmed))
-  }
-
-  type ArtImageCreateInput = Partial<ArtImage> & Record<string, unknown>
-
-  async function createArtImage(
-    input: ArtImageCreateInput,
-  ): Promise<ApiResponse<ArtImage>> {
-    try {
-      clearError()
-
-      const response = await performFetch<ArtImage>('/api/art/image', {
-        method: 'POST',
-        body: JSON.stringify(input),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to create art image.')
-      }
-
-      addOrUpdateArtImages([stripHeavyImageFields(response.data)])
-
-      if (state.currentArtImage?.id === response.data.id) {
-        state.currentArtImage = stripHeavyImageFields(response.data)
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Art image created.',
-      }
-    } catch (error) {
-      handleError(error, 'creating art image')
-      setError(error, 'Failed to create art image.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to create art image.',
-      }
-    }
+  function setHoverArtImage(image: ArtImage | null): void {
+    hoverArtImage.value = image
   }
 
   function persistArtImages(): void {
@@ -709,11 +410,8 @@ export const useArtStore = defineStore('artStore', () => {
 
     safeSetLocalStorage(artImagesStorageKey, JSON.stringify(trimmed))
   }
-  function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
-    state.art = parseStoredArt(safeGetLocalStorage(artStorageKey) || '').sort(
-      sortNewestArt,
-    )
 
+  function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
     if (options.hydrateImages === false) return
 
     state.artImages = safeParseArtImages(
@@ -721,53 +419,18 @@ export const useArtStore = defineStore('artStore', () => {
     ).sort(sortNewestArtImages)
   }
 
-  function mergeUniqueArt(existing: Art[], incoming: Art[]): Art[] {
-    const map = new Map<number, Art>()
-
-    for (const entry of existing) {
-      map.set(entry.id, entry)
-    }
-
-    for (const entry of incoming) {
-      map.set(entry.id, entry)
-    }
-
-    return Array.from(map.values()).sort(sortNewestArt)
-  }
-
-  function mergeUniqueArtImages(
-    existing: ArtImage[],
-    incoming: ArtImage[],
-  ): ArtImage[] {
-    const map = new Map<number, ArtImage>()
-
-    for (const image of existing) {
-      map.set(image.id, image)
-    }
-
-    for (const image of incoming) {
-      map.set(image.id, image)
-    }
-
-    return Array.from(map.values()).sort(sortNewestArtImages)
-  }
-
-  function setArtList(art: Art[]): void {
-    state.art = mergeUniqueArt([], art.map(sanitizeArt))
-    persistArt()
-  }
-
-  function addOrUpdateArt(art: Art): void {
-    state.art = mergeUniqueArt(state.art, [sanitizeArt(art)])
-    persistArt()
-  }
-
   function addOrUpdateArtImages(images: ArtImage[]): void {
     if (!images.length) return
+
     state.artImages = mergeUniqueArtImages(
       state.artImages,
       images.map(sanitizeArtImage),
     )
+    persistArtImages()
+  }
+
+  function setArtImageList(images: ArtImage[]): void {
+    state.artImages = mergeUniqueArtImages([], images.map(sanitizeArtImage))
     persistArtImages()
   }
 
@@ -825,62 +488,9 @@ export const useArtStore = defineStore('artStore', () => {
       .join(', ')
   }
 
-  async function selectArtRecord(
-    artRecord: Art,
-    artImageRecord: ArtImage | null = null,
-  ): Promise<ApiResponse<Art>> {
-    state.loading = true
-
-    try {
-      clearError()
-
-      state.currentArt = artRecord
-      state.currentArtImage = artImageRecord
-
-      addOrUpdateArt(artRecord)
-
-      if (!state.currentArtImage && artRecord.artImageId) {
-        const image = await getArtImageById(artRecord.artImageId)
-
-        if (image) {
-          state.currentArtImage = image
-        }
-      }
-
-      if (!state.currentArtImage && artRecord.id) {
-        const image = getArtImageByArtId(artRecord.id)
-
-        if (image) {
-          state.currentArtImage = image
-        }
-      }
-
-      const currentTab = navStore.getDashboardTab('art')
-      if (currentTab !== 'selected') {
-        state.previousArtTab = currentTab
-      }
-      navStore.setDashboardTab('art', 'selected')
-
-      return {
-        success: true,
-        message: `Selected Art #${artRecord.id}.`,
-        data: artRecord,
-      }
-    } catch (error) {
-      handleError(error, 'selecting art record')
-      setError(error, 'Failed to select art.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : 'Failed to select art.',
-      }
-    } finally {
-      state.loading = false
-    }
-  }
-
-  async function initialize(options: ArtInitializeOptions = {}): Promise<void> {
+  async function initialize(
+    options: ArtStoreInitializeOptions = {},
+  ): Promise<void> {
     const shouldFetchRemote = Boolean(options.fetchRemote)
     const shouldInitializeServers = options.initializeServerStore === true
     const shouldInitializeCollections = Boolean(options.initializeCollections)
@@ -912,15 +522,12 @@ export const useArtStore = defineStore('artStore', () => {
         }
 
         if (shouldFetchRemote) {
-          await Promise.all([
-            fetchAllArt(Boolean(options.force)),
-            fetchAllArtImages({
-              force: Boolean(options.force),
-              includeImageData: false,
-              includeThumbnailData: false,
-              includeTags: false,
-            }),
-          ])
+          await fetchAllArtImages({
+            force: Boolean(options.force),
+            includeImageData: false,
+            includeThumbnailData: false,
+            includeTags: false,
+          })
         }
 
         if (!state.artForm.userId) {
@@ -929,8 +536,8 @@ export const useArtStore = defineStore('artStore', () => {
 
         state.isInitialized = true
       } catch (error) {
-        handleError(error, 'initializing art store')
-        setError(error, 'Failed to initialize art store')
+        handleError(error, 'initializing art image store')
+        setError(error, 'Failed to initialize art image store.')
         state.isInitialized = false
       } finally {
         state.loading = false
@@ -940,92 +547,6 @@ export const useArtStore = defineStore('artStore', () => {
     })()
 
     return initializePromise.value
-  }
-
-  async function fetchAllArt(force = false): Promise<Art[]> {
-    if (!force && state.art.length) return state.art
-
-    if (fetchAllArtPromise.value && !force) {
-      return fetchAllArtPromise.value
-    }
-
-    fetchAllArtPromise.value = (async () => {
-      state.loading = true
-
-      try {
-        clearError()
-
-        const response = await performFetch<Art[]>('/api/art')
-
-        if (!response.success || !response.data) {
-          throw new Error(response.message || 'Failed to fetch art.')
-        }
-
-        setArtList(response.data)
-        return state.art
-      } catch (error) {
-        handleError(error, 'fetching all art')
-        setError(error, 'Failed to fetch art.')
-        return state.art
-      } finally {
-        state.loading = false
-        fetchAllArtPromise.value = null
-      }
-    })()
-
-    return fetchAllArtPromise.value
-  }
-
-  function normalizeFetchedArtPage(response: ApiResponse<unknown>): {
-    art: Art[]
-    total?: number
-  } {
-    const payload = response.data
-
-    if (Array.isArray(payload)) {
-      return {
-        art: payload as Art[],
-        total: payload.length,
-      }
-    }
-
-    if (!payload || typeof payload !== 'object') {
-      return {
-        art: [],
-      }
-    }
-
-    const data = payload as Record<string, unknown>
-
-    const candidates = [
-      data.art,
-      data.arts,
-      data.items,
-      data.results,
-      data.records,
-      data.images,
-    ]
-
-    const art = candidates.find((candidate) => Array.isArray(candidate))
-
-    return {
-      art: Array.isArray(art) ? (art as Art[]) : [],
-      total: typeof data.total === 'number' ? data.total : undefined,
-    }
-  }
-
-  async function fetchArtPage(
-    page = state.currentPage,
-    pageSize = state.pageSize,
-    force = false,
-  ): Promise<Art[]> {
-    state.currentPage = page
-    state.pageSize = pageSize
-
-    const art = await fetchAllArt(force)
-    state.totalArtCount = art.length
-
-    return art
   }
 
   function buildArtImageQuery(options: ArtImageFetchOptions = {}): string {
@@ -1111,10 +632,11 @@ export const useArtStore = defineStore('artStore', () => {
         }
 
         addOrUpdateArtImages(response.data.map(stripHeavyImageFields))
+        state.totalArtImageCount = state.artImages.length
 
         return state.artImages
       } catch (error) {
-        handleError(error, 'fetching all art images')
+        handleError(error, 'fetching art images')
         setError(error, 'Failed to fetch art images.')
         return state.artImages
       } finally {
@@ -1124,14 +646,6 @@ export const useArtStore = defineStore('artStore', () => {
     })()
 
     return fetchAllArtImagesPromise.value
-  }
-
-  function stripHeavyImageFields(image: ArtImage): ArtImage {
-    return {
-      ...image,
-      imageData: null,
-      thumbnailData: null,
-    }
   }
 
   async function loadArtImagesInChunks(
@@ -1162,59 +676,6 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function selectArt(id: number): Promise<ApiResponse<Art>> {
-    state.loading = true
-
-    try {
-      clearError()
-
-      const artId = Number(id)
-
-      if (!Number.isInteger(artId) || artId <= 0) {
-        throw new Error('Invalid Art ID.')
-      }
-
-      const localArt = state.art.find((entry: Art) => entry.id === artId)
-
-      if (localArt) {
-        return await selectArtRecord(localArt)
-      }
-
-      const result = await performFetch<Art>(`/api/art/${artId}`, {
-        method: 'GET',
-      })
-
-      if (!result.success || !result.data) {
-        throw new Error(result.message || `Art #${artId} was not found.`)
-      }
-
-      return await selectArtRecord(result.data)
-    } catch (error) {
-      handleError(error, 'selecting art')
-      setError(error, 'There was trouble finding art with that ID.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'There was trouble finding art with that ID.',
-      }
-    } finally {
-      state.loading = false
-    }
-  }
-
-  function deselectArt(): void {
-    state.currentArt = null
-    state.currentArtImage = null
-    setHoverArt(null)
-    if (state.previousArtTab) {
-      navStore.setDashboardTab('art', state.previousArtTab)
-      state.previousArtTab = null
-    }
-  }
-
   async function getArtImageById(
     id: number,
     options: ArtImageFetchOptions = {},
@@ -1222,7 +683,7 @@ export const useArtStore = defineStore('artStore', () => {
     const imageId = Number(id)
 
     if (!isValidId(imageId)) {
-      setError('Invalid ArtImage ID.', 'Invalid ArtImage ID.')
+      setError('Invalid art image ID.', 'Invalid art image ID.')
       return undefined
     }
 
@@ -1267,18 +728,376 @@ export const useArtStore = defineStore('artStore', () => {
     return artImageRequestMap.value[imageId]
   }
 
-  function getArtImageByArtId(
-    artId: number,
-    images: ArtImage[] = state.artImages,
-  ): ArtImage | undefined {
-    return images.find((image) => image.artId === artId)
+  async function createArtImage(
+    input: ArtImageCreateInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>('/api/art/image', {
+        method: 'POST',
+        body: JSON.stringify(input),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to create art image.')
+      }
+
+      const cleanImage = stripHeavyImageFields(response.data)
+
+      addOrUpdateArtImages([cleanImage])
+      state.currentArtImage = cleanImage
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art image created.',
+      }
+    } catch (error) {
+      handleError(error, 'creating art image')
+      setError(error, 'Failed to create art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create art image.',
+      }
+    }
+  }
+
+  async function updateArtImage(
+    id: number,
+    updates: ArtImagePatchInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>(`/api/art/image/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update art image.')
+      }
+
+      addOrUpdateArtImages([response.data])
+
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art image updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating art image')
+      setError(error, 'Failed to update art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update art image.',
+      }
+    }
+  }
+
+  async function updateArtImageConnections(
+    id: number,
+    connections: ArtImageConnectionInput,
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>(
+        `/api/art/image/connections/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(connections),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update art image links.')
+      }
+
+      addOrUpdateArtImages([response.data])
+
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Art image links updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating art image links')
+      setError(error, 'Failed to update art image links.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update art image links.',
+      }
+    }
+  }
+
+  async function deleteArtImage(id: number): Promise<boolean> {
+    try {
+      clearError()
+
+      const response = await performFetch(`/api/art/image/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete art image.')
+      }
+
+      state.artImages = state.artImages.filter((image) => image.id !== id)
+      state.generatedArtImages = state.generatedArtImages.filter(
+        (image) => image.id !== id,
+      )
+
+      if (state.currentArtImage?.id === id) {
+        deselectArtImage()
+      }
+
+      persistArtImages()
+      return true
+    } catch (error) {
+      handleError(error, 'deleting art image')
+      setError(error, 'Failed to delete art image.')
+      return false
+    }
+  }
+
+  async function uploadImage(
+    formData: FormData,
+  ): Promise<{ success: boolean; message: string; data?: ArtImage }> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>('/api/art/image/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to upload image.')
+      }
+
+      addOrUpdateArtImages([stripHeavyImageFields(response.data)])
+      state.currentArtImage = response.data
+
+      return {
+        success: true,
+        message: response.message || 'Image uploaded.',
+        data: response.data,
+      }
+    } catch (error) {
+      handleError(error, 'uploading image')
+      const message =
+        error instanceof Error ? error.message : 'Failed to upload image.'
+      setError(error, message)
+
+      return {
+        success: false,
+        message,
+      }
+    }
+  }
+
+  async function selectArtImageRecord(
+    artImageRecord: ArtImage,
+  ): Promise<ApiResponse<ArtImage>> {
+    state.loading = true
+
+    try {
+      clearError()
+
+      state.currentArtImage = artImageRecord
+      addOrUpdateArtImages([artImageRecord])
+
+      return {
+        success: true,
+        message: `Selected art image #${artImageRecord.id}.`,
+        data: artImageRecord,
+      }
+    } catch (error) {
+      handleError(error, 'selecting art image record')
+      setError(error, 'Failed to select art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to select art image.',
+      }
+    } finally {
+      state.loading = false
+    }
+  }
+
+  async function selectArtImage(id: number): Promise<ApiResponse<ArtImage>> {
+    state.loading = true
+
+    try {
+      clearError()
+
+      const imageId = Number(id)
+
+      if (!isValidId(imageId)) {
+        throw new Error('Invalid art image ID.')
+      }
+
+      const localImage = state.artImages.find((image) => image.id === imageId)
+
+      if (localImage) {
+        return await selectArtImageRecord(localImage)
+      }
+
+      const image = await getArtImageById(imageId, {
+        includeImageData: true,
+      })
+
+      if (!image) {
+        throw new Error(`Art image #${imageId} was not found.`)
+      }
+
+      return await selectArtImageRecord(image)
+    } catch (error) {
+      handleError(error, 'selecting art image')
+      setError(error, 'There was trouble finding that art image.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'There was trouble finding that art image.',
+      }
+    } finally {
+      state.loading = false
+    }
+  }
+
+  function deselectArtImage(): void {
+    state.currentArtImage = null
+    setHoverArtImage(null)
+
+    if (state.previousArtTab) {
+      navStore.setDashboardTab('art', state.previousArtTab)
+      state.previousArtTab = null
+    }
+  }
+
+  async function fetchArtImageForDisplay(
+    id: number,
+  ): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, {
+      includeImageData: true,
+    })
+  }
+
+  async function fetchArtImageThumbnail(
+    id: number,
+  ): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, {
+      includeThumbnailData: true,
+    })
+  }
+
+  async function fetchArtImageWithTags(
+    id: number,
+  ): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, {
+      includeTags: true,
+    })
+  }
+
+  async function updateArtImageTags(
+    id: number,
+    tags: string[],
+  ): Promise<ApiResponse<ArtImage>> {
+    try {
+      clearError()
+
+      const response = await performFetch<ArtImage>(
+        `/api/art/image/${id}/tags`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ tags }),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to update image tags.')
+      }
+
+      addOrUpdateArtImages([response.data])
+
+      if (state.currentArtImage?.id === id) {
+        state.currentArtImage = response.data
+      }
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.message || 'Image tags updated.',
+      }
+    } catch (error) {
+      handleError(error, 'updating image tags')
+      setError(error, 'Failed to update image tags.')
+
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update image tags.',
+      }
+    }
+  }
+
+  async function addArtImageToCollection(
+    collectionId: number,
+    artImageId: number,
+  ): Promise<ApiResponse<ArtImage>> {
+    return await updateArtImageConnections(artImageId, {
+      artCollectionIds: [collectionId],
+    })
+  }
+
+  async function removeArtImageFromCollection(
+    collectionId: number,
+    artImageId: number,
+  ): Promise<ApiResponse<ArtImage>> {
+    return await updateArtImageConnections(artImageId, {
+      disconnectArtCollectionIds: [collectionId],
+    })
   }
 
   function calculateCfg(cfg: number, cfgHalf: boolean): number {
     return cfgHalf ? cfg + 0.5 : cfg
   }
 
-  function getArtGenerationEndpointPath(server: Server): string {
+  function getArtImageGenerationEndpointPath(server: Server): string {
     const endpointPath = server.endpointPath || '/sdapi/v1/txt2img'
 
     if (server.serverType !== 'A1111') return endpointPath
@@ -1326,16 +1145,16 @@ export const useArtStore = defineStore('artStore', () => {
         : serverStore.activeArtServer
 
     if (!selectedServer) {
-      throw new Error('No active art server selected.')
+      throw new Error('No active image generation server selected.')
     }
 
     return selectedServer
   }
 
-  function getArtGenerationEngine(
+  function getArtImageGenerationEngine(
     server: Server,
     data?: GenerateArtData,
-  ): ArtGenerationEngine {
+  ): ArtImageGenerationEngine {
     if (data?.engine) {
       return data.engine
     }
@@ -1358,10 +1177,10 @@ export const useArtStore = defineStore('artStore', () => {
     )
   }
 
-  function getArtGenerationTransport(
+  function getArtImageGenerationTransport(
     server: Server,
     data?: GenerateArtData,
-  ): ArtGenerationTransport {
+  ): ArtImageGenerationTransport {
     if (data?.transport) {
       return data.transport
     }
@@ -1390,16 +1209,16 @@ export const useArtStore = defineStore('artStore', () => {
     return 'backend'
   }
 
-  function getArtGenerationRoute(
+  function getArtImageGenerationRoute(
     server: Server,
     data?: GenerateArtData,
-  ): ArtGenerationRoute {
+  ): ArtImageGenerationRoute {
     if (!server.isActive) {
       throw new Error(`Server "${server.title}" is not active.`)
     }
 
-    const engine = getArtGenerationEngine(server, data)
-    const transport = getArtGenerationTransport(server, data)
+    const engine = getArtImageGenerationEngine(server, data)
+    const transport = getArtImageGenerationTransport(server, data)
 
     if (engine === 'a1111' && !server.supportsTxt2Img) {
       throw new Error(`Server "${server.title}" does not support txt2img.`)
@@ -1415,508 +1234,6 @@ export const useArtStore = defineStore('artStore', () => {
       engine,
       transport,
     }
-  }
-
-  async function updateArt(
-    id: number,
-    updates: ArtPatchInput,
-  ): Promise<ApiResponse<Art>> {
-    try {
-      clearError()
-
-      const response = await performFetch<Art>(`/api/art/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update art.')
-      }
-
-      addOrUpdateArt(response.data)
-
-      if (state.currentArt?.id === id) {
-        state.currentArt = response.data
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Art updated.',
-      }
-    } catch (error) {
-      handleError(error, 'updating art')
-      setError(error, 'Failed to update art.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : 'Failed to update art.',
-      }
-    }
-  }
-
-  async function updateArtImage(
-    id: number,
-    updates: ArtImagePatchInput,
-  ): Promise<ApiResponse<ArtImage>> {
-    try {
-      clearError()
-
-      const response = await performFetch<ArtImage>(`/api/art/image/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update art image.')
-      }
-
-      addOrUpdateArtImages([response.data])
-
-      if (state.currentArtImage?.id === id) {
-        state.currentArtImage = response.data
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Art image updated.',
-      }
-    } catch (error) {
-      handleError(error, 'updating art image')
-      setError(error, 'Failed to update art image.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update art image.',
-      }
-    }
-  }
-
-  function buildArtImageSyncFields(art: Art): ArtImageSyncFields {
-    return {
-      galleryId: art.galleryId ?? null,
-      userId: art.userId ?? null,
-      path: art.path ?? null,
-      promptString: art.promptString ?? null,
-      negativePrompt: art.negativePrompt ?? null,
-      checkpoint: art.checkpoint ?? null,
-      checkpointResourceId: art.checkpointResourceId ?? null,
-      sampler: art.sampler ?? null,
-      seed: art.seed ?? null,
-      steps: art.steps ?? null,
-      cfg: art.cfg ?? null,
-      cfgHalf: art.cfgHalf ?? null,
-      designer: art.designer ?? null,
-      genres: art.genres ?? null,
-      isPublic: art.isPublic ?? null,
-      isMature: art.isMature ?? null,
-      serverId: art.serverId ?? null,
-      serverName: art.serverName ?? null,
-      serverUrl: art.serverUrl ?? null,
-      artId: art.id,
-    }
-  }
-
-  async function syncArtToArtImage(
-    artId: number,
-    artImageId?: number | null,
-  ): Promise<ApiResponse<ArtImage>> {
-    try {
-      clearError()
-
-      const art = artById.value.get(artId) || (await selectArt(artId)).data
-
-      if (!art) {
-        throw new Error(`Art #${artId} was not found.`)
-      }
-
-      const targetImageId =
-        artImageId || art.artImageId || getArtImageByArtId(art.id)?.id || null
-
-      if (!targetImageId) {
-        throw new Error(`Art #${artId} does not have a linked ArtImage.`)
-      }
-
-      const response = await updateArtImage(
-        targetImageId,
-        buildArtImageSyncFields(art),
-      )
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to sync Art to ArtImage.')
-      }
-
-      if (art.artImageId !== targetImageId) {
-        await updateArt(art.id, {
-          artImageId: targetImageId,
-        })
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: `Art #${artId} synced to ArtImage #${targetImageId}.`,
-      }
-    } catch (error) {
-      handleError(error, 'syncing art to art image')
-      setError(error, 'Failed to sync art to art image.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to sync art to art image.',
-      }
-    }
-  }
-
-  async function repairArtImageLink(
-    artId: number,
-    artImageId: number,
-  ): Promise<ApiResponse<{ art: Art; artImage: ArtImage }>> {
-    try {
-      clearError()
-
-      const artResponse = await updateArt(artId, {
-        artImageId,
-      })
-
-      if (!artResponse.success || !artResponse.data) {
-        throw new Error(artResponse.message || 'Failed to update Art link.')
-      }
-
-      const imageResponse = await updateArtImage(artImageId, {
-        artId,
-      })
-
-      if (!imageResponse.success || !imageResponse.data) {
-        throw new Error(
-          imageResponse.message || 'Failed to update ArtImage link.',
-        )
-      }
-
-      return {
-        success: true,
-        data: {
-          art: artResponse.data,
-          artImage: imageResponse.data,
-        },
-        message: `Art #${artId} linked with ArtImage #${artImageId}.`,
-      }
-    } catch (error) {
-      handleError(error, 'repairing art image link')
-      setError(error, 'Failed to repair art image link.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to repair art image link.',
-      }
-    }
-  }
-
-  async function fetchArtImageForDisplay(
-    id: number,
-  ): Promise<ArtImage | undefined> {
-    return await getArtImageById(id, {
-      includeImageData: true,
-    })
-  }
-
-  async function selectArtImageRecord(
-    artImageRecord: ArtImage,
-  ): Promise<ApiResponse<ArtImage>> {
-    state.loading = true
-
-    try {
-      clearError()
-
-      state.currentArtImage = artImageRecord
-      addOrUpdateArtImages([artImageRecord])
-
-      if (artImageRecord.artId) {
-        const linkedArt = artById.value.get(artImageRecord.artId)
-
-        if (linkedArt) {
-          state.currentArt = linkedArt
-        } else {
-          const response = await selectArt(artImageRecord.artId)
-
-          if (response.success && response.data) {
-            state.currentArt = response.data
-          }
-        }
-      }
-
-      return {
-        success: true,
-        message: `Selected ArtImage #${artImageRecord.id}.`,
-        data: artImageRecord,
-      }
-    } catch (error) {
-      handleError(error, 'selecting art image record')
-      setError(error, 'Failed to select art image.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to select art image.',
-      }
-    } finally {
-      state.loading = false
-    }
-  }
-
-  function deselectArtImage(): void {
-    state.currentArtImage = null
-  }
-
-  async function fetchArtImageThumbnail(
-    id: number,
-  ): Promise<ArtImage | undefined> {
-    return await getArtImageById(id, {
-      includeThumbnailData: true,
-    })
-  }
-
-  async function fetchArtImageWithTags(
-    id: number,
-  ): Promise<ArtImage | undefined> {
-    return await getArtImageById(id, {
-      includeTags: true,
-    })
-  }
-
-  async function updateArtTags(
-    id: number,
-    tags: string[],
-  ): Promise<ApiResponse<Art>> {
-    try {
-      clearError()
-
-      const response = await performFetch<Art>(`/api/art/${id}/tags`, {
-        method: 'PATCH',
-        body: JSON.stringify({ tags }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update art tags.')
-      }
-
-      addOrUpdateArt(response.data)
-
-      if (state.currentArt?.id === id) {
-        state.currentArt = response.data
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Tags updated.',
-      }
-    } catch (error) {
-      handleError(error, 'updating art tags')
-      setError(error, 'Failed to update art tags.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : 'Failed to update art tags.',
-      }
-    }
-  }
-  async function addArtToCollection(
-    collectionId: number,
-    artId: number,
-  ): Promise<ApiResponse<unknown>> {
-    try {
-      clearError()
-
-      const response = await performFetch(
-        `/api/art/collection/${collectionId}`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({
-            addArtIds: [artId],
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to add art to collection.')
-      }
-
-      const collectionStore = getCollectionStore()
-
-      await collectionStore.fetchCollections?.(true)
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Art added to collection.',
-      }
-    } catch (error) {
-      handleError(error, 'adding art to collection')
-      setError(error, 'Failed to add art to collection.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to add art to collection.',
-      }
-    }
-  }
-
-  async function removeArtFromCollection(
-    collectionId: number,
-    artId: number,
-  ): Promise<ApiResponse<unknown>> {
-    try {
-      clearError()
-
-      const response = await performFetch(
-        `/api/art/collection/${collectionId}`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({
-            removeArtIds: [artId],
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-
-      if (!response.success) {
-        throw new Error(
-          response.message || 'Failed to remove art from collection.',
-        )
-      }
-
-      const collectionStore = getCollectionStore()
-
-      await collectionStore.fetchCollections?.(true)
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Art removed from collection.',
-      }
-    } catch (error) {
-      handleError(error, 'removing art from collection')
-      setError(error, 'Failed to remove art from collection.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to remove art from collection.',
-      }
-    }
-  }
-  async function generateBrowserArt(
-    server: Server,
-    data: GenerateArtData,
-    engine: ArtGenerationEngine,
-  ): Promise<Art> {
-    if (engine === 'a1111') {
-      const imageBase64 = await generateImageFromBrowserServer(server, data)
-
-      return await saveBrowserGeneratedArt({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    if (engine === 'comfy') {
-      const imageBase64 = await generateComfyImageFromBrowserServer(
-        server,
-        data,
-      )
-
-      return await saveBrowserGeneratedArt({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    if (engine === 'flux') {
-      const imageBase64 = await generateFluxImageFromBrowserServer(server, data)
-
-      return await saveBrowserGeneratedArt({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    if (engine === 'kontext') {
-      const imageBase64 = await generateKontextImageFromBrowserServer(
-        server,
-        data,
-      )
-
-      return await saveBrowserGeneratedArt({
-        ...data,
-        imageBase64,
-      })
-    }
-
-    throw new Error(`Unsupported browser generation engine: ${engine}`)
-  }
-
-  async function generateComfyImageFromBrowserServer(
-    server: Server,
-    data: GenerateArtData,
-  ): Promise<string> {
-    throw new Error(
-      `Browser Comfy generation is not wired yet for "${server.title}".`,
-    )
-  }
-
-  async function generateFluxImageFromBrowserServer(
-    server: Server,
-    data: GenerateArtData,
-  ): Promise<string> {
-    throw new Error(
-      `Browser Flux generation is not wired yet for "${server.title}".`,
-    )
-  }
-
-  async function generateKontextImageFromBrowserServer(
-    server: Server,
-    data: GenerateArtData,
-  ): Promise<string> {
-    throw new Error(
-      `Browser Kontext generation is not wired yet for "${server.title}".`,
-    )
-  }
-
-  function getBackendArtGenerationEndpoint(
-    engine: ArtGenerationEngine,
-  ): string {
-    const endpoints: Record<ArtGenerationEngine, string> = {
-      a1111: '/api/art/generate',
-      comfy: '/api/art/comfy/generate',
-      flux: '/api/art/comfy/flux/generate',
-      kontext: '/api/art/comfy/kontext/generate',
-    }
-
-    return endpoints[engine]
   }
 
   async function generateImageFromBrowserServer(
@@ -1963,7 +1280,7 @@ export const useArtStore = defineStore('artStore', () => {
       )
     }
 
-    const endpointPath = getArtGenerationEndpointPath(server)
+    const endpointPath = getArtImageGenerationEndpointPath(server)
 
     if (!endpointPath.includes('/sdapi/v1/txt2img')) {
       throw new Error(
@@ -1975,7 +1292,7 @@ export const useArtStore = defineStore('artStore', () => {
       typeof form.promptString === 'string' ? form.promptString.trim() : ''
 
     if (!cleanPrompt) {
-      throw new Error('Cannot generate art without a prompt.')
+      throw new Error('Cannot generate an image without a prompt.')
     }
 
     const cleanCheckpoint =
@@ -1990,7 +1307,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     if (!requestedCheckpoint) {
       throw new Error(
-        'Cannot generate art without a selected checkpoint. Pick a model first.',
+        'Cannot generate an image without a selected checkpoint. Pick a model first.',
       )
     }
 
@@ -2120,11 +1437,38 @@ export const useArtStore = defineStore('artStore', () => {
     return String(errorData)
   }
 
-  async function saveBrowserGeneratedArt(
+  async function generateComfyImageFromBrowserServer(
+    server: Server,
+    data: GenerateArtData,
+  ): Promise<string> {
+    throw new Error(
+      `Browser Comfy generation is not wired yet for "${server.title}".`,
+    )
+  }
+
+  async function generateFluxImageFromBrowserServer(
+    server: Server,
+    data: GenerateArtData,
+  ): Promise<string> {
+    throw new Error(
+      `Browser Flux generation is not wired yet for "${server.title}".`,
+    )
+  }
+
+  async function generateKontextImageFromBrowserServer(
+    server: Server,
+    data: GenerateArtData,
+  ): Promise<string> {
+    throw new Error(
+      `Browser Kontext generation is not wired yet for "${server.title}".`,
+    )
+  }
+
+  async function saveBrowserGeneratedArtImage(
     data: GenerateArtData & { imageBase64: string },
-  ): Promise<Art> {
-    const response = await performFetch<Art>(
-      '/api/art/save-generated',
+  ): Promise<ArtImage> {
+    const response = await performFetch<ArtImage>(
+      '/api/art/image/save-generated',
       {
         method: 'POST',
         body: JSON.stringify(data),
@@ -2136,20 +1480,83 @@ export const useArtStore = defineStore('artStore', () => {
 
     if (!response.success || !response.data) {
       throw new Error(
-        response.message || 'Failed to save browser-generated art.',
+        response.message || 'Failed to save browser-generated image.',
       )
     }
 
     return response.data
   }
 
-  async function generateBackendArt(
+  async function generateBrowserArtImage(
+    server: Server,
     data: GenerateArtData,
-    engine: ArtGenerationEngine,
-  ): Promise<Art> {
-    const endpoint = getBackendArtGenerationEndpoint(engine)
+    engine: ArtImageGenerationEngine,
+  ): Promise<ArtImage> {
+    if (engine === 'a1111') {
+      const imageBase64 = await generateImageFromBrowserServer(server, data)
 
-    const response = await performFetch<Art>(
+      return await saveBrowserGeneratedArtImage({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    if (engine === 'comfy') {
+      const imageBase64 = await generateComfyImageFromBrowserServer(
+        server,
+        data,
+      )
+
+      return await saveBrowserGeneratedArtImage({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    if (engine === 'flux') {
+      const imageBase64 = await generateFluxImageFromBrowserServer(server, data)
+
+      return await saveBrowserGeneratedArtImage({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    if (engine === 'kontext') {
+      const imageBase64 = await generateKontextImageFromBrowserServer(
+        server,
+        data,
+      )
+
+      return await saveBrowserGeneratedArtImage({
+        ...data,
+        imageBase64,
+      })
+    }
+
+    throw new Error(`Unsupported browser generation engine: ${engine}`)
+  }
+
+  function getBackendArtImageGenerationEndpoint(
+    engine: ArtImageGenerationEngine,
+  ): string {
+    const endpoints: Record<ArtImageGenerationEngine, string> = {
+      a1111: '/api/art/image/generate',
+      comfy: '/api/art/image/comfy/generate',
+      flux: '/api/art/image/comfy/flux/generate',
+      kontext: '/api/art/image/comfy/kontext/generate',
+    }
+
+    return endpoints[engine]
+  }
+
+  async function generateBackendArtImage(
+    data: GenerateArtData,
+    engine: ArtImageGenerationEngine,
+  ): Promise<ArtImage> {
+    const endpoint = getBackendArtImageGenerationEndpoint(engine)
+
+    const response = await performFetch<ArtImage>(
       endpoint,
       {
         method: 'POST',
@@ -2161,7 +1568,7 @@ export const useArtStore = defineStore('artStore', () => {
     )
 
     if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to generate art.')
+      throw new Error(response.message || 'Failed to generate image.')
     }
 
     return response.data
@@ -2250,29 +1657,27 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function addGeneratedArtToCollections(
-    art: Art,
+  async function addGeneratedArtImageToCollections(
+    image: ArtImage,
     userId: number,
   ): Promise<void> {
     await ensureCollectionsReady()
 
     const collectionStore = getCollectionStore()
-
     const generatedCollection =
       await collectionStore.getOrCreateGeneratedArtCollection(userId)
 
-    const activeCollection = collectionStore.currentCollection
-
-    const alreadyInGenerated = generatedCollection.art.some(
-      (existingArt: Art) => existingArt.id === art.id,
-    )
-
-    if (!alreadyInGenerated) {
-      await addArtToCollection(generatedCollection.id, art.id)
+    if (generatedCollection?.id) {
+      await addArtImageToCollection(generatedCollection.id, image.id)
     }
 
-    if (activeCollection && activeCollection.id !== generatedCollection.id) {
-      await addArtToCollection(activeCollection.id, art.id)
+    const activeCollection = collectionStore.currentCollection
+
+    if (
+      activeCollection?.id &&
+      activeCollection.id !== generatedCollection?.id
+    ) {
+      await addArtImageToCollection(activeCollection.id, image.id)
     }
 
     if (isClient) {
@@ -2283,74 +1688,9 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-      async function createLegacyArtImage(
-    input: ArtImageCreateInput,
-  ): Promise<ApiResponse<ArtImage>> {
-    try {
-      clearError()
-
-      const response = await performFetch<ArtImage>('/api/art/image/legacy', {
-        method: 'POST',
-        body: JSON.stringify(input),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to create legacy ArtImage.')
-      }
-
-      const cleanImage = stripHeavyImageFields(response.data)
-
-      addOrUpdateArtImages([cleanImage])
-
-      if (state.currentArtImage?.id === response.data.id) {
-        state.currentArtImage = cleanImage
-      }
-
-      if (response.data.artId) {
-        const linkedArt = state.art.find((art) => {
-          return art.id === response.data?.artId
-        })
-
-        if (linkedArt && linkedArt.artImageId !== response.data.id) {
-          const updatedArt = {
-            ...linkedArt,
-            artImageId: response.data.id,
-          }
-
-          addOrUpdateArt(updatedArt)
-
-          if (state.currentArt?.id === updatedArt.id) {
-            state.currentArt = updatedArt
-          }
-        }
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Legacy ArtImage created.',
-      }
-    } catch (error) {
-      handleError(error, 'creating legacy art image')
-      setError(error, 'Failed to create legacy ArtImage.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to create legacy ArtImage.',
-      }
-    }
-  }
-
-
   async function generateArt(
     artData?: GenerateArtData,
-  ): Promise<ApiResponse<Art>> {
+  ): Promise<ApiResponse<ArtImage>> {
     state.loading = true
     animationStore.startGeneration({
       zones: {
@@ -2375,7 +1715,7 @@ export const useArtStore = defineStore('artStore', () => {
       }
 
       const server = getSelectedArtServer(data)
-      const route = getArtGenerationRoute(server, data)
+      const route = getArtImageGenerationRoute(server, data)
 
       const dataWithServer: GenerateArtData = {
         ...data,
@@ -2385,32 +1725,31 @@ export const useArtStore = defineStore('artStore', () => {
         transport: route.transport,
       }
 
-      let art: Art
+      const image =
+        route.transport === 'browser'
+          ? await generateBrowserArtImage(server, dataWithServer, route.engine)
+          : await generateBackendArtImage(dataWithServer, route.engine)
 
-      if (route.transport === 'browser') {
-        art = await generateBrowserArt(server, dataWithServer, route.engine)
-      } else {
-        art = await generateBackendArt(dataWithServer, route.engine)
-      }
-      await addGeneratedArtToCollections(art, dataWithServer.userId || 10)
+      addOrUpdateArtImages([image])
+      state.generatedArtImages = mergeUniqueArtImages(
+        state.generatedArtImages,
+        [image],
+      )
+      state.currentArtImage = image
 
-      addOrUpdateArt(art)
-      state.generatedArt = mergeUniqueArt(state.generatedArt, [art])
-      state.currentArt = art
-
-      if (art.artImageId) {
-        const image = await getArtImageById(art.artImageId)
-        state.currentArtImage = image || null
-      }
+      await addGeneratedArtImageToCollections(
+        image,
+        dataWithServer.userId || 10,
+      )
 
       return {
         success: true,
-        data: art,
-        message: 'Art created and added to collections',
+        data: image,
+        message: 'Image created and added to collections.',
       }
     } catch (error) {
-      handleError(error, 'generating art')
-      setError(error, 'Failed to generate art.')
+      handleError(error, 'generating image')
+      setError(error, 'Failed to generate image.')
 
       return {
         success: false,
@@ -2422,177 +1761,43 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function createArt(artData: CreateArtInput): Promise<Art> {
-    try {
-      clearError()
-
-      const response = await performFetch<Art>('/api/art/', {
-        method: 'POST',
-        body: JSON.stringify(artData),
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      if (response.success && response.data) {
-        addOrUpdateArt(response.data)
-        return response.data
-      }
-
-      throw new Error(response.message || 'Failed to create art.')
-    } catch (error) {
-      handleError(error, 'creating art')
-      setError(error, 'Failed to create art.')
-      throw error
-    }
-  }
-
-  async function deleteArt(id: number): Promise<boolean> {
-    try {
-      clearError()
-
-      const response = await performFetch(`/api/art/${id}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete art.')
-      }
-
-      state.art = state.art.filter((art) => art.id !== id)
-      state.generatedArt = state.generatedArt.filter((art) => art.id !== id)
-
-      if (state.currentArt?.id === id) {
-        deselectArt()
-      }
-
-      persistArt()
-      return true
-    } catch (error) {
-      handleError(error, 'deleting art')
-      setError(error, 'Failed to delete art.')
-      return false
-    }
-  }
-
-  async function uploadImage(
-    formData: FormData,
-  ): Promise<{ success: boolean; message: string; data?: ArtImage }> {
-    try {
-      clearError()
-
-      const response = await performFetch<ArtImage>('/api/art/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.success && response.data) {
-        addOrUpdateArtImages([response.data])
-
-        return {
-          success: true,
-          message: 'Image uploaded successfully',
-          data: response.data,
-        }
-      }
-
-      return {
-        success: false,
-        message: response.message || 'Upload failed',
-      }
-    } catch (error) {
-      handleError(error, 'uploading image')
-      setError(error, 'Upload failed.')
-
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Upload failed',
-      }
-    }
-  }
-
-  async function deleteArtImage(artImageId: number): Promise<boolean> {
-    try {
-      clearError()
-
-      const response = await performFetch(`/api/art/image/${artImageId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete the art image.')
-      }
-
-      state.artImages = removeImageById(state.artImages, artImageId)
-
-      if (state.currentArtImage?.id === artImageId) {
-        state.currentArtImage = null
-      }
-
-      persistArtImages()
-      return true
-    } catch (error) {
-      handleError(error, 'deleting art image')
-      setError(error, 'Failed to delete art image.')
-      return false
-    }
-  }
-
   function resetInitialization(): void {
     state.isInitialized = false
-    initializing.value = false
     initializePromise.value = null
-    fetchAllArtPromise.value = null
-    fetchArtPagePromise.value = {}
-    artImageRequestMap.value = {}
-    fetchAllArtImagesPromise.value = null
-    state.error = ''
   }
 
   return {
     ...toRefs(state),
 
-    hoverArt,
+    hoverArtImage,
     initializing,
     initializePromise,
-    fetchAllArtPromise,
-    fetchArtPagePromise,
     artImageRequestMap,
+    fetchAllArtImagesPromise,
 
-    hasCachedArt,
     hasCachedImages,
     currentImagePath,
-    generatedArtCount,
-    artById,
+    generatedArtImageCount,
     imageById,
     getPromptString,
     getNegativePromptString,
-    fetchAllArtImagesPromise,
-
-    artImageByArtId,
-    artByImageId,
-    publicArt,
-    matureArt,
-    safeArt,
-    artWithImages,
-    artWithoutImages,
     publicArtImages,
     matureArtImages,
     safeArtImages,
-    linkedArtImages,
     unlinkedArtImages,
-    artImagePairs,
     artListPresets,
 
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
 
-    fetchAllArt,
-    fetchArtPage,
+    fetchAllArtImages,
     loadArtImagesInChunks,
 
-    selectArt,
-    deselectArt,
-    setHoverArt,
+    selectArtImage,
+    selectArtImageRecord,
+    deselectArtImage,
+    setHoverArtImage,
 
     setArtForm,
     resetArtForm,
@@ -2602,43 +1807,27 @@ export const useArtStore = defineStore('artStore', () => {
 
     generateArt,
     generateImageFromBrowserServer,
-    createArt,
-    deleteArt,
 
     uploadImage,
     deleteArtImage,
-    addOrUpdateArt,
     addOrUpdateArtImages,
-    setArtList,
+    setArtImageList,
 
     getArtImagesByIds,
     getArtImageById,
-    getArtImageByArtId,
     getCachedArtImageById,
     getOrFetchArtImageById,
-    updateArtImageId,
-    updateArtImageWithArtId,
 
-    selectArtRecord,
-    selectArtImageRecord,
-    deselectArtImage,
-
-    updateArt,
-    updateArtTags,
-    addArtToCollection,
-    removeArtFromCollection,
-    fetchAllArtImages,
-    updateArtImage,
-    syncArtToArtImage,
-    repairArtImageLink,
+    updateArtImageTags,
+    addArtImageToCollection,
+    removeArtImageFromCollection,
     fetchArtImageForDisplay,
     fetchArtImageThumbnail,
     fetchArtImageWithTags,
-    buildArtImageSyncFields,
     updateArtImageConnections,
+    updateArtImage,
     createArtImage,
-    createLegacyArtImage,
   }
 })
 
-export type { Art, ArtImage, ArtCollection }
+export type { ArtImage, ArtCollection }

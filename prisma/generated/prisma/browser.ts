@@ -18,11 +18,6 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
- * Model Art
- * Art is the old art directory asset. It didn't have the data itself, but could point to the data. I'm now phazing it out as it makes more sense to point directly to the artImage and filter out the data when needed, but there is still a lot of imagePath stored that needs to be migrated before Art can retire
- */
-export type Art = Prisma.ArtModel
-/**
  * Model ArtImage
  * ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
  */
@@ -155,11 +150,6 @@ export type User = Prisma.UserModel
  * 
  */
 export type ReactionToTag = Prisma.ReactionToTagModel
-/**
- * Model ArtToProduct
- * 
- */
-export type ArtToProduct = Prisma.ArtToProductModel
 /**
  * Model MilestoneToUser
  * 

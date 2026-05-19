@@ -799,7 +799,8 @@ async function selectImage(image: ArtImage) {
 
 function clearSelectedImage() {
   selectedImageForOverlay.value = null
-  if (typeof artStore.deselectArt === 'function') artStore.deselectArt()
+  if (typeof artStore.deselectArtImage === 'function')
+    artStore.deselectArtImage()
 }
 
 async function hydrateVisibleImages() {
@@ -910,7 +911,6 @@ function searchableImageText(image: ArtImage): string {
     image.checkpoint,
     image.sampler,
     image.userId,
-    image.artId,
     image.isPublic ? 'public' : 'private',
     image.isMature ? 'mature' : '',
   ]

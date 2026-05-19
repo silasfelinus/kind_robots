@@ -1,4 +1,5 @@
 <!-- /components/content/art/art-gallery.vue -->
+@ts-nocheck
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"

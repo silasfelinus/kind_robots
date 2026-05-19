@@ -357,8 +357,7 @@ export type ComponentCreateInput = {
   isBroken?: boolean
   title?: string | null
   notes?: string | null
-  artImageId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutComponentInput
   Tags?: Prisma.TagCreateNestedManyWithoutComponentsInput
 }
@@ -375,7 +374,6 @@ export type ComponentUncheckedCreateInput = {
   title?: string | null
   notes?: string | null
   artImageId?: number | null
-  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutComponentInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutComponentInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutComponentsInput
 }
@@ -390,8 +388,7 @@ export type ComponentUpdateInput = {
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutComponentNestedInput
   Tags?: Prisma.TagUpdateManyWithoutComponentsNestedInput
 }
@@ -408,7 +405,6 @@ export type ComponentUncheckedUpdateInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutComponentNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutComponentNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutComponentsNestedInput
 }
@@ -437,7 +433,6 @@ export type ComponentUpdateManyMutationInput = {
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ComponentUncheckedUpdateManyInput = {
@@ -454,9 +449,14 @@ export type ComponentUncheckedUpdateManyInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type ComponentNullableScalarRelationFilter = {
-  is?: Prisma.ComponentWhereInput | null
-  isNot?: Prisma.ComponentWhereInput | null
+export type ComponentListRelationFilter = {
+  every?: Prisma.ComponentWhereInput
+  some?: Prisma.ComponentWhereInput
+  none?: Prisma.ComponentWhereInput
+}
+
+export type ComponentOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ComponentOrderByRelevanceInput = {
@@ -517,30 +517,51 @@ export type ComponentSumOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
 }
 
-export type ComponentListRelationFilter = {
-  every?: Prisma.ComponentWhereInput
-  some?: Prisma.ComponentWhereInput
-  none?: Prisma.ComponentWhereInput
+export type ComponentNullableScalarRelationFilter = {
+  is?: Prisma.ComponentWhereInput | null
+  isNot?: Prisma.ComponentWhereInput | null
 }
 
-export type ComponentOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type ComponentCreateNestedManyWithoutArtImageInput = {
+  create?: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput> | Prisma.ComponentCreateWithoutArtImageInput[] | Prisma.ComponentUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutArtImageInput | Prisma.ComponentCreateOrConnectWithoutArtImageInput[]
+  createMany?: Prisma.ComponentCreateManyArtImageInputEnvelope
+  connect?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
 }
 
-export type ComponentCreateNestedOneWithoutArtImageInput = {
-  create?: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutArtImageInput
-  connect?: Prisma.ComponentWhereUniqueInput
+export type ComponentUncheckedCreateNestedManyWithoutArtImageInput = {
+  create?: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput> | Prisma.ComponentCreateWithoutArtImageInput[] | Prisma.ComponentUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutArtImageInput | Prisma.ComponentCreateOrConnectWithoutArtImageInput[]
+  createMany?: Prisma.ComponentCreateManyArtImageInputEnvelope
+  connect?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
 }
 
-export type ComponentUpdateOneWithoutArtImageNestedInput = {
-  create?: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutArtImageInput
-  upsert?: Prisma.ComponentUpsertWithoutArtImageInput
-  disconnect?: Prisma.ComponentWhereInput | boolean
-  delete?: Prisma.ComponentWhereInput | boolean
-  connect?: Prisma.ComponentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ComponentUpdateToOneWithWhereWithoutArtImageInput, Prisma.ComponentUpdateWithoutArtImageInput>, Prisma.ComponentUncheckedUpdateWithoutArtImageInput>
+export type ComponentUpdateManyWithoutArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput> | Prisma.ComponentCreateWithoutArtImageInput[] | Prisma.ComponentUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutArtImageInput | Prisma.ComponentCreateOrConnectWithoutArtImageInput[]
+  upsert?: Prisma.ComponentUpsertWithWhereUniqueWithoutArtImageInput | Prisma.ComponentUpsertWithWhereUniqueWithoutArtImageInput[]
+  createMany?: Prisma.ComponentCreateManyArtImageInputEnvelope
+  set?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  disconnect?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  delete?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  connect?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  update?: Prisma.ComponentUpdateWithWhereUniqueWithoutArtImageInput | Prisma.ComponentUpdateWithWhereUniqueWithoutArtImageInput[]
+  updateMany?: Prisma.ComponentUpdateManyWithWhereWithoutArtImageInput | Prisma.ComponentUpdateManyWithWhereWithoutArtImageInput[]
+  deleteMany?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
+}
+
+export type ComponentUncheckedUpdateManyWithoutArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput> | Prisma.ComponentCreateWithoutArtImageInput[] | Prisma.ComponentUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.ComponentCreateOrConnectWithoutArtImageInput | Prisma.ComponentCreateOrConnectWithoutArtImageInput[]
+  upsert?: Prisma.ComponentUpsertWithWhereUniqueWithoutArtImageInput | Prisma.ComponentUpsertWithWhereUniqueWithoutArtImageInput[]
+  createMany?: Prisma.ComponentCreateManyArtImageInputEnvelope
+  set?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  disconnect?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  delete?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  connect?: Prisma.ComponentWhereUniqueInput | Prisma.ComponentWhereUniqueInput[]
+  update?: Prisma.ComponentUpdateWithWhereUniqueWithoutArtImageInput | Prisma.ComponentUpdateWithWhereUniqueWithoutArtImageInput[]
+  updateMany?: Prisma.ComponentUpdateManyWithWhereWithoutArtImageInput | Prisma.ComponentUpdateManyWithWhereWithoutArtImageInput[]
+  deleteMany?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
 }
 
 export type ComponentCreateNestedOneWithoutReactionsInput = {
@@ -607,7 +628,6 @@ export type ComponentCreateWithoutArtImageInput = {
   isBroken?: boolean
   title?: string | null
   notes?: string | null
-  artImageId?: number | null
   Reactions?: Prisma.ReactionCreateNestedManyWithoutComponentInput
   Tags?: Prisma.TagCreateNestedManyWithoutComponentsInput
 }
@@ -623,7 +643,6 @@ export type ComponentUncheckedCreateWithoutArtImageInput = {
   isBroken?: boolean
   title?: string | null
   notes?: string | null
-  artImageId?: number | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutComponentInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutComponentsInput
 }
@@ -633,46 +652,42 @@ export type ComponentCreateOrConnectWithoutArtImageInput = {
   create: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput>
 }
 
-export type ComponentUpsertWithoutArtImageInput = {
-  update: Prisma.XOR<Prisma.ComponentUpdateWithoutArtImageInput, Prisma.ComponentUncheckedUpdateWithoutArtImageInput>
-  create: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput>
-  where?: Prisma.ComponentWhereInput
+export type ComponentCreateManyArtImageInputEnvelope = {
+  data: Prisma.ComponentCreateManyArtImageInput | Prisma.ComponentCreateManyArtImageInput[]
+  skipDuplicates?: boolean
 }
 
-export type ComponentUpdateToOneWithWhereWithoutArtImageInput = {
-  where?: Prisma.ComponentWhereInput
+export type ComponentUpsertWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.ComponentWhereUniqueInput
+  update: Prisma.XOR<Prisma.ComponentUpdateWithoutArtImageInput, Prisma.ComponentUncheckedUpdateWithoutArtImageInput>
+  create: Prisma.XOR<Prisma.ComponentCreateWithoutArtImageInput, Prisma.ComponentUncheckedCreateWithoutArtImageInput>
+}
+
+export type ComponentUpdateWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.ComponentWhereUniqueInput
   data: Prisma.XOR<Prisma.ComponentUpdateWithoutArtImageInput, Prisma.ComponentUncheckedUpdateWithoutArtImageInput>
 }
 
-export type ComponentUpdateWithoutArtImageInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  folderName?: Prisma.StringFieldUpdateOperationsInput | string
-  componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Reactions?: Prisma.ReactionUpdateManyWithoutComponentNestedInput
-  Tags?: Prisma.TagUpdateManyWithoutComponentsNestedInput
+export type ComponentUpdateManyWithWhereWithoutArtImageInput = {
+  where: Prisma.ComponentScalarWhereInput
+  data: Prisma.XOR<Prisma.ComponentUpdateManyMutationInput, Prisma.ComponentUncheckedUpdateManyWithoutArtImageInput>
 }
 
-export type ComponentUncheckedUpdateWithoutArtImageInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  folderName?: Prisma.StringFieldUpdateOperationsInput | string
-  componentName?: Prisma.StringFieldUpdateOperationsInput | string
-  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutComponentNestedInput
-  Tags?: Prisma.TagUncheckedUpdateManyWithoutComponentsNestedInput
+export type ComponentScalarWhereInput = {
+  AND?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
+  OR?: Prisma.ComponentScalarWhereInput[]
+  NOT?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
+  id?: Prisma.IntFilter<"Component"> | number
+  createdAt?: Prisma.DateTimeFilter<"Component"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
+  folderName?: Prisma.StringFilter<"Component"> | string
+  componentName?: Prisma.StringFilter<"Component"> | string
+  isWorking?: Prisma.BoolFilter<"Component"> | boolean
+  underConstruction?: Prisma.BoolFilter<"Component"> | boolean
+  isBroken?: Prisma.BoolFilter<"Component"> | boolean
+  title?: Prisma.StringNullableFilter<"Component"> | string | null
+  notes?: Prisma.StringNullableFilter<"Component"> | string | null
+  artImageId?: Prisma.IntNullableFilter<"Component"> | number | null
 }
 
 export type ComponentCreateWithoutReactionsInput = {
@@ -685,8 +700,7 @@ export type ComponentCreateWithoutReactionsInput = {
   isBroken?: boolean
   title?: string | null
   notes?: string | null
-  artImageId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentsInput
   Tags?: Prisma.TagCreateNestedManyWithoutComponentsInput
 }
 
@@ -702,7 +716,6 @@ export type ComponentUncheckedCreateWithoutReactionsInput = {
   title?: string | null
   notes?: string | null
   artImageId?: number | null
-  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutComponentInput
   Tags?: Prisma.TagUncheckedCreateNestedManyWithoutComponentsInput
 }
 
@@ -732,8 +745,7 @@ export type ComponentUpdateWithoutReactionsInput = {
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentsNestedInput
   Tags?: Prisma.TagUpdateManyWithoutComponentsNestedInput
 }
 
@@ -749,7 +761,6 @@ export type ComponentUncheckedUpdateWithoutReactionsInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutComponentNestedInput
   Tags?: Prisma.TagUncheckedUpdateManyWithoutComponentsNestedInput
 }
 
@@ -763,8 +774,7 @@ export type ComponentCreateWithoutTagsInput = {
   isBroken?: boolean
   title?: string | null
   notes?: string | null
-  artImageId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutComponentsInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutComponentInput
 }
 
@@ -780,7 +790,6 @@ export type ComponentUncheckedCreateWithoutTagsInput = {
   title?: string | null
   notes?: string | null
   artImageId?: number | null
-  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutComponentInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutComponentInput
 }
 
@@ -805,21 +814,59 @@ export type ComponentUpdateManyWithWhereWithoutTagsInput = {
   data: Prisma.XOR<Prisma.ComponentUpdateManyMutationInput, Prisma.ComponentUncheckedUpdateManyWithoutTagsInput>
 }
 
-export type ComponentScalarWhereInput = {
-  AND?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
-  OR?: Prisma.ComponentScalarWhereInput[]
-  NOT?: Prisma.ComponentScalarWhereInput | Prisma.ComponentScalarWhereInput[]
-  id?: Prisma.IntFilter<"Component"> | number
-  createdAt?: Prisma.DateTimeFilter<"Component"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"Component"> | Date | string | null
-  folderName?: Prisma.StringFilter<"Component"> | string
-  componentName?: Prisma.StringFilter<"Component"> | string
-  isWorking?: Prisma.BoolFilter<"Component"> | boolean
-  underConstruction?: Prisma.BoolFilter<"Component"> | boolean
-  isBroken?: Prisma.BoolFilter<"Component"> | boolean
-  title?: Prisma.StringNullableFilter<"Component"> | string | null
-  notes?: Prisma.StringNullableFilter<"Component"> | string | null
-  artImageId?: Prisma.IntNullableFilter<"Component"> | number | null
+export type ComponentCreateManyArtImageInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  folderName: string
+  componentName: string
+  isWorking?: boolean
+  underConstruction?: boolean
+  isBroken?: boolean
+  title?: string | null
+  notes?: string | null
+}
+
+export type ComponentUpdateWithoutArtImageInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  folderName?: Prisma.StringFieldUpdateOperationsInput | string
+  componentName?: Prisma.StringFieldUpdateOperationsInput | string
+  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Reactions?: Prisma.ReactionUpdateManyWithoutComponentNestedInput
+  Tags?: Prisma.TagUpdateManyWithoutComponentsNestedInput
+}
+
+export type ComponentUncheckedUpdateWithoutArtImageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  folderName?: Prisma.StringFieldUpdateOperationsInput | string
+  componentName?: Prisma.StringFieldUpdateOperationsInput | string
+  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutComponentNestedInput
+  Tags?: Prisma.TagUncheckedUpdateManyWithoutComponentsNestedInput
+}
+
+export type ComponentUncheckedUpdateManyWithoutArtImageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  folderName?: Prisma.StringFieldUpdateOperationsInput | string
+  componentName?: Prisma.StringFieldUpdateOperationsInput | string
+  isWorking?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  underConstruction?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ComponentUpdateWithoutTagsInput = {
@@ -832,8 +879,7 @@ export type ComponentUpdateWithoutTagsInput = {
   isBroken?: Prisma.BoolFieldUpdateOperationsInput | boolean
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutComponentsNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutComponentNestedInput
 }
 
@@ -849,7 +895,6 @@ export type ComponentUncheckedUpdateWithoutTagsInput = {
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutComponentNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutComponentNestedInput
 }
 

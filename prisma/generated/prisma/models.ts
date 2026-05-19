@@ -8,7 +8,6 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Art'
 export type * from './models/ArtImage'
 export type * from './models/ArtCollection'
 export type * from './models/Bot'
@@ -34,7 +33,6 @@ export type * from './models/Tag'
 export type * from './models/Theme'
 export type * from './models/User'
 export type * from './models/ReactionToTag'
-export type * from './models/ArtToProduct'
 export type * from './models/MilestoneToUser'
 export type * from './models/RewardToUser'
 export type * from './commonInputTypes'

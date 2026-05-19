@@ -1,115 +1,125 @@
 // /components/content/art/art-reactions.vue
 <template>
   <div
-    class="relative w-full bg-base-200 border border-base-300 rounded-2xl shadow-lg p-6 space-y-6 max-w-3xl mx-auto"
+    class="relative mx-auto w-full max-w-3xl space-y-6 rounded-2xl border border-base-300 bg-base-200 p-6 shadow-lg"
   >
-    <h2 class="text-xl font-bold text-primary">React to this Art</h2>
+    <h2 class="text-xl font-bold text-primary">React to this Image</h2>
 
-    <!-- Rating Stars -->
-    <div class="flex items-center gap-2">
-      <span class="font-semibold">Rate:</span>
-      <div class="flex gap-1">
-        <span
-          v-for="star in 5"
-          :key="star"
-          class="text-3xl cursor-pointer select-none transition-transform duration-100"
-          :class="{
-            'text-yellow-400 scale-110': hoverRating >= star,
-            'text-yellow-300': hoverRating === 0 && rating >= star,
-            'text-gray-400': hoverRating < star && rating < star,
-          }"
-          @mouseenter="hoverRating = star"
-          @mouseleave="hoverRating = 0"
-          @click="setRating(star)"
-          >★</span
-        >
+    <div
+      v-if="!currentArtImage"
+      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm text-base-content/60"
+    >
+      Select an image first. The reaction goblin needs a target.
+    </div>
+
+    <template v-else>
+      <div class="flex items-center gap-2">
+        <span class="font-semibold">Rate:</span>
+        <div class="flex gap-1">
+          <button
+            v-for="star in 5"
+            :key="star"
+            class="cursor-pointer select-none border-0 bg-transparent p-0 text-3xl transition-transform duration-100"
+            :class="{
+              'scale-110 text-yellow-400': hoverRating >= star,
+              'text-yellow-300': hoverRating === 0 && rating >= star,
+              'text-gray-400': hoverRating < star && rating < star,
+            }"
+            type="button"
+            @mouseenter="hoverRating = star"
+            @mouseleave="hoverRating = 0"
+            @click="setRating(star)"
+          >
+            ★
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Reaction Type Select -->
-    <div class="space-y-2">
-      <label class="font-semibold">Reaction Type</label>
-      <select
-        v-model="selectedReactionType"
-        class="select select-bordered w-full"
-      >
-        <option v-for="type in reactionTypes" :key="type" :value="type">
-          {{ type }}
-        </option>
-      </select>
-    </div>
+      <div class="space-y-2">
+        <label class="font-semibold">Reaction Type</label>
+        <select
+          v-model="selectedReactionType"
+          class="select select-bordered w-full rounded-2xl bg-base-100"
+        >
+          <option v-for="type in reactionTypes" :key="type" :value="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
 
-    <!-- Optional Comment -->
-    <div>
-      <input
-        v-model="comment"
-        class="input input-bordered w-full"
-        placeholder="Leave a comment..."
-      />
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex flex-wrap gap-2">
-      <button class="btn btn-primary" @click="submitReaction">
-        <Icon name="kind-icon:submit" class="mr-1" /> Submit
-      </button>
-      <button class="btn btn-outline" @click="clearReaction">
-        <Icon name="kind-icon:clear" class="mr-1" /> Clear
-      </button>
-    </div>
-
-    <!-- Feedback Message -->
-    <div v-if="reactionMessage" class="mt-2">
-      <div
-        :class="[
-          'alert',
-          reactionStatus === 'success' ? 'alert-success' : 'alert-error',
-          'shadow-sm',
-        ]"
-      >
-        <Icon
-          :name="
-            reactionStatus === 'success'
-              ? 'kind-icon:check'
-              : 'kind-icon:warning'
-          "
-          class="mr-2"
+      <div>
+        <input
+          v-model="comment"
+          class="input input-bordered w-full rounded-2xl bg-base-100"
+          placeholder="Leave a comment..."
         />
-        {{ reactionMessage }}
       </div>
-    </div>
 
-    <!-- Public Reaction History -->
-    <div v-if="publicReactions.length" class="pt-6 border-t border-base-300">
-      <h3 class="text-lg font-semibold text-base-content mb-2">
-        Recent Reactions
-      </h3>
-      <ul class="space-y-2">
-        <li
-          v-for="r in publicReactions"
-          :key="r.id"
-          class="bg-base-100 border border-base-300 rounded-lg p-3 text-sm"
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-primary rounded-2xl" @click="submitReaction">
+          <Icon name="kind-icon:submit" class="mr-1" />
+          Submit
+        </button>
+
+        <button class="btn btn-outline rounded-2xl" @click="clearReaction">
+          <Icon name="kind-icon:clear" class="mr-1" />
+          Clear
+        </button>
+      </div>
+
+      <div v-if="reactionMessage" class="mt-2">
+        <div
+          :class="[
+            'alert shadow-sm',
+            reactionStatus === 'success' ? 'alert-success' : 'alert-error',
+          ]"
         >
-          <div class="flex justify-between items-center">
-            <div>
-              <strong>{{ r.reactionType }}</strong>
-              <span v-if="r.rating"> - {{ r.rating }}/5</span>
+          <Icon
+            :name="
+              reactionStatus === 'success'
+                ? 'kind-icon:check'
+                : 'kind-icon:warning'
+            "
+            class="mr-2"
+          />
+          {{ reactionMessage }}
+        </div>
+      </div>
+
+      <div v-if="publicReactions.length" class="border-t border-base-300 pt-6">
+        <h3 class="mb-2 text-lg font-semibold text-base-content">
+          Recent Reactions
+        </h3>
+
+        <ul class="space-y-2">
+          <li
+            v-for="reaction in publicReactions"
+            :key="reaction.id"
+            class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <strong>{{ reaction.reactionType }}</strong>
+                <span v-if="reaction.rating"> · {{ reaction.rating }}/5</span>
+              </div>
+
+              <span class="text-xs text-base-content/70">
+                {{ formatDate(reaction.createdAt) }}
+              </span>
             </div>
-            <span class="text-xs text-base-content/70">
-              {{ new Date(r.createdAt).toLocaleString() }}
-            </span>
-          </div>
-          <p v-if="r.comment" class="mt-1 text-base-content/80">
-            “{{ r.comment }}”
-          </p>
-        </li>
-      </ul>
-    </div>
+
+            <p v-if="reaction.comment" class="mt-1 text-base-content/80">
+              “{{ reaction.comment }}”
+            </p>
+          </li>
+        </ul>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import {
   useReactionStore,
   reactionTypes,
@@ -118,12 +128,27 @@ import {
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 
+type ImageReaction = {
+  id: number
+  artImageId?: number | null
+  userId: number
+  rating: number
+  reactionType: ReactionTypeEnum
+  comment?: string | null
+  createdAt: Date | string
+}
+
+type ReactionFetchStore = ReturnType<typeof useReactionStore> & {
+  fetchReactionsByArtImageId?: (id: number) => Promise<unknown>
+  fetchReactions?: () => Promise<unknown>
+}
+
 const userStore = useUserStore()
 const artStore = useArtStore()
-const reactionStore = useReactionStore()
+const reactionStore = useReactionStore() as ReactionFetchStore
 
-const art = computed(() => artStore.currentArt)
-const userId = computed(() => userStore.user?.id || 10)
+const currentArtImage = computed(() => artStore.currentArtImage)
+const userId = computed(() => userStore.user?.id || userStore.userId || 10)
 
 const rating = ref(0)
 const hoverRating = ref(0)
@@ -132,23 +157,79 @@ const comment = ref('')
 const reactionMessage = ref('')
 const reactionStatus = ref<'success' | 'error' | ''>('')
 
-const publicReactions = computed(() => {
-  return reactionStore.reactions.filter(
-    (r: { artId: any; userId: any }) =>
-      r.artId === art.value?.id && r.userId !== userId.value,
-  )
+const imageReactions = computed<ImageReaction[]>(() => {
+  return reactionStore.reactions as ImageReaction[]
 })
 
-const setRating = (val: number) => (rating.value = val)
-const clearReaction = () => {
+const publicReactions = computed(() => {
+  const imageId = currentArtImage.value?.id
+  if (!imageId) return []
+
+  return imageReactions.value.filter((reaction) => {
+    return reaction.artImageId === imageId && reaction.userId !== userId.value
+  })
+})
+
+watch(
+  () => currentArtImage.value?.id,
+  async (imageId) => {
+    clearReaction()
+
+    if (!imageId) return
+
+    await fetchImageReactions(imageId)
+    hydrateMyReaction(imageId)
+  },
+  { immediate: true },
+)
+
+onMounted(async () => {
+  const imageId = currentArtImage.value?.id
+  if (!imageId) return
+
+  await fetchImageReactions(imageId)
+  hydrateMyReaction(imageId)
+})
+
+function setRating(value: number) {
+  rating.value = value
+}
+
+function clearReaction() {
   rating.value = 0
   hoverRating.value = 0
   selectedReactionType.value = 'NEUTRAL'
   comment.value = ''
 }
 
-const submitReaction = async () => {
-  if (!art.value?.id || !userStore.user?.id) {
+function hydrateMyReaction(imageId: number) {
+  const myReaction = imageReactions.value.find((reaction) => {
+    return reaction.artImageId === imageId && reaction.userId === userId.value
+  })
+
+  if (!myReaction) return
+
+  rating.value = myReaction.rating
+  selectedReactionType.value = myReaction.reactionType
+  comment.value = myReaction.comment || ''
+}
+
+async function fetchImageReactions(imageId: number) {
+  if (typeof reactionStore.fetchReactionsByArtImageId === 'function') {
+    await reactionStore.fetchReactionsByArtImageId(imageId)
+    return
+  }
+
+  if (typeof reactionStore.fetchReactions === 'function') {
+    await reactionStore.fetchReactions()
+  }
+}
+
+async function submitReaction() {
+  const imageId = currentArtImage.value?.id
+  const activeUserId = userStore.user?.id || userStore.userId
+
+  if (!imageId || !activeUserId) {
     reactionStatus.value = 'error'
     reactionMessage.value = 'Login required.'
     return
@@ -156,17 +237,18 @@ const submitReaction = async () => {
 
   try {
     await reactionStore.addReaction({
-      artId: art.value.id,
-      userId: userStore.user.id,
+      artImageId: imageId,
+      userId: activeUserId,
       rating: rating.value,
       reactionType: selectedReactionType.value,
       comment: comment.value,
-      reactionCategory: 'ART',
+      reactionCategory: 'ART_IMAGE',
     })
+
     reactionStatus.value = 'success'
-    reactionMessage.value = 'Reaction submitted!'
-  } catch (err) {
-    console.error('Reaction failed:', err)
+    reactionMessage.value = 'Image reaction submitted.'
+  } catch (error) {
+    console.error('Image reaction failed:', error)
     reactionStatus.value = 'error'
     reactionMessage.value = 'Submission failed.'
   }
@@ -177,18 +259,7 @@ const submitReaction = async () => {
   }, 5000)
 }
 
-onMounted(async () => {
-  if (art.value?.id) {
-    await reactionStore.fetchReactionsByArtId(art.value.id)
-    const myReaction = reactionStore.reactions.find(
-      (r: { artId: any; userId: any }) =>
-        r.artId === art.value?.id && r.userId === userId.value,
-    )
-    if (myReaction) {
-      rating.value = myReaction.rating
-      selectedReactionType.value = myReaction.reactionType
-      comment.value = myReaction.comment || ''
-    }
-  }
-})
+function formatDate(value: Date | string) {
+  return new Date(value).toLocaleString()
+}
 </script>

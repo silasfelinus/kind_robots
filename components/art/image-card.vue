@@ -1,4 +1,4 @@
-<!-- /components/content/art/image-card.vue -->
+<!-- /components/art/image-card.vue -->
 <template>
   <reactable-card
     :selected="selected"
@@ -100,9 +100,6 @@
         <span v-if="!displayImage.isPublic" class="badge badge-warning badge-xs"
           >Private</span
         >
-        <span v-if="displayImage.artId" class="badge badge-info badge-xs"
-          >Art #{{ displayImage.artId }}</span
-        >
       </div>
 
       <!-- Selected indicator -->
@@ -160,13 +157,11 @@
       >
         <div class="flex flex-wrap gap-1.5">
           <span
-            v-if="displayImage.artId"
             class="badge badge-info badge-xs"
-            :title="`Art #${displayImage.artId}`"
+            :title="`Image #${displayImage.id}`"
           >
-            Art #{{ displayImage.artId }}
+            Image #{{ displayImage.id }}
           </span>
-          <span v-else class="badge badge-ghost badge-xs">No Art link</span>
           <span class="badge badge-xs" :class="imageDataBadgeClass">
             data: {{ displayImage.imageData ? 'yes' : 'no' }}
           </span>
@@ -224,12 +219,6 @@
           <p class="text-base-content/75">#{{ displayImage.id }}</p>
         </div>
         <div>
-          <p class="font-bold uppercase text-base-content/40">Art ID</p>
-          <p class="text-base-content/75">
-            {{ displayImage.artId ? `#${displayImage.artId}` : 'n/a' }}
-          </p>
-        </div>
-        <div>
           <p class="font-bold uppercase text-base-content/40">Steps</p>
           <p class="text-base-content/75">{{ displayImage.steps ?? 'n/a' }}</p>
         </div>
@@ -237,6 +226,7 @@
           <p class="font-bold uppercase text-base-content/40">CFG</p>
           <p class="text-base-content/75">{{ cfgDisplay }}</p>
         </div>
+
         <button
           class="rounded-xl text-left transition hover:bg-base-200 disabled:hover:bg-transparent"
           type="button"

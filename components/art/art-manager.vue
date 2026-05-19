@@ -2,11 +2,11 @@
 <template>
   <dashboard-shell
     dashboard-key="art"
-    title="Art Workshop"
+    title="Image Workshop"
     :summary="managerSummary"
     :loading="isLoadingManager"
     :error="managerError"
-    loading-message="Loading art, collections, checkpoints, and pixel goblin infrastructure..."
+    loading-message="Loading images, collections, checkpoints, and pixel goblin infrastructure..."
     nav-grid-class="xl:grid-cols-6"
     @refresh="refreshManagerData"
   >
@@ -67,8 +67,6 @@
         :show-header="false"
       />
 
-      <art-doctor v-else-if="currentTab === 'doctor'" />
-
       <section
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
@@ -103,7 +101,7 @@
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
-        Unknown art tab: {{ currentTab }}
+        Unknown image tab: {{ currentTab }}
       </div>
     </template>
   </dashboard-shell>
@@ -128,7 +126,7 @@ const activeArtServerLabel = computed(() => {
   return (
     serverStore.activeArtServer?.label ||
     serverStore.activeArtServer?.title ||
-    'no art server'
+    'no image server'
   )
 })
 
@@ -152,16 +150,14 @@ const selectedCollectionLabel = computed(() => {
 
 const selectedArtLabel = computed(() => {
   if (artStore.currentArtImage) return `Image #${artStore.currentArtImage.id}`
-  if (artStore.currentArt) return `Art #${artStore.currentArt.id}`
   return 'nothing selected'
 })
 
 const managerSummary = computed(() => {
-  const artCount = artStore.art.length
   const imageCount = artStore.artImages.length
   const collectionCount = collectionStore.collections.length
 
-  return `${artCount} art records, ${imageCount} images, and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Focus: ${selectedArtLabel.value}.`
+  return `${imageCount} images and ${collectionCount} collections loaded. Current setup: ${activeArtServerLabel.value}, ${selectedCheckpointLabel.value}, ${selectedCollectionLabel.value}. Focus: ${selectedArtLabel.value}.`
 })
 
 async function loadManagerData(force = false) {
@@ -187,7 +183,7 @@ async function loadManagerData(force = false) {
     }
   } catch (error) {
     managerError.value =
-      error instanceof Error ? error.message : 'Failed to load art manager.'
+      error instanceof Error ? error.message : 'Failed to load image manager.'
   } finally {
     isLoadingManager.value = false
   }

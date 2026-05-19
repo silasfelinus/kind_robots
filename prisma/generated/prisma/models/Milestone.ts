@@ -410,8 +410,7 @@ export type MilestoneCreateInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
-  artImageId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestoneInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
   MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
 }
 
@@ -431,7 +430,6 @@ export type MilestoneUncheckedCreateInput = {
   isRepeatable?: boolean
   artPrompt?: string | null
   artImageId?: number | null
-  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutMilestoneInput
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
 }
 
@@ -449,8 +447,7 @@ export type MilestoneUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestoneNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
   MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
 }
 
@@ -470,7 +467,6 @@ export type MilestoneUncheckedUpdateInput = {
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutMilestoneNestedInput
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
 }
 
@@ -506,7 +502,6 @@ export type MilestoneUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type MilestoneUncheckedUpdateManyInput = {
@@ -527,9 +522,14 @@ export type MilestoneUncheckedUpdateManyInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type MilestoneNullableScalarRelationFilter = {
-  is?: Prisma.MilestoneWhereInput | null
-  isNot?: Prisma.MilestoneWhereInput | null
+export type MilestoneListRelationFilter = {
+  every?: Prisma.MilestoneWhereInput
+  some?: Prisma.MilestoneWhereInput
+  none?: Prisma.MilestoneWhereInput
+}
+
+export type MilestoneOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type MilestoneOrderByRelevanceInput = {
@@ -609,20 +609,46 @@ export type MilestoneScalarRelationFilter = {
   isNot?: Prisma.MilestoneWhereInput
 }
 
-export type MilestoneCreateNestedOneWithoutArtImageInput = {
-  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput
-  connect?: Prisma.MilestoneWhereUniqueInput
+export type MilestoneCreateNestedManyWithoutArtImageInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput> | Prisma.MilestoneCreateWithoutArtImageInput[] | Prisma.MilestoneUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput | Prisma.MilestoneCreateOrConnectWithoutArtImageInput[]
+  createMany?: Prisma.MilestoneCreateManyArtImageInputEnvelope
+  connect?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
 }
 
-export type MilestoneUpdateOneWithoutArtImageNestedInput = {
-  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput>
-  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput
-  upsert?: Prisma.MilestoneUpsertWithoutArtImageInput
-  disconnect?: Prisma.MilestoneWhereInput | boolean
-  delete?: Prisma.MilestoneWhereInput | boolean
-  connect?: Prisma.MilestoneWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.MilestoneUpdateToOneWithWhereWithoutArtImageInput, Prisma.MilestoneUpdateWithoutArtImageInput>, Prisma.MilestoneUncheckedUpdateWithoutArtImageInput>
+export type MilestoneUncheckedCreateNestedManyWithoutArtImageInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput> | Prisma.MilestoneCreateWithoutArtImageInput[] | Prisma.MilestoneUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput | Prisma.MilestoneCreateOrConnectWithoutArtImageInput[]
+  createMany?: Prisma.MilestoneCreateManyArtImageInputEnvelope
+  connect?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+}
+
+export type MilestoneUpdateManyWithoutArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput> | Prisma.MilestoneCreateWithoutArtImageInput[] | Prisma.MilestoneUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput | Prisma.MilestoneCreateOrConnectWithoutArtImageInput[]
+  upsert?: Prisma.MilestoneUpsertWithWhereUniqueWithoutArtImageInput | Prisma.MilestoneUpsertWithWhereUniqueWithoutArtImageInput[]
+  createMany?: Prisma.MilestoneCreateManyArtImageInputEnvelope
+  set?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  disconnect?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  delete?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  connect?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  update?: Prisma.MilestoneUpdateWithWhereUniqueWithoutArtImageInput | Prisma.MilestoneUpdateWithWhereUniqueWithoutArtImageInput[]
+  updateMany?: Prisma.MilestoneUpdateManyWithWhereWithoutArtImageInput | Prisma.MilestoneUpdateManyWithWhereWithoutArtImageInput[]
+  deleteMany?: Prisma.MilestoneScalarWhereInput | Prisma.MilestoneScalarWhereInput[]
+}
+
+export type MilestoneUncheckedUpdateManyWithoutArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput> | Prisma.MilestoneCreateWithoutArtImageInput[] | Prisma.MilestoneUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MilestoneCreateOrConnectWithoutArtImageInput | Prisma.MilestoneCreateOrConnectWithoutArtImageInput[]
+  upsert?: Prisma.MilestoneUpsertWithWhereUniqueWithoutArtImageInput | Prisma.MilestoneUpsertWithWhereUniqueWithoutArtImageInput[]
+  createMany?: Prisma.MilestoneCreateManyArtImageInputEnvelope
+  set?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  disconnect?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  delete?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  connect?: Prisma.MilestoneWhereUniqueInput | Prisma.MilestoneWhereUniqueInput[]
+  update?: Prisma.MilestoneUpdateWithWhereUniqueWithoutArtImageInput | Prisma.MilestoneUpdateWithWhereUniqueWithoutArtImageInput[]
+  updateMany?: Prisma.MilestoneUpdateManyWithWhereWithoutArtImageInput | Prisma.MilestoneUpdateManyWithWhereWithoutArtImageInput[]
+  deleteMany?: Prisma.MilestoneScalarWhereInput | Prisma.MilestoneScalarWhereInput[]
 }
 
 export type MilestoneCreateNestedOneWithoutMilestoneRecordsInput = {
@@ -653,7 +679,6 @@ export type MilestoneCreateWithoutArtImageInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
-  artImageId?: number | null
   MilestoneRecords?: Prisma.MilestoneRecordCreateNestedManyWithoutMilestonesInput
 }
 
@@ -672,7 +697,6 @@ export type MilestoneUncheckedCreateWithoutArtImageInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
-  artImageId?: number | null
   MilestoneRecords?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutMilestonesInput
 }
 
@@ -681,52 +705,46 @@ export type MilestoneCreateOrConnectWithoutArtImageInput = {
   create: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput>
 }
 
-export type MilestoneUpsertWithoutArtImageInput = {
-  update: Prisma.XOR<Prisma.MilestoneUpdateWithoutArtImageInput, Prisma.MilestoneUncheckedUpdateWithoutArtImageInput>
-  create: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput>
-  where?: Prisma.MilestoneWhereInput
+export type MilestoneCreateManyArtImageInputEnvelope = {
+  data: Prisma.MilestoneCreateManyArtImageInput | Prisma.MilestoneCreateManyArtImageInput[]
+  skipDuplicates?: boolean
 }
 
-export type MilestoneUpdateToOneWithWhereWithoutArtImageInput = {
-  where?: Prisma.MilestoneWhereInput
+export type MilestoneUpsertWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.MilestoneWhereUniqueInput
+  update: Prisma.XOR<Prisma.MilestoneUpdateWithoutArtImageInput, Prisma.MilestoneUncheckedUpdateWithoutArtImageInput>
+  create: Prisma.XOR<Prisma.MilestoneCreateWithoutArtImageInput, Prisma.MilestoneUncheckedCreateWithoutArtImageInput>
+}
+
+export type MilestoneUpdateWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.MilestoneWhereUniqueInput
   data: Prisma.XOR<Prisma.MilestoneUpdateWithoutArtImageInput, Prisma.MilestoneUncheckedUpdateWithoutArtImageInput>
 }
 
-export type MilestoneUpdateWithoutArtImageInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
+export type MilestoneUpdateManyWithWhereWithoutArtImageInput = {
+  where: Prisma.MilestoneScalarWhereInput
+  data: Prisma.XOR<Prisma.MilestoneUpdateManyMutationInput, Prisma.MilestoneUncheckedUpdateManyWithoutArtImageInput>
 }
 
-export type MilestoneUncheckedUpdateWithoutArtImageInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  message?: Prisma.StringFieldUpdateOperationsInput | string
-  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  karma?: Prisma.IntFieldUpdateOperationsInput | number
-  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
+export type MilestoneScalarWhereInput = {
+  AND?: Prisma.MilestoneScalarWhereInput | Prisma.MilestoneScalarWhereInput[]
+  OR?: Prisma.MilestoneScalarWhereInput[]
+  NOT?: Prisma.MilestoneScalarWhereInput | Prisma.MilestoneScalarWhereInput[]
+  id?: Prisma.IntFilter<"Milestone"> | number
+  createdAt?: Prisma.DateTimeFilter<"Milestone"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Milestone"> | Date | string | null
+  label?: Prisma.StringFilter<"Milestone"> | string
+  message?: Prisma.StringFilter<"Milestone"> | string
+  icon?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  karma?: Prisma.IntFilter<"Milestone"> | number
+  pageHint?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  subtleHint?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  triggerCode?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  tooltip?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  isActive?: Prisma.BoolFilter<"Milestone"> | boolean
+  isRepeatable?: Prisma.BoolFilter<"Milestone"> | boolean
+  artPrompt?: Prisma.StringNullableFilter<"Milestone"> | string | null
+  artImageId?: Prisma.IntNullableFilter<"Milestone"> | number | null
 }
 
 export type MilestoneCreateWithoutMilestoneRecordsInput = {
@@ -743,8 +761,7 @@ export type MilestoneCreateWithoutMilestoneRecordsInput = {
   isActive?: boolean
   isRepeatable?: boolean
   artPrompt?: string | null
-  artImageId?: number | null
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestoneInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMilestonesInput
 }
 
 export type MilestoneUncheckedCreateWithoutMilestoneRecordsInput = {
@@ -763,7 +780,6 @@ export type MilestoneUncheckedCreateWithoutMilestoneRecordsInput = {
   isRepeatable?: boolean
   artPrompt?: string | null
   artImageId?: number | null
-  ArtImage?: Prisma.ArtImageUncheckedCreateNestedOneWithoutMilestoneInput
 }
 
 export type MilestoneCreateOrConnectWithoutMilestoneRecordsInput = {
@@ -796,8 +812,7 @@ export type MilestoneUpdateWithoutMilestoneRecordsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestoneNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMilestonesNestedInput
 }
 
 export type MilestoneUncheckedUpdateWithoutMilestoneRecordsInput = {
@@ -816,7 +831,75 @@ export type MilestoneUncheckedUpdateWithoutMilestoneRecordsInput = {
   isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  ArtImage?: Prisma.ArtImageUncheckedUpdateOneWithoutMilestoneNestedInput
+}
+
+export type MilestoneCreateManyArtImageInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  label: string
+  message: string
+  icon?: string | null
+  karma?: number
+  pageHint?: string | null
+  subtleHint?: string | null
+  triggerCode?: string | null
+  tooltip?: string | null
+  isActive?: boolean
+  isRepeatable?: boolean
+  artPrompt?: string | null
+}
+
+export type MilestoneUpdateWithoutArtImageInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MilestoneRecords?: Prisma.MilestoneRecordUpdateManyWithoutMilestonesNestedInput
+}
+
+export type MilestoneUncheckedUpdateWithoutArtImageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MilestoneRecords?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutMilestonesNestedInput
+}
+
+export type MilestoneUncheckedUpdateManyWithoutArtImageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  pageHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtleHint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  triggerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tooltip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isRepeatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 

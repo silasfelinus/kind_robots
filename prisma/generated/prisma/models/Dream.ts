@@ -30,7 +30,6 @@ export type DreamAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   pitchId: number | null
-  artId: number | null
   artImageId: number | null
   textServerId: number | null
   artServerId: number | null
@@ -43,7 +42,6 @@ export type DreamSumAggregateOutputType = {
   id: number | null
   userId: number | null
   pitchId: number | null
-  artId: number | null
   artImageId: number | null
   textServerId: number | null
   artServerId: number | null
@@ -63,7 +61,6 @@ export type DreamMinAggregateOutputType = {
   currentPrompt: string | null
   userId: number | null
   pitchId: number | null
-  artId: number | null
   artImageId: number | null
   textServerId: number | null
   artServerId: number | null
@@ -89,7 +86,6 @@ export type DreamMaxAggregateOutputType = {
   currentPrompt: string | null
   userId: number | null
   pitchId: number | null
-  artId: number | null
   artImageId: number | null
   textServerId: number | null
   artServerId: number | null
@@ -115,7 +111,6 @@ export type DreamCountAggregateOutputType = {
   currentPrompt: number
   userId: number
   pitchId: number
-  artId: number
   artImageId: number
   textServerId: number
   artServerId: number
@@ -136,7 +131,6 @@ export type DreamAvgAggregateInputType = {
   id?: true
   userId?: true
   pitchId?: true
-  artId?: true
   artImageId?: true
   textServerId?: true
   artServerId?: true
@@ -149,7 +143,6 @@ export type DreamSumAggregateInputType = {
   id?: true
   userId?: true
   pitchId?: true
-  artId?: true
   artImageId?: true
   textServerId?: true
   artServerId?: true
@@ -169,7 +162,6 @@ export type DreamMinAggregateInputType = {
   currentPrompt?: true
   userId?: true
   pitchId?: true
-  artId?: true
   artImageId?: true
   textServerId?: true
   artServerId?: true
@@ -195,7 +187,6 @@ export type DreamMaxAggregateInputType = {
   currentPrompt?: true
   userId?: true
   pitchId?: true
-  artId?: true
   artImageId?: true
   textServerId?: true
   artServerId?: true
@@ -221,7 +212,6 @@ export type DreamCountAggregateInputType = {
   currentPrompt?: true
   userId?: true
   pitchId?: true
-  artId?: true
   artImageId?: true
   textServerId?: true
   artServerId?: true
@@ -334,7 +324,6 @@ export type DreamGroupByOutputType = {
   currentPrompt: string | null
   userId: number
   pitchId: number | null
-  artId: number | null
   artImageId: number | null
   textServerId: number | null
   artServerId: number | null
@@ -383,7 +372,6 @@ export type DreamWhereInput = {
   currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   userId?: Prisma.IntFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artId?: Prisma.IntNullableFilter<"Dream"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Dream"> | number | null
   textServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
   artServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
@@ -399,7 +387,6 @@ export type DreamWhereInput = {
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
-  Art?: Prisma.XOR<Prisma.ArtNullableScalarRelationFilter, Prisma.ArtWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
@@ -421,7 +408,6 @@ export type DreamOrderByWithRelationInput = {
   currentPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
-  artId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   textServerId?: Prisma.SortOrderInput | Prisma.SortOrder
   artServerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -437,7 +423,6 @@ export type DreamOrderByWithRelationInput = {
   User?: Prisma.UserOrderByWithRelationInput
   Gallery?: Prisma.GalleryOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
-  Art?: Prisma.ArtOrderByWithRelationInput
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   ArtCollection?: Prisma.ArtCollectionOrderByWithRelationInput
@@ -463,7 +448,6 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
   userId?: Prisma.IntFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artId?: Prisma.IntNullableFilter<"Dream"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Dream"> | number | null
   textServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
   artServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
@@ -479,7 +463,6 @@ export type DreamWhereUniqueInput = Prisma.AtLeast<{
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Gallery?: Prisma.XOR<Prisma.GalleryNullableScalarRelationFilter, Prisma.GalleryWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
-  Art?: Prisma.XOR<Prisma.ArtNullableScalarRelationFilter, Prisma.ArtWhereInput> | null
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   ArtCollection?: Prisma.XOR<Prisma.ArtCollectionNullableScalarRelationFilter, Prisma.ArtCollectionWhereInput> | null
@@ -501,7 +484,6 @@ export type DreamOrderByWithAggregationInput = {
   currentPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrderInput | Prisma.SortOrder
-  artId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   textServerId?: Prisma.SortOrderInput | Prisma.SortOrder
   artServerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -535,7 +517,6 @@ export type DreamScalarWhereWithAggregatesInput = {
   currentPrompt?: Prisma.StringNullableWithAggregatesFilter<"Dream"> | string | null
   userId?: Prisma.IntWithAggregatesFilter<"Dream"> | number
   pitchId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
-  artId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
   textServerId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
   artServerId?: Prisma.IntNullableWithAggregatesFilter<"Dream"> | number | null
@@ -569,7 +550,6 @@ export type DreamCreateInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -591,7 +571,6 @@ export type DreamUncheckedCreateInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -630,7 +609,6 @@ export type DreamUpdateInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -652,7 +630,6 @@ export type DreamUncheckedUpdateInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -683,7 +660,6 @@ export type DreamCreateManyInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -727,7 +703,6 @@ export type DreamUncheckedUpdateManyInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -774,7 +749,6 @@ export type DreamCountOrderByAggregateInput = {
   currentPrompt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
-  artId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   textServerId?: Prisma.SortOrder
   artServerId?: Prisma.SortOrder
@@ -793,7 +767,6 @@ export type DreamAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
-  artId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   textServerId?: Prisma.SortOrder
   artServerId?: Prisma.SortOrder
@@ -813,7 +786,6 @@ export type DreamMaxOrderByAggregateInput = {
   currentPrompt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
-  artId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   textServerId?: Prisma.SortOrder
   artServerId?: Prisma.SortOrder
@@ -839,7 +811,6 @@ export type DreamMinOrderByAggregateInput = {
   currentPrompt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
-  artId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   textServerId?: Prisma.SortOrder
   artServerId?: Prisma.SortOrder
@@ -858,55 +829,12 @@ export type DreamSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   pitchId?: Prisma.SortOrder
-  artId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
   textServerId?: Prisma.SortOrder
   artServerId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   galleryId?: Prisma.SortOrder
   scenarioId?: Prisma.SortOrder
-}
-
-export type DreamCreateNestedManyWithoutArtInput = {
-  create?: Prisma.XOR<Prisma.DreamCreateWithoutArtInput, Prisma.DreamUncheckedCreateWithoutArtInput> | Prisma.DreamCreateWithoutArtInput[] | Prisma.DreamUncheckedCreateWithoutArtInput[]
-  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutArtInput | Prisma.DreamCreateOrConnectWithoutArtInput[]
-  createMany?: Prisma.DreamCreateManyArtInputEnvelope
-  connect?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-}
-
-export type DreamUncheckedCreateNestedManyWithoutArtInput = {
-  create?: Prisma.XOR<Prisma.DreamCreateWithoutArtInput, Prisma.DreamUncheckedCreateWithoutArtInput> | Prisma.DreamCreateWithoutArtInput[] | Prisma.DreamUncheckedCreateWithoutArtInput[]
-  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutArtInput | Prisma.DreamCreateOrConnectWithoutArtInput[]
-  createMany?: Prisma.DreamCreateManyArtInputEnvelope
-  connect?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-}
-
-export type DreamUpdateManyWithoutArtNestedInput = {
-  create?: Prisma.XOR<Prisma.DreamCreateWithoutArtInput, Prisma.DreamUncheckedCreateWithoutArtInput> | Prisma.DreamCreateWithoutArtInput[] | Prisma.DreamUncheckedCreateWithoutArtInput[]
-  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutArtInput | Prisma.DreamCreateOrConnectWithoutArtInput[]
-  upsert?: Prisma.DreamUpsertWithWhereUniqueWithoutArtInput | Prisma.DreamUpsertWithWhereUniqueWithoutArtInput[]
-  createMany?: Prisma.DreamCreateManyArtInputEnvelope
-  set?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  disconnect?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  delete?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  connect?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  update?: Prisma.DreamUpdateWithWhereUniqueWithoutArtInput | Prisma.DreamUpdateWithWhereUniqueWithoutArtInput[]
-  updateMany?: Prisma.DreamUpdateManyWithWhereWithoutArtInput | Prisma.DreamUpdateManyWithWhereWithoutArtInput[]
-  deleteMany?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
-}
-
-export type DreamUncheckedUpdateManyWithoutArtNestedInput = {
-  create?: Prisma.XOR<Prisma.DreamCreateWithoutArtInput, Prisma.DreamUncheckedCreateWithoutArtInput> | Prisma.DreamCreateWithoutArtInput[] | Prisma.DreamUncheckedCreateWithoutArtInput[]
-  connectOrCreate?: Prisma.DreamCreateOrConnectWithoutArtInput | Prisma.DreamCreateOrConnectWithoutArtInput[]
-  upsert?: Prisma.DreamUpsertWithWhereUniqueWithoutArtInput | Prisma.DreamUpsertWithWhereUniqueWithoutArtInput[]
-  createMany?: Prisma.DreamCreateManyArtInputEnvelope
-  set?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  disconnect?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  delete?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  connect?: Prisma.DreamWhereUniqueInput | Prisma.DreamWhereUniqueInput[]
-  update?: Prisma.DreamUpdateWithWhereUniqueWithoutArtInput | Prisma.DreamUpdateWithWhereUniqueWithoutArtInput[]
-  updateMany?: Prisma.DreamUpdateManyWithWhereWithoutArtInput | Prisma.DreamUpdateManyWithWhereWithoutArtInput[]
-  deleteMany?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
 }
 
 export type DreamCreateNestedManyWithoutArtImageInput = {
@@ -1311,120 +1239,6 @@ export type DreamUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
 }
 
-export type DreamCreateWithoutArtInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title: string
-  slug?: string | null
-  description?: string | null
-  currentVibe?: string | null
-  currentPrompt?: string | null
-  textServerId?: number | null
-  artServerId?: number | null
-  artPrompt?: string | null
-  accessMode?: $Enums.DreamAccessMode
-  privacyCode?: string | null
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-  User?: Prisma.UserCreateNestedOneWithoutDreamsInput
-  Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
-  Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
-  ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
-  Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
-  Reactions?: Prisma.ReactionCreateNestedManyWithoutDreamInput
-  Tags?: Prisma.TagCreateNestedManyWithoutDreamsInput
-  Characters?: Prisma.CharacterCreateNestedManyWithoutDreamsInput
-  Rewards?: Prisma.RewardCreateNestedManyWithoutDreamsInput
-}
-
-export type DreamUncheckedCreateWithoutArtInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title: string
-  slug?: string | null
-  description?: string | null
-  currentVibe?: string | null
-  currentPrompt?: string | null
-  userId?: number
-  pitchId?: number | null
-  artImageId?: number | null
-  textServerId?: number | null
-  artServerId?: number | null
-  artCollectionId?: number | null
-  galleryId?: number | null
-  scenarioId?: number | null
-  artPrompt?: string | null
-  accessMode?: $Enums.DreamAccessMode
-  privacyCode?: string | null
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutDreamInput
-  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutDreamInput
-  Tags?: Prisma.TagUncheckedCreateNestedManyWithoutDreamsInput
-  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutDreamsInput
-  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutDreamsInput
-}
-
-export type DreamCreateOrConnectWithoutArtInput = {
-  where: Prisma.DreamWhereUniqueInput
-  create: Prisma.XOR<Prisma.DreamCreateWithoutArtInput, Prisma.DreamUncheckedCreateWithoutArtInput>
-}
-
-export type DreamCreateManyArtInputEnvelope = {
-  data: Prisma.DreamCreateManyArtInput | Prisma.DreamCreateManyArtInput[]
-  skipDuplicates?: boolean
-}
-
-export type DreamUpsertWithWhereUniqueWithoutArtInput = {
-  where: Prisma.DreamWhereUniqueInput
-  update: Prisma.XOR<Prisma.DreamUpdateWithoutArtInput, Prisma.DreamUncheckedUpdateWithoutArtInput>
-  create: Prisma.XOR<Prisma.DreamCreateWithoutArtInput, Prisma.DreamUncheckedCreateWithoutArtInput>
-}
-
-export type DreamUpdateWithWhereUniqueWithoutArtInput = {
-  where: Prisma.DreamWhereUniqueInput
-  data: Prisma.XOR<Prisma.DreamUpdateWithoutArtInput, Prisma.DreamUncheckedUpdateWithoutArtInput>
-}
-
-export type DreamUpdateManyWithWhereWithoutArtInput = {
-  where: Prisma.DreamScalarWhereInput
-  data: Prisma.XOR<Prisma.DreamUpdateManyMutationInput, Prisma.DreamUncheckedUpdateManyWithoutArtInput>
-}
-
-export type DreamScalarWhereInput = {
-  AND?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
-  OR?: Prisma.DreamScalarWhereInput[]
-  NOT?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
-  id?: Prisma.IntFilter<"Dream"> | number
-  createdAt?: Prisma.DateTimeFilter<"Dream"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"Dream"> | Date | string | null
-  title?: Prisma.StringFilter<"Dream"> | string
-  slug?: Prisma.StringNullableFilter<"Dream"> | string | null
-  description?: Prisma.StringNullableFilter<"Dream"> | string | null
-  currentVibe?: Prisma.StringNullableFilter<"Dream"> | string | null
-  currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
-  userId?: Prisma.IntFilter<"Dream"> | number
-  pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artImageId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  textServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artCollectionId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  galleryId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  scenarioId?: Prisma.IntNullableFilter<"Dream"> | number | null
-  artPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
-  accessMode?: Prisma.EnumDreamAccessModeFilter<"Dream"> | $Enums.DreamAccessMode
-  privacyCode?: Prisma.StringNullableFilter<"Dream"> | string | null
-  isPublic?: Prisma.BoolFilter<"Dream"> | boolean
-  isMature?: Prisma.BoolFilter<"Dream"> | boolean
-  isActive?: Prisma.BoolFilter<"Dream"> | boolean
-}
-
 export type DreamCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1444,7 +1258,6 @@ export type DreamCreateWithoutArtImageInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
@@ -1465,7 +1278,6 @@ export type DreamUncheckedCreateWithoutArtImageInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   textServerId?: number | null
   artServerId?: number | null
   artCollectionId?: number | null
@@ -1510,6 +1322,34 @@ export type DreamUpdateManyWithWhereWithoutArtImageInput = {
   data: Prisma.XOR<Prisma.DreamUpdateManyMutationInput, Prisma.DreamUncheckedUpdateManyWithoutArtImageInput>
 }
 
+export type DreamScalarWhereInput = {
+  AND?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
+  OR?: Prisma.DreamScalarWhereInput[]
+  NOT?: Prisma.DreamScalarWhereInput | Prisma.DreamScalarWhereInput[]
+  id?: Prisma.IntFilter<"Dream"> | number
+  createdAt?: Prisma.DateTimeFilter<"Dream"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Dream"> | Date | string | null
+  title?: Prisma.StringFilter<"Dream"> | string
+  slug?: Prisma.StringNullableFilter<"Dream"> | string | null
+  description?: Prisma.StringNullableFilter<"Dream"> | string | null
+  currentVibe?: Prisma.StringNullableFilter<"Dream"> | string | null
+  currentPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
+  userId?: Prisma.IntFilter<"Dream"> | number
+  pitchId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artImageId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  textServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artServerId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artCollectionId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  galleryId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  scenarioId?: Prisma.IntNullableFilter<"Dream"> | number | null
+  artPrompt?: Prisma.StringNullableFilter<"Dream"> | string | null
+  accessMode?: Prisma.EnumDreamAccessModeFilter<"Dream"> | $Enums.DreamAccessMode
+  privacyCode?: Prisma.StringNullableFilter<"Dream"> | string | null
+  isPublic?: Prisma.BoolFilter<"Dream"> | boolean
+  isMature?: Prisma.BoolFilter<"Dream"> | boolean
+  isActive?: Prisma.BoolFilter<"Dream"> | boolean
+}
+
 export type DreamCreateWithoutArtCollectionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1529,7 +1369,6 @@ export type DreamCreateWithoutArtCollectionInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
@@ -1550,7 +1389,6 @@ export type DreamUncheckedCreateWithoutArtCollectionInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1614,7 +1452,6 @@ export type DreamCreateWithoutCharactersInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -1635,7 +1472,6 @@ export type DreamUncheckedCreateWithoutCharactersInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1694,7 +1530,6 @@ export type DreamCreateWithoutChatsInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -1715,7 +1550,6 @@ export type DreamUncheckedCreateWithoutChatsInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1769,7 +1603,6 @@ export type DreamUpdateWithoutChatsInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -1790,7 +1623,6 @@ export type DreamUncheckedUpdateWithoutChatsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1827,7 +1659,6 @@ export type DreamCreateWithoutGalleryInput = {
   isActive?: boolean
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -1849,7 +1680,6 @@ export type DreamUncheckedCreateWithoutGalleryInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1912,7 +1742,6 @@ export type DreamCreateWithoutPitchInput = {
   isActive?: boolean
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -1933,7 +1762,6 @@ export type DreamUncheckedCreateWithoutPitchInput = {
   currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -1998,7 +1826,6 @@ export type DreamCreateWithoutReactionsInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -2019,7 +1846,6 @@ export type DreamUncheckedCreateWithoutReactionsInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2073,7 +1899,6 @@ export type DreamUpdateWithoutReactionsInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -2094,7 +1919,6 @@ export type DreamUncheckedUpdateWithoutReactionsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2132,7 +1956,6 @@ export type DreamCreateWithoutRewardsInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -2153,7 +1976,6 @@ export type DreamUncheckedCreateWithoutRewardsInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2212,7 +2034,6 @@ export type DreamCreateWithoutScenarioInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
   Chats?: Prisma.ChatCreateNestedManyWithoutDreamInput
@@ -2233,7 +2054,6 @@ export type DreamUncheckedCreateWithoutScenarioInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2297,7 +2117,6 @@ export type DreamCreateWithoutTagsInput = {
   User?: Prisma.UserCreateNestedOneWithoutDreamsInput
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -2318,7 +2137,6 @@ export type DreamUncheckedCreateWithoutTagsInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2376,7 +2194,6 @@ export type DreamCreateWithoutUserInput = {
   isActive?: boolean
   Gallery?: Prisma.GalleryCreateNestedOneWithoutDreamsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutDreamsInput
-  Art?: Prisma.ArtCreateNestedOneWithoutDreamsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutDreamsInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutDreamsInput
   ArtCollection?: Prisma.ArtCollectionCreateNestedOneWithoutDreamsInput
@@ -2397,7 +2214,6 @@ export type DreamUncheckedCreateWithoutUserInput = {
   currentVibe?: string | null
   currentPrompt?: string | null
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2443,115 +2259,6 @@ export type DreamUpdateManyWithWhereWithoutUserInput = {
   data: Prisma.XOR<Prisma.DreamUpdateManyMutationInput, Prisma.DreamUncheckedUpdateManyWithoutUserInput>
 }
 
-export type DreamCreateManyArtInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  title: string
-  slug?: string | null
-  description?: string | null
-  currentVibe?: string | null
-  currentPrompt?: string | null
-  userId?: number
-  pitchId?: number | null
-  artImageId?: number | null
-  textServerId?: number | null
-  artServerId?: number | null
-  artCollectionId?: number | null
-  galleryId?: number | null
-  scenarioId?: number | null
-  artPrompt?: string | null
-  accessMode?: $Enums.DreamAccessMode
-  privacyCode?: string | null
-  isPublic?: boolean
-  isMature?: boolean
-  isActive?: boolean
-}
-
-export type DreamUpdateWithoutArtInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
-  privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
-  Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
-  Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
-  ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
-  Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
-  Reactions?: Prisma.ReactionUpdateManyWithoutDreamNestedInput
-  Tags?: Prisma.TagUpdateManyWithoutDreamsNestedInput
-  Characters?: Prisma.CharacterUpdateManyWithoutDreamsNestedInput
-  Rewards?: Prisma.RewardUpdateManyWithoutDreamsNestedInput
-}
-
-export type DreamUncheckedUpdateWithoutArtInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
-  privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Chats?: Prisma.ChatUncheckedUpdateManyWithoutDreamNestedInput
-  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutDreamNestedInput
-  Tags?: Prisma.TagUncheckedUpdateManyWithoutDreamsNestedInput
-  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutDreamsNestedInput
-  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutDreamsNestedInput
-}
-
-export type DreamUncheckedUpdateManyWithoutArtInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  galleryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  scenarioId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessMode?: Prisma.EnumDreamAccessModeFieldUpdateOperationsInput | $Enums.DreamAccessMode
-  privacyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-}
-
 export type DreamCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
@@ -2563,7 +2270,6 @@ export type DreamCreateManyArtImageInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   textServerId?: number | null
   artServerId?: number | null
   artCollectionId?: number | null
@@ -2596,7 +2302,6 @@ export type DreamUpdateWithoutArtImageInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
@@ -2617,7 +2322,6 @@ export type DreamUncheckedUpdateWithoutArtImageInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2647,7 +2351,6 @@ export type DreamUncheckedUpdateManyWithoutArtImageInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2672,7 +2375,6 @@ export type DreamCreateManyArtCollectionInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2705,7 +2407,6 @@ export type DreamUpdateWithoutArtCollectionInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
@@ -2726,7 +2427,6 @@ export type DreamUncheckedUpdateWithoutArtCollectionInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2756,7 +2456,6 @@ export type DreamUncheckedUpdateManyWithoutArtCollectionInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2789,7 +2488,6 @@ export type DreamUpdateWithoutCharactersInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -2810,7 +2508,6 @@ export type DreamUncheckedUpdateWithoutCharactersInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2840,7 +2537,6 @@ export type DreamUncheckedUpdateManyWithoutCharactersInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2866,7 +2562,6 @@ export type DreamCreateManyGalleryInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -2898,7 +2593,6 @@ export type DreamUpdateWithoutGalleryInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -2920,7 +2614,6 @@ export type DreamUncheckedUpdateWithoutGalleryInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2950,7 +2643,6 @@ export type DreamUncheckedUpdateManyWithoutGalleryInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2974,7 +2666,6 @@ export type DreamCreateManyPitchInput = {
   currentVibe?: string | null
   currentPrompt?: string | null
   userId?: number
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -3007,7 +2698,6 @@ export type DreamUpdateWithoutPitchInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -3028,7 +2718,6 @@ export type DreamUncheckedUpdateWithoutPitchInput = {
   currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3058,7 +2747,6 @@ export type DreamUncheckedUpdateManyWithoutPitchInput = {
   currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3092,7 +2780,6 @@ export type DreamUpdateWithoutRewardsInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -3113,7 +2800,6 @@ export type DreamUncheckedUpdateWithoutRewardsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3143,7 +2829,6 @@ export type DreamUncheckedUpdateManyWithoutRewardsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3169,7 +2854,6 @@ export type DreamCreateManyScenarioInput = {
   currentPrompt?: string | null
   userId?: number
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -3202,7 +2886,6 @@ export type DreamUpdateWithoutScenarioInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutDreamNestedInput
@@ -3223,7 +2906,6 @@ export type DreamUncheckedUpdateWithoutScenarioInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3253,7 +2935,6 @@ export type DreamUncheckedUpdateManyWithoutScenarioInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3286,7 +2967,6 @@ export type DreamUpdateWithoutTagsInput = {
   User?: Prisma.UserUpdateOneRequiredWithoutDreamsNestedInput
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -3307,7 +2987,6 @@ export type DreamUncheckedUpdateWithoutTagsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3337,7 +3016,6 @@ export type DreamUncheckedUpdateManyWithoutTagsInput = {
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3362,7 +3040,6 @@ export type DreamCreateManyUserInput = {
   currentVibe?: string | null
   currentPrompt?: string | null
   pitchId?: number | null
-  artId?: number | null
   artImageId?: number | null
   textServerId?: number | null
   artServerId?: number | null
@@ -3395,7 +3072,6 @@ export type DreamUpdateWithoutUserInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Gallery?: Prisma.GalleryUpdateOneWithoutDreamsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutDreamsNestedInput
-  Art?: Prisma.ArtUpdateOneWithoutDreamsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutDreamsNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutDreamsNestedInput
   ArtCollection?: Prisma.ArtCollectionUpdateOneWithoutDreamsNestedInput
@@ -3416,7 +3092,6 @@ export type DreamUncheckedUpdateWithoutUserInput = {
   currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3446,7 +3121,6 @@ export type DreamUncheckedUpdateManyWithoutUserInput = {
   currentVibe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pitchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  artId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   textServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3539,7 +3213,6 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   currentPrompt?: boolean
   userId?: boolean
   pitchId?: boolean
-  artId?: boolean
   artImageId?: boolean
   textServerId?: boolean
   artServerId?: boolean
@@ -3555,7 +3228,6 @@ export type DreamSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Gallery?: boolean | Prisma.Dream$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Dream$PitchArgs<ExtArgs>
-  Art?: boolean | Prisma.Dream$ArtArgs<ExtArgs>
   Scenario?: boolean | Prisma.Dream$ScenarioArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Dream$ArtImageArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Dream$ArtCollectionArgs<ExtArgs>
@@ -3580,7 +3252,6 @@ export type DreamSelectScalar = {
   currentPrompt?: boolean
   userId?: boolean
   pitchId?: boolean
-  artId?: boolean
   artImageId?: boolean
   textServerId?: boolean
   artServerId?: boolean
@@ -3595,12 +3266,11 @@ export type DreamSelectScalar = {
   isActive?: boolean
 }
 
-export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "currentVibe" | "currentPrompt" | "userId" | "pitchId" | "artId" | "artImageId" | "textServerId" | "artServerId" | "artCollectionId" | "galleryId" | "scenarioId" | "artPrompt" | "accessMode" | "privacyCode" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["dream"]>
+export type DreamOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "currentVibe" | "currentPrompt" | "userId" | "pitchId" | "artImageId" | "textServerId" | "artServerId" | "artCollectionId" | "galleryId" | "scenarioId" | "artPrompt" | "accessMode" | "privacyCode" | "isPublic" | "isMature" | "isActive", ExtArgs["result"]["dream"]>
 export type DreamInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Gallery?: boolean | Prisma.Dream$GalleryArgs<ExtArgs>
   Pitch?: boolean | Prisma.Dream$PitchArgs<ExtArgs>
-  Art?: boolean | Prisma.Dream$ArtArgs<ExtArgs>
   Scenario?: boolean | Prisma.Dream$ScenarioArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Dream$ArtImageArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Dream$ArtCollectionArgs<ExtArgs>
@@ -3618,7 +3288,6 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     User: Prisma.$UserPayload<ExtArgs>
     Gallery: Prisma.$GalleryPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
-    Art: Prisma.$ArtPayload<ExtArgs> | null
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     ArtCollection: Prisma.$ArtCollectionPayload<ExtArgs> | null
@@ -3639,7 +3308,6 @@ export type $DreamPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     currentPrompt: string | null
     userId: number
     pitchId: number | null
-    artId: number | null
     artImageId: number | null
     textServerId: number | null
     artServerId: number | null
@@ -3995,7 +3663,6 @@ export interface Prisma__DreamClient<T, Null = never, ExtArgs extends runtime.Ty
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Gallery<T extends Prisma.Dream$GalleryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$GalleryArgs<ExtArgs>>): Prisma.Prisma__GalleryClient<runtime.Types.Result.GetResult<Prisma.$GalleryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Dream$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Art<T extends Prisma.Dream$ArtArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ArtArgs<ExtArgs>>): Prisma.Prisma__ArtClient<runtime.Types.Result.GetResult<Prisma.$ArtPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Scenario<T extends Prisma.Dream$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtImage<T extends Prisma.Dream$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ArtCollection<T extends Prisma.Dream$ArtCollectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Dream$ArtCollectionArgs<ExtArgs>>): Prisma.Prisma__ArtCollectionClient<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4043,7 +3710,6 @@ export interface DreamFieldRefs {
   readonly currentPrompt: Prisma.FieldRef<"Dream", 'String'>
   readonly userId: Prisma.FieldRef<"Dream", 'Int'>
   readonly pitchId: Prisma.FieldRef<"Dream", 'Int'>
-  readonly artId: Prisma.FieldRef<"Dream", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Dream", 'Int'>
   readonly textServerId: Prisma.FieldRef<"Dream", 'Int'>
   readonly artServerId: Prisma.FieldRef<"Dream", 'Int'>
@@ -4439,25 +4105,6 @@ export type Dream$PitchArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.PitchInclude<ExtArgs> | null
   where?: Prisma.PitchWhereInput
-}
-
-/**
- * Dream.Art
- */
-export type Dream$ArtArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Art
-   */
-  select?: Prisma.ArtSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Art
-   */
-  omit?: Prisma.ArtOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ArtInclude<ExtArgs> | null
-  where?: Prisma.ArtWhereInput
 }
 
 /**

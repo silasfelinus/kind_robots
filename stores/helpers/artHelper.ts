@@ -1,14 +1,14 @@
 // /stores/helpers/artHelper.ts
-
-import type { Art, ArtImage } from '~/prisma/generated/prisma/client'
+import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
+import { useArtStore } from '@/stores/artStore'
 
-// Lazy store accessor to prevent circular imports
 const getArtStore = () => useArtStore()
 
-export function parseStoredArt(value: string): Art[] {
+export function parseStoredArtImages(value: string): ArtImage[] {
   try {
-    return JSON.parse(value) as Art[]
+    const parsed = JSON.parse(value) as unknown
+    return Array.isArray(parsed) ? (parsed as ArtImage[]) : []
   } catch {
     return []
   }
@@ -25,41 +25,56 @@ export function updateArtImageInPlace(
   images: ArtImage[],
   updatedImage: ArtImage,
 ): ArtImage[] {
-  const index = images.findIndex((img) => img.id === updatedImage.id)
+  const index = images.findIndex((image) => image.id === updatedImage.id)
+
   if (index !== -1) {
     images.splice(index, 1, updatedImage)
   } else {
     images.push(updatedImage)
   }
+
   return images
 }
 
 export function removeImageById(images: ArtImage[], id: number): ArtImage[] {
-  return images.filter((img) => img.id !== id)
+  return images.filter((image) => image.id !== id)
 }
 
 export function mergeArtImages(
   existing: ArtImage[],
   incoming: ArtImage[],
 ): ArtImage[] {
-  const existingIds = new Set(existing.map((img) => img.id))
-  return [...existing, ...incoming.filter((img) => !existingIds.has(img.id))]
+  const map = new Map<number, ArtImage>()
+
+  for (const image of existing) {
+    map.set(image.id, image)
+  }
+
+  for (const image of incoming) {
+    map.set(image.id, image)
+  }
+
+  return Array.from(map.values()).sort(compareArtImagesByDate)
 }
 
-export function sortArtByDate(artList: Art[]): Art[] {
-  return [...artList].sort((a, b) => {
-    const aTime = a.createdAt
-      ? new Date(a.createdAt).getTime()
-      : a.updatedAt
-        ? new Date(a.updatedAt!).getTime()
-        : 0
-    const bTime = b.createdAt
-      ? new Date(b.createdAt).getTime()
-      : b.updatedAt
-        ? new Date(b.updatedAt!).getTime()
-        : 0
-    return bTime - aTime
-  })
+export function sortArtImagesByDate(images: ArtImage[]): ArtImage[] {
+  return [...images].sort(compareArtImagesByDate)
+}
+
+export function compareArtImagesByDate(a: ArtImage, b: ArtImage): number {
+  const aTime = a.createdAt
+    ? new Date(a.createdAt).getTime()
+    : a.updatedAt
+      ? new Date(a.updatedAt).getTime()
+      : 0
+
+  const bTime = b.createdAt
+    ? new Date(b.createdAt).getTime()
+    : b.updatedAt
+      ? new Date(b.updatedAt).getTime()
+      : 0
+
+  return bTime - aTime
 }
 
 export async function getArtImagesByIds(
@@ -67,21 +82,20 @@ export async function getArtImagesByIds(
 ): Promise<ArtImage[]> {
   const store = getArtStore()
 
-  const validIds = imageIds.filter(
-    (id): id is number => typeof id === 'number' && !isNaN(id),
-  )
+  const validIds = imageIds.filter((id): id is number => {
+    return typeof id === 'number' && Number.isFinite(id) && id > 0
+  })
 
-  const uncached = validIds.filter(
-    (id) => !store.artImages.some((img: { id: number }) => img.id === id),
-  )
+  const cached = store.artImages.filter((image: ArtImage) => {
+    return validIds.includes(image.id)
+  })
+
+  const cachedIds = new Set(cached.map((image) => image.id))
+  const uncached = validIds.filter((id) => !cachedIds.has(id))
 
   if (!uncached.length) {
-    return store.artImages.filter((img: { id: number }) =>
-      validIds.includes(img.id),
-    )
+    return cached
   }
-
-  console.warn('Fetching uncached artImage IDs:', uncached)
 
   try {
     const response = await performFetch<ArtImage[]>('/api/art/image', {
@@ -90,77 +104,24 @@ export async function getArtImagesByIds(
       headers: { 'Content-Type': 'application/json' },
     })
 
-    if (response.success && response.data) {
-      store.artImages.push(...response.data)
-      return store.artImages.filter((img: { id: number }) =>
-        validIds.includes(img.id),
-      )
-    } else {
-      throw new Error(response.message)
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to fetch art images.')
     }
+
+    store.addOrUpdateArtImages(response.data)
+
+    return store.artImages.filter((image: ArtImage) => {
+      return validIds.includes(image.id)
+    })
   } catch (error) {
     handleError(error, 'fetching art images by IDs')
-    return []
+    return cached
   }
 }
 
 export function getCachedArtImageById(id: number): ArtImage | undefined {
   const store = getArtStore()
-  return store.artImages.find((image: { id: number }) => image.id === id)
-}
-
-export async function updateArtImageWithArtId(
-  artImageId: number,
-  artId: number,
-): Promise<void> {
-  const store = getArtStore()
-  try {
-    const response = await performFetch<ArtImage>(
-      `/api/art/image/${artImageId}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artId }),
-      },
-    )
-
-    if (response.success && response.data) {
-      const updated = response.data
-      const index = store.artImages.findIndex(
-        (img: { id: number }) => img.id === artImageId,
-      )
-      if (index !== -1) store.artImages.splice(index, 1, updated)
-      else store.artImages.push(updated)
-
-      const art = store.art.find((a: { id: number }) => a.id === artId)
-      if (art) art.artImageId = artImageId
-    } else {
-      throw new Error(response.message)
-    }
-  } catch (error) {
-    handleError(error, 'updating artImageId')
-  }
-}
-
-export async function updateArtImageId(
-  artId: number,
-  artImageId: number,
-): Promise<void> {
-  const store = getArtStore()
-  try {
-    const response = await performFetch(`/api/art/${artId}/image`, {
-      method: 'PATCH',
-      body: JSON.stringify({ artImageId }),
-    })
-    if (response.success) {
-      const art = store.art.find((a: { id: number }) => a.id === artId)
-      if (art) art.artImageId = artImageId
-    } else {
-      throw new Error(response.message)
-    }
-  } catch (error) {
-    handleError(error, 'updating artImageId')
-  }
+  return store.artImages.find((image: ArtImage) => image.id === id)
 }
 
 export async function getOrFetchArtImageById(
@@ -168,21 +129,20 @@ export async function getOrFetchArtImageById(
 ): Promise<ArtImage | null> {
   const store = getArtStore()
 
-  // First try to find it in the cache
-  const cached = store.artImages.find((img: { id: number }) => img.id === id)
+  const cached = store.artImages.find((image: ArtImage) => image.id === id)
   if (cached) return cached
 
-  // Otherwise fetch it
   try {
     const response = await performFetch<ArtImage>(`/api/art/image/${id}`)
-    if (response.success && response.data) {
-      store.artImages.push(response.data)
-      return response.data
-    } else {
-      throw new Error(response.message)
+
+    if (!response.success || !response.data) {
+      throw new Error(response.message || `Failed to fetch art image #${id}.`)
     }
+
+    store.addOrUpdateArtImages([response.data])
+    return response.data
   } catch (error) {
-    handleError(error, `fetching ArtImage with ID ${id}`)
+    handleError(error, `fetching art image with ID ${id}`)
     return null
   }
 }

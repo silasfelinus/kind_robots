@@ -384,7 +384,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  Art: 'Art',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -410,7 +409,6 @@ export const ModelName = {
   Theme: 'Theme',
   User: 'User',
   ReactionToTag: 'ReactionToTag',
-  ArtToProduct: 'ArtToProduct',
   MilestoneToUser: 'MilestoneToUser',
   RewardToUser: 'RewardToUser'
 } as const
@@ -428,76 +426,10 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "art" | "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "artToProduct" | "milestoneToUser" | "rewardToUser"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "gallery" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "tag" | "theme" | "user" | "reactionToTag" | "milestoneToUser" | "rewardToUser"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
-    Art: {
-      payload: Prisma.$ArtPayload<ExtArgs>
-      fields: Prisma.ArtFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ArtFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ArtFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>
-        }
-        findFirst: {
-          args: Prisma.ArtFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ArtFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>
-        }
-        findMany: {
-          args: Prisma.ArtFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>[]
-        }
-        create: {
-          args: Prisma.ArtCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>
-        }
-        createMany: {
-          args: Prisma.ArtCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ArtDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>
-        }
-        update: {
-          args: Prisma.ArtUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>
-        }
-        deleteMany: {
-          args: Prisma.ArtDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ArtUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ArtUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtPayload>
-        }
-        aggregate: {
-          args: Prisma.ArtAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateArt>
-        }
-        groupBy: {
-          args: Prisma.ArtGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ArtCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtCountAggregateOutputType> | number
-        }
-      }
-    }
     ArtImage: {
       payload: Prisma.$ArtImagePayload<ExtArgs>
       fields: Prisma.ArtImageFieldRefs
@@ -2148,72 +2080,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ArtToProduct: {
-      payload: Prisma.$ArtToProductPayload<ExtArgs>
-      fields: Prisma.ArtToProductFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ArtToProductFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ArtToProductFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>
-        }
-        findFirst: {
-          args: Prisma.ArtToProductFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ArtToProductFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>
-        }
-        findMany: {
-          args: Prisma.ArtToProductFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>[]
-        }
-        create: {
-          args: Prisma.ArtToProductCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>
-        }
-        createMany: {
-          args: Prisma.ArtToProductCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ArtToProductDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>
-        }
-        update: {
-          args: Prisma.ArtToProductUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>
-        }
-        deleteMany: {
-          args: Prisma.ArtToProductDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ArtToProductUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ArtToProductUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtToProductPayload>
-        }
-        aggregate: {
-          args: Prisma.ArtToProductAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateArtToProduct>
-        }
-        groupBy: {
-          args: Prisma.ArtToProductGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtToProductGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ArtToProductCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ArtToProductCountAggregateOutputType> | number
-        }
-      }
-    }
     MilestoneToUser: {
       payload: Prisma.$MilestoneToUserPayload<ExtArgs>
       fields: Prisma.MilestoneToUserFieldRefs
@@ -2385,44 +2251,10 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const ArtScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  path: 'path',
-  checkpoint: 'checkpoint',
-  checkpointResourceId: 'checkpointResourceId',
-  sampler: 'sampler',
-  seed: 'seed',
-  steps: 'steps',
-  designer: 'designer',
-  isPublic: 'isPublic',
-  isMature: 'isMature',
-  isActive: 'isActive',
-  promptId: 'promptId',
-  userId: 'userId',
-  pitchId: 'pitchId',
-  galleryId: 'galleryId',
-  promptString: 'promptString',
-  cfg: 'cfg',
-  cfgHalf: 'cfgHalf',
-  serverId: 'serverId',
-  serverName: 'serverName',
-  serverUrl: 'serverUrl',
-  artImageId: 'artImageId',
-  imagePath: 'imagePath',
-  genres: 'genres',
-  negativePrompt: 'negativePrompt'
-} as const
-
-export type ArtScalarFieldEnum = (typeof ArtScalarFieldEnum)[keyof typeof ArtScalarFieldEnum]
-
-
 export const ArtImageScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  galleryId: 'galleryId',
   userId: 'userId',
   imageData: 'imageData',
   thumbnailData: 'thumbnailData',
@@ -2430,7 +2262,6 @@ export const ArtImageScalarFieldEnum = {
   fileType: 'fileType',
   artPrompt: 'artPrompt',
   imagePath: 'imagePath',
-  rarity: 'rarity',
   path: 'path',
   promptString: 'promptString',
   negativePrompt: 'negativePrompt',
@@ -2448,18 +2279,7 @@ export const ArtImageScalarFieldEnum = {
   isActive: 'isActive',
   serverId: 'serverId',
   serverName: 'serverName',
-  serverUrl: 'serverUrl',
-  artId: 'artId',
-  botId: 'botId',
-  componentId: 'componentId',
-  milestoneId: 'milestoneId',
-  pitchId: 'pitchId',
-  promptId: 'promptId',
-  resourceId: 'resourceId',
-  rewardId: 'rewardId',
-  chatId: 'chatId',
-  characterId: 'characterId',
-  butterflyId: 'butterflyId'
+  serverUrl: 'serverUrl'
 } as const
 
 export type ArtImageScalarFieldEnum = (typeof ArtImageScalarFieldEnum)[keyof typeof ArtImageScalarFieldEnum]
@@ -2532,7 +2352,6 @@ export const ButterflyScalarFieldEnum = {
   designer: 'designer',
   userId: 'userId',
   isPublic: 'isPublic',
-  artId: 'artId',
   artCollectionId: 'artCollectionId',
   botId: 'botId',
   characterId: 'characterId',
@@ -2657,7 +2476,6 @@ export const DreamScalarFieldEnum = {
   currentPrompt: 'currentPrompt',
   userId: 'userId',
   pitchId: 'pitchId',
-  artId: 'artId',
   artImageId: 'artImageId',
   textServerId: 'textServerId',
   artServerId: 'artServerId',
@@ -2794,7 +2612,6 @@ export const ReactionScalarFieldEnum = {
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
   rating: 'rating',
-  artId: 'artId',
   artImageId: 'artImageId',
   artCollectionId: 'artCollectionId',
   botId: 'botId',
@@ -3085,14 +2902,6 @@ export const ReactionToTagScalarFieldEnum = {
 export type ReactionToTagScalarFieldEnum = (typeof ReactionToTagScalarFieldEnum)[keyof typeof ReactionToTagScalarFieldEnum]
 
 
-export const ArtToProductScalarFieldEnum = {
-  A: 'A',
-  B: 'B'
-} as const
-
-export type ArtToProductScalarFieldEnum = (typeof ArtToProductScalarFieldEnum)[keyof typeof ArtToProductScalarFieldEnum]
-
-
 export const MilestoneToUserScalarFieldEnum = {
   A: 'A',
   B: 'B'
@@ -3131,22 +2940,6 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
-export const ArtOrderByRelevanceFieldEnum = {
-  path: 'path',
-  checkpoint: 'checkpoint',
-  sampler: 'sampler',
-  designer: 'designer',
-  promptString: 'promptString',
-  serverName: 'serverName',
-  serverUrl: 'serverUrl',
-  imagePath: 'imagePath',
-  genres: 'genres',
-  negativePrompt: 'negativePrompt'
-} as const
-
-export type ArtOrderByRelevanceFieldEnum = (typeof ArtOrderByRelevanceFieldEnum)[keyof typeof ArtOrderByRelevanceFieldEnum]
 
 
 export const ArtImageOrderByRelevanceFieldEnum = {
@@ -3788,7 +3581,6 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
-  art?: Prisma.ArtOmit
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit
   bot?: Prisma.BotOmit
@@ -3814,7 +3606,6 @@ export type GlobalOmitConfig = {
   theme?: Prisma.ThemeOmit
   user?: Prisma.UserOmit
   reactionToTag?: Prisma.ReactionToTagOmit
-  artToProduct?: Prisma.ArtToProductOmit
   milestoneToUser?: Prisma.MilestoneToUserOmit
   rewardToUser?: Prisma.RewardToUserOmit
 }

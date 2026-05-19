@@ -3,19 +3,18 @@
   <div
     class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
+    <!-- Show button — only visible when header is hidden -->
     <button
-      class="btn btn-xs btn-ghost absolute right-2 top-2 z-50 flex h-8 min-h-0 flex-col gap-0 rounded-xl border border-base-300 bg-base-100 px-2 leading-none shadow-sm"
+      v-if="!showHeader"
+      class="btn btn-xs btn-ghost absolute left-2 top-2 z-50 flex h-8 min-h-0 flex-col gap-0 rounded-xl border border-base-300 bg-base-100 px-2 leading-none shadow-sm"
       type="button"
-      :title="showHeader ? 'Hide header' : 'Show header'"
+      title="Show header"
       @click="toggleHeader"
     >
-      <Icon
-        :name="showHeader ? 'kind-icon:collapse' : 'kind-icon:expand'"
-        class="h-3.5 w-3.5"
-      />
-      <span class="text-[0.55rem] font-black uppercase tracking-wider">
-        {{ showHeader ? 'Hide' : 'Show' }}
-      </span>
+      <Icon name="kind-icon:expand" class="h-3.5 w-3.5" />
+      <span class="text-[0.55rem] font-black uppercase tracking-wider"
+        >Show</span
+      >
     </button>
 
     <header
@@ -23,14 +22,28 @@
       class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
       :class="navZClass"
     >
-      <div
-        class="grid gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,17rem)] lg:p-4"
-      >
+      <div class="grid gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:p-4">
         <section class="flex min-w-0 flex-col gap-3">
           <div class="flex min-w-0 items-start gap-4">
-            <page-image
-              class="h-20 w-20 shrink-0 rounded-2xl sm:h-24 sm:w-24"
-            />
+            <!-- page-image doubles as the header collapse toggle -->
+            <button
+              type="button"
+              title="Hide header"
+              class="group relative h-20 w-20 shrink-0 rounded-2xl sm:h-24 sm:w-24"
+              @click="toggleHeader"
+            >
+              <page-image
+                class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-70"
+              />
+              <span
+                class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-900/0 opacity-0 transition-all group-hover:bg-base-content/10 group-hover:opacity-100"
+              >
+                <Icon
+                  name="kind-icon:collapse"
+                  class="h-5 w-5 text-base-content drop-shadow"
+                />
+              </span>
+            </button>
 
             <div class="min-w-0 flex-1 pt-1">
               <p
@@ -162,7 +175,7 @@
 
         <aside
           v-if="resolvedTabs.length"
-          class="flex min-h-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/70 p-2"
+          class="flex min-h-0 w-fit flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/70 p-2"
         >
           <div class="flex items-center justify-between gap-2 px-1">
             <p
@@ -179,8 +192,9 @@
           </div>
 
           <nav
-            class="grid max-h-44 grid-flow-col grid-rows-2 auto-cols-[8.5rem] gap-2 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
+            class="grid max-h-44 grid-rows-2 gap-2 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
             style="scrollbar-width: none; -webkit-overflow-scrolling: touch"
+            :style="tabGridStyle"
           >
             <button
               v-for="tab in resolvedTabs"
@@ -408,6 +422,15 @@ const activeChannel = computed<ChannelRoute>(() => {
       icon: 'kind-icon:home',
     }
   )
+})
+
+// Compute grid-template-columns so the nav is exactly as wide as it needs to be.
+// 2 rows per column: 1–2 tabs → 1 col, 3–4 → 2 cols, etc.
+const tabGridStyle = computed(() => {
+  const cols = Math.max(1, Math.ceil(resolvedTabs.value.length / 2))
+  return {
+    gridTemplateColumns: `repeat(${cols}, 8.5rem)`,
+  }
 })
 
 function setTab(tabKey: string) {

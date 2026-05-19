@@ -33,7 +33,6 @@ export default defineEventHandler(async (event) => {
             wingSpeed: true,
             scale: true,
             rarityNumber: true,
-            artImageId: true,
             designer: true,
           },
         },

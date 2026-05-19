@@ -107,27 +107,6 @@ export default defineEventHandler(async (event) => {
             updatedAt: 'desc',
           },
         },
-        Scenarios: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            intros: true,
-            userId: true,
-            artImageId: true,
-            imagePath: true,
-            locations: true,
-            artPrompt: true,
-            genres: true,
-            inspirations: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-          },
-          orderBy: {
-            updatedAt: 'desc',
-          },
-        },
         Pitches: {
           select: {
             id: true,

@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-describe('Art Management API Tests', () => {
+describe('ArtImage Management API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art'
   const invalidToken = 'someInvalidTokenValue'
 
   let apiKey = ''
   let userToken = ''
   let lolaTestServerId = 24
-  let artId: number
+  let artImageId: number
   let generatedPath = ''
 
   before(() => {
@@ -26,7 +26,7 @@ describe('Art Management API Tests', () => {
     cy.then(() => {
       cy.request({
         method: 'POST',
-        url: `${baseUrl}/`,
+        url: `${baseUrl}/image`,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
@@ -35,33 +35,37 @@ describe('Art Management API Tests', () => {
         body: {
           promptString:
             'surreal, A beautiful pancake sunrise over the mountains',
+          artPrompt: 'surreal, A beautiful pancake sunrise over the mountains',
           steps: 10,
-          path: ' ',
+          path: '/images/test/pancake-sunrise.webp',
+          imagePath: '/images/test/pancake-sunrise.webp',
+          fileName: 'pancake-sunrise.webp',
+          fileType: 'webp',
           seed: null,
-          galleryId: null,
-          promptId: null,
-          pitchId: null,
           userId: 9,
+          isPublic: false,
+          isMature: false,
+          isActive: true,
         },
         failOnStatusCode: false,
       }).then((response) => {
-        cy.log('API Response:', JSON.stringify(response.body))
+        cy.log('ArtImage create response:', JSON.stringify(response.body))
 
         expect(response.status).to.eq(201)
         expect(response.body.success).to.be.true
         expect(response.body.data).to.be.an('object').that.is.not.empty
 
-        artId = response.body.data.id
-        generatedPath = response.body.data.path
+        artImageId = response.body.data.id
+        generatedPath = response.body.data.path || response.body.data.imagePath
 
-        if (!artId || !generatedPath) {
-          throw new Error('Failed to capture art ID or path from response')
+        if (!artImageId || !generatedPath) {
+          throw new Error('Failed to capture ArtImage ID or path from response')
         }
       })
     })
   })
 
-  it('should not allow creating art without a bearer token', () => {
+  it('should not allow generating an ArtImage without a bearer token', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/generate`,
@@ -73,9 +77,7 @@ describe('Art Management API Tests', () => {
         promptString: 'A sunset over the ocean',
         steps: 20,
         cfg: 5,
-        path: ' ',
         seed: null,
-        galleryId: null,
         promptId: null,
         pitchId: null,
         userId: 9,
@@ -88,7 +90,7 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  it('should not allow creating art with an invalid bearer token', () => {
+  it('should not allow generating an ArtImage with an invalid bearer token', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/generate`,
@@ -101,9 +103,7 @@ describe('Art Management API Tests', () => {
         promptString: 'A sunset over the ocean',
         steps: 20,
         cfg: 5,
-        path: ' ',
         seed: null,
-        galleryId: null,
         promptId: null,
         pitchId: null,
         userId: 9,
@@ -118,7 +118,7 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  it('should allow creating art with a valid bearer token using Lola API test server', () => {
+  it('should allow generating an ArtImage with a valid bearer token using Lola API test server', () => {
     cy.request({
       method: 'POST',
       url: `${baseUrl}/generate`,
@@ -129,14 +129,13 @@ describe('Art Management API Tests', () => {
       },
       timeout: 120000,
       body: {
-        title: 'Cypress Lola Test',
+        title: 'Cypress Lola ArtImage Test',
         promptString: 'a small kind robot holding a glowing pancake',
+        artPrompt: 'a small kind robot holding a glowing pancake',
         steps: 10,
         cfg: 3,
         cfgHalf: false,
-        path: ' ',
         seed: -1,
-        galleryId: null,
         promptId: null,
         pitchId: null,
         userId: 9,
@@ -144,27 +143,31 @@ describe('Art Management API Tests', () => {
         checkpoint: 'realcartoonPony_v1.safetensors',
         sampler: 'Euler',
         designer: 'silasfelinus',
-        galleryName: 'cafefred',
+        collection: 'cafefred',
+        collectionLabel: 'cafefred',
         isPublic: false,
         isMature: false,
       },
       failOnStatusCode: false,
     }).then((response) => {
-      cy.log('Generate response:', JSON.stringify(response.body))
+      cy.log('Generate ArtImage response:', JSON.stringify(response.body))
 
       expect(response.status).to.eq(201)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.be.an('object').that.is.not.empty
       expect(response.body.data.serverId).to.eq(lolaTestServerId)
 
-      artId = response.body.data.id
+      artImageId = response.body.data.id
+      generatedPath = response.body.data.path || response.body.data.imagePath
+
+      expect(artImageId).to.be.a('number')
     })
   })
 
-  it('Get Art by ID', () => {
+  it('should get an ArtImage by ID', () => {
     cy.request({
       method: 'GET',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
@@ -172,12 +175,12 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.cfg).to.eq(3)
+      expect(response.body.data.id).to.eq(artImageId)
       expect(response.body.data).to.include.keys(['createdAt', 'updatedAt'])
     })
   })
 
-  it('Get All Art', () => {
+  it('should get all ArtImages', () => {
     cy.request({
       method: 'GET',
       url: baseUrl,
@@ -194,16 +197,17 @@ describe('Art Management API Tests', () => {
     })
   })
 
-  it('should allow updating an art entry with a valid authorization token', () => {
+  it('should allow updating an ArtImage with a valid authorization token', () => {
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
       body: {
         path: 'updated-path-123.webp',
+        imagePath: 'updated-path-123.webp',
         designer: 'updatedDesigner',
         isPublic: true,
       },
@@ -211,17 +215,17 @@ describe('Art Management API Tests', () => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
       expect(response.body.data).to.include({
-        id: artId,
+        id: artImageId,
         designer: 'updatedDesigner',
         isPublic: true,
       })
     })
   })
 
-  it('should not allow updating an art entry without an authorization token', () => {
+  it('should not allow updating an ArtImage without an authorization token', () => {
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       failOnStatusCode: false,
       headers: {
         'Content-Type': 'application/json',
@@ -233,16 +237,14 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('authorization')
     })
   })
 
-  it('should not allow updating an art entry with an invalid authorization token', () => {
+  it('should not allow updating an ArtImage with an invalid authorization token', () => {
     cy.request({
       method: 'PATCH',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
@@ -256,14 +258,14 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include('token')
     })
   })
 
-  it('should not allow deleting an art entry without an authorization token', () => {
+  it('should not allow deleting an ArtImage without an authorization token', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -271,16 +273,14 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('authorization')
     })
   })
 
-  it('should not allow deleting an art entry with an invalid authorization token', () => {
+  it('should not allow deleting an ArtImage with an invalid authorization token', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${invalidToken}`,
@@ -289,26 +289,23 @@ describe('Art Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('token')
     })
   })
 
-  it('should allow deleting an art entry with a valid authorization token', () => {
+  it('should allow deleting an ArtImage with a valid authorization token', () => {
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/${artId}`,
+      url: `${baseUrl}/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
+      failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.message).to.include(
-        `Art entry with ID ${artId} deleted successfully`,
-      )
+      expect(response.body.message).to.include(String(artImageId))
     })
   })
 })

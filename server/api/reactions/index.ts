@@ -118,13 +118,7 @@ export default defineEventHandler(async (event) => {
 // Function to fetch all Reactions
 export async function fetchAllReactions() {
   try {
-    return await prisma.reaction.findMany({
-      include: {
-        Art: true, // Include related Art data if needed
-        Pitch: true, // Include related Pitch data if needed
-        Component: true, // Include related Component data if needed
-      },
-    })
+    return await prisma.reaction.findMany({})
   } catch (error: unknown) {
     throw errorHandler(error)
   }
@@ -135,11 +129,6 @@ export async function fetchReactionById(id: number) {
   try {
     const reaction = await prisma.reaction.findUnique({
       where: { id },
-      include: {
-        Art: true, // Include related Art data if needed
-        Pitch: true, // Include related Pitch data if needed
-        Component: true, // Include related Component data if needed
-      },
     })
 
     if (!reaction) {

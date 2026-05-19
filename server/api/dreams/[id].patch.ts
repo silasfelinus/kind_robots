@@ -30,7 +30,6 @@ type DreamPatchBody = {
   isActive?: boolean
   characterIds?: number[]
   rewardIds?: number[]
-  scenarioIds?: number[]
   artCollectionIds?: number[]
   addArtImageToCollections?: boolean
   updateNote?: string | null
@@ -58,7 +57,7 @@ const dreamInclude = {
       isMature: true,
     },
   },
-  ArtCollections: {
+  ArtCollection: {
     select: {
       id: true,
       label: true,
@@ -129,32 +128,12 @@ const dreamInclude = {
       userId: true,
     },
   },
-  Scenarios: {
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      intros: true,
-      userId: true,
-      artImageId: true,
-      imagePath: true,
-      locations: true,
-      artPrompt: true,
-      genres: true,
-      inspirations: true,
-      isPublic: true,
-      isMature: true,
-      isActive: true,
-    },
-  },
   _count: {
     select: {
       Chats: true,
       Reactions: true,
       Characters: true,
       Rewards: true,
-      Scenarios: true,
-      ArtCollections: true,
     },
   },
 } satisfies Prisma.DreamInclude
@@ -218,7 +197,6 @@ function getUpdateSummary(body: DreamPatchBody): string {
   if (body.artCollectionIds !== undefined) changes.push('collections')
   if (body.characterIds !== undefined) changes.push('cast')
   if (body.rewardIds !== undefined) changes.push('items')
-  if (body.scenarioIds !== undefined) changes.push('scenarios')
 
   if (body.accessMode !== undefined || body.privacyCode !== undefined) {
     changes.push('access')
@@ -398,7 +376,6 @@ export default defineEventHandler(async (event) => {
 
     const characterIds = normalizeIdArray(body.characterIds)
     const rewardIds = normalizeIdArray(body.rewardIds)
-    const scenarioIds = normalizeIdArray(body.scenarioIds)
     const artCollectionIds = normalizeIdArray(body.artCollectionIds)
 
     const data = await prisma.dream.update({
@@ -419,20 +396,17 @@ export default defineEventHandler(async (event) => {
               },
             }
           : {}),
-        ...(scenarioIds
-          ? {
-              Scenarios: {
-                set: scenarioIds.map((scenarioId) => ({ id: scenarioId })),
-              },
-            }
-          : {}),
         ...(artCollectionIds
           ? {
-              ArtCollections: {
-                set: artCollectionIds.map((artCollectionId) => ({
-                  id: artCollectionId,
-                })),
-              },
+              ArtCollection: artCollectionIds[0]
+                ? {
+                    connect: {
+                      id: artCollectionIds[0],
+                    },
+                  }
+                : {
+                    disconnect: true,
+                  },
             }
           : {}),
       },
@@ -442,30 +416,21 @@ export default defineEventHandler(async (event) => {
     if (
       body.addArtImageToCollections &&
       data.artImageId &&
-      Array.isArray(data.ArtCollections)
+      data.artCollectionId
     ) {
-      const collectionIds = data.ArtCollections.map((collection) => {
-        return collection.id
+      await prisma.artCollection.update({
+        where: {
+          id: data.artCollectionId,
+        },
+        data: {
+          ArtImages: {
+            connect: {
+              id: data.artImageId,
+            },
+          },
+        },
       })
-
-      if (collectionIds.length) {
-        await Promise.all(
-          collectionIds.map((collectionId) => {
-            return prisma.artCollection.update({
-              where: { id: collectionId },
-              data: {
-                ArtImages: {
-                  connect: {
-                    id: data.artImageId as number,
-                  },
-                },
-              },
-            })
-          }),
-        )
-      }
     }
-
     const userRecord = await prisma.user.findUnique({
       where: { id: user.id },
       select: {

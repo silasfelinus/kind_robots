@@ -4,12 +4,12 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 
 export default defineEventHandler(async (event) => {
-  let artId: number | null = null
+  let artImageId: number | null = null
 
   try {
     // Extract and validate the art ID from the URL params
-    artId = Number(event.context.params?.id)
-    if (isNaN(artId) || artId <= 0) {
+    artImageId = Number(event.context.params?.id)
+    if (isNaN(artImageId) || artImageId <= 0) {
       event.node.res.statusCode = 400
       throw createError({
         statusCode: 400,
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     // Check if the reaction already exists for this user and art
     const existingReaction = await prisma.reaction.findFirst({
       where: {
-        artId,
+        artImageId,
         userId,
       },
     })
@@ -76,7 +76,6 @@ export default defineEventHandler(async (event) => {
       // Create a new reaction if none exists
       reaction = await prisma.reaction.create({
         data: {
-          artId,
           userId,
           reactionType,
         },
@@ -97,7 +96,7 @@ export default defineEventHandler(async (event) => {
       data: {
         message:
           handledError.message ||
-          `Failed to update/create reaction for art with ID ${artId}.`,
+          `Failed to update/create reaction for art with ID ${artImageId}.`,
       },
     }
   }

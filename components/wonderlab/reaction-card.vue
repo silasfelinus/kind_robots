@@ -284,32 +284,6 @@ function clearReaction() {
   emit('cleared')
 }
 
-function getTargetIdPayload() {
-  const idKeyMap: Record<ReactionTargetType, string> = {
-    art: 'artId',
-    artImage: 'artImageId',
-    artCollection: 'artCollectionId',
-    bot: 'botId',
-    butterfly: 'butterflyId',
-    character: 'characterId',
-    chat: 'chatId',
-    component: 'componentId',
-    dream: 'dreamId',
-    gallery: 'galleryId',
-    pitch: 'pitchId',
-    prompt: 'promptId',
-    resource: 'resourceId',
-    reward: 'rewardId',
-    scenario: 'scenarioId',
-    tag: 'tagId',
-    theme: 'themeId',
-  }
-
-  return {
-    [idKeyMap[props.targetType]]: props.targetId,
-  }
-}
-
 async function submitReaction() {
   if (!userStore.user?.id) {
     reactionStatus.value = 'error'

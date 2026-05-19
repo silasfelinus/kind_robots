@@ -605,9 +605,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
         ? `calc(var(--vh) * ${padding})`
         : 'auto',
       left: `${headerLeftInset.value}vw`,
-      opacity: isHidden ? '0' : '1',
-      pointerEvents: isHidden ? 'none' : 'auto',
+      // No opacity/pointer-events hiding on the wrapper — the inner
+      // overflow-hidden content div clips naturally at height:0, while the
+      // toggle pill (which lives outside that div) stays visible and
+      // clickable at all times.
       zIndex: '20',
+      overflow: 'visible',
     }
   })
 
@@ -695,7 +698,8 @@ export const useDisplayStore = defineStore('displayStore', () => {
       return
     }
 
-    const order: DisplayState[] = ['open', 'compact', 'hidden']
+    // Only cycle between open and compact — never hide via this toggle
+    const order: DisplayState[] = ['open', 'compact']
     const currentIndex = Math.max(0, order.indexOf(state.headerState))
     state.headerState = order[(currentIndex + 1) % order.length] ?? 'open'
     saveState()
@@ -1005,6 +1009,12 @@ export const useDisplayStore = defineStore('displayStore', () => {
         if (parsed.navDock === 'top' || parsed.navDock === 'bottom') {
           state.navDock = parsed.navDock
         }
+      }
+
+      // Normalize headerState: 'hidden'/'disabled' should never persist across
+      // page loads — the header is always visible on fresh load.
+      if (state.headerState === 'hidden' || state.headerState === 'disabled') {
+        state.headerState = 'compact'
       }
 
       state.footerState = 'disabled'

@@ -209,12 +209,7 @@ export default defineEventHandler(async (event) => {
 
     const savedImage = await saveImage(
       base64Image,
-      requestData.artCollectionLabel ||
-        requestData.collectionLabel ||
-        requestData.collection ||
-        'comfy',
       validatedData.userId ?? user.id,
-      validatedData.artCollectionId ?? 0,
     )
 
     imageId = savedImage.id

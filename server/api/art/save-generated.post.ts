@@ -126,12 +126,7 @@ export default defineEventHandler(async (event) => {
 
     const savedImage = await saveImage(
       requestData.imageBase64,
-      requestData.artCollectionLabel ||
-        requestData.collectionLabel ||
-        requestData.collection ||
-        'generated',
       validatedData.userId ?? user.id,
-      validatedData.artCollectionId ?? 0,
     )
 
     if (!savedImage.id) {
@@ -164,9 +159,7 @@ export default defineEventHandler(async (event) => {
         negativePrompt: requestData.negativePrompt ?? null,
         isPublic: requestData.isPublic ?? true,
         isMature: requestData.isMature ?? false,
-        userId: validatedData.userId,
-        promptId: validatedData.promptId ?? null,
-        pitchId: validatedData.pitchId ?? null,
+        userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server),
@@ -174,6 +167,20 @@ export default defineEventHandler(async (event) => {
           ? {
               connect: {
                 id: validatedData.artCollectionId,
+              },
+            }
+          : undefined,
+        Prompts: validatedData.promptId
+          ? {
+              connect: {
+                id: validatedData.promptId,
+              },
+            }
+          : undefined,
+        Pitches: validatedData.pitchId
+          ? {
+              connect: {
+                id: validatedData.pitchId,
               },
             }
           : undefined,

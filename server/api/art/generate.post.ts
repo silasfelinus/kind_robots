@@ -197,12 +197,7 @@ export default defineEventHandler(async (event) => {
 
     const savedImage = await saveImage(
       base64Image,
-      requestData.artCollectionLabel ||
-        requestData.collectionLabel ||
-        requestData.collection ||
-        'generated',
       validatedData.userId ?? user.id,
-      validatedData.artCollectionId ?? 0,
     )
 
     if (!savedImage.id) {
@@ -217,11 +212,6 @@ export default defineEventHandler(async (event) => {
       server,
     })
 
-    const seed =
-      requestData.seed && requestData.seed !== -1
-        ? requestData.seed
-        : (response.resolvedSeed ?? requestData.seed ?? -1)
-
     const updatedImage = await prisma.artImage.update({
       where: {
         id: savedImage.id,
@@ -229,19 +219,11 @@ export default defineEventHandler(async (event) => {
       data: {
         cfg: Math.floor(cfgValue),
         cfgHalf: cfgValue % 1 >= 0.5,
-        checkpoint:
-          resolvedCheckpoint.checkpoint ??
-          response.resolvedCheckpoint ??
-          server.model ??
-          null,
+        checkpoint: resolvedCheckpoint.checkpoint,
         checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
-        sampler:
-          requestData.sampler ??
-          response.resolvedSampler ??
-          server.defaultSampler ??
-          null,
-        seed,
-        steps: requestData.steps ?? server.defaultSteps ?? 20,
+        sampler: requestData.sampler ?? null,
+        seed: requestData.seed ?? -1,
+        steps: requestData.steps ?? 20,
         designer: validatedData.designer ?? null,
         promptString: requestData.promptString.trim(),
         artPrompt: requestData.promptString.trim(),
@@ -251,18 +233,18 @@ export default defineEventHandler(async (event) => {
         userId: validatedData.userId ?? user.id,
         serverId: server.id,
         serverName: server.title,
-        serverUrl: getServerEndpoint(server, 'backend'),
-        Pitches: validatedData.pitchId
-          ? {
-              connect: {
-                id: validatedData.pitchId,
-              },
-            }
-          : undefined,
+        serverUrl: getServerEndpoint(server),
         Prompts: validatedData.promptId
           ? {
               connect: {
                 id: validatedData.promptId,
+              },
+            }
+          : undefined,
+        Pitches: validatedData.pitchId
+          ? {
+              connect: {
+                id: validatedData.pitchId,
               },
             }
           : undefined,
@@ -275,7 +257,6 @@ export default defineEventHandler(async (event) => {
           : undefined,
       },
     })
-
     await prisma.user.update({
       where: {
         id: user.id,

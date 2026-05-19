@@ -112,7 +112,6 @@ export default defineEventHandler(async (event) => {
               createdAt: true,
               updatedAt: true,
               userId: true,
-              galleryId: true,
             },
           },
           ArtCollection: true,

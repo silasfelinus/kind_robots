@@ -145,7 +145,7 @@ export default defineEventHandler(async (event) => {
               isMature: true,
             },
           },
-          ArtCollections: {
+          ArtCollection: {
             select: {
               id: true,
               label: true,

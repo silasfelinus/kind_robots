@@ -179,7 +179,7 @@
           </div>
 
           <nav
-            class="grid max-h-44 grid-flow-col grid-rows-2 auto-cols-[minmax(8.5rem,1fr)] gap-2 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
+            class="grid max-h-44 grid-flow-col grid-rows-2 auto-cols-[8.5rem] gap-2 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
             style="scrollbar-width: none; -webkit-overflow-scrolling: touch"
           >
             <button

@@ -1,4 +1,4 @@
-<!-- /components/content/art/slim-gallery.vue -->
+<!-- /components/content/art/art-gallery.vue -->
 <template>
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
@@ -380,7 +380,7 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/slim-gallery.vue
+// /components/content/art/art-gallery.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'

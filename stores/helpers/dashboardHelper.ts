@@ -58,14 +58,6 @@ export const dashboardConfigs = {
         summary: 'Browse, select, upload, collect, and inspect generated art.',
       },
       {
-        key: 'doctor',
-        label: 'Doctor',
-        icon: 'kind-icon:doctor',
-        title: 'Art Doctor',
-        summary:
-          'Admin page to update art to the latest art image model for consistent interactions',
-      },
-      {
         key: 'checkpoints',
         label: 'Models',
         icon: 'kind-icon:blueprint',
@@ -298,12 +290,13 @@ export const dashboardConfigs = {
         title: 'Dream Interact',
         summary: 'Collaboratively evolve the dream through text and images.',
       },
-{
+      {
         key: 'code',
         label: 'Code',
         icon: 'kind-icon:code',
         title: 'Dream Prompts',
-        summary: 'Use our automatic code-cards to evolve and polish you concept with more text and images.',
+        summary:
+          'Use our automatic code-cards to evolve and polish you concept with more text and images.',
       },
     ],
   },

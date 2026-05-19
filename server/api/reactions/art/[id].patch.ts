@@ -77,6 +77,7 @@ export default defineEventHandler(async (event) => {
       reaction = await prisma.reaction.create({
         data: {
           userId,
+          artImageId,
           reactionType,
         },
       })
@@ -86,7 +87,8 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: { reaction },
+      data: reaction,
+      reaction,
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

@@ -58,35 +58,7 @@ export default defineEventHandler(async (event) => {
             isMature: true,
           },
         },
-        ArtCollections: {
-          select: {
-            id: true,
-            label: true,
-            description: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-            artPrompt: true,
-            ArtImages: {
-              orderBy: {
-                createdAt: 'desc',
-              },
-              take: 12,
-              select: {
-                id: true,
-                fileName: true,
-                fileType: true,
-                imagePath: true,
-                path: true,
-                artPrompt: true,
-                promptString: true,
-                userId: true,
-                isPublic: true,
-                isMature: true,
-              },
-            },
-          },
-        },
+
         Characters: {
           select: {
             id: true,

@@ -1,12 +1,6 @@
 <!-- /layouts/default.vue -->
 <template>
   <div class="flex min-h-dvh w-full flex-col overflow-hidden bg-base-200">
-    <corner-panel
-      v-if="displayStore.showCornerPanel"
-      class="pointer-events-auto fixed transition-all duration-300 ease-out"
-      :style="displayStore.cornerPanelStyle"
-    />
-
     <aside
       class="fixed overflow-visible transition-all duration-300 ease-out"
       :style="displayStore.leftSidebarStyle"
@@ -90,14 +84,6 @@
         <full-header />
       </slot>
     </header>
-
-    <section
-      v-if="displayStore.channelPanelVisible"
-      class="fixed overflow-hidden transition-all duration-300 ease-out"
-      :style="displayStore.channelPanelStyle"
-    >
-      <channel-selector />
-    </section>
   </div>
 </template>
 

@@ -28,7 +28,7 @@ describe('Reward Management API Tests', () => {
         collection: 'Test Collection',
         rarity: 'COMMON',
         rewardType: 'ITEM',
-        label: 'Test Label',
+        label: 'Testertons special Label',
         userId: 9,
       },
       failOnStatusCode: false,

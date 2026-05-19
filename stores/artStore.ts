@@ -5,7 +5,6 @@ import type {
   ArtImage,
   Reaction,
   Server,
-  Tag,
 } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from '@/stores/utils'
 import { usePromptStore } from '@/stores/promptStore'
@@ -46,7 +45,7 @@ type ArtImageFetchOptions = {
   force?: boolean
   includeImageData?: boolean
   includeThumbnailData?: boolean
-  includeTags?: boolean
+  includePitches?: boolean
 }
 
 interface ArtImageGenerationRoute {
@@ -63,9 +62,10 @@ export interface GenerateArtData {
   pitch?: string
   title?: string
   collection?: string
+  collectionLabel?: string
+  artCollectionId?: number | null
 
   userId?: number | null
-  galleryId?: number | null
   promptId?: number | null
   pitchId?: number | null
 
@@ -100,7 +100,6 @@ export interface GenerateArtData {
 }
 
 export type ArtImageConnectionInput = {
-  galleryId?: number | null
   userId?: number | null
   serverId?: number | null
   checkpointResourceId?: number | null
@@ -108,27 +107,24 @@ export type ArtImageConnectionInput = {
   dreamIds?: number[]
   scenarioIds?: number[]
   reactionIds?: number[]
-  tagIds?: number[]
+  pitchIds?: number[]
   butterflyIds?: number[]
   artCollectionIds?: number[]
 
   disconnectDreamIds?: number[]
   disconnectScenarioIds?: number[]
   disconnectReactionIds?: number[]
-  disconnectTagIds?: number[]
+  disconnectPitchIds?: number[]
   disconnectButterflyIds?: number[]
   disconnectArtCollectionIds?: number[]
-
-  tagOwnerId?: number | null
 
   clearDirectLinks?: boolean
   clearDreams?: boolean
   clearScenarios?: boolean
   clearReactions?: boolean
-  clearTags?: boolean
+  clearPitches?: boolean
   clearButterflies?: boolean
   clearArtCollections?: boolean
-  clearTagOwner?: boolean
 }
 
 type ArtImagePatchInput = Partial<ArtImage> & {
@@ -146,7 +142,6 @@ type ArtImageCreateInput = Partial<ArtImage> &
 
 type ArtStoreState = {
   artImages: ArtImage[]
-  tags: Tag[]
   reactions: Reaction[]
   loading: boolean
   error: string
@@ -256,7 +251,6 @@ function mergeUniqueArtImages(
 export const useArtStore = defineStore('artStore', () => {
   const state = reactive<ArtStoreState>({
     artImages: [],
-    tags: [],
     reactions: [],
     loading: false,
     error: '',
@@ -277,7 +271,6 @@ export const useArtStore = defineStore('artStore', () => {
       negativePrompt: '',
       pitch: '',
       userId: null,
-      galleryId: null,
       checkpoint: '',
       sampler: '',
       steps: 25,
@@ -447,7 +440,6 @@ export const useArtStore = defineStore('artStore', () => {
       negativePrompt: '',
       pitch: '',
       userId: userStore.userId || userStore.user?.id || 10,
-      galleryId: null,
       engine: undefined,
       checkpoint: '',
       sampler: '',
@@ -526,7 +518,7 @@ export const useArtStore = defineStore('artStore', () => {
             force: Boolean(options.force),
             includeImageData: false,
             includeThumbnailData: false,
-            includeTags: false,
+            includePitches: false,
           })
         }
 
@@ -560,8 +552,8 @@ export const useArtStore = defineStore('artStore', () => {
       params.set('includeThumbnailData', 'true')
     }
 
-    if (options.includeTags) {
-      params.set('includeTags', 'true')
+    if (options.includePitches) {
+      params.set('includePitches', 'true')
     }
 
     const query = params.toString()
@@ -578,8 +570,7 @@ export const useArtStore = defineStore('artStore', () => {
     const withOptionalData = image as ArtImage & {
       imageData?: string | null
       thumbnailData?: string | null
-      Tags?: unknown[]
-      TagOwner?: unknown
+      Pitches?: unknown[]
     }
 
     if (options.includeImageData && !withOptionalData.imageData) return false
@@ -591,7 +582,10 @@ export const useArtStore = defineStore('artStore', () => {
       return false
     }
 
-    if (options.includeTags && typeof withOptionalData.Tags === 'undefined') {
+    if (
+      options.includePitches &&
+      typeof withOptionalData.Pitches === 'undefined'
+    ) {
       return false
     }
 
@@ -605,7 +599,7 @@ export const useArtStore = defineStore('artStore', () => {
       force: options.force,
       includeImageData: false,
       includeThumbnailData: false,
-      includeTags: false,
+      includePitches: false,
     }
 
     if (!listOptions.force && state.artImages.length) {
@@ -1022,57 +1016,21 @@ export const useArtStore = defineStore('artStore', () => {
     })
   }
 
-  async function fetchArtImageWithTags(
+  async function fetchArtImageWithPitches(
     id: number,
   ): Promise<ArtImage | undefined> {
     return await getArtImageById(id, {
-      includeTags: true,
+      includePitches: true,
     })
   }
 
-  async function updateArtImageTags(
+  async function updateArtImagePitches(
     id: number,
-    tags: string[],
+    pitchIds: number[],
   ): Promise<ApiResponse<ArtImage>> {
-    try {
-      clearError()
-
-      const response = await performFetch<ArtImage>(
-        `/api/art/image/${id}/tags`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ tags }),
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
-
-      if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to update image tags.')
-      }
-
-      addOrUpdateArtImages([response.data])
-
-      if (state.currentArtImage?.id === id) {
-        state.currentArtImage = response.data
-      }
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.message || 'Image tags updated.',
-      }
-    } catch (error) {
-      handleError(error, 'updating image tags')
-      setError(error, 'Failed to update image tags.')
-
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update image tags.',
-      }
-    }
+    return await updateArtImageConnections(id, {
+      pitchIds,
+    })
   }
 
   async function addArtImageToCollection(
@@ -1604,7 +1562,12 @@ export const useArtStore = defineStore('artStore', () => {
         getNegativePromptString.value,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
       userId,
-      galleryId: artData?.galleryId ?? state.artForm.galleryId ?? null,
+      artCollectionId:
+        artData?.artCollectionId ?? state.artForm.artCollectionId ?? null,
+      collectionLabel:
+        artData?.collectionLabel ??
+        artData?.collection ??
+        state.artForm.collectionLabel,
       checkpoint:
         artData?.checkpoint ||
         state.artForm.checkpoint ||
@@ -1818,15 +1781,15 @@ export const useArtStore = defineStore('artStore', () => {
     getCachedArtImageById,
     getOrFetchArtImageById,
 
-    updateArtImageTags,
     addArtImageToCollection,
     removeArtImageFromCollection,
     fetchArtImageForDisplay,
     fetchArtImageThumbnail,
-    fetchArtImageWithTags,
     updateArtImageConnections,
     updateArtImage,
     createArtImage,
+    updateArtImagePitches,
+    fetchArtImageWithPitches,
   }
 })
 

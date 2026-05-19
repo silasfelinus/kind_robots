@@ -1,0 +1,3 @@
+-- Rolled-back migration attempt preserved to keep Prisma migration history aligned.
+-- This migration was marked rolled back in _prisma_migrations.
+-- The live database drift from the interrupted attempt was repaired manually.

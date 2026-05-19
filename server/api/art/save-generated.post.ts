@@ -3,11 +3,10 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
-import type { ArtImage } from '~/prisma/generated/prisma/client'
 import {
   type RequestData,
+  validateAndLoadArtCollectionId,
   validateAndLoadDesignerName,
-  validateAndLoadGalleryId,
   validateAndLoadPitchId,
   validateAndLoadPromptId,
   validateAndLoadUserId,
@@ -87,13 +86,21 @@ export default defineEventHandler(async (event) => {
       validatedData,
     )
 
+    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+
+    const requestDataWithPitch = {
+      ...requestData,
+      pitchId: validatedData.pitchId,
+    }
+
     validatedData.promptId = await validateAndLoadPromptId(
-      requestData,
+      requestDataWithPitch,
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
-    validatedData.galleryId = await validateAndLoadGalleryId(requestData)
+    validatedData.artCollectionId =
+      await validateAndLoadArtCollectionId(requestDataWithPitch)
+
     validatedData.designer = validateAndLoadDesignerName(requestData)
 
     const server = await resolveServer({
@@ -119,9 +126,12 @@ export default defineEventHandler(async (event) => {
 
     const savedImage = await saveImage(
       requestData.imageBase64,
-      requestData.galleryName || 'cafefred',
-      validatedData.userId,
-      validatedData.galleryId,
+      requestData.artCollectionLabel ||
+        requestData.collectionLabel ||
+        requestData.collection ||
+        'generated',
+      validatedData.userId ?? user.id,
+      validatedData.artCollectionId ?? 0,
     )
 
     if (!savedImage.id) {
@@ -157,10 +167,16 @@ export default defineEventHandler(async (event) => {
         userId: validatedData.userId,
         promptId: validatedData.promptId ?? null,
         pitchId: validatedData.pitchId ?? null,
-        galleryId: validatedData.galleryId ?? null,
         serverId: server.id,
         serverName: server.title,
         serverUrl: getServerEndpoint(server),
+        ArtCollections: validatedData.artCollectionId
+          ? {
+              connect: {
+                id: validatedData.artCollectionId,
+              },
+            }
+          : undefined,
       },
     })
 

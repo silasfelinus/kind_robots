@@ -11,7 +11,7 @@
           Selected Image
         </h1>
         <p class="truncate text-xs text-base-content/60 md:text-sm">
-          Edit metadata, collections, tags, and remix options.
+          Edit metadata, collections, pitches, and remix options.
         </p>
       </div>
 
@@ -449,39 +449,40 @@
               </div>
             </div>
 
-            <!-- Tags -->
+            <!-- Pitches -->
             <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <h2 class="truncate text-base font-black text-base-content">
-                    Tags
+                    Pitches
                   </h2>
                   <p class="truncate text-xs text-base-content/55">
-                    Comma-separated search helpers.
+                    Comma-separated concept hooks.
                   </p>
                 </div>
-                <Icon name="kind-icon:tag" class="h-5 w-5 text-accent" />
+                <Icon name="kind-icon:lightbulb" class="h-5 w-5 text-accent" />
               </div>
+
               <textarea
-                v-model="tagText"
+                v-model="pitchText"
                 class="textarea textarea-bordered min-h-20 resize-none rounded-xl bg-base-100 text-xs"
                 placeholder="portrait, robot, butterfly"
               />
+
               <button
                 class="btn btn-accent btn-sm mt-2 w-full rounded-xl"
                 type="button"
-                :disabled="isSavingTags"
-                @click="saveTags"
+                :disabled="isSavingPitches"
+                @click="savePitches"
               >
                 <span
-                  v-if="isSavingTags"
+                  v-if="isSavingPitches"
                   class="loading loading-spinner loading-xs"
                 />
                 <Icon v-else name="kind-icon:save" class="h-4 w-4" />
-                Save Tags
+                Save Pitches
               </button>
             </div>
-
             <!-- Remix -->
             <div class="rounded-2xl border border-primary/30 bg-primary/10 p-3">
               <div class="mb-2 flex items-center justify-between gap-2">
@@ -537,13 +538,13 @@ const navStore = useNavStore()
 const userStore = useUserStore()
 
 const isSaving = ref(false)
-const isSavingTags = ref(false)
+const isSavingPitches = ref(false)
+const pitchText = ref('')
 const isCollectionSaving = ref(false)
 const isCollectionMenuOpen = ref(false)
 const collectionSearch = ref('')
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
-const tagText = ref('')
 const remixPrompt = ref('')
 const deleteArmed = ref(false)
 const isDeleting = ref(false)
@@ -641,7 +642,7 @@ watch(
   () => currentArtImage.value?.id,
   () => {
     hydrateEditForm()
-    hydrateTags()
+    hydratePitches()
     isCollectionMenuOpen.value = false
     statusMessage.value = ''
     deleteArmed.value = false
@@ -652,7 +653,7 @@ watch(
 onMounted(async () => {
   await collectionStore.fetchCollections?.()
   hydrateEditForm()
-  hydrateTags()
+  hydratePitches()
 })
 
 function hydrateEditForm() {
@@ -671,15 +672,62 @@ function hydrateEditForm() {
   editForm.isMature = Boolean(image.isMature)
 }
 
-function hydrateTags() {
+async function savePitches() {
+  if (!currentArtImage.value) return
+
+  const pitchIds = pitchText.value
+    .split(',')
+    .map((entry) => Number(entry.trim()))
+    .filter((id) => Number.isInteger(id) && id > 0)
+
+  if (!pitchIds.length && pitchText.value.trim()) {
+    setStatus(
+      'Use pitch IDs for now. Pitch label saving is not wired yet.',
+      'error',
+    )
+    return
+  }
+
+  isSavingPitches.value = true
+
+  try {
+    const response = await artStore.updateArtImageConnections(
+      currentArtImage.value.id,
+      {
+        pitchIds,
+        clearPitches: true,
+      },
+    )
+
+    if (!response.success) {
+      throw new Error(response.message || 'Failed to update pitches.')
+    }
+
+    setStatus('Pitches updated.')
+  } catch (error) {
+    setStatus(
+      error instanceof Error ? error.message : 'Failed to update pitches.',
+      'error',
+    )
+  } finally {
+    isSavingPitches.value = false
+  }
+}
+
+function hydratePitches() {
   const image = currentArtImage.value as
-    | (ArtImage & { tags?: { label?: string | null; name?: string | null }[] })
+    | (ArtImage & {
+        Pitches?: { id: number; title?: string | null; pitch?: string | null }[]
+        pitches?: { id: number; title?: string | null; pitch?: string | null }[]
+      })
     | null
-  tagText.value =
-    image?.tags
-      ?.map((tag) => tag.label || tag.name || '')
-      .filter(Boolean)
-      .join(', ') || ''
+
+  const pitches = image?.Pitches ?? image?.pitches ?? []
+
+  pitchText.value = pitches
+    .map((pitch) => String(pitch.id))
+    .filter(Boolean)
+    .join(', ')
 }
 
 function buildOriginalPayload() {
@@ -733,30 +781,6 @@ async function saveImageEdits() {
     )
   } finally {
     isSaving.value = false
-  }
-}
-
-async function saveTags() {
-  if (!currentArtImage.value) return
-  isSavingTags.value = true
-  try {
-    const response = await artStore.updateArtImageConnections(
-      currentArtImage.value.id,
-      {
-        clearTags: true,
-        tagOwnerId: currentArtImage.value.userId ?? undefined,
-      },
-    )
-    if (!response.success)
-      throw new Error(response.message || 'Failed to update tags.')
-    setStatus('Tags updated.')
-  } catch (error) {
-    setStatus(
-      error instanceof Error ? error.message : 'Failed to update tags.',
-      'error',
-    )
-  } finally {
-    isSavingTags.value = false
   }
 }
 

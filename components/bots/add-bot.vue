@@ -199,10 +199,10 @@
             <button
               class="btn btn-secondary rounded-xl"
               type="button"
-              @click="useRandomGalleryImage"
+              @click="useRandomArtImage"
             >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
-              Random Gallery Image
+              Random Art Image
             </button>
           </div>
         </aside>
@@ -499,7 +499,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useBotStore, type BotForm } from '@/stores/botStore'
-import { useGalleryStore } from '@/stores/galleryStore'
+import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
@@ -520,7 +520,7 @@ const emit = defineEmits<{
 }>()
 
 const botStore = useBotStore()
-const galleryStore = useGalleryStore()
+const artStore = useArtStore()
 const userStore = useUserStore()
 const uploadStore = useUploadStore()
 
@@ -541,7 +541,6 @@ function configureBotImageUpload() {
   uploadStore.setTarget({
     model: 'Bot',
     modelId: botStore.currentBot?.id ?? botStore.botForm.id ?? null,
-    galleryName: 'botUploads',
     collectionLabel: 'bots',
     promptString: '[BotImage]',
     path: '[BotImage]',
@@ -690,7 +689,10 @@ onMounted(async () => {
       initializeServerStore: false,
       createBlankForm: true,
     }),
-    galleryStore.initialize(),
+    artStore.initialize({
+      fetchRemote: true,
+      hydrateImages: true,
+    }),
   ])
 
   await prepareForm()
@@ -774,18 +776,26 @@ function seedBot() {
   statusMessage.value = 'Bot seed applied.'
 }
 
-async function useRandomGalleryImage() {
-  const image = await galleryStore.changeToRandomImage()
+async function useRandomArtImage() {
+  const images = artStore.safeArtImages.length
+    ? artStore.safeArtImages
+    : artStore.artImages
 
-  if (image) {
-    botStore.setCurrentImagePath(image)
+  const image = images[Math.floor(Math.random() * images.length)]
+
+  if (image?.imagePath || image?.path) {
+    botStore.setCurrentImagePath(image.imagePath || image.path || '')
+    botStore.setBotForm({
+      artImageId: image.id,
+      avatarImage: image.imagePath || image.path || '',
+    })
     statusTone.value = 'success'
     statusMessage.value = 'Random avatar applied.'
     return
   }
 
   statusTone.value = 'error'
-  statusMessage.value = 'No gallery image was available.'
+  statusMessage.value = 'No art image was available.'
 }
 
 async function generateSelectedFields() {

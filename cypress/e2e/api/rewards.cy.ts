@@ -26,16 +26,15 @@ describe('Reward Management API Tests', () => {
         text: 'Test Reward Text',
         power: 'Test Power',
         collection: 'Test Collection',
-        rarity: 5,
+        rarity: 'COMMON',
+        rewardType: 'ITEM',
         label: 'Test Label',
         userId: 9,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token.')
     })
   })
 
@@ -52,7 +51,8 @@ describe('Reward Management API Tests', () => {
         text: 'Test Reward Text',
         power: 'Test Power',
         collection: 'Test Collection',
-        rarity: 5,
+        rarity: 'COMMON',
+        rewardType: 'ITEM',
         label: 'Test Label',
         userId: 9,
       },
@@ -76,7 +76,8 @@ describe('Reward Management API Tests', () => {
         text: 'Test Reward Text',
         power: 'Test Power',
         collection: 'Test Collection',
-        rarity: 5,
+        rarity: 'COMMON',
+        rewardType: 'ITEM',
         label: 'Test Label',
         userId: 9,
       },
@@ -143,7 +144,7 @@ describe('Reward Management API Tests', () => {
       },
       body: {
         text: 'Updated Test Reward Text',
-        rarity: 10,
+        rarity: 'RARE',
         label: 'Updated Test Label',
       },
     }).then((response) => {
@@ -152,7 +153,7 @@ describe('Reward Management API Tests', () => {
       expect(response.body.data).to.be.an('object')
       expect(response.body.data.label).to.eq('Updated Test Label')
       expect(response.body.data.text).to.eq('Updated Test Reward Text')
-      expect(response.body.data.rarity).to.eq(10)
+      expect(response.body.data.rarity).to.eq('RARE')
     })
   })
 

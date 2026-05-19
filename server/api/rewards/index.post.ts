@@ -17,14 +17,22 @@ export default defineEventHandler(async (event) => {
 
     const rewardData = await readBody<RewardMutationInput>(event)
 
-    if (!rewardData || typeof rewardData !== 'object') {
+    if (
+      !rewardData ||
+      typeof rewardData !== 'object' ||
+      Array.isArray(rewardData)
+    ) {
       throw createError({
         statusCode: 400,
         message: 'Reward payload is required.',
       })
     }
 
-    if (rewardData.userId && rewardData.userId !== user.id) {
+    if (
+      rewardData.userId !== undefined &&
+      rewardData.userId !== null &&
+      rewardData.userId !== user.id
+    ) {
       throw createError({
         statusCode: 403,
         message:
@@ -38,11 +46,14 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
+      message: 'Reward created successfully.',
       data,
+      reward: data,
       statusCode: 201,
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
+
     event.node.res.statusCode = statusCode || 500
 
     return {

@@ -2538,7 +2538,6 @@ export const ButterflyScalarFieldEnum = {
   characterId: 'characterId',
   pitchId: 'pitchId',
   promptId: 'promptId',
-  rewardId: 'rewardId',
   scenarioId: 'scenarioId',
   tagId: 'tagId'
 } as const

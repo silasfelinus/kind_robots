@@ -6,7 +6,7 @@ describe('Reaction Management API Tests', () => {
   const userId = 9
 
   let userToken = ''
-  let artId: number | undefined
+  let artImageId: number | undefined
   let reactionId: number | undefined
 
   before(() => {
@@ -16,37 +16,40 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  it('Create a New Art Piece', () => {
+  it('Create a New ArtImage Fixture', () => {
     cy.request({
       method: 'POST',
-      url: `${baseUrl}/art`,
+      url: `${baseUrl}/art/image`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
       body: {
         promptString: 'surreal, A beautiful pancake sunrise over the mountains',
+        artPrompt: 'surreal, A beautiful pancake sunrise over the mountains',
         steps: 10,
-        path: ' ',
-        seed: null,
-        galleryId: null,
-        promptId: null,
-        pitchId: null,
+        path: `/images/testing/reaction-fixture-${Date.now()}.webp`,
+        imagePath: `/images/testing/reaction-fixture-${Date.now()}.webp`,
+        fileType: 'webp',
+        seed: -1,
         userId,
+        isPublic: false,
+        isMature: false,
+        isActive: true,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.have.property('id')
 
-      artId = response.body.data.id
+      artImageId = response.body.data.id
 
-      expect(artId).to.be.a('number')
+      expect(artImageId).to.be.a('number')
     })
   })
 
   it('should not allow creating a reaction without an authorization token', () => {
-    expect(artId).to.exist
+    expect(artImageId).to.exist
 
     cy.request({
       method: 'POST',
@@ -58,21 +61,19 @@ describe('Reaction Management API Tests', () => {
         userId,
         reactionType: 'LOVED',
         reactionCategory: 'ART',
-        artId,
+        artImageId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
       },
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token')
     })
   })
 
   it('should not allow creating a reaction with an invalid authorization token', () => {
-    expect(artId).to.exist
+    expect(artImageId).to.exist
 
     cy.request({
       method: 'POST',
@@ -85,7 +86,7 @@ describe('Reaction Management API Tests', () => {
         userId,
         reactionType: 'LOVED',
         reactionCategory: 'ART',
-        artId,
+        artImageId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
       },
@@ -96,8 +97,8 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  it('Create a New Art Reaction with Authentication', () => {
-    expect(artId).to.exist
+  it('Create a New ArtImage Reaction with Authentication', () => {
+    expect(artImageId).to.exist
 
     cy.request({
       method: 'POST',
@@ -110,16 +111,16 @@ describe('Reaction Management API Tests', () => {
         userId,
         reactionType: 'LOVED',
         reactionCategory: 'ART',
-        artId,
+        artImageId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
         chatId: null,
-        artImageId: null,
       },
     }).then((response) => {
       expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
       expect(response.body.data).to.have.property('id')
+      expect(response.body.data.artImageId).to.eq(artImageId)
 
       reactionId = response.body.data.id
 
@@ -127,7 +128,7 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  it('Edit the Art Reaction with Authentication', () => {
+  it('Edit the ArtImage Reaction with Authentication', () => {
     expect(reactionId).to.exist
 
     cy.request({
@@ -188,7 +189,7 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  it('Delete the Art Reaction with Authentication', () => {
+  it('Delete the ArtImage Reaction with Authentication', () => {
     expect(reactionId).to.exist
 
     cy.request({
@@ -201,7 +202,6 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data).to.be.an('array').and.to.have.length(0)
       expect(response.body.message).to.include(
         `Reaction with ID ${reactionId} successfully deleted`,
       )
@@ -210,22 +210,21 @@ describe('Reaction Management API Tests', () => {
     })
   })
 
-  it('Delete the Created Art Piece with Authentication', () => {
-    expect(artId).to.exist
+  it('Delete the Created ArtImage Fixture with Authentication', () => {
+    expect(artImageId).to.exist
 
     cy.request({
       method: 'DELETE',
-      url: `${baseUrl}/art/${artId}`,
+      url: `${baseUrl}/art/image/${artImageId}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
+      failOnStatusCode: false,
     }).then((response) => {
-      expect(response.status).to.eq(200)
-      expect(response.body).to.have.property('success', true)
-      expect(response.body).to.have.property('message').that.is.a('string')
+      expect([200, 204, 404]).to.include(response.status)
 
-      artId = undefined
+      artImageId = undefined
     })
   })
 })

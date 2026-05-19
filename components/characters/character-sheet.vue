@@ -51,6 +51,7 @@
     </header>
 
     <Transition name="sheet-fade" mode="out-in">
+      <!-- Portrait view -->
       <section
         v-if="showPortrait && hasPortrait"
         key="portrait"
@@ -123,9 +124,12 @@
         </div>
       </section>
 
+      <!-- Sheet view -->
       <section v-else key="sheet" class="min-h-0 flex-1 overflow-y-auto p-3">
         <div class="grid grid-cols-1 gap-3 2xl:grid-cols-[16rem_minmax(0,1fr)]">
+          <!-- Sidebar -->
           <aside class="flex flex-col gap-3">
+            <!-- Portrait thumbnail -->
             <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
               <div
                 class="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
@@ -145,11 +149,9 @@
                     name="kind-icon:mask"
                     class="h-14 w-14 text-primary/70"
                   />
-
                   <p class="text-sm font-bold text-base-content/70">
                     Portrait Pending
                   </p>
-
                   <p class="text-xs text-base-content/50">
                     Complete the sheet to unlock portrait creation.
                   </p>
@@ -157,6 +159,7 @@
               </div>
             </article>
 
+            <!-- Completion checklist -->
             <article class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <h3 class="flex items-center gap-2 font-black text-base-content">
                 <Icon name="kind-icon:check" class="h-5 w-5 text-primary" />
@@ -189,7 +192,9 @@
             </article>
           </aside>
 
+          <!-- Main content -->
           <main class="flex min-w-0 flex-col gap-3">
+            <!-- Identity block -->
             <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
               <div class="flex items-start justify-between gap-3">
                 <div>
@@ -198,11 +203,9 @@
                   >
                     Identity
                   </p>
-
                   <h3 class="mt-1 text-xl font-black text-base-content">
                     {{ sheet.name || 'Awaiting Name' }}
                   </h3>
-
                   <p class="mt-1 text-sm text-base-content/70">
                     {{ identityLine }}
                   </p>
@@ -258,10 +261,11 @@
                   @clear="emit('remove-section', 'origin')"
                 />
 
+                <!-- schema: class -->
                 <sheet-cell
                   label="Class"
                   icon="kind-icon:sparkles"
-                  :value="sheet.characterClass"
+                  :value="sheet.class"
                   placeholder="Calling pending"
                   :is-builder-mode="isBuilderMode"
                   @clear="emit('remove-section', 'origin')"
@@ -276,10 +280,11 @@
                   @clear="emit('remove-section', 'origin')"
                 />
 
+                <!-- schema: gender -->
                 <sheet-cell
                   label="Gender"
                   icon="kind-icon:person"
-                  :value="sheet.genderIdentity"
+                  :value="sheet.gender"
                   placeholder="Identity card waiting"
                   :is-builder-mode="isBuilderMode"
                   @clear="emit('remove-section', 'identity')"
@@ -297,9 +302,11 @@
               </div>
             </section>
 
+            <!-- Narrative + Stats/Skills columns -->
             <section
               class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]"
             >
+              <!-- Narrative panels -->
               <div class="flex min-w-0 flex-col gap-3">
                 <sheet-panel
                   label="Personality"
@@ -356,7 +363,9 @@
                 />
               </div>
 
+              <!-- Stats + Skills sidebar -->
               <aside class="flex flex-col gap-3">
+                <!-- Stat tiers -->
                 <article
                   class="rounded-2xl border border-base-300 bg-base-100 p-4"
                 >
@@ -386,11 +395,11 @@
                     <div
                       v-for="stat in characterStats"
                       :key="stat.key"
-                      class="rounded-2xl border bg-base-200 p-3"
+                      class="rounded-2xl border bg-base-200 p-3 transition"
                       :class="
                         stat.value !== 'COMMON'
                           ? 'border-primary/30'
-                          : 'border-dashed border-base-300 opacity-70'
+                          : 'border-dashed border-base-300 opacity-60'
                       "
                     >
                       <p class="truncate text-sm font-bold text-base-content">
@@ -398,7 +407,12 @@
                       </p>
 
                       <p
-                        class="mt-1 text-sm font-black uppercase tracking-wide text-primary"
+                        class="mt-1 text-sm font-black uppercase tracking-wide"
+                        :class="
+                          stat.value !== 'COMMON'
+                            ? 'text-primary'
+                            : 'text-base-content/30'
+                        "
                       >
                         {{ stat.value }}
                       </p>
@@ -406,50 +420,54 @@
                   </div>
                 </article>
 
+                <!-- Starting Skills (3 skill slots) -->
                 <article
                   class="rounded-2xl border border-base-300 bg-base-100 p-4"
                 >
                   <h3
                     class="flex items-center gap-2 font-black text-base-content"
                   >
-                    <Icon name="kind-icon:gift" class="h-5 w-5 text-primary" />
-                    Starting Rewards
+                    <Icon name="kind-icon:bolt" class="h-5 w-5 text-primary" />
+                    Starting Skills
                   </h3>
 
                   <div class="mt-3 flex flex-col gap-3">
                     <article
                       v-for="slot in rewardSlots"
                       :key="slot.key"
-                      class="group rounded-2xl border bg-base-200 p-3"
+                      class="group rounded-2xl border bg-base-200 p-3 transition"
                       :class="
-                        rewardForSlot(slot.key)
+                        skillForSlot(slot.key)
                           ? 'border-base-300'
-                          : 'border-dashed border-base-300 opacity-70'
+                          : 'border-dashed border-base-300 opacity-60'
                       "
                     >
                       <div class="flex gap-3">
+                        <!-- Icon / image -->
                         <div
                           class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
                         >
                           <img
-                            v-if="rewardForSlot(slot.key)?.imagePath"
-                            :src="rewardForSlot(slot.key)?.imagePath"
-                            :alt="rewardForSlot(slot.key)?.label"
+                            v-if="skillForSlot(slot.key)?.imagePath"
+                            :src="skillForSlot(slot.key)?.imagePath"
+                            :alt="skillForSlot(slot.key)?.label"
                             class="h-full w-full object-cover"
                           />
 
                           <Icon
                             v-else
-                            :name="rewardForSlot(slot.key)?.icon || slot.icon"
+                            :name="skillForSlot(slot.key)?.icon || slot.icon"
                             class="h-7 w-7 text-primary"
                           />
                         </div>
 
+                        <!-- Label + power -->
                         <div class="min-w-0 flex-1">
                           <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
                               <p
-                                class="text-xs font-bold uppercase tracking-[0.16em] text-base-content/50"
+                                class="text-xs font-bold uppercase tracking-[0.16em]"
+                                :class="rarityColor(slot.rarity)"
                               >
                                 {{ slot.label }}
                               </p>
@@ -457,20 +475,20 @@
                               <p
                                 class="mt-1 font-black"
                                 :class="
-                                  rewardForSlot(slot.key)
+                                  skillForSlot(slot.key)
                                     ? 'text-base-content'
                                     : 'italic text-base-content/40'
                                 "
                               >
                                 {{
-                                  rewardForSlot(slot.key)?.label ||
-                                  'Empty reward slot'
+                                  skillForSlot(slot.key)?.label ||
+                                  'Empty skill slot'
                                 }}
                               </p>
                             </div>
 
                             <button
-                              v-if="isBuilderMode && rewardForSlot(slot.key)"
+                              v-if="isBuilderMode && skillForSlot(slot.key)"
                               class="btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100"
                               type="button"
                               @click="emit('remove-reward', slot.key)"
@@ -482,14 +500,15 @@
                           <p
                             class="mt-2 line-clamp-3 text-sm"
                             :class="
-                              rewardForSlot(slot.key)
+                              skillForSlot(slot.key)
                                 ? 'text-base-content/70'
                                 : 'italic text-base-content/40'
                             "
                           >
                             {{
-                              rewardForSlot(slot.key)?.power ||
-                              `${slot.rarity} ${slot.rewardType}.`
+                              skillForSlot(slot.key)?.power ||
+                              slot.description ||
+                              `${slot.rarity} skill.`
                             }}
                           </p>
                         </div>
@@ -515,6 +534,10 @@ import {
   type RewardPromptSlot,
 } from '@/stores/helpers/characterHelper'
 
+// ---------------------------------------------------------------------------
+// Props / emits
+// ---------------------------------------------------------------------------
+
 const props = withDefaults(
   defineProps<{
     sheet: CharacterSheetDraft
@@ -536,62 +559,74 @@ const emit = defineEmits<{
   'select-card': [key: string]
 }>()
 
+// ---------------------------------------------------------------------------
+// Local state
+// ---------------------------------------------------------------------------
+
 const showPortrait = ref(false)
+
+// ---------------------------------------------------------------------------
+// Computed
+// ---------------------------------------------------------------------------
 
 const hasPortrait = computed(() =>
   Boolean(props.sheet.imagePath || props.sheet.artImageId),
 )
 
+// Reads the six rarity-tier fields from the sheet (luck, might, wits, etc.)
+// characterStatFields from characterHelper provides { key, label } pairs
 const characterStats = computed(() =>
   characterStatFields.map((stat) => ({
     key: stat.key,
     label: stat.label,
-    value: props.sheet[stat.key],
+    value: props.sheet[stat.key] as string,
   })),
 )
 
+// Stats are "set" when any tier has been raised above COMMON.
+// Allocating 1–6 always produces at least UNCOMMON through MYTHIC,
+// so this is a clean "has this card been played" check.
 const hasStats = computed(() =>
   characterStats.value.some((stat) => stat.value !== 'COMMON'),
 )
 
-const hasIdentityContent = computed(() => {
-  return Boolean(
+const hasIdentityContent = computed(() =>
+  Boolean(
     props.sheet.name ||
     props.sheet.honorific !== 'adventurer' ||
     props.sheet.role ||
     props.sheet.species ||
-    props.sheet.characterClass ||
+    props.sheet.class || // schema: class
     props.sheet.alignment ||
-    props.sheet.genderIdentity ||
+    props.sheet.gender || // schema: gender
     props.sheet.presentation,
-  )
-})
+  ),
+)
 
-const identityLine = computed(() => {
-  return [
+const identityLine = computed(() =>
+  [
     props.sheet.honorific || 'adventurer',
     props.sheet.species || 'unknown species',
-    props.sheet.characterClass || 'unclassed',
+    props.sheet.class || 'unclassed', // schema: class
     props.sheet.role || 'plot-adjacent citizen',
-  ].join(' · ')
-})
+  ].join(' · '),
+)
 
-const badges = computed(() => {
-  return [
-    props.sheet.genre,
-    props.sheet.genderIdentity,
-    props.sheet.presentation,
-    props.sheet.alignment,
-  ].filter(Boolean)
-})
+const badges = computed(
+  () =>
+    [
+      props.sheet.genre,
+      props.sheet.gender, // schema: gender
+      props.sheet.presentation,
+      props.sheet.alignment,
+    ].filter(Boolean) as string[],
+)
 
 const sheetSubtitle = computed(() => {
   if (!props.isBuilderMode) return identityLine.value
-
   if (props.canCreateArt) {
     return 'The sheet is complete enough for portrait creation. Save it, paint it, or keep tinkering.'
   }
-
   return 'Choose prompt cards to fill the sheet. Completed sections can be cleared to restore their cards.'
 })
 
@@ -600,72 +635,98 @@ const completionItems = computed(() => [
     key: 'role',
     cardKey: 'role',
     label: 'Role',
-    done: Boolean(props.sheet.role.trim()),
+    done: Boolean(props.sheet.role?.trim()),
   },
   {
     key: 'name',
     cardKey: 'name',
     label: 'Name',
-    done: Boolean(props.sheet.name.trim()),
+    done: Boolean(props.sheet.name?.trim()),
   },
   {
     key: 'origin',
     cardKey: 'origin',
     label: 'Origin',
-    done: Boolean(
-      props.sheet.species.trim() && props.sheet.characterClass.trim(),
-    ),
+    done: Boolean(props.sheet.species?.trim() && props.sheet.class?.trim()), // schema: class
   },
   {
     key: 'identity',
     cardKey: 'identity',
     label: 'Identity',
     done: Boolean(
-      props.sheet.genderIdentity.trim() || props.sheet.presentation.trim(),
-    ),
+      props.sheet.gender?.trim() || props.sheet.presentation?.trim(),
+    ), // schema: gender
   },
   {
     key: 'personality',
     cardKey: 'personality',
     label: 'Personality',
-    done: Boolean(props.sheet.personality.trim()),
+    done: Boolean(props.sheet.personality?.trim()),
   },
   {
     key: 'stats',
     cardKey: 'stats',
     label: 'Stats',
-    done: characterStats.value.every((stat) => Boolean(stat.value)),
+    done: hasStats.value,
   },
   {
     key: 'background',
     cardKey: 'background',
     label: 'Backstory',
-    done: Boolean(props.sheet.backstory.trim()),
+    done: Boolean(props.sheet.backstory?.trim()),
   },
   {
-    key: 'rewards',
+    key: 'skills',
     cardKey: 'common-skill',
-    label: 'Rewards',
-    done: props.rewardSlots.every((slot) => Boolean(rewardForSlot(slot.key))),
+    label: 'Skills',
+    done: props.rewardSlots.every((slot) => Boolean(skillForSlot(slot.key))),
   },
   {
     key: 'portrait',
     cardKey: 'art',
     label: 'Portrait',
     done: Boolean(
-      props.sheet.artPrompt.trim() ||
+      props.sheet.artPrompt?.trim() ||
       props.sheet.imagePath ||
       props.sheet.artImageId,
     ),
   },
 ])
 
-function rewardForSlot(slotKey: string): CharacterRewardDraft | null {
-  return (
-    props.sheet.rewards.find((reward) => reward.slotKey === slotKey) ?? null
-  )
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function skillForSlot(slotKey: string): CharacterRewardDraft | null {
+  return props.sheet.rewards?.find((r) => r.slotKey === slotKey) ?? null
 }
 
+// Returns a text-color class based on rarity tier
+function rarityColor(rarity: string): string {
+  switch (rarity) {
+    case 'MYTHIC':
+      return 'text-warning'
+    case 'LEGENDARY':
+      return 'text-warning/80'
+    case 'EPIC':
+      return 'text-secondary'
+    case 'RARE':
+      return 'text-primary'
+    case 'UNCOMMON':
+      return 'text-success'
+    default:
+      return 'text-base-content/50'
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Inline sub-components
+// ---------------------------------------------------------------------------
+
+/**
+ * SheetCell — compact labeled field for the identity grid.
+ * Optionally spans two columns via `wide`.
+ */
 const SheetCell = defineComponent({
   name: 'SheetCell',
   props: {
@@ -677,7 +738,7 @@ const SheetCell = defineComponent({
     isBuilderMode: { type: Boolean, default: false },
   },
   emits: ['clear'],
-  setup(componentProps, { emit: componentEmit }) {
+  setup(p, { emit: ce }) {
     const Icon = resolveComponent('Icon')
 
     return () =>
@@ -686,10 +747,10 @@ const SheetCell = defineComponent({
         {
           class: [
             'group rounded-2xl border bg-base-200 p-3 transition',
-            componentProps.value
+            p.value
               ? 'border-base-300'
               : 'border-dashed border-base-300 opacity-70',
-            componentProps.wide ? 'md:col-span-2' : '',
+            p.wide ? 'md:col-span-2' : '',
           ],
         },
         [
@@ -702,11 +763,8 @@ const SheetCell = defineComponent({
                     'flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-base-content/50',
                 },
                 [
-                  h(Icon, {
-                    name: componentProps.icon,
-                    class: 'h-4 w-4 text-primary',
-                  }),
-                  componentProps.label,
+                  h(Icon, { name: p.icon, class: 'h-4 w-4 text-primary' }),
+                  p.label,
                 ],
               ),
               h(
@@ -714,22 +772,22 @@ const SheetCell = defineComponent({
                 {
                   class: [
                     'mt-2 whitespace-pre-wrap text-sm',
-                    componentProps.value
+                    p.value
                       ? 'font-semibold text-base-content'
                       : 'italic text-base-content/40',
                   ],
                 },
-                componentProps.value || componentProps.placeholder,
+                p.value || p.placeholder,
               ),
             ]),
-            componentProps.value && componentProps.isBuilderMode
+            p.value && p.isBuilderMode
               ? h(
                   'button',
                   {
                     class:
                       'btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100',
                     type: 'button',
-                    onClick: () => componentEmit('clear'),
+                    onClick: () => ce('clear'),
                   },
                   [h(Icon, { name: 'kind-icon:x', class: 'h-3 w-3' })],
                 )
@@ -740,6 +798,9 @@ const SheetCell = defineComponent({
   },
 })
 
+/**
+ * SheetPanel — full-width narrative field with heading and prose body.
+ */
 const SheetPanel = defineComponent({
   name: 'SheetPanel',
   props: {
@@ -750,7 +811,7 @@ const SheetPanel = defineComponent({
     isBuilderMode: { type: Boolean, default: false },
   },
   emits: ['clear'],
-  setup(componentProps, { emit: componentEmit }) {
+  setup(p, { emit: ce }) {
     const Icon = resolveComponent('Icon')
 
     return () =>
@@ -759,7 +820,7 @@ const SheetPanel = defineComponent({
         {
           class: [
             'group rounded-2xl border bg-base-100 p-4 transition',
-            componentProps.value
+            p.value
               ? 'border-base-300'
               : 'border-dashed border-base-300 opacity-70',
           ],
@@ -770,21 +831,18 @@ const SheetPanel = defineComponent({
               'h3',
               { class: 'flex items-center gap-2 font-black text-base-content' },
               [
-                h(Icon, {
-                  name: componentProps.icon,
-                  class: 'h-5 w-5 text-primary',
-                }),
-                componentProps.label,
+                h(Icon, { name: p.icon, class: 'h-5 w-5 text-primary' }),
+                p.label,
               ],
             ),
-            componentProps.value && componentProps.isBuilderMode
+            p.value && p.isBuilderMode
               ? h(
                   'button',
                   {
                     class:
                       'btn btn-xs rounded-lg opacity-70 transition group-hover:opacity-100',
                     type: 'button',
-                    onClick: () => componentEmit('clear'),
+                    onClick: () => ce('clear'),
                   },
                   [h(Icon, { name: 'kind-icon:x', class: 'h-3 w-3' }), 'Clear'],
                 )
@@ -795,12 +853,12 @@ const SheetPanel = defineComponent({
             {
               class: [
                 'mt-3 whitespace-pre-wrap text-sm leading-relaxed',
-                componentProps.value
+                p.value
                   ? 'text-base-content/75'
                   : 'italic text-base-content/40',
               ],
             },
-            componentProps.value || componentProps.placeholder,
+            p.value || p.placeholder,
           ),
         ],
       )

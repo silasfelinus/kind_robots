@@ -52,7 +52,7 @@ export type CharacterMinAggregateOutputType = {
   role: string | null
   class: string | null
   species: string | null
-  genderIdentity: string | null
+  gender: string | null
   presentation: string | null
   genre: string | null
   alignment: string | null
@@ -89,7 +89,7 @@ export type CharacterMaxAggregateOutputType = {
   role: string | null
   class: string | null
   species: string | null
-  genderIdentity: string | null
+  gender: string | null
   presentation: string | null
   genre: string | null
   alignment: string | null
@@ -126,7 +126,7 @@ export type CharacterCountAggregateOutputType = {
   role: number
   class: number
   species: number
-  genderIdentity: number
+  gender: number
   presentation: number
   genre: number
   alignment: number
@@ -181,7 +181,7 @@ export type CharacterMinAggregateInputType = {
   role?: true
   class?: true
   species?: true
-  genderIdentity?: true
+  gender?: true
   presentation?: true
   genre?: true
   alignment?: true
@@ -218,7 +218,7 @@ export type CharacterMaxAggregateInputType = {
   role?: true
   class?: true
   species?: true
-  genderIdentity?: true
+  gender?: true
   presentation?: true
   genre?: true
   alignment?: true
@@ -255,7 +255,7 @@ export type CharacterCountAggregateInputType = {
   role?: true
   class?: true
   species?: true
-  genderIdentity?: true
+  gender?: true
   presentation?: true
   genre?: true
   alignment?: true
@@ -379,7 +379,7 @@ export type CharacterGroupByOutputType = {
   role: string | null
   class: string | null
   species: string | null
-  genderIdentity: string | null
+  gender: string | null
   presentation: string | null
   genre: string | null
   alignment: string | null
@@ -439,7 +439,7 @@ export type CharacterWhereInput = {
   role?: Prisma.StringNullableFilter<"Character"> | string | null
   class?: Prisma.StringNullableFilter<"Character"> | string | null
   species?: Prisma.StringNullableFilter<"Character"> | string | null
-  genderIdentity?: Prisma.StringNullableFilter<"Character"> | string | null
+  gender?: Prisma.StringNullableFilter<"Character"> | string | null
   presentation?: Prisma.StringNullableFilter<"Character"> | string | null
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   alignment?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -483,7 +483,7 @@ export type CharacterOrderByWithRelationInput = {
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   class?: Prisma.SortOrderInput | Prisma.SortOrder
   species?: Prisma.SortOrderInput | Prisma.SortOrder
-  genderIdentity?: Prisma.SortOrderInput | Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
   presentation?: Prisma.SortOrderInput | Prisma.SortOrder
   genre?: Prisma.SortOrderInput | Prisma.SortOrder
   alignment?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -531,7 +531,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.StringNullableFilter<"Character"> | string | null
   class?: Prisma.StringNullableFilter<"Character"> | string | null
   species?: Prisma.StringNullableFilter<"Character"> | string | null
-  genderIdentity?: Prisma.StringNullableFilter<"Character"> | string | null
+  gender?: Prisma.StringNullableFilter<"Character"> | string | null
   presentation?: Prisma.StringNullableFilter<"Character"> | string | null
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   alignment?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -575,7 +575,7 @@ export type CharacterOrderByWithAggregationInput = {
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   class?: Prisma.SortOrderInput | Prisma.SortOrder
   species?: Prisma.SortOrderInput | Prisma.SortOrder
-  genderIdentity?: Prisma.SortOrderInput | Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
   presentation?: Prisma.SortOrderInput | Prisma.SortOrder
   genre?: Prisma.SortOrderInput | Prisma.SortOrder
   alignment?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -620,7 +620,7 @@ export type CharacterScalarWhereWithAggregatesInput = {
   role?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   class?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   species?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
-  genderIdentity?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  gender?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   presentation?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   genre?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   alignment?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
@@ -656,7 +656,7 @@ export type CharacterCreateInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -699,7 +699,7 @@ export type CharacterUncheckedCreateInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -741,7 +741,7 @@ export type CharacterUpdateInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -784,7 +784,7 @@ export type CharacterUncheckedUpdateInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -827,7 +827,7 @@ export type CharacterCreateManyInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -863,7 +863,7 @@ export type CharacterUpdateManyMutationInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -899,7 +899,7 @@ export type CharacterUncheckedUpdateManyInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -947,7 +947,7 @@ export type CharacterCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   class?: Prisma.SortOrder
   species?: Prisma.SortOrder
-  genderIdentity?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
   presentation?: Prisma.SortOrder
   genre?: Prisma.SortOrder
   alignment?: Prisma.SortOrder
@@ -992,7 +992,7 @@ export type CharacterMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   class?: Prisma.SortOrder
   species?: Prisma.SortOrder
-  genderIdentity?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
   presentation?: Prisma.SortOrder
   genre?: Prisma.SortOrder
   alignment?: Prisma.SortOrder
@@ -1029,7 +1029,7 @@ export type CharacterMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   class?: Prisma.SortOrder
   species?: Prisma.SortOrder
-  genderIdentity?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
   presentation?: Prisma.SortOrder
   genre?: Prisma.SortOrder
   alignment?: Prisma.SortOrder
@@ -1291,7 +1291,7 @@ export type CharacterCreateWithoutArtImageInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1333,7 +1333,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1390,7 +1390,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1432,7 +1432,7 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1473,7 +1473,7 @@ export type CharacterCreateWithoutChatsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1515,7 +1515,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1572,7 +1572,7 @@ export type CharacterUpdateWithoutChatsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1614,7 +1614,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1655,7 +1655,7 @@ export type CharacterCreateWithoutDreamsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1697,7 +1697,7 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1763,7 +1763,7 @@ export type CharacterScalarWhereInput = {
   role?: Prisma.StringNullableFilter<"Character"> | string | null
   class?: Prisma.StringNullableFilter<"Character"> | string | null
   species?: Prisma.StringNullableFilter<"Character"> | string | null
-  genderIdentity?: Prisma.StringNullableFilter<"Character"> | string | null
+  gender?: Prisma.StringNullableFilter<"Character"> | string | null
   presentation?: Prisma.StringNullableFilter<"Character"> | string | null
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   alignment?: Prisma.StringNullableFilter<"Character"> | string | null
@@ -1799,7 +1799,7 @@ export type CharacterCreateWithoutReactionsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1841,7 +1841,7 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -1898,7 +1898,7 @@ export type CharacterUpdateWithoutReactionsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1940,7 +1940,7 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1981,7 +1981,7 @@ export type CharacterCreateWithoutRewardsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2023,7 +2023,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2085,7 +2085,7 @@ export type CharacterCreateWithoutScenariosInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2127,7 +2127,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2189,7 +2189,7 @@ export type CharacterCreateWithoutUserInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2231,7 +2231,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2298,7 +2298,7 @@ export type CharacterUpdateWithoutDreamsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2340,7 +2340,7 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2382,7 +2382,7 @@ export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2418,7 +2418,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2460,7 +2460,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2502,7 +2502,7 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2538,7 +2538,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2580,7 +2580,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2622,7 +2622,7 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2659,7 +2659,7 @@ export type CharacterCreateManyUserInput = {
   role?: string | null
   class?: string | null
   species?: string | null
-  genderIdentity?: string | null
+  gender?: string | null
   presentation?: string | null
   genre?: string | null
   alignment?: string | null
@@ -2694,7 +2694,7 @@ export type CharacterUpdateWithoutUserInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2736,7 +2736,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2778,7 +2778,7 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  genderIdentity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2881,7 +2881,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   role?: boolean
   class?: boolean
   species?: boolean
-  genderIdentity?: boolean
+  gender?: boolean
   presentation?: boolean
   genre?: boolean
   alignment?: boolean
@@ -2928,7 +2928,7 @@ export type CharacterSelectScalar = {
   role?: boolean
   class?: boolean
   species?: boolean
-  genderIdentity?: boolean
+  gender?: boolean
   presentation?: boolean
   genre?: boolean
   alignment?: boolean
@@ -2955,7 +2955,7 @@ export type CharacterSelectScalar = {
   userId?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "honorific" | "title" | "role" | "class" | "species" | "genderIdentity" | "presentation" | "genre" | "alignment" | "personality" | "drive" | "backstory" | "achievements" | "quirks" | "luck" | "might" | "wits" | "grace" | "charm" | "empathy" | "artPrompt" | "artImageId" | "imagePath" | "experience" | "level" | "designer" | "isPublic" | "isMature" | "isActive" | "userId", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "honorific" | "title" | "role" | "class" | "species" | "gender" | "presentation" | "genre" | "alignment" | "personality" | "drive" | "backstory" | "achievements" | "quirks" | "luck" | "might" | "wits" | "grace" | "charm" | "empathy" | "artPrompt" | "artImageId" | "imagePath" | "experience" | "level" | "designer" | "isPublic" | "isMature" | "isActive" | "userId", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2988,7 +2988,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     role: string | null
     class: string | null
     species: string | null
-    genderIdentity: string | null
+    gender: string | null
     presentation: string | null
     genre: string | null
     alignment: string | null
@@ -3398,7 +3398,7 @@ export interface CharacterFieldRefs {
   readonly role: Prisma.FieldRef<"Character", 'String'>
   readonly class: Prisma.FieldRef<"Character", 'String'>
   readonly species: Prisma.FieldRef<"Character", 'String'>
-  readonly genderIdentity: Prisma.FieldRef<"Character", 'String'>
+  readonly gender: Prisma.FieldRef<"Character", 'String'>
   readonly presentation: Prisma.FieldRef<"Character", 'String'>
   readonly genre: Prisma.FieldRef<"Character", 'String'>
   readonly alignment: Prisma.FieldRef<"Character", 'String'>

@@ -107,29 +107,6 @@ export default defineEventHandler(async (event) => {
             updatedAt: 'desc',
           },
         },
-        Pitches: {
-          select: {
-            id: true,
-            title: true,
-            pitch: true,
-            designer: true,
-            flavorText: true,
-            highlightImage: true,
-            PitchType: true,
-            artPrompt: true,
-            isPublic: true,
-            isMature: true,
-            isActive: true,
-            userId: true,
-            artImageId: true,
-            description: true,
-            examples: true,
-            icon: true,
-          },
-          orderBy: {
-            updatedAt: 'desc',
-          },
-        },
         _count: {
           select: {
             Chats: true,

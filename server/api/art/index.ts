@@ -153,11 +153,6 @@ export async function validateAndLoadPromptId(
         userId: validatedData.userId || data.userId || 10,
         isMature: data.isMature ?? false,
         isPublic: data.isPublic ?? true,
-        Pitches: data.pitchId
-          ? {
-              connect: { id: data.pitchId },
-            }
-          : undefined,
       },
     })
 

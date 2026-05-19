@@ -152,7 +152,6 @@ export default defineEventHandler(async (event) => {
           },
         },
         Pitch: true,
-        Art: true,
         ArtImage: {
           select: {
             id: true,

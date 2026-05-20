@@ -11,8 +11,11 @@ type DreamListQuery = {
   skip?: string
   includeMature?: string
   includeInactive?: string
+  showInactive?: string
   mine?: string
+  userOnly?: string
   search?: string
+  artCollectionId?: string
 }
 
 function normalizeLimit(value: unknown, fallback = 24, max = 100): number {
@@ -33,6 +36,12 @@ function normalizeSkip(value: unknown): number {
 
 function normalizeBoolean(value: unknown): boolean {
   return value === true || value === 'true' || value === '1'
+}
+
+function normalizePositiveInt(value: unknown): number | null {
+  const parsed = Number(value)
+
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 }
 
 export default defineEventHandler(async (event) => {
@@ -57,60 +66,92 @@ export default defineEventHandler(async (event) => {
     const take = normalizeLimit(query.take)
     const skip = normalizeSkip(query.skip)
     const includeMature = normalizeBoolean(query.includeMature)
-    const includeInactive = normalizeBoolean(query.includeInactive)
-    const mine = normalizeBoolean(query.mine)
-    const search = query.search?.trim()
+    const includeInactive =
+      normalizeBoolean(query.includeInactive) ||
+      normalizeBoolean(query.showInactive)
+    const userOnly =
+      normalizeBoolean(query.mine) || normalizeBoolean(query.userOnly)
+    const search = typeof query.search === 'string' ? query.search.trim() : ''
+    const artCollectionId = normalizePositiveInt(query.artCollectionId)
 
-    const publicWhere: Prisma.DreamWhereInput = {
-      isPublic: true,
-      accessMode: 'OPEN',
-      ...(includeInactive ? {} : { isActive: true }),
-      ...(includeMature ? {} : { isMature: false }),
+    const andFilters: Prisma.DreamWhereInput[] = []
+
+    if (!includeInactive) {
+      andFilters.push({
+        isActive: true,
+      })
     }
 
-    const ownerWhere: Prisma.DreamWhereInput | null =
-      userId && mine
-        ? {
+    if (!includeMature) {
+      andFilters.push({
+        isMature: false,
+      })
+    }
+
+    if (userOnly) {
+      if (!userId) {
+        andFilters.push({
+          id: -1,
+        })
+      } else {
+        andFilters.push({
+          userId,
+        })
+      }
+    } else if (userId) {
+      andFilters.push({
+        OR: [
+          {
+            isPublic: true,
+            accessMode: 'OPEN',
+          },
+          {
             userId,
-            ...(includeInactive ? {} : { isActive: true }),
-            ...(includeMature ? {} : { isMature: false }),
-          }
-        : null
+          },
+        ],
+      })
+    } else {
+      andFilters.push({
+        isPublic: true,
+        accessMode: 'OPEN',
+      })
+    }
+
+    if (artCollectionId) {
+      andFilters.push({
+        artCollectionId,
+      })
+    }
+
+    if (search) {
+      andFilters.push({
+        OR: [
+          {
+            title: {
+              contains: search,
+            },
+          },
+          {
+            description: {
+              contains: search,
+            },
+          },
+          {
+            currentVibe: {
+              contains: search,
+            },
+          },
+          {
+            currentPrompt: {
+              contains: search,
+            },
+          },
+        ],
+      })
+    }
 
     const where: Prisma.DreamWhereInput = {
-      AND: [
-        ownerWhere
-          ? {
-              OR: [publicWhere, ownerWhere],
-            }
-          : publicWhere,
-        search
-          ? {
-              OR: [
-                {
-                  title: {
-                    contains: search,
-                  },
-                },
-                {
-                  description: {
-                    contains: search,
-                  },
-                },
-                {
-                  currentVibe: {
-                    contains: search,
-                  },
-                },
-                {
-                  currentPrompt: {
-                    contains: search,
-                  },
-                },
-              ],
-            }
-          : {},
-      ],
+      AND: andFilters,
     }
 
     const [dreams, count] = await Promise.all([
@@ -182,6 +223,8 @@ export default defineEventHandler(async (event) => {
       prisma.dream.count({ where }),
     ])
 
+    event.node.res.statusCode = 200
+
     return {
       success: true,
       message: 'Dreams loaded successfully.',
@@ -193,6 +236,7 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     const handled = errorHandler(error)
+
     event.node.res.statusCode = handled.statusCode || 500
 
     return {

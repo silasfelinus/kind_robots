@@ -8,14 +8,17 @@ describe('BotCafe API Tests', function () {
   let openaiApiKey = ''
 
   before(function () {
-    cy.env(['DISABLE_EXTERNAL_TESTS', 'API_KEY', 'OPENAI_API_KEY']).then(
+    cy.env(['ENABLE_EXTERNAL_TESTS', 'API_KEY', 'OPENAI_API_KEY']).then(
       (env) => {
-        if (env.DISABLE_EXTERNAL_TESTS) {
-          this.skip()
-        }
+        const externalTestsEnabled =
+          String(env.ENABLE_EXTERNAL_TESTS || '').toLowerCase() === 'true'
 
         apiKey = String(env.API_KEY || '')
         openaiApiKey = String(env.OPENAI_API_KEY || '')
+
+        if (!externalTestsEnabled || !openaiApiKey) {
+          this.skip()
+        }
 
         expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
         expect(openaiApiKey, 'OPENAI_API_KEY').to.be.a('string').and.not.be
@@ -44,6 +47,7 @@ describe('BotCafe API Tests', function () {
             },
           ],
         },
+        timeout: 120000,
       }).then((response) => {
         cy.log('Chat response:', JSON.stringify(response.body))
         expect(response.status).to.eq(200)
@@ -71,6 +75,7 @@ describe('BotCafe API Tests', function () {
             },
           ],
         },
+        timeout: 120000,
       }).then((response) => {
         cy.log('Brainstorm response:', JSON.stringify(response.body))
         expect(response.status).to.eq(200)

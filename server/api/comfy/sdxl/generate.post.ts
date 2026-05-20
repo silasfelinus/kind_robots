@@ -1,4 +1,4 @@
-// /server/api/art/comfy/generate.post.ts
+// /server/api/comfy/sdxl/generate.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -11,12 +11,12 @@ import {
   validateAndLoadPromptId,
   validateAndLoadUserId,
   validateAndLoadArtCollectionId,
-} from '..'
+} from '../../art'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import {
   resolveCheckpointResource,
   type CheckpointResourceRequestData,
-} from '../utils/checkpointResource'
+} from '../../art/utils/checkpointResource'
 
 type ComfyGenerateRequestData = RequestData &
   CheckpointResourceRequestData & {

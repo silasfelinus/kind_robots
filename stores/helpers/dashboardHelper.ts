@@ -72,6 +72,13 @@ export const dashboardConfigs = {
         title: 'Art Servers',
         summary: 'Manage image generation servers.',
       },
+{
+        key: 'workbench',
+        label: 'Workbench',
+        icon: 'kind-icon:forge',
+        title: 'Workbench',
+        summary: 'create modular server requests with our special code cards.',
+      },
     ],
   },
 

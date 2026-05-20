@@ -1,6 +1,6 @@
 // /server/api/comfy/utils/resolveComfyUrl.ts
 import { createError } from 'h3'
-import prisma from '@/server/api/utils/prisma'
+import prisma from '../../../utils/prisma'
 
 interface ResolveComfyUrlOptions {
   endpointPath?: string
@@ -18,6 +18,73 @@ interface ServerLike {
   serverType?: string | null
   generationEngine?: string | null
   supportsComfyWorkflow?: boolean | null
+}
+
+export async function resolveComfyBase(
+  serverId?: number | string | null,
+  options: Omit<ResolveComfyUrlOptions, 'endpointPath'> = {},
+) {
+  const parsedServerId = Number(serverId)
+
+  if (!Number.isInteger(parsedServerId) || parsedServerId <= 0) {
+    throw createError({
+      statusCode: 400,
+      message: 'A valid Comfy serverId is required.',
+    })
+  }
+
+  const server = await prisma.server.findUnique({
+    where: { id: parsedServerId },
+    select: {
+      id: true,
+      title: true,
+      baseUrl: true,
+      backendBaseUrl: true,
+      browserBaseUrl: true,
+      endpointPath: true,
+      isActive: true,
+      serverType: true,
+      generationEngine: true,
+      supportsComfyWorkflow: true,
+    },
+  })
+
+  if (!server) {
+    throw createError({
+      statusCode: 404,
+      message: `Comfy server ${parsedServerId} was not found.`,
+    })
+  }
+
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Comfy server "${server.title}" is not active.`,
+    })
+  }
+
+  if (!isComfyServer(server)) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not configured as a Comfy server.`,
+    })
+  }
+
+  const baseUrl =
+    options.preferBackend === false
+      ? normalizeBaseUrl(server.browserBaseUrl || server.baseUrl)
+      : normalizeBaseUrl(
+          server.backendBaseUrl || server.baseUrl || server.browserBaseUrl,
+        )
+
+  if (!baseUrl) {
+    throw createError({
+      statusCode: 400,
+      message: `Comfy server "${server.title}" does not have a usable base URL.`,
+    })
+  }
+
+  return baseUrl
 }
 
 const normalizeBaseUrl = (value?: string | null) => {
@@ -97,9 +164,12 @@ export async function resolveComfyUrl(
     })
   }
 
-  const baseUrl = options.preferBackend === false
-    ? normalizeBaseUrl(server.browserBaseUrl || server.baseUrl)
-    : normalizeBaseUrl(server.backendBaseUrl || server.baseUrl || server.browserBaseUrl)
+  const baseUrl =
+    options.preferBackend === false
+      ? normalizeBaseUrl(server.browserBaseUrl || server.baseUrl)
+      : normalizeBaseUrl(
+          server.backendBaseUrl || server.baseUrl || server.browserBaseUrl,
+        )
 
   if (!baseUrl) {
     throw createError({

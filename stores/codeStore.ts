@@ -232,7 +232,8 @@ const definitionSeeds: CodeDefinition[] = [
     kind: 'openai-image',
     title: 'OpenAI Image',
     subtitle: 'Prompt to image.',
-    description: 'Sends a prompt to OpenAI image generation and returns an image.',
+    description:
+      'Sends a prompt to OpenAI image generation and returns an image.',
     icon: 'kind-icon:image',
     category: 'Image AI',
     accent: 'secondary',
@@ -320,7 +321,8 @@ const definitionSeeds: CodeDefinition[] = [
     kind: 'stable-diffusion',
     title: 'Stable Diffusion',
     subtitle: 'Classic image modeler.',
-    description: 'Turns text prompts into ArtImage records through an SD server.',
+    description:
+      'Turns text prompts into ArtImage records through an SD server.',
     icon: 'kind-icon:paintbrush',
     category: 'Image AI',
     accent: 'secondary',
@@ -848,7 +850,8 @@ const templateSeeds: CodeTemplate[] = [
   {
     id: 'art-maker',
     title: 'Art Maker',
-    description: 'A plain idea becomes a stronger art prompt, then generates an image.',
+    description:
+      'A plain idea becomes a stronger art prompt, then generates an image.',
     icon: 'kind-icon:paintbrush',
     nodes: [
       { kind: 'text-input', title: 'Idea', x: 80, y: 160 },
@@ -906,17 +909,16 @@ export const useCodeStore = defineStore('codeStore', () => {
   const groupedDefinitions = computed(() => {
     return definitions.value.reduce<Record<string, CodeDefinition[]>>(
       (groups, definition) => {
-        if (!groups[definition.category]) {
-          groups[definition.category] = []
-        }
+        const category = definition.category
 
-        groups[definition.category].push(definition)
+        groups[category] ??= []
+        groups[category].push(definition)
+
         return groups
       },
       {},
     )
   })
-
   const canvasBounds = computed(() => {
     const right = Math.max(1600, ...nodes.value.map((node) => node.x + 340))
     const bottom = Math.max(900, ...nodes.value.map((node) => node.y + 260))
@@ -1107,7 +1109,9 @@ export const useCodeStore = defineStore('codeStore', () => {
   ])
 
   function getDefinition(kind: CodeKind) {
-    return definitions.value.find((definition) => definition.kind === kind) ?? null
+    return (
+      definitions.value.find((definition) => definition.kind === kind) ?? null
+    )
   }
 
   function setMessage(newMessage: string) {
@@ -1166,7 +1170,8 @@ export const useCodeStore = defineStore('codeStore', () => {
 
   function reshuffleActionHand() {
     actionHand.value = drawActionCards()
-    message.value = 'Quick Plays reshuffled. Chaos has received fresh paperwork.'
+    message.value =
+      'Quick Plays reshuffled. Chaos has received fresh paperwork.'
   }
 
   function replaceActionCard(playedCard: CodeActionCard) {
@@ -1259,7 +1264,9 @@ export const useCodeStore = defineStore('codeStore', () => {
   function beginConnection(nodeId: string, portId: string) {
     const node = nodes.value.find((candidate) => candidate.id === nodeId)
     const definition = node ? getDefinition(node.kind) : null
-    const port = definition?.outputs.find((candidate) => candidate.id === portId)
+    const port = definition?.outputs.find(
+      (candidate) => candidate.id === portId,
+    )
 
     if (!node || !definition || !port) {
       return
@@ -1281,7 +1288,9 @@ export const useCodeStore = defineStore('codeStore', () => {
 
     const toNode = nodes.value.find((candidate) => candidate.id === nodeId)
     const toDefinition = toNode ? getDefinition(toNode.kind) : null
-    const toPort = toDefinition?.inputs.find((candidate) => candidate.id === portId)
+    const toPort = toDefinition?.inputs.find(
+      (candidate) => candidate.id === portId,
+    )
 
     if (!toNode || !toDefinition || !toPort) {
       pendingConnection.value = null
@@ -1289,7 +1298,8 @@ export const useCodeStore = defineStore('codeStore', () => {
     }
 
     if (pendingConnection.value.fromNodeId === nodeId) {
-      message.value = 'A card cannot connect to itself. Even Legos need boundaries.'
+      message.value =
+        'A card cannot connect to itself. Even Legos need boundaries.'
       return
     }
 
@@ -1345,7 +1355,9 @@ export const useCodeStore = defineStore('codeStore', () => {
   }
 
   function loadTemplate(templateId: string) {
-    const template = templates.value.find((candidate) => candidate.id === templateId)
+    const template = templates.value.find(
+      (candidate) => candidate.id === templateId,
+    )
 
     if (!template) {
       message.value = 'Template not found.'
@@ -1512,7 +1524,8 @@ export const useCodeStore = defineStore('codeStore', () => {
     if (card.kind === 'add-treasure') {
       openAddAction('reward')
       addNode('reward', 120, 260, 'New Treasure')
-      message.value = 'Treasure reward mode selected. Probably cursed. Excellent.'
+      message.value =
+        'Treasure reward mode selected. Probably cursed. Excellent.'
     }
 
     if (card.kind === 'expand-concept') {

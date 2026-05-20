@@ -25,6 +25,23 @@ export type CodeDataType =
   | 'scenario'
   | 'collection'
 
+export type CodeRunStatus =
+  | 'idle'
+  | 'queued'
+  | 'running'
+  | 'success'
+  | 'error'
+  | 'cancelled'
+
+export interface CodeRunResult {
+  nodeId: string
+  success: boolean
+  message: string
+  output?: unknown
+  startedAt?: string
+  completedAt?: string
+}
+
 export type CodeKind =
   | 'openai-text'
   | 'openai-image'
@@ -50,6 +67,13 @@ export type CodeKind =
   | 'scenario'
 
 export type CodePortDirection = 'input' | 'output'
+
+export interface CodeValidationResult {
+  success: boolean
+  message: string
+  warnings: string[]
+  errors: string[]
+}
 
 export type CodeActionKind =
   | 'add-pitch'
@@ -95,6 +119,7 @@ export type CodeMobileTrayMode =
   | 'toybox'
   | 'quick-plays'
   | 'settings'
+  | 'library'
 
 export interface CodeActionCard {
   id: string
@@ -1000,6 +1025,15 @@ export const useCodeStore = defineStore('codeStore', () => {
   const snapToGrid = ref(false)
   const gridSize = ref(28)
 
+  const isDirty = ref(false)
+  const lastSavedAt = ref<string | null>(null)
+  const activeModelId = ref<number | null>(null)
+  const autosaveEnabled = ref(false)
+
+  const runStatus = ref<CodeRunStatus>('idle')
+  const runResults = ref<Record<string, CodeRunResult>>({})
+  const activeRunNodeId = ref<string | null>(null)
+
   const ownedItems = computed(() => {
     return items.value.filter((item) => item.userId === userStore.user?.id)
   })
@@ -1103,6 +1137,112 @@ export const useCodeStore = defineStore('codeStore', () => {
       height: maxY - minY,
     }
   })
+
+  const userItems = computed(() =>
+    items.value.filter((item) => item.userId === userStore.user?.id),
+  )
+
+  const publicItems = computed(() =>
+    items.value.filter((item) => item.isPublic),
+  )
+
+  const officialItems = computed(() =>
+    items.value.filter((item) => item.isOfficial),
+  )
+
+  function setFormValue<K extends keyof CodeForm>(key: K, value: CodeForm[K]) {
+    form.value = {
+      ...form.value,
+      [key]: value,
+    }
+
+    syncToLocalStorage()
+  }
+
+  function markDirty() {
+    isDirty.value = true
+  }
+
+  function clearDirty() {
+    isDirty.value = false
+    lastSavedAt.value = new Date().toISOString()
+  }
+
+  function syncWorkbenchState() {
+    markDirty()
+    syncToLocalStorage()
+  }
+
+  function renameCurrentModel(title: string) {
+    form.value.title = title.trim() || 'Untitled Code Blueprint'
+    syncToLocalStorage()
+  }
+
+  async function saveAsNewModel(title?: string) {
+    saveCurrentToForm()
+
+    const payload: CodeForm = {
+      ...form.value,
+      id: undefined,
+      title: title?.trim() || `${form.value.title || 'Code Blueprint'} Copy`,
+      graph: currentGraph.value,
+    }
+
+    return await addModel(payload)
+  }
+
+  async function cloneModel(id: number, title?: string) {
+    const source = await selectModelById(id)
+
+    if (!source) {
+      return {
+        success: false,
+        message: `Code blueprint ${id} not found.`,
+      }
+    }
+
+    const graph = parseGraph(source.graph)
+
+    return await addModel({
+      title: title?.trim() || `${source.title} Copy`,
+      description: source.description || '',
+      icon: source.icon || 'kind-icon:blocks',
+      graph,
+      isPublic: false,
+      isOfficial: false,
+      isActive: true,
+    })
+  }
+
+  function loadTemplateToWorkbench(templateId: string) {
+    return loadTemplate(templateId)
+  }
+
+  async function saveTemplateAsModel(templateId: string) {
+    clearBoard()
+    loadTemplate(templateId)
+
+    const template = templates.value.find((item) => item.id === templateId)
+
+    if (!template) {
+      return {
+        success: false,
+        message: 'Template not found.',
+      }
+    }
+
+    form.value = {
+      title: template.title,
+      description: template.description,
+      icon: template.icon,
+      graph: currentGraph.value,
+      isPublic: false,
+      isOfficial: false,
+      isActive: true,
+    }
+
+    return await saveModel()
+  }
 
   const codeTargets = computed<CodeTarget[]>(() => {
     const pitchTargets: CodeTarget[] = pitchStore.pitches
@@ -1362,6 +1502,74 @@ export const useCodeStore = defineStore('codeStore', () => {
     }
   }
 
+  async function runNode(nodeId: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return {
+        success: false,
+        message: 'Node not found.',
+      }
+    }
+
+    activeRunNodeId.value = nodeId
+    runStatus.value = 'running'
+
+    runResults.value[nodeId] = {
+      nodeId,
+      success: false,
+      message: 'Code runner not implemented yet.',
+      startedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+    }
+
+    runStatus.value = 'idle'
+    activeRunNodeId.value = null
+
+    return {
+      success: false,
+      message: 'Code runner not implemented yet.',
+    }
+  }
+
+  async function runCurrentGraph() {
+    const validation = validateCurrentGraph()
+
+    if (!validation.success) {
+      runStatus.value = 'error'
+
+      return {
+        success: false,
+        message: validation.message,
+        validation,
+      }
+    }
+
+    runStatus.value = 'queued'
+
+    return {
+      success: false,
+      message: 'Code graph runner not implemented yet.',
+      validation,
+    }
+  }
+
+  function cancelRun() {
+    runStatus.value = 'cancelled'
+    activeRunNodeId.value = null
+
+    return {
+      success: true,
+      message: 'Run cancelled.',
+    }
+  }
+
+  function clearRunResults() {
+    runResults.value = {}
+    runStatus.value = 'idle'
+    activeRunNodeId.value = null
+  }
+
   function parseGraph(graph: unknown): CodeGraph {
     if (isCodeGraph(graph)) {
       return {
@@ -1375,20 +1583,6 @@ export const useCodeStore = defineStore('codeStore', () => {
     }
 
     return fallbackGraph()
-  }
-
-  function applyGraphToWorkbench(graph: unknown) {
-    const parsed = parseGraph(graph)
-
-    nodes.value = parsed.nodes
-    connections.value = parsed.connections
-    zoom.value = roundZoom(clamp(parsed.zoom, minZoom, maxZoom))
-    panX.value = Math.round(parsed.panX)
-    panY.value = Math.round(parsed.panY)
-    selectedNodeId.value = null
-    pendingConnection.value = null
-    closeSelectedNodeSettings()
-    syncToLocalStorage()
   }
 
   function saveCurrentToForm() {
@@ -1675,6 +1869,11 @@ export const useCodeStore = defineStore('codeStore', () => {
     return await saveModel()
   }
 
+  function replaceWorkbenchWithTemplate(templateId: string) {
+    clearBoard()
+    return loadTemplate(templateId)
+  }
+
   async function loadModelToWorkbench(id: number) {
     const item = await selectModelById(id)
 
@@ -1685,7 +1884,7 @@ export const useCodeStore = defineStore('codeStore', () => {
       }
     }
 
-    applyGraphToWorkbench(item.graph)
+    applyGraphToWorkbench(item.graph, false)
 
     return {
       success: true,
@@ -1761,12 +1960,6 @@ export const useCodeStore = defineStore('codeStore', () => {
     viewportHeight.value = Math.max(0, Math.round(height))
   }
 
-  function setZoom(nextZoom: number) {
-    zoom.value = roundZoom(clamp(nextZoom, minZoom, maxZoom))
-    syncToLocalStorage()
-    return zoom.value
-  }
-
   function zoomIn() {
     return setZoom(zoom.value + zoomStep)
   }
@@ -1801,17 +1994,6 @@ export const useCodeStore = defineStore('codeStore', () => {
     return setZoom(nextZoom)
   }
 
-  function setPan(x: number, y: number) {
-    panX.value = Math.round(x)
-    panY.value = Math.round(y)
-    syncToLocalStorage()
-
-    return {
-      x: panX.value,
-      y: panY.value,
-    }
-  }
-
   function panBy(deltaX: number, deltaY: number) {
     return setPan(panX.value + deltaX, panY.value + deltaY)
   }
@@ -1837,6 +2019,96 @@ export const useCodeStore = defineStore('codeStore', () => {
       x: Math.round(x * zoom.value + panX.value),
       y: Math.round(y * zoom.value + panY.value),
     }
+  }
+
+  function getBrokenConnections(graph = currentGraph.value) {
+    return graph.connections.filter((connection) => {
+      const fromNode = graph.nodes.find(
+        (node) => node.id === connection.fromNodeId,
+      )
+      const toNode = graph.nodes.find((node) => node.id === connection.toNodeId)
+
+      if (!fromNode || !toNode) return true
+
+      const fromDefinition = getDefinition(fromNode.kind)
+      const toDefinition = getDefinition(toNode.kind)
+
+      const fromPort = fromDefinition?.outputs.find(
+        (port) => port.id === connection.fromPortId,
+      )
+      const toPort = toDefinition?.inputs.find(
+        (port) => port.id === connection.toPortId,
+      )
+
+      return !fromPort || !toPort || fromPort.type !== toPort.type
+    })
+  }
+
+  function getMissingRequiredInputs(nodeId?: string) {
+    const targetNodes = nodeId
+      ? nodes.value.filter((node) => node.id === nodeId)
+      : nodes.value
+
+    return targetNodes.flatMap((node) => {
+      const definition = getDefinition(node.kind)
+
+      if (!definition) return []
+
+      return definition.inputs
+        .filter((port) => port.required)
+        .filter((port) => {
+          return !connections.value.some((connection) => {
+            return (
+              connection.toNodeId === node.id && connection.toPortId === port.id
+            )
+          })
+        })
+        .map((port) => ({
+          nodeId: node.id,
+          nodeTitle: node.title,
+          portId: port.id,
+          portLabel: port.label,
+          type: port.type,
+        }))
+    })
+  }
+
+  function validateGraph(graph = currentGraph.value): CodeValidationResult {
+    const errors: string[] = []
+    const warnings: string[] = []
+
+    if (!graph.nodes.length) {
+      warnings.push('The graph has no cards yet.')
+    }
+
+    const brokenConnections = getBrokenConnections(graph)
+
+    if (brokenConnections.length) {
+      errors.push(`${brokenConnections.length} connection(s) are broken.`)
+    }
+
+    const missingInputs = getMissingRequiredInputs()
+
+    if (missingInputs.length) {
+      warnings.push(
+        `${missingInputs.length} required input(s) are not connected.`,
+      )
+    }
+
+    return {
+      success: errors.length === 0,
+      message: errors.length
+        ? 'Code graph has errors.'
+        : warnings.length
+          ? 'Code graph is usable with warnings.'
+          : 'Code graph looks ready.',
+      warnings,
+      errors,
+    }
+  }
+
+  function validateCurrentGraph() {
+    return validateGraph(currentGraph.value)
   }
 
   function normalizeNodePoint(x: number, y: number): CodePoint {
@@ -1912,11 +2184,6 @@ export const useCodeStore = defineStore('codeStore', () => {
     return showCanvasGrid.value
   }
 
-  function toggleSnapToGrid(force?: boolean) {
-    snapToGrid.value = typeof force === 'boolean' ? force : !snapToGrid.value
-    return snapToGrid.value
-  }
-
   function setGridSize(size: number) {
     gridSize.value = Math.max(4, Math.round(size))
     return gridSize.value
@@ -1959,114 +2226,6 @@ export const useCodeStore = defineStore('codeStore', () => {
       .filter(isCodeActionCard)
   }
 
-  function addNode(kind: CodeKind, x = 100, y = 100, title?: string) {
-    const definition = getDefinition(kind)
-
-    if (!definition) {
-      message.value = `Unknown card type: ${kind}`
-      return null
-    }
-
-    const point = normalizeNodePoint(x, y)
-
-    const node: CodeNode = {
-      id: makeId('node'),
-      kind,
-      title: title ?? definition.title,
-      x: point.x,
-      y: point.y,
-      values: {},
-    }
-
-    nodes.value.push(node)
-    selectedNodeId.value = node.id
-    message.value = `${definition.title} added. Tiny plastic brick deployed.`
-    syncToLocalStorage()
-
-    return node
-  }
-
-  function duplicateNode(nodeId: string) {
-    const node = getNode(nodeId)
-
-    if (!node) {
-      message.value = 'Node not found.'
-      return null
-    }
-
-    return addNode(node.kind, node.x + 40, node.y + 40, `${node.title} Copy`)
-  }
-
-  function updateNodePosition(nodeId: string, x: number, y: number) {
-    const node = getNode(nodeId)
-
-    if (!node) {
-      return
-    }
-
-    const point = normalizeNodePoint(x, y)
-
-    node.x = point.x
-    node.y = point.y
-    syncToLocalStorage()
-  }
-
-  function updateNodeTitle(nodeId: string, title: string) {
-    const node = getNode(nodeId)
-
-    if (!node) {
-      return false
-    }
-
-    node.title = title.trim() || node.title
-    syncToLocalStorage()
-    return true
-  }
-
-  function updateNodeValue(nodeId: string, key: string, value: unknown) {
-    const node = getNode(nodeId)
-
-    if (!node) {
-      return false
-    }
-
-    node.values = {
-      ...node.values,
-      [key]: value,
-    }
-
-    syncToLocalStorage()
-    return true
-  }
-
-  function updateNodeValues(nodeId: string, values: Record<string, unknown>) {
-    const node = getNode(nodeId)
-
-    if (!node) {
-      return false
-    }
-
-    node.values = {
-      ...node.values,
-      ...values,
-    }
-
-    syncToLocalStorage()
-    return true
-  }
-
-  function clearNodeValues(nodeId: string) {
-    const node = getNode(nodeId)
-
-    if (!node) {
-      return false
-    }
-
-    node.values = {}
-    syncToLocalStorage()
-    return true
-  }
-
   function selectNode(nodeId: string | null, openSettings = false) {
     selectedNodeId.value = nodeId
 
@@ -2078,26 +2237,6 @@ export const useCodeStore = defineStore('codeStore', () => {
     if (openSettings) {
       openSelectedNodeSettings()
     }
-  }
-
-  function removeNode(nodeId: string) {
-    nodes.value = nodes.value.filter((node) => node.id !== nodeId)
-
-    connections.value = connections.value.filter((connection) => {
-      return connection.fromNodeId !== nodeId && connection.toNodeId !== nodeId
-    })
-
-    if (selectedNodeId.value === nodeId) {
-      selectedNodeId.value = null
-      closeSelectedNodeSettings()
-    }
-
-    if (pendingConnection.value?.fromNodeId === nodeId) {
-      pendingConnection.value = null
-    }
-
-    message.value = 'Card removed. The tiny brick has left the chat.'
-    syncToLocalStorage()
   }
 
   function beginConnection(nodeId: string, portId: string) {
@@ -2123,132 +2262,6 @@ export const useCodeStore = defineStore('codeStore', () => {
   function cancelConnection() {
     pendingConnection.value = null
     message.value = 'Connection cancelled.'
-  }
-
-  function completeConnection(nodeId: string, portId: string) {
-    if (!pendingConnection.value) {
-      return
-    }
-
-    const toNode = getNode(nodeId)
-    const toDefinition = toNode ? getDefinition(toNode.kind) : null
-    const toPort = toDefinition?.inputs.find((candidate) => {
-      return candidate.id === portId
-    })
-
-    if (!toNode || !toDefinition || !toPort) {
-      pendingConnection.value = null
-      return
-    }
-
-    if (pendingConnection.value.fromNodeId === nodeId) {
-      message.value =
-        'A card cannot connect to itself. Even Legos need boundaries.'
-      return
-    }
-
-    if (pendingConnection.value.type !== toPort.type) {
-      message.value = `${pendingConnection.value.type} cannot connect to ${toPort.type}. Wrong peg shape.`
-      return
-    }
-
-    const exists = connections.value.some((connection) => {
-      return (
-        connection.fromNodeId === pendingConnection.value?.fromNodeId &&
-        connection.fromPortId === pendingConnection.value?.fromPortId &&
-        connection.toNodeId === nodeId &&
-        connection.toPortId === portId
-      )
-    })
-
-    if (exists) {
-      pendingConnection.value = null
-      message.value = 'That connection already exists.'
-      return
-    }
-
-    connections.value.push({
-      id: makeId('connection'),
-      fromNodeId: pendingConnection.value.fromNodeId,
-      fromPortId: pendingConnection.value.fromPortId,
-      toNodeId: nodeId,
-      toPortId: portId,
-      type: pendingConnection.value.type,
-    })
-
-    pendingConnection.value = null
-    message.value = 'Connection snapped in. Satisfying click noise implied.'
-    syncToLocalStorage()
-  }
-
-  function removeConnection(connectionId: string) {
-    connections.value = connections.value.filter((connection) => {
-      return connection.id !== connectionId
-    })
-
-    syncToLocalStorage()
-  }
-
-  function clearBoard() {
-    nodes.value = []
-    connections.value = []
-    selectedNodeId.value = null
-    pendingConnection.value = null
-    closeSelectedNodeSettings()
-    message.value = 'Workbench cleared.'
-    syncToLocalStorage()
-  }
-
-  function loadTemplate(templateId: string) {
-    const template = templates.value.find((candidate) => {
-      return candidate.id === templateId
-    })
-
-    if (!template) {
-      message.value = 'Template not found.'
-      return
-    }
-
-    const createdNodes = template.nodes
-      .map((templateNode) => {
-        return addNode(
-          templateNode.kind,
-          templateNode.x,
-          templateNode.y,
-          templateNode.title,
-        )
-      })
-      .filter(isCodeNode)
-
-    template.connections.forEach((templateConnection) => {
-      const fromNode = createdNodes[templateConnection.fromIndex]
-      const toNode = createdNodes[templateConnection.toIndex]
-
-      if (!fromNode || !toNode) {
-        return
-      }
-
-      const fromDefinition = getDefinition(fromNode.kind)
-      const fromPort = fromDefinition?.outputs.find((port) => {
-        return port.id === templateConnection.fromPortId
-      })
-
-      if (!fromPort) {
-        return
-      }
-
-      connections.value.push({
-        id: makeId('connection'),
-        fromNodeId: fromNode.id,
-        fromPortId: templateConnection.fromPortId,
-        toNodeId: toNode.id,
-        toPortId: templateConnection.toPortId,
-        type: fromPort.type,
-      })
-    })
-
-    message.value = `${template.title} loaded. Toybox: officially weaponized.`
-    syncToLocalStorage()
   }
 
   function openModelTab(model: CodeModel, tab: string) {
@@ -2306,6 +2319,383 @@ export const useCodeStore = defineStore('codeStore', () => {
     if (card.model) {
       openModelTab(card.model, 'interact')
     }
+  }
+
+  function addNode(kind: CodeKind, x = 100, y = 100, title?: string) {
+    const definition = getDefinition(kind)
+
+    if (!definition) {
+      message.value = `Unknown card type: ${kind}`
+      return null
+    }
+
+    const point = normalizeNodePoint(x, y)
+
+    const node: CodeNode = {
+      id: makeId('node'),
+      kind,
+      title: title ?? definition.title,
+      x: point.x,
+      y: point.y,
+      values: {},
+    }
+
+    nodes.value.push(node)
+    selectedNodeId.value = node.id
+    message.value = `${definition.title} added. Tiny plastic brick deployed.`
+    syncWorkbenchState()
+
+    return node
+  }
+
+  function duplicateNode(nodeId: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      message.value = 'Node not found.'
+      return null
+    }
+
+    const point = normalizeNodePoint(node.x + 40, node.y + 40)
+
+    const copy: CodeNode = {
+      id: makeId('node'),
+      kind: node.kind,
+      title: `${node.title} Copy`,
+      x: point.x,
+      y: point.y,
+      values: { ...node.values },
+    }
+
+    nodes.value.push(copy)
+    selectedNodeId.value = copy.id
+    message.value = `${node.title} duplicated. The clone has entered the toybox.`
+    syncWorkbenchState()
+
+    return copy
+  }
+
+  function updateNodePosition(nodeId: string, x: number, y: number) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    const point = normalizeNodePoint(x, y)
+
+    node.x = point.x
+    node.y = point.y
+    syncWorkbenchState()
+
+    return true
+  }
+
+  function updateNodeTitle(nodeId: string, title: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    const nextTitle = title.trim()
+
+    if (!nextTitle) {
+      message.value = 'Card title cannot be empty.'
+      return false
+    }
+
+    node.title = nextTitle
+    syncWorkbenchState()
+
+    return true
+  }
+
+  function updateNodeValue(nodeId: string, key: string, value: unknown) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.values = {
+      ...node.values,
+      [key]: value,
+    }
+
+    syncWorkbenchState()
+    return true
+  }
+
+  function updateNodeValues(nodeId: string, values: Record<string, unknown>) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.values = {
+      ...node.values,
+      ...values,
+    }
+
+    syncWorkbenchState()
+    return true
+  }
+
+  function clearNodeValues(nodeId: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.values = {}
+    message.value = `${node.title} values cleared. Tiny amnesia achieved.`
+    syncWorkbenchState()
+
+    return true
+  }
+
+  function removeNode(nodeId: string) {
+    const node = getNode(nodeId)
+
+    nodes.value = nodes.value.filter((candidate) => candidate.id !== nodeId)
+
+    connections.value = connections.value.filter((connection) => {
+      return connection.fromNodeId !== nodeId && connection.toNodeId !== nodeId
+    })
+
+    if (selectedNodeId.value === nodeId) {
+      selectedNodeId.value = null
+      closeSelectedNodeSettings()
+    }
+
+    if (pendingConnection.value?.fromNodeId === nodeId) {
+      pendingConnection.value = null
+    }
+
+    message.value = node
+      ? `${node.title} removed. The tiny brick has left the chat.`
+      : 'Card removed.'
+
+    syncWorkbenchState()
+  }
+
+  function completeConnection(nodeId: string, portId: string) {
+    if (!pendingConnection.value) {
+      return false
+    }
+
+    const toNode = getNode(nodeId)
+    const toDefinition = toNode ? getDefinition(toNode.kind) : null
+    const toPort = toDefinition?.inputs.find((candidate) => {
+      return candidate.id === portId
+    })
+
+    if (!toNode || !toDefinition || !toPort) {
+      pendingConnection.value = null
+      return false
+    }
+
+    if (pendingConnection.value.fromNodeId === nodeId) {
+      message.value =
+        'A card cannot connect to itself. Even Legos need boundaries.'
+      return false
+    }
+
+    if (pendingConnection.value.type !== toPort.type) {
+      message.value = `${pendingConnection.value.type} cannot connect to ${toPort.type}. Wrong peg shape.`
+      return false
+    }
+
+    const exists = connections.value.some((connection) => {
+      return (
+        connection.fromNodeId === pendingConnection.value?.fromNodeId &&
+        connection.fromPortId === pendingConnection.value?.fromPortId &&
+        connection.toNodeId === nodeId &&
+        connection.toPortId === portId
+      )
+    })
+
+    if (exists) {
+      pendingConnection.value = null
+      message.value = 'That connection already exists.'
+      return false
+    }
+
+    connections.value.push({
+      id: makeId('connection'),
+      fromNodeId: pendingConnection.value.fromNodeId,
+      fromPortId: pendingConnection.value.fromPortId,
+      toNodeId: nodeId,
+      toPortId: portId,
+      type: pendingConnection.value.type,
+    })
+
+    pendingConnection.value = null
+    message.value = 'Connection snapped in. Satisfying click noise implied.'
+    syncWorkbenchState()
+
+    return true
+  }
+
+  function removeConnection(connectionId: string) {
+    const connection = getConnection(connectionId)
+
+    connections.value = connections.value.filter((candidate) => {
+      return candidate.id !== connectionId
+    })
+
+    if (connection) {
+      message.value = 'Connection removed. Cable goblin appeased.'
+    }
+
+    syncWorkbenchState()
+
+    return Boolean(connection)
+  }
+
+  function clearBoard() {
+    nodes.value = []
+    connections.value = []
+    selectedNodeId.value = null
+    pendingConnection.value = null
+    closeSelectedNodeSettings()
+    message.value = 'Workbench cleared.'
+    syncWorkbenchState()
+  }
+
+  function loadTemplate(templateId: string) {
+    const template = templates.value.find((candidate) => {
+      return candidate.id === templateId
+    })
+
+    if (!template) {
+      message.value = 'Template not found.'
+      return false
+    }
+
+    const createdNodes = template.nodes
+      .map((templateNode) => {
+        const definition = getDefinition(templateNode.kind)
+
+        if (!definition) {
+          return null
+        }
+
+        const point = normalizeNodePoint(templateNode.x, templateNode.y)
+
+        const node: CodeNode = {
+          id: makeId('node'),
+          kind: templateNode.kind,
+          title: templateNode.title ?? definition.title,
+          x: point.x,
+          y: point.y,
+          values: {},
+        }
+
+        nodes.value.push(node)
+        return node
+      })
+      .filter(isCodeNode)
+
+    template.connections.forEach((templateConnection) => {
+      const fromNode = createdNodes[templateConnection.fromIndex]
+      const toNode = createdNodes[templateConnection.toIndex]
+
+      if (!fromNode || !toNode) {
+        return
+      }
+
+      const fromDefinition = getDefinition(fromNode.kind)
+      const toDefinition = getDefinition(toNode.kind)
+
+      const fromPort = fromDefinition?.outputs.find((port) => {
+        return port.id === templateConnection.fromPortId
+      })
+
+      const toPort = toDefinition?.inputs.find((port) => {
+        return port.id === templateConnection.toPortId
+      })
+
+      if (!fromPort || !toPort || fromPort.type !== toPort.type) {
+        return
+      }
+
+      connections.value.push({
+        id: makeId('connection'),
+        fromNodeId: fromNode.id,
+        fromPortId: templateConnection.fromPortId,
+        toNodeId: toNode.id,
+        toPortId: templateConnection.toPortId,
+        type: fromPort.type,
+      })
+    })
+
+    selectedNodeId.value = createdNodes[0]?.id ?? null
+    pendingConnection.value = null
+    message.value = `${template.title} added to the board. Blueprint cluster deployed.`
+    syncWorkbenchState()
+
+    return true
+  }
+
+  function applyGraphToWorkbench(graph: unknown, markAsDirty = false) {
+    const parsed = parseGraph(graph)
+
+    nodes.value = parsed.nodes
+    connections.value = parsed.connections
+    zoom.value = roundZoom(clamp(parsed.zoom, minZoom, maxZoom))
+    panX.value = Math.round(parsed.panX)
+    panY.value = Math.round(parsed.panY)
+    selectedNodeId.value = null
+    pendingConnection.value = null
+    closeSelectedNodeSettings()
+
+    if (markAsDirty) {
+      markDirty()
+    } else {
+      clearDirty()
+    }
+
+    syncToLocalStorage()
+
+    return parsed
+  }
+
+  function setZoom(nextZoom: number, markAsDirty = true) {
+    zoom.value = roundZoom(clamp(nextZoom, minZoom, maxZoom))
+
+    if (markAsDirty) {
+      markDirty()
+    }
+
+    syncToLocalStorage()
+    return zoom.value
+  }
+
+  function setPan(x: number, y: number, markAsDirty = true) {
+    panX.value = Math.round(x)
+    panY.value = Math.round(y)
+
+    if (markAsDirty) {
+      markDirty()
+    }
+
+    syncToLocalStorage()
+
+    return {
+      x: panX.value,
+      y: panY.value,
+    }
+  }
+
+  function toggleSnapToGrid(force?: boolean) {
+    snapToGrid.value = typeof force === 'boolean' ? force : !snapToGrid.value
+    syncWorkbenchState()
+
+    return snapToGrid.value
   }
 
   async function openArtAction(card: CodeActionCard) {
@@ -2394,7 +2784,10 @@ export const useCodeStore = defineStore('codeStore', () => {
     isPanMode.value = false
     panelMode.value = 'closed'
     mobileTrayMode.value = 'closed'
-    syncToLocalStorage()
+    runStatus.value = 'idle'
+    runResults.value = {}
+    activeRunNodeId.value = null
+    syncWorkbenchState()
   }
 
   return {
@@ -2521,6 +2914,36 @@ export const useCodeStore = defineStore('codeStore', () => {
     openArtAction,
     playActionCard,
     resetWorkbench,
+
+    isDirty,
+    lastSavedAt,
+    markDirty,
+    clearDirty,
+    syncWorkbenchState,
+
+    replaceWorkbenchWithTemplate,
+    activeModelId,
+    autosaveEnabled,
+    runStatus,
+    runResults,
+    activeRunNodeId,
+    userItems,
+    publicItems,
+    officialItems,
+    setFormValue,
+    renameCurrentModel,
+    saveAsNewModel,
+    cloneModel,
+    loadTemplateToWorkbench,
+    saveTemplateAsModel,
+    getBrokenConnections,
+    getMissingRequiredInputs,
+    validateGraph,
+    validateCurrentGraph,
+    runNode,
+    runCurrentGraph,
+    cancelRun,
+    clearRunResults,
   }
 })
 

@@ -1,5 +1,11 @@
 // /stores/codeStore.ts
 import { defineStore } from 'pinia'
+import { usePitchStore } from '@/stores/pitchStore'
+import { useDreamStore } from '@/stores/dreamStore'
+import { useCharacterStore } from '@/stores/characterStore'
+import { useRewardStore } from '@/stores/rewardStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useNavStore } from '@/stores/navStore'
 
 export type CodeDataType =
   | 'text'
@@ -39,6 +45,69 @@ export type CodeKind =
   | 'scenario'
 
 export type CodePortDirection = 'input' | 'output'
+
+export type CodeActionKind =
+  | 'add-pitch'
+  | 'add-dream'
+  | 'add-character'
+  | 'add-reward'
+  | 'add-scenario'
+  | 'create-art'
+  | 'edit-target'
+  | 'interact-target'
+  | 'add-skill'
+  | 'add-treasure'
+  | 'expand-concept'
+
+export type CodeModel =
+  | 'pitch'
+  | 'dream'
+  | 'character'
+  | 'reward'
+  | 'scenario'
+  | 'art'
+
+export type CodeDashboardKey =
+  | 'art'
+  | 'bot'
+  | 'brainstorm'
+  | 'builder'
+  | 'user'
+  | 'dream'
+  | 'character'
+  | 'reward'
+  | 'scenario'
+  | 'footer'
+  | 'theme'
+  | 'giftshop'
+  | 'server'
+  | 'wonder'
+
+export interface CodeActionCard {
+  id: string
+  title: string
+  subtitle: string
+  description: string
+  icon: string
+  kind: CodeActionKind
+  model?: CodeModel
+  targetId?: number
+  targetTitle?: string
+}
+
+export interface CodeTarget {
+  id: number
+  title: string
+  model: CodeModel
+}
+
+interface SelectableStore {
+  selectPitch?: (id: number) => Promise<unknown> | unknown
+  selectDream?: (id: number) => Promise<unknown> | unknown
+  selectCharacter?: (id: number) => Promise<unknown> | unknown
+  selectReward?: (id: number) => Promise<unknown> | unknown
+  selectScenario?: (id: number) => Promise<unknown> | unknown
+}
 
 export interface CodePort {
   id: string
@@ -114,9 +183,10 @@ interface CodeState {
   selectedNodeId: string | null
   pendingConnection: PendingCodeConnection | null
   templates: CodeTemplate[]
+  actionHand: CodeActionCard[]
+  actionHandSize: number
   message: string
 }
-
 const storageKey = 'kindrobots-code-workbench'
 
 const makeId = (prefix: string) =>
@@ -494,10 +564,361 @@ export const useCodeStore = defineStore('codeStore', {
 
   actions: {
     initialize() {
-      this.definitions = definitionSeeds
-      this.templates = templateSeeds
-      this.loadLocal()
+  this.definitions = definitionSeeds
+  this.templates = templateSeeds
+  this.loadLocal()
+  this.reshuffleActionHand()
+},
+
+getCodeTargets() {
+  const pitchStore = usePitchStore()
+  const dreamStore = useDreamStore()
+  const characterStore = useCharacterStore()
+  const rewardStore = useRewardStore()
+  const scenarioStore = useScenarioStore()
+
+  const pitchTargets: CodeTarget[] = pitchStore.pitches
+    .filter((pitch) => pitch?.id)
+    .map((pitch) => ({
+      id: pitch.id,
+      title: pitch.title || pitch.pitch || `Pitch ${pitch.id}`,
+      model: 'pitch',
+    }))
+
+  const dreamTargets: CodeTarget[] = dreamStore.dreams
+    .filter((dream) => dream?.id)
+    .map((dream) => ({
+      id: dream.id,
+      title: dream.title || `Dream ${dream.id}`,
+      model: 'dream',
+    }))
+
+  const characterTargets: CodeTarget[] = characterStore.characters
+    .filter((character) => character?.id)
+    .map((character) => ({
+      id: character.id,
+      title: character.name || `Character ${character.id}`,
+      model: 'character',
+    }))
+
+  const rewardTargets: CodeTarget[] = rewardStore.rewards
+    .filter((reward) => reward?.id)
+    .map((reward) => ({
+      id: reward.id,
+      title: reward.label || `Reward ${reward.id}`,
+      model: 'reward',
+    }))
+
+  const scenarioTargets: CodeTarget[] = scenarioStore.scenarios
+    .filter((scenario) => scenario?.id)
+    .map((scenario) => ({
+      id: scenario.id,
+      title: scenario.title || `Scenario ${scenario.id}`,
+      model: 'scenario',
+    }))
+
+  return [
+    ...pitchTargets,
+    ...dreamTargets,
+    ...characterTargets,
+    ...rewardTargets,
+    ...scenarioTargets,
+  ]
+},
+
+getBaseActionCards() {
+  const cards: CodeActionCard[] = [
+    {
+      id: makeId('action'),
+      title: 'Add Pitch',
+      subtitle: 'Start a new world seed',
+      description: 'Create the big strange idea everything else grows from.',
+      icon: 'kind-icon:sparkles',
+      kind: 'add-pitch',
+      model: 'pitch',
     },
+    {
+      id: makeId('action'),
+      title: 'Add Location',
+      subtitle: 'Create a Dream',
+      description: 'Add a place, realm, set piece, dungeon, void mall, or suspicious moon.',
+      icon: 'kind-icon:map',
+      kind: 'add-dream',
+      model: 'dream',
+    },
+    {
+      id: makeId('action'),
+      title: 'Add Character',
+      subtitle: 'Create someone dramatic',
+      description: 'Add a hero, villain, chaos goblin, mentor, rival, or lore-adjacent menace.',
+      icon: 'kind-icon:character',
+      kind: 'add-character',
+      model: 'character',
+    },
+    {
+      id: makeId('action'),
+      title: 'Add Reward',
+      subtitle: 'Skill or treasure',
+      description: 'Create loot, magic, a special move, a cursed object, or a deeply suspicious sandwich.',
+      icon: 'kind-icon:treasure',
+      kind: 'add-reward',
+      model: 'reward',
+    },
+    {
+      id: makeId('action'),
+      title: 'Add Scenario',
+      subtitle: 'Create a story prompt',
+      description: 'Add a choice, challenge, art prompt, text prompt, or interactive situation.',
+      icon: 'kind-icon:story',
+      kind: 'add-scenario',
+      model: 'scenario',
+    },
+  ]
+
+  return cards
+},
+
+getTargetActionCards() {
+  return this.getCodeTargets().flatMap((target) => [
+    {
+      id: makeId('action'),
+      title: 'Create Art',
+      subtitle: target.title,
+      description: `Generate art for ${target.title}.`,
+      icon: 'kind-icon:paintbrush',
+      kind: 'create-art' as const,
+      model: target.model,
+      targetId: target.id,
+      targetTitle: target.title,
+    },
+    {
+      id: makeId('action'),
+      title: 'Edit',
+      subtitle: target.title,
+      description: `Open ${target.title} for revision and polish.`,
+      icon: 'kind-icon:edit',
+      kind: 'edit-target' as const,
+      model: target.model,
+      targetId: target.id,
+      targetTitle: target.title,
+    },
+    {
+      id: makeId('action'),
+      title: 'Interact',
+      subtitle: target.title,
+      description: `Use ${target.title} as an interactive prompt tool.`,
+      icon: 'kind-icon:chat',
+      kind: 'interact-target' as const,
+      model: target.model,
+      targetId: target.id,
+      targetTitle: target.title,
+    },
+  ])
+},
+
+getRewardFlavorActionCards() {
+  const targets = this.getCodeTargets()
+  const hasStoryTarget = targets.some((target) => {
+    return target.model === 'dream' || target.model === 'scenario'
+  })
+
+  if (!hasStoryTarget) {
+    return []
+  }
+
+  const cards: CodeActionCard[] = [
+    {
+      id: makeId('action'),
+      title: 'Add Skill',
+      subtitle: 'World ability',
+      description: 'Create a skill, power, trick, move, or special interaction for this world.',
+      icon: 'kind-icon:magic',
+      kind: 'add-skill',
+      model: 'reward',
+    },
+    {
+      id: makeId('action'),
+      title: 'Add Treasure',
+      subtitle: 'Loot with consequences',
+      description: 'Create an item, relic, artifact, key, device, prize, or cursed keepsake.',
+      icon: 'kind-icon:gem',
+      kind: 'add-treasure',
+      model: 'reward',
+    },
+  ]
+
+  return cards
+},
+
+getActionDeck() {
+  return [
+    ...this.getBaseActionCards(),
+    ...this.getTargetActionCards(),
+    ...this.getRewardFlavorActionCards(),
+  ]
+},
+
+shuffleActionCards(cards: CodeActionCard[]) {
+  return [...cards].sort(() => Math.random() - 0.5)
+},
+
+drawActionCards(count = this.actionHandSize) {
+  return this.shuffleActionCards(this.getActionDeck()).slice(0, count)
+},
+
+reshuffleActionHand() {
+  this.actionHand = this.drawActionCards()
+  this.message = 'Quick Plays reshuffled. Chaos has received fresh paperwork.'
+},
+
+replaceActionCard(playedCard: CodeActionCard) {
+  const usedIds = new Set(this.actionHand.map((card) => card.id))
+  const availableCards = this.shuffleActionCards(this.getActionDeck()).filter((card) => {
+    return !usedIds.has(card.id) && card.kind !== playedCard.kind
+  })
+
+  const replacement = availableCards[0] ?? this.drawActionCards(1)[0]
+
+  if (!replacement) {
+    this.actionHand = this.actionHand.filter((card) => card.id !== playedCard.id)
+    return
+  }
+
+  this.actionHand = this.actionHand
+    .map((card) => {
+      if (card.id === playedCard.id) {
+        return replacement
+      }
+
+      return card
+    })
+    .filter(isCodeActionCard)
+},
+
+openModelTab(model: CodeModel, tab: string) {
+  const navStore = useNavStore()
+  const dashboardKey = modelToDashboardKey(model)
+
+  navStore.setDashboardTab(dashboardKey, tab)
+},
+
+async selectActionTarget(card: CodeActionCard) {
+  if (!card.model || !card.targetId) {
+    return
+  }
+
+  const pitchStore = usePitchStore() as SelectableStore
+  const dreamStore = useDreamStore() as SelectableStore
+  const characterStore = useCharacterStore() as SelectableStore
+  const rewardStore = useRewardStore() as SelectableStore
+  const scenarioStore = useScenarioStore() as SelectableStore
+
+  if (card.model === 'pitch' && pitchStore.selectPitch) {
+    await pitchStore.selectPitch(card.targetId)
+  }
+
+  if (card.model === 'dream' && dreamStore.selectDream) {
+    await dreamStore.selectDream(card.targetId)
+  }
+
+  if (card.model === 'character' && characterStore.selectCharacter) {
+    await characterStore.selectCharacter(card.targetId)
+  }
+
+  if (card.model === 'reward' && rewardStore.selectReward) {
+    await rewardStore.selectReward(card.targetId)
+  }
+
+  if (card.model === 'scenario' && scenarioStore.selectScenario) {
+    await scenarioStore.selectScenario(card.targetId)
+  }
+},
+
+openAddAction(model: CodeModel) {
+  this.openModelTab(model, 'add')
+},
+
+async openEditAction(card: CodeActionCard) {
+  await this.selectActionTarget(card)
+
+  if (card.model) {
+    this.openModelTab(card.model, 'add')
+  }
+},
+
+async openInteractAction(card: CodeActionCard) {
+  await this.selectActionTarget(card)
+
+  if (card.model) {
+    this.openModelTab(card.model, 'interact')
+  }
+},
+
+async openArtAction(card: CodeActionCard) {
+  await this.selectActionTarget(card)
+  this.openModelTab('art', 'add')
+},
+
+async playActionCard(card: CodeActionCard) {
+  this.message = ''
+
+  if (card.kind === 'add-pitch') {
+    this.openAddAction('pitch')
+    this.addNode('pitch', 120, 140)
+  }
+
+  if (card.kind === 'add-dream') {
+    this.openAddAction('dream')
+    this.addNode('dream', 120, 180)
+  }
+
+  if (card.kind === 'add-character') {
+    this.openAddAction('character')
+    this.addNode('character', 120, 220)
+  }
+
+  if (card.kind === 'add-reward') {
+    this.openAddAction('reward')
+    this.addNode('reward', 120, 260)
+  }
+
+  if (card.kind === 'add-scenario') {
+    this.openAddAction('scenario')
+    this.addNode('scenario', 120, 300)
+  }
+
+  if (card.kind === 'create-art') {
+    await this.openArtAction(card)
+    this.addNode('stable-diffusion', 420, 180, card.targetTitle ? `Art for ${card.targetTitle}` : undefined)
+  }
+
+  if (card.kind === 'edit-target') {
+    await this.openEditAction(card)
+  }
+
+  if (card.kind === 'interact-target') {
+    await this.openInteractAction(card)
+  }
+
+  if (card.kind === 'add-skill') {
+    this.openAddAction('reward')
+    this.addNode('reward', 120, 260, 'New Skill')
+    this.message = 'Skill reward mode selected. Teach the world a new trick.'
+  }
+
+  if (card.kind === 'add-treasure') {
+    this.openAddAction('reward')
+    this.addNode('reward', 120, 260, 'New Treasure')
+    this.message = 'Treasure reward mode selected. Probably cursed. Excellent.'
+  }
+
+  if (card.kind === 'expand-concept') {
+    this.openModelTab('scenario', 'add')
+    this.addNode('scenario', 120, 300, 'Expanded Concept')
+  }
+
+  this.replaceActionCard(card)
+},
 
     getDefinition(kind: CodeKind) {
       return this.definitions.find((definition) => definition.kind === kind) ?? null

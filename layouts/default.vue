@@ -76,14 +76,14 @@
       </div>
     </main>
 
-    <header
-      class="fixed overflow-hidden transition-all duration-300 ease-out"
-      :style="displayStore.headerStyle"
-    >
-      <slot name="header">
-        <full-header />
-      </slot>
-    </header>
+<header
+  class="fixed z-40 overflow-visible transition-all duration-300 ease-out"
+  :style="displayStore.headerStyle"
+>
+  <slot name="header">
+    <full-header />
+  </slot>
+</header>
   </div>
 </template>
 

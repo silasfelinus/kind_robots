@@ -8,7 +8,7 @@
     aria-modal="true"
   >
     <div
-      class="rounded-2xl p-10 text-center border border-accent bg-base-100 max-w-lg mx-auto shadow-xl"
+      class="pointer-events-auto rounded-2xl p-10 text-center border border-accent bg-base-100 max-w-lg mx-auto shadow-xl"
     >
       <h2 id="milestone-popup" class="text-3xl font-semibold mb-6 text-primary">
         🎉 Congratulations, {{ userStore.username }}!

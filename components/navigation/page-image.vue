@@ -1,20 +1,24 @@
 <template>
-  <div v-if="hydrated" class="relative w-full h-full">
-    <div class="flip-card h-full w-full" @click="handleClick">
-      <div class="flip-card-inner" :class="{ 'is-flipped': flipped }">
-        <div class="flip-card-front">
+  <div v-if="hydrated" class="relative h-full w-full rounded-2xl">
+    <div class="flip-card h-full w-full rounded-2xl" @click="handleClick">
+      <div
+        class="flip-card-inner rounded-2xl"
+        :class="{ 'is-flipped': flipped }"
+      >
+        <div class="flip-card-front rounded-2xl">
           <img
             :src="pageImage"
             alt="Page"
-            class="w-full h-full object-cover"
+            class="h-full w-full rounded-2xl object-cover"
             draggable="false"
           />
         </div>
-        <div class="flip-card-back">
+
+        <div class="flip-card-back rounded-2xl">
           <img
             :src="pageImage"
             alt="Page"
-            class="w-full h-full object-cover"
+            class="h-full w-full rounded-2xl object-cover"
             draggable="false"
           />
         </div>

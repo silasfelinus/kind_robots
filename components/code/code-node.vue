@@ -34,7 +34,7 @@
         <button
           class="btn btn-ghost btn-xs btn-circle"
           type="button"
-          @click.stop="codeCardStore.removeNode(node.id)"
+          @click.stop="codeStore.removeNode(node.id)"
         >
           <icon name="kind-icon:x" class="h-4 w-4" />
         </button>
@@ -52,7 +52,7 @@
           :key="port.id"
           class="flex w-full items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-2 text-left text-xs transition hover:border-secondary hover:bg-secondary hover:text-secondary-content"
           type="button"
-          @click.stop="codeCardStore.completeConnection(node.id, port.id)"
+          @click.stop="codeStore.completeConnection(node.id, port.id)"
         >
           <span class="h-3 w-3 shrink-0 rounded-full border-2 border-current bg-base-200" />
           <span class="min-w-0 flex-1 truncate">
@@ -78,7 +78,7 @@
           :key="port.id"
           class="flex w-full items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-2 text-left text-xs transition hover:border-primary hover:bg-primary hover:text-primary-content"
           type="button"
-          @click.stop="codeCardStore.beginConnection(node.id, port.id)"
+          @click.stop="codeStore.beginConnection(node.id, port.id)"
         >
           <span class="min-w-0 flex-1 truncate text-right">
             {{ port.label }}
@@ -98,24 +98,24 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useCodeStore, type CodeCardNode } from '@/stores/codeStore'
+import { useCodeStore, type CodeNode } from '@/stores/codeStore'
 
 const props = defineProps<{
-  node: CodeCardNode
+  node: CodeNode
 }>()
 
-const codeCardStore = useCodeStore()
+const codeStore = useCodeStore()
 const nodeRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 
-const definition = computed(() => codeCardStore.getDefinition(props.node.kind))
-const isSelected = computed(() => codeCardStore.selectedNodeId === props.node.id)
+const definition = computed(() => codeStore.getDefinition(props.node.kind))
+const isSelected = computed(() => codeStore.selectedNodeId === props.node.id)
 
 let dragOffsetX = 0
 let dragOffsetY = 0
 
 const bringForward = () => {
-  codeCardStore.selectNode(props.node.id)
+  codeStore.selectNode(props.node.id)
 }
 
 const startDrag = (event: PointerEvent) => {
@@ -126,7 +126,7 @@ const startDrag = (event: PointerEvent) => {
   }
 
   isDragging.value = true
-  codeCardStore.selectNode(props.node.id)
+  codeStore.selectNode(props.node.id)
 
   const rect = target.getBoundingClientRect()
   dragOffsetX = event.clientX - rect.left
@@ -150,7 +150,7 @@ const onDrag = (event: PointerEvent) => {
   const x = event.clientX - rect.left + scrollLeft - dragOffsetX
   const y = event.clientY - rect.top + scrollTop - dragOffsetY
 
-  codeCardStore.updateNodePosition(props.node.id, x, y)
+  codeStore.updateNodePosition(props.node.id, x, y)
 }
 
 const stopDrag = () => {

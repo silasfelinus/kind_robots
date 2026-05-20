@@ -71,6 +71,12 @@
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
+
+      <code-workbench
+        v-else-if="currentTab === 'workbench'"
+       
+      />
+
         <div class="min-h-0 xl:col-span-7">
           <server-gallery
             mode="art"

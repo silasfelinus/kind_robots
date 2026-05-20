@@ -64,7 +64,7 @@
             class="btn btn-primary btn-xs rounded-lg"
             type="button"
             :disabled="isLoading"
-            @click="initializeGallery"
+            @click="refreshGallery"
           >
             <span v-if="isLoading" class="loading loading-spinner loading-xs" />
             <Icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
@@ -562,6 +562,34 @@ const currentPage = computed({
   },
 })
 
+async function refreshGallery() {
+  isLoading.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+  hydratedImages.value = {}
+
+  try {
+    await Promise.all([
+      collectionStore.fetchCollections(true),
+      artStore.fetchAllArtImages({
+        force: true,
+        includeImageData: false,
+        includeThumbnailData: false,
+        includePitches: false,
+      }),
+    ])
+
+    await hydrateVisibleImages()
+    successMessage.value = 'Gallery refreshed.'
+  } catch (error) {
+    const message = getErrorMessage(error, 'Gallery failed to refresh.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const currentPageCount = computed(() => {
   if (activeGroup.value) {
     return Math.max(
@@ -642,15 +670,15 @@ onMounted(async () => {
 })
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-
 async function initializeGallery() {
   isLoading.value = true
   errorMessage.value = ''
   successMessage.value = ''
   hydratedImages.value = {}
+
   try {
-    await fetchCollectionsSafely()
-    await fetchArtImagesSafely()
+    await Promise.all([fetchCollectionsSafely(), fetchArtImagesSafely()])
+
     await hydrateVisibleImages()
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
@@ -663,12 +691,19 @@ async function initializeGallery() {
 
 async function fetchCollectionsSafely() {
   if (typeof collectionStore.fetchCollections !== 'function') return
-  await collectionStore.fetchCollections(true)
+
+  await collectionStore.fetchCollections(false)
 }
 
 async function fetchArtImagesSafely() {
   if (typeof artStore.fetchAllArtImages !== 'function') return
-  await artStore.fetchAllArtImages({ force: true })
+
+  await artStore.fetchAllArtImages({
+    force: false,
+    includeImageData: false,
+    includeThumbnailData: false,
+    includePitches: false,
+  })
 }
 
 function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {

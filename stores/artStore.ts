@@ -255,48 +255,48 @@ function mergeUniqueArtImages(
 
 export const useArtStore = defineStore('artStore', () => {
   const state = reactive<ArtStoreState>({
-  artImages: [],
-  reactions: [],
-  loading: false,
-  error: '',
-  isInitialized: false,
-  currentArtImage: null,
-  processedArtPrompt: '',
-  pitch: '',
-  currentPage: 1,
-  totalArtImageCount: 0,
-  pageSize: 100,
-  collections: [],
-  currentCollection: null,
-  generatedArtImages: [],
-  artListSelections: {},
-  previousArtTab: null,
-  isGenerating: false,
-  generationMessage: '',
-  generationMessageTone: 'success',
-  lastGeneratedArtImage: null,
-  selectedGenerationCollectionId: null,
-  artForm: {
-    promptString: '',
-    negativePrompt: '',
+    artImages: [],
+    reactions: [],
+    loading: false,
+    error: '',
+    isInitialized: false,
+    currentArtImage: null,
+    processedArtPrompt: '',
     pitch: '',
-    userId: null,
-    checkpoint: '',
-    sampler: '',
-    steps: 25,
-    designer: '',
-    cfg: 7,
-    cfgHalf: false,
-    isMature: false,
-    isPublic: true,
-    seed: null,
-    promptId: null,
-    pitchId: null,
-    serverId: null,
-    serverName: null,
-    engine: undefined,
-  },
-})
+    currentPage: 1,
+    totalArtImageCount: 0,
+    pageSize: 100,
+    collections: [],
+    currentCollection: null,
+    generatedArtImages: [],
+    artListSelections: {},
+    previousArtTab: null,
+    isGenerating: false,
+    generationMessage: '',
+    generationMessageTone: 'success',
+    lastGeneratedArtImage: null,
+    selectedGenerationCollectionId: null,
+    artForm: {
+      promptString: '',
+      negativePrompt: '',
+      pitch: '',
+      userId: null,
+      checkpoint: '',
+      sampler: '',
+      steps: 25,
+      designer: '',
+      cfg: 7,
+      cfgHalf: false,
+      isMature: false,
+      isPublic: true,
+      seed: null,
+      promptId: null,
+      pitchId: null,
+      serverId: null,
+      serverName: null,
+      engine: undefined,
+    },
+  })
 
   const promptStore = usePromptStore()
   const userStore = useUserStore()
@@ -366,238 +366,244 @@ export const useArtStore = defineStore('artStore', () => {
     })
   })
 
-const showMature = computed(() => {
-  return userStore.user?.showMature ?? userStore.showMature ?? false
-})
+  const showMature = computed(() => {
+    return userStore.user?.showMature ?? userStore.showMature ?? false
+  })
 
-const generationServers = computed<Server[]>(() => {
-  const servers = Array.isArray(serverStore.servers)
-    ? (serverStore.servers as Server[])
-    : []
+  const generationServers = computed<Server[]>(() => {
+    const servers = Array.isArray(serverStore.servers)
+      ? (serverStore.servers as Server[])
+      : []
 
-  return servers.filter((server) => {
-    return Boolean(
-      server.isActive &&
+    return servers.filter((server) => {
+      return Boolean(
+        server.isActive &&
         server.supportsTxt2Img &&
         ['A1111', 'COMFY'].includes(server.serverType),
+      )
+    })
+  })
+
+  const activeGenerationServer = computed<Server | null>(() => {
+    if (state.artForm.serverId) {
+      return serverStore.getServerById(state.artForm.serverId) ?? null
+    }
+
+    return serverStore.activeArtServer ?? null
+  })
+
+  const selectedCheckpointName = computed(() => {
+    const checkpointStore = useCheckpointStore()
+    return (
+      state.artForm.checkpoint ||
+      checkpointStore.selectedCheckpoint?.name ||
+      checkpointStore.selectedCheckpoint?.customLabel ||
+      ''
     )
   })
-})
 
-const activeGenerationServer = computed<Server | null>(() => {
-  if (state.artForm.serverId) {
-    return serverStore.getServerById(state.artForm.serverId) ?? null
-  }
-
-  return serverStore.activeArtServer ?? null
-})
-
-const selectedCheckpointName = computed(() => {
-  return (
-    state.artForm.checkpoint ||
-    checkpointStore.selectedCheckpoint?.name ||
-    checkpointStore.selectedCheckpoint?.customLabel ||
-    ''
-  )
-})
-
-const selectedSamplerName = computed(() => {
-  return (
-    state.artForm.sampler ||
-    checkpointStore.selectedSampler?.name ||
-    serverStore.activeArtServer?.defaultSampler ||
-    'Euler a'
-  )
-})
-
-const generationCollections = computed<ArtCollection[]>(() => {
-  const collectionStore = getCollectionStore()
-  const collections = Array.isArray(collectionStore.collections)
-    ? collectionStore.collections
-    : []
-
-  return collections.filter((collection: ArtCollection) => {
-    if (collection.isMature && !showMature.value) return false
-    if (collection.userId === userStore.userId) return true
-    return Boolean(collection.isPublic)
+  const selectedSamplerName = computed(() => {
+    const checkpointStore = useCheckpointStore()
+    return (
+      state.artForm.sampler ||
+      checkpointStore.selectedSampler?.name ||
+      serverStore.activeArtServer?.defaultSampler ||
+      'Euler a'
+    )
   })
-})
 
-const finalPromptString = computed(() => {
-  return (
-    promptStore.promptField?.trim() ||
-    getPromptString.value?.trim() ||
-    state.artForm.promptString?.trim() ||
-    ''
-  )
-})
+  const generationCollections = computed<ArtCollection[]>(() => {
+    const collectionStore = getCollectionStore()
+    const collections = Array.isArray(collectionStore.collections)
+      ? collectionStore.collections
+      : []
 
-const canGenerateArt = computed(() => {
-  return Boolean(
-    !state.loading &&
+    return collections.filter((collection: ArtCollection) => {
+      if (collection.isMature && !showMature.value) return false
+      if (collection.userId === userStore.userId) return true
+      return Boolean(collection.isPublic)
+    })
+  })
+
+  const finalPromptString = computed(() => {
+    return (
+      promptStore.promptField?.trim() ||
+      getPromptString.value?.trim() ||
+      state.artForm.promptString?.trim() ||
+      ''
+    )
+  })
+
+  const canGenerateArt = computed(() => {
+    return Boolean(
+      !state.loading &&
       !state.isGenerating &&
       state.artForm.serverId &&
       selectedCheckpointName.value &&
       finalPromptString.value,
-  )
-})
-
-function setGenerationMessage(
-  tone: 'success' | 'error',
-  message: string,
-): void {
-  state.generationMessageTone = tone
-  state.generationMessage = message
-}
-
-function clearGenerationMessage(): void {
-  state.generationMessage = ''
-}
-
-function getServerLabel(server: Server): string {
-  return server.label || server.title || `Server #${server.id}`
-}
-
-function selectGenerationServer(serverId: number | null): void {
-  const server = serverId ? serverStore.getServerById(serverId) : null
-
-  setArtForm({
-    serverId,
-    serverName: server ? getServerLabel(server) : null,
-  })
-}
-
-function selectGenerationCheckpoint(name: string): void {
-  const checkpoint = name.trim()
-  if (!checkpoint) return
-
-  checkpointStore.selectCheckpointByName(checkpoint)
-  setArtForm({ checkpoint })
-}
-
-function selectGenerationSampler(name: string): void {
-  const sampler = name.trim()
-  if (!sampler) return
-
-  checkpointStore.selectSamplerByName(sampler)
-  setArtForm({ sampler })
-}
-
-function selectGenerationCollection(collectionId: number | null): void {
-  const collectionStore = getCollectionStore()
-
-  state.selectedGenerationCollectionId = collectionId
-  setArtForm({ artCollectionId: collectionId })
-
-  if (!collectionId) {
-    collectionStore.currentCollection = null
-    collectionStore.clearSelectedCollections?.()
-    return
-  }
-
-  collectionStore.setCurrentCollection(collectionId)
-  collectionStore.setSelectedCollectionIds([collectionId])
-}
-
-async function prepareArtGenerator(): Promise<ApiResponse<true>> {
-  state.loading = true
-  clearGenerationMessage()
-
-  try {
-    await Promise.all([
-      initialize({
-        fetchRemote: false,
-        hydrateImages: false,
-        initializeServerStore: false,
-        initializeCollections: false,
-      }),
-      serverStore.hasLoaded
-        ? Promise.resolve()
-        : serverStore.initialize({ fetchRemote: true }),
-      ensureCollectionsReady(),
-    ])
-
-    if (!state.artForm.serverId && serverStore.activeArtServer?.id) {
-      selectGenerationServer(serverStore.activeArtServer.id)
-    }
-
-    if (!state.artForm.sampler) {
-      selectGenerationSampler('Euler a')
-    }
-
-    if (!state.artForm.userId) {
-      setArtForm({
-        userId: userStore.userId || userStore.user?.id || 10,
-        designer:
-          userStore.username || userStore.user?.username || 'Kind Designer',
-      })
-    }
-
-    return {
-      success: true,
-      data: true,
-      message: 'Art generator ready.',
-    }
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to load image generator.'
-
-    handleError(error, 'preparing art generator')
-    setError(error, message)
-    setGenerationMessage('error', message)
-
-    return {
-      success: false,
-      message,
-    }
-  } finally {
-    state.loading = false
-  }
-}
-
-async function generateCurrentArt(
-  overrides: Partial<GenerateArtData> = {},
-): Promise<ApiResponse<ArtImage>> {
-  clearGenerationMessage()
-
-  const result = await generateArt({
-    ...state.artForm,
-    ...overrides,
-    promptString:
-      overrides.promptString?.trim() ||
-      finalPromptString.value ||
-      state.artForm.promptString ||
-      '',
-    artCollectionId:
-      overrides.artCollectionId ??
-      state.selectedGenerationCollectionId ??
-      state.artForm.artCollectionId ??
-      null,
-    checkpoint:
-      overrides.checkpoint ||
-      selectedCheckpointName.value ||
-      state.artForm.checkpoint ||
-      '',
-    sampler:
-      overrides.sampler ||
-      selectedSamplerName.value ||
-      state.artForm.sampler ||
-      'Euler a',
+    )
   })
 
-  if (!result.success) {
-    setGenerationMessage('error', result.message || 'Generation failed.')
+  function setGenerationMessage(
+    tone: 'success' | 'error',
+    message: string,
+  ): void {
+    state.generationMessageTone = tone
+    state.generationMessage = message
+  }
+
+  function clearGenerationMessage(): void {
+    state.generationMessage = ''
+  }
+
+  function getServerLabel(server: Server): string {
+    return server.label || server.title || `Server #${server.id}`
+  }
+
+  function selectGenerationServer(serverId: number | null): void {
+    const server = serverId ? serverStore.getServerById(serverId) : null
+
+    setArtForm({
+      serverId,
+      serverName: server ? getServerLabel(server) : null,
+    })
+  }
+
+  function selectGenerationCheckpoint(name: string): void {
+    const checkpoint = name.trim()
+    const checkpointStore = useCheckpointStore()
+    if (!checkpoint) return
+
+    checkpointStore.selectCheckpointByName(checkpoint)
+    setArtForm({ checkpoint })
+  }
+
+  function selectGenerationSampler(name: string): void {
+    const checkpointStore = useCheckpointStore()
+    const sampler = name.trim()
+    if (!sampler) return
+
+    checkpointStore.selectSamplerByName(sampler)
+    setArtForm({ sampler })
+  }
+
+  function selectGenerationCollection(collectionId: number | null): void {
+    const collectionStore = getCollectionStore()
+
+    state.selectedGenerationCollectionId = collectionId
+    setArtForm({ artCollectionId: collectionId })
+
+    if (!collectionId) {
+      collectionStore.currentCollection = null
+      collectionStore.clearSelectedCollections?.()
+      return
+    }
+
+    collectionStore.setCurrentCollection(collectionId)
+    collectionStore.setSelectedCollectionIds([collectionId])
+  }
+
+  async function prepareArtGenerator(): Promise<ApiResponse<true>> {
+    state.loading = true
+    clearGenerationMessage()
+
+    try {
+      await Promise.all([
+        initialize({
+          fetchRemote: false,
+          hydrateImages: false,
+          initializeServerStore: false,
+          initializeCollections: false,
+        }),
+        serverStore.hasLoaded
+          ? Promise.resolve()
+          : serverStore.initialize({ fetchRemote: true }),
+        ensureCollectionsReady(),
+      ])
+
+      if (!state.artForm.serverId && serverStore.activeArtServer?.id) {
+        selectGenerationServer(serverStore.activeArtServer.id)
+      }
+
+      if (!state.artForm.sampler) {
+        selectGenerationSampler('Euler a')
+      }
+
+      if (!state.artForm.userId) {
+        setArtForm({
+          userId: userStore.userId || userStore.user?.id || 10,
+          designer:
+            userStore.username || userStore.user?.username || 'Kind Designer',
+        })
+      }
+
+      return {
+        success: true,
+        data: true,
+        message: 'Art generator ready.',
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load image generator.'
+
+      handleError(error, 'preparing art generator')
+      setError(error, message)
+      setGenerationMessage('error', message)
+
+      return {
+        success: false,
+        message,
+      }
+    } finally {
+      state.loading = false
+    }
+  }
+
+  async function generateCurrentArt(
+    overrides: Partial<GenerateArtData> = {},
+  ): Promise<ApiResponse<ArtImage>> {
+    clearGenerationMessage()
+
+    const result = await generateArt({
+      ...state.artForm,
+      ...overrides,
+      promptString:
+        overrides.promptString?.trim() ||
+        finalPromptString.value ||
+        state.artForm.promptString ||
+        '',
+      artCollectionId:
+        overrides.artCollectionId ??
+        state.selectedGenerationCollectionId ??
+        state.artForm.artCollectionId ??
+        null,
+      checkpoint:
+        overrides.checkpoint ||
+        selectedCheckpointName.value ||
+        state.artForm.checkpoint ||
+        '',
+      sampler:
+        overrides.sampler ||
+        selectedSamplerName.value ||
+        state.artForm.sampler ||
+        'Euler a',
+    })
+
+    if (!result.success) {
+      setGenerationMessage('error', result.message || 'Generation failed.')
+      return result
+    }
+
+    if (result.data) {
+      state.lastGeneratedArtImage = result.data
+    }
+
+    setGenerationMessage('success', result.message || 'Image generated.')
+
     return result
   }
-
-  if (result.data) {
-    state.lastGeneratedArtImage = result.data
-  }
-
-  setGenerationMessage('success', result.message || 'Image generated.')
-
-  return result
-}
 
   const getPromptString = computed<string>(() => {
     const baseSelections = Object.entries(state.artListSelections)
@@ -1866,6 +1872,7 @@ async function generateCurrentArt(
   async function addGeneratedArtImageToCollections(
     image: ArtImage,
     userId: number,
+    selectedCollectionId?: number | null,
   ): Promise<void> {
     await ensureCollectionsReady()
 
@@ -1877,13 +1884,11 @@ async function generateCurrentArt(
       await addArtImageToCollection(generatedCollection.id, image.id)
     }
 
-    const activeCollection = collectionStore.currentCollection
+    const activeCollectionId =
+      selectedCollectionId ?? collectionStore.currentCollection?.id ?? null
 
-    if (
-      activeCollection?.id &&
-      activeCollection.id !== generatedCollection?.id
-    ) {
-      await addArtImageToCollection(activeCollection.id, image.id)
+    if (activeCollectionId && activeCollectionId !== generatedCollection?.id) {
+      await addArtImageToCollection(activeCollectionId, image.id)
     }
 
     if (isClient) {
@@ -1895,91 +1900,91 @@ async function generateCurrentArt(
   }
 
   async function generateArt(
-  artData?: GenerateArtData,
-): Promise<ApiResponse<ArtImage>> {
-  state.loading = true
-  state.isGenerating = true
-  clearGenerationMessage()
+    artData?: GenerateArtData,
+  ): Promise<ApiResponse<ArtImage>> {
+    state.loading = true
+    state.isGenerating = true
+    clearGenerationMessage()
 
-  animationStore.startGeneration({
-    zones: {
-      header: false,
-      left: false,
-      center: true,
-      right: false,
-      footer: false,
-    },
-  })
+    animationStore.startGeneration({
+      zones: {
+        header: false,
+        left: false,
+        center: true,
+        right: false,
+        footer: false,
+      },
+    })
 
-  try {
-    clearError()
+    try {
+      clearError()
 
-    const data = buildGenerateArtData(artData)
+      const data = buildGenerateArtData(artData)
 
-    if (!promptStore.validatePromptString(data.promptString)) {
+      if (!promptStore.validatePromptString(data.promptString)) {
+        return {
+          success: false,
+          message: 'Invalid prompt',
+        }
+      }
+
+      const server = getSelectedArtServer(data)
+      const route = getArtImageGenerationRoute(server, data)
+
+      const dataWithServer: GenerateArtData = {
+        ...data,
+        serverId: server.id,
+        serverName: server.label || server.title,
+        engine: route.engine,
+        transport: route.transport,
+      }
+
+      const image =
+        route.transport === 'browser'
+          ? await generateBrowserArtImage(server, dataWithServer, route.engine)
+          : await generateBackendArtImage(dataWithServer, route.engine)
+
+      addOrUpdateArtImages([image])
+
+      state.generatedArtImages = mergeUniqueArtImages(
+        state.generatedArtImages,
+        [image],
+      )
+
+      state.currentArtImage = image
+      state.lastGeneratedArtImage = image
+
+      await addGeneratedArtImageToCollections(
+        image,
+        dataWithServer.userId || 10,
+        dataWithServer.artCollectionId,
+      )
+
+      setGenerationMessage('success', 'Image created and added to collections.')
+
+      return {
+        success: true,
+        data: image,
+        message: 'Image created and added to collections.',
+      }
+    } catch (error) {
+      handleError(error, 'generating image')
+      setError(error, 'Failed to generate image.')
+
+      const message = error instanceof Error ? error.message : 'Unknown error'
+
+      setGenerationMessage('error', message)
+
       return {
         success: false,
-        message: 'Invalid prompt',
+        message,
       }
+    } finally {
+      state.loading = false
+      state.isGenerating = false
+      animationStore.stop()
     }
-
-    const server = getSelectedArtServer(data)
-    const route = getArtImageGenerationRoute(server, data)
-
-    const dataWithServer: GenerateArtData = {
-      ...data,
-      serverId: server.id,
-      serverName: server.label || server.title,
-      engine: route.engine,
-      transport: route.transport,
-    }
-
-    const image =
-      route.transport === 'browser'
-        ? await generateBrowserArtImage(server, dataWithServer, route.engine)
-        : await generateBackendArtImage(dataWithServer, route.engine)
-
-    addOrUpdateArtImages([image])
-
-    state.generatedArtImages = mergeUniqueArtImages(
-      state.generatedArtImages,
-      [image],
-    )
-
-    state.currentArtImage = image
-    state.lastGeneratedArtImage = image
-
-    await addGeneratedArtImageToCollections(
-      image,
-      dataWithServer.userId || 10,
-      dataWithServer.artCollectionId,
-    )
-
-    setGenerationMessage('success', 'Image created and added to collections.')
-
-    return {
-      success: true,
-      data: image,
-      message: 'Image created and added to collections.',
-    }
-  } catch (error) {
-    handleError(error, 'generating image')
-    setError(error, 'Failed to generate image.')
-
-    const message = error instanceof Error ? error.message : 'Unknown error'
-
-    setGenerationMessage('error', message)
-
-    return {
-      success: false,
-      message,
-    }
-  } finally {
-    state.loading = false
-    state.isGenerating = false
-    animationStore.stop()
   }
-}
 
   function resetInitialization(): void {
     state.isInitialized = false
@@ -2048,23 +2053,23 @@ async function generateCurrentArt(
     updateArtImagePitches,
     fetchArtImageWithPitches,
 
-showMature,
-generationServers,
-generationCollections,
-activeGenerationServer,
-selectedCheckpointName,
-selectedSamplerName,
-finalPromptString,
-canGenerateArt,
+    showMature,
+    generationServers,
+    generationCollections,
+    activeGenerationServer,
+    selectedCheckpointName,
+    selectedSamplerName,
+    finalPromptString,
+    canGenerateArt,
 
-setGenerationMessage,
-clearGenerationMessage,
-selectGenerationServer,
-selectGenerationCheckpoint,
-selectGenerationSampler,
-selectGenerationCollection,
-prepareArtGenerator,
-generateCurrentArt,
+    setGenerationMessage,
+    clearGenerationMessage,
+    selectGenerationServer,
+    selectGenerationCheckpoint,
+    selectGenerationSampler,
+    selectGenerationCollection,
+    prepareArtGenerator,
+    generateCurrentArt,
   }
 })
 

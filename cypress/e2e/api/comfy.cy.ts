@@ -1,4 +1,4 @@
-// /cypress/e2e/api/comfy-direct.cy.ts
+// /cypress/e2e/api/comfy.cy.ts
 /// <reference types="cypress" />
 
 interface ComfyDirectResponse {
@@ -16,10 +16,16 @@ interface ComfyDirectResponse {
 describe('Comfy Direct Test Endpoint', () => {
   let apiBase = 'https://kind-robots.vercel.app/api/comfy/test'
   let apiKey = ''
-  let comfyApiUrl = 'https://comfy-api.acrocatranch.com'
+  let serverId = 25
+  let checkpointId = 1
 
   before(() => {
-    cy.env(['API_BASE', 'API_KEY', 'COMFY_API_URL']).then((env) => {
+    cy.env([
+      'API_BASE',
+      'API_KEY',
+      'COMFY_TEST_SERVER_ID',
+      'COMFY_TEST_CHECKPOINT_ID',
+    ]).then((env) => {
       const rawApiBase = String(
         env.API_BASE || 'https://kind-robots.vercel.app',
       )
@@ -27,13 +33,13 @@ describe('Comfy Direct Test Endpoint', () => {
 
       apiBase = `${cleanApiBase}/api/comfy/test`
       apiKey = String(env.API_KEY || '')
-      comfyApiUrl = String(
-        env.COMFY_API_URL || 'https://comfy-api.acrocatranch.com',
-      ).replace(/\/+$/, '')
+      serverId = Number(env.COMFY_TEST_SERVER_ID || 25)
+      checkpointId = Number(env.COMFY_TEST_CHECKPOINT_ID || 1)
 
       expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
       expect(cleanApiBase, 'API_BASE').to.be.a('string').and.not.be.empty
-      expect(comfyApiUrl, 'COMFY_API_URL').to.be.a('string').and.not.be.empty
+      expect(serverId, 'COMFY_TEST_SERVER_ID').to.be.greaterThan(0)
+      expect(checkpointId, 'COMFY_TEST_CHECKPOINT_ID').to.be.greaterThan(0)
     })
   })
 
@@ -50,12 +56,13 @@ describe('Comfy Direct Test Endpoint', () => {
     }
   }
 
-  it('reaches Comfy system stats', () => {
+  it('reaches Comfy system stats through serverId and checkpointId', () => {
     cy.request({
       method: 'GET',
       url: `${apiBase}/info`,
       qs: {
-        apiUrl: comfyApiUrl,
+        serverId,
+        checkpointId,
         target: 'system',
       },
       headers: authHeaders(),
@@ -67,12 +74,13 @@ describe('Comfy Direct Test Endpoint', () => {
     })
   })
 
-  it('reaches Comfy queue', () => {
+  it('reaches Comfy queue through serverId and checkpointId', () => {
     cy.request({
       method: 'GET',
       url: `${apiBase}/info`,
       qs: {
-        apiUrl: comfyApiUrl,
+        serverId,
+        checkpointId,
         target: 'queue',
       },
       headers: authHeaders(),
@@ -90,7 +98,8 @@ describe('Comfy Direct Test Endpoint', () => {
       url: `${apiBase}/generate`,
       headers: jsonHeaders(),
       body: {
-        apiUrl: comfyApiUrl,
+        serverId,
+        checkpointId,
         prompt:
           'candid sci-fi photograph at an exotic alien public hot spring on a venusian moon, elaborate swirling sky, magical bubbles reflecting a beautiful galaxy in space, plum and rainbow braided hair streaks, alien jellyfish people relaxing in the background',
         width: 512,
@@ -130,7 +139,8 @@ describe('Comfy Direct Test Endpoint', () => {
       url: `${apiBase}/generate`,
       headers: jsonHeaders(),
       body: {
-        apiUrl: comfyApiUrl,
+        serverId,
+        checkpointId,
       },
       failOnStatusCode: false,
       timeout: 30000,
@@ -139,6 +149,22 @@ describe('Comfy Direct Test Endpoint', () => {
 
       expect(body.success, JSON.stringify(body)).to.eq(false)
       expect(body.statusCode, JSON.stringify(body)).to.eq(400)
+    })
+  })
+
+  it('handles missing checkpointId gracefully', () => {
+    cy.request<ComfyDirectResponse>({
+      method: 'POST',
+      url: `${apiBase}/generate`,
+      headers: jsonHeaders(),
+      body: {
+        serverId,
+        prompt: 'simple test image of a robot holding a wrench',
+      },
+      failOnStatusCode: false,
+      timeout: 30000,
+    }).then((res) => {
+      expect(res.status).to.eq(400)
     })
   })
 })

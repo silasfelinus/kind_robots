@@ -316,38 +316,70 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     safeRemoveLocalStorage(pendingGuestMilestonesStorageKey)
   }
 
-  async function confirmMilestone(milestoneId: number) {
-    if (userStore.isGuest) {
-      deactivateMilestone(milestoneId)
-      return
+    async function confirmMilestone(milestoneId: number) {
+    const id = Number(milestoneId)
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return {
+        success: false,
+        message: 'Valid milestone ID is required.',
+      }
     }
+
+    if (userStore.isGuest) {
+      deactivateMilestone(id)
+      persist()
+
+      return {
+        success: true,
+        message: 'Guest milestone dismissed locally.',
+      }
+    }
+
+    const userId = Number(userStore.userId)
 
     const record = milestoneRecords.value.find(
       (entry) =>
-        entry.userId === userStore.userId && entry.milestoneId === milestoneId,
+        Number(entry.userId) === userId &&
+        Number(entry.milestoneId) === id,
     )
 
-    if (!record) return
+    deactivateMilestone(id)
 
-    const previous = record.isConfirmed
-    record.isConfirmed = true
+    if (!record) {
+      persist()
 
-    try {
-      const result = await updateMilestoneRecord({
-        id: record.id,
-        isConfirmed: true,
-      })
-
-      if (!result.success) {
-        record.isConfirmed = previous
+      return {
+        success: true,
+        message: 'Milestone dismissed locally. No record was found to confirm.',
       }
-    } catch (error) {
-      record.isConfirmed = previous
-      handleError(error, 'confirming milestone')
-      deactivateMilestone(milestoneId)
+    }
+
+    record.isConfirmed = true
+    persist()
+
+    const result = await updateMilestoneRecord({
+      id: record.id,
+      isConfirmed: true,
+    })
+
+    if (!result.success) {
+      setLastError(
+        result.message ?? 'Milestone dismissed locally but failed to sync.',
+        'Milestone dismissed locally but failed to sync.',
+      )
+
+      return {
+        success: false,
+        message: result.message ?? 'Milestone dismissed locally but failed to sync.',
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Milestone confirmed.',
     }
   }
-
   async function updateMilestone(milestone: Milestone) {
     if (!milestone.id) {
       return

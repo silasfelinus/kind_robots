@@ -33,16 +33,6 @@
       >
         <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
       </button>
-
-      <button
-        :style="displayStore.leftSidebarForwardToggleStyle"
-        class="btn btn-circle btn-xs transition-all duration-300 ease-out"
-        aria-label="Expand left sidebar"
-        type="button"
-        @click="displayStore.toggleLeftSidebar('forward')"
-      >
-        <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
-      </button>
     </template>
 
     <template v-if="displayStore.sidebarRightVisible">
@@ -55,16 +45,6 @@
       >
         <Icon name="kind-icon:chevron-right" class="h-4 w-4" />
       </button>
-
-      <button
-        :style="displayStore.rightSidebarForwardToggleStyle"
-        class="btn btn-circle btn-xs transition-all duration-300 ease-out"
-        aria-label="Expand right sidebar"
-        type="button"
-        @click="displayStore.toggleRightSidebar('forward')"
-      >
-        <Icon name="kind-icon:chevron-left" class="h-4 w-4" />
-      </button>
     </template>
 
     <main
@@ -76,14 +56,14 @@
       </div>
     </main>
 
-<header
-  class="fixed z-40 overflow-visible transition-all duration-300 ease-out"
-  :style="displayStore.headerStyle"
->
-  <slot name="header">
-    <full-header />
-  </slot>
-</header>
+    <header
+      class="fixed z-40 overflow-visible transition-all duration-300 ease-out"
+      :style="displayStore.headerStyle"
+    >
+      <slot name="header">
+        <full-header />
+      </slot>
+    </header>
   </div>
 </template>
 

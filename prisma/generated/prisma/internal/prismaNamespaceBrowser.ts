@@ -58,6 +58,7 @@ export const ModelName = {
   ButterflyRecord: 'ButterflyRecord',
   Character: 'Character',
   Chat: 'Chat',
+  Code: 'Code',
   Component: 'Component',
   Dream: 'Dream',
   Log: 'Log',
@@ -278,6 +279,24 @@ export const ChatScalarFieldEnum = {
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
+
+
+export const CodeScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  icon: 'icon',
+  graph: 'graph',
+  isPublic: 'isPublic',
+  isOfficial: 'isOfficial',
+  isActive: 'isActive',
+  isMature: 'isMature'
+} as const
+
+export type CodeScalarFieldEnum = (typeof CodeScalarFieldEnum)[keyof typeof CodeScalarFieldEnum]
 
 
 export const ComponentScalarFieldEnum = {
@@ -691,6 +710,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -800,6 +826,32 @@ export const ChatOrderByRelevanceFieldEnum = {
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const CodeOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  icon: 'icon'
+} as const
+
+export type CodeOrderByRelevanceFieldEnum = (typeof CodeOrderByRelevanceFieldEnum)[keyof typeof CodeOrderByRelevanceFieldEnum]
 
 
 export const ComponentOrderByRelevanceFieldEnum = {

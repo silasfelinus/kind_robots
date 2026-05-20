@@ -57,6 +57,11 @@ export type Character = Prisma.CharacterModel
  */
 export type Chat = Prisma.ChatModel
 /**
+ * Model Code
+ * programmatic blueprints to call one or more art or text servers
+ */
+export type Code = Prisma.CodeModel
+/**
  * Model Component
  * Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
  */

@@ -1,17 +1,21 @@
 // /stores/codeStore.ts
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { performFetch, handleError } from '@/stores/utils'
+import { useUserStore } from '@/stores/userStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useNavStore } from '@/stores/navStore'
+import type { Code } from '~/prisma/generated/prisma/client'
 
 export type CodeDataType =
   | 'text'
   | 'image'
   | 'model'
+  | 'video'
   | 'character'
   | 'dream'
   | 'pitch'
@@ -83,6 +87,14 @@ export type CodeDashboardKey =
   | 'giftshop'
   | 'server'
   | 'wonder'
+
+export type CodePanelMode = 'closed' | 'node-settings' | 'templates' | 'library'
+
+export type CodeMobileTrayMode =
+  | 'closed'
+  | 'toybox'
+  | 'quick-plays'
+  | 'settings'
 
 export interface CodeActionCard {
   id: string
@@ -169,6 +181,29 @@ export interface CodeTemplate {
   connections: CodeTemplateConnection[]
 }
 
+export interface CodePoint {
+  x: number
+  y: number
+}
+
+export interface CodeViewport {
+  width: number
+  height: number
+}
+
+export interface CodeGraph {
+  version: 1
+  nodes: CodeNode[]
+  connections: CodeConnection[]
+  zoom: number
+  panX: number
+  panY: number
+}
+
+export interface CodeForm extends Omit<Partial<Code>, 'graph'> {
+  graph?: CodeGraph
+}
+
 interface SelectableStore {
   selectPitch?: (id: number) => Promise<unknown> | unknown
   selectDream?: (id: number) => Promise<unknown> | unknown
@@ -180,14 +215,34 @@ interface SelectableStore {
 interface SavedCodeWorkbench {
   nodes: CodeNode[]
   connections: CodeConnection[]
+  zoom?: number
+  panX?: number
+  panY?: number
 }
 
-const storageKey = 'kindrobots-code-workbench'
+const workbenchStorageKey = 'kindrobots-code-workbench'
+const itemStorageKey = 'kindrobots-code-items'
+const formStorageKey = 'kindrobots-code-form'
+const minZoom = 0.25
+const maxZoom = 2.5
+const zoomStep = 0.1
+const nodeWidth = 340
+const nodeHeight = 280
+const defaultCanvasWidth = 1800
+const defaultCanvasHeight = 1000
 
 const makeId = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
 const shuffle = <T>(items: T[]) => [...items].sort(() => Math.random() - 0.5)
+
+const clamp = (value: number, min: number, max: number) => {
+  return Math.min(max, Math.max(min, value))
+}
+
+const roundZoom = (value: number) => {
+  return Math.round(value * 100) / 100
+}
 
 const modelToDashboardKey = (model: CodeModel): CodeDashboardKey => {
   if (model === 'pitch') return 'brainstorm'
@@ -200,6 +255,27 @@ const isCodeNode = (node: CodeNode | null): node is CodeNode => Boolean(node)
 const isCodeActionCard = (
   card: CodeActionCard | undefined,
 ): card is CodeActionCard => Boolean(card)
+
+const isCodeGraph = (graph: unknown): graph is CodeGraph => {
+  if (!graph || typeof graph !== 'object') return false
+
+  const candidate = graph as Partial<CodeGraph>
+
+  return (
+    candidate.version === 1 &&
+    Array.isArray(candidate.nodes) &&
+    Array.isArray(candidate.connections)
+  )
+}
+
+const fallbackGraph = (): CodeGraph => ({
+  version: 1,
+  nodes: [],
+  connections: [],
+  zoom: 1,
+  panX: 0,
+  panY: 0,
+})
 
 const definitionSeeds: CodeDefinition[] = [
   {
@@ -511,9 +587,9 @@ const definitionSeeds: CodeDefinition[] = [
     ],
     outputs: [
       {
-        id: 'video-model',
-        label: 'Video Model',
-        type: 'model',
+        id: 'video',
+        label: 'Video',
+        type: 'video',
         direction: 'output',
       },
     ],
@@ -537,9 +613,9 @@ const definitionSeeds: CodeDefinition[] = [
     ],
     outputs: [
       {
-        id: 'video-model',
-        label: 'Video Model',
-        type: 'model',
+        id: 'video',
+        label: 'Video',
+        type: 'video',
         direction: 'output',
       },
     ],
@@ -884,12 +960,20 @@ const templateSeeds: CodeTemplate[] = [
 ]
 
 export const useCodeStore = defineStore('codeStore', () => {
+  const userStore = useUserStore()
   const pitchStore = usePitchStore()
   const dreamStore = useDreamStore()
   const characterStore = useCharacterStore()
   const rewardStore = useRewardStore()
   const scenarioStore = useScenarioStore()
   const navStore = useNavStore()
+
+  const items = ref<Code[]>([])
+  const selected = ref<Code | null>(null)
+  const form = ref<CodeForm>({})
+  const isSaving = ref(false)
+  const isInitialized = ref(false)
+  const loading = ref(false)
 
   const definitions = ref<CodeDefinition[]>([...definitionSeeds])
   const templates = ref<CodeTemplate[]>([...templateSeeds])
@@ -900,32 +984,123 @@ export const useCodeStore = defineStore('codeStore', () => {
   const actionHand = ref<CodeActionCard[]>([])
   const actionHandSize = ref(6)
   const message = ref('')
-  const isInitialized = ref(false)
+
+  const zoom = ref(1)
+  const panX = ref(0)
+  const panY = ref(0)
+  const isPanMode = ref(false)
+  const viewportWidth = ref(0)
+  const viewportHeight = ref(0)
+  const panelMode = ref<CodePanelMode>('closed')
+  const mobileTrayMode = ref<CodeMobileTrayMode>('closed')
+  const showToybox = ref(true)
+  const showQuickPlays = ref(true)
+  const showMiniMap = ref(true)
+  const showCanvasGrid = ref(true)
+  const snapToGrid = ref(false)
+  const gridSize = ref(28)
+
+  const ownedItems = computed(() => {
+    return items.value.filter((item) => item.userId === userStore.user?.id)
+  })
 
   const selectedNode = computed(() => {
     return nodes.value.find((node) => node.id === selectedNodeId.value) ?? null
+  })
+
+  const selectedDefinition = computed(() => {
+    if (!selectedNode.value) {
+      return null
+    }
+
+    return getDefinition(selectedNode.value.kind)
+  })
+
+  const currentGraph = computed<CodeGraph>(() => ({
+    version: 1,
+    nodes: nodes.value,
+    connections: connections.value,
+    zoom: zoom.value,
+    panX: panX.value,
+    panY: panY.value,
+  }))
+
+  const zoomPercent = computed(() => {
+    return Math.round(zoom.value * 100)
+  })
+
+  const isZoomed = computed(() => {
+    return zoom.value !== 1
+  })
+
+  const hasNodes = computed(() => {
+    return nodes.value.length > 0
+  })
+
+  const hasConnections = computed(() => {
+    return connections.value.length > 0
   })
 
   const groupedDefinitions = computed(() => {
     return definitions.value.reduce<Record<string, CodeDefinition[]>>(
       (groups, definition) => {
         const category = definition.category
-
         groups[category] ??= []
         groups[category].push(definition)
-
         return groups
       },
       {},
     )
   })
+
   const canvasBounds = computed(() => {
-    const right = Math.max(1600, ...nodes.value.map((node) => node.x + 340))
-    const bottom = Math.max(900, ...nodes.value.map((node) => node.y + 260))
+    const right = Math.max(
+      defaultCanvasWidth,
+      ...nodes.value.map((node) => node.x + nodeWidth),
+    )
+
+    const bottom = Math.max(
+      defaultCanvasHeight,
+      ...nodes.value.map((node) => node.y + nodeHeight),
+    )
 
     return {
       width: right,
       height: bottom,
+    }
+  })
+
+  const transformedCanvasBounds = computed(() => {
+    return {
+      width: Math.round(canvasBounds.value.width * zoom.value),
+      height: Math.round(canvasBounds.value.height * zoom.value),
+    }
+  })
+
+  const nodeBounds = computed(() => {
+    if (!nodes.value.length) {
+      return {
+        minX: 0,
+        minY: 0,
+        maxX: defaultCanvasWidth,
+        maxY: defaultCanvasHeight,
+        width: defaultCanvasWidth,
+        height: defaultCanvasHeight,
+      }
+    }
+
+    const minX = Math.min(...nodes.value.map((node) => node.x))
+    const minY = Math.min(...nodes.value.map((node) => node.y))
+    const maxX = Math.max(...nodes.value.map((node) => node.x + nodeWidth))
+    const maxY = Math.max(...nodes.value.map((node) => node.y + nodeHeight))
+
+    return {
+      minX,
+      minY,
+      maxX,
+      maxY,
+      width: maxX - minX,
+      height: maxY - minY,
     }
   })
 
@@ -1039,7 +1214,7 @@ export const useCodeStore = defineStore('codeStore', () => {
         subtitle: target.title,
         description: `Generate art for ${target.title}.`,
         icon: 'kind-icon:paintbrush',
-        kind: 'create-art',
+        kind: 'create-art' as const,
         model: target.model,
         targetId: target.id,
         targetTitle: target.title,
@@ -1050,7 +1225,7 @@ export const useCodeStore = defineStore('codeStore', () => {
         subtitle: target.title,
         description: `Open ${target.title} for revision and polish.`,
         icon: 'kind-icon:edit',
-        kind: 'edit-target',
+        kind: 'edit-target' as const,
         model: target.model,
         targetId: target.id,
         targetTitle: target.title,
@@ -1061,7 +1236,7 @@ export const useCodeStore = defineStore('codeStore', () => {
         subtitle: target.title,
         description: `Use ${target.title} as an interactive prompt tool.`,
         icon: 'kind-icon:chat',
-        kind: 'interact-target',
+        kind: 'interact-target' as const,
         model: target.model,
         targetId: target.id,
         targetTitle: target.title,
@@ -1108,32 +1283,26 @@ export const useCodeStore = defineStore('codeStore', () => {
     ...rewardFlavorActionCards.value,
   ])
 
-  function getDefinition(kind: CodeKind) {
-    return (
-      definitions.value.find((definition) => definition.kind === kind) ?? null
-    )
-  }
-
-  function setMessage(newMessage: string) {
-    message.value = newMessage
-  }
-
-  function clearMessage() {
-    message.value = ''
-  }
-
   function syncToLocalStorage() {
     if (!import.meta.client) {
       return
     }
 
-    const payload: SavedCodeWorkbench = {
+    const workbenchPayload: SavedCodeWorkbench = {
       nodes: nodes.value,
       connections: connections.value,
+      zoom: zoom.value,
+      panX: panX.value,
+      panY: panY.value,
     }
 
     try {
-      localStorage.setItem(storageKey, JSON.stringify(payload))
+      localStorage.setItem(itemStorageKey, JSON.stringify(items.value))
+      localStorage.setItem(formStorageKey, JSON.stringify(form.value))
+      localStorage.setItem(
+        workbenchStorageKey,
+        JSON.stringify(workbenchPayload),
+      )
     } catch (error) {
       console.error('[codeStore] localStorage sync error:', error)
     }
@@ -1145,23 +1314,612 @@ export const useCodeStore = defineStore('codeStore', () => {
     }
 
     try {
-      const raw = localStorage.getItem(storageKey)
+      const localItems = localStorage.getItem(itemStorageKey)
+      const localForm = localStorage.getItem(formStorageKey)
+      const localWorkbench = localStorage.getItem(workbenchStorageKey)
 
-      if (!raw) {
-        return
+      if (localItems) {
+        items.value = JSON.parse(localItems)
       }
 
-      const parsed = JSON.parse(raw) as Partial<SavedCodeWorkbench>
+      if (localForm) {
+        const parsedForm = JSON.parse(localForm) as CodeForm
+        form.value = {
+          ...parsedForm,
+          graph: parseGraph(parsedForm.graph),
+        }
+      }
 
-      nodes.value = Array.isArray(parsed.nodes) ? parsed.nodes : []
-      connections.value = Array.isArray(parsed.connections)
-        ? parsed.connections
-        : []
+      if (localWorkbench) {
+        const parsed = JSON.parse(localWorkbench) as Partial<SavedCodeWorkbench>
+
+        nodes.value = Array.isArray(parsed.nodes) ? parsed.nodes : []
+        connections.value = Array.isArray(parsed.connections)
+          ? parsed.connections
+          : []
+
+        if (typeof parsed.zoom === 'number') {
+          zoom.value = roundZoom(clamp(parsed.zoom, minZoom, maxZoom))
+        }
+
+        if (typeof parsed.panX === 'number') {
+          panX.value = Math.round(parsed.panX)
+        }
+
+        if (typeof parsed.panY === 'number') {
+          panY.value = Math.round(parsed.panY)
+        }
+      }
     } catch (error) {
       console.error('[codeStore] localStorage load error:', error)
+      items.value = []
+      form.value = {}
       nodes.value = []
       connections.value = []
+      zoom.value = 1
+      panX.value = 0
+      panY.value = 0
     }
+  }
+
+  function parseGraph(graph: unknown): CodeGraph {
+    if (isCodeGraph(graph)) {
+      return {
+        version: 1,
+        nodes: graph.nodes,
+        connections: graph.connections,
+        zoom: typeof graph.zoom === 'number' ? graph.zoom : 1,
+        panX: typeof graph.panX === 'number' ? graph.panX : 0,
+        panY: typeof graph.panY === 'number' ? graph.panY : 0,
+      }
+    }
+
+    return fallbackGraph()
+  }
+
+  function applyGraphToWorkbench(graph: unknown) {
+    const parsed = parseGraph(graph)
+
+    nodes.value = parsed.nodes
+    connections.value = parsed.connections
+    zoom.value = roundZoom(clamp(parsed.zoom, minZoom, maxZoom))
+    panX.value = Math.round(parsed.panX)
+    panY.value = Math.round(parsed.panY)
+    selectedNodeId.value = null
+    pendingConnection.value = null
+    closeSelectedNodeSettings()
+    syncToLocalStorage()
+  }
+
+  function saveCurrentToForm() {
+    form.value = {
+      ...form.value,
+      graph: currentGraph.value,
+    }
+
+    syncToLocalStorage()
+  }
+
+  function loadFormToWorkbench() {
+    applyGraphToWorkbench(form.value.graph)
+  }
+
+  function preparePayload(payload: Partial<CodeForm>) {
+    const graph = payload.graph ?? currentGraph.value
+    const title = payload.title?.trim() || 'Untitled Code Blueprint'
+
+    return {
+      title,
+      description: payload.description?.trim() || null,
+      icon: payload.icon?.trim() || 'kind-icon:blocks',
+      graph,
+      isPublic: payload.isPublic ?? false,
+      isOfficial: payload.isOfficial ?? false,
+      isActive: payload.isActive ?? true,
+    }
+  }
+
+  async function initialize() {
+    if (isInitialized.value) {
+      return
+    }
+
+    try {
+      definitions.value = [...definitionSeeds]
+      templates.value = [...templateSeeds]
+      loadLocalStorage()
+      reshuffleActionHand()
+
+      const fetched = await fetchAllModels()
+      const fetchedIds = new Set(fetched.map((item) => item.id))
+
+      items.value = [
+        ...items.value.filter((item) => !fetchedIds.has(item.id)),
+        ...fetched,
+      ]
+
+      syncToLocalStorage()
+      isInitialized.value = true
+    } catch (error) {
+      handleError(error, 'initializing code store')
+    }
+  }
+
+  async function fetchAllModels(): Promise<Code[]> {
+    loading.value = true
+
+    try {
+      const res = await performFetch<Code[]>('/api/code')
+
+      if (res.success && res.data) {
+        items.value = res.data
+        syncToLocalStorage()
+        return res.data
+      }
+
+      throw new Error(res.message || 'Failed to fetch Code blueprints')
+    } catch (error) {
+      handleError(error, 'fetching Code blueprints')
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchModelById(id: number): Promise<Code | null> {
+    try {
+      const res = await performFetch<Code>(`/api/code/${id}`)
+
+      if (res.success && res.data) {
+        return res.data
+      }
+
+      throw new Error(res.message || `Failed to fetch Code blueprint ${id}`)
+    } catch (error) {
+      handleError(error, 'fetching Code blueprint by ID')
+      return null
+    }
+  }
+
+  async function addModel(payload: Partial<CodeForm>) {
+    isSaving.value = true
+
+    try {
+      const res = await performFetch<Code>('/api/code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preparePayload(payload)),
+      })
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to create Code blueprint')
+      }
+
+      items.value.push(res.data)
+      selected.value = res.data
+      form.value = {
+        ...res.data,
+        graph: parseGraph(res.data.graph),
+      }
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        data: res.data,
+      }
+    } catch (error) {
+      handleError(error, 'creating Code blueprint')
+
+      return {
+        success: false,
+        message: (error as Error).message,
+      }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function updateModel(id: number, updates: Partial<CodeForm>) {
+    isSaving.value = true
+
+    try {
+      const res = await performFetch<Code>(`/api/code/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preparePayload(updates)),
+      })
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to update Code blueprint')
+      }
+
+      const index = items.value.findIndex((item) => item.id === id)
+
+      if (index !== -1) {
+        items.value[index] = res.data
+      } else {
+        items.value.push(res.data)
+      }
+
+      selected.value = res.data
+      form.value = {
+        ...res.data,
+        graph: parseGraph(res.data.graph),
+      }
+
+      syncToLocalStorage()
+
+      return {
+        success: true,
+        data: res.data,
+      }
+    } catch (error) {
+      handleError(error, 'updating Code blueprint')
+
+      return {
+        success: false,
+        message: (error as Error).message,
+      }
+    } finally {
+      isSaving.value = false
+    }
+  }
+
+  async function deleteModel(id: number) {
+    try {
+      const res = await performFetch(`/api/code/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.success) {
+        items.value = items.value.filter((item) => item.id !== id)
+
+        if (selected.value?.id === id) {
+          deselectModel()
+        }
+
+        syncToLocalStorage()
+        return {
+          success: true,
+        }
+      }
+
+      throw new Error(res.message || 'Failed to delete Code blueprint')
+    } catch (error) {
+      handleError(error, 'deleting Code blueprint')
+
+      return {
+        success: false,
+        message: (error as Error).message,
+      }
+    }
+  }
+
+  function selectModel(id: number) {
+    const item = items.value.find((candidate) => candidate.id === id)
+
+    if (item) {
+      selected.value = item
+      form.value = {
+        ...item,
+        graph: parseGraph(item.graph),
+      }
+    }
+  }
+
+  async function selectModelById(id: number) {
+    const local = items.value.find((candidate) => candidate.id === id)
+
+    if (local) {
+      selectModel(id)
+      return local
+    }
+
+    const fetched = await fetchModelById(id)
+
+    if (fetched) {
+      items.value.push(fetched)
+      selectModel(fetched.id)
+      syncToLocalStorage()
+    }
+
+    return fetched
+  }
+
+  function deselectModel() {
+    selected.value = null
+    form.value = {}
+    syncToLocalStorage()
+  }
+
+  function createNewModel() {
+    selected.value = null
+    form.value = {
+      title: 'Untitled Code Blueprint',
+      description: '',
+      icon: 'kind-icon:blocks',
+      graph: currentGraph.value,
+      isPublic: false,
+      isOfficial: false,
+      isActive: true,
+    }
+
+    syncToLocalStorage()
+  }
+
+  async function saveModel() {
+    saveCurrentToForm()
+
+    if (!form.value) {
+      return {
+        success: false,
+        message: 'No Code form loaded.',
+      }
+    }
+
+    if (form.value.id) {
+      return await updateModel(form.value.id, form.value)
+    }
+
+    return await addModel(form.value)
+  }
+
+  async function saveCurrentModel(title?: string) {
+    saveCurrentToForm()
+
+    if (title?.trim()) {
+      form.value.title = title.trim()
+    }
+
+    return await saveModel()
+  }
+
+  async function loadModelToWorkbench(id: number) {
+    const item = await selectModelById(id)
+
+    if (!item) {
+      return {
+        success: false,
+        message: `Code blueprint ${id} not found.`,
+      }
+    }
+
+    applyGraphToWorkbench(item.graph)
+
+    return {
+      success: true,
+      data: item,
+    }
+  }
+
+  function getDefinition(kind: CodeKind) {
+    return (
+      definitions.value.find((definition) => definition.kind === kind) ?? null
+    )
+  }
+
+  function getNode(nodeId: string) {
+    return nodes.value.find((node) => node.id === nodeId) ?? null
+  }
+
+  function getConnection(connectionId: string) {
+    return (
+      connections.value.find((connection) => connection.id === connectionId) ??
+      null
+    )
+  }
+
+  function getDataTypeAccent(type: CodeDataType) {
+    const classes: Record<CodeDataType, string> = {
+      text: 'info',
+      image: 'secondary',
+      model: 'accent',
+      video: 'accent',
+      character: 'warning',
+      dream: 'primary',
+      pitch: 'info',
+      prompt: 'error',
+      bot: 'primary',
+      reward: 'warning',
+      scenario: 'primary',
+      collection: 'success',
+    }
+
+    return classes[type] ?? 'primary'
+  }
+
+  function getConnectionClass(type: CodeDataType) {
+    const classes: Record<CodeDataType, string> = {
+      text: 'stroke-info',
+      image: 'stroke-secondary',
+      model: 'stroke-accent',
+      video: 'stroke-accent',
+      character: 'stroke-warning',
+      dream: 'stroke-primary',
+      pitch: 'stroke-info',
+      prompt: 'stroke-error',
+      bot: 'stroke-primary',
+      reward: 'stroke-warning',
+      scenario: 'stroke-primary',
+      collection: 'stroke-success',
+    }
+
+    return classes[type] ?? 'stroke-primary'
+  }
+
+  function setMessage(newMessage: string) {
+    message.value = newMessage
+  }
+
+  function clearMessage() {
+    message.value = ''
+  }
+
+  function setViewport(width: number, height: number) {
+    viewportWidth.value = Math.max(0, Math.round(width))
+    viewportHeight.value = Math.max(0, Math.round(height))
+  }
+
+  function setZoom(nextZoom: number) {
+    zoom.value = roundZoom(clamp(nextZoom, minZoom, maxZoom))
+    syncToLocalStorage()
+    return zoom.value
+  }
+
+  function zoomIn() {
+    return setZoom(zoom.value + zoomStep)
+  }
+
+  function zoomOut() {
+    return setZoom(zoom.value - zoomStep)
+  }
+
+  function resetZoom() {
+    return setZoom(1)
+  }
+
+  function fitToView(viewport?: CodeViewport, padding = 120) {
+    const targetViewport = viewport ?? {
+      width: viewportWidth.value,
+      height: viewportHeight.value,
+    }
+
+    if (!targetViewport.width || !targetViewport.height) {
+      return zoom.value
+    }
+
+    const bounds = nodeBounds.value
+    const usableWidth = Math.max(1, targetViewport.width - padding)
+    const usableHeight = Math.max(1, targetViewport.height - padding)
+    const nextZoom = Math.min(
+      usableWidth / Math.max(1, bounds.width),
+      usableHeight / Math.max(1, bounds.height),
+      1,
+    )
+
+    return setZoom(nextZoom)
+  }
+
+  function setPan(x: number, y: number) {
+    panX.value = Math.round(x)
+    panY.value = Math.round(y)
+    syncToLocalStorage()
+
+    return {
+      x: panX.value,
+      y: panY.value,
+    }
+  }
+
+  function panBy(deltaX: number, deltaY: number) {
+    return setPan(panX.value + deltaX, panY.value + deltaY)
+  }
+
+  function resetPan() {
+    return setPan(0, 0)
+  }
+
+  function togglePanMode(force?: boolean) {
+    isPanMode.value = typeof force === 'boolean' ? force : !isPanMode.value
+    return isPanMode.value
+  }
+
+  function toCanvasPoint(x: number, y: number): CodePoint {
+    return {
+      x: Math.round((x - panX.value) / zoom.value),
+      y: Math.round((y - panY.value) / zoom.value),
+    }
+  }
+
+  function fromCanvasPoint(x: number, y: number): CodePoint {
+    return {
+      x: Math.round(x * zoom.value + panX.value),
+      y: Math.round(y * zoom.value + panY.value),
+    }
+  }
+
+  function normalizeNodePoint(x: number, y: number): CodePoint {
+    const rawX = Math.max(0, Math.round(x))
+    const rawY = Math.max(0, Math.round(y))
+
+    if (!snapToGrid.value) {
+      return {
+        x: rawX,
+        y: rawY,
+      }
+    }
+
+    return {
+      x: Math.round(rawX / gridSize.value) * gridSize.value,
+      y: Math.round(rawY / gridSize.value) * gridSize.value,
+    }
+  }
+
+  function openPanel(mode: CodePanelMode) {
+    panelMode.value = mode
+  }
+
+  function closePanel() {
+    panelMode.value = 'closed'
+  }
+
+  function openSelectedNodeSettings() {
+    if (!selectedNode.value) {
+      panelMode.value = 'closed'
+      mobileTrayMode.value = 'closed'
+      return false
+    }
+
+    panelMode.value = 'node-settings'
+    mobileTrayMode.value = 'settings'
+    return true
+  }
+
+  function closeSelectedNodeSettings() {
+    if (panelMode.value === 'node-settings') {
+      panelMode.value = 'closed'
+    }
+
+    if (mobileTrayMode.value === 'settings') {
+      mobileTrayMode.value = 'closed'
+    }
+  }
+
+  function setMobileTray(mode: CodeMobileTrayMode) {
+    mobileTrayMode.value = mode
+  }
+
+  function toggleToybox(force?: boolean) {
+    showToybox.value = typeof force === 'boolean' ? force : !showToybox.value
+    return showToybox.value
+  }
+
+  function toggleQuickPlays(force?: boolean) {
+    showQuickPlays.value =
+      typeof force === 'boolean' ? force : !showQuickPlays.value
+    return showQuickPlays.value
+  }
+
+  function toggleMiniMap(force?: boolean) {
+    showMiniMap.value = typeof force === 'boolean' ? force : !showMiniMap.value
+    return showMiniMap.value
+  }
+
+  function toggleCanvasGrid(force?: boolean) {
+    showCanvasGrid.value =
+      typeof force === 'boolean' ? force : !showCanvasGrid.value
+    return showCanvasGrid.value
+  }
+
+  function toggleSnapToGrid(force?: boolean) {
+    snapToGrid.value = typeof force === 'boolean' ? force : !snapToGrid.value
+    return snapToGrid.value
+  }
+
+  function setGridSize(size: number) {
+    gridSize.value = Math.max(4, Math.round(size))
+    return gridSize.value
   }
 
   function drawActionCards(count = actionHandSize.value) {
@@ -1209,12 +1967,14 @@ export const useCodeStore = defineStore('codeStore', () => {
       return null
     }
 
+    const point = normalizeNodePoint(x, y)
+
     const node: CodeNode = {
       id: makeId('node'),
       kind,
       title: title ?? definition.title,
-      x: Math.max(0, Math.round(x)),
-      y: Math.max(0, Math.round(y)),
+      x: point.x,
+      y: point.y,
       values: {},
     }
 
@@ -1226,20 +1986,98 @@ export const useCodeStore = defineStore('codeStore', () => {
     return node
   }
 
+  function duplicateNode(nodeId: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      message.value = 'Node not found.'
+      return null
+    }
+
+    return addNode(node.kind, node.x + 40, node.y + 40, `${node.title} Copy`)
+  }
+
   function updateNodePosition(nodeId: string, x: number, y: number) {
-    const node = nodes.value.find((candidate) => candidate.id === nodeId)
+    const node = getNode(nodeId)
 
     if (!node) {
       return
     }
 
-    node.x = Math.max(0, Math.round(x))
-    node.y = Math.max(0, Math.round(y))
+    const point = normalizeNodePoint(x, y)
+
+    node.x = point.x
+    node.y = point.y
     syncToLocalStorage()
   }
 
-  function selectNode(nodeId: string | null) {
+  function updateNodeTitle(nodeId: string, title: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.title = title.trim() || node.title
+    syncToLocalStorage()
+    return true
+  }
+
+  function updateNodeValue(nodeId: string, key: string, value: unknown) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.values = {
+      ...node.values,
+      [key]: value,
+    }
+
+    syncToLocalStorage()
+    return true
+  }
+
+  function updateNodeValues(nodeId: string, values: Record<string, unknown>) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.values = {
+      ...node.values,
+      ...values,
+    }
+
+    syncToLocalStorage()
+    return true
+  }
+
+  function clearNodeValues(nodeId: string) {
+    const node = getNode(nodeId)
+
+    if (!node) {
+      return false
+    }
+
+    node.values = {}
+    syncToLocalStorage()
+    return true
+  }
+
+  function selectNode(nodeId: string | null, openSettings = false) {
     selectedNodeId.value = nodeId
+
+    if (!nodeId) {
+      closeSelectedNodeSettings()
+      return
+    }
+
+    if (openSettings) {
+      openSelectedNodeSettings()
+    }
   }
 
   function removeNode(nodeId: string) {
@@ -1251,6 +2089,7 @@ export const useCodeStore = defineStore('codeStore', () => {
 
     if (selectedNodeId.value === nodeId) {
       selectedNodeId.value = null
+      closeSelectedNodeSettings()
     }
 
     if (pendingConnection.value?.fromNodeId === nodeId) {
@@ -1262,11 +2101,11 @@ export const useCodeStore = defineStore('codeStore', () => {
   }
 
   function beginConnection(nodeId: string, portId: string) {
-    const node = nodes.value.find((candidate) => candidate.id === nodeId)
+    const node = getNode(nodeId)
     const definition = node ? getDefinition(node.kind) : null
-    const port = definition?.outputs.find(
-      (candidate) => candidate.id === portId,
-    )
+    const port = definition?.outputs.find((candidate) => {
+      return candidate.id === portId
+    })
 
     if (!node || !definition || !port) {
       return
@@ -1281,16 +2120,21 @@ export const useCodeStore = defineStore('codeStore', () => {
     message.value = `Connecting ${port.label}. Pick a matching input.`
   }
 
+  function cancelConnection() {
+    pendingConnection.value = null
+    message.value = 'Connection cancelled.'
+  }
+
   function completeConnection(nodeId: string, portId: string) {
     if (!pendingConnection.value) {
       return
     }
 
-    const toNode = nodes.value.find((candidate) => candidate.id === nodeId)
+    const toNode = getNode(nodeId)
     const toDefinition = toNode ? getDefinition(toNode.kind) : null
-    const toPort = toDefinition?.inputs.find(
-      (candidate) => candidate.id === portId,
-    )
+    const toPort = toDefinition?.inputs.find((candidate) => {
+      return candidate.id === portId
+    })
 
     if (!toNode || !toDefinition || !toPort) {
       pendingConnection.value = null
@@ -1350,14 +2194,15 @@ export const useCodeStore = defineStore('codeStore', () => {
     connections.value = []
     selectedNodeId.value = null
     pendingConnection.value = null
+    closeSelectedNodeSettings()
     message.value = 'Workbench cleared.'
     syncToLocalStorage()
   }
 
   function loadTemplate(templateId: string) {
-    const template = templates.value.find(
-      (candidate) => candidate.id === templateId,
-    )
+    const template = templates.value.find((candidate) => {
+      return candidate.id === templateId
+    })
 
     if (!template) {
       message.value = 'Template not found.'
@@ -1536,18 +2381,6 @@ export const useCodeStore = defineStore('codeStore', () => {
     replaceActionCard(card)
   }
 
-  function initialize() {
-    if (isInitialized.value) {
-      return
-    }
-
-    definitions.value = [...definitionSeeds]
-    templates.value = [...templateSeeds]
-    loadLocalStorage()
-    reshuffleActionHand()
-    isInitialized.value = true
-  }
-
   function resetWorkbench() {
     nodes.value = []
     connections.value = []
@@ -1555,11 +2388,23 @@ export const useCodeStore = defineStore('codeStore', () => {
     pendingConnection.value = null
     actionHand.value = []
     message.value = ''
-    isInitialized.value = false
+    zoom.value = 1
+    panX.value = 0
+    panY.value = 0
+    isPanMode.value = false
+    panelMode.value = 'closed'
+    mobileTrayMode.value = 'closed'
     syncToLocalStorage()
   }
 
   return {
+    items,
+    selected,
+    form,
+    isSaving,
+    isInitialized,
+    loading,
+    ownedItems,
     definitions,
     templates,
     nodes,
@@ -1569,29 +2414,101 @@ export const useCodeStore = defineStore('codeStore', () => {
     actionHand,
     actionHandSize,
     message,
-    isInitialized,
+    zoom,
+    panX,
+    panY,
+    isPanMode,
+    viewportWidth,
+    viewportHeight,
+    panelMode,
+    mobileTrayMode,
+    showToybox,
+    showQuickPlays,
+    showMiniMap,
+    showCanvasGrid,
+    snapToGrid,
+    gridSize,
     selectedNode,
+    selectedDefinition,
+    currentGraph,
+    zoomPercent,
+    isZoomed,
+    hasNodes,
+    hasConnections,
     groupedDefinitions,
     canvasBounds,
+    transformedCanvasBounds,
+    nodeBounds,
     codeTargets,
     baseActionCards,
     targetActionCards,
     rewardFlavorActionCards,
     actionDeck,
     initialize,
-    getDefinition,
-    setMessage,
-    clearMessage,
+    fetchAllModels,
+    fetchModelById,
+    addModel,
+    updateModel,
+    deleteModel,
+    selectModel,
+    selectModelById,
+    deselectModel,
+    createNewModel,
+    saveModel,
+    saveCurrentModel,
+    loadModelToWorkbench,
     syncToLocalStorage,
     loadLocalStorage,
+    parseGraph,
+    applyGraphToWorkbench,
+    saveCurrentToForm,
+    loadFormToWorkbench,
+    preparePayload,
+    getDefinition,
+    getNode,
+    getConnection,
+    getDataTypeAccent,
+    getConnectionClass,
+    setMessage,
+    clearMessage,
+    setViewport,
+    setZoom,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    fitToView,
+    setPan,
+    panBy,
+    resetPan,
+    togglePanMode,
+    toCanvasPoint,
+    fromCanvasPoint,
+    normalizeNodePoint,
+    openPanel,
+    closePanel,
+    openSelectedNodeSettings,
+    closeSelectedNodeSettings,
+    setMobileTray,
+    toggleToybox,
+    toggleQuickPlays,
+    toggleMiniMap,
+    toggleCanvasGrid,
+    toggleSnapToGrid,
+    setGridSize,
     drawActionCards,
     reshuffleActionHand,
     replaceActionCard,
     addNode,
+    duplicateNode,
     updateNodePosition,
+    updateNodeTitle,
+    updateNodeValue,
+    updateNodeValues,
+    clearNodeValues,
     selectNode,
     removeNode,
     beginConnection,
+    cancelConnection,
     completeConnection,
     removeConnection,
     clearBoard,
@@ -1606,3 +2523,5 @@ export const useCodeStore = defineStore('codeStore', () => {
     resetWorkbench,
   }
 })
+
+export type { Code }

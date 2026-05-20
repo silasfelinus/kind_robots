@@ -391,6 +391,7 @@ export const ModelName = {
   ButterflyRecord: 'ButterflyRecord',
   Character: 'Character',
   Chat: 'Chat',
+  Code: 'Code',
   Component: 'Component',
   Dream: 'Dream',
   Log: 'Log',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "component" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -884,6 +885,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ChatCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ChatCountAggregateOutputType> | number
+        }
+      }
+    }
+    Code: {
+      payload: Prisma.$CodePayload<ExtArgs>
+      fields: Prisma.CodeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CodeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CodeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
+        }
+        findFirst: {
+          args: Prisma.CodeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CodeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
+        }
+        findMany: {
+          args: Prisma.CodeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>[]
+        }
+        create: {
+          args: Prisma.CodeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
+        }
+        createMany: {
+          args: Prisma.CodeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CodeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
+        }
+        update: {
+          args: Prisma.CodeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
+        }
+        deleteMany: {
+          args: Prisma.CodeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CodeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CodeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CodePayload>
+        }
+        aggregate: {
+          args: Prisma.CodeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCode>
+        }
+        groupBy: {
+          args: Prisma.CodeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CodeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CodeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CodeCountAggregateOutputType> | number
         }
       }
     }
@@ -2105,6 +2172,24 @@ export const ChatScalarFieldEnum = {
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
 
 
+export const CodeScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  title: 'title',
+  description: 'description',
+  icon: 'icon',
+  graph: 'graph',
+  isPublic: 'isPublic',
+  isOfficial: 'isOfficial',
+  isActive: 'isActive',
+  isMature: 'isMature'
+} as const
+
+export type CodeScalarFieldEnum = (typeof CodeScalarFieldEnum)[keyof typeof CodeScalarFieldEnum]
+
+
 export const ComponentScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2516,6 +2601,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -2625,6 +2717,32 @@ export const ChatOrderByRelevanceFieldEnum = {
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const CodeOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  icon: 'icon'
+} as const
+
+export type CodeOrderByRelevanceFieldEnum = (typeof CodeOrderByRelevanceFieldEnum)[keyof typeof CodeOrderByRelevanceFieldEnum]
 
 
 export const ComponentOrderByRelevanceFieldEnum = {
@@ -2904,6 +3022,20 @@ export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'DreamAccessMode'
  */
 export type EnumDreamAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DreamAccessMode'>
@@ -3117,6 +3249,7 @@ export type GlobalOmitConfig = {
   butterflyRecord?: Prisma.ButterflyRecordOmit
   character?: Prisma.CharacterOmit
   chat?: Prisma.ChatOmit
+  code?: Prisma.CodeOmit
   component?: Prisma.ComponentOmit
   dream?: Prisma.DreamOmit
   log?: Prisma.LogOmit

@@ -33,7 +33,7 @@
               @click="toggleHeader"
             >
               <page-image
-                class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-70"
+                class="h-full w-full transition-opacity group-hover:opacity-70"
               />
               <span
                 class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-900/0 opacity-0 transition-all group-hover:bg-base-content/10 group-hover:opacity-100"

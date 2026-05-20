@@ -262,6 +262,29 @@ model Chat {
   @@index([artImageId], map: "Chat_artImageId_fkey")
 }
 
+/// programmatic blueprints to call one or more art or text servers
+model Code {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  userId      Int      @default(10)
+  title       String
+  description String?  @db.Text
+  icon        String?
+  graph       Json
+  isPublic    Boolean  @default(false)
+  isOfficial  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  isMature    Boolean  @default(false)
+  User        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([isPublic])
+  @@index([isOfficial])
+  @@index([isActive])
+  @@index([isMature])
+}
+
 /// Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
 model Component {
   id                Int        @id @default(autoincrement())
@@ -775,6 +798,7 @@ model User {
   SmartIcons            SmartIcon[]
   Themes                Theme[]
   ArtImage              ArtImage?         @relation("UserProfileImage", fields: [artImageId], references: [id])
+  Codes                 Code[]
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }

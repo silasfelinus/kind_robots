@@ -1,4 +1,5 @@
 <!-- /components/art/art-manager.vue -->
+<!-- /components/art/art-manager.vue -->
 <template>
   <dashboard-shell
     dashboard-key="art"
@@ -67,16 +68,12 @@
         :show-header="false"
       />
 
+      <code-workbench v-else-if="currentTab === 'workbench'" />
+
       <section
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
       >
-
-      <code-workbench
-        v-else-if="currentTab === 'workbench'"
-       
-      />
-
         <div class="min-h-0 xl:col-span-7">
           <server-gallery
             mode="art"
@@ -95,9 +92,7 @@
         </div>
 
         <div class="min-h-0 xl:col-span-5">
-          <div
-            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
+          <div class="h-full rounded-2xl border border-base-300 bg-base-200 p-3">
             <server-interact />
           </div>
         </div>

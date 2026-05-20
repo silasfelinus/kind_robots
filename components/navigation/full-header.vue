@@ -2,10 +2,9 @@
 <template>
   <header
     ref="headerRoot"
-    class="relative isolate z-30 w-full overflow-visible border-t border-base-300 bg-base-100/95 shadow-lg backdrop-blur transition-[height] duration-200"
-    :class="headerShellClasses"
+    class="relative isolate z-30 h-full w-full overflow-visible border-t border-base-300 bg-base-100/95 shadow-lg backdrop-blur transition-[height] duration-200"
   >
-    <div class="flex h-full w-full min-w-0 items-center gap-2 overflow-visible px-2 py-1">
+    <div class="flex h-full w-full min-w-0 items-center gap-2 overflow-hidden px-2 py-0.5">
       <button
         type="button"
         :title="sidebarLeftTitle"
@@ -45,7 +44,7 @@
       type="button"
       :title="headerToggleTitle"
       :aria-label="headerToggleTitle"
-      class="group pointer-events-auto absolute left-1/2 top-0 z-50 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full border border-base-300 bg-base-100 px-4 py-1.5 text-sm font-bold text-base-content shadow-lg transition-all duration-150 hover:border-primary hover:bg-primary hover:text-primary-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-95"
+      class="group pointer-events-auto absolute left-1/2 top-0 z-50 flex -translate-x-1/2 -translate-y-[calc(100%+2px)] items-center gap-1 rounded-full border border-base-300 bg-base-100 px-3 py-1 text-xs font-bold text-base-content shadow-lg transition-all duration-150 hover:border-primary hover:bg-primary hover:text-primary-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-95"
       @click="handleHeaderToggle"
     >
       <Icon
@@ -70,6 +69,7 @@
     </div>
   </header>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'

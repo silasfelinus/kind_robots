@@ -1,6 +1,6 @@
 // /server/api/comfy/prompt/[promptId].get.ts
 import { getRouterParam, getQuery, createError } from 'h3'
-import { resolveComfyBase } from './../extras/resolveComfyUrl'
+import { resolveComfyBase } from './../utils/resolveComfyUrl'
 
 function findInQueue(list: any, id: string): { found: boolean; index: number } {
   // Handles: ['pidA','pidB'] OR [['pidA',...], ['pidB',...]] OR objects with .prompt_id

@@ -1,10 +1,13 @@
-// /server/api/comfy/fluxDev/generate.post.ts
+// /server/api/comfy/flux/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 
-type FluxDevGenerateRequest = {
+type FluxVariant = 'dev' | 'schnell'
+
+type FluxGenerateRequest = {
+  variant?: FluxVariant | null
   serverId?: number | null
   serverName?: string | null
   prompt?: string | null
@@ -64,9 +67,26 @@ const pollIntervalMs = 1_500
 const defaultPrompt =
   'an evil magician, holding a magic wand, the magic wand creates the big words:"FLUX GGUF 🔥" appear, professional cartoon movie cover, epic scenery, eyes looking straight, ultra detailed, best movie effects, best quality, ultra professional, magic particles, colorful, midjourneyv6.1, detailmaximizer'
 
+const fluxModelByVariant = {
+  dev: {
+    unetName: 'flux1-dev-Q8_0.gguf',
+    filenamePrefix: 'kindrobots_flux_dev',
+    defaultSteps: 30,
+    defaultCfg: 1,
+    defaultGuidance: 4,
+  },
+  schnell: {
+    unetName: 'flux1-schnell-Q8_0.gguf',
+    filenamePrefix: 'kindrobots_flux_schnell',
+    defaultSteps: 8,
+    defaultCfg: 1,
+    defaultGuidance: 4,
+  },
+} as const
+
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<FluxDevGenerateRequest>(event)
+    const body = await readBody<FluxGenerateRequest>(event)
 
     const authorizationHeader = event.node.req.headers.authorization
 
@@ -110,21 +130,26 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const variant = body.variant === 'schnell' ? 'schnell' : 'dev'
+    const fluxConfig = fluxModelByVariant[variant]
     const baseUrl = getComfyBaseUrl(server)
     const prompt = body.prompt?.trim() || defaultPrompt
-    const workflow = buildFluxDevWorkflow({
+
+    const workflow = buildFluxWorkflow({
       prompt,
       negativePrompt: body.negativePrompt ?? '',
       width: body.width ?? server.defaultWidth ?? 1024,
       height: body.height ?? server.defaultHeight ?? 512,
-      steps: body.steps ?? server.defaultSteps ?? 30,
-      cfg: body.cfg ?? server.defaultCfg ?? 1,
-      guidance: body.guidance ?? 4,
+      steps: body.steps ?? server.defaultSteps ?? fluxConfig.defaultSteps,
+      cfg: body.cfg ?? server.defaultCfg ?? fluxConfig.defaultCfg,
+      guidance: body.guidance ?? fluxConfig.defaultGuidance,
       seed: body.seed ?? -1,
       wildcardSeed: body.wildcardSeed ?? -1,
       sampler: body.sampler ?? server.defaultSampler ?? 'euler',
       scheduler: body.scheduler ?? server.defaultScheduler ?? 'normal',
       denoise: body.denoise ?? 1,
+      unetName: fluxConfig.unetName,
+      filenamePrefix: fluxConfig.filenamePrefix,
     })
 
     const clientId = crypto.randomUUID()
@@ -160,7 +185,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: 'Flux Dev image generated successfully.',
+      message: `Flux ${variant} image generated successfully.`,
+      variant,
       promptId: promptResponse.prompt_id,
       queuePosition: promptResponse.number ?? null,
       imageData,
@@ -178,12 +204,12 @@ export default defineEventHandler(async (event) => {
     return {
       success: false,
       statusCode: handledError.statusCode || 500,
-      message: handledError.message || 'Failed to generate Flux Dev image.',
+      message: handledError.message || 'Failed to generate Flux image.',
     }
   }
 })
 
-function buildFluxDevWorkflow(input: {
+function buildFluxWorkflow(input: {
   prompt: string
   negativePrompt: string
   width: number
@@ -196,9 +222,13 @@ function buildFluxDevWorkflow(input: {
   sampler: string
   scheduler: string
   denoise: number
+  unetName: string
+  filenamePrefix: string
 }): ComfyWorkflow {
   const samplerSeed = resolveSeed(input.seed)
   const wildcardSeed = resolveSeed(input.wildcardSeed)
+  const prompt = input.prompt.trim() || defaultPrompt
+  const negativePrompt = input.negativePrompt.trim()
 
   return {
     '4': {
@@ -245,7 +275,7 @@ function buildFluxDevWorkflow(input: {
     },
     '24': {
       inputs: {
-        unet_name: 'flux1-dev-Q8_0.gguf',
+        unet_name: input.unetName,
       },
       class_type: 'UnetLoaderGGUF',
       _meta: {
@@ -282,7 +312,7 @@ function buildFluxDevWorkflow(input: {
     },
     '57': {
       inputs: {
-        filename_prefix: 'kindrobots_flux_dev',
+        filename_prefix: input.filenamePrefix,
         images: ['7', 0],
       },
       class_type: 'SaveImage',
@@ -292,8 +322,8 @@ function buildFluxDevWorkflow(input: {
     },
     '59': {
       inputs: {
-        wildcard_text: input.prompt,
-        populated_text: input.prompt,
+        wildcard_text: prompt,
+        populated_text: prompt,
         mode: 'populate',
         'Select to add LoRA': 'Select the LoRA to add to the text',
         'Select to add Wildcard': 'Select the Wildcard to add to the text',
@@ -345,6 +375,7 @@ async function postComfyPrompt(
 
   if (!response.ok) {
     const details = await readResponseDetails(response)
+
     throw createError({
       statusCode: 502,
       message: `Comfy prompt failed: ${response.status} ${response.statusText}${
@@ -371,6 +402,7 @@ async function waitForComfyHistory(input: {
 
     if (!response.ok) {
       const details = await readResponseDetails(response)
+
       throw createError({
         statusCode: 502,
         message: `Comfy history failed: ${response.status} ${
@@ -437,6 +469,7 @@ async function fetchComfyImageAsDataUrl(
 
   if (!response.ok) {
     const details = await readResponseDetails(response)
+
     throw createError({
       statusCode: 502,
       message: `Comfy image fetch failed: ${response.status} ${

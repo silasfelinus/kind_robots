@@ -372,7 +372,7 @@ export async function generateComfyImage({
 }
 
 function getComfyBaseUrl(server: Server): string {
-  const endpoint = getServerEndpoint(server)
+  const endpoint = getServerEndpoint(server, 'backend')
   const trimmed = endpoint.replace(/\/+$/, '')
 
   if (trimmed.endsWith('/prompt')) {

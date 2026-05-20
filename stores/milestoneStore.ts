@@ -6,7 +6,7 @@ import type {
   MilestoneRecord,
 } from '~/prisma/generated/prisma/client'
 import { useUserStore } from './userStore'
-import { useErrorStore } from '/errorStore'
+import { useErrorStore } from './errorStore'
 import { milestoneData } from './../training/milestoneData'
 import { performFetch, handleError, type ApiResponse } from './utils'
 

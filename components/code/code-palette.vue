@@ -8,8 +8,66 @@
       </h2>
 
       <p class="mt-1 text-xs text-base-content/60">
-        Drag a card onto the board.
+        Drag a card onto the board, or use a Quick Play.
       </p>
+    </div>
+
+    <div class="border-b border-base-300 bg-base-200/80 p-3">
+      <div class="mb-2 flex items-center justify-between gap-2">
+        <div class="flex min-w-0 items-center gap-2">
+          <icon name="kind-icon:cards" class="h-5 w-5 text-primary" />
+          <p class="truncate text-sm font-black text-base-content">
+            Quick Plays
+          </p>
+        </div>
+
+        <button
+          class="btn btn-xs rounded-2xl border border-secondary bg-secondary/20 text-secondary-content"
+          type="button"
+          @click="codeStore.reshuffleActionHand()"
+        >
+          <icon name="kind-icon:shuffle" class="h-4 w-4" />
+          Reshuffle
+        </button>
+      </div>
+
+      <div
+        v-if="codeStore.actionHand.length"
+        class="flex gap-2 overflow-x-auto pb-1 lg:max-h-[260px] lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden"
+      >
+        <button
+          v-for="card in codeStore.actionHand"
+          :key="card.id"
+          class="group flex min-w-[220px] items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary/10 active:scale-[0.98] lg:min-w-0"
+          type="button"
+          @click="codeStore.playActionCard(card)"
+        >
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-base-200 text-primary transition group-hover:bg-primary group-hover:text-primary-content">
+            <icon :name="card.icon" class="h-6 w-6" />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-black text-base-content">
+              {{ card.title }}
+            </p>
+
+            <p class="truncate text-xs text-base-content/70">
+              {{ card.subtitle }}
+            </p>
+
+            <p class="line-clamp-2 text-xs text-base-content/60">
+              {{ card.description }}
+            </p>
+          </div>
+        </button>
+      </div>
+
+      <div
+        v-else
+        class="flex items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4 text-sm text-base-content/60"
+      >
+        No Quick Plays loaded. The deck gremlin has wandered off.
+      </div>
     </div>
 
     <div class="min-h-0 flex-1 overflow-y-auto p-3">

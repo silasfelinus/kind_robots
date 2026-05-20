@@ -6,7 +6,7 @@
     <butterfly-layer />
     <animation-layer />
 
-    <div class="fixed inset-0 z-50 pointer-events-auto />
+    <div class="fixed inset-0 z-50 pointer-events-auto">
       <milestone-popup />
     </div>
 

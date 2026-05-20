@@ -6,10 +6,7 @@
     <butterfly-layer />
     <animation-layer />
 
-    <div class="fixed inset-0 z-50 pointer-events-none">
-      <milestone-popup />
-    </div>
-
+  <milestone-popup />
     <div
       v-if="isNavigating"
       class="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"

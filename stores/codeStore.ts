@@ -1,4 +1,5 @@
 // /stores/codeStore.ts
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useDreamStore } from '@/stores/dreamStore'
@@ -101,14 +102,6 @@ export interface CodeTarget {
   model: CodeModel
 }
 
-interface SelectableStore {
-  selectPitch?: (id: number) => Promise<unknown> | unknown
-  selectDream?: (id: number) => Promise<unknown> | unknown
-  selectCharacter?: (id: number) => Promise<unknown> | unknown
-  selectReward?: (id: number) => Promise<unknown> | unknown
-  selectScenario?: (id: number) => Promise<unknown> | unknown
-}
-
 export interface CodePort {
   id: string
   label: string
@@ -176,21 +169,37 @@ export interface CodeTemplate {
   connections: CodeTemplateConnection[]
 }
 
-interface CodeState {
-  definitions: CodeDefinition[]
+interface SelectableStore {
+  selectPitch?: (id: number) => Promise<unknown> | unknown
+  selectDream?: (id: number) => Promise<unknown> | unknown
+  selectCharacter?: (id: number) => Promise<unknown> | unknown
+  selectReward?: (id: number) => Promise<unknown> | unknown
+  selectScenario?: (id: number) => Promise<unknown> | unknown
+}
+
+interface SavedCodeWorkbench {
   nodes: CodeNode[]
   connections: CodeConnection[]
-  selectedNodeId: string | null
-  pendingConnection: PendingCodeConnection | null
-  templates: CodeTemplate[]
-  actionHand: CodeActionCard[]
-  actionHandSize: number
-  message: string
 }
+
 const storageKey = 'kindrobots-code-workbench'
 
 const makeId = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+
+const shuffle = <T>(items: T[]) => [...items].sort(() => Math.random() - 0.5)
+
+const modelToDashboardKey = (model: CodeModel): CodeDashboardKey => {
+  if (model === 'pitch') return 'brainstorm'
+  if (model === 'art') return 'art'
+  return model
+}
+
+const isCodeNode = (node: CodeNode | null): node is CodeNode => Boolean(node)
+
+const isCodeActionCard = (
+  card: CodeActionCard | undefined,
+): card is CodeActionCard => Boolean(card)
 
 const definitionSeeds: CodeDefinition[] = [
   {
@@ -201,8 +210,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:openai',
     category: 'Text AI',
     accent: 'primary',
-    inputs: [{ id: 'text', label: 'Text', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'text', label: 'Text', type: 'text', direction: 'output' }],
+    inputs: [
+      {
+        id: 'text',
+        label: 'Text',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'text',
+        label: 'Text',
+        type: 'text',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'openai-image',
@@ -212,8 +236,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:image',
     category: 'Image AI',
     accent: 'secondary',
-    inputs: [{ id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    inputs: [
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'anthropic-text',
@@ -223,8 +262,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:sparkles',
     category: 'Text AI',
     accent: 'accent',
-    inputs: [{ id: 'text', label: 'Text', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'text', label: 'Text', type: 'text', direction: 'output' }],
+    inputs: [
+      {
+        id: 'text',
+        label: 'Text',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'text',
+        label: 'Text',
+        type: 'text',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'text-input',
@@ -235,7 +289,14 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Input',
     accent: 'info',
     inputs: [],
-    outputs: [{ id: 'text', label: 'Text', type: 'text', direction: 'output' }],
+    outputs: [
+      {
+        id: 'text',
+        label: 'Text',
+        type: 'text',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'image-upload-select',
@@ -246,7 +307,14 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Input',
     accent: 'info',
     inputs: [],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'stable-diffusion',
@@ -256,8 +324,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:paintbrush',
     category: 'Image AI',
     accent: 'secondary',
-    inputs: [{ id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    inputs: [
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'comfy-sdxl',
@@ -267,8 +350,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:workflow',
     category: 'Comfy',
     accent: 'secondary',
-    inputs: [{ id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    inputs: [
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'comfy-kombine',
@@ -279,10 +377,27 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Comfy',
     accent: 'secondary',
     inputs: [
-      { id: 'prompt', label: 'Prompt', type: 'text', direction: 'input' },
-      { id: 'image', label: 'Image', type: 'image', direction: 'input' },
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+      },
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'input',
+      },
     ],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'comfy-kontext',
@@ -293,10 +408,29 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Comfy',
     accent: 'secondary',
     inputs: [
-      { id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true },
-      { id: 'image', label: 'Image', type: 'image', direction: 'input', required: true },
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'input',
+        required: true,
+      },
     ],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'comfy-schnell',
@@ -306,8 +440,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:bolt',
     category: 'Comfy',
     accent: 'warning',
-    inputs: [{ id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    inputs: [
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'comfy-dev',
@@ -317,8 +466,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:flask',
     category: 'Comfy',
     accent: 'warning',
-    inputs: [{ id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    inputs: [
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'image2vid',
@@ -329,10 +493,28 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Video',
     accent: 'accent',
     inputs: [
-      { id: 'image', label: 'Image', type: 'image', direction: 'input', required: true },
-      { id: 'prompt', label: 'Motion Prompt', type: 'text', direction: 'input' },
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'input',
+        required: true,
+      },
+      {
+        id: 'prompt',
+        label: 'Motion Prompt',
+        type: 'text',
+        direction: 'input',
+      },
     ],
-    outputs: [{ id: 'video-model', label: 'Video Model', type: 'model', direction: 'output' }],
+    outputs: [
+      {
+        id: 'video-model',
+        label: 'Video Model',
+        type: 'model',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'text2vid',
@@ -342,8 +524,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:movie',
     category: 'Video',
     accent: 'accent',
-    inputs: [{ id: 'prompt', label: 'Prompt', type: 'text', direction: 'input', required: true }],
-    outputs: [{ id: 'video-model', label: 'Video Model', type: 'model', direction: 'output' }],
+    inputs: [
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'text',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'video-model',
+        label: 'Video Model',
+        type: 'model',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'img2model',
@@ -353,8 +550,23 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:cube',
     category: '3D',
     accent: 'primary',
-    inputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'input', required: true }],
-    outputs: [{ id: 'model', label: '3D Model', type: 'model', direction: 'output' }],
+    inputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'input',
+        required: true,
+      },
+    ],
+    outputs: [
+      {
+        id: 'model',
+        label: '3D Model',
+        type: 'model',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'character',
@@ -365,12 +577,32 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Kind Models',
     accent: 'primary',
     inputs: [
-      { id: 'text', label: 'Character Text', type: 'text', direction: 'input' },
-      { id: 'image', label: 'Portrait', type: 'image', direction: 'input' },
+      {
+        id: 'text',
+        label: 'Character Text',
+        type: 'text',
+        direction: 'input',
+      },
+      {
+        id: 'image',
+        label: 'Portrait',
+        type: 'image',
+        direction: 'input',
+      },
     ],
     outputs: [
-      { id: 'character', label: 'Character', type: 'character', direction: 'output' },
-      { id: 'text', label: 'Character Text', type: 'text', direction: 'output' },
+      {
+        id: 'character',
+        label: 'Character',
+        type: 'character',
+        direction: 'output',
+      },
+      {
+        id: 'text',
+        label: 'Character Text',
+        type: 'text',
+        direction: 'output',
+      },
     ],
   },
   {
@@ -382,10 +614,27 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Kind Models',
     accent: 'primary',
     inputs: [
-      { id: 'text', label: 'Dream Text', type: 'text', direction: 'input' },
-      { id: 'image', label: 'Dream Image', type: 'image', direction: 'input' },
+      {
+        id: 'text',
+        label: 'Dream Text',
+        type: 'text',
+        direction: 'input',
+      },
+      {
+        id: 'image',
+        label: 'Dream Image',
+        type: 'image',
+        direction: 'input',
+      },
     ],
-    outputs: [{ id: 'dream', label: 'Dream', type: 'dream', direction: 'output' }],
+    outputs: [
+      {
+        id: 'dream',
+        label: 'Dream',
+        type: 'dream',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'pitch',
@@ -395,10 +644,27 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:lightbulb',
     category: 'Kind Models',
     accent: 'info',
-    inputs: [{ id: 'text', label: 'Idea Text', type: 'text', direction: 'input' }],
+    inputs: [
+      {
+        id: 'text',
+        label: 'Idea Text',
+        type: 'text',
+        direction: 'input',
+      },
+    ],
     outputs: [
-      { id: 'pitch', label: 'Pitch', type: 'pitch', direction: 'output' },
-      { id: 'text', label: 'Pitch Text', type: 'text', direction: 'output' },
+      {
+        id: 'pitch',
+        label: 'Pitch',
+        type: 'pitch',
+        direction: 'output',
+      },
+      {
+        id: 'text',
+        label: 'Pitch Text',
+        type: 'text',
+        direction: 'output',
+      },
     ],
   },
   {
@@ -409,10 +675,27 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:prompt',
     category: 'Kind Models',
     accent: 'info',
-    inputs: [{ id: 'text', label: 'Prompt Text', type: 'text', direction: 'input' }],
+    inputs: [
+      {
+        id: 'text',
+        label: 'Prompt Text',
+        type: 'text',
+        direction: 'input',
+      },
+    ],
     outputs: [
-      { id: 'prompt', label: 'Prompt', type: 'prompt', direction: 'output' },
-      { id: 'text', label: 'Prompt Text', type: 'text', direction: 'output' },
+      {
+        id: 'prompt',
+        label: 'Prompt',
+        type: 'prompt',
+        direction: 'output',
+      },
+      {
+        id: 'text',
+        label: 'Prompt Text',
+        type: 'text',
+        direction: 'output',
+      },
     ],
   },
   {
@@ -424,10 +707,27 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Kind Models',
     accent: 'primary',
     inputs: [
-      { id: 'text', label: 'Bot Text', type: 'text', direction: 'input' },
-      { id: 'image', label: 'Avatar', type: 'image', direction: 'input' },
+      {
+        id: 'text',
+        label: 'Bot Text',
+        type: 'text',
+        direction: 'input',
+      },
+      {
+        id: 'image',
+        label: 'Avatar',
+        type: 'image',
+        direction: 'input',
+      },
     ],
-    outputs: [{ id: 'bot', label: 'Bot', type: 'bot', direction: 'output' }],
+    outputs: [
+      {
+        id: 'bot',
+        label: 'Bot',
+        type: 'bot',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'random-image',
@@ -437,8 +737,22 @@ const definitionSeeds: CodeDefinition[] = [
     icon: 'kind-icon:dice',
     category: 'Input',
     accent: 'warning',
-    inputs: [{ id: 'collection', label: 'Collection', type: 'collection', direction: 'input' }],
-    outputs: [{ id: 'image', label: 'Image', type: 'image', direction: 'output' }],
+    inputs: [
+      {
+        id: 'collection',
+        label: 'Collection',
+        type: 'collection',
+        direction: 'input',
+      },
+    ],
+    outputs: [
+      {
+        id: 'image',
+        label: 'Image',
+        type: 'image',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'reward',
@@ -449,10 +763,27 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Kind Models',
     accent: 'warning',
     inputs: [
-      { id: 'text', label: 'Reward Text', type: 'text', direction: 'input' },
-      { id: 'image', label: 'Reward Image', type: 'image', direction: 'input' },
+      {
+        id: 'text',
+        label: 'Reward Text',
+        type: 'text',
+        direction: 'input',
+      },
+      {
+        id: 'image',
+        label: 'Reward Image',
+        type: 'image',
+        direction: 'input',
+      },
     ],
-    outputs: [{ id: 'reward', label: 'Reward', type: 'reward', direction: 'output' }],
+    outputs: [
+      {
+        id: 'reward',
+        label: 'Reward',
+        type: 'reward',
+        direction: 'output',
+      },
+    ],
   },
   {
     kind: 'scenario',
@@ -463,11 +794,33 @@ const definitionSeeds: CodeDefinition[] = [
     category: 'Kind Models',
     accent: 'primary',
     inputs: [
-      { id: 'text', label: 'Scenario Text', type: 'text', direction: 'input' },
-      { id: 'image', label: 'Scenario Image', type: 'image', direction: 'input' },
-      { id: 'character', label: 'Character', type: 'character', direction: 'input' },
+      {
+        id: 'text',
+        label: 'Scenario Text',
+        type: 'text',
+        direction: 'input',
+      },
+      {
+        id: 'image',
+        label: 'Scenario Image',
+        type: 'image',
+        direction: 'input',
+      },
+      {
+        id: 'character',
+        label: 'Character',
+        type: 'character',
+        direction: 'input',
+      },
     ],
-    outputs: [{ id: 'scenario', label: 'Scenario', type: 'scenario', direction: 'output' }],
+    outputs: [
+      {
+        id: 'scenario',
+        label: 'Scenario',
+        type: 'scenario',
+        direction: 'output',
+      },
+    ],
   },
 ]
 
@@ -475,7 +828,8 @@ const templateSeeds: CodeTemplate[] = [
   {
     id: 'text-tennis',
     title: 'Text Tennis',
-    description: 'OpenAI improves text, Anthropic improves it again, then the loop can be extended.',
+    description:
+      'OpenAI improves text, Anthropic improves it again, then the loop can be extended.',
     icon: 'kind-icon:tennis',
     nodes: [
       { kind: 'text-input', title: 'Original Text', x: 80, y: 110 },
@@ -509,7 +863,8 @@ const templateSeeds: CodeTemplate[] = [
   {
     id: 'character-to-print',
     title: 'Character to Printable Model',
-    description: 'Text becomes a character sheet, then an image, then a 3D printable model.',
+    description:
+      'Text becomes a character sheet, then an image, then a 3D printable model.',
     icon: 'kind-icon:cube',
     nodes: [
       { kind: 'text-input', title: 'Character Idea', x: 80, y: 150 },
@@ -525,109 +880,104 @@ const templateSeeds: CodeTemplate[] = [
   },
 ]
 
-export const useCodeStore = defineStore('codeStore', {
-  state: (): CodeState => ({
-    definitions: definitionSeeds,
-    nodes: [],
-    connections: [],
-    selectedNodeId: null,
-    pendingConnection: null,
-    templates: templateSeeds,
-    message: '',
-  }),
+export const useCodeStore = defineStore('codeStore', () => {
+  const pitchStore = usePitchStore()
+  const dreamStore = useDreamStore()
+  const characterStore = useCharacterStore()
+  const rewardStore = useRewardStore()
+  const scenarioStore = useScenarioStore()
+  const navStore = useNavStore()
 
-  getters: {
-    selectedNode: (state) =>
-      state.nodes.find((node) => node.id === state.selectedNodeId) ?? null,
+  const definitions = ref<CodeDefinition[]>([...definitionSeeds])
+  const templates = ref<CodeTemplate[]>([...templateSeeds])
+  const nodes = ref<CodeNode[]>([])
+  const connections = ref<CodeConnection[]>([])
+  const selectedNodeId = ref<string | null>(null)
+  const pendingConnection = ref<PendingCodeConnection | null>(null)
+  const actionHand = ref<CodeActionCard[]>([])
+  const actionHandSize = ref(6)
+  const message = ref('')
+  const isInitialized = ref(false)
 
-    groupedDefinitions: (state) => {
-      return state.definitions.reduce<Record<string, CodeDefinition[]>>((groups, definition) => {
+  const selectedNode = computed(() => {
+    return nodes.value.find((node) => node.id === selectedNodeId.value) ?? null
+  })
+
+  const groupedDefinitions = computed(() => {
+    return definitions.value.reduce<Record<string, CodeDefinition[]>>(
+      (groups, definition) => {
         if (!groups[definition.category]) {
           groups[definition.category] = []
         }
 
         groups[definition.category].push(definition)
         return groups
-      }, {})
-    },
+      },
+      {},
+    )
+  })
 
-    canvasBounds: (state) => {
-      const right = Math.max(1600, ...state.nodes.map((node) => node.x + 340))
-      const bottom = Math.max(900, ...state.nodes.map((node) => node.y + 260))
+  const canvasBounds = computed(() => {
+    const right = Math.max(1600, ...nodes.value.map((node) => node.x + 340))
+    const bottom = Math.max(900, ...nodes.value.map((node) => node.y + 260))
 
-      return {
-        width: right,
-        height: bottom,
-      }
-    },
-  },
+    return {
+      width: right,
+      height: bottom,
+    }
+  })
 
-  actions: {
-    initialize() {
-  this.definitions = definitionSeeds
-  this.templates = templateSeeds
-  this.loadLocal()
-  this.reshuffleActionHand()
-},
+  const codeTargets = computed<CodeTarget[]>(() => {
+    const pitchTargets: CodeTarget[] = pitchStore.pitches
+      .filter((pitch) => pitch?.id)
+      .map((pitch) => ({
+        id: pitch.id,
+        title: pitch.title || pitch.pitch || `Pitch ${pitch.id}`,
+        model: 'pitch',
+      }))
 
-getCodeTargets() {
-  const pitchStore = usePitchStore()
-  const dreamStore = useDreamStore()
-  const characterStore = useCharacterStore()
-  const rewardStore = useRewardStore()
-  const scenarioStore = useScenarioStore()
+    const dreamTargets: CodeTarget[] = dreamStore.dreams
+      .filter((dream) => dream?.id)
+      .map((dream) => ({
+        id: dream.id,
+        title: dream.title || `Dream ${dream.id}`,
+        model: 'dream',
+      }))
 
-  const pitchTargets: CodeTarget[] = pitchStore.pitches
-    .filter((pitch) => pitch?.id)
-    .map((pitch) => ({
-      id: pitch.id,
-      title: pitch.title || pitch.pitch || `Pitch ${pitch.id}`,
-      model: 'pitch',
-    }))
+    const characterTargets: CodeTarget[] = characterStore.characters
+      .filter((character) => character?.id)
+      .map((character) => ({
+        id: character.id,
+        title: character.name || `Character ${character.id}`,
+        model: 'character',
+      }))
 
-  const dreamTargets: CodeTarget[] = dreamStore.dreams
-    .filter((dream) => dream?.id)
-    .map((dream) => ({
-      id: dream.id,
-      title: dream.title || `Dream ${dream.id}`,
-      model: 'dream',
-    }))
+    const rewardTargets: CodeTarget[] = rewardStore.rewards
+      .filter((reward) => reward?.id)
+      .map((reward) => ({
+        id: reward.id,
+        title: reward.label || `Reward ${reward.id}`,
+        model: 'reward',
+      }))
 
-  const characterTargets: CodeTarget[] = characterStore.characters
-    .filter((character) => character?.id)
-    .map((character) => ({
-      id: character.id,
-      title: character.name || `Character ${character.id}`,
-      model: 'character',
-    }))
+    const scenarioTargets: CodeTarget[] = scenarioStore.scenarios
+      .filter((scenario) => scenario?.id)
+      .map((scenario) => ({
+        id: scenario.id,
+        title: scenario.title || `Scenario ${scenario.id}`,
+        model: 'scenario',
+      }))
 
-  const rewardTargets: CodeTarget[] = rewardStore.rewards
-    .filter((reward) => reward?.id)
-    .map((reward) => ({
-      id: reward.id,
-      title: reward.label || `Reward ${reward.id}`,
-      model: 'reward',
-    }))
+    return [
+      ...pitchTargets,
+      ...dreamTargets,
+      ...characterTargets,
+      ...rewardTargets,
+      ...scenarioTargets,
+    ]
+  })
 
-  const scenarioTargets: CodeTarget[] = scenarioStore.scenarios
-    .filter((scenario) => scenario?.id)
-    .map((scenario) => ({
-      id: scenario.id,
-      title: scenario.title || `Scenario ${scenario.id}`,
-      model: 'scenario',
-    }))
-
-  return [
-    ...pitchTargets,
-    ...dreamTargets,
-    ...characterTargets,
-    ...rewardTargets,
-    ...scenarioTargets,
-  ]
-},
-
-getBaseActionCards() {
-  const cards: CodeActionCard[] = [
+  const baseActionCards = computed<CodeActionCard[]>(() => [
     {
       id: makeId('action'),
       title: 'Add Pitch',
@@ -641,7 +991,8 @@ getBaseActionCards() {
       id: makeId('action'),
       title: 'Add Location',
       subtitle: 'Create a Dream',
-      description: 'Add a place, realm, set piece, dungeon, void mall, or suspicious moon.',
+      description:
+        'Add a place, realm, set piece, dungeon, void mall, or suspicious moon.',
       icon: 'kind-icon:map',
       kind: 'add-dream',
       model: 'dream',
@@ -650,7 +1001,8 @@ getBaseActionCards() {
       id: makeId('action'),
       title: 'Add Character',
       subtitle: 'Create someone dramatic',
-      description: 'Add a hero, villain, chaos goblin, mentor, rival, or lore-adjacent menace.',
+      description:
+        'Add a hero, villain, chaos goblin, mentor, rival, or lore-adjacent menace.',
       icon: 'kind-icon:character',
       kind: 'add-character',
       model: 'character',
@@ -659,7 +1011,8 @@ getBaseActionCards() {
       id: makeId('action'),
       title: 'Add Reward',
       subtitle: 'Skill or treasure',
-      description: 'Create loot, magic, a special move, a cursed object, or a deeply suspicious sandwich.',
+      description:
+        'Create loot, magic, a special move, a cursed object, or a deeply suspicious sandwich.',
       icon: 'kind-icon:treasure',
       kind: 'add-reward',
       model: 'reward',
@@ -668,482 +1021,575 @@ getBaseActionCards() {
       id: makeId('action'),
       title: 'Add Scenario',
       subtitle: 'Create a story prompt',
-      description: 'Add a choice, challenge, art prompt, text prompt, or interactive situation.',
+      description:
+        'Add a choice, challenge, art prompt, text prompt, or interactive situation.',
       icon: 'kind-icon:story',
       kind: 'add-scenario',
       model: 'scenario',
     },
-  ]
-
-  return cards
-},
-
-getTargetActionCards() {
-  return this.getCodeTargets().flatMap((target) => [
-    {
-      id: makeId('action'),
-      title: 'Create Art',
-      subtitle: target.title,
-      description: `Generate art for ${target.title}.`,
-      icon: 'kind-icon:paintbrush',
-      kind: 'create-art' as const,
-      model: target.model,
-      targetId: target.id,
-      targetTitle: target.title,
-    },
-    {
-      id: makeId('action'),
-      title: 'Edit',
-      subtitle: target.title,
-      description: `Open ${target.title} for revision and polish.`,
-      icon: 'kind-icon:edit',
-      kind: 'edit-target' as const,
-      model: target.model,
-      targetId: target.id,
-      targetTitle: target.title,
-    },
-    {
-      id: makeId('action'),
-      title: 'Interact',
-      subtitle: target.title,
-      description: `Use ${target.title} as an interactive prompt tool.`,
-      icon: 'kind-icon:chat',
-      kind: 'interact-target' as const,
-      model: target.model,
-      targetId: target.id,
-      targetTitle: target.title,
-    },
   ])
-},
 
-getRewardFlavorActionCards() {
-  const targets = this.getCodeTargets()
-  const hasStoryTarget = targets.some((target) => {
-    return target.model === 'dream' || target.model === 'scenario'
+  const targetActionCards = computed<CodeActionCard[]>(() => {
+    return codeTargets.value.flatMap((target) => [
+      {
+        id: makeId('action'),
+        title: 'Create Art',
+        subtitle: target.title,
+        description: `Generate art for ${target.title}.`,
+        icon: 'kind-icon:paintbrush',
+        kind: 'create-art',
+        model: target.model,
+        targetId: target.id,
+        targetTitle: target.title,
+      },
+      {
+        id: makeId('action'),
+        title: 'Edit',
+        subtitle: target.title,
+        description: `Open ${target.title} for revision and polish.`,
+        icon: 'kind-icon:edit',
+        kind: 'edit-target',
+        model: target.model,
+        targetId: target.id,
+        targetTitle: target.title,
+      },
+      {
+        id: makeId('action'),
+        title: 'Interact',
+        subtitle: target.title,
+        description: `Use ${target.title} as an interactive prompt tool.`,
+        icon: 'kind-icon:chat',
+        kind: 'interact-target',
+        model: target.model,
+        targetId: target.id,
+        targetTitle: target.title,
+      },
+    ])
   })
 
-  if (!hasStoryTarget) {
-    return []
-  }
-
-  const cards: CodeActionCard[] = [
-    {
-      id: makeId('action'),
-      title: 'Add Skill',
-      subtitle: 'World ability',
-      description: 'Create a skill, power, trick, move, or special interaction for this world.',
-      icon: 'kind-icon:magic',
-      kind: 'add-skill',
-      model: 'reward',
-    },
-    {
-      id: makeId('action'),
-      title: 'Add Treasure',
-      subtitle: 'Loot with consequences',
-      description: 'Create an item, relic, artifact, key, device, prize, or cursed keepsake.',
-      icon: 'kind-icon:gem',
-      kind: 'add-treasure',
-      model: 'reward',
-    },
-  ]
-
-  return cards
-},
-
-getActionDeck() {
-  return [
-    ...this.getBaseActionCards(),
-    ...this.getTargetActionCards(),
-    ...this.getRewardFlavorActionCards(),
-  ]
-},
-
-shuffleActionCards(cards: CodeActionCard[]) {
-  return [...cards].sort(() => Math.random() - 0.5)
-},
-
-drawActionCards(count = this.actionHandSize) {
-  return this.shuffleActionCards(this.getActionDeck()).slice(0, count)
-},
-
-reshuffleActionHand() {
-  this.actionHand = this.drawActionCards()
-  this.message = 'Quick Plays reshuffled. Chaos has received fresh paperwork.'
-},
-
-replaceActionCard(playedCard: CodeActionCard) {
-  const usedIds = new Set(this.actionHand.map((card) => card.id))
-  const availableCards = this.shuffleActionCards(this.getActionDeck()).filter((card) => {
-    return !usedIds.has(card.id) && card.kind !== playedCard.kind
-  })
-
-  const replacement = availableCards[0] ?? this.drawActionCards(1)[0]
-
-  if (!replacement) {
-    this.actionHand = this.actionHand.filter((card) => card.id !== playedCard.id)
-    return
-  }
-
-  this.actionHand = this.actionHand
-    .map((card) => {
-      if (card.id === playedCard.id) {
-        return replacement
-      }
-
-      return card
+  const rewardFlavorActionCards = computed<CodeActionCard[]>(() => {
+    const hasStoryTarget = codeTargets.value.some((target) => {
+      return target.model === 'dream' || target.model === 'scenario'
     })
-    .filter(isCodeActionCard)
-},
 
-openModelTab(model: CodeModel, tab: string) {
-  const navStore = useNavStore()
-  const dashboardKey = modelToDashboardKey(model)
+    if (!hasStoryTarget) {
+      return []
+    }
 
-  navStore.setDashboardTab(dashboardKey, tab)
-},
+    return [
+      {
+        id: makeId('action'),
+        title: 'Add Skill',
+        subtitle: 'World ability',
+        description:
+          'Create a skill, power, trick, move, or special interaction for this world.',
+        icon: 'kind-icon:magic',
+        kind: 'add-skill',
+        model: 'reward',
+      },
+      {
+        id: makeId('action'),
+        title: 'Add Treasure',
+        subtitle: 'Loot with consequences',
+        description:
+          'Create an item, relic, artifact, key, device, prize, or cursed keepsake.',
+        icon: 'kind-icon:gem',
+        kind: 'add-treasure',
+        model: 'reward',
+      },
+    ]
+  })
 
-async selectActionTarget(card: CodeActionCard) {
-  if (!card.model || !card.targetId) {
-    return
+  const actionDeck = computed<CodeActionCard[]>(() => [
+    ...baseActionCards.value,
+    ...targetActionCards.value,
+    ...rewardFlavorActionCards.value,
+  ])
+
+  function getDefinition(kind: CodeKind) {
+    return definitions.value.find((definition) => definition.kind === kind) ?? null
   }
 
-  const pitchStore = usePitchStore() as SelectableStore
-  const dreamStore = useDreamStore() as SelectableStore
-  const characterStore = useCharacterStore() as SelectableStore
-  const rewardStore = useRewardStore() as SelectableStore
-  const scenarioStore = useScenarioStore() as SelectableStore
-
-  if (card.model === 'pitch' && pitchStore.selectPitch) {
-    await pitchStore.selectPitch(card.targetId)
+  function setMessage(newMessage: string) {
+    message.value = newMessage
   }
 
-  if (card.model === 'dream' && dreamStore.selectDream) {
-    await dreamStore.selectDream(card.targetId)
+  function clearMessage() {
+    message.value = ''
   }
 
-  if (card.model === 'character' && characterStore.selectCharacter) {
-    await characterStore.selectCharacter(card.targetId)
+  function syncToLocalStorage() {
+    if (!import.meta.client) {
+      return
+    }
+
+    const payload: SavedCodeWorkbench = {
+      nodes: nodes.value,
+      connections: connections.value,
+    }
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(payload))
+    } catch (error) {
+      console.error('[codeStore] localStorage sync error:', error)
+    }
   }
 
-  if (card.model === 'reward' && rewardStore.selectReward) {
-    await rewardStore.selectReward(card.targetId)
-  }
+  function loadLocalStorage() {
+    if (!import.meta.client) {
+      return
+    }
 
-  if (card.model === 'scenario' && scenarioStore.selectScenario) {
-    await scenarioStore.selectScenario(card.targetId)
-  }
-},
-
-openAddAction(model: CodeModel) {
-  this.openModelTab(model, 'add')
-},
-
-async openEditAction(card: CodeActionCard) {
-  await this.selectActionTarget(card)
-
-  if (card.model) {
-    this.openModelTab(card.model, 'add')
-  }
-},
-
-async openInteractAction(card: CodeActionCard) {
-  await this.selectActionTarget(card)
-
-  if (card.model) {
-    this.openModelTab(card.model, 'interact')
-  }
-},
-
-async openArtAction(card: CodeActionCard) {
-  await this.selectActionTarget(card)
-  this.openModelTab('art', 'add')
-},
-
-async playActionCard(card: CodeActionCard) {
-  this.message = ''
-
-  if (card.kind === 'add-pitch') {
-    this.openAddAction('pitch')
-    this.addNode('pitch', 120, 140)
-  }
-
-  if (card.kind === 'add-dream') {
-    this.openAddAction('dream')
-    this.addNode('dream', 120, 180)
-  }
-
-  if (card.kind === 'add-character') {
-    this.openAddAction('character')
-    this.addNode('character', 120, 220)
-  }
-
-  if (card.kind === 'add-reward') {
-    this.openAddAction('reward')
-    this.addNode('reward', 120, 260)
-  }
-
-  if (card.kind === 'add-scenario') {
-    this.openAddAction('scenario')
-    this.addNode('scenario', 120, 300)
-  }
-
-  if (card.kind === 'create-art') {
-    await this.openArtAction(card)
-    this.addNode('stable-diffusion', 420, 180, card.targetTitle ? `Art for ${card.targetTitle}` : undefined)
-  }
-
-  if (card.kind === 'edit-target') {
-    await this.openEditAction(card)
-  }
-
-  if (card.kind === 'interact-target') {
-    await this.openInteractAction(card)
-  }
-
-  if (card.kind === 'add-skill') {
-    this.openAddAction('reward')
-    this.addNode('reward', 120, 260, 'New Skill')
-    this.message = 'Skill reward mode selected. Teach the world a new trick.'
-  }
-
-  if (card.kind === 'add-treasure') {
-    this.openAddAction('reward')
-    this.addNode('reward', 120, 260, 'New Treasure')
-    this.message = 'Treasure reward mode selected. Probably cursed. Excellent.'
-  }
-
-  if (card.kind === 'expand-concept') {
-    this.openModelTab('scenario', 'add')
-    this.addNode('scenario', 120, 300, 'Expanded Concept')
-  }
-
-  this.replaceActionCard(card)
-},
-
-    getDefinition(kind: CodeKind) {
-      return this.definitions.find((definition) => definition.kind === kind) ?? null
-    },
-
-    addNode(kind: CodeKind, x = 100, y = 100, title?: string) {
-      const definition = this.getDefinition(kind)
-
-      if (!definition) {
-        this.message = `Unknown card type: ${kind}`
-        return null
-      }
-
-      const node: CodeNode = {
-        id: makeId('node'),
-        kind,
-        title: title ?? definition.title,
-        x,
-        y,
-        values: {},
-      }
-
-      this.nodes.push(node)
-      this.selectedNodeId = node.id
-      this.message = `${definition.title} added. Tiny plastic brick deployed.`
-      this.saveLocal()
-
-      return node
-    },
-
-    updateNodePosition(nodeId: string, x: number, y: number) {
-      const node = this.nodes.find((candidate) => candidate.id === nodeId)
-
-      if (!node) {
-        return
-      }
-
-      node.x = Math.max(0, Math.round(x))
-      node.y = Math.max(0, Math.round(y))
-      this.saveLocal()
-    },
-
-    selectNode(nodeId: string | null) {
-      this.selectedNodeId = nodeId
-    },
-
-    removeNode(nodeId: string) {
-      this.nodes = this.nodes.filter((node) => node.id !== nodeId)
-      this.connections = this.connections.filter(
-        (connection) => connection.fromNodeId !== nodeId && connection.toNodeId !== nodeId,
-      )
-
-      if (this.selectedNodeId === nodeId) {
-        this.selectedNodeId = null
-      }
-
-      if (this.pendingConnection?.fromNodeId === nodeId) {
-        this.pendingConnection = null
-      }
-
-      this.message = 'Card removed. The tiny brick has left the chat.'
-      this.saveLocal()
-    },
-
-    beginConnection(nodeId: string, portId: string) {
-      const node = this.nodes.find((candidate) => candidate.id === nodeId)
-      const definition = node ? this.getDefinition(node.kind) : null
-      const port = definition?.outputs.find((candidate) => candidate.id === portId)
-
-      if (!node || !definition || !port) {
-        return
-      }
-
-      this.pendingConnection = {
-        fromNodeId: nodeId,
-        fromPortId: portId,
-        type: port.type,
-      }
-
-      this.message = `Connecting ${port.label}. Pick a matching input.`
-    },
-
-    completeConnection(nodeId: string, portId: string) {
-      if (!this.pendingConnection) {
-        return
-      }
-
-      const toNode = this.nodes.find((candidate) => candidate.id === nodeId)
-      const toDefinition = toNode ? this.getDefinition(toNode.kind) : null
-      const toPort = toDefinition?.inputs.find((candidate) => candidate.id === portId)
-
-      if (!toNode || !toDefinition || !toPort) {
-        this.pendingConnection = null
-        return
-      }
-
-      if (this.pendingConnection.fromNodeId === nodeId) {
-        this.message = 'A card cannot connect to itself. Even Legos need boundaries.'
-        return
-      }
-
-      if (this.pendingConnection.type !== toPort.type) {
-        this.message = `${this.pendingConnection.type} cannot connect to ${toPort.type}. Wrong peg shape.`
-        return
-      }
-
-      const exists = this.connections.some(
-        (connection) =>
-          connection.fromNodeId === this.pendingConnection?.fromNodeId &&
-          connection.fromPortId === this.pendingConnection?.fromPortId &&
-          connection.toNodeId === nodeId &&
-          connection.toPortId === portId,
-      )
-
-      if (exists) {
-        this.pendingConnection = null
-        this.message = 'That connection already exists.'
-        return
-      }
-
-      this.connections.push({
-        id: makeId('connection'),
-        fromNodeId: this.pendingConnection.fromNodeId,
-        fromPortId: this.pendingConnection.fromPortId,
-        toNodeId: nodeId,
-        toPortId: portId,
-        type: this.pendingConnection.type,
-      })
-
-      this.pendingConnection = null
-      this.message = 'Connection snapped in. Satisfying click noise implied.'
-      this.saveLocal()
-    },
-
-    removeConnection(connectionId: string) {
-      this.connections = this.connections.filter((connection) => connection.id !== connectionId)
-      this.saveLocal()
-    },
-
-    clearBoard() {
-      this.nodes = []
-      this.connections = []
-      this.selectedNodeId = null
-      this.pendingConnection = null
-      this.message = 'Workbench cleared.'
-      this.saveLocal()
-    },
-
-    loadTemplate(templateId: string) {
-      const template = this.templates.find((candidate) => candidate.id === templateId)
-
-      if (!template) {
-        this.message = 'Template not found.'
-        return
-      }
-
-      const createdNodes = template.nodes
-        .map((templateNode) =>
-          this.addNode(templateNode.kind, templateNode.x, templateNode.y, templateNode.title),
-        )
-        .filter((node): node is CodeNode => Boolean(node))
-
-      template.connections.forEach((templateConnection) => {
-        const fromNode = createdNodes[templateConnection.fromIndex]
-        const toNode = createdNodes[templateConnection.toIndex]
-
-        if (!fromNode || !toNode) {
-          return
-        }
-
-        const fromDefinition = this.getDefinition(fromNode.kind)
-        const fromPort = fromDefinition?.outputs.find((port) => port.id === templateConnection.fromPortId)
-
-        if (!fromPort) {
-          return
-        }
-
-        this.connections.push({
-          id: makeId('connection'),
-          fromNodeId: fromNode.id,
-          fromPortId: templateConnection.fromPortId,
-          toNodeId: toNode.id,
-          toPortId: templateConnection.toPortId,
-          type: fromPort.type,
-        })
-      })
-
-      this.message = `${template.title} loaded. Toybox: officially weaponized.`
-      this.saveLocal()
-    },
-
-    saveLocal() {
-      if (!import.meta.client) {
-        return
-      }
-
-      localStorage.setItem(
-        storageKey,
-        JSON.stringify({
-          nodes: this.nodes,
-          connections: this.connections,
-        }),
-      )
-    },
-
-    loadLocal() {
-      if (!import.meta.client) {
-        return
-      }
-
+    try {
       const raw = localStorage.getItem(storageKey)
 
       if (!raw) {
         return
       }
 
-      try {
-        const parsed = JSON.parse(raw) as Pick<CodeState, 'nodes' | 'connections'>
+      const parsed = JSON.parse(raw) as Partial<SavedCodeWorkbench>
 
-        this.nodes = Array.isArray(parsed.nodes) ? parsed.nodes : []
-        this.connections = Array.isArray(parsed.connections) ? parsed.connections : []
-      } catch {
-        this.nodes = []
-        this.connections = []
+      nodes.value = Array.isArray(parsed.nodes) ? parsed.nodes : []
+      connections.value = Array.isArray(parsed.connections)
+        ? parsed.connections
+        : []
+    } catch (error) {
+      console.error('[codeStore] localStorage load error:', error)
+      nodes.value = []
+      connections.value = []
+    }
+  }
+
+  function drawActionCards(count = actionHandSize.value) {
+    return shuffle(actionDeck.value).slice(0, count)
+  }
+
+  function reshuffleActionHand() {
+    actionHand.value = drawActionCards()
+    message.value = 'Quick Plays reshuffled. Chaos has received fresh paperwork.'
+  }
+
+  function replaceActionCard(playedCard: CodeActionCard) {
+    const usedIds = new Set(actionHand.value.map((card) => card.id))
+
+    const availableCards = shuffle(actionDeck.value).filter((card) => {
+      return !usedIds.has(card.id) && card.kind !== playedCard.kind
+    })
+
+    const replacement = availableCards[0] ?? drawActionCards(1)[0]
+
+    if (!replacement) {
+      actionHand.value = actionHand.value.filter((card) => {
+        return card.id !== playedCard.id
+      })
+      return
+    }
+
+    actionHand.value = actionHand.value
+      .map((card) => {
+        if (card.id === playedCard.id) {
+          return replacement
+        }
+
+        return card
+      })
+      .filter(isCodeActionCard)
+  }
+
+  function addNode(kind: CodeKind, x = 100, y = 100, title?: string) {
+    const definition = getDefinition(kind)
+
+    if (!definition) {
+      message.value = `Unknown card type: ${kind}`
+      return null
+    }
+
+    const node: CodeNode = {
+      id: makeId('node'),
+      kind,
+      title: title ?? definition.title,
+      x: Math.max(0, Math.round(x)),
+      y: Math.max(0, Math.round(y)),
+      values: {},
+    }
+
+    nodes.value.push(node)
+    selectedNodeId.value = node.id
+    message.value = `${definition.title} added. Tiny plastic brick deployed.`
+    syncToLocalStorage()
+
+    return node
+  }
+
+  function updateNodePosition(nodeId: string, x: number, y: number) {
+    const node = nodes.value.find((candidate) => candidate.id === nodeId)
+
+    if (!node) {
+      return
+    }
+
+    node.x = Math.max(0, Math.round(x))
+    node.y = Math.max(0, Math.round(y))
+    syncToLocalStorage()
+  }
+
+  function selectNode(nodeId: string | null) {
+    selectedNodeId.value = nodeId
+  }
+
+  function removeNode(nodeId: string) {
+    nodes.value = nodes.value.filter((node) => node.id !== nodeId)
+
+    connections.value = connections.value.filter((connection) => {
+      return connection.fromNodeId !== nodeId && connection.toNodeId !== nodeId
+    })
+
+    if (selectedNodeId.value === nodeId) {
+      selectedNodeId.value = null
+    }
+
+    if (pendingConnection.value?.fromNodeId === nodeId) {
+      pendingConnection.value = null
+    }
+
+    message.value = 'Card removed. The tiny brick has left the chat.'
+    syncToLocalStorage()
+  }
+
+  function beginConnection(nodeId: string, portId: string) {
+    const node = nodes.value.find((candidate) => candidate.id === nodeId)
+    const definition = node ? getDefinition(node.kind) : null
+    const port = definition?.outputs.find((candidate) => candidate.id === portId)
+
+    if (!node || !definition || !port) {
+      return
+    }
+
+    pendingConnection.value = {
+      fromNodeId: nodeId,
+      fromPortId: portId,
+      type: port.type,
+    }
+
+    message.value = `Connecting ${port.label}. Pick a matching input.`
+  }
+
+  function completeConnection(nodeId: string, portId: string) {
+    if (!pendingConnection.value) {
+      return
+    }
+
+    const toNode = nodes.value.find((candidate) => candidate.id === nodeId)
+    const toDefinition = toNode ? getDefinition(toNode.kind) : null
+    const toPort = toDefinition?.inputs.find((candidate) => candidate.id === portId)
+
+    if (!toNode || !toDefinition || !toPort) {
+      pendingConnection.value = null
+      return
+    }
+
+    if (pendingConnection.value.fromNodeId === nodeId) {
+      message.value = 'A card cannot connect to itself. Even Legos need boundaries.'
+      return
+    }
+
+    if (pendingConnection.value.type !== toPort.type) {
+      message.value = `${pendingConnection.value.type} cannot connect to ${toPort.type}. Wrong peg shape.`
+      return
+    }
+
+    const exists = connections.value.some((connection) => {
+      return (
+        connection.fromNodeId === pendingConnection.value?.fromNodeId &&
+        connection.fromPortId === pendingConnection.value?.fromPortId &&
+        connection.toNodeId === nodeId &&
+        connection.toPortId === portId
+      )
+    })
+
+    if (exists) {
+      pendingConnection.value = null
+      message.value = 'That connection already exists.'
+      return
+    }
+
+    connections.value.push({
+      id: makeId('connection'),
+      fromNodeId: pendingConnection.value.fromNodeId,
+      fromPortId: pendingConnection.value.fromPortId,
+      toNodeId: nodeId,
+      toPortId: portId,
+      type: pendingConnection.value.type,
+    })
+
+    pendingConnection.value = null
+    message.value = 'Connection snapped in. Satisfying click noise implied.'
+    syncToLocalStorage()
+  }
+
+  function removeConnection(connectionId: string) {
+    connections.value = connections.value.filter((connection) => {
+      return connection.id !== connectionId
+    })
+
+    syncToLocalStorage()
+  }
+
+  function clearBoard() {
+    nodes.value = []
+    connections.value = []
+    selectedNodeId.value = null
+    pendingConnection.value = null
+    message.value = 'Workbench cleared.'
+    syncToLocalStorage()
+  }
+
+  function loadTemplate(templateId: string) {
+    const template = templates.value.find((candidate) => candidate.id === templateId)
+
+    if (!template) {
+      message.value = 'Template not found.'
+      return
+    }
+
+    const createdNodes = template.nodes
+      .map((templateNode) => {
+        return addNode(
+          templateNode.kind,
+          templateNode.x,
+          templateNode.y,
+          templateNode.title,
+        )
+      })
+      .filter(isCodeNode)
+
+    template.connections.forEach((templateConnection) => {
+      const fromNode = createdNodes[templateConnection.fromIndex]
+      const toNode = createdNodes[templateConnection.toIndex]
+
+      if (!fromNode || !toNode) {
+        return
       }
-    },
-  },
+
+      const fromDefinition = getDefinition(fromNode.kind)
+      const fromPort = fromDefinition?.outputs.find((port) => {
+        return port.id === templateConnection.fromPortId
+      })
+
+      if (!fromPort) {
+        return
+      }
+
+      connections.value.push({
+        id: makeId('connection'),
+        fromNodeId: fromNode.id,
+        fromPortId: templateConnection.fromPortId,
+        toNodeId: toNode.id,
+        toPortId: templateConnection.toPortId,
+        type: fromPort.type,
+      })
+    })
+
+    message.value = `${template.title} loaded. Toybox: officially weaponized.`
+    syncToLocalStorage()
+  }
+
+  function openModelTab(model: CodeModel, tab: string) {
+    const dashboardKey = modelToDashboardKey(model)
+    navStore.setDashboardTab(dashboardKey, tab)
+  }
+
+  async function selectActionTarget(card: CodeActionCard) {
+    if (!card.model || !card.targetId) {
+      return
+    }
+
+    const pitchActions = pitchStore as SelectableStore
+    const dreamActions = dreamStore as SelectableStore
+    const characterActions = characterStore as SelectableStore
+    const rewardActions = rewardStore as SelectableStore
+    const scenarioActions = scenarioStore as SelectableStore
+
+    if (card.model === 'pitch' && pitchActions.selectPitch) {
+      await pitchActions.selectPitch(card.targetId)
+    }
+
+    if (card.model === 'dream' && dreamActions.selectDream) {
+      await dreamActions.selectDream(card.targetId)
+    }
+
+    if (card.model === 'character' && characterActions.selectCharacter) {
+      await characterActions.selectCharacter(card.targetId)
+    }
+
+    if (card.model === 'reward' && rewardActions.selectReward) {
+      await rewardActions.selectReward(card.targetId)
+    }
+
+    if (card.model === 'scenario' && scenarioActions.selectScenario) {
+      await scenarioActions.selectScenario(card.targetId)
+    }
+  }
+
+  function openAddAction(model: CodeModel) {
+    openModelTab(model, 'add')
+  }
+
+  async function openEditAction(card: CodeActionCard) {
+    await selectActionTarget(card)
+
+    if (card.model) {
+      openModelTab(card.model, 'add')
+    }
+  }
+
+  async function openInteractAction(card: CodeActionCard) {
+    await selectActionTarget(card)
+
+    if (card.model) {
+      openModelTab(card.model, 'interact')
+    }
+  }
+
+  async function openArtAction(card: CodeActionCard) {
+    await selectActionTarget(card)
+    openModelTab('art', 'add')
+  }
+
+  async function playActionCard(card: CodeActionCard) {
+    clearMessage()
+
+    if (card.kind === 'add-pitch') {
+      openAddAction('pitch')
+      addNode('pitch', 120, 140)
+    }
+
+    if (card.kind === 'add-dream') {
+      openAddAction('dream')
+      addNode('dream', 120, 180)
+    }
+
+    if (card.kind === 'add-character') {
+      openAddAction('character')
+      addNode('character', 120, 220)
+    }
+
+    if (card.kind === 'add-reward') {
+      openAddAction('reward')
+      addNode('reward', 120, 260)
+    }
+
+    if (card.kind === 'add-scenario') {
+      openAddAction('scenario')
+      addNode('scenario', 120, 300)
+    }
+
+    if (card.kind === 'create-art') {
+      await openArtAction(card)
+
+      addNode(
+        'stable-diffusion',
+        420,
+        180,
+        card.targetTitle ? `Art for ${card.targetTitle}` : undefined,
+      )
+    }
+
+    if (card.kind === 'edit-target') {
+      await openEditAction(card)
+    }
+
+    if (card.kind === 'interact-target') {
+      await openInteractAction(card)
+    }
+
+    if (card.kind === 'add-skill') {
+      openAddAction('reward')
+      addNode('reward', 120, 260, 'New Skill')
+      message.value = 'Skill reward mode selected. Teach the world a new trick.'
+    }
+
+    if (card.kind === 'add-treasure') {
+      openAddAction('reward')
+      addNode('reward', 120, 260, 'New Treasure')
+      message.value = 'Treasure reward mode selected. Probably cursed. Excellent.'
+    }
+
+    if (card.kind === 'expand-concept') {
+      openModelTab('scenario', 'add')
+      addNode('scenario', 120, 300, 'Expanded Concept')
+    }
+
+    replaceActionCard(card)
+  }
+
+  function initialize() {
+    if (isInitialized.value) {
+      return
+    }
+
+    definitions.value = [...definitionSeeds]
+    templates.value = [...templateSeeds]
+    loadLocalStorage()
+    reshuffleActionHand()
+    isInitialized.value = true
+  }
+
+  function resetWorkbench() {
+    nodes.value = []
+    connections.value = []
+    selectedNodeId.value = null
+    pendingConnection.value = null
+    actionHand.value = []
+    message.value = ''
+    isInitialized.value = false
+    syncToLocalStorage()
+  }
+
+  return {
+    definitions,
+    templates,
+    nodes,
+    connections,
+    selectedNodeId,
+    pendingConnection,
+    actionHand,
+    actionHandSize,
+    message,
+    isInitialized,
+    selectedNode,
+    groupedDefinitions,
+    canvasBounds,
+    codeTargets,
+    baseActionCards,
+    targetActionCards,
+    rewardFlavorActionCards,
+    actionDeck,
+    initialize,
+    getDefinition,
+    setMessage,
+    clearMessage,
+    syncToLocalStorage,
+    loadLocalStorage,
+    drawActionCards,
+    reshuffleActionHand,
+    replaceActionCard,
+    addNode,
+    updateNodePosition,
+    selectNode,
+    removeNode,
+    beginConnection,
+    completeConnection,
+    removeConnection,
+    clearBoard,
+    loadTemplate,
+    openModelTab,
+    selectActionTarget,
+    openAddAction,
+    openEditAction,
+    openInteractAction,
+    openArtAction,
+    playActionCard,
+    resetWorkbench,
+  }
 })

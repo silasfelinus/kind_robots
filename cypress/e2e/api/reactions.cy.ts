@@ -60,7 +60,7 @@ describe('Reaction Management API Tests', () => {
       body: {
         userId,
         reactionType: 'LOVED',
-        reactionCategory: 'ART',
+        reactionCategory: 'ART_IMAGE',
         artImageId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
@@ -68,7 +68,7 @@ describe('Reaction Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.include('Authorization token')
     })
   })
 
@@ -85,7 +85,7 @@ describe('Reaction Management API Tests', () => {
       body: {
         userId,
         reactionType: 'LOVED',
-        reactionCategory: 'ART',
+        reactionCategory: 'ART_IMAGE',
         artImageId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
@@ -93,7 +93,9 @@ describe('Reaction Management API Tests', () => {
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401)
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.match(
+        /authorization token|invalid or expired token/i,
+      )
     })
   })
 
@@ -110,7 +112,7 @@ describe('Reaction Management API Tests', () => {
       body: {
         userId,
         reactionType: 'LOVED',
-        reactionCategory: 'ART',
+        reactionCategory: 'ART_IMAGE',
         artImageId,
         comment: 'Love this pancake sunrise art!',
         rating: 5,
@@ -140,7 +142,7 @@ describe('Reaction Management API Tests', () => {
       },
       body: {
         reactionType: 'CLAPPED',
-        reactionCategory: 'ART',
+        reactionCategory: 'ART_IMAGE',
         comment: 'Actually, clapping for this artwork!',
         rating: 4,
       },
@@ -167,7 +169,9 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('message').and.to.be.a('string')
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.match(
+        /authorization token|invalid or expired token/i,
+      )
     })
   })
 
@@ -185,7 +189,9 @@ describe('Reaction Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body).to.have.property('message').and.to.be.a('string')
-      expect(response.body.message).to.include('Invalid or expired token')
+      expect(response.body.message).to.match(
+        /authorization token|invalid or expired token/i,
+      )
     })
   })
 

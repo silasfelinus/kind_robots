@@ -1,4 +1,4 @@
-<!-- /components/content/story/milestone-popup.vue -->
+<!-- /components/content/milestones/milestone-popup.vue -->
 <template>
   <div
     v-if="milestone && !userStore.isGuest"
@@ -47,11 +47,10 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/milestone-popup.vue
+// /components/content/milestones/milestone-popup.vue
 import { computed, watch, nextTick } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import confetti from 'canvas-confetti'
 
 type MilestoneRecordLike = {
@@ -68,7 +67,7 @@ type MilestoneLike = {
 
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
-const errorStore = useErrorStore()
+
 
 const milestone = computed<MilestoneLike | null>(() => {
   const m = milestoneStore.unconfirmedMilestones?.[0]
@@ -101,18 +100,7 @@ const acknowledgeMilestone = async (): Promise<void> => {
     `[milestone-popup] Acknowledging milestone: ${current.label} (id: ${current.id})`,
   )
 
-  const result = await milestoneStore.confirmMilestone(current.id)
-
-  if (!result.success) {
-    console.warn(`[milestone-popup] ${result.message}`)
-  }
-
-  await errorStore.handleError(
-    async () => {
-      await userStore.updateKarmaAndMana()
-    },
-    ErrorType.INTERACTION_ERROR,
-    `[milestone-popup] Failed to update karma/mana after milestone: ${current.label}`,
-  )
+  await milestoneStore.confirmMilestone(current.id)
 }
+
 </script>

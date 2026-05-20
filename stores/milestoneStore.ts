@@ -6,6 +6,7 @@ import type {
   MilestoneRecord,
 } from '~/prisma/generated/prisma/client'
 import { useUserStore } from './userStore'
+import { useErrorStore } from '/errorStore'
 import { milestoneData } from './../training/milestoneData'
 import { performFetch, handleError, type ApiResponse } from './utils'
 
@@ -66,6 +67,7 @@ function safeParseArray<T>(raw: string | null): T[] {
 
 export const useMilestoneStore = defineStore('milestoneStore', () => {
   const userStore = useUserStore()
+  const errorStore = useErrorStore()
 
   const milestones = ref<Milestone[]>([])
   const milestoneRecords = ref<MilestoneRecord[]>([])
@@ -316,10 +318,16 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     safeRemoveLocalStorage(pendingGuestMilestonesStorageKey)
   }
 
-    async function confirmMilestone(milestoneId: number) {
+      async function confirmMilestone(milestoneId: number) {
     const id = Number(milestoneId)
 
     if (!Number.isInteger(id) || id <= 0) {
+      errorStore.report(
+        'Valid milestone ID is required.',
+        ErrorType.VALIDATION_ERROR,
+        'confirming milestone',
+      )
+
       return {
         success: false,
         message: 'Valid milestone ID is required.',
@@ -358,28 +366,49 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
     record.isConfirmed = true
     persist()
 
-    const result = await updateMilestoneRecord({
-      id: record.id,
-      isConfirmed: true,
-    })
+    try {
+      await userStore.updateKarmaAndMana()
 
-    if (!result.success) {
-      setLastError(
-        result.message ?? 'Milestone dismissed locally but failed to sync.',
-        'Milestone dismissed locally but failed to sync.',
+      const result = await updateMilestoneRecord({
+        id: record.id,
+        isConfirmed: true,
+      })
+
+      if (!result.success) {
+        errorStore.report(
+          result.message ?? 'Milestone dismissed locally but failed to sync.',
+          ErrorType.STORE_ERROR,
+          'confirming milestone',
+        )
+
+        return {
+          success: false,
+          message:
+            result.message ?? 'Milestone dismissed locally but failed to sync.',
+        }
+      }
+
+      return {
+        success: true,
+        message: 'Milestone confirmed.',
+      }
+    } catch (error) {
+      errorStore.report(
+        error,
+        ErrorType.INTERACTION_ERROR,
+        `Failed to confirm milestone ${id}`,
       )
 
       return {
         success: false,
-        message: result.message ?? 'Milestone dismissed locally but failed to sync.',
+        message: errorStore.normalizeError(
+          error,
+          'Milestone dismissed locally but failed to sync.',
+        ),
       }
     }
-
-    return {
-      success: true,
-      message: 'Milestone confirmed.',
-    }
   }
+
   async function updateMilestone(milestone: Milestone) {
     if (!milestone.id) {
       return
@@ -532,11 +561,17 @@ export const useMilestoneStore = defineStore('milestoneStore', () => {
 
       upsertMilestoneRecord(response.data)
       return { success: true }
-    } catch (error) {
-      handleError(error, 'updating milestone record')
-      return { success: false, message: (error as Error).message }
+        } catch (error) {
+      const message = errorStore.report(
+        error,
+        ErrorType.STORE_ERROR,
+        'updating milestone record',
+        'Failed to update milestone record',
+      )
+
+      return { success: false, message }
     }
-  }
+}
 
   async function fetchMilestoneById(
     milestoneId: number,

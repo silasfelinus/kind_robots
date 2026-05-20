@@ -35,18 +35,6 @@ type ArtWithRelations = ArtImage & {
   Server?: unknown
 }
 
-type CollectionWithRelations = ArtCollection & {
-  ArtImages?: ArtImage[]
-  artImages?: ArtImage[]
-  images?: ArtImage[]
-}
-
-type NormalizedCollection = ArtCollection & {
-  artImages?: ArtImage[]
-  ArtImages?: ArtImage[]
-  images?: ArtImage[]
-}
-
 type CollectionState = {
   collections: ArtCollection[]
   currentCollection: ArtCollection | null
@@ -72,12 +60,6 @@ function isValidId(value: unknown): value is number {
   return Number.isInteger(Number(value)) && Number(value) > 0
 }
 
-function isArtImagePayload(value: unknown): value is ArtImage {
-  return Boolean(
-    value && typeof value === 'object' && isValidId((value as ArtImage).id),
-  )
-}
-
 function sanitizeCollectionArt(entry: ArtWithRelations): ArtImage {
   const {
     ArtImage,
@@ -94,42 +76,131 @@ function sanitizeCollectionArt(entry: ArtWithRelations): ArtImage {
   return rest as ArtImage
 }
 
+type ArtImageJoinPayload = {
+  ArtImage?: ArtImage | null
+  artImage?: ArtImage | null
+  image?: ArtImage | null
+  artImageId?: number | null
+}
+
+type CollectionApiEnvelope = {
+  collections?: CollectionWithRelations[]
+  data?: CollectionWithRelations[]
+  items?: CollectionWithRelations[]
+  results?: CollectionWithRelations[]
+}
+
+type CollectionWithRelations = ArtCollection & {
+  ArtImages?: unknown
+  artImages?: unknown
+  images?: unknown
+  ArtCollectiontoArtImage?: unknown
+  ArtCollectionToArtImage?: unknown
+  artCollectionToArtImage?: unknown
+  artCollectiontoArtImage?: unknown
+}
+
+type NormalizedCollection = ArtCollection & {
+  artImages: ArtImage[]
+  ArtImages: ArtImage[]
+  images: ArtImage[]
+}
+
+function toArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : []
+}
+
+function unwrapCollectionList(value: unknown): CollectionWithRelations[] {
+  if (Array.isArray(value)) return value as CollectionWithRelations[]
+
+  if (value && typeof value === 'object') {
+    const envelope = value as CollectionApiEnvelope
+
+    if (Array.isArray(envelope.collections)) return envelope.collections
+    if (Array.isArray(envelope.data)) return envelope.data
+    if (Array.isArray(envelope.items)) return envelope.items
+    if (Array.isArray(envelope.results)) return envelope.results
+  }
+
+  return []
+}
+
+function isArtImagePayload(value: unknown): value is ArtImage {
+  return Boolean(
+    value && typeof value === 'object' && isValidId((value as ArtImage).id),
+  )
+}
+
+function extractArtImage(value: unknown): ArtImage | null {
+  if (isArtImagePayload(value)) return value
+
+  if (!value || typeof value !== 'object') return null
+
+  const join = value as ArtImageJoinPayload
+
+  if (isArtImagePayload(join.ArtImage)) return join.ArtImage
+  if (isArtImagePayload(join.artImage)) return join.artImage
+  if (isArtImagePayload(join.image)) return join.image
+
+  return null
+}
+
+function getCollectionImageCandidates(
+  collection: CollectionWithRelations,
+): unknown[] {
+  return [
+    ...toArray(collection.artImages),
+    ...toArray(collection.ArtImages),
+    ...toArray(collection.images),
+    ...toArray(collection.ArtCollectiontoArtImage),
+    ...toArray(collection.ArtCollectionToArtImage),
+    ...toArray(collection.artCollectionToArtImage),
+    ...toArray(collection.artCollectiontoArtImage),
+  ]
+}
+
 function normalizeCollection(
   collection: CollectionWithRelations,
 ): ArtCollection {
-  const directImages = [
-    ...(collection.artImages ?? []),
-    ...(collection.ArtImages ?? []),
-    ...(collection.images ?? []),
-  ].filter(isArtImagePayload)
-
   const imageMap = new Map<number, ArtImage>()
 
-  for (const image of directImages) {
-    imageMap.set(image.id, image)
+  for (const candidate of getCollectionImageCandidates(collection)) {
+    const image = extractArtImage(candidate)
+
+    if (image) {
+      imageMap.set(image.id, image)
+    }
   }
 
-  const artImages = Array.from(imageMap.values())
+  const artImages = Array.from(imageMap.values()).sort((a, b) => b.id - a.id)
 
   return {
     ...collection,
     artImages,
     ArtImages: artImages,
+    images: artImages,
   } as NormalizedCollection
 }
 
-function normalizeCollections(collections: CollectionWithRelations[]) {
-  return collections.map((collection) => normalizeCollection(collection))
+function normalizeCollections(value: unknown): ArtCollection[] {
+  return unwrapCollectionList(value).map((collection) =>
+    normalizeCollection(collection),
+  )
 }
 
 function getCollectionArtImages(collection: ArtCollection): ArtImage[] {
-  const media = collection as NormalizedCollection
+  const media = collection as CollectionWithRelations
+  const imageMap = new Map<number, ArtImage>()
 
-  return [
-    ...(media.artImages ?? []),
-    ...(media.ArtImages ?? []),
-    ...(media.images ?? []),
-  ].filter(isArtImagePayload)
+  for (const candidate of getCollectionImageCandidates(media)) {
+    const image = extractArtImage(candidate)
+
+    if (image) {
+      imageMap.set(image.id, image)
+    }
+  }
+
+  return Array.from(imageMap.values()).sort((a, b) => b.id - a.id)
 }
 
 function collectionIncludesArtImageId(
@@ -286,17 +357,17 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     fetchPromise.value = (async () => {
       try {
-        const response = await performFetch<CollectionWithRelations[]>(
-          '/api/art/collection',
-        )
+        const response = await performFetch<unknown>('/api/art/collection')
 
-        if (!response.success || !response.data) {
+        if (!response.success) {
           throw new Error(response.message || 'Failed to fetch collections')
         }
 
-        state.collections = normalizeCollections(response.data)
+        const normalizedCollections = normalizeCollections(response.data)
 
-        const images = state.collections.flatMap((collection) => {
+        state.collections = normalizedCollections
+
+        const images = normalizedCollections.flatMap((collection) => {
           return getCollectionArtImages(collection)
         })
 
@@ -332,7 +403,6 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     return fetchPromise.value
   }
-
   function getUncollectedArtImages(): ArtImage[] {
     const collectedIds = new Set(allCollectionArtImageIds.value)
 

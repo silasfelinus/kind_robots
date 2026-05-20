@@ -91,10 +91,9 @@ watch(milestone, async (newMilestone, oldMilestone) => {
 
 const acknowledgeMilestone = async (): Promise<void> => {
   const current = milestone.value
+
   if (!current) {
-    console.warn(
-      '[milestone-popup] Tried to acknowledge, but no milestone found',
-    )
+    console.warn('[milestone-popup] Tried to acknowledge, but no milestone found')
     return
   }
 
@@ -102,32 +101,18 @@ const acknowledgeMilestone = async (): Promise<void> => {
     `[milestone-popup] Acknowledging milestone: ${current.label} (id: ${current.id})`,
   )
 
+  const result = await milestoneStore.confirmMilestone(current.id)
+
+  if (!result.success) {
+    console.warn(`[milestone-popup] ${result.message}`)
+  }
+
   await errorStore.handleError(
     async () => {
       await userStore.updateKarmaAndMana()
-      await milestoneStore.confirmMilestone(current.id)
-
-      const isRecorded = (
-        milestoneStore.milestoneRecords as MilestoneRecordLike[]
-      ).some((r: MilestoneRecordLike) => r.milestoneId === current.id)
-
-      if (userStore.isGuest || !isRecorded) {
-        console.warn(
-          `[milestone-popup] Milestone not recorded properly. Deactivating manually. isGuest: ${userStore.isGuest}, isRecorded: ${isRecorded}`,
-        )
-        milestoneStore.deactivateMilestone(current.id)
-      }
     },
     ErrorType.INTERACTION_ERROR,
-    `[milestone-popup] Failed to acknowledge milestone: ${current.label}`,
+    `[milestone-popup] Failed to update karma/mana after milestone: ${current.label}`,
   )
-
-  const stillNotRecorded = !(
-    milestoneStore.milestoneRecords as MilestoneRecordLike[]
-  ).some((r: MilestoneRecordLike) => r.milestoneId === current.id)
-
-  if (stillNotRecorded) {
-    milestoneStore.deactivateMilestone(current.id)
-  }
 }
 </script>

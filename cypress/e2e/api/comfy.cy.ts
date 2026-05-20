@@ -17,7 +17,7 @@ describe('Comfy Direct Test Endpoint', () => {
   let apiBase = 'https://kind-robots.vercel.app/api/comfy/test'
   let apiKey = ''
   let serverId = 25
-  let checkpointId = 1
+  let checkpointId = 20
 
   before(() => {
     cy.env([
@@ -34,7 +34,7 @@ describe('Comfy Direct Test Endpoint', () => {
       apiBase = `${cleanApiBase}/api/comfy/test`
       apiKey = String(env.API_KEY || '')
       serverId = Number(env.COMFY_TEST_SERVER_ID || 25)
-      checkpointId = Number(env.COMFY_TEST_CHECKPOINT_ID || 1)
+      checkpointId = Number(env.COMFY_TEST_CHECKPOINT_ID || 20)
 
       expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
       expect(cleanApiBase, 'API_BASE').to.be.a('string').and.not.be.empty

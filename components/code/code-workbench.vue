@@ -1,4 +1,4 @@
-<!-- /components/code-cards/code-card-workbench.vue -->
+<!-- /components/code/code-workbench.vue -->
 <template>
   <section class="flex h-full min-h-[700px] w-full flex-col gap-4 rounded-2xl bg-base-200 p-3 sm:p-4">
     <header class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
@@ -15,11 +15,11 @@
 
       <div class="flex flex-wrap gap-2">
         <button
-          v-for="template in codeCardStore.templates"
+          v-for="template in codeStore.templates"
           :key="template.id"
           class="btn btn-sm rounded-2xl border-base-300 bg-base-200"
           type="button"
-          @click="codeCardStore.loadTemplate(template.id)"
+          @click="codeStore.loadTemplate(template.id)"
         >
           <icon :name="template.icon" class="h-4 w-4" />
           {{ template.title }}
@@ -28,7 +28,7 @@
         <button
           class="btn btn-sm btn-outline rounded-2xl"
           type="button"
-          @click="codeCardStore.clearBoard()"
+          @click="codeStore.clearBoard()"
         >
           <icon name="kind-icon:trash" class="h-4 w-4" />
           Clear
@@ -37,17 +37,17 @@
     </header>
 
     <div class="grid min-h-0 flex-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <code-card-palette />
+      <code-palette />
 
       <div class="flex min-h-0 flex-col gap-3">
         <div
-          v-if="codeCardStore.message"
+          v-if="codeStore.message"
           class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm text-info-content"
         >
-          {{ codeCardStore.message }}
+          {{ codeStore.message }}
         </div>
 
-        <code-card-canvas />
+        <code-canvas />
       </div>
     </div>
   </section>
@@ -57,9 +57,9 @@
 import { onMounted } from 'vue'
 import { useCodeStore } from '@/stores/codeStore'
 
-const codeCardStore = useCodeStore()
+const codeStore = useCodeStore()
 
 onMounted(() => {
-  codeCardStore.initialize()
+  codeStore.initialize()
 })
 </script>

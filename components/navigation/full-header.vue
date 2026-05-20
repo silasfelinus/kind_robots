@@ -52,9 +52,7 @@
         class="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110"
       />
 
-      <span class="hidden sm:inline">
-        {{ headerToggleLabel }}
-      </span>
+
     </button>
 
     <div
@@ -113,9 +111,6 @@ const headerToggleTitle = computed(() =>
   isOpen.value ? 'Compact header' : 'Expand header',
 )
 
-const headerToggleLabel = computed(() =>
-  isOpen.value ? 'Compact' : 'Open',
-)
 
 const headerToggleIcon = computed(() =>
   isOpen.value ? 'kind-icon:chevron-down' : 'kind-icon:chevron-up',

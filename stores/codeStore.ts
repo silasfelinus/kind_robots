@@ -1,9 +1,20 @@
 // /stores/codeStore.ts
 import { defineStore } from 'pinia'
 
-export type CodeCardDataType = 'text' | 'image' | 'model' | 'character' | 'dream' | 'pitch' | 'prompt' | 'bot' | 'reward' | 'scenario' | 'collection'
+export type CodeDataType =
+  | 'text'
+  | 'image'
+  | 'model'
+  | 'character'
+  | 'dream'
+  | 'pitch'
+  | 'prompt'
+  | 'bot'
+  | 'reward'
+  | 'scenario'
+  | 'collection'
 
-export type CodeCardKind =
+export type CodeKind =
   | 'openai-text'
   | 'openai-image'
   | 'anthropic-text'
@@ -27,91 +38,91 @@ export type CodeCardKind =
   | 'reward'
   | 'scenario'
 
-export type CodeCardPortDirection = 'input' | 'output'
+export type CodePortDirection = 'input' | 'output'
 
-export interface CodeCardPort {
+export interface CodePort {
   id: string
   label: string
-  type: CodeCardDataType
-  direction: CodeCardPortDirection
+  type: CodeDataType
+  direction: CodePortDirection
   required?: boolean
 }
 
-export interface CodeCardDefinition {
-  kind: CodeCardKind
+export interface CodeDefinition {
+  kind: CodeKind
   title: string
   subtitle: string
   description: string
   icon: string
   category: string
   accent: string
-  inputs: CodeCardPort[]
-  outputs: CodeCardPort[]
+  inputs: CodePort[]
+  outputs: CodePort[]
 }
 
-export interface CodeCardNode {
+export interface CodeNode {
   id: string
-  kind: CodeCardKind
+  kind: CodeKind
   title: string
   x: number
   y: number
   values: Record<string, unknown>
 }
 
-export interface CodeCardConnection {
+export interface CodeConnection {
   id: string
   fromNodeId: string
   fromPortId: string
   toNodeId: string
   toPortId: string
-  type: CodeCardDataType
+  type: CodeDataType
 }
 
-export interface PendingConnection {
+export interface PendingCodeConnection {
   fromNodeId: string
   fromPortId: string
-  type: CodeCardDataType
+  type: CodeDataType
 }
 
-export interface CodeCardTemplateNode {
-  kind: CodeCardKind
+export interface CodeTemplateNode {
+  kind: CodeKind
   title?: string
   x: number
   y: number
 }
 
-export interface CodeCardTemplateConnection {
+export interface CodeTemplateConnection {
   fromIndex: number
   fromPortId: string
   toIndex: number
   toPortId: string
 }
 
-export interface CodeCardTemplate {
+export interface CodeTemplate {
   id: string
   title: string
   description: string
   icon: string
-  nodes: CodeCardTemplateNode[]
-  connections: CodeCardTemplateConnection[]
+  nodes: CodeTemplateNode[]
+  connections: CodeTemplateConnection[]
 }
 
-interface CodeCardState {
-  definitions: CodeCardDefinition[]
-  nodes: CodeCardNode[]
-  connections: CodeCardConnection[]
+interface CodeState {
+  definitions: CodeDefinition[]
+  nodes: CodeNode[]
+  connections: CodeConnection[]
   selectedNodeId: string | null
-  pendingConnection: PendingConnection | null
-  templates: CodeCardTemplate[]
+  pendingConnection: PendingCodeConnection | null
+  templates: CodeTemplate[]
   message: string
 }
 
-const storageKey = 'kindrobots-code-card-workbench'
+const storageKey = 'kindrobots-code-workbench'
 
 const makeId = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
-const definitionSeeds: CodeCardDefinition[] = [
+const definitionSeeds: CodeDefinition[] = [
   {
     kind: 'openai-text',
     title: 'OpenAI Text',
@@ -390,7 +401,7 @@ const definitionSeeds: CodeCardDefinition[] = [
   },
 ]
 
-const templateSeeds: CodeCardTemplate[] = [
+const templateSeeds: CodeTemplate[] = [
   {
     id: 'text-tennis',
     title: 'Text Tennis',
@@ -444,8 +455,8 @@ const templateSeeds: CodeCardTemplate[] = [
   },
 ]
 
-export const useCodeCardStore = defineStore('codeCardStore', {
-  state: (): CodeCardState => ({
+export const useCodeStore = defineStore('codeStore', {
+  state: (): CodeState => ({
     definitions: definitionSeeds,
     nodes: [],
     connections: [],
@@ -460,7 +471,7 @@ export const useCodeCardStore = defineStore('codeCardStore', {
       state.nodes.find((node) => node.id === state.selectedNodeId) ?? null,
 
     groupedDefinitions: (state) => {
-      return state.definitions.reduce<Record<string, CodeCardDefinition[]>>((groups, definition) => {
+      return state.definitions.reduce<Record<string, CodeDefinition[]>>((groups, definition) => {
         if (!groups[definition.category]) {
           groups[definition.category] = []
         }
@@ -488,11 +499,11 @@ export const useCodeCardStore = defineStore('codeCardStore', {
       this.loadLocal()
     },
 
-    getDefinition(kind: CodeCardKind) {
+    getDefinition(kind: CodeKind) {
       return this.definitions.find((definition) => definition.kind === kind) ?? null
     },
 
-    addNode(kind: CodeCardKind, x = 100, y = 100, title?: string) {
+    addNode(kind: CodeKind, x = 100, y = 100, title?: string) {
       const definition = this.getDefinition(kind)
 
       if (!definition) {
@@ -500,7 +511,7 @@ export const useCodeCardStore = defineStore('codeCardStore', {
         return null
       }
 
-      const node: CodeCardNode = {
+      const node: CodeNode = {
         id: makeId('node'),
         kind,
         title: title ?? definition.title,
@@ -647,7 +658,7 @@ export const useCodeCardStore = defineStore('codeCardStore', {
         .map((templateNode) =>
           this.addNode(templateNode.kind, templateNode.x, templateNode.y, templateNode.title),
         )
-        .filter((node): node is CodeCardNode => Boolean(node))
+        .filter((node): node is CodeNode => Boolean(node))
 
       template.connections.forEach((templateConnection) => {
         const fromNode = createdNodes[templateConnection.fromIndex]
@@ -704,7 +715,7 @@ export const useCodeCardStore = defineStore('codeCardStore', {
       }
 
       try {
-        const parsed = JSON.parse(raw) as Pick<CodeCardState, 'nodes' | 'connections'>
+        const parsed = JSON.parse(raw) as Pick<CodeState, 'nodes' | 'connections'>
 
         this.nodes = Array.isArray(parsed.nodes) ? parsed.nodes : []
         this.connections = Array.isArray(parsed.connections) ? parsed.connections : []

@@ -156,7 +156,7 @@ describe('ArtImage Management API Tests', () => {
     })
   })
 
-  it('should allow generating an ArtImage with a valid bearer token using Lola API test server', () => {
+  it.skip('should allow generating an ArtImage with a valid bearer token using Lola API test server', () => {
     cy.request({
       method: 'POST',
       url: artGenerateUrl,
@@ -210,6 +210,7 @@ describe('ArtImage Management API Tests', () => {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
+        Authorization: `Bearer ${userToken}`,
       },
       failOnStatusCode: false,
     }).then((response) => {

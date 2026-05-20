@@ -168,7 +168,6 @@
               @click="emit('refresh')"
             >
               <Icon name="kind-icon:refresh" class="h-4 w-4" />
-              <span class="hidden sm:inline">{{ refreshLabel }}</span>
             </button>
           </div>
         </section>
@@ -177,20 +176,6 @@
           v-if="resolvedTabs.length"
           class="flex min-h-0 w-fit flex-col gap-2 rounded-2xl border border-base-300 bg-base-200/70 p-2"
         >
-          <div class="flex items-center justify-between gap-2 px-1">
-            <p
-              class="text-xs font-black uppercase tracking-[0.22em] text-base-content/45"
-            >
-              Tabs
-            </p>
-
-            <span
-              class="rounded-full bg-base-100 px-2 py-1 text-[0.65rem] font-black uppercase tracking-wider text-base-content/45"
-            >
-              {{ resolvedTabs.length }}
-            </span>
-          </div>
-
           <nav
             class="grid max-h-44 grid-rows-2 gap-2 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
             style="scrollbar-width: none; -webkit-overflow-scrolling: touch"

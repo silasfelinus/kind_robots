@@ -2,43 +2,51 @@
 <template>
   <div
     v-if="milestone && !userStore.isGuest"
-    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 backdrop-blur-sm"
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm pointer-events-auto"
     aria-labelledby="milestone-popup"
     role="dialog"
     aria-modal="true"
   >
     <div
-      class="pointer-events-auto rounded-2xl p-10 text-center border border-accent bg-base-100 max-w-lg mx-auto shadow-xl"
+      class="pointer-events-auto mx-auto w-full max-w-lg rounded-2xl border border-accent bg-base-100 p-10 text-center shadow-xl"
+      @click.stop
     >
-      <h2 id="milestone-popup" class="text-3xl font-semibold mb-6 text-primary">
+      <h2 id="milestone-popup" class="mb-6 text-3xl font-semibold text-primary">
         🎉 Congratulations, {{ userStore.username }}!
       </h2>
 
       <Icon
         :name="milestone.icon ?? 'kind-icon:map'"
-        class="h-20 w-20 mx-auto mb-6 text-primary"
+        class="mx-auto mb-6 h-20 w-20 text-primary"
       />
-      <p class="text-xl font-medium mb-4 text-gray-800">
+
+      <p class="mb-4 text-xl font-medium text-base-content">
         🌟 You earned the
-        <span class="font-bold">{{ milestone.label }}</span> milestone! 🌟
+        <span class="font-bold">{{ milestone.label }}</span>
+        milestone! 🌟
       </p>
-      <p class="my-4 text-gray-700">{{ milestone.message }}</p>
+
+      <p class="my-4 text-base-content/70">
+        {{ milestone.message }}
+      </p>
 
       <div
-        class="karma-award flex flex-col items-center bg-accent bg-opacity-10 p-4 rounded-xl"
+        class="flex flex-col items-center rounded-xl bg-accent/10 p-4"
       >
         <p class="text-lg font-semibold text-accent">
-          Bonus: +{{ milestone.karma }}
+          Bonus: +{{ milestone.karma ?? 0 }}
         </p>
-        <div class="flex items-center mt-2">
-          <Icon name="kind-icon:jellybean" class="p-2 h-12 w-12 text-accent" />
-          <p class="text-lg ml-2">You Found 1 Jellybean!</p>
+
+        <div class="mt-2 flex items-center">
+          <Icon name="kind-icon:jellybean" class="h-12 w-12 p-2 text-accent" />
+          <p class="ml-2 text-lg">You Found 1 Jellybean!</p>
         </div>
       </div>
 
       <button
-        class="mt-6 bg-primary text-white px-6 py-2 rounded-2xl border"
-        @click="acknowledgeMilestone"
+        type="button"
+        class="mt-6 rounded-2xl border border-primary bg-primary px-6 py-2 font-semibold text-primary-content transition hover:bg-primary/90 active:scale-95"
+        @click.stop="acknowledgeMilestone"
       >
         Awesome! Close
       </button>
@@ -47,11 +55,11 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/story/milestone-popup.vue
-import { computed, watch, nextTick } from 'vue'
+// /components/content/milestones/milestone-popup.vue
+import { computed, nextTick, watch } from 'vue'
+import confetti from 'canvas-confetti'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
-import confetti from 'canvas-confetti'
 
 type MilestoneLike = {
   id: number

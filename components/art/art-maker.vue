@@ -15,36 +15,28 @@
 
             <p class="mt-1 max-w-3xl text-sm text-base-content/70 sm:text-base">
               Choose a server, choose a model, write the prompt, pick an
-              optional collection, then bully pixels into existence.
+              optional collection, then politely threaten the pixels.
             </p>
           </div>
 
-          <button
-            class="btn btn-primary rounded-2xl text-white"
-            type="button"
-            :disabled="!canGenerate"
-            @click="generateArt"
-          >
-            <span
-              v-if="isGenerating"
-              class="loading loading-spinner loading-sm"
-            />
-            <icon v-else name="kind-icon:sparkles" class="h-5 w-5" />
-            {{ isGenerating ? 'Generating...' : 'Generate' }}
-          </button>
+          <generate-button
+            class="lg:w-64"
+            :compact="true"
+            :show-result="false"
+          />
         </div>
       </header>
 
       <div
-        v-if="message"
+        v-if="artStore.generationMessage"
         class="rounded-2xl border p-3 text-sm font-semibold"
         :class="
-          messageTone === 'error'
+          artStore.generationMessageTone === 'error'
             ? 'border-error/40 bg-error/10 text-error'
             : 'border-success/40 bg-success/10 text-success'
         "
       >
-        {{ message }}
+        {{ artStore.generationMessage }}
       </div>
 
       <section
@@ -58,12 +50,12 @@
           <select
             v-model.number="selectedServerId"
             class="select select-bordered w-full rounded-2xl bg-base-200"
-            :disabled="isGenerating || isLoading"
+            :disabled="artStore.isGenerating || artStore.loading"
           >
             <option :value="null" disabled>Select image server...</option>
 
             <option
-              v-for="server in artServers"
+              v-for="server in artStore.generationServers"
               :key="server.id"
               :value="server.id"
             >
@@ -87,7 +79,9 @@
             v-model="selectedCheckpointName"
             class="select select-bordered w-full rounded-2xl bg-base-200"
             :disabled="
-              isGenerating || isLoading || checkpointStore.modelUpdating
+              artStore.isGenerating ||
+              artStore.loading ||
+              checkpointStore.modelUpdating
             "
           >
             <option value="" disabled>Select checkpoint...</option>
@@ -117,12 +111,12 @@
           <select
             v-model.number="selectedCollectionId"
             class="select select-bordered w-full rounded-2xl bg-base-200"
-            :disabled="isGenerating || isLoading"
+            :disabled="artStore.isGenerating || artStore.loading"
           >
             <option :value="null">Generated images only</option>
 
             <option
-              v-for="collection in collectionOptions"
+              v-for="collection in artStore.generationCollections"
               :key="collection.id"
               :value="collection.id"
             >
@@ -139,7 +133,7 @@
           <add-collection
             class="mt-2"
             :compact="true"
-            :disabled="isGenerating || isLoading"
+            :disabled="artStore.isGenerating || artStore.loading"
             :show-flags="false"
             @created="handleCollectionCreated"
             @selected="handleCollectionSelected"
@@ -160,7 +154,7 @@
               <button
                 class="btn btn-ghost btn-xs rounded-xl"
                 type="button"
-                :disabled="isGenerating"
+                :disabled="artStore.isGenerating"
                 @click="clearPrompt"
               >
                 Clear
@@ -171,7 +165,7 @@
               v-model="promptStore.promptField"
               class="textarea textarea-bordered min-h-40 resize-none rounded-2xl bg-base-200 text-base"
               placeholder="A clockwork fox knight guarding a neon greenhouse, cinematic lighting, richly detailed..."
-              :disabled="isGenerating"
+              :disabled="artStore.isGenerating"
             />
           </label>
 
@@ -184,7 +178,7 @@
               v-model="artStore.artForm.negativePrompt"
               class="textarea textarea-bordered min-h-24 resize-none rounded-2xl bg-base-200"
               placeholder="blurry, low quality, bad hands, watermark, text..."
-              :disabled="isGenerating"
+              :disabled="artStore.isGenerating"
             />
           </label>
 
@@ -214,7 +208,7 @@
                 <select
                   v-model="selectedSamplerName"
                   class="select select-bordered rounded-2xl bg-base-100"
-                  :disabled="isGenerating"
+                  :disabled="artStore.isGenerating"
                 >
                   <option value="" disabled>Select sampler...</option>
 
@@ -240,7 +234,7 @@
                     type="number"
                     min="1"
                     max="150"
-                    :disabled="isGenerating"
+                    :disabled="artStore.isGenerating"
                   />
                 </label>
 
@@ -255,7 +249,7 @@
                     type="number"
                     min="1"
                     max="30"
-                    :disabled="isGenerating"
+                    :disabled="artStore.isGenerating"
                   />
                 </label>
               </div>
@@ -270,7 +264,7 @@
                   class="input input-bordered rounded-2xl bg-base-100"
                   type="number"
                   placeholder="-1 for random"
-                  :disabled="isGenerating"
+                  :disabled="artStore.isGenerating"
                 />
               </label>
 
@@ -283,7 +277,7 @@
                   v-model="artStore.artForm.cfgHalf"
                   type="checkbox"
                   class="toggle toggle-primary"
-                  :disabled="isGenerating"
+                  :disabled="artStore.isGenerating"
                 />
               </label>
 
@@ -296,7 +290,7 @@
                   v-model="artStore.artForm.isPublic"
                   type="checkbox"
                   class="toggle toggle-success"
-                  :disabled="isGenerating"
+                  :disabled="artStore.isGenerating"
                 />
               </label>
 
@@ -309,7 +303,7 @@
                   v-model="artStore.artForm.isMature"
                   type="checkbox"
                   class="toggle toggle-warning"
-                  :disabled="isGenerating"
+                  :disabled="artStore.isGenerating"
                 />
               </label>
             </div>
@@ -321,9 +315,8 @@
             </summary>
 
             <p class="mt-2 text-sm text-base-content/70">
-              Upload only when you want a source image for remix/edit workflows.
-              This stays out of the main generation path because it is optional,
-              not the main character.
+              Upload only when you want a source image for remix or edit
+              workflows.
             </p>
 
             <div class="mt-3">
@@ -331,19 +324,7 @@
             </div>
           </details>
 
-          <button
-            class="btn btn-primary min-h-16 rounded-2xl text-lg text-white"
-            type="button"
-            :disabled="!canGenerate"
-            @click="generateArt"
-          >
-            <span
-              v-if="isGenerating"
-              class="loading loading-spinner loading-sm"
-            />
-            <icon v-else name="kind-icon:sparkles" class="h-6 w-6" />
-            {{ isGenerating ? 'Generating...' : 'Generate Image' }}
-          </button>
+          <generate-button />
         </aside>
       </section>
 
@@ -369,26 +350,28 @@
           </button>
         </div>
 
-        <art-display />
+        <image-card
+          v-if="artStore.lastGeneratedArtImage"
+          :art-image="artStore.lastGeneratedArtImage"
+        />
+
+        <art-display v-else />
       </section>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import type { Server } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import type { Resource } from '@/stores/resourceStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
-import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
-import { useUserStore } from '@/stores/userStore'
 
 type CheckpointResource = Partial<Resource> & {
   id?: number
@@ -402,55 +385,50 @@ const dashboardKey = 'art' as const
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
-const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
 const navStore = useNavStore()
 const promptStore = usePromptStore()
-const serverStore = useServerStore()
 const uploadStore = useUploadStore()
-const userStore = useUserStore()
-
-const isLoading = ref(false)
-const isGenerating = ref(false)
-const message = ref('')
-const messageTone = ref<'success' | 'error'>('success')
-const selectedCollectionId = ref<number | null>(null)
-
-const artServers = computed<Server[]>(() => {
-  const servers = Array.isArray(serverStore.servers)
-    ? (serverStore.servers as Server[])
-    : []
-
-  return servers.filter((server) => {
-    return Boolean(
-      server.isActive &&
-      server.supportsTxt2Img &&
-      server.serverType === 'A1111',
-    )
-  })
-})
 
 const selectedServerId = computed<number | null>({
-  get: () => {
-    return artStore.artForm.serverId ?? serverStore.activeArtServer?.id ?? null
-  },
+  get: () => artStore.artForm.serverId ?? null,
   set: (serverId) => {
-    const server = serverId ? serverStore.getServerById(serverId) : null
+    artStore.selectGenerationServer(serverId)
+  },
+})
 
+const selectedCheckpointName = computed({
+  get: () => artStore.selectedCheckpointName,
+  set: (name: string) => {
+    artStore.selectGenerationCheckpoint(name)
+  },
+})
+
+const selectedSamplerName = computed({
+  get: () => artStore.selectedSamplerName,
+  set: (name: string) => {
+    artStore.selectGenerationSampler(name)
+  },
+})
+
+const selectedCollectionId = computed<number | null>({
+  get: () => artStore.selectedGenerationCollectionId,
+  set: (collectionId) => {
+    artStore.selectGenerationCollection(collectionId)
+  },
+})
+
+const seedInput = computed<number | null>({
+  get: () => artStore.artForm.seed ?? null,
+  set: (value) => {
     artStore.setArtForm({
-      serverId,
-      serverName: server ? getServerLabel(server) : null,
+      seed: typeof value === 'number' && Number.isFinite(value) ? value : null,
     })
   },
 })
 
-const selectedServer = computed(() => {
-  if (!selectedServerId.value) return null
-  return serverStore.getServerById(selectedServerId.value) ?? null
-})
-
 const selectedServerSummary = computed(() => {
-  const server = selectedServer.value
+  const server = artStore.activeGenerationServer
 
   if (!server) return 'No server selected.'
 
@@ -464,109 +442,17 @@ const checkpointOptions = computed<CheckpointResource[]>(() => {
   if (!Array.isArray(checkpoints)) return []
 
   return (checkpoints as CheckpointResource[]).filter((checkpoint) => {
-    if (checkpoint.isMature && !showMature.value) return false
+    if (checkpoint.isMature && !artStore.showMature) return false
     return Boolean(safeText(checkpoint.name).trim())
   })
 })
 
-const selectedCheckpointName = computed({
-  get: () => {
-    return (
-      safeText(checkpointStore.selectedCheckpoint?.name).trim() ||
-      artStore.artForm.checkpoint ||
-      ''
-    )
-  },
-  set: (name: string) => {
-    const value = safeText(name).trim()
-
-    if (!value) return
-
-    checkpointStore.selectCheckpointByName(value)
-    artStore.setArtForm({ checkpoint: value })
-  },
-})
-
-const selectedSamplerName = computed({
-  get: () => {
-    return (
-      safeText(checkpointStore.selectedSampler?.name).trim() ||
-      artStore.artForm.sampler ||
-      ''
-    )
-  },
-  set: (name: string) => {
-    const value = safeText(name).trim()
-
-    if (!value) return
-
-    checkpointStore.selectSamplerByName(value)
-    artStore.setArtForm({ sampler: value })
-  },
-})
-
-const collectionOptions = computed<ArtCollection[]>(() => {
-  const collections = Array.isArray(collectionStore.collections)
-    ? collectionStore.collections
-    : []
-
-  return collections.filter((collection: ArtCollection) => {
-    if (collection.isMature && !showMature.value) return false
-    if (collection.userId === userStore.userId) return true
-    return Boolean(collection.isPublic)
-  })
-})
-
-const showMature = computed(() => {
-  return userStore.user?.showMature ?? userStore.showMature ?? false
-})
-
-const seedInput = computed<number | null>({
-  get: () => artStore.artForm.seed ?? null,
-  set: (value) => {
-    artStore.setArtForm({
-      seed: typeof value === 'number' && Number.isFinite(value) ? value : null,
-    })
-  },
-})
-
-const finalPrompt = computed(() => {
-  return (
-    promptStore.promptField?.trim() ||
-    artStore.getPromptString?.trim() ||
-    artStore.artForm.promptString?.trim() ||
-    ''
-  )
-})
-
-const canGenerate = computed(() => {
-  return Boolean(
-    !isLoading.value &&
-    !isGenerating.value &&
-    selectedServerId.value &&
-    selectedCheckpointName.value &&
-    finalPrompt.value,
-  )
-})
-
-function handleCollectionCreated(collection: ArtCollection) {
-  selectedCollectionId.value = collection.id
-  syncSelectedCollection(collection.id)
-  setMessage(
-    'success',
-    `Created collection: ${collection.label || collection.id}`,
-  )
-}
-
-function handleCollectionSelected(collection: ArtCollection) {
-  selectedCollectionId.value = collection.id
-  syncSelectedCollection(collection.id)
-}
-
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean')
+  if (typeof value === 'number' || typeof value === 'boolean') {
     return String(value)
+  }
+
   return ''
 }
 
@@ -596,29 +482,27 @@ function configureArtImageUpload() {
   })
 }
 
-function syncSelectedCollection(collectionId: number | null) {
-  if (!collectionId) {
-    collectionStore.currentCollection = null
-    collectionStore.clearSelectedCollections()
-    return
-  }
+function handleCollectionCreated(collection: ArtCollection) {
+  artStore.selectGenerationCollection(collection.id)
+  artStore.setGenerationMessage(
+    'success',
+    `Created collection: ${collection.label || collection.id}`,
+  )
+}
 
-  collectionStore.setCurrentCollection(collectionId)
-  collectionStore.setSelectedCollectionIds([collectionId])
+function handleCollectionSelected(collection: ArtCollection) {
+  artStore.selectGenerationCollection(collection.id)
 }
 
 function clearPrompt() {
   promptStore.promptField = ''
+
   artStore.setArtForm({
     promptString: '',
     negativePrompt: '',
   })
-  message.value = ''
-}
 
-function setMessage(tone: 'success' | 'error', value: string) {
-  messageTone.value = tone
-  message.value = value
+  artStore.clearGenerationMessage()
 }
 
 function goToSelectedTab() {
@@ -626,112 +510,24 @@ function goToSelectedTab() {
 }
 
 function handleRemixUploaded() {
-  setMessage('success', 'Remix image uploaded. Opening selected image.')
+  artStore.setGenerationMessage(
+    'success',
+    'Remix image uploaded. Opening selected image.',
+  )
+
   goToSelectedTab()
 }
 
-async function loadGenerator() {
-  isLoading.value = true
-  message.value = ''
-
-  try {
-    await Promise.all([
-      navStore.initialize(),
-      ...(serverStore.hasLoaded
-        ? []
-        : [serverStore.initialize({ fetchRemote: true })]),
-      artStore.initialize({
-        fetchRemote: false,
-        hydrateImages: false,
-        initializeServerStore: false,
-      }),
-      collectionStore.fetchCollections?.(),
-    ])
-
-    if (!selectedServerId.value && serverStore.activeArtServer?.id) {
-      selectedServerId.value = serverStore.activeArtServer.id
-    }
-
-    if (!selectedSamplerName.value) {
-      selectedSamplerName.value = 'Euler a'
-    }
-
-    if (!artStore.artForm.userId) {
-      artStore.setArtForm({
-        userId: userStore.userId || userStore.user?.id || 10,
-        designer:
-          userStore.username || userStore.user?.username || 'Kind Designer',
-      })
-    }
-
-    configureArtImageUpload()
-  } catch (error) {
-    const value =
-      error instanceof Error ? error.message : 'Failed to load image generator.'
-
-    setMessage('error', value)
-    errorStore.addError(ErrorType.GENERAL_ERROR, value)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function generateArt() {
-  if (!canGenerate.value) return
-
-  isGenerating.value = true
-  message.value = ''
-
-  try {
-    syncSelectedCollection(selectedCollectionId.value)
-
-    const result = await artStore.generateArt({
-      promptString: finalPrompt.value,
-      negativePrompt: artStore.artForm.negativePrompt,
-      steps: artStore.artForm.steps,
-      cfg: artStore.artForm.cfg,
-      cfgHalf: artStore.artForm.cfgHalf,
-      isMature: artStore.artForm.isMature,
-      isPublic: artStore.artForm.isPublic,
-      seed: artStore.artForm.seed,
-      promptId: artStore.artForm.promptId,
-      pitchId: artStore.artForm.pitchId,
-      serverId: selectedServerId.value,
-      serverName: selectedServer.value
-        ? getServerLabel(selectedServer.value)
-        : null,
-      checkpoint: selectedCheckpointName.value,
-      sampler: selectedSamplerName.value,
-      designer:
-        artStore.artForm.designer ||
-        userStore.username ||
-        userStore.user?.username ||
-        'Kind Designer',
-      userId: artStore.artForm.userId || userStore.userId || 10,
-      pitch: artStore.artForm.pitch,
-    })
-
-    if (!result.success) {
-      throw new Error(result.message || 'Generation failed.')
-    }
-
-    setMessage('success', result.message || 'Image generated.')
-    goToSelectedTab()
-  } catch (error) {
-    const value = error instanceof Error ? error.message : 'Generation failed.'
-
-    setMessage('error', value)
-    errorStore.addError(ErrorType.GENERAL_ERROR, value)
-  } finally {
-    isGenerating.value = false
-  }
-}
-
-watch(selectedCollectionId, (collectionId) => {
-  syncSelectedCollection(collectionId)
-})
-
 onMounted(async () => {
-  await loadGenerator()
+  const result = await artStore.prepareArtGenerator()
+
+  configureArtImageUpload()
+
+  if (!result.success) {
+    errorStore.addError(
+      ErrorType.GENERAL_ERROR,
+      result.message || 'Failed to load image generator.',
+    )
+  }
 })
 </script>

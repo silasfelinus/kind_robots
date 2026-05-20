@@ -7,24 +7,33 @@ describe('ArtImage Management API Tests', () => {
   const artGenerateUrl = `${apiRoot}/art/generate`
   const invalidToken = 'someInvalidTokenValue'
   const adminUserId = 1
+  const testUserId = 9
 
   let apiKey = ''
   let adminToken = ''
-  let lolaTestServerId = 24
+  let userToken = ''
+  let lolaTestServerId = 37
   let fixtureArtImageId: number | undefined
   let generatedArtImageId: number | undefined
   let generatedPath = ''
 
   before(() => {
-    cy.env(['API_KEY', 'ADMIN_TOKEN', 'LOLA_TEST_SERVER_ID']).then((env) => {
+    cy.env([
+      'API_KEY',
+      'ADMIN_TOKEN',
+      'USER_TOKEN',
+      'LOLA_TEST_SERVER_ID',
+    ]).then((env) => {
       apiKey = String(env.API_KEY || '')
       adminToken = String(env.ADMIN_TOKEN || '')
+      userToken = String(env.USER_TOKEN || '')
 
-      const parsedValue = Number(env.LOLA_TEST_SERVER_ID ?? 24)
-      lolaTestServerId = Number.isFinite(parsedValue) ? parsedValue : 24
+      const parsedValue = Number(env.LOLA_TEST_SERVER_ID ?? 37)
+      lolaTestServerId = Number.isFinite(parsedValue) ? parsedValue : 37
 
       expect(apiKey, 'API_KEY').to.be.a('string').and.not.be.empty
       expect(adminToken, 'ADMIN_TOKEN').to.be.a('string').and.not.be.empty
+      expect(userToken, 'USER_TOKEN').to.be.a('string').and.not.be.empty
       expect(lolaTestServerId, 'LOLA_TEST_SERVER_ID').to.be.a('number')
     })
 
@@ -34,24 +43,18 @@ describe('ArtImage Management API Tests', () => {
         url: artImageUrl,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          Authorization: `Bearer ${adminToken}`,
+          Authorization: `Bearer ${userToken}`,
         },
         body: {
           promptString:
-            'surreal, A beautiful pancake sunrise over the mountains',
-          artPrompt: 'surreal, A beautiful pancake sunrise over the mountains',
+            'surreal, a beautiful pancake sunrise over the mountains',
           steps: 10,
-          path: `/images/test/pancake-sunrise-${Date.now()}.webp`,
-          imagePath: `/images/test/pancake-sunrise-${Date.now()}.webp`,
-          fileName: `pancake-sunrise-${Date.now()}.webp`,
-          fileType: 'webp',
+          path: ' ',
           seed: -1,
-          userId: adminUserId,
-          designer: 'cypress-admin',
-          isPublic: false,
-          isMature: false,
-          isActive: true,
+          userId: testUserId,
+          promptId: null,
+          pitchId: null,
+          imagePath: 'justfortesting',
         },
         failOnStatusCode: false,
       }).then((response) => {
@@ -75,22 +78,29 @@ describe('ArtImage Management API Tests', () => {
   })
 
   after(() => {
-    const idsToDelete = [fixtureArtImageId, generatedArtImageId].filter(
-      (id): id is number =>
-        typeof id === 'number' && Number.isInteger(id) && id > 0,
-    )
-
-    idsToDelete.forEach((id) => {
+    if (fixtureArtImageId) {
       cy.request({
         method: 'DELETE',
-        url: `${artImageUrl}/${id}`,
+        url: `${artImageUrl}/${fixtureArtImageId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        failOnStatusCode: false,
+      })
+    }
+
+    if (generatedArtImageId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${artImageUrl}/${generatedArtImageId}`,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${adminToken}`,
         },
         failOnStatusCode: false,
       })
-    })
+    }
   })
 
   it('should not allow generating an ArtImage without a bearer token', () => {
@@ -236,7 +246,7 @@ describe('ArtImage Management API Tests', () => {
       url: `${artImageUrl}/${fixtureArtImageId}`,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${adminToken}`,
+        Authorization: `Bearer ${userToken}`,
       },
       failOnStatusCode: false,
       body: {
@@ -343,7 +353,7 @@ describe('ArtImage Management API Tests', () => {
       url: `${artImageUrl}/${fixtureArtImageId}`,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${adminToken}`,
+        Authorization: `Bearer ${userToken}`,
       },
       failOnStatusCode: false,
     }).then((response) => {

@@ -28,7 +28,6 @@ const artImageListSelect = {
   isPublic: true,
   isMature: true,
   isActive: true,
-  promptId: true,
   serverId: true,
   serverName: true,
   serverUrl: true,

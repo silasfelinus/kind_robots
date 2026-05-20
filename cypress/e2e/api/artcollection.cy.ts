@@ -7,7 +7,6 @@ type ArtImageTestRecord = {
 describe('ArtCollection API Tests', () => {
   const baseUrl = 'https://kind-robots.vercel.app/api/art/collection'
   const artImageBaseUrl = 'https://kind-robots.vercel.app/api/art/image'
-  const artBaseUrl = 'https://kind-robots.vercel.app/api/art'
   const invalidToken = 'someInvalidTokenValue'
 
   let userToken = ''
@@ -268,7 +267,7 @@ describe('ArtCollection API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include('authorization')
+      expect(response.body.message).to.match(/authorization/i)
     })
   })
 
@@ -304,19 +303,22 @@ describe('ArtCollection API Tests', () => {
 
   after(() => {
     cy.then(() => {
-      const cleanupArtImageIds = [artImageId, newArtImageId].filter(Boolean)
+      const cleanupArtImageIds = [artImageId, newArtImageId].filter(
+        (id): id is number =>
+          typeof id === 'number' && Number.isInteger(id) && id > 0,
+      )
 
       cleanupArtImageIds.forEach((id) => {
         cy.request({
           method: 'DELETE',
-          url: `${artBaseUrl}/${id}`,
+          url: `${artImageBaseUrl}/${id}`,
           headers: {
             Authorization: `Bearer ${userToken}`,
           },
           failOnStatusCode: false,
         }).then((response) => {
           if (response.status !== 404) {
-            expect(response.status).to.eq(200)
+            expect(response.status, JSON.stringify(response.body)).to.eq(200)
             expect(response.body.success).to.be.true
           }
         })

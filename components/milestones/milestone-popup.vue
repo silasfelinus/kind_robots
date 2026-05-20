@@ -47,15 +47,11 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/milestones/milestone-popup.vue
+// /components/content/story/milestone-popup.vue
 import { computed, watch, nextTick } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import confetti from 'canvas-confetti'
-
-type MilestoneRecordLike = {
-  milestoneId: number
-}
 
 type MilestoneLike = {
   id: number
@@ -68,7 +64,6 @@ type MilestoneLike = {
 const userStore = useUserStore()
 const milestoneStore = useMilestoneStore()
 
-
 const milestone = computed<MilestoneLike | null>(() => {
   const m = milestoneStore.unconfirmedMilestones?.[0]
   return (m ?? null) as MilestoneLike | null
@@ -77,11 +72,13 @@ const milestone = computed<MilestoneLike | null>(() => {
 watch(milestone, async (newMilestone, oldMilestone) => {
   if (newMilestone && !oldMilestone && !userStore.isGuest) {
     await nextTick()
+
     confetti({
       particleCount: 150,
       spread: 90,
       origin: { y: 0.6 },
     })
+
     console.log(
       `[milestone-popup] Confetti triggered for ${newMilestone.label}`,
     )
@@ -102,5 +99,4 @@ const acknowledgeMilestone = async (): Promise<void> => {
 
   await milestoneStore.confirmMilestone(current.id)
 }
-
 </script>

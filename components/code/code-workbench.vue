@@ -1,7 +1,7 @@
 <!-- /components/code/code-workbench.vue -->
 <template>
   <section
-    class="flex h-full min-h-175 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-full min-h-[700px] w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
     <header
       class="relative z-20 flex flex-col gap-3 border-b border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur sm:p-4 xl:flex-row xl:items-center xl:justify-between"
@@ -19,6 +19,30 @@
           models, characters, dreams, rewards, and scenarios can all become
           pieces in the machine.
         </p>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <span
+            class="badge rounded-2xl"
+            :class="codeStore.isDirty ? 'badge-warning' : 'badge-success'"
+          >
+            {{ codeStore.isDirty ? 'Unsaved changes' : 'Saved' }}
+          </span>
+
+          <span class="badge badge-outline rounded-2xl">
+            {{ codeStore.nodes.length }} cards
+          </span>
+
+          <span class="badge badge-outline rounded-2xl">
+            {{ codeStore.connections.length }} links
+          </span>
+
+          <span
+            v-if="codeStore.runStatus !== 'idle'"
+            class="badge badge-info rounded-2xl"
+          >
+            {{ codeStore.runStatus }}
+          </span>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
@@ -51,13 +75,56 @@
         </button>
 
         <button
+          class="btn btn-sm rounded-2xl lg:hidden"
+          :class="
+            codeStore.mobileTrayMode === 'library'
+              ? 'btn-primary'
+              : 'btn-outline'
+          "
+          type="button"
+          @click="toggleMobileTray('library')"
+        >
+          <icon name="kind-icon:library" class="h-4 w-4" />
+          Library
+        </button>
+
+        <button
           class="btn btn-sm rounded-2xl"
           :class="codeStore.showToybox ? 'btn-primary' : 'btn-outline'"
           type="button"
           @click="codeStore.toggleToybox()"
         >
           <icon name="kind-icon:toybox" class="h-4 w-4" />
-          <span class="hidden sm:inline"> Toybox </span>
+          <span class="hidden sm:inline">Toybox</span>
+        </button>
+
+        <button
+          class="btn btn-sm rounded-2xl"
+          :class="
+            codeStore.panelMode === 'library'
+              ? 'btn-primary'
+              : 'btn-outline'
+          "
+          type="button"
+          @click="togglePanel('library')"
+        >
+          <icon name="kind-icon:library" class="h-4 w-4" />
+          <span class="hidden sm:inline">Library</span>
+        </button>
+
+        <button
+          class="btn btn-sm rounded-2xl"
+          :class="
+            codeStore.panelMode === 'node-settings'
+              ? 'btn-secondary'
+              : 'btn-outline'
+          "
+          :disabled="!codeStore.selectedNode"
+          type="button"
+          @click="toggleSettingsPanel"
+        >
+          <icon name="kind-icon:settings" class="h-4 w-4" />
+          <span class="hidden sm:inline">Settings</span>
         </button>
 
         <div class="dropdown dropdown-end">
@@ -134,16 +201,26 @@
         <button
           class="btn btn-sm btn-outline rounded-2xl"
           type="button"
+          @click="codeStore.runCurrentGraph()"
+        >
+          <icon name="kind-icon:play" class="h-4 w-4" />
+          <span class="hidden sm:inline">Run</span>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline rounded-2xl"
+          type="button"
           @click="codeStore.clearBoard()"
         >
           <icon name="kind-icon:trash" class="h-4 w-4" />
-          <span class="hidden sm:inline"> Clear </span>
+          <span class="hidden sm:inline">Clear</span>
         </button>
       </div>
     </header>
 
     <div
-      class="relative grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)]"
+      class="relative grid min-h-0 flex-1 grid-cols-1 overflow-hidden"
+      :class="desktopGridClass"
     >
       <aside
         v-if="codeStore.showToybox"
@@ -157,37 +234,11 @@
       </main>
 
       <aside
-        v-if="showDesktopSettings"
-        class="hidden min-h-0 w-90 border-l border-base-300 bg-base-100 xl:block"
+        v-if="showDesktopPanel"
+        class="hidden min-h-0 w-[360px] border-l border-base-300 bg-base-100 xl:block"
       >
-        <section class="flex h-full flex-col">
-          <header class="border-b border-base-300 p-4">
-            <div class="flex items-center justify-between gap-2">
-              <div class="min-w-0">
-                <h2 class="truncate text-lg font-black text-primary">
-                  {{ codeStore.selectedNode?.title || 'Node Settings' }}
-                </h2>
-
-                <p class="truncate text-xs text-base-content/60">
-                  {{
-                    codeStore.selectedDefinition?.subtitle ||
-                    'Configure this card.'
-                  }}
-                </p>
-              </div>
-
-              <button
-                class="btn btn-ghost btn-sm btn-circle"
-                type="button"
-                @click="codeStore.closeSelectedNodeSettings()"
-              >
-                <icon name="kind-icon:x" class="h-4 w-4" />
-              </button>
-            </div>
-          </header>
-
-          <code-settings />
-        </section>
+        <code-settings v-if="codeStore.panelMode === 'node-settings'" />
+        <code-library v-else-if="codeStore.panelMode === 'library'" />
       </aside>
 
       <div
@@ -214,7 +265,7 @@
           </button>
         </div>
 
-        <div class="max-h-[calc(78dvh-3.5rem)] overflow-y-auto p-3">
+        <div class="max-h-[calc(78dvh-3.5rem)] overflow-y-auto">
           <code-palette
             v-if="
               codeStore.mobileTrayMode === 'toybox' ||
@@ -222,7 +273,13 @@
             "
           />
 
-          <code-settings v-else-if="codeStore.mobileTrayMode === 'settings'" />
+          <code-settings
+            v-else-if="codeStore.mobileTrayMode === 'settings'"
+          />
+
+          <code-library
+            v-else-if="codeStore.mobileTrayMode === 'library'"
+          />
         </div>
       </div>
     </div>
@@ -231,25 +288,45 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useCodeStore, type CodeMobileTrayMode } from '@/stores/codeStore'
+import { useCodeStore, type CodeMobileTrayMode, type CodePanelMode } from '@/stores/codeStore'
 
 const codeStore = useCodeStore()
 
-const showDesktopSettings = computed(() => {
-  return (
-    codeStore.panelMode === 'node-settings' && Boolean(codeStore.selectedNode)
-  )
+const showDesktopPanel = computed(() => {
+  if (codeStore.panelMode === 'library') {
+    return true
+  }
+
+  return codeStore.panelMode === 'node-settings' && Boolean(codeStore.selectedNode)
+})
+
+const desktopGridClass = computed(() => {
+  if (codeStore.showToybox && showDesktopPanel.value) {
+    return 'lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)_360px]'
+  }
+
+  if (codeStore.showToybox) {
+    return 'lg:grid-cols-[300px_minmax(0,1fr)]'
+  }
+
+  if (showDesktopPanel.value) {
+    return 'xl:grid-cols-[minmax(0,1fr)_360px]'
+  }
+
+  return 'grid-cols-1'
 })
 
 const mobileTrayTitle = computed(() => {
   if (codeStore.mobileTrayMode === 'quick-plays') return 'Quick Plays'
   if (codeStore.mobileTrayMode === 'settings') return 'Settings'
+  if (codeStore.mobileTrayMode === 'library') return 'Library'
   return 'Toybox'
 })
 
 const mobileTrayIcon = computed(() => {
   if (codeStore.mobileTrayMode === 'quick-plays') return 'kind-icon:cards'
   if (codeStore.mobileTrayMode === 'settings') return 'kind-icon:settings'
+  if (codeStore.mobileTrayMode === 'library') return 'kind-icon:library'
   return 'kind-icon:toybox'
 })
 
@@ -260,6 +337,28 @@ function toggleMobileTray(mode: CodeMobileTrayMode) {
   }
 
   codeStore.setMobileTray(mode)
+}
+
+function togglePanel(mode: CodePanelMode) {
+  if (codeStore.panelMode === mode) {
+    codeStore.closePanel()
+    return
+  }
+
+  codeStore.openPanel(mode)
+}
+
+function toggleSettingsPanel() {
+  if (!codeStore.selectedNode) {
+    return
+  }
+
+  if (codeStore.panelMode === 'node-settings') {
+    codeStore.closePanel()
+    return
+  }
+
+  codeStore.openSelectedNodeSettings()
 }
 
 onMounted(() => {

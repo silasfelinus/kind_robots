@@ -6,7 +6,7 @@
     <div
       ref="canvasRef"
       data-code-canvas-scroll
-      class="relative h-full min-h-160 w-full overflow-auto"
+      class="relative h-full min-h-[640px] w-full overflow-auto"
       @dragover.prevent
       @drop="onDrop"
       @click.self="clearCanvasSelection"
@@ -32,12 +32,12 @@
           >
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.08)_1px,transparent_1px)] bg-size-[28px_28px]"
+              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.08)_1px,transparent_1px)] bg-[size:28px_28px]"
             />
 
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.18)_1px,transparent_0)] bg-size-[112px_112px]"
+              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.18)_1px,transparent_0)] [background-size:112px_112px]"
             />
 
             <div class="pointer-events-none absolute inset-0 opacity-20">
@@ -64,7 +64,7 @@
                 v-for="connection in visibleConnections"
                 :key="connection.id"
                 :d="connection.path"
-                class="fill-none stroke-5 opacity-80 drop-shadow-sm"
+                class="fill-none stroke-[5] opacity-80 drop-shadow-sm"
                 :class="connection.className"
                 stroke-linecap="round"
               />
@@ -73,7 +73,7 @@
                 v-for="connection in visibleConnections"
                 :key="`${connection.id}-glow`"
                 :d="connection.path"
-                class="fill-none stroke-11 opacity-20 blur-sm"
+                class="fill-none stroke-[11] opacity-20 blur-sm"
                 :class="connection.className"
                 stroke-linecap="round"
               />
@@ -164,63 +164,10 @@
       </div>
     </div>
 
-    <div
-      class="pointer-events-none absolute left-3 top-3 z-30 flex flex-wrap gap-2"
-    >
-      <div
-        class="pointer-events-auto flex items-center overflow-hidden rounded-2xl border border-cyan-300/30 bg-slate-900/90 text-cyan-100 shadow-lg backdrop-blur"
-      >
-        <button
-          class="btn btn-ghost btn-xs rounded-none text-cyan-100"
-          type="button"
-          title="Zoom out"
-          @click="codeStore.zoomOut()"
-        >
-          <icon name="kind-icon:minus" class="h-4 w-4" />
-        </button>
-
-        <button
-          class="btn btn-ghost btn-xs rounded-none px-3 text-cyan-100"
-          type="button"
-          title="Reset zoom"
-          @click="codeStore.resetZoom()"
-        >
-          {{ codeStore.zoomPercent }}%
-        </button>
-
-        <button
-          class="btn btn-ghost btn-xs rounded-none text-cyan-100"
-          type="button"
-          title="Zoom in"
-          @click="codeStore.zoomIn()"
-        >
-          <icon name="kind-icon:plus" class="h-4 w-4" />
-        </button>
+    <div class="pointer-events-none absolute left-3 top-3 z-30">
+      <div class="pointer-events-auto">
+        <code-controls />
       </div>
-
-      <button
-        class="pointer-events-auto btn btn-xs rounded-2xl border-cyan-300/30 bg-slate-900/90 text-cyan-100 shadow-lg backdrop-blur"
-        type="button"
-        title="Fit to view"
-        @click="fitCanvas"
-      >
-        <icon name="kind-icon:expand" class="h-4 w-4" />
-        Fit
-      </button>
-
-      <button
-        class="pointer-events-auto btn btn-xs rounded-2xl border-cyan-300/30 bg-slate-900/90 text-cyan-100 shadow-lg backdrop-blur"
-        :class="{
-          'border-primary bg-primary text-primary-content':
-            codeStore.snapToGrid,
-        }"
-        type="button"
-        title="Toggle snap to grid"
-        @click="codeStore.toggleSnapToGrid()"
-      >
-        <icon name="kind-icon:grid" class="h-4 w-4" />
-        Snap
-      </button>
     </div>
 
     <div
@@ -400,10 +347,8 @@ async function fitCanvas() {
     return
   }
 
-  codeStore.setViewport(
-    canvasRef.value.clientWidth,
-    canvasRef.value.clientHeight,
-  )
+  codeStore.setViewport(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
+
   codeStore.fitToView({
     width: canvasRef.value.clientWidth,
     height: canvasRef.value.clientHeight,
@@ -416,6 +361,7 @@ async function fitCanvas() {
   }
 
   const bounds = codeStore.nodeBounds
+
   canvasRef.value.scrollTo({
     left: Math.max(0, bounds.minX * codeStore.zoom - 120),
     top: Math.max(0, bounds.minY * codeStore.zoom - 120),
@@ -428,10 +374,7 @@ function updateViewport() {
     return
   }
 
-  codeStore.setViewport(
-    canvasRef.value.clientWidth,
-    canvasRef.value.clientHeight,
-  )
+  codeStore.setViewport(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
 }
 
 function miniNodeStyle(node: CodeNode) {

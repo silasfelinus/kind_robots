@@ -60,6 +60,7 @@ export const ModelName = {
   Chat: 'Chat',
   Code: 'Code',
   Component: 'Component',
+  Composition: 'Composition',
   Dream: 'Dream',
   Log: 'Log',
   Milestone: 'Milestone',
@@ -316,6 +317,37 @@ export const ComponentScalarFieldEnum = {
 export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
 
 
+export const CompositionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  description: 'description',
+  label: 'label',
+  mode: 'mode',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive',
+  designer: 'designer',
+  characterId: 'characterId',
+  dreamId: 'dreamId',
+  scenarioId: 'scenarioId',
+  pitchId: 'pitchId',
+  rewardId: 'rewardId',
+  characterBlurb: 'characterBlurb',
+  dreamBlurb: 'dreamBlurb',
+  scenarioBlurb: 'scenarioBlurb',
+  pitchBlurb: 'pitchBlurb',
+  rewardBlurb: 'rewardBlurb',
+  narrativeText: 'narrativeText',
+  artPrompt: 'artPrompt',
+  userId: 'userId',
+  artImageId: 'artImageId'
+} as const
+
+export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
+
+
 export const DreamScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -454,7 +486,8 @@ export const ReactionScalarFieldEnum = {
   butterflyId: 'butterflyId',
   characterId: 'characterId',
   scenarioId: 'scenarioId',
-  themeId: 'themeId'
+  themeId: 'themeId',
+  compositionId: 'compositionId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -862,6 +895,24 @@ export const ComponentOrderByRelevanceFieldEnum = {
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
+
+
+export const CompositionOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  label: 'label',
+  mode: 'mode',
+  designer: 'designer',
+  characterBlurb: 'characterBlurb',
+  dreamBlurb: 'dreamBlurb',
+  scenarioBlurb: 'scenarioBlurb',
+  pitchBlurb: 'pitchBlurb',
+  rewardBlurb: 'rewardBlurb',
+  narrativeText: 'narrativeText',
+  artPrompt: 'artPrompt'
+} as const
+
+export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {

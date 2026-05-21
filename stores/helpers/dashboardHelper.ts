@@ -233,6 +233,17 @@ export const dashboardConfigs = {
       },
     ],
   },
+  composition: {
+    key: 'composition',
+    label: 'Composition Manager',
+    defaultTab: 'overview',
+    tabs: [
+      { key: 'overview', label: 'Overview', icon: 'kind-icon:home' },
+      { key: 'gallery', label: 'Gallery', icon: 'kind-icon:grid' },
+      { key: 'add', label: 'New', icon: 'kind-icon:plus' },
+      { key: 'synthesize', label: 'Synthesize', icon: 'kind-icon:wand' },
+    ],
+  },
 
   dream: {
     key: 'dream',
@@ -716,7 +727,22 @@ export const dashboardConfigs = {
   },
 } as const satisfies Record<string, DashboardConfig>
 
-export type DashboardKey = keyof typeof dashboardConfigs
+export type DashboardKey =
+  | 'art'
+  | 'bot'
+  | 'brainstorm'
+  | 'builder'
+  | 'user'
+  | 'dream'
+  | 'character'
+  | 'reward'
+  | 'scenario'
+  | 'footer'
+  | 'theme'
+  | 'giftshop'
+  | 'server'
+  | 'wonder'
+  | 'composition'
 
 export type FooterKey = (typeof dashboardConfigs.footer.tabs)[number]['key']
 

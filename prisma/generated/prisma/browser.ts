@@ -67,6 +67,11 @@ export type Code = Prisma.CodeModel
  */
 export type Component = Prisma.ComponentModel
 /**
+ * Model Composition
+ * 
+ */
+export type Composition = Prisma.CompositionModel
+/**
  * Model Dream
  * 
  */

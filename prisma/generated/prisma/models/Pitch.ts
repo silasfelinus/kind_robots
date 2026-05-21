@@ -341,6 +341,7 @@ export type PitchWhereInput = {
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Prompt?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  Compositions?: Prisma.CompositionListRelationFilter
 }
 
 export type PitchOrderByWithRelationInput = {
@@ -368,6 +369,7 @@ export type PitchOrderByWithRelationInput = {
   User?: Prisma.UserOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  Compositions?: Prisma.CompositionOrderByRelationAggregateInput
   _relevance?: Prisma.PitchOrderByRelevanceInput
 }
 
@@ -399,6 +401,7 @@ export type PitchWhereUniqueInput = Prisma.AtLeast<{
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Prompt?: Prisma.PromptListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  Compositions?: Prisma.CompositionListRelationFilter
 }, "id">
 
 export type PitchOrderByWithAggregationInput = {
@@ -475,6 +478,7 @@ export type PitchCreateInput = {
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateInput = {
@@ -500,6 +504,7 @@ export type PitchUncheckedCreateInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUpdateInput = {
@@ -524,6 +529,7 @@ export type PitchUpdateInput = {
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateInput = {
@@ -549,6 +555,7 @@ export type PitchUncheckedUpdateInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateManyInput = {
@@ -755,6 +762,22 @@ export type PitchUncheckedUpdateManyWithoutArtImageNestedInput = {
   deleteMany?: Prisma.PitchScalarWhereInput | Prisma.PitchScalarWhereInput[]
 }
 
+export type PitchCreateNestedOneWithoutCompositionsInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutCompositionsInput, Prisma.PitchUncheckedCreateWithoutCompositionsInput>
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutCompositionsInput
+  connect?: Prisma.PitchWhereUniqueInput
+}
+
+export type PitchUpdateOneWithoutCompositionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PitchCreateWithoutCompositionsInput, Prisma.PitchUncheckedCreateWithoutCompositionsInput>
+  connectOrCreate?: Prisma.PitchCreateOrConnectWithoutCompositionsInput
+  upsert?: Prisma.PitchUpsertWithoutCompositionsInput
+  disconnect?: Prisma.PitchWhereInput | boolean
+  delete?: Prisma.PitchWhereInput | boolean
+  connect?: Prisma.PitchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PitchUpdateToOneWithWhereWithoutCompositionsInput, Prisma.PitchUpdateWithoutCompositionsInput>, Prisma.PitchUncheckedUpdateWithoutCompositionsInput>
+}
+
 export type PitchCreateNestedOneWithoutDreamsInput = {
   create?: Prisma.XOR<Prisma.PitchCreateWithoutDreamsInput, Prisma.PitchUncheckedCreateWithoutDreamsInput>
   connectOrCreate?: Prisma.PitchCreateOrConnectWithoutDreamsInput
@@ -874,6 +897,7 @@ export type PitchCreateWithoutArtImageInput = {
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutArtImageInput = {
@@ -898,6 +922,7 @@ export type PitchUncheckedCreateWithoutArtImageInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutArtImageInput = {
@@ -951,6 +976,120 @@ export type PitchScalarWhereInput = {
   artPrompt?: Prisma.StringNullableFilter<"Pitch"> | string | null
 }
 
+export type PitchCreateWithoutCompositionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title?: string | null
+  pitch: string
+  designer?: string | null
+  flavorText?: string | null
+  highlightImage?: string | null
+  PitchType?: $Enums.PitchType
+  isMature?: boolean
+  isPublic?: boolean
+  description?: string | null
+  examples?: string | null
+  icon?: string | null
+  creationSource?: $Enums.CreationSource
+  isActive?: boolean
+  artPrompt?: string | null
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPitchInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
+  User?: Prisma.UserCreateNestedOneWithoutPitchesInput
+  Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
+}
+
+export type PitchUncheckedCreateWithoutCompositionsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title?: string | null
+  pitch: string
+  designer?: string | null
+  flavorText?: string | null
+  highlightImage?: string | null
+  PitchType?: $Enums.PitchType
+  isMature?: boolean
+  isPublic?: boolean
+  userId?: number | null
+  description?: string | null
+  artImageId?: number | null
+  examples?: string | null
+  icon?: string | null
+  creationSource?: $Enums.CreationSource
+  isActive?: boolean
+  artPrompt?: string | null
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
+  Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
+}
+
+export type PitchCreateOrConnectWithoutCompositionsInput = {
+  where: Prisma.PitchWhereUniqueInput
+  create: Prisma.XOR<Prisma.PitchCreateWithoutCompositionsInput, Prisma.PitchUncheckedCreateWithoutCompositionsInput>
+}
+
+export type PitchUpsertWithoutCompositionsInput = {
+  update: Prisma.XOR<Prisma.PitchUpdateWithoutCompositionsInput, Prisma.PitchUncheckedUpdateWithoutCompositionsInput>
+  create: Prisma.XOR<Prisma.PitchCreateWithoutCompositionsInput, Prisma.PitchUncheckedCreateWithoutCompositionsInput>
+  where?: Prisma.PitchWhereInput
+}
+
+export type PitchUpdateToOneWithWhereWithoutCompositionsInput = {
+  where?: Prisma.PitchWhereInput
+  data: Prisma.XOR<Prisma.PitchUpdateWithoutCompositionsInput, Prisma.PitchUncheckedUpdateWithoutCompositionsInput>
+}
+
+export type PitchUpdateWithoutCompositionsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.StringFieldUpdateOperationsInput | string
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Dreams?: Prisma.DreamUpdateManyWithoutPitchNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
+  User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
+  Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
+}
+
+export type PitchUncheckedUpdateWithoutCompositionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pitch?: Prisma.StringFieldUpdateOperationsInput | string
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flavorText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  highlightImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PitchType?: Prisma.EnumPitchTypeFieldUpdateOperationsInput | $Enums.PitchType
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
+  Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
+}
+
 export type PitchCreateWithoutDreamsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -972,6 +1111,7 @@ export type PitchCreateWithoutDreamsInput = {
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutDreamsInput = {
@@ -996,6 +1136,7 @@ export type PitchUncheckedCreateWithoutDreamsInput = {
   artPrompt?: string | null
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutDreamsInput = {
@@ -1035,6 +1176,7 @@ export type PitchUpdateWithoutDreamsInput = {
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutDreamsInput = {
@@ -1059,6 +1201,7 @@ export type PitchUncheckedUpdateWithoutDreamsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateWithoutPromptInput = {
@@ -1082,6 +1225,7 @@ export type PitchCreateWithoutPromptInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutPromptInput = {
@@ -1106,6 +1250,7 @@ export type PitchUncheckedCreateWithoutPromptInput = {
   artPrompt?: string | null
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutPromptInput = {
@@ -1145,6 +1290,7 @@ export type PitchUpdateWithoutPromptInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutPromptInput = {
@@ -1169,6 +1315,7 @@ export type PitchUncheckedUpdateWithoutPromptInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateWithoutReactionsInput = {
@@ -1192,6 +1339,7 @@ export type PitchCreateWithoutReactionsInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   User?: Prisma.UserCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutReactionsInput = {
@@ -1216,6 +1364,7 @@ export type PitchUncheckedCreateWithoutReactionsInput = {
   artPrompt?: string | null
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutReactionsInput = {
@@ -1255,6 +1404,7 @@ export type PitchUpdateWithoutReactionsInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutReactionsInput = {
@@ -1279,6 +1429,7 @@ export type PitchUncheckedUpdateWithoutReactionsInput = {
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchCreateWithoutUserInput = {
@@ -1302,6 +1453,7 @@ export type PitchCreateWithoutUserInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutPitchesInput
   Prompt?: Prisma.PromptCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutPitchInput
 }
 
 export type PitchUncheckedCreateWithoutUserInput = {
@@ -1326,6 +1478,7 @@ export type PitchUncheckedCreateWithoutUserInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPitchInput
   Prompt?: Prisma.PromptUncheckedCreateNestedManyWithoutPitchInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutPitchInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutPitchInput
 }
 
 export type PitchCreateOrConnectWithoutUserInput = {
@@ -1396,6 +1549,7 @@ export type PitchUpdateWithoutArtImageInput = {
   User?: Prisma.UserUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutArtImageInput = {
@@ -1420,6 +1574,7 @@ export type PitchUncheckedUpdateWithoutArtImageInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateManyWithoutArtImageInput = {
@@ -1485,6 +1640,7 @@ export type PitchUpdateWithoutUserInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutPitchesNestedInput
   Prompt?: Prisma.PromptUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateWithoutUserInput = {
@@ -1509,6 +1665,7 @@ export type PitchUncheckedUpdateWithoutUserInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPitchNestedInput
   Prompt?: Prisma.PromptUncheckedUpdateManyWithoutPitchNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutPitchNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutPitchNestedInput
 }
 
 export type PitchUncheckedUpdateManyWithoutUserInput = {
@@ -1541,12 +1698,14 @@ export type PitchCountOutputType = {
   Dreams: number
   Prompt: number
   Reactions: number
+  Compositions: number
 }
 
 export type PitchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Dreams?: boolean | PitchCountOutputTypeCountDreamsArgs
   Prompt?: boolean | PitchCountOutputTypeCountPromptArgs
   Reactions?: boolean | PitchCountOutputTypeCountReactionsArgs
+  Compositions?: boolean | PitchCountOutputTypeCountCompositionsArgs
 }
 
 /**
@@ -1580,6 +1739,13 @@ export type PitchCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types
   where?: Prisma.ReactionWhereInput
 }
 
+/**
+ * PitchCountOutputType without action
+ */
+export type PitchCountOutputTypeCountCompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompositionWhereInput
+}
+
 
 export type PitchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1606,6 +1772,7 @@ export type PitchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   User?: boolean | Prisma.Pitch$UserArgs<ExtArgs>
   Prompt?: boolean | Prisma.Pitch$PromptArgs<ExtArgs>
   Reactions?: boolean | Prisma.Pitch$ReactionsArgs<ExtArgs>
+  Compositions?: boolean | Prisma.Pitch$CompositionsArgs<ExtArgs>
   _count?: boolean | Prisma.PitchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pitch"]>
 
@@ -1640,6 +1807,7 @@ export type PitchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   User?: boolean | Prisma.Pitch$UserArgs<ExtArgs>
   Prompt?: boolean | Prisma.Pitch$PromptArgs<ExtArgs>
   Reactions?: boolean | Prisma.Pitch$ReactionsArgs<ExtArgs>
+  Compositions?: boolean | Prisma.Pitch$CompositionsArgs<ExtArgs>
   _count?: boolean | Prisma.PitchCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1651,6 +1819,7 @@ export type $PitchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     User: Prisma.$UserPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    Compositions: Prisma.$CompositionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2017,6 +2186,7 @@ export interface Prisma__PitchClient<T, Null = never, ExtArgs extends runtime.Ty
   User<T extends Prisma.Pitch$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Pitch$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$PromptArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Pitch$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Compositions<T extends Prisma.Pitch$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pitch$CompositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2520,6 +2690,30 @@ export type Pitch$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
+}
+
+/**
+ * Pitch.Compositions
+ */
+export type Pitch$CompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Composition
+   */
+  select?: Prisma.CompositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Composition
+   */
+  omit?: Prisma.CompositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompositionInclude<ExtArgs> | null
+  where?: Prisma.CompositionWhereInput
+  orderBy?: Prisma.CompositionOrderByWithRelationInput | Prisma.CompositionOrderByWithRelationInput[]
+  cursor?: Prisma.CompositionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompositionScalarFieldEnum | Prisma.CompositionScalarFieldEnum[]
 }
 
 /**

@@ -60,6 +60,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { useCompositionStore } from '@/stores/compositionStore'
+import type { Composition } from '@/stores/compositionStore'
 
 const dashboardKey = 'composition' as const
 
@@ -74,8 +75,8 @@ const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const managerSummary = computed(() => {
   const count = compositionStore.items.length
-  const synthesized = compositionStore.items.filter(
-    (c) => c.narrativeText || c.artPrompt,
+  const synthesized = (compositionStore.items as Composition[]).filter(
+    (c: Composition) => c.narrativeText || c.artPrompt,
   ).length
   const selected = compositionStore.selected?.title || 'none'
   return `${count} compositions (${synthesized} synthesized). Current: ${selected}.`

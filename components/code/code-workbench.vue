@@ -233,7 +233,7 @@
 
       <aside
         v-if="showDesktopPanel"
-        class="hidden min-h-0 w-[360px] overflow-y-auto border-l border-base-300 bg-base-100 xl:block"
+        class="hidden min-h-0 w-90 overflow-y-auto border-l border-base-300 bg-base-100 xl:block"
       >
         <code-settings v-if="codeStore.panelMode === 'node-settings'" />
         <code-library v-else-if="codeStore.panelMode === 'library'" />

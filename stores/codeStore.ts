@@ -964,11 +964,59 @@ const templateSeeds: CodeTemplate[] = [
       'OpenAI improves text, Anthropic improves it again, then the loop can be extended.',
     icon: 'kind-icon:tennis',
     nodes: [
-      { kind: 'text-input', title: 'Original Text', x: 80, y: 110 },
-      { kind: 'openai-text', title: 'OpenAI Pass', x: 390, y: 80 },
-      { kind: 'anthropic-text', title: 'Anthropic Pass', x: 700, y: 120 },
-      { kind: 'openai-text', title: 'OpenAI Polish', x: 1010, y: 80 },
-      { kind: 'anthropic-text', title: 'Anthropic Final', x: 1320, y: 120 },
+      {
+        kind: 'text-input',
+        title: 'Original Text',
+        x: 80,
+        y: 110,
+        values: {
+          text: 'Write a haiku about a glasswalker performing at a street fair.',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'OpenAI Pass',
+        x: 390,
+        y: 80,
+        values: {
+          system:
+            'You are an editor. Improve the input text: tighter rhythm, ' +
+            'more vivid imagery, no preamble. Return only the rewritten text.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Anthropic Pass',
+        x: 700,
+        y: 120,
+        values: {
+          system:
+            'You are an editor. The input is already good — make it weirder, ' +
+            'more specific, more memorable. No preamble.',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'OpenAI Polish',
+        x: 1010,
+        y: 80,
+        values: {
+          system:
+            'You are a final-pass editor. Tighten the line breaks and rhythm. ' +
+            'Return only the polished result.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Anthropic Final',
+        x: 1320,
+        y: 120,
+        values: {
+          system:
+            'You are the last reader. Make one final improvement and stop. ' +
+            'Return only the final text.',
+        },
+      },
     ],
     connections: [
       { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
@@ -977,93 +1025,250 @@ const templateSeeds: CodeTemplate[] = [
       { fromIndex: 3, fromPortId: 'text', toIndex: 4, toPortId: 'text' },
     ],
   },
-{
-  id: 'race-two',
-  title: 'Race Two Models',
-  description:
-    'One prompt, two providers, streaming side by side. Watch OpenAI and Anthropic race in real time.',
-  icon: 'kind-icon:tennis',
-  nodes: [
-    { kind: 'text-input', title: 'Prompt', x: 80, y: 200 },
-    { kind: 'openai-text', title: 'OpenAI', x: 460, y: 80 },
-    { kind: 'anthropic-text', title: 'Anthropic', x: 460, y: 320 },
-  ],
-  connections: [
-    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
-    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
-  ],
-},
-{
-  id: 'race-three',
-  title: 'Race Three Models',
-  description:
-    'OpenAI vs Anthropic vs local Ollama, all streaming in parallel. The cloud-vs-homelab showdown.',
-  icon: 'kind-icon:flag',
-  nodes: [
-    { kind: 'text-input', title: 'Prompt', x: 80, y: 280 },
-    { kind: 'openai-text', title: 'OpenAI', x: 460, y: 80 },
-    { kind: 'anthropic-text', title: 'Anthropic', x: 460, y: 280 },
-    { kind: 'ollama-text', title: 'Ollama (local)', x: 460, y: 480 },
-  ],
-  connections: [
-    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
-    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
-    { fromIndex: 0, fromPortId: 'text', toIndex: 3, toPortId: 'text' },
-  ],
-},
-{
-  id: 'art-improver',
-  title: 'Art Improver',
-  description:
-    'Describe what to change, feed in a source image, and Kontext does the contextual edit.',
-  icon: 'kind-icon:wand',
-  nodes: [
-    { kind: 'image-upload-select', title: 'Source Image', x: 80, y: 100 },
-    { kind: 'text-input', title: 'Change Notes', x: 80, y: 320 },
-    { kind: 'anthropic-text', title: 'Refine Edit Prompt', x: 440, y: 320 },
-    { kind: 'comfy-kontext', title: 'Apply Edit', x: 800, y: 200 },
-  ],
-  connections: [
-    { fromIndex: 1, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
-    { fromIndex: 2, fromPortId: 'text', toIndex: 3, toPortId: 'prompt' },
-    { fromIndex: 0, fromPortId: 'image', toIndex: 3, toPortId: 'image' },
-  ],
-},
-{
-  id: 'concept-forge',
-  title: 'Concept Forge',
-  description:
-    'One spark of an idea fans out into a character, a pitch, and a scenario — three writers working in parallel.',
-  icon: 'kind-icon:sparkles',
-  nodes: [
-    { kind: 'text-input', title: 'Concept Seed', x: 80, y: 280 },
-    { kind: 'anthropic-text', title: 'Character Sheet', x: 460, y: 80 },
-    { kind: 'anthropic-text', title: 'Pitch', x: 460, y: 280 },
-    { kind: 'anthropic-text', title: 'Scenario Setup', x: 460, y: 480 },
-  ],
-  connections: [
-    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
-    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
-    { fromIndex: 0, fromPortId: 'text', toIndex: 3, toPortId: 'text' },
-  ],
-},
-{
-  id: 'reward-and-dream',
-  title: 'Reward + Dream',
-  description:
-    'Spin a setting into both a location (Dream) and a piece of loot (Reward) at once.',
-  icon: 'kind-icon:treasure',
-  nodes: [
-    { kind: 'text-input', title: 'World Note', x: 80, y: 200 },
-    { kind: 'openai-text', title: 'Location Writer', x: 460, y: 80 },
-    { kind: 'openai-text', title: 'Loot Writer', x: 460, y: 360 },
-  ],
-  connections: [
-    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
-    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
-  ],
-},
-
+  {
+    id: 'race-two',
+    title: 'Race Two Models',
+    description:
+      'One prompt, two providers, streaming side by side. Watch OpenAI and Anthropic race in real time.',
+    icon: 'kind-icon:tennis',
+    nodes: [
+      {
+        kind: 'text-input',
+        title: 'Prompt',
+        x: 80,
+        y: 200,
+        values: {
+          text: 'Tell me a 4-sentence story about a fire juggler who lost their flame.',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'OpenAI',
+        x: 460,
+        y: 80,
+        values: {
+          system: 'You are a concise storyteller. Match the requested length exactly.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Anthropic',
+        x: 460,
+        y: 320,
+        values: {
+          system: 'You are a concise storyteller. Match the requested length exactly.',
+        },
+      },
+    ],
+    connections: [
+      { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+      { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+    ],
+  },
+  {
+    id: 'race-three',
+    title: 'Race Three Models',
+    description:
+      'OpenAI vs Anthropic vs local Ollama, all streaming in parallel. The cloud-vs-homelab showdown.',
+    icon: 'kind-icon:flag',
+    nodes: [
+      {
+        kind: 'text-input',
+        title: 'Prompt',
+        x: 80,
+        y: 280,
+        values: {
+          text: 'In one paragraph, describe a city built entirely inside a single enormous library.',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'OpenAI',
+        x: 460,
+        y: 80,
+        values: {
+          system: 'You are a vivid worldbuilder. One paragraph, no preamble.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Anthropic',
+        x: 460,
+        y: 280,
+        values: {
+          system: 'You are a vivid worldbuilder. One paragraph, no preamble.',
+        },
+      },
+      {
+        kind: 'ollama-text',
+        title: 'Ollama (local)',
+        x: 460,
+        y: 480,
+        values: {
+          system: 'You are a vivid worldbuilder. One paragraph, no preamble.',
+        },
+      },
+    ],
+    connections: [
+      { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+      { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+      { fromIndex: 0, fromPortId: 'text', toIndex: 3, toPortId: 'text' },
+    ],
+  },
+  {
+    id: 'art-improver',
+    title: 'Art Improver',
+    description:
+      'Describe what to change, feed in a source image, and Kontext does the contextual edit.',
+    icon: 'kind-icon:wand',
+    nodes: [
+      {
+        kind: 'image-upload-select',
+        title: 'Source Image',
+        x: 80,
+        y: 100,
+      },
+      {
+        kind: 'text-input',
+        title: 'Change Notes',
+        x: 80,
+        y: 320,
+        values: {
+          text: 'Make the lighting warmer, add stage smoke, keep the subject sharp.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Refine Edit Prompt',
+        x: 440,
+        y: 320,
+        values: {
+          system:
+            'You are a Stable Diffusion prompt engineer for Kontext (image editing). ' +
+            'Convert the user\'s change notes into a concise edit instruction. Be ' +
+            'specific and visual. No preamble. Return only the edit prompt.',
+        },
+      },
+      {
+        kind: 'comfy-kontext',
+        title: 'Apply Edit',
+        x: 800,
+        y: 200,
+      },
+    ],
+    connections: [
+      { fromIndex: 1, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+      { fromIndex: 2, fromPortId: 'text', toIndex: 3, toPortId: 'prompt' },
+      { fromIndex: 0, fromPortId: 'image', toIndex: 3, toPortId: 'image' },
+    ],
+  },
+  {
+    id: 'concept-forge',
+    title: 'Concept Forge',
+    description:
+      'One spark of an idea fans out into a character, a pitch, and a scenario — three writers working in parallel.',
+    icon: 'kind-icon:sparkles',
+    nodes: [
+      {
+        kind: 'text-input',
+        title: 'Concept Seed',
+        x: 80,
+        y: 280,
+        values: {
+          text: 'A retired casino dealer who keeps finding tarot cards that predict tomorrow\'s weather.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Character Sheet',
+        x: 460,
+        y: 80,
+        values: {
+          system:
+            'You are a character designer. Take the concept and return a ' +
+            'character sheet with these fields, each on its own line: Name, ' +
+            'Class, Species, Personality, Backstory, Drive, Quirks. Be vivid ' +
+            'and specific. No preamble.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Pitch',
+        x: 460,
+        y: 280,
+        values: {
+          system:
+            'You are a pitch writer. Take the concept and write a ' +
+            'one-paragraph high-concept pitch: title, hook, what makes it ' +
+            'weird. No preamble.',
+        },
+      },
+      {
+        kind: 'anthropic-text',
+        title: 'Scenario Setup',
+        x: 460,
+        y: 480,
+        values: {
+          system:
+            'You are a tabletop scenario designer. Take the concept and ' +
+            'return: Title, a 2-sentence description, three Intro Hooks ' +
+            '(one line each), three Locations (one line each). No preamble.',
+        },
+      },
+    ],
+    connections: [
+      { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+      { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+      { fromIndex: 0, fromPortId: 'text', toIndex: 3, toPortId: 'text' },
+    ],
+  },
+  {
+    id: 'reward-and-dream',
+    title: 'Reward + Dream',
+    description:
+      'Spin a setting into both a location (Dream) and a piece of loot (Reward) at once.',
+    icon: 'kind-icon:treasure',
+    nodes: [
+      {
+        kind: 'text-input',
+        title: 'World Note',
+        x: 80,
+        y: 200,
+        values: {
+          text: 'A drowned amusement park where the carnival barkers still call out underwater.',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'Location Writer',
+        x: 460,
+        y: 80,
+        values: {
+          system:
+            'You are a world-builder. Describe a single location from the ' +
+            'world note: Title, Vibe, three sensory details, one secret or ' +
+            'hook. No preamble.',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'Loot Writer',
+        x: 460,
+        y: 360,
+        values: {
+          system:
+            'You are an item designer. Invent one piece of loot found in ' +
+            'this world: Name, what it does, rarity (common/uncommon/rare/' +
+            'epic/legendary), and a one-line flavor description. Lean weird, ' +
+            'specific, slightly cursed. No preamble.',
+        },
+      },
+    ],
+    connections: [
+      { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+      { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+    ],
+  },
   {
     id: 'art-maker',
     title: 'Art Maker',
@@ -1071,9 +1276,34 @@ const templateSeeds: CodeTemplate[] = [
       'A plain idea becomes a stronger art prompt, then generates an image.',
     icon: 'kind-icon:paintbrush',
     nodes: [
-      { kind: 'text-input', title: 'Idea', x: 80, y: 160 },
-      { kind: 'openai-text', title: 'Prompt Builder', x: 390, y: 120 },
-      { kind: 'stable-diffusion', title: 'Local Art Modeler', x: 700, y: 160 },
+      {
+        kind: 'text-input',
+        title: 'Idea',
+        x: 80,
+        y: 160,
+        values: {
+          text: 'a hummingbird made of stained glass, drinking from a butterfly\'s wing',
+        },
+      },
+      {
+        kind: 'openai-text',
+        title: 'Prompt Builder',
+        x: 390,
+        y: 120,
+        values: {
+          system:
+            'You are a Stable Diffusion prompt engineer. Convert the user\'s ' +
+            'idea into a richly detailed image prompt. Include subject, style ' +
+            '(e.g. art nouveau, oil painting, photoreal), lighting, mood, and ' +
+            'composition. Single line. No preamble.',
+        },
+      },
+      {
+        kind: 'stable-diffusion',
+        title: 'Local Art Modeler',
+        x: 700,
+        y: 160,
+      },
     ],
     connections: [
       { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
@@ -1087,10 +1317,33 @@ const templateSeeds: CodeTemplate[] = [
       'Text becomes a character sheet, then an image, then a 3D printable model.',
     icon: 'kind-icon:cube',
     nodes: [
-      { kind: 'text-input', title: 'Character Idea', x: 80, y: 150 },
-      { kind: 'character', title: 'Character Sheet', x: 390, y: 100 },
-      { kind: 'comfy-dev', title: 'Character Image', x: 700, y: 150 },
-      { kind: 'img2model', title: 'Printable Model', x: 1010, y: 150 },
+      {
+        kind: 'text-input',
+        title: 'Character Idea',
+        x: 80,
+        y: 150,
+        values: {
+          text: 'A small mechanical owl that delivers bad news politely.',
+        },
+      },
+      {
+        kind: 'character',
+        title: 'Character Sheet',
+        x: 390,
+        y: 100,
+      },
+      {
+        kind: 'comfy-dev',
+        title: 'Character Image',
+        x: 700,
+        y: 150,
+      },
+      {
+        kind: 'img2model',
+        title: 'Printable Model',
+        x: 1010,
+        y: 150,
+      },
     ],
     connections: [
       { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
@@ -1099,6 +1352,7 @@ const templateSeeds: CodeTemplate[] = [
     ],
   },
 ]
+
 
 export const useCodeStore = defineStore('codeStore', () => {
   const userStore = useUserStore()

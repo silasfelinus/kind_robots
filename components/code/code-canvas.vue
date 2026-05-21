@@ -74,7 +74,7 @@
                 v-for="connection in visibleConnections"
                 :key="connection.id"
                 :d="connection.path"
-                class="fill-none stroke-[5] opacity-100 drop-shadow"
+                class="fill-none stroke-5 opacity-100 drop-shadow"
                 :class="connection.className"
                 stroke-linecap="round"
               />
@@ -83,7 +83,7 @@
                 v-for="connection in visibleConnections"
                 :key="`${connection.id}-glow`"
                 :d="connection.path"
-                class="fill-none stroke-[14] opacity-35 blur-sm"
+                class="fill-none stroke-14 opacity-35 blur-sm"
                 :class="connection.className"
                 stroke-linecap="round"
               />

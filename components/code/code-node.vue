@@ -121,7 +121,7 @@
           @click.stop="codeStore.completeConnection(node.id, port.id)"
         >
           <span
-            class="absolute -left-[0.85rem] h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-md transition-transform hover:scale-125"
+            class="absolute left-[-0.85rem] h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-md transition-transform hover:scale-125"
             :class="portSocketClass(port.type)"
             :style="{ top: `${inputPortTop(index)}px` }"
           />
@@ -176,7 +176,7 @@
             <icon :name="portIcon(port.type)" class="h-2.5 w-2.5" />
           </span>
           <span
-            class="absolute -right-[0.85rem] h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-md transition-transform hover:scale-125"
+            class="absolute right-[-0.85rem] h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-md transition-transform hover:scale-125"
             :class="portSocketClass(port.type)"
             :style="{ top: `${outputPortTop(index)}px` }"
           />

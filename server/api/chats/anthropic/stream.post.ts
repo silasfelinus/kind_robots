@@ -3,12 +3,12 @@ import { defineEventHandler, readBody, createError, setHeader } from 'h3'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { ANTHROPIC_API_KEY } = useRuntimeConfig()
+    const { anthropicApiKey } = useRuntimeConfig()
 
-    if (!ANTHROPIC_API_KEY) {
+    if (!anthropicApiKey) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'ANTHROPIC_API_KEY not configured',
+        statusMessage: 'anthropicApiKey not configured',
       })
     }
 
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
+        'x-api-key': anthropicApiKey,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify(payload),

@@ -2,105 +2,112 @@
 <template>
   <article
     ref="nodeRef"
-    class="group w-70 select-none overflow-visible rounded-2xl border bg-slate-900/95 text-slate-100 shadow-2xl backdrop-blur transition"
+    class="group w-70 select-none overflow-visible rounded-2xl border bg-slate-900 text-slate-100 shadow-xl backdrop-blur transition-all duration-150"
     :class="[
-      isRunning
-        ? 'border-cyan-300 ring-2 ring-cyan-300/60 shadow-cyan-300/30'
-        : isErrored
-          ? 'border-error ring-2 ring-error/40'
-          : isSelected
-            ? 'border-cyan-300 ring-2 ring-cyan-300/40'
-            : 'border-slate-600/70 hover:border-cyan-300/60',
-      isDragging ? 'scale-[1.02] opacity-90' : '',
+      nodeStateClass,
+      accentShadowClass,
+      isDragging ? 'scale-[1.04] opacity-95 rotate-[0.4deg] shadow-2xl' : '',
     ]"
     @pointerdown.stop="bringForward"
     @dblclick.stop="openSettings"
   >
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
     <header
-      class="relative cursor-grab rounded-t-2xl border-b border-slate-700/80 p-3 active:cursor-grabbing"
-      :class="headerClass"
+      class="relative cursor-grab rounded-t-2xl border-b border-white/10 px-3 py-2.5 active:cursor-grabbing"
+      :class="accentHeaderClass"
       @pointerdown.stop="startDrag"
     >
-      <div class="flex items-start gap-3">
+      <div class="flex items-center gap-3">
+        <!-- Icon badge -->
         <div
-          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border bg-slate-950/60 shadow-inner"
-          :class="iconClass"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-lg ring-1 ring-white/20"
+          :class="accentIconClass"
         >
           <icon
             :name="definition?.icon ?? 'kind-icon:blocks'"
-            class="h-7 w-7"
+            class="h-5 w-5"
           />
         </div>
 
         <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-2">
-            <h3 class="truncate text-base font-black">
-              {{ node.title }}
-            </h3>
-
-            <span
-              v-if="definition"
-              class="rounded-full border px-2 py-0.5 text-[0.6rem] font-black uppercase tracking-wide"
-              :class="chipClass"
-            >
-              {{ definition.category }}
-            </span>
-          </div>
-
-          <p class="mt-1 line-clamp-2 text-xs text-slate-200/75">
+          <h3
+            class="truncate text-sm font-black leading-tight text-white drop-shadow"
+          >
+            {{ node.title }}
+          </h3>
+          <p class="mt-0.5 truncate text-[0.65rem] text-white/65">
             {{ definition?.subtitle }}
           </p>
         </div>
 
+        <!-- Status + close -->
         <div class="flex shrink-0 items-center gap-1">
           <span
             v-if="isRunning"
-            class="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-300/20"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-black/25"
             title="Running"
           >
             <icon
               name="kind-icon:spinner"
-              class="h-3.5 w-3.5 animate-spin text-cyan-300"
+              class="h-3.5 w-3.5 animate-spin text-white"
+            />
+          </span>
+          <span
+            v-else-if="isErrored"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-error/40"
+            title="Error"
+          >
+            <icon
+              name="kind-icon:alert"
+              class="h-3.5 w-3.5 text-error-content"
+            />
+          </span>
+          <span
+            v-else-if="hasResult"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-success/40"
+            title="Done"
+          >
+            <icon
+              name="kind-icon:check"
+              class="h-3.5 w-3.5 text-success-content"
             />
           </span>
 
-          <span
-            v-else-if="isErrored"
-            class="flex h-5 w-5 items-center justify-center rounded-full bg-error/20"
-            title="Error"
-          >
-            <icon name="kind-icon:alert" class="h-3.5 w-3.5 text-error" />
-          </span>
-
-          <span
-            v-else-if="hasResult"
-            class="flex h-5 w-5 items-center justify-center rounded-full bg-success/20"
-            title="Complete"
-          >
-            <icon name="kind-icon:check" class="h-3.5 w-3.5 text-success" />
-          </span>
-
           <button
-            class="btn btn-ghost btn-xs btn-circle text-slate-200 hover:bg-slate-800 hover:text-error"
+            class="btn btn-ghost btn-xs btn-circle text-white/50 hover:bg-black/30 hover:text-white"
             type="button"
             title="Remove card"
             @click.stop="codeStore.removeNode(node.id)"
           >
-            <icon name="kind-icon:x" class="h-4 w-4" />
+            <icon name="kind-icon:x" class="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
+      <!-- Category pill -->
+      <div class="mt-2">
+        <span
+          class="rounded-full bg-black/25 px-2 py-0.5 text-[0.58rem] font-black uppercase tracking-wider text-white/75"
+        >
+          {{ definition?.category ?? node.kind }}
+        </span>
+      </div>
+
+      <!-- Selected ring -->
       <div
         v-if="isSelected"
-        class="pointer-events-none absolute -inset-1 rounded-[1.25rem] border border-cyan-300/40 opacity-80"
+        class="pointer-events-none absolute -inset-px rounded-t-2xl ring-2 ring-cyan-300/70"
       />
     </header>
 
-    <div class="relative grid grid-cols-[1fr_1fr] gap-3 p-3">
-      <section class="space-y-2">
+    <!-- ── Port body ──────────────────────────────────────────────────── -->
+    <div
+      class="relative grid grid-cols-[1fr_1fr] gap-3 bg-slate-900/95 px-3 py-3"
+    >
+      <!-- Inputs -->
+      <section class="space-y-1.5">
         <p
-          class="text-[0.62rem] font-black uppercase tracking-wide text-slate-400"
+          class="text-[0.58rem] font-black uppercase tracking-widest text-slate-500"
         >
           Inputs
         </p>
@@ -108,46 +115,44 @@
         <button
           v-for="(port, index) in definition?.inputs ?? []"
           :key="port.id"
-          class="relative flex min-h-9 w-full items-center gap-2 rounded-xl border border-slate-700 bg-slate-950/60 px-2 py-1.5 text-left text-xs transition hover:border-cyan-300 hover:bg-cyan-300/10"
+          class="relative flex min-h-8 w-full items-center gap-1.5 rounded-xl border border-slate-700/70 bg-slate-950/80 px-2 py-1 text-left transition hover:border-cyan-400/50 hover:bg-slate-800/80"
           type="button"
           :title="`Connect ${port.label}`"
           @click.stop="codeStore.completeConnection(node.id, port.id)"
         >
           <span
-            class="absolute left-[-1.12rem] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-lg"
-            :class="portClass(port.type)"
+            class="absolute -left-[0.85rem] h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-md transition-transform hover:scale-125"
+            :class="portSocketClass(port.type)"
             :style="{ top: `${inputPortTop(index)}px` }"
           />
-
           <span
-            class="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border bg-slate-900"
-            :class="portClass(port.type)"
+            class="flex h-4 w-4 shrink-0 items-center justify-center rounded-md border"
+            :class="portBadgeClass(port.type)"
           >
-            <icon :name="portIcon(port.type)" class="h-3.5 w-3.5" />
+            <icon :name="portIcon(port.type)" class="h-2.5 w-2.5" />
           </span>
-
-          <span class="min-w-0 flex-1 truncate text-slate-100">
-            {{ port.label }}
-          </span>
-
+          <span class="min-w-0 flex-1 truncate text-[0.68rem] text-slate-300">{{
+            port.label
+          }}</span>
           <span
             v-if="port.required"
-            class="h-1.5 w-1.5 rounded-full bg-error"
+            class="h-1 w-1 rounded-full bg-error"
             title="Required"
           />
         </button>
 
         <p
           v-if="!definition?.inputs.length"
-          class="rounded-xl border border-dashed border-slate-700 bg-slate-950/40 p-2 text-xs text-slate-500"
+          class="rounded-xl border border-dashed border-slate-700/50 bg-slate-950/50 px-2 py-1.5 text-[0.62rem] text-slate-500"
         >
-          Starts here
+          Entry point
         </p>
       </section>
 
-      <section class="space-y-2">
+      <!-- Outputs -->
+      <section class="space-y-1.5">
         <p
-          class="text-right text-[0.62rem] font-black uppercase tracking-wide text-slate-400"
+          class="text-right text-[0.58rem] font-black uppercase tracking-widest text-slate-500"
         >
           Outputs
         </p>
@@ -155,64 +160,63 @@
         <button
           v-for="(port, index) in definition?.outputs ?? []"
           :key="port.id"
-          class="relative flex min-h-9 w-full items-center gap-2 rounded-xl border border-slate-700 bg-slate-950/60 px-2 py-1.5 text-left text-xs transition hover:border-cyan-300 hover:bg-cyan-300/10"
+          class="relative flex min-h-8 w-full items-center gap-1.5 rounded-xl border border-slate-700/70 bg-slate-950/80 px-2 py-1 text-left transition hover:border-cyan-400/50 hover:bg-slate-800/80"
           type="button"
           :title="`Start connection from ${port.label}`"
           @click.stop="codeStore.beginConnection(node.id, port.id)"
         >
-          <span class="min-w-0 flex-1 truncate text-right text-slate-100">
-            {{ port.label }}
-          </span>
-
           <span
-            class="flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border bg-slate-900"
-            :class="portClass(port.type)"
+            class="min-w-0 flex-1 truncate text-right text-[0.68rem] text-slate-300"
+            >{{ port.label }}</span
           >
-            <icon :name="portIcon(port.type)" class="h-3.5 w-3.5" />
-          </span>
-
           <span
-            class="absolute right-[-1.12rem] top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-lg"
-            :class="portClass(port.type)"
+            class="flex h-4 w-4 shrink-0 items-center justify-center rounded-md border"
+            :class="portBadgeClass(port.type)"
+          >
+            <icon :name="portIcon(port.type)" class="h-2.5 w-2.5" />
+          </span>
+          <span
+            class="absolute -right-[0.85rem] h-3.5 w-3.5 -translate-y-1/2 rounded-full border-2 bg-slate-950 shadow-md transition-transform hover:scale-125"
+            :class="portSocketClass(port.type)"
             :style="{ top: `${outputPortTop(index)}px` }"
           />
         </button>
       </section>
     </div>
 
-    <footer class="border-t border-slate-700/80 bg-slate-950/50 px-3 py-2">
+    <!-- ── Footer ─────────────────────────────────────────────────────── -->
+    <footer
+      class="rounded-b-2xl border-t border-slate-700/50 bg-slate-950/70 px-3 py-2"
+    >
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0 flex-1">
-          <p
-            v-if="errorMessage"
-            class="line-clamp-3 text-xs text-error/90"
-          >
-            <icon name="kind-icon:alert" class="mr-1 inline h-3 w-3" />
-            {{ errorMessage }}
+          <p v-if="errorMessage" class="line-clamp-2 text-[0.65rem] text-error">
+            <icon name="kind-icon:alert" class="mr-1 inline h-3 w-3" />{{
+              errorMessage
+            }}
           </p>
-
           <p
             v-else-if="streamingText"
-            class="line-clamp-3 whitespace-pre-wrap text-xs text-cyan-100/90"
+            class="line-clamp-2 whitespace-pre-wrap text-[0.65rem] text-cyan-200/90"
           >
-            {{ streamingText }}<span
+            {{ streamingText
+            }}<span
               v-if="isRunning"
-              class="ml-0.5 inline-block h-3 w-1 animate-pulse bg-cyan-300 align-middle"
+              class="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-cyan-300 align-middle"
             />
           </p>
-
-          <p v-else class="line-clamp-2 text-xs text-slate-400">
+          <p v-else class="line-clamp-2 text-[0.62rem] text-slate-500">
             {{ definition?.description }}
           </p>
         </div>
 
         <button
-          class="btn btn-ghost btn-xs rounded-xl text-cyan-100 hover:bg-cyan-300 hover:text-cyan-950"
+          class="btn btn-ghost btn-xs rounded-xl text-slate-500 hover:bg-slate-700 hover:text-white"
           type="button"
           title="Open settings"
           @click.stop="openSettings"
         >
-          <icon name="kind-icon:settings" class="h-4 w-4" />
+          <icon name="kind-icon:settings" class="h-3.5 w-3.5" />
         </button>
       </div>
     </footer>
@@ -227,155 +231,121 @@ import {
   type CodeNode,
 } from '@/stores/codeStore'
 
-const props = defineProps<{
-  node: CodeNode
-}>()
+const props = defineProps<{ node: CodeNode }>()
 
 const codeStore = useCodeStore()
 const nodeRef = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
-
 let dragOffsetX = 0
 let dragOffsetY = 0
 
 const definition = computed(() => codeStore.getDefinition(props.node.kind))
+const accent = computed(() => definition.value?.accent ?? 'primary')
 const isSelected = computed(() => codeStore.selectedNodeId === props.node.id)
+const isRunning = computed(
+  () => codeStore.activeRunNodeIds?.has(props.node.id) ?? false,
+)
+const runResult = computed(() => codeStore.runResults[props.node.id])
+const hasResult = computed(() => Boolean(runResult.value?.success))
+const isErrored = computed(() =>
+  Boolean(runResult.value && !runResult.value.success && !isRunning.value),
+)
+const errorMessage = computed(() =>
+  isErrored.value ? (runResult.value?.message ?? '') : '',
+)
+const streamingText = computed(
+  () => codeStore.runStreams?.[`${props.node.id}:text`] ?? '',
+)
 
-const isRunning = computed(() => {
-  return codeStore.activeRunNodeIds?.has(props.node.id) ?? false
-})
+// ── Accent → DaisyUI colour maps ─────────────────────────────────────────────
+// Keep full class strings (not interpolated) so Tailwind JIT can scan them.
 
-const runResult = computed(() => {
-  return codeStore.runResults[props.node.id]
-})
-
-const hasResult = computed(() => {
-  return Boolean(runResult.value?.success)
-})
-
-const isErrored = computed(() => {
-  return Boolean(runResult.value && !runResult.value.success && !isRunning.value)
-})
-
-const errorMessage = computed(() => {
-  return isErrored.value ? runResult.value?.message ?? '' : ''
-})
-
-const streamingText = computed(() => {
-  return codeStore.runStreams?.[`${props.node.id}:text`] ?? ''
-})
-
-const headerClass = computed(() => {
-  const accent = definition.value?.accent ?? 'primary'
-
-  const classes: Record<string, string> = {
-    primary: 'bg-primary/25',
-    secondary: 'bg-secondary/25',
-    accent: 'bg-accent/25',
-    info: 'bg-info/25',
-    warning: 'bg-warning/25',
-    error: 'bg-error/25',
-    success: 'bg-success/25',
-  }
-
-  return classes[accent] ?? 'bg-primary/25'
-})
-
-const iconClass = computed(() => {
-  const accent = definition.value?.accent ?? 'primary'
-
-  const classes: Record<string, string> = {
-    primary: 'border-primary/50 text-primary',
-    secondary: 'border-secondary/50 text-secondary',
-    accent: 'border-accent/50 text-accent',
-    info: 'border-info/50 text-info',
-    warning: 'border-warning/50 text-warning',
-    error: 'border-error/50 text-error',
-    success: 'border-success/50 text-success',
-  }
-
-  return classes[accent] ?? 'border-primary/50 text-primary'
-})
-
-const chipClass = computed(() => {
-  const accent = definition.value?.accent ?? 'primary'
-
-  const classes: Record<string, string> = {
-    primary: 'border-primary/40 bg-primary/10 text-primary',
-    secondary: 'border-secondary/40 bg-secondary/10 text-secondary',
-    accent: 'border-accent/40 bg-accent/10 text-accent',
-    info: 'border-info/40 bg-info/10 text-info',
-    warning: 'border-warning/40 bg-warning/10 text-warning',
-    error: 'border-error/40 bg-error/10 text-error',
-    success: 'border-success/40 bg-success/10 text-success',
-  }
-
-  return classes[accent] ?? 'border-primary/40 bg-primary/10 text-primary'
-})
-
-function bringForward() {
-  codeStore.selectNode(props.node.id)
+const headerMap: Record<string, string> = {
+  primary: 'bg-gradient-to-br from-primary/70 to-primary/45',
+  secondary: 'bg-gradient-to-br from-secondary/70 to-secondary/45',
+  accent: 'bg-gradient-to-br from-accent/70 to-accent/45',
+  info: 'bg-gradient-to-br from-info/70 to-info/45',
+  success: 'bg-gradient-to-br from-success/70 to-success/45',
+  warning: 'bg-gradient-to-br from-warning/70 to-warning/45',
+  error: 'bg-gradient-to-br from-error/70 to-error/45',
 }
 
-function openSettings() {
-  codeStore.selectNode(props.node.id, true)
+const iconMap: Record<string, string> = {
+  primary: 'bg-primary text-primary-content',
+  secondary: 'bg-secondary text-secondary-content',
+  accent: 'bg-accent text-accent-content',
+  info: 'bg-info text-info-content',
+  success: 'bg-success text-success-content',
+  warning: 'bg-warning text-warning-content',
+  error: 'bg-error text-error-content',
 }
 
-function startDrag(event: PointerEvent) {
-  const target = nodeRef.value
-
-  if (!target) {
-    return
-  }
-
-  isDragging.value = true
-  codeStore.selectNode(props.node.id)
-
-  const rect = target.getBoundingClientRect()
-  dragOffsetX = event.clientX - rect.left
-  dragOffsetY = event.clientY - rect.top
-
-  window.addEventListener('pointermove', onDrag)
-  window.addEventListener('pointerup', stopDrag)
+const borderMap: Record<string, string> = {
+  primary: 'border-primary/55',
+  secondary: 'border-secondary/55',
+  accent: 'border-accent/55',
+  info: 'border-info/55',
+  success: 'border-success/55',
+  warning: 'border-warning/55',
+  error: 'border-error/55',
 }
 
-function onDrag(event: PointerEvent) {
-  const canvas = nodeRef.value?.closest(
-    '[data-code-canvas-scroll]',
-  ) as HTMLElement | null
-
-  if (!canvas) {
-    return
-  }
-
-  const rect = canvas.getBoundingClientRect()
-  const rawX = event.clientX - rect.left + canvas.scrollLeft
-  const rawY = event.clientY - rect.top + canvas.scrollTop
-  const point = codeStore.toCanvasPoint(rawX - dragOffsetX, rawY - dragOffsetY)
-
-  codeStore.updateNodePosition(props.node.id, point.x, point.y)
+const shadowMap: Record<string, string> = {
+  primary: 'shadow-primary/20',
+  secondary: 'shadow-secondary/20',
+  accent: 'shadow-accent/20',
+  info: 'shadow-info/20',
+  success: 'shadow-success/20',
+  warning: 'shadow-warning/20',
+  error: 'shadow-error/20',
 }
 
-function stopDrag() {
-  isDragging.value = false
-  window.removeEventListener('pointermove', onDrag)
-  window.removeEventListener('pointerup', stopDrag)
+const accentHeaderClass = computed(
+  () => headerMap[accent.value] ?? headerMap.primary,
+)
+const accentIconClass = computed(() => iconMap[accent.value] ?? iconMap.primary)
+const accentShadowClass = computed(
+  () => shadowMap[accent.value] ?? shadowMap.primary,
+)
+
+const nodeStateClass = computed(() => {
+  if (isRunning.value)
+    return 'border-cyan-400 ring-2 ring-cyan-400/50 shadow-cyan-400/30'
+  if (isErrored.value)
+    return 'border-error ring-2 ring-error/40 shadow-error/20'
+  if (isSelected.value)
+    return 'border-cyan-300 ring-2 ring-cyan-300/40 shadow-cyan-300/20'
+  return borderMap[accent.value] ?? borderMap.primary
+})
+
+// ── Port styling ──────────────────────────────────────────────────────────────
+const portSocketMap: Record<string, string> = {
+  primary: 'border-primary shadow-primary/40',
+  secondary: 'border-secondary shadow-secondary/40',
+  accent: 'border-accent shadow-accent/40',
+  info: 'border-info shadow-info/40',
+  success: 'border-success shadow-success/40',
+  warning: 'border-warning shadow-warning/40',
+  error: 'border-error shadow-error/40',
 }
 
-function portClass(type: CodeDataType) {
-  const accent = codeStore.getDataTypeAccent(type)
+const portBadgeMap: Record<string, string> = {
+  primary: 'border-primary/40 bg-primary/15 text-primary',
+  secondary: 'border-secondary/40 bg-secondary/15 text-secondary',
+  accent: 'border-accent/40 bg-accent/15 text-accent',
+  info: 'border-info/40 bg-info/15 text-info',
+  success: 'border-success/40 bg-success/15 text-success',
+  warning: 'border-warning/40 bg-warning/15 text-warning',
+  error: 'border-error/40 bg-error/15 text-error',
+}
 
-  const classes: Record<string, string> = {
-    primary: 'border-primary text-primary shadow-primary/30',
-    secondary: 'border-secondary text-secondary shadow-secondary/30',
-    accent: 'border-accent text-accent shadow-accent/30',
-    info: 'border-info text-info shadow-info/30',
-    warning: 'border-warning text-warning shadow-warning/30',
-    error: 'border-error text-error shadow-error/30',
-    success: 'border-success text-success shadow-success/30',
-  }
-
-  return classes[accent] ?? 'border-primary text-primary shadow-primary/30'
+function portSocketClass(type: CodeDataType) {
+  return (
+    portSocketMap[codeStore.getDataTypeAccent(type)] ?? portSocketMap.primary
+  )
+}
+function portBadgeClass(type: CodeDataType) {
+  return portBadgeMap[codeStore.getDataTypeAccent(type)] ?? portBadgeMap.primary
 }
 
 function portIcon(type: CodeDataType) {
@@ -393,15 +363,51 @@ function portIcon(type: CodeDataType) {
     scenario: 'kind-icon:story',
     collection: 'kind-icon:gallery',
   }
-
   return icons[type] ?? 'kind-icon:circle'
 }
 
 function inputPortTop(index: number) {
   return 30 + index * 44
 }
-
 function outputPortTop(index: number) {
   return 30 + index * 44
+}
+
+// ── Interaction ───────────────────────────────────────────────────────────────
+function bringForward() {
+  codeStore.selectNode(props.node.id)
+}
+function openSettings() {
+  codeStore.selectNode(props.node.id, true)
+}
+
+function startDrag(event: PointerEvent) {
+  const target = nodeRef.value
+  if (!target) return
+  isDragging.value = true
+  codeStore.selectNode(props.node.id)
+  const rect = target.getBoundingClientRect()
+  dragOffsetX = event.clientX - rect.left
+  dragOffsetY = event.clientY - rect.top
+  window.addEventListener('pointermove', onDrag)
+  window.addEventListener('pointerup', stopDrag)
+}
+
+function onDrag(event: PointerEvent) {
+  const canvas = nodeRef.value?.closest(
+    '[data-code-canvas-scroll]',
+  ) as HTMLElement | null
+  if (!canvas) return
+  const rect = canvas.getBoundingClientRect()
+  const rawX = event.clientX - rect.left + canvas.scrollLeft
+  const rawY = event.clientY - rect.top + canvas.scrollTop
+  const point = codeStore.toCanvasPoint(rawX - dragOffsetX, rawY - dragOffsetY)
+  codeStore.updateNodePosition(props.node.id, point.x, point.y)
+}
+
+function stopDrag() {
+  isDragging.value = false
+  window.removeEventListener('pointermove', onDrag)
+  window.removeEventListener('pointerup', stopDrag)
 }
 </script>

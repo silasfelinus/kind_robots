@@ -1,12 +1,12 @@
 <!-- /components/code/code-canvas.vue -->
 <template>
   <section
-    class="relative flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-slate-950 shadow-inner"
+    class="relative flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-[#070c1b] shadow-inner"
   >
     <div
       ref="canvasRef"
       data-code-canvas-scroll
-      class="relative h-full min-h-160 w-full overflow-auto select-none"
+      class="relative h-full min-h-[640px] w-full overflow-auto select-none"
       :class="canvasCursorClass"
       @dragover.prevent
       @drop="onDrop"
@@ -38,12 +38,16 @@
           >
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.08)_1px,transparent_1px)] bg-size-[28px_28px]"
+              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.12)_1px,transparent_1px)] bg-[size:28px_28px]"
             />
 
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.18)_1px,transparent_0)] bg-size-[112px_112px]"
+              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.28)_1px,transparent_0)] [background-size:112px_112px]"
+            />
+
+            <div
+              class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_40%,rgba(56,189,248,0.04)_0%,transparent_100%)]"
             />
 
             <div class="pointer-events-none absolute inset-0 opacity-20">
@@ -70,7 +74,7 @@
                 v-for="connection in visibleConnections"
                 :key="connection.id"
                 :d="connection.path"
-                class="fill-none stroke-5 opacity-80 drop-shadow-sm"
+                class="fill-none stroke-[5] opacity-100 drop-shadow"
                 :class="connection.className"
                 stroke-linecap="round"
               />
@@ -79,7 +83,7 @@
                 v-for="connection in visibleConnections"
                 :key="`${connection.id}-glow`"
                 :d="connection.path"
-                class="fill-none stroke-11 opacity-20 blur-sm"
+                class="fill-none stroke-[14] opacity-35 blur-sm"
                 :class="connection.className"
                 stroke-linecap="round"
               />

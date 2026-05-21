@@ -115,7 +115,7 @@
         </button>
 
         <!-- Templates dropdown – elevated z-index so it clears the canvas -->
-        <div class="relative z-100">
+        <div class="relative z-[100]">
           <div class="dropdown dropdown-end dropdown-bottom">
             <button
               tabindex="0"
@@ -216,7 +216,7 @@
       class="relative z-10 flex items-center gap-0.5 overflow-x-auto border-b border-base-300 bg-base-100/90 px-3 py-1.5 shadow-sm"
     >
       <span
-        class="mr-2 shrink-0 text-[10px] font-black uppercase tracking-widest text-base-content/35"
+        class="mr-2 shrink-0 text-[9px] font-black uppercase tracking-widest text-base-content/30"
       >
         Models
       </span>
@@ -224,12 +224,12 @@
       <button
         v-for="def in kindModelDefs"
         :key="def.kind"
-        class="group relative flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl transition hover:scale-110 hover:bg-primary/15 hover:text-primary"
-        :class="accentTextClass(def.accent)"
+        class="group relative flex h-7 w-7 shrink-0 items-center justify-center rounded-xl shadow-sm transition-all hover:scale-110 hover:shadow-md"
+        :class="kindModelIconBg(def.kind)"
         type="button"
         @click="addKindModel(def.kind)"
       >
-        <icon :name="def.icon" class="h-4 w-4" />
+        <icon :name="def.icon" class="h-3.5 w-3.5" />
 
         <!-- Hover tooltip -->
         <span
@@ -322,17 +322,21 @@ function addKindModel(kind: CodeKind) {
   codeStore.addNode(kind, 120 + offset, 120 + offset)
 }
 
-function accentTextClass(accent: string) {
-  const classes: Record<string, string> = {
-    primary: 'text-primary/70',
-    secondary: 'text-secondary/70',
-    accent: 'text-accent/70',
-    info: 'text-info/70',
-    warning: 'text-warning/70',
-    error: 'text-error/70',
-    success: 'text-success/70',
-  }
-  return classes[accent] ?? 'text-base-content/60'
+// Use definition accent → DaisyUI token, same as palette and node
+const accentIconBgMap: Record<string, string> = {
+  primary: 'bg-primary text-primary-content',
+  secondary: 'bg-secondary text-secondary-content',
+  accent: 'bg-accent text-accent-content',
+  info: 'bg-info text-info-content',
+  success: 'bg-success text-success-content',
+  warning: 'bg-warning text-warning-content',
+  error: 'bg-error text-error-content',
+}
+
+function kindModelIconBg(kind: string) {
+  const def = codeStore.definitions.find((d) => d.kind === kind)
+  const accent = def?.accent ?? 'primary'
+  return accentIconBgMap[accent] ?? 'bg-base-300 text-base-content'
 }
 
 // ── Layout ─────────────────────────────────────────────────────────────────

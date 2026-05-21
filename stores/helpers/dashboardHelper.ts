@@ -72,7 +72,7 @@ export const dashboardConfigs = {
         title: 'Art Servers',
         summary: 'Manage image generation servers.',
       },
-{
+      {
         key: 'workbench',
         label: 'Workbench',
         icon: 'kind-icon:forge',
@@ -121,6 +121,13 @@ export const dashboardConfigs = {
         icon: 'kind-icon:sparkles',
         title: 'Bot Forge',
         summary: 'Create or edit bots.',
+      },
+      {
+        key: 'composition',
+        label: 'Composition',
+        icon: 'kind-icon:rubik',
+        title: 'Composition',
+        summary: 'Compose your own bot endpoint',
       },
     ],
   },

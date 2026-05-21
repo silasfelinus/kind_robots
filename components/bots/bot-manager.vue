@@ -59,6 +59,8 @@
 
       <bot-interact v-else-if="currentTab === 'interact'" />
 
+      <composition-manager v-else-if="currentTab === 'composition'" />
+
       <section
         v-else-if="currentTab === 'servers'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"

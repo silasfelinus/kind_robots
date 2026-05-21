@@ -161,6 +161,14 @@
         >
           <icon name="kind-icon:settings" class="h-4 w-4" />
         </button>
+
+<p
+  v-if="codeStore.runStreams[`${node.id}:text`]"
+  class="line-clamp-3 text-xs text-cyan-100/80"
+>
+  {{ codeStore.runStreams[`${node.id}:text`] }}
+</p>
+
       </div>
     </footer>
   </article>

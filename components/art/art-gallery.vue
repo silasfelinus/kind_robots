@@ -27,11 +27,11 @@
             <button
               v-for="s in SIZE_OPTIONS"
               :key="s.value"
-              class="flex h-7 w-8 items-center justify-center text-xs font-bold transition"
+              class="flex h-7 w-7 items-center justify-center text-[0.6rem] font-black transition"
               :class="
                 viewSize === s.value
                   ? 'bg-primary text-primary-content'
-                  : 'bg-base-100 text-base-content/60 hover:bg-base-300'
+                  : 'bg-base-100 text-base-content/50 hover:bg-base-200'
               "
               type="button"
               :title="s.label"
@@ -83,12 +83,22 @@
 
       <!-- Search + filters row -->
       <div class="mt-2 flex items-center gap-2">
-        <input
-          v-model="searchQuery"
-          type="search"
-          class="input input-bordered input-xs flex-1 bg-base-100"
-          :placeholder="activeGroup ? 'Search images…' : 'Search collections…'"
-        />
+        <label
+          class="input input-bordered input-xs flex-1 flex items-center gap-1.5 bg-base-100 pr-2"
+        >
+          <icon
+            name="kind-icon:search"
+            class="h-3.5 w-3.5 shrink-0 text-base-content/40"
+          />
+          <input
+            v-model="searchQuery"
+            type="search"
+            class="min-w-0 flex-1 bg-transparent"
+            :placeholder="
+              activeGroup ? 'Search images…' : 'Search collections…'
+            "
+          />
+        </label>
 
         <label
           class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-100 px-2 py-1"
@@ -149,15 +159,17 @@
     <!-- ── Alerts ──────────────────────────────────────────────────────── -->
     <div
       v-if="errorMessage"
-      class="shrink-0 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-xs text-error"
+      class="shrink-0 flex items-center gap-2 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-xs font-semibold text-error"
     >
+      <icon name="kind-icon:alert" class="h-3.5 w-3.5 shrink-0" />
       {{ errorMessage }}
     </div>
 
     <div
       v-if="successMessage"
-      class="shrink-0 rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-xs text-success"
+      class="shrink-0 flex items-center gap-2 rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-xs font-semibold text-success"
     >
+      <icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
       {{ successMessage }}
     </div>
 
@@ -284,13 +296,22 @@
           <header
             class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-200 px-4 py-2"
           >
-            <div class="min-w-0">
-              <p class="text-xs font-bold uppercase text-base-content/50">
-                Selected
-              </p>
-              <h3 class="truncate text-base font-black text-base-content">
-                #{{ selectedImageForOverlay.id }}
-              </h3>
+            <div class="flex items-center gap-2">
+              <span
+                class="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary"
+              >
+                <icon name="kind-icon:image" class="h-4 w-4" />
+              </span>
+              <div class="min-w-0">
+                <p
+                  class="text-[0.6rem] font-black uppercase tracking-widest text-base-content/40"
+                >
+                  Selected Image
+                </p>
+                <h3 class="truncate text-sm font-black text-base-content">
+                  #{{ selectedImageForOverlay.id }}
+                </h3>
+              </div>
             </div>
             <button
               class="btn btn-ghost btn-sm rounded-xl"
@@ -314,7 +335,7 @@
       class="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-base-200 px-3 py-1.5"
     >
       <button
-        class="btn btn-ghost btn-xs rounded-lg"
+        class="btn btn-ghost btn-xs rounded-xl gap-1"
         type="button"
         :disabled="currentPage === 0"
         @click="currentPage--"
@@ -338,7 +359,7 @@
       </div>
 
       <button
-        class="btn btn-ghost btn-xs rounded-lg"
+        class="btn btn-ghost btn-xs rounded-xl gap-1"
         type="button"
         :disabled="currentPage >= currentPageCount - 1"
         @click="currentPage++"
@@ -350,7 +371,7 @@
 
     <!-- ── Footer ─────────────────────────────────────────────────────── -->
     <footer
-      class="shrink-0 flex items-center gap-3 rounded-xl bg-base-200 px-3 py-1.5 text-xs text-base-content/50"
+      class="shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2 text-xs text-base-content/50"
     >
       <span
         ><span class="font-bold text-base-content">{{

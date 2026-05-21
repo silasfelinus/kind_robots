@@ -115,7 +115,7 @@
         </button>
 
         <!-- Templates dropdown – elevated z-index so it clears the canvas -->
-        <div class="relative z-[100]">
+        <div class="relative z-100">
           <div class="dropdown dropdown-end dropdown-bottom">
             <button
               tabindex="0"

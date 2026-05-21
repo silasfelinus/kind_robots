@@ -975,6 +975,93 @@ const templateSeeds: CodeTemplate[] = [
       { fromIndex: 3, fromPortId: 'text', toIndex: 4, toPortId: 'text' },
     ],
   },
+{
+  id: 'race-two',
+  title: 'Race Two Models',
+  description:
+    'One prompt, two providers, streaming side by side. Watch OpenAI and Anthropic race in real time.',
+  icon: 'kind-icon:tennis',
+  nodes: [
+    { kind: 'text-input', title: 'Prompt', x: 80, y: 200 },
+    { kind: 'openai-text', title: 'OpenAI', x: 460, y: 80 },
+    { kind: 'anthropic-text', title: 'Anthropic', x: 460, y: 320 },
+  ],
+  connections: [
+    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+  ],
+},
+{
+  id: 'race-three',
+  title: 'Race Three Models',
+  description:
+    'OpenAI vs Anthropic vs local Ollama, all streaming in parallel. The cloud-vs-homelab showdown.',
+  icon: 'kind-icon:flag',
+  nodes: [
+    { kind: 'text-input', title: 'Prompt', x: 80, y: 280 },
+    { kind: 'openai-text', title: 'OpenAI', x: 460, y: 80 },
+    { kind: 'anthropic-text', title: 'Anthropic', x: 460, y: 280 },
+    { kind: 'ollama-text', title: 'Ollama (local)', x: 460, y: 480 },
+  ],
+  connections: [
+    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+    { fromIndex: 0, fromPortId: 'text', toIndex: 3, toPortId: 'text' },
+  ],
+},
+{
+  id: 'art-improver',
+  title: 'Art Improver',
+  description:
+    'Describe what to change, feed in a source image, and Kontext does the contextual edit.',
+  icon: 'kind-icon:wand',
+  nodes: [
+    { kind: 'image-upload-select', title: 'Source Image', x: 80, y: 100 },
+    { kind: 'text-input', title: 'Change Notes', x: 80, y: 320 },
+    { kind: 'anthropic-text', title: 'Refine Edit Prompt', x: 440, y: 320 },
+    { kind: 'comfy-kontext', title: 'Apply Edit', x: 800, y: 200 },
+  ],
+  connections: [
+    { fromIndex: 1, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+    { fromIndex: 2, fromPortId: 'text', toIndex: 3, toPortId: 'prompt' },
+    { fromIndex: 0, fromPortId: 'image', toIndex: 3, toPortId: 'image' },
+  ],
+},
+{
+  id: 'concept-forge',
+  title: 'Concept Forge',
+  description:
+    'One spark of an idea fans out into a character, a pitch, and a scenario — three writers working in parallel.',
+  icon: 'kind-icon:sparkles',
+  nodes: [
+    { kind: 'text-input', title: 'Concept Seed', x: 80, y: 280 },
+    { kind: 'anthropic-text', title: 'Character Sheet', x: 460, y: 80 },
+    { kind: 'anthropic-text', title: 'Pitch', x: 460, y: 280 },
+    { kind: 'anthropic-text', title: 'Scenario Setup', x: 460, y: 480 },
+  ],
+  connections: [
+    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+    { fromIndex: 0, fromPortId: 'text', toIndex: 3, toPortId: 'text' },
+  ],
+},
+{
+  id: 'reward-and-dream',
+  title: 'Reward + Dream',
+  description:
+    'Spin a setting into both a location (Dream) and a piece of loot (Reward) at once.',
+  icon: 'kind-icon:treasure',
+  nodes: [
+    { kind: 'text-input', title: 'World Note', x: 80, y: 200 },
+    { kind: 'openai-text', title: 'Location Writer', x: 460, y: 80 },
+    { kind: 'openai-text', title: 'Loot Writer', x: 460, y: 360 },
+  ],
+  connections: [
+    { fromIndex: 0, fromPortId: 'text', toIndex: 1, toPortId: 'text' },
+    { fromIndex: 0, fromPortId: 'text', toIndex: 2, toPortId: 'text' },
+  ],
+},
+
   {
     id: 'art-maker',
     title: 'Art Maker',

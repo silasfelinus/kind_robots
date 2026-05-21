@@ -3,6 +3,19 @@
   <div
     class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-base-200"
   >
+    <div
+      class="fixed left-2 top-14 z-[9999] rounded-2xl border border-warning bg-warning px-3 py-2 text-xs font-black text-warning-content shadow-xl"
+    >
+      DEFAULT LAYOUT ALIVE
+    </div>
+
+    <div
+      class="fixed left-2 top-26 z-[9999] max-w-[90vw] rounded-2xl border border-info bg-info px-3 py-2 text-[10px] font-bold text-info-content shadow-xl"
+    >
+      main:
+      {{ JSON.stringify(displayStore.mainContentStyle) }}
+    </div>
+
     <aside
       class="fixed z-20 overflow-visible transition-all duration-300 ease-out"
       :style="displayStore.leftSidebarStyle"
@@ -48,11 +61,27 @@
     </button>
 
     <main
-      class="fixed z-10 overflow-hidden bg-base-200 transition-all duration-300 ease-out"
+      class="fixed z-30 overflow-hidden border-4 border-error bg-base-100 transition-all duration-300 ease-out"
       :style="safeMainContentStyle"
     >
-      <div class="relative h-full w-full overflow-y-auto px-4 pb-4">
-        <slot />
+      <div class="flex h-full w-full flex-col overflow-y-auto p-4">
+        <div
+          class="mb-4 rounded-2xl border border-error bg-error p-4 text-lg font-black text-error-content shadow-xl"
+        >
+          MAIN SLOT CONTAINER ALIVE
+        </div>
+
+        <div
+          class="min-h-96 rounded-2xl border-4 border-primary bg-base-200 p-4"
+        >
+          <slot>
+            <div
+              class="rounded-2xl border border-warning bg-warning p-4 font-black text-warning-content"
+            >
+              DEFAULT SLOT FALLBACK RENDERED
+            </div>
+          </slot>
+        </div>
       </div>
     </main>
 
@@ -74,12 +103,12 @@ import { useDisplayStore } from '@/stores/displayStore'
 const displayStore = useDisplayStore()
 
 const safeMainContentStyle = computed(() => ({
-  top: '0px',
-  left: '0px',
-  right: '0px',
-  bottom: '0px',
-  minWidth: '1px',
-  minHeight: '1px',
+  top: '96px',
+  left: '96px',
+  right: '96px',
+  bottom: '96px',
+  minWidth: '240px',
+  minHeight: '240px',
   ...displayStore.mainContentStyle,
 }))
 

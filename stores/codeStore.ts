@@ -382,6 +382,22 @@ const definitionSeeds: CodeDefinition[] = [
       },
     ],
   },
+{
+  kind: 'ollama-text',
+  title: 'Ollama Text',
+  subtitle: 'Local LLM pass.',
+  description: 'Sends text to a local Ollama server and returns text.',
+  icon: 'kind-icon:server',
+  category: 'Text AI',
+  accent: 'success',
+  inputs: [
+    { id: 'text', label: 'Text', type: 'text', direction: 'input', required: true },
+  ],
+  outputs: [
+    { id: 'text', label: 'Text', type: 'text', direction: 'output' },
+  ],
+},
+
   {
     kind: 'text-input',
     title: 'Text Input',

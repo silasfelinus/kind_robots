@@ -6,10 +6,16 @@
     <div
       ref="canvasRef"
       data-code-canvas-scroll
-      class="relative h-full min-h-[640px] w-full overflow-auto"
+      class="relative h-full min-h-160 w-full overflow-auto select-none"
+      :class="canvasCursorClass"
       @dragover.prevent
       @drop="onDrop"
       @click.self="clearCanvasSelection"
+      @wheel.prevent="onWheel"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @pointerleave="onPointerUp"
     >
       <div
         class="relative"
@@ -32,12 +38,12 @@
           >
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.08)_1px,transparent_1px)] bg-[size:28px_28px]"
+              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.08)_1px,transparent_1px)] bg-size-[28px_28px]"
             />
 
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.18)_1px,transparent_0)] [background-size:112px_112px]"
+              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.18)_1px,transparent_0)] bg-size-[112px_112px]"
             />
 
             <div class="pointer-events-none absolute inset-0 opacity-20">
@@ -64,7 +70,7 @@
                 v-for="connection in visibleConnections"
                 :key="connection.id"
                 :d="connection.path"
-                class="fill-none stroke-[5] opacity-80 drop-shadow-sm"
+                class="fill-none stroke-5 opacity-80 drop-shadow-sm"
                 :class="connection.className"
                 stroke-linecap="round"
               />
@@ -73,7 +79,7 @@
                 v-for="connection in visibleConnections"
                 :key="`${connection.id}-glow`"
                 :d="connection.path"
-                class="fill-none stroke-[11] opacity-20 blur-sm"
+                class="fill-none stroke-11 opacity-20 blur-sm"
                 :class="connection.className"
                 stroke-linecap="round"
               />
@@ -232,6 +238,64 @@ const nodeWidth = 280
 const headerOffset = 56
 const portGap = 34
 
+// ─── Pointer-based pan ───────────────────────────────────────────────────────
+const isPanning = ref(false)
+const panPointerId = ref<number | null>(null)
+const lastPointerX = ref(0)
+const lastPointerY = ref(0)
+
+const canvasCursorClass = computed(() => {
+  if (isPanning.value) return 'cursor-grabbing'
+  if (codeStore.isPanMode) return 'cursor-grab'
+  return 'cursor-default'
+})
+
+function onPointerDown(event: PointerEvent) {
+  // Middle-mouse button or explicit pan mode → drag to scroll
+  if (event.button === 1 || codeStore.isPanMode) {
+    isPanning.value = true
+    panPointerId.value = event.pointerId
+    lastPointerX.value = event.clientX
+    lastPointerY.value = event.clientY
+    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+    event.preventDefault()
+  }
+}
+
+function onPointerMove(event: PointerEvent) {
+  if (
+    !isPanning.value ||
+    event.pointerId !== panPointerId.value ||
+    !canvasRef.value
+  )
+    return
+  const dx = event.clientX - lastPointerX.value
+  const dy = event.clientY - lastPointerY.value
+  canvasRef.value.scrollLeft -= dx
+  canvasRef.value.scrollTop -= dy
+  lastPointerX.value = event.clientX
+  lastPointerY.value = event.clientY
+}
+
+function onPointerUp(event: PointerEvent) {
+  if (event.pointerId === panPointerId.value || !event.pointerId) {
+    isPanning.value = false
+    panPointerId.value = null
+  }
+}
+
+// ─── Wheel → zoom ────────────────────────────────────────────────────────────
+function onWheel(event: WheelEvent) {
+  // Ctrl/Meta held → zoom; otherwise also zoom (standard canvas-editor behaviour)
+  if (event.deltaY < 0) {
+    codeStore.zoomIn()
+  } else if (event.deltaY > 0) {
+    codeStore.zoomOut()
+  }
+  // Horizontal trackpad scroll → native scroll (no extra logic needed)
+}
+
+// ─── Transform ───────────────────────────────────────────────────────────────
 const canvasTransformStyle = computed(() => {
   return {
     width: `${codeStore.canvasBounds.width}px`,
@@ -241,6 +305,7 @@ const canvasTransformStyle = computed(() => {
   }
 })
 
+// ─── Connections ─────────────────────────────────────────────────────────────
 const visibleConnections = computed(() => {
   return codeStore.connections
     .map((connection) => {
@@ -307,6 +372,7 @@ function getInputPoint(nodeId: string, portId: string) {
   }
 }
 
+// ─── Drop ────────────────────────────────────────────────────────────────────
 function onDrop(event: DragEvent) {
   const kind = event.dataTransfer?.getData('kindrobots/code-kind') as CodeKind
 
@@ -341,13 +407,17 @@ function clearCanvasSelection() {
   codeStore.selectNode(null)
 }
 
+// ─── Fit ─────────────────────────────────────────────────────────────────────
 async function fitCanvas() {
   if (!canvasRef.value) {
     codeStore.fitToView()
     return
   }
 
-  codeStore.setViewport(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
+  codeStore.setViewport(
+    canvasRef.value.clientWidth,
+    canvasRef.value.clientHeight,
+  )
 
   codeStore.fitToView({
     width: canvasRef.value.clientWidth,
@@ -374,7 +444,10 @@ function updateViewport() {
     return
   }
 
-  codeStore.setViewport(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
+  codeStore.setViewport(
+    canvasRef.value.clientWidth,
+    canvasRef.value.clientHeight,
+  )
 }
 
 function miniNodeStyle(node: CodeNode) {

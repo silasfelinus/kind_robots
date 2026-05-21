@@ -48,39 +48,11 @@
     </template>
 
     <main
-      class="fixed z-30 overflow-hidden border-4 border-error bg-base-100 transition-all duration-300 ease-out"
-      :style="safeMainContentStyle"
+      class="fixed overflow-hidden bg-base-200 transition-all duration-300 ease-out"
+      :style="displayStore.mainContentStyle"
     >
-      <div class="flex h-full w-full flex-col gap-4 overflow-y-auto p-4">
-        <div
-          class="rounded-2xl border border-error bg-error p-4 text-lg font-black text-error-content shadow-xl"
-        >
-          MAIN SLOT CONTAINER ALIVE
-        </div>
-
-        <div
-          class="rounded-2xl border border-info bg-info p-4 text-sm font-black text-info-content"
-        >
-          BEFORE DEFAULT SLOT
-        </div>
-
-        <div
-          class="min-h-64 rounded-2xl border-4 border-primary bg-base-200 p-4"
-        >
-          <slot>
-            <div
-              class="rounded-2xl border border-warning bg-warning p-4 text-lg font-black text-warning-content"
-            >
-              DEFAULT SLOT FALLBACK RENDERED
-            </div>
-          </slot>
-        </div>
-
-        <div
-          class="rounded-2xl border border-success bg-success p-4 text-sm font-black text-success-content"
-        >
-          AFTER DEFAULT SLOT
-        </div>
+      <div class="absolute inset-0 overflow-y-auto px-4 pb-4">
+        <slot />
       </div>
     </main>
 
@@ -100,16 +72,6 @@ import { onBeforeUnmount, onMounted } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 
 const displayStore = useDisplayStore()
-
-const safeMainContentStyle = computed(() => ({
-  top: '96px',
-  left: '96px',
-  right: '96px',
-  bottom: '96px',
-  minWidth: '240px',
-  minHeight: '240px',
-  ...displayStore.mainContentStyle,
-}))
 
 onMounted(() => {
   displayStore.initialize()

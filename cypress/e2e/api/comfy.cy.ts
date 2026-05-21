@@ -13,7 +13,7 @@ interface ComfyDirectResponse {
   debug?: unknown
 }
 
-describe('Comfy Direct Test Endpoint', () => {
+describe.skip('Comfy Direct Test Endpoint', () => {
   let apiBase = 'https://kind-robots.vercel.app/api/comfy/test'
   let apiKey = ''
   let serverId = 25

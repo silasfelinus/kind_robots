@@ -393,6 +393,7 @@ export const ModelName = {
   Chat: 'Chat',
   Code: 'Code',
   Component: 'Component',
+  Composition: 'Composition',
   Dream: 'Dream',
   Log: 'Log',
   Milestone: 'Milestone',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1017,6 +1018,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ComponentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ComponentCountAggregateOutputType> | number
+        }
+      }
+    }
+    Composition: {
+      payload: Prisma.$CompositionPayload<ExtArgs>
+      fields: Prisma.CompositionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompositionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompositionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
+        }
+        findFirst: {
+          args: Prisma.CompositionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompositionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
+        }
+        findMany: {
+          args: Prisma.CompositionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>[]
+        }
+        create: {
+          args: Prisma.CompositionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
+        }
+        createMany: {
+          args: Prisma.CompositionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CompositionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
+        }
+        update: {
+          args: Prisma.CompositionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompositionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompositionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CompositionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompositionPayload>
+        }
+        aggregate: {
+          args: Prisma.CompositionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateComposition>
+        }
+        groupBy: {
+          args: Prisma.CompositionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompositionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompositionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompositionCountAggregateOutputType> | number
         }
       }
     }
@@ -2207,6 +2274,37 @@ export const ComponentScalarFieldEnum = {
 export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
 
 
+export const CompositionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  title: 'title',
+  description: 'description',
+  label: 'label',
+  mode: 'mode',
+  isPublic: 'isPublic',
+  isMature: 'isMature',
+  isActive: 'isActive',
+  designer: 'designer',
+  characterId: 'characterId',
+  dreamId: 'dreamId',
+  scenarioId: 'scenarioId',
+  pitchId: 'pitchId',
+  rewardId: 'rewardId',
+  characterBlurb: 'characterBlurb',
+  dreamBlurb: 'dreamBlurb',
+  scenarioBlurb: 'scenarioBlurb',
+  pitchBlurb: 'pitchBlurb',
+  rewardBlurb: 'rewardBlurb',
+  narrativeText: 'narrativeText',
+  artPrompt: 'artPrompt',
+  userId: 'userId',
+  artImageId: 'artImageId'
+} as const
+
+export type CompositionScalarFieldEnum = (typeof CompositionScalarFieldEnum)[keyof typeof CompositionScalarFieldEnum]
+
+
 export const DreamScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2345,7 +2443,8 @@ export const ReactionScalarFieldEnum = {
   butterflyId: 'butterflyId',
   characterId: 'characterId',
   scenarioId: 'scenarioId',
-  themeId: 'themeId'
+  themeId: 'themeId',
+  compositionId: 'compositionId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]
@@ -2753,6 +2852,24 @@ export const ComponentOrderByRelevanceFieldEnum = {
 } as const
 
 export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
+
+
+export const CompositionOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  label: 'label',
+  mode: 'mode',
+  designer: 'designer',
+  characterBlurb: 'characterBlurb',
+  dreamBlurb: 'dreamBlurb',
+  scenarioBlurb: 'scenarioBlurb',
+  pitchBlurb: 'pitchBlurb',
+  rewardBlurb: 'rewardBlurb',
+  narrativeText: 'narrativeText',
+  artPrompt: 'artPrompt'
+} as const
+
+export type CompositionOrderByRelevanceFieldEnum = (typeof CompositionOrderByRelevanceFieldEnum)[keyof typeof CompositionOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {
@@ -3251,6 +3368,7 @@ export type GlobalOmitConfig = {
   chat?: Prisma.ChatOmit
   code?: Prisma.CodeOmit
   component?: Prisma.ComponentOmit
+  composition?: Prisma.CompositionOmit
   dream?: Prisma.DreamOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit

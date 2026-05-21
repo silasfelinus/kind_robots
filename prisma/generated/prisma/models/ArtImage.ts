@@ -441,6 +441,7 @@ export type ArtImageWhereInput = {
   Scenarios?: Prisma.ScenarioListRelationFilter
   UserProfiles?: Prisma.UserListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
+  Compositions?: Prisma.CompositionListRelationFilter
 }
 
 export type ArtImageOrderByWithRelationInput = {
@@ -489,6 +490,7 @@ export type ArtImageOrderByWithRelationInput = {
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
   UserProfiles?: Prisma.UserOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
+  Compositions?: Prisma.CompositionOrderByRelationAggregateInput
   _relevance?: Prisma.ArtImageOrderByRelevanceInput
 }
 
@@ -541,6 +543,7 @@ export type ArtImageWhereUniqueInput = Prisma.AtLeast<{
   Scenarios?: Prisma.ScenarioListRelationFilter
   UserProfiles?: Prisma.UserListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
+  Compositions?: Prisma.CompositionListRelationFilter
 }, "id">
 
 export type ArtImageOrderByWithAggregationInput = {
@@ -655,6 +658,7 @@ export type ArtImageCreateInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateInput = {
@@ -700,6 +704,7 @@ export type ArtImageUncheckedCreateInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUpdateInput = {
@@ -744,6 +749,7 @@ export type ArtImageUpdateInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateInput = {
@@ -789,6 +795,7 @@ export type ArtImageUncheckedUpdateInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateManyInput = {
@@ -1156,6 +1163,22 @@ export type ArtImageUpdateOneWithoutComponentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutComponentsInput, Prisma.ArtImageUpdateWithoutComponentsInput>, Prisma.ArtImageUncheckedUpdateWithoutComponentsInput>
 }
 
+export type ArtImageCreateNestedOneWithoutCompositionsInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutCompositionsInput
+  connect?: Prisma.ArtImageWhereUniqueInput
+}
+
+export type ArtImageUpdateOneWithoutCompositionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
+  connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutCompositionsInput
+  upsert?: Prisma.ArtImageUpsertWithoutCompositionsInput
+  disconnect?: Prisma.ArtImageWhereInput | boolean
+  delete?: Prisma.ArtImageWhereInput | boolean
+  connect?: Prisma.ArtImageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ArtImageUpdateToOneWithWhereWithoutCompositionsInput, Prisma.ArtImageUpdateWithoutCompositionsInput>, Prisma.ArtImageUncheckedUpdateWithoutCompositionsInput>
+}
+
 export type ArtImageCreateNestedOneWithoutDreamsInput = {
   create?: Prisma.XOR<Prisma.ArtImageCreateWithoutDreamsInput, Prisma.ArtImageUncheckedCreateWithoutDreamsInput>
   connectOrCreate?: Prisma.ArtImageCreateOrConnectWithoutDreamsInput
@@ -1467,6 +1490,7 @@ export type ArtImageCreateWithoutArtCollectionsInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
@@ -1511,6 +1535,7 @@ export type ArtImageUncheckedCreateWithoutArtCollectionsInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutArtCollectionsInput = {
@@ -1609,6 +1634,7 @@ export type ArtImageCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutBotsInput = {
@@ -1653,6 +1679,7 @@ export type ArtImageUncheckedCreateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutBotsInput = {
@@ -1712,6 +1739,7 @@ export type ArtImageUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutBotsInput = {
@@ -1756,6 +1784,7 @@ export type ArtImageUncheckedUpdateWithoutBotsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutCharactersInput = {
@@ -1799,6 +1828,7 @@ export type ArtImageCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutCharactersInput = {
@@ -1843,6 +1873,7 @@ export type ArtImageUncheckedCreateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutCharactersInput = {
@@ -1902,6 +1933,7 @@ export type ArtImageUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutCharactersInput = {
@@ -1946,6 +1978,7 @@ export type ArtImageUncheckedUpdateWithoutCharactersInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutChatsInput = {
@@ -1989,6 +2022,7 @@ export type ArtImageCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutChatsInput = {
@@ -2033,6 +2067,7 @@ export type ArtImageUncheckedCreateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutChatsInput = {
@@ -2092,6 +2127,7 @@ export type ArtImageUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutChatsInput = {
@@ -2136,6 +2172,7 @@ export type ArtImageUncheckedUpdateWithoutChatsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutComponentsInput = {
@@ -2179,6 +2216,7 @@ export type ArtImageCreateWithoutComponentsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutComponentsInput = {
@@ -2223,6 +2261,7 @@ export type ArtImageUncheckedCreateWithoutComponentsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutComponentsInput = {
@@ -2282,6 +2321,7 @@ export type ArtImageUpdateWithoutComponentsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutComponentsInput = {
@@ -2316,6 +2356,201 @@ export type ArtImageUncheckedUpdateWithoutComponentsInput = {
   Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
+  Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
+  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutArtImageNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
+}
+
+export type ArtImageCreateWithoutCompositionsInput = {
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  thumbnailData?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  CheckpointResource?: Prisma.ResourceCreateNestedOneWithoutArtImagesInput
+  Server?: Prisma.ServerCreateNestedOneWithoutArtImagesInput
+  User?: Prisma.UserCreateNestedOneWithoutArtImagesInput
+  Bots?: Prisma.BotCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutArtImageInput
+  Milestones?: Prisma.MilestoneCreateNestedManyWithoutArtImageInput
+  Pitches?: Prisma.PitchCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutArtImageInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+}
+
+export type ArtImageUncheckedCreateWithoutCompositionsInput = {
+  id?: number
+  imageData?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId?: number | null
+  fileName?: string | null
+  fileType?: string
+  cfg?: number | null
+  cfgHalf?: boolean | null
+  checkpoint?: string | null
+  checkpointResourceId?: number | null
+  designer?: string | null
+  genres?: string | null
+  imagePath?: string | null
+  isMature?: boolean | null
+  isPublic?: boolean | null
+  negativePrompt?: string | null
+  path?: string | null
+  promptString?: string | null
+  sampler?: string | null
+  seed?: number | null
+  serverId?: number | null
+  serverName?: string | null
+  serverUrl?: string | null
+  steps?: number | null
+  thumbnailData?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutArtImageInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutArtImageInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutArtImageInput
+  Components?: Prisma.ComponentUncheckedCreateNestedManyWithoutArtImageInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutArtImageInput
+  Milestones?: Prisma.MilestoneUncheckedCreateNestedManyWithoutArtImageInput
+  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutArtImageInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutArtImageInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutArtImageInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutArtImageInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
+  UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+}
+
+export type ArtImageCreateOrConnectWithoutCompositionsInput = {
+  where: Prisma.ArtImageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
+}
+
+export type ArtImageUpsertWithoutCompositionsInput = {
+  update: Prisma.XOR<Prisma.ArtImageUpdateWithoutCompositionsInput, Prisma.ArtImageUncheckedUpdateWithoutCompositionsInput>
+  create: Prisma.XOR<Prisma.ArtImageCreateWithoutCompositionsInput, Prisma.ArtImageUncheckedCreateWithoutCompositionsInput>
+  where?: Prisma.ArtImageWhereInput
+}
+
+export type ArtImageUpdateToOneWithWhereWithoutCompositionsInput = {
+  where?: Prisma.ArtImageWhereInput
+  data: Prisma.XOR<Prisma.ArtImageUpdateWithoutCompositionsInput, Prisma.ArtImageUncheckedUpdateWithoutCompositionsInput>
+}
+
+export type ArtImageUpdateWithoutCompositionsInput = {
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CheckpointResource?: Prisma.ResourceUpdateOneWithoutArtImagesNestedInput
+  Server?: Prisma.ServerUpdateOneWithoutArtImagesNestedInput
+  User?: Prisma.UserUpdateOneWithoutArtImagesNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUpdateManyWithoutArtImageNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutArtImageNestedInput
+  Milestones?: Prisma.MilestoneUpdateManyWithoutArtImageNestedInput
+  Pitches?: Prisma.PitchUpdateManyWithoutArtImageNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutArtImageNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutArtImageNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutArtImageNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
+  UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+}
+
+export type ArtImageUncheckedUpdateWithoutCompositionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  imageData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  cfg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cfgHalf?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  checkpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkpointResourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  isPublic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  negativePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  path?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promptString?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampler?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  seed?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  steps?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  thumbnailData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutArtImageNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutArtImageNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutArtImageNestedInput
+  Components?: Prisma.ComponentUncheckedUpdateManyWithoutArtImageNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutArtImageNestedInput
   Milestones?: Prisma.MilestoneUncheckedUpdateManyWithoutArtImageNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutArtImageNestedInput
@@ -2369,6 +2604,7 @@ export type ArtImageCreateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutDreamsInput = {
@@ -2413,6 +2649,7 @@ export type ArtImageUncheckedCreateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutDreamsInput = {
@@ -2472,6 +2709,7 @@ export type ArtImageUpdateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutDreamsInput = {
@@ -2516,6 +2754,7 @@ export type ArtImageUncheckedUpdateWithoutDreamsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutMilestonesInput = {
@@ -2559,6 +2798,7 @@ export type ArtImageCreateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutMilestonesInput = {
@@ -2603,6 +2843,7 @@ export type ArtImageUncheckedCreateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutMilestonesInput = {
@@ -2662,6 +2903,7 @@ export type ArtImageUpdateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
@@ -2706,6 +2948,7 @@ export type ArtImageUncheckedUpdateWithoutMilestonesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutPitchesInput = {
@@ -2749,6 +2992,7 @@ export type ArtImageCreateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutPitchesInput = {
@@ -2793,6 +3037,7 @@ export type ArtImageUncheckedCreateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutPitchesInput = {
@@ -2852,6 +3097,7 @@ export type ArtImageUpdateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutPitchesInput = {
@@ -2896,6 +3142,7 @@ export type ArtImageUncheckedUpdateWithoutPitchesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutPromptsInput = {
@@ -2939,6 +3186,7 @@ export type ArtImageCreateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutPromptsInput = {
@@ -2983,6 +3231,7 @@ export type ArtImageUncheckedCreateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutPromptsInput = {
@@ -3042,6 +3291,7 @@ export type ArtImageUpdateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutPromptsInput = {
@@ -3086,6 +3336,7 @@ export type ArtImageUncheckedUpdateWithoutPromptsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutReactionsInput = {
@@ -3129,6 +3380,7 @@ export type ArtImageCreateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutReactionsInput = {
@@ -3173,6 +3425,7 @@ export type ArtImageUncheckedCreateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutReactionsInput = {
@@ -3232,6 +3485,7 @@ export type ArtImageUpdateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutReactionsInput = {
@@ -3276,6 +3530,7 @@ export type ArtImageUncheckedUpdateWithoutReactionsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutCheckpointResourceInput = {
@@ -3319,6 +3574,7 @@ export type ArtImageCreateWithoutCheckpointResourceInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
@@ -3363,6 +3619,7 @@ export type ArtImageUncheckedCreateWithoutCheckpointResourceInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutCheckpointResourceInput = {
@@ -3416,6 +3673,7 @@ export type ArtImageCreateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutResourcesInput = {
@@ -3460,6 +3718,7 @@ export type ArtImageUncheckedCreateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutResourcesInput = {
@@ -3535,6 +3794,7 @@ export type ArtImageUpdateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutResourcesInput = {
@@ -3579,6 +3839,7 @@ export type ArtImageUncheckedUpdateWithoutResourcesInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutRewardsInput = {
@@ -3622,6 +3883,7 @@ export type ArtImageCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutRewardsInput = {
@@ -3666,6 +3928,7 @@ export type ArtImageUncheckedCreateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutRewardsInput = {
@@ -3725,6 +3988,7 @@ export type ArtImageUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutRewardsInput = {
@@ -3769,6 +4033,7 @@ export type ArtImageUncheckedUpdateWithoutRewardsInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutScenariosInput = {
@@ -3812,6 +4077,7 @@ export type ArtImageCreateWithoutScenariosInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutScenariosInput = {
@@ -3856,6 +4122,7 @@ export type ArtImageUncheckedCreateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutScenariosInput = {
@@ -3915,6 +4182,7 @@ export type ArtImageUpdateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutScenariosInput = {
@@ -3959,6 +4227,7 @@ export type ArtImageUncheckedUpdateWithoutScenariosInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageCreateWithoutServerInput = {
@@ -4002,6 +4271,7 @@ export type ArtImageCreateWithoutServerInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutServerInput = {
@@ -4046,6 +4316,7 @@ export type ArtImageUncheckedCreateWithoutServerInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutServerInput = {
@@ -4115,6 +4386,7 @@ export type ArtImageCreateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutUserInput = {
@@ -4159,6 +4431,7 @@ export type ArtImageUncheckedCreateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   UserProfiles?: Prisma.UserUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutUserInput = {
@@ -4212,6 +4485,7 @@ export type ArtImageCreateWithoutUserProfilesInput = {
   Rewards?: Prisma.RewardCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
@@ -4256,6 +4530,7 @@ export type ArtImageUncheckedCreateWithoutUserProfilesInput = {
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutArtImageInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutArtImageInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutArtImagesInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutArtImageInput
 }
 
 export type ArtImageCreateOrConnectWithoutUserProfilesInput = {
@@ -4331,6 +4606,7 @@ export type ArtImageUpdateWithoutUserProfilesInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
@@ -4375,6 +4651,7 @@ export type ArtImageUncheckedUpdateWithoutUserProfilesInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUpdateWithoutArtCollectionsInput = {
@@ -4418,6 +4695,7 @@ export type ArtImageUpdateWithoutArtCollectionsInput = {
   Rewards?: Prisma.RewardUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
@@ -4462,6 +4740,7 @@ export type ArtImageUncheckedUpdateWithoutArtCollectionsInput = {
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutArtImageNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutArtCollectionsInput = {
@@ -4566,6 +4845,7 @@ export type ArtImageUpdateWithoutCheckpointResourceInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
@@ -4610,6 +4890,7 @@ export type ArtImageUncheckedUpdateWithoutCheckpointResourceInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutCheckpointResourceInput = {
@@ -4713,6 +4994,7 @@ export type ArtImageUpdateWithoutServerInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutServerInput = {
@@ -4757,6 +5039,7 @@ export type ArtImageUncheckedUpdateWithoutServerInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutServerInput = {
@@ -4860,6 +5143,7 @@ export type ArtImageUpdateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateWithoutUserInput = {
@@ -4904,6 +5188,7 @@ export type ArtImageUncheckedUpdateWithoutUserInput = {
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutArtImageNestedInput
   UserProfiles?: Prisma.UserUncheckedUpdateManyWithoutArtImageNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutArtImagesNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutArtImageNestedInput
 }
 
 export type ArtImageUncheckedUpdateManyWithoutUserInput = {
@@ -4956,6 +5241,7 @@ export type ArtImageCountOutputType = {
   Scenarios: number
   UserProfiles: number
   ArtCollections: number
+  Compositions: number
 }
 
 export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4973,6 +5259,7 @@ export type ArtImageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   Scenarios?: boolean | ArtImageCountOutputTypeCountScenariosArgs
   UserProfiles?: boolean | ArtImageCountOutputTypeCountUserProfilesArgs
   ArtCollections?: boolean | ArtImageCountOutputTypeCountArtCollectionsArgs
+  Compositions?: boolean | ArtImageCountOutputTypeCountCompositionsArgs
 }
 
 /**
@@ -5083,6 +5370,13 @@ export type ArtImageCountOutputTypeCountArtCollectionsArgs<ExtArgs extends runti
   where?: Prisma.ArtCollectionWhereInput
 }
 
+/**
+ * ArtImageCountOutputType without action
+ */
+export type ArtImageCountOutputTypeCountCompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompositionWhereInput
+}
+
 
 export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5130,6 +5424,7 @@ export type ArtImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Scenarios?: boolean | Prisma.ArtImage$ScenariosArgs<ExtArgs>
   UserProfiles?: boolean | Prisma.ArtImage$UserProfilesArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.ArtImage$ArtCollectionsArgs<ExtArgs>
+  Compositions?: boolean | Prisma.ArtImage$CompositionsArgs<ExtArgs>
   _count?: boolean | Prisma.ArtImageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["artImage"]>
 
@@ -5185,6 +5480,7 @@ export type ArtImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Scenarios?: boolean | Prisma.ArtImage$ScenariosArgs<ExtArgs>
   UserProfiles?: boolean | Prisma.ArtImage$UserProfilesArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.ArtImage$ArtCollectionsArgs<ExtArgs>
+  Compositions?: boolean | Prisma.ArtImage$CompositionsArgs<ExtArgs>
   _count?: boolean | Prisma.ArtImageCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -5208,6 +5504,7 @@ export type $ArtImagePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
     UserProfiles: Prisma.$UserPayload<ExtArgs>[]
     ArtCollections: Prisma.$ArtCollectionPayload<ExtArgs>[]
+    Compositions: Prisma.$CompositionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -5595,6 +5892,7 @@ export interface Prisma__ArtImageClient<T, Null = never, ExtArgs extends runtime
   Scenarios<T extends Prisma.ArtImage$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   UserProfiles<T extends Prisma.ArtImage$UserProfilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$UserProfilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollections<T extends Prisma.ArtImage$ArtCollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$ArtCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Compositions<T extends Prisma.ArtImage$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArtImage$CompositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6390,6 +6688,30 @@ export type ArtImage$ArtCollectionsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ArtCollectionScalarFieldEnum | Prisma.ArtCollectionScalarFieldEnum[]
+}
+
+/**
+ * ArtImage.Compositions
+ */
+export type ArtImage$CompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Composition
+   */
+  select?: Prisma.CompositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Composition
+   */
+  omit?: Prisma.CompositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompositionInclude<ExtArgs> | null
+  where?: Prisma.CompositionWhereInput
+  orderBy?: Prisma.CompositionOrderByWithRelationInput | Prisma.CompositionOrderByWithRelationInput[]
+  cursor?: Prisma.CompositionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompositionScalarFieldEnum | Prisma.CompositionScalarFieldEnum[]
 }
 
 /**

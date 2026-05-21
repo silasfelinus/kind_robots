@@ -317,6 +317,7 @@ export type ScenarioWhereInput = {
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Characters?: Prisma.CharacterListRelationFilter
+  Compositions?: Prisma.CompositionListRelationFilter
 }
 
 export type ScenarioOrderByWithRelationInput = {
@@ -341,6 +342,7 @@ export type ScenarioOrderByWithRelationInput = {
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
+  Compositions?: Prisma.CompositionOrderByRelationAggregateInput
   _relevance?: Prisma.ScenarioOrderByRelevanceInput
 }
 
@@ -369,6 +371,7 @@ export type ScenarioWhereUniqueInput = Prisma.AtLeast<{
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Characters?: Prisma.CharacterListRelationFilter
+  Compositions?: Prisma.CompositionListRelationFilter
 }, "id">
 
 export type ScenarioOrderByWithAggregationInput = {
@@ -436,6 +439,7 @@ export type ScenarioCreateInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUncheckedCreateInput = {
@@ -458,6 +462,7 @@ export type ScenarioUncheckedCreateInput = {
   Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUpdateInput = {
@@ -479,6 +484,7 @@ export type ScenarioUpdateInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateInput = {
@@ -501,6 +507,7 @@ export type ScenarioUncheckedUpdateInput = {
   Dream?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioCreateManyInput = {
@@ -727,6 +734,22 @@ export type ScenarioUncheckedUpdateManyWithoutCharactersNestedInput = {
   deleteMany?: Prisma.ScenarioScalarWhereInput | Prisma.ScenarioScalarWhereInput[]
 }
 
+export type ScenarioCreateNestedOneWithoutCompositionsInput = {
+  create?: Prisma.XOR<Prisma.ScenarioCreateWithoutCompositionsInput, Prisma.ScenarioUncheckedCreateWithoutCompositionsInput>
+  connectOrCreate?: Prisma.ScenarioCreateOrConnectWithoutCompositionsInput
+  connect?: Prisma.ScenarioWhereUniqueInput
+}
+
+export type ScenarioUpdateOneWithoutCompositionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ScenarioCreateWithoutCompositionsInput, Prisma.ScenarioUncheckedCreateWithoutCompositionsInput>
+  connectOrCreate?: Prisma.ScenarioCreateOrConnectWithoutCompositionsInput
+  upsert?: Prisma.ScenarioUpsertWithoutCompositionsInput
+  disconnect?: Prisma.ScenarioWhereInput | boolean
+  delete?: Prisma.ScenarioWhereInput | boolean
+  connect?: Prisma.ScenarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScenarioUpdateToOneWithWhereWithoutCompositionsInput, Prisma.ScenarioUpdateWithoutCompositionsInput>, Prisma.ScenarioUncheckedUpdateWithoutCompositionsInput>
+}
+
 export type ScenarioCreateNestedOneWithoutDreamInput = {
   create?: Prisma.XOR<Prisma.ScenarioCreateWithoutDreamInput, Prisma.ScenarioUncheckedCreateWithoutDreamInput>
   connectOrCreate?: Prisma.ScenarioCreateOrConnectWithoutDreamInput
@@ -819,6 +842,7 @@ export type ScenarioCreateWithoutArtImageInput = {
   Reactions?: Prisma.ReactionCreateNestedManyWithoutScenarioInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUncheckedCreateWithoutArtImageInput = {
@@ -840,6 +864,7 @@ export type ScenarioUncheckedCreateWithoutArtImageInput = {
   Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioCreateOrConnectWithoutArtImageInput = {
@@ -908,6 +933,7 @@ export type ScenarioCreateWithoutCharactersInput = {
   Reactions?: Prisma.ReactionCreateNestedManyWithoutScenarioInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUncheckedCreateWithoutCharactersInput = {
@@ -929,6 +955,7 @@ export type ScenarioUncheckedCreateWithoutCharactersInput = {
   isActive?: boolean
   Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioCreateOrConnectWithoutCharactersInput = {
@@ -952,6 +979,108 @@ export type ScenarioUpdateManyWithWhereWithoutCharactersInput = {
   data: Prisma.XOR<Prisma.ScenarioUpdateManyMutationInput, Prisma.ScenarioUncheckedUpdateManyWithoutCharactersInput>
 }
 
+export type ScenarioCreateWithoutCompositionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  description: string
+  intros: string
+  imagePath?: string | null
+  locations?: string | null
+  artPrompt?: string | null
+  genres?: string | null
+  inspirations?: string | null
+  isMature?: boolean
+  isPublic?: boolean
+  isActive?: boolean
+  Dream?: Prisma.DreamCreateNestedManyWithoutScenarioInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutScenarioInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
+  User: Prisma.UserCreateNestedOneWithoutScenariosInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
+}
+
+export type ScenarioUncheckedCreateWithoutCompositionsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  title: string
+  description: string
+  intros: string
+  userId: number
+  artImageId?: number | null
+  imagePath?: string | null
+  locations?: string | null
+  artPrompt?: string | null
+  genres?: string | null
+  inspirations?: string | null
+  isMature?: boolean
+  isPublic?: boolean
+  isActive?: boolean
+  Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
+}
+
+export type ScenarioCreateOrConnectWithoutCompositionsInput = {
+  where: Prisma.ScenarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScenarioCreateWithoutCompositionsInput, Prisma.ScenarioUncheckedCreateWithoutCompositionsInput>
+}
+
+export type ScenarioUpsertWithoutCompositionsInput = {
+  update: Prisma.XOR<Prisma.ScenarioUpdateWithoutCompositionsInput, Prisma.ScenarioUncheckedUpdateWithoutCompositionsInput>
+  create: Prisma.XOR<Prisma.ScenarioCreateWithoutCompositionsInput, Prisma.ScenarioUncheckedCreateWithoutCompositionsInput>
+  where?: Prisma.ScenarioWhereInput
+}
+
+export type ScenarioUpdateToOneWithWhereWithoutCompositionsInput = {
+  where?: Prisma.ScenarioWhereInput
+  data: Prisma.XOR<Prisma.ScenarioUpdateWithoutCompositionsInput, Prisma.ScenarioUncheckedUpdateWithoutCompositionsInput>
+}
+
+export type ScenarioUpdateWithoutCompositionsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  intros?: Prisma.StringFieldUpdateOperationsInput | string
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Dream?: Prisma.DreamUpdateManyWithoutScenarioNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutScenarioNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
+  User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
+}
+
+export type ScenarioUncheckedUpdateWithoutCompositionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  intros?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genres?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inspirations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Dream?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
+}
+
 export type ScenarioCreateWithoutDreamInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -970,6 +1099,7 @@ export type ScenarioCreateWithoutDreamInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUncheckedCreateWithoutDreamInput = {
@@ -991,6 +1121,7 @@ export type ScenarioUncheckedCreateWithoutDreamInput = {
   isActive?: boolean
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioCreateOrConnectWithoutDreamInput = {
@@ -1027,6 +1158,7 @@ export type ScenarioUpdateWithoutDreamInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateWithoutDreamInput = {
@@ -1048,6 +1180,7 @@ export type ScenarioUncheckedUpdateWithoutDreamInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioCreateWithoutReactionsInput = {
@@ -1068,6 +1201,7 @@ export type ScenarioCreateWithoutReactionsInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   User: Prisma.UserCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUncheckedCreateWithoutReactionsInput = {
@@ -1089,6 +1223,7 @@ export type ScenarioUncheckedCreateWithoutReactionsInput = {
   isActive?: boolean
   Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioCreateOrConnectWithoutReactionsInput = {
@@ -1125,6 +1260,7 @@ export type ScenarioUpdateWithoutReactionsInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateWithoutReactionsInput = {
@@ -1146,6 +1282,7 @@ export type ScenarioUncheckedUpdateWithoutReactionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Dream?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioCreateWithoutUserInput = {
@@ -1166,6 +1303,7 @@ export type ScenarioCreateWithoutUserInput = {
   Reactions?: Prisma.ReactionCreateNestedManyWithoutScenarioInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutScenariosInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioUncheckedCreateWithoutUserInput = {
@@ -1187,6 +1325,7 @@ export type ScenarioUncheckedCreateWithoutUserInput = {
   Dream?: Prisma.DreamUncheckedCreateNestedManyWithoutScenarioInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutScenarioInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutScenariosInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutScenarioInput
 }
 
 export type ScenarioCreateOrConnectWithoutUserInput = {
@@ -1251,6 +1390,7 @@ export type ScenarioUpdateWithoutArtImageInput = {
   Reactions?: Prisma.ReactionUpdateManyWithoutScenarioNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateWithoutArtImageInput = {
@@ -1272,6 +1412,7 @@ export type ScenarioUncheckedUpdateWithoutArtImageInput = {
   Dream?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateManyWithoutArtImageInput = {
@@ -1310,6 +1451,7 @@ export type ScenarioUpdateWithoutCharactersInput = {
   Reactions?: Prisma.ReactionUpdateManyWithoutScenarioNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateWithoutCharactersInput = {
@@ -1331,6 +1473,7 @@ export type ScenarioUncheckedUpdateWithoutCharactersInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Dream?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateManyWithoutCharactersInput = {
@@ -1388,6 +1531,7 @@ export type ScenarioUpdateWithoutUserInput = {
   Reactions?: Prisma.ReactionUpdateManyWithoutScenarioNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutScenariosNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateWithoutUserInput = {
@@ -1409,6 +1553,7 @@ export type ScenarioUncheckedUpdateWithoutUserInput = {
   Dream?: Prisma.DreamUncheckedUpdateManyWithoutScenarioNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutScenarioNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutScenariosNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutScenarioNestedInput
 }
 
 export type ScenarioUncheckedUpdateManyWithoutUserInput = {
@@ -1438,12 +1583,14 @@ export type ScenarioCountOutputType = {
   Dream: number
   Reactions: number
   Characters: number
+  Compositions: number
 }
 
 export type ScenarioCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Dream?: boolean | ScenarioCountOutputTypeCountDreamArgs
   Reactions?: boolean | ScenarioCountOutputTypeCountReactionsArgs
   Characters?: boolean | ScenarioCountOutputTypeCountCharactersArgs
+  Compositions?: boolean | ScenarioCountOutputTypeCountCompositionsArgs
 }
 
 /**
@@ -1477,6 +1624,13 @@ export type ScenarioCountOutputTypeCountCharactersArgs<ExtArgs extends runtime.T
   where?: Prisma.CharacterWhereInput
 }
 
+/**
+ * ScenarioCountOutputType without action
+ */
+export type ScenarioCountOutputTypeCountCompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompositionWhereInput
+}
+
 
 export type ScenarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1500,6 +1654,7 @@ export type ScenarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ArtImage?: boolean | Prisma.Scenario$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Characters?: boolean | Prisma.Scenario$CharactersArgs<ExtArgs>
+  Compositions?: boolean | Prisma.Scenario$CompositionsArgs<ExtArgs>
   _count?: boolean | Prisma.ScenarioCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scenario"]>
 
@@ -1531,6 +1686,7 @@ export type ScenarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   ArtImage?: boolean | Prisma.Scenario$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Characters?: boolean | Prisma.Scenario$CharactersArgs<ExtArgs>
+  Compositions?: boolean | Prisma.Scenario$CompositionsArgs<ExtArgs>
   _count?: boolean | Prisma.ScenarioCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1542,6 +1698,7 @@ export type $ScenarioPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs>
     Characters: Prisma.$CharacterPayload<ExtArgs>[]
+    Compositions: Prisma.$CompositionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1905,6 +2062,7 @@ export interface Prisma__ScenarioClient<T, Null = never, ExtArgs extends runtime
   ArtImage<T extends Prisma.Scenario$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Scenario$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Characters<T extends Prisma.Scenario$CharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Scenario$CharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Compositions<T extends Prisma.Scenario$CompositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Scenario$CompositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2386,6 +2544,30 @@ export type Scenario$CharactersArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.CharacterScalarFieldEnum | Prisma.CharacterScalarFieldEnum[]
+}
+
+/**
+ * Scenario.Compositions
+ */
+export type Scenario$CompositionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Composition
+   */
+  select?: Prisma.CompositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Composition
+   */
+  omit?: Prisma.CompositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompositionInclude<ExtArgs> | null
+  where?: Prisma.CompositionWhereInput
+  orderBy?: Prisma.CompositionOrderByWithRelationInput | Prisma.CompositionOrderByWithRelationInput[]
+  cursor?: Prisma.CompositionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompositionScalarFieldEnum | Prisma.CompositionScalarFieldEnum[]
 }
 
 /**

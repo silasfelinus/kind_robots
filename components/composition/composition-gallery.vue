@@ -176,6 +176,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCompositionStore } from '@/stores/compositionStore'
+import type { Composition } from '@/stores/compositionStore'
 import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
@@ -234,23 +235,24 @@ const layoutClass = computed(() =>
 )
 
 const filteredCompositions = computed(() => {
-  let items = compositionStore.items
+  let items = compositionStore.items as Composition[]
 
   if (selectedScope.value === 'mine')
-    items = items.filter((c) => c.userId === userStore.userId)
-  if (selectedScope.value === 'public') items = items.filter((c) => c.isPublic)
+    items = items.filter((c: Composition) => c.userId === userStore.userId)
+  if (selectedScope.value === 'public')
+    items = items.filter((c: Composition) => c.isPublic)
   if (selectedMode.value !== 'all')
-    items = items.filter((c) => c.mode === selectedMode.value)
+    items = items.filter((c: Composition) => c.mode === selectedMode.value)
 
   if (synthesizedFilter.value === 'synthesized')
-    items = items.filter((c) => c.narrativeText || c.artPrompt)
+    items = items.filter((c: Composition) => c.narrativeText || c.artPrompt)
   if (synthesizedFilter.value === 'pending')
-    items = items.filter((c) => !c.narrativeText && !c.artPrompt)
+    items = items.filter((c: Composition) => !c.narrativeText && !c.artPrompt)
 
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.trim().toLowerCase()
     items = items.filter(
-      (c) =>
+      (c: Composition) =>
         (c.title || '').toLowerCase().includes(q) ||
         (c.description || '').toLowerCase().includes(q) ||
         (c.label || '').toLowerCase().includes(q),

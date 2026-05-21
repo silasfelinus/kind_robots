@@ -1,0 +1,68 @@
+// /server/api/compositions/[id].delete.ts
+import { defineEventHandler, createError } from 'h3'
+import prisma from '@/server/utils/prisma'
+import { errorHandler } from '@/server/utils/error'
+import { validateApiKey } from '@/server/utils/validateKey'
+
+export default defineEventHandler(async (event) => {
+  const modelName = 'composition'
+  const paramName = 'id'
+  let id: number
+  let response
+
+  try {
+    id = Number(event.context.params?.[paramName])
+    if (isNaN(id) || id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: `Invalid ${modelName} ID.`,
+      })
+    }
+
+    const { isValid, user } = await validateApiKey(event)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
+
+    const item = await prisma[modelName].findUnique({
+      where: { id },
+      select: { userId: true },
+    })
+
+    if (!item) {
+      throw createError({
+        statusCode: 404,
+        message: `${modelName} with ID ${id} not found.`,
+      })
+    }
+
+    if (user.Role === 'ADMIN' || item.userId === user.id) {
+      await prisma[modelName].delete({ where: { id } })
+      return {
+        success: true,
+        message: `${modelName} with ID ${id} successfully deleted.`,
+        statusCode: 200,
+      }
+    }
+
+    throw createError({
+      statusCode: 403,
+      message: `You are not authorized to delete this ${modelName}.`,
+    })
+  } catch (error) {
+    const handled = errorHandler(error)
+    console.error(`Error deleting ${modelName}:`, handled)
+    event.node.res.statusCode = handled.statusCode || 500
+    response = {
+      success: false,
+      message:
+        handled.message || `Failed to delete ${modelName} with ID ${id}.`,
+      statusCode: event.node.res.statusCode,
+    }
+  }
+
+  return response
+})

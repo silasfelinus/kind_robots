@@ -54,6 +54,7 @@ model ArtImage {
   Scenarios                    Scenario[]
   UserProfiles                 User[]          @relation("UserProfileImage")
   ArtCollections               ArtCollection[] @relation("ArtCollectionToArtImage")
+  Compositions  Composition[]
 
   @@index([userId],               map: "ArtImage_userId_fkey")
   @@index([checkpointResourceId], map: "ArtImage_checkpointResourceId_fkey")
@@ -205,6 +206,7 @@ model Character {
   Dreams       Dream[]    @relation("CharacterToDream")
   Rewards      Reward[]   @relation("CharacterToReward")
   Scenarios    Scenario[] @relation("CharacterToScenario")
+  Compositions  Composition[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -304,6 +306,59 @@ model Component {
   @@index([artImageId], map: "Component_artImageId_fkey")
 }
 
+
+
+model Composition {
+id          Int      @id @default(autoincrement())
+createdAt   DateTime @default(now())
+updatedAt   DateTime @updatedAt
+// Core fields
+title       String   @db.VarChar(255)
+description String?  @db.VarChar(512)
+label       String?  @db.VarChar(255)
+// What to generate
+mode        String   @default("both") @db.VarChar(64)
+// 'narrative' | 'art' | 'both'
+// Flags
+isPublic    Boolean  @default(true)
+isMature    Boolean  @default(false)
+isActive    Boolean  @default(true)
+designer    String?  @default("system") @db.VarChar(255)
+// ── Ingredient FKs (all optional) ─────────────────────────────────────────
+characterId Int?
+dreamId     Int?
+scenarioId  Int?
+pitchId     Int?
+rewardId    Int?
+// ── Freeform overrides (used when no FK is set, or to override) ───────────
+characterBlurb  String? @db.VarChar(512)
+dreamBlurb      String? @db.VarChar(512)
+scenarioBlurb   String? @db.VarChar(512)
+pitchBlurb      String? @db.VarChar(512)
+rewardBlurb     String? @db.VarChar(512)
+// ── Outputs ───────────────────────────────────────────────────────────────
+narrativeText String? @db.Text
+artPrompt     String? @db.Text
+// ── Relations ─────────────────────────────────────────────────────────────
+userId    Int?
+User      User?      @relation(fields: [userId], references: [id])
+artImageId Int?      @unique
+ArtImage   ArtImage? @relation(fields: [artImageId], references: [id])
+Character  Character? @relation(fields: [characterId], references: [id])
+Dream      Dream?     @relation(fields: [dreamId], references: [id])
+Scenario   Scenario?  @relation(fields: [scenarioId], references: [id])
+Pitch      Pitch?     @relation(fields: [pitchId], references: [id])
+Reward     Reward?    @relation(fields: [rewardId], references: [id])
+Reactions  Reaction[]
+@@index([userId])
+@@index([mode])
+@@index([characterId])
+@@index([dreamId])
+@@index([scenarioId])
+@@index([pitchId])
+@@index([rewardId])
+}
+
 model Dream {
   id              Int             @id @default(autoincrement())
   createdAt       DateTime        @default(now())
@@ -335,6 +390,7 @@ model Dream {
   Reactions       Reaction[]
   Characters      Character[]     @relation("CharacterToDream")
   Rewards         Reward[]        @relation("DreamToReward")
+  Compositions  Composition[]
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
@@ -423,6 +479,7 @@ model Pitch {
   User           User?          @relation(fields: [userId], references: [id])
   Prompt         Prompt[]
   Reactions      Reaction[]
+  Compositions  Composition[]
 
   @@index([userId], map: "Pitch_userId_fkey")
   @@index([artImageId], map: "Pitch_artImageId_fkey")
@@ -494,6 +551,8 @@ model Reaction {
   Scenario         Scenario?                 @relation(fields: [scenarioId], references: [id])
   Theme            Theme?                    @relation(fields: [themeId], references: [id])
   User             User                      @relation(fields: [userId], references: [id])
+compositionId Int?
+Composition   Composition? @relation(fields: [compositionId], references: [id])
 
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([artImageId], map: "Reaction_artImageId_fkey")
@@ -510,6 +569,7 @@ model Reaction {
   @@index([rewardId], map: "Reaction_rewardId_fkey")
   @@index([scenarioId], map: "Reaction_scenarioId_fkey")
   @@index([themeId], map: "Reaction_themeId_fkey")
+  @@index([compositionId])
 }
 
 /// This should also be used if a user wants to add a custom art or text checkpoints
@@ -567,6 +627,7 @@ model Reward {
   User       User?       @relation(fields: [userId], references: [id])
   Characters Character[] @relation("CharacterToReward")
   Dreams     Dream[]     @relation("DreamToReward")
+  Compositions  Composition[]
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
@@ -597,6 +658,7 @@ model Scenario {
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
   User         User        @relation(fields: [userId], references: [id])
   Characters   Character[] @relation("CharacterToScenario")
+  Compositions  Composition[]
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")
@@ -799,6 +861,7 @@ model User {
   Themes                Theme[]
   ArtImage              ArtImage?         @relation("UserProfileImage", fields: [artImageId], references: [id])
   Codes                 Code[]
+  Compositions  Composition[]
 
   @@index([artImageId], map: "User_artImageId_fkey")
 }
@@ -954,6 +1017,7 @@ enum Reaction_reactionCategory {
   CHARACTER
   CHAT_EXCHANGE
   COMPONENT
+  COMPOSITION
   DREAM
   MESSAGE
   PITCH

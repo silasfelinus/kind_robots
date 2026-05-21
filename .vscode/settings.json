@@ -6,9 +6,9 @@
   "editor.wordWrap": "on",
 
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.tailwindcss": "explicit"
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always",
+    "source.fixAll.tailwindcss": "always"
   },
 
   "editor.formatOnSave": true,

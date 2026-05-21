@@ -195,7 +195,9 @@ export interface CodeTemplateNode {
   title?: string
   x: number
   y: number
+  values?: Record<string, unknown>   // ← add this
 }
+
 
 export interface CodeTemplateConnection {
   fromIndex: number
@@ -2807,13 +2809,13 @@ export const useCodeStore = defineStore('codeStore', () => {
         const point = normalizeNodePoint(templateNode.x, templateNode.y)
 
         const node: CodeNode = {
-          id: makeId('node'),
-          kind: templateNode.kind,
-          title: templateNode.title ?? definition.title,
-          x: point.x,
-          y: point.y,
-          values: {},
-        }
+  id: makeId('node'),
+  kind: templateNode.kind,
+  title: templateNode.title ?? definition.title,
+  x: point.x,
+  y: point.y,
+  values: { ...(templateNode.values ?? {}) },
+}
 
         nodes.value.push(node)
         return node

@@ -6,7 +6,7 @@
     <div
       ref="canvasRef"
       data-code-canvas-scroll
-      class="relative h-full min-h-[640px] w-full overflow-auto select-none"
+      class="relative h-full min-h-160 w-full overflow-auto select-none"
       :class="canvasCursorClass"
       @dragover.prevent
       @drop="onDrop"
@@ -38,12 +38,12 @@
           >
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.12)_1px,transparent_1px)] bg-[size:28px_28px]"
+              class="absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.12)_1px,transparent_1px)] bg-size-[28px_28px]"
             />
 
             <div
               v-if="codeStore.showCanvasGrid"
-              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.28)_1px,transparent_0)] [background-size:112px_112px]"
+              class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(125,211,252,0.28)_1px,transparent_0)] bg-size-[112px_112px]"
             />
 
             <div

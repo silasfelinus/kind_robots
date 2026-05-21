@@ -536,6 +536,8 @@ model Reaction {
   characterId      Int?
   scenarioId       Int?
   themeId          Int?
+  compositionId    Int?
+  Composition      Composition? @relation(fields: [compositionId], references: [id])
   ArtCollection    ArtCollection?            @relation(fields: [artCollectionId], references: [id])
   ArtImage         ArtImage?                 @relation(fields: [artImageId], references: [id])
   Bot              Bot?                      @relation(fields: [botId], references: [id])
@@ -551,8 +553,7 @@ model Reaction {
   Scenario         Scenario?                 @relation(fields: [scenarioId], references: [id])
   Theme            Theme?                    @relation(fields: [themeId], references: [id])
   User             User                      @relation(fields: [userId], references: [id])
-compositionId Int?
-Composition   Composition? @relation(fields: [compositionId], references: [id])
+
 
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([artImageId], map: "Reaction_artImageId_fkey")

@@ -10,6 +10,13 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useNavStore } from '@/stores/navStore'
 import type { Code } from '~/prisma/generated/prisma/client'
+import {
+  codeExecutors,
+  topoLayers,
+  type CodeExecutorInputs,
+  type CodePortValue,
+} from '@/utils/codeExecutors'
+
 
 export type CodeDataType =
   | 'text'
@@ -1049,6 +1056,11 @@ export const useCodeStore = defineStore('codeStore', () => {
   const runStatus = ref<CodeRunStatus>('idle')
   const runResults = ref<Record<string, CodeRunResult>>({})
   const activeRunNodeId = ref<string | null>(null)
+const portValueCache = ref<Record<string, CodePortValue>>({})
+const runStreams = ref<Record<string, string>>({})  // key = `${nodeId}:${portId}`
+const activeRunNodeIds = ref<Set<string>>(new Set())
+let activeControllers: AbortController[] = []
+		
 
   const ownedItems = computed(() => {
     return items.value.filter((item) => item.userId === userStore.user?.id)
@@ -1518,73 +1530,157 @@ export const useCodeStore = defineStore('codeStore', () => {
     }
   }
 
-  async function runNode(nodeId: string) {
-    const node = getNode(nodeId)
+  
 
-    if (!node) {
-      return {
-        success: false,
-        message: 'Node not found.',
-      }
-    }
+  function gatherInputs(nodeId: string): CodeExecutorInputs {
+  const node = getNode(nodeId)
+  const definition = node ? getDefinition(node.kind) : null
+  if (!node || !definition) return {}
 
-    activeRunNodeId.value = nodeId
-    runStatus.value = 'running'
+  const result: CodeExecutorInputs = {}
+  for (const port of definition.inputs) {
+    const conns = connections.value.filter(
+      (c) => c.toNodeId === nodeId && c.toPortId === port.id,
+    )
+    const values = conns
+      .map((c) => portValueCache.value[`${c.fromNodeId}:${c.fromPortId}`])
+      .filter((v): v is CodePortValue => Boolean(v))
+    result[port.id] = values.length > 1 ? values : values[0]
+  }
+  return result
+}
 
+async function runNode(nodeId: string, signal?: AbortSignal) {
+  const node = getNode(nodeId)
+  if (!node) return { success: false, message: 'Node not found.' }
+
+  const executor = codeExecutors[node.kind]
+  const startedAt = new Date().toISOString()
+
+  if (!executor) {
     runResults.value[nodeId] = {
-      nodeId,
-      success: false,
-      message: 'Code runner not implemented yet.',
-      startedAt: new Date().toISOString(),
-      completedAt: new Date().toISOString(),
+      nodeId, success: false,
+      message: `No executor registered for ${node.kind}.`,
+      startedAt, completedAt: new Date().toISOString(),
     }
-
-    runStatus.value = 'idle'
-    activeRunNodeId.value = null
-
-    return {
-      success: false,
-      message: 'Code runner not implemented yet.',
-    }
+    return { success: false, message: `No executor for ${node.kind}.` }
   }
 
-  async function runCurrentGraph() {
-    const validation = validateCurrentGraph()
+  const controller = signal ? null : new AbortController()
+  const useSignal = signal ?? controller!.signal
+  if (controller) activeControllers.push(controller)
 
-    if (!validation.success) {
-      runStatus.value = 'error'
+  activeRunNodeIds.value.add(nodeId)
+  activeRunNodeId.value = nodeId
 
-      return {
-        success: false,
-        message: validation.message,
-        validation,
+  try {
+    const inputs = gatherInputs(nodeId)
+    const outputs = await executor(inputs, node.values, {
+      userId: userStore.user?.id ?? null,
+      nodeId,
+      signal: useSignal,
+      onProgress: (portId, _chunk, full) => {
+        runStreams.value[`${nodeId}:${portId}`] = full
+      },
+    })
+
+    for (const [portId, val] of Object.entries(outputs)) {
+      portValueCache.value[`${nodeId}:${portId}`] = val
+      // Sync final value into stream cache too, so UIs reading runStreams see completion
+      if (val.type === 'text') {
+        runStreams.value[`${nodeId}:${portId}`] = String(val.value ?? '')
       }
     }
 
-    runStatus.value = 'queued'
+    runResults.value[nodeId] = {
+      nodeId, success: true, message: 'OK', output: outputs,
+      startedAt, completedAt: new Date().toISOString(),
+    }
+    return { success: true, message: 'OK', data: outputs }
+  } catch (error) {
+    const isAbort = (error as Error).name === 'AbortError'
+    runResults.value[nodeId] = {
+      nodeId, success: false,
+      message: isAbort ? 'Cancelled' : (error as Error).message,
+      startedAt, completedAt: new Date().toISOString(),
+    }
+    return { success: false, message: (error as Error).message }
+  } finally {
+    activeRunNodeIds.value.delete(nodeId)
+    if (activeRunNodeIds.value.size === 0) activeRunNodeId.value = null
+  }
+}
 
+async function runCurrentGraph() {
+  const validation = validateCurrentGraph()
+  if (!validation.success) {
+    runStatus.value = 'error'
+    return { success: false, message: validation.message, validation }
+  }
+
+  const layers = topoLayers({
+    nodes: nodes.value,
+    connections: connections.value,
+  })
+  if (!layers) {
+    runStatus.value = 'error'
     return {
       success: false,
-      message: 'Code graph runner not implemented yet.',
+      message: 'Cycle detected. Loops not yet supported.',
       validation,
     }
   }
 
-  function cancelRun() {
-    runStatus.value = 'cancelled'
-    activeRunNodeId.value = null
+  portValueCache.value = {}
+  runStreams.value = {}
+  runResults.value = {}
+  activeControllers = []
+  runStatus.value = 'running'
 
+  const masterController = new AbortController()
+  activeControllers.push(masterController)
+
+  try {
+    for (const layer of layers) {
+      const layerResults = await Promise.all(
+        layer.map((id) => runNode(id, masterController.signal)),
+      )
+      const failed = layerResults.find((r) => !r.success)
+      if (failed) {
+        runStatus.value = 'error'
+        return {
+          success: false,
+          message: `Stopped: ${failed.message}`,
+          validation,
+        }
+      }
+    }
+    runStatus.value = 'success'
     return {
       success: true,
-      message: 'Run cancelled.',
+      message: `Ran ${nodes.value.length} cards.`,
+      validation,
     }
+  } catch (error) {
+    runStatus.value = 'error'
+    return { success: false, message: (error as Error).message, validation }
+  } finally {
+    activeControllers = []
   }
+}
 
-  function clearRunResults() {
-    runResults.value = {}
-    runStatus.value = 'idle'
-    activeRunNodeId.value = null
+function cancelRun() {
+  for (const controller of activeControllers) {
+    try { controller.abort() } catch { /* noop */ }
   }
+  activeControllers = []
+  runStatus.value = 'cancelled'
+  activeRunNodeIds.value.clear()
+  activeRunNodeId.value = null
+  return { success: true, message: 'Run cancelled.' }
+}
+
+  
 
   function parseGraph(graph: unknown): CodeGraph {
     if (isCodeGraph(graph)) {
@@ -2960,6 +3056,10 @@ export const useCodeStore = defineStore('codeStore', () => {
     runCurrentGraph,
     cancelRun,
     clearRunResults,
+portValueCache,
+runStreams,
+activeRunNodeIds,
+
   }
 })
 

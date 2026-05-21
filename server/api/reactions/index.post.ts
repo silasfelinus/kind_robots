@@ -22,6 +22,7 @@ type ReactionBody = {
   characterId?: unknown
   chatId?: unknown
   componentId?: unknown
+  compositionId?: unknown
   dreamId?: unknown
   pitchId?: unknown
   promptId?: unknown
@@ -30,7 +31,6 @@ type ReactionBody = {
   scenarioId?: unknown
   themeId?: unknown
 }
-
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
 
@@ -51,6 +51,7 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   BUTTERFLY: Reaction_reactionCategory.BUTTERFLY,
   CHARACTER: Reaction_reactionCategory.CHARACTER,
   COMPONENT: Reaction_reactionCategory.COMPONENT,
+  COMPOSITION: Reaction_reactionCategory.COMPOSITION,
   DREAM: Reaction_reactionCategory.DREAM,
   PITCH: Reaction_reactionCategory.PITCH,
   POST: Reaction_reactionCategory.POST,
@@ -142,6 +143,7 @@ function getTargetFields(body: ReactionBody) {
     characterId: toPositiveId(body.characterId),
     chatId: toPositiveId(body.chatId),
     componentId: toPositiveId(body.componentId),
+    compositionId: toPositiveId(body.compositionId),
     dreamId: toPositiveId(body.dreamId),
     pitchId: toPositiveId(body.pitchId),
     promptId: toPositiveId(body.promptId),
@@ -164,6 +166,7 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.CHARACTER]: 'characterId',
     [Reaction_reactionCategory.CHAT_EXCHANGE]: 'chatId',
     [Reaction_reactionCategory.COMPONENT]: 'componentId',
+    [Reaction_reactionCategory.COMPOSITION]: 'compositionId',
     [Reaction_reactionCategory.DREAM]: 'dreamId',
     [Reaction_reactionCategory.PITCH]: 'pitchId',
     [Reaction_reactionCategory.PROMPT]: 'promptId',

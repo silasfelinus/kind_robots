@@ -4,13 +4,13 @@
     class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-base-200"
   >
     <div
-      class="fixed left-2 top-14 z-[9999] rounded-2xl border border-warning bg-warning px-3 py-2 text-xs font-black text-warning-content shadow-xl"
+      class="fixed left-2 top-14 z-9999 rounded-2xl border border-warning bg-warning px-3 py-2 text-xs font-black text-warning-content shadow-xl"
     >
       DEFAULT LAYOUT ALIVE
     </div>
 
     <div
-      class="fixed left-2 top-26 z-[9999] max-w-[90vw] rounded-2xl border border-info bg-info px-3 py-2 text-[10px] font-bold text-info-content shadow-xl"
+      class="fixed left-2 top-26 z-9999 max-w-[90vw] rounded-2xl border border-info bg-info px-3 py-2 text-[10px] font-bold text-info-content shadow-xl"
     >
       main:
       {{ JSON.stringify(displayStore.mainContentStyle) }}

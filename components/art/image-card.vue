@@ -51,7 +51,7 @@
     <div
       v-if="showImage"
       :class="[
-        'relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-300',
+        'relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-200',
         imageAspectClass,
       ]"
     >
@@ -105,7 +105,7 @@
       <!-- Selected indicator -->
       <div
         v-if="selected"
-        class="absolute bottom-1.5 right-1.5 rounded-full bg-primary p-1.5 text-primary-content shadow"
+        class="absolute bottom-1.5 right-1.5 rounded-full bg-primary p-1.5 text-primary-content shadow-lg shadow-primary/40"
       >
         <Icon name="kind-icon:check" class="h-3 w-3" />
       </div>
@@ -189,7 +189,7 @@
       >
         <button
           v-if="checkpointDisplay"
-          class="badge badge-outline badge-xs max-w-full cursor-copy gap-1 truncate"
+          class="badge badge-outline badge-xs max-w-full cursor-copy gap-1 truncate hover:badge-primary transition-colors"
           type="button"
           :title="checkpointTitle"
           @click.stop="copyCheckpoint"
@@ -215,15 +215,27 @@
         class="grid grid-cols-2 gap-2 rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
       >
         <div>
-          <p class="font-bold uppercase text-base-content/40">Image ID</p>
+          <p
+            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+          >
+            Image ID
+          </p>
           <p class="text-base-content/75">#{{ displayImage.id }}</p>
         </div>
         <div>
-          <p class="font-bold uppercase text-base-content/40">Steps</p>
+          <p
+            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+          >
+            Steps
+          </p>
           <p class="text-base-content/75">{{ displayImage.steps ?? 'n/a' }}</p>
         </div>
         <div>
-          <p class="font-bold uppercase text-base-content/40">CFG</p>
+          <p
+            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+          >
+            CFG
+          </p>
           <p class="text-base-content/75">{{ cfgDisplay }}</p>
         </div>
 
@@ -234,13 +246,21 @@
           title="Copy seed"
           @click.stop="copySeed"
         >
-          <p class="font-bold uppercase text-base-content/40">Seed</p>
+          <p
+            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+          >
+            Seed
+          </p>
           <p class="truncate font-mono text-base-content/75">
             {{ displayImage.seed ?? 'n/a' }}
           </p>
         </button>
         <div v-if="displayImage.imagePath" class="col-span-2">
-          <p class="font-bold uppercase text-base-content/40">Path</p>
+          <p
+            class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+          >
+            Path
+          </p>
           <p
             class="truncate text-base-content/75"
             :title="displayImage.imagePath"

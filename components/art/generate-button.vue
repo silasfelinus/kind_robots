@@ -2,35 +2,48 @@
 <template>
   <section class="flex w-full flex-col gap-3">
     <button
-      class="btn rounded-2xl"
-      :class="buttonClass"
+      class="btn w-full rounded-2xl font-black transition-all duration-200"
+      :class="[
+        artStore.isGenerating
+          ? 'btn-primary cursor-not-allowed opacity-80'
+          : canClick
+            ? 'btn-primary shadow-lg shadow-primary/25 hover:-translate-y-0.5 hover:shadow-primary/40 active:translate-y-0'
+            : 'btn-disabled',
+        props.compact ? 'btn-sm text-sm' : 'min-h-14 text-base',
+      ]"
       type="button"
       :disabled="!canClick"
       @click="handleGenerate"
     >
-      <span
-        v-if="artStore.isGenerating"
-        class="loading loading-spinner loading-sm"
-      />
+      <!-- Generating: three-dot pulse in a row -->
+      <span v-if="artStore.isGenerating" class="flex items-center gap-2">
+        <span class="loading loading-dots loading-sm" />
+        {{ busyLabel }}
+      </span>
 
-      <icon
-        v-else
-        :name="icon"
-        class="h-5 w-5"
-      />
-
-      {{ artStore.isGenerating ? busyLabel : label }}
+      <span v-else class="flex items-center gap-2">
+        <icon :name="icon" class="h-5 w-5" />
+        {{ label }}
+      </span>
     </button>
 
     <div
       v-if="showMessage && artStore.generationMessage"
-      class="rounded-2xl border p-3 text-sm font-semibold"
+      class="flex items-start gap-2 rounded-2xl border p-3 text-sm font-semibold"
       :class="
         artStore.generationMessageTone === 'error'
           ? 'border-error/40 bg-error/10 text-error'
           : 'border-success/40 bg-success/10 text-success'
       "
     >
+      <icon
+        :name="
+          artStore.generationMessageTone === 'error'
+            ? 'kind-icon:alert'
+            : 'kind-icon:check'
+        "
+        class="mt-0.5 h-4 w-4 shrink-0"
+      />
       {{ artStore.generationMessage }}
     </div>
 
@@ -61,7 +74,7 @@ const props = withDefaults(
   }>(),
   {
     label: 'Generate Image',
-    busyLabel: 'Generating...',
+    busyLabel: 'Generating…',
     icon: 'kind-icon:sparkles',
     compact: false,
     showResult: true,
@@ -78,30 +91,21 @@ const emit = defineEmits<{
 const artStore = useArtStore()
 const errorStore = useErrorStore()
 
-const resultImage = computed(() => {
-  return artStore.lastGeneratedArtImage || artStore.currentArtImage || null
-})
-
-const canClick = computed(() => {
-  return artStore.canGenerateArt && !artStore.isGenerating
-})
-
-const buttonClass = computed(() => {
-  return props.compact
-    ? 'btn-primary btn-sm text-white'
-    : 'btn-primary min-h-14 text-base text-white'
-})
+const resultImage = computed(
+  () => artStore.lastGeneratedArtImage || artStore.currentArtImage || null,
+)
+const canClick = computed(
+  () => artStore.canGenerateArt && !artStore.isGenerating,
+)
 
 async function handleGenerate() {
   const result = await artStore.generateCurrentArt(props.overrides)
-
   if (!result.success || !result.data) {
     const message = result.message || 'Generation failed.'
     errorStore.addError(ErrorType.GENERAL_ERROR, message)
     emit('failed', message)
     return
   }
-
   emit('generated', result.data)
 }
 </script>

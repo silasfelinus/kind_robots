@@ -12,28 +12,43 @@
       @change="handleFileSelect"
     />
 
+    <!-- ── Drop zone ──────────────────────────────────────────────────── -->
     <div
-      class="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed transition-colors"
+      class="flex min-h-40 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-all duration-200"
       :class="
         isDragging
-          ? 'border-primary bg-primary/10'
-          : 'border-base-300 hover:border-primary/50 hover:bg-base-100'
+          ? 'scale-[1.01] border-primary bg-primary/10 shadow-lg shadow-primary/20'
+          : 'border-base-300 bg-base-100/60 hover:border-primary/60 hover:bg-base-100 hover:shadow-sm'
       "
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
       @click="fileInput?.click()"
     >
-      <Icon :name="icon" class="h-8 w-8 opacity-50" />
-      <p class="text-sm text-base-content/70">
-        Drop images here or
-        <span class="text-primary underline underline-offset-2">browse</span>
-      </p>
-      <p class="text-xs text-base-content/40">
-        PNG · JPEG · WebP · multiple OK
-      </p>
+      <span
+        class="flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-200 transition-transform"
+        :class="
+          isDragging
+            ? 'scale-110 border-primary/40 bg-primary/10 text-primary'
+            : 'text-base-content/40'
+        "
+      >
+        <Icon :name="icon" class="h-7 w-7" />
+      </span>
+      <div class="text-center">
+        <p class="text-sm font-semibold text-base-content/70">
+          Drop images here or
+          <span class="font-bold text-primary underline underline-offset-2"
+            >browse</span
+          >
+        </p>
+        <p class="mt-0.5 text-xs text-base-content/40">
+          PNG · JPEG · WebP · multiple OK
+        </p>
+      </div>
     </div>
 
+    <!-- ── File preview grid ──────────────────────────────────────────── -->
     <TransitionGroup
       v-if="queuedFiles.length"
       name="grid"
@@ -54,7 +69,7 @@
         <button
           v-if="!isUploading"
           type="button"
-          class="btn btn-circle btn-error btn-xs absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100"
+          class="btn btn-circle btn-error btn-xs absolute right-1 top-1 opacity-0 shadow transition-opacity group-hover:opacity-100"
           :title="`Remove ${item.file.name}`"
           @click.stop="removeFile(i)"
         >
@@ -64,7 +79,7 @@
         <Transition name="fade">
           <div
             v-if="succeededNames.has(item.file.name)"
-            class="absolute inset-0 flex items-center justify-center bg-success/50"
+            class="absolute inset-0 flex items-center justify-center bg-success/60 backdrop-blur-sm"
           >
             <Icon
               name="mdi:check-circle"
@@ -76,7 +91,7 @@
         <Transition name="fade">
           <div
             v-if="failedNames.has(item.file.name)"
-            class="absolute inset-0 flex items-center justify-center bg-error/50"
+            class="absolute inset-0 flex items-center justify-center bg-error/60 backdrop-blur-sm"
           >
             <Icon
               name="mdi:close-circle"
@@ -87,14 +102,19 @@
       </div>
     </TransitionGroup>
 
+    <!-- ── Metadata + options ─────────────────────────────────────────── -->
     <template v-if="queuedFiles.length">
       <div
         class="grid gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
       >
+        <!-- Collection selector -->
         <div class="flex flex-col gap-2">
-          <span class="text-xs font-medium text-base-content/60">
-            Add to collection
-          </span>
+          <div class="flex items-center gap-1.5">
+            <icon name="kind-icon:folder" class="h-4 w-4 text-secondary" />
+            <span class="text-xs font-bold text-base-content/70"
+              >Add to collection</span
+            >
+          </div>
 
           <LazyArtGallery
             variant="dropdown"
@@ -112,186 +132,210 @@
 
           <p class="text-xs text-base-content/50">
             Selected:
-            <span class="font-medium text-primary">
-              {{ selectedCollectionLabel }}
-            </span>
+            <span class="font-semibold text-primary">{{
+              selectedCollectionLabel
+            }}</span>
           </p>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-2">
-          <label class="form-control">
-            <span class="label-text text-xs">Designer</span>
-            <input
-              v-model.trim="imageForm.designer"
-              type="text"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-              placeholder="who made this beautiful little menace?"
-            />
-          </label>
+        <div class="border-t border-base-300 pt-3">
+          <!-- Metadata section header -->
+          <div class="mb-3 flex items-center gap-2">
+            <icon name="kind-icon:settings" class="h-4 w-4 text-primary" />
+            <h3 class="text-sm font-black text-base-content">Image Metadata</h3>
+            <span class="text-xs text-base-content/40"
+              >Optional — added to every image in this batch</span
+            >
+          </div>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Genres</span>
-            <input
-              v-model.trim="imageForm.genres"
-              type="text"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-              placeholder="gothic, surreal, sci-fi"
-            />
-          </label>
+          <div class="grid gap-3 md:grid-cols-2">
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold"
+                >Designer</span
+              >
+              <input
+                v-model.trim="imageForm.designer"
+                type="text"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+                placeholder="who made this beautiful little menace?"
+              />
+            </label>
 
-          <label class="form-control md:col-span-2">
-            <span class="label-text text-xs">Prompt</span>
-            <textarea
-              v-model.trim="imageForm.promptString"
-              class="textarea textarea-bordered min-h-24"
-              :disabled="isUploading"
-              placeholder="Prompt used to make the image"
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold">Genres</span>
+              <input
+                v-model.trim="imageForm.genres"
+                type="text"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+                placeholder="gothic, surreal, sci-fi"
+              />
+            </label>
 
-          <label class="form-control md:col-span-2">
-            <span class="label-text text-xs">Negative prompt</span>
-            <textarea
-              v-model.trim="imageForm.negativePrompt"
-              class="textarea textarea-bordered min-h-20"
-              :disabled="isUploading"
-              placeholder="Things excluded from generation"
-            />
-          </label>
+            <label class="form-control md:col-span-2">
+              <span class="label-text mb-1 text-xs font-semibold">Prompt</span>
+              <textarea
+                v-model.trim="imageForm.promptString"
+                class="textarea textarea-bordered min-h-24"
+                :disabled="isUploading"
+                placeholder="Prompt used to generate this image"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Checkpoint</span>
-            <input
-              v-model.trim="imageForm.checkpoint"
-              type="text"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-              placeholder="model checkpoint"
-            />
-          </label>
+            <label class="form-control md:col-span-2">
+              <span class="label-text mb-1 text-xs font-semibold"
+                >Negative Prompt</span
+              >
+              <textarea
+                v-model.trim="imageForm.negativePrompt"
+                class="textarea textarea-bordered min-h-16"
+                :disabled="isUploading"
+                placeholder="Things excluded from generation"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Sampler</span>
-            <input
-              v-model.trim="imageForm.sampler"
-              type="text"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-              placeholder="Euler a, DPM++ 2M, etc."
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold"
+                >Checkpoint</span
+              >
+              <input
+                v-model.trim="imageForm.checkpoint"
+                type="text"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+                placeholder="model checkpoint"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Seed</span>
-            <input
-              v-model.number="imageForm.seed"
-              type="number"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold">Sampler</span>
+              <input
+                v-model.trim="imageForm.sampler"
+                type="text"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+                placeholder="Euler a, DPM++ 2M, etc."
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Steps</span>
-            <input
-              v-model.number="imageForm.steps"
-              type="number"
-              min="1"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold">Seed</span>
+              <input
+                v-model.number="imageForm.seed"
+                type="number"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">CFG</span>
-            <input
-              v-model.number="imageForm.cfg"
-              type="number"
-              min="0"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold">Steps</span>
+              <input
+                v-model.number="imageForm.steps"
+                type="number"
+                min="1"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Rarity</span>
-            <input
-              v-model.number="imageForm.rarity"
-              type="number"
-              min="0"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold">CFG</span>
+              <input
+                v-model.number="imageForm.cfg"
+                type="number"
+                min="0"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Server name</span>
-            <input
-              v-model.trim="imageForm.serverName"
-              type="text"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-              placeholder="A1111, Comfy, Flux, etc."
-            />
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold">Rarity</span>
+              <input
+                v-model.number="imageForm.rarity"
+                type="number"
+                min="0"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+              />
+            </label>
 
-          <label class="form-control">
-            <span class="label-text text-xs">Server URL</span>
-            <input
-              v-model.trim="imageForm.serverUrl"
-              type="text"
-              class="input input-bordered input-sm"
-              :disabled="isUploading"
-              placeholder="optional source endpoint"
-            />
-          </label>
-        </div>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold"
+                >Server name</span
+              >
+              <input
+                v-model.trim="imageForm.serverName"
+                type="text"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+                placeholder="A1111, Comfy, Flux…"
+              />
+            </label>
 
-        <div class="flex flex-wrap gap-3">
-          <label
-            class="label cursor-pointer gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-          >
-            <input
-              v-model="imageForm.cfgHalf"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-sm"
-              :disabled="isUploading"
-            />
-            <span class="label-text text-xs">CFG + 0.5</span>
-          </label>
+            <label class="form-control">
+              <span class="label-text mb-1 text-xs font-semibold"
+                >Server URL</span
+              >
+              <input
+                v-model.trim="imageForm.serverUrl"
+                type="text"
+                class="input input-bordered input-sm"
+                :disabled="isUploading"
+                placeholder="optional source endpoint"
+              />
+            </label>
+          </div>
 
-          <label
-            class="label cursor-pointer gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-          >
-            <input
-              v-model="imageForm.isPublic"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-sm"
-              :disabled="isUploading"
-            />
-            <span class="label-text text-xs">Public</span>
-          </label>
-
-          <label
-            class="label cursor-pointer gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-          >
-            <input
-              v-model="imageForm.isMature"
-              type="checkbox"
-              class="checkbox checkbox-warning checkbox-sm"
-              :disabled="isUploading"
-            />
-            <span class="label-text text-xs">Mature</span>
-          </label>
+          <!-- Flag toggles -->
+          <div class="mt-3 flex flex-wrap gap-2">
+            <label
+              class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <input
+                v-model="imageForm.cfgHalf"
+                type="checkbox"
+                class="toggle toggle-primary toggle-xs"
+                :disabled="isUploading"
+              />
+              <span class="label-text text-xs font-semibold">CFG + 0.5</span>
+            </label>
+            <label
+              class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <input
+                v-model="imageForm.isPublic"
+                type="checkbox"
+                class="toggle toggle-success toggle-xs"
+                :disabled="isUploading"
+              />
+              <span class="label-text text-xs font-semibold">Public</span>
+            </label>
+            <label
+              class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+            >
+              <input
+                v-model="imageForm.isMature"
+                type="checkbox"
+                class="toggle toggle-warning toggle-xs"
+                :disabled="isUploading"
+              />
+              <span class="label-text text-xs font-semibold">Mature</span>
+            </label>
+          </div>
         </div>
       </div>
 
+      <!-- Model connect -->
       <div v-if="showModelConnect" class="flex flex-col gap-2">
-        <span class="text-xs font-medium text-base-content/60">
-          Link image owner to model
-        </span>
+        <div class="flex items-center gap-1.5">
+          <icon name="kind-icon:link" class="h-4 w-4 text-accent" />
+          <span class="text-xs font-bold text-base-content/70"
+            >Link image owner to model</span
+          >
+        </div>
 
         <select
           v-model="connectedModelType"
@@ -312,12 +356,12 @@
           >
             <div
               v-if="connectedModelId"
-              class="mb-2 flex items-center gap-2 rounded-2xl bg-primary/10 px-3 py-2 text-xs"
+              class="mb-2 flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2 text-xs"
             >
               <Icon name="mdi:link-variant" class="h-4 w-4 text-primary" />
-              <span class="font-medium text-primary">
-                {{ connectedModelType }} #{{ connectedModelId }}
-              </span>
+              <span class="font-semibold text-primary"
+                >{{ connectedModelType }} #{{ connectedModelId }}</span
+              >
               <button
                 type="button"
                 class="btn btn-ghost btn-xs ml-auto h-6 min-h-0 px-2"
@@ -337,7 +381,6 @@
               :allow-delete="false"
               :allow-refresh="false"
             />
-
             <LazyCharacterGallery
               v-else-if="connectedModelType === 'Character'"
               variant="dropdown"
@@ -348,7 +391,6 @@
               :allow-delete="false"
               :allow-refresh="false"
             />
-
             <LazyDreamGallery
               v-else-if="connectedModelType === 'Dream'"
               variant="dropdown"
@@ -359,7 +401,6 @@
               :allow-delete="false"
               :allow-refresh="false"
             />
-
             <LazyPitchGallery
               v-else-if="connectedModelType === 'Pitch'"
               variant="dropdown"
@@ -370,7 +411,6 @@
               :allow-delete="false"
               :allow-refresh="false"
             />
-
             <LazyRewardGallery
               v-else-if="connectedModelType === 'Reward'"
               variant="dropdown"
@@ -381,7 +421,6 @@
               :allow-delete="false"
               :allow-refresh="false"
             />
-
             <LazyScenarioGallery
               v-else-if="connectedModelType === 'Scenario'"
               variant="dropdown"
@@ -397,11 +436,17 @@
       </div>
     </template>
 
+    <!-- ── Upload progress ────────────────────────────────────────────── -->
     <Transition name="fade">
-      <div v-if="isUploading" class="flex flex-col gap-1">
-        <div class="flex justify-between text-xs text-base-content/60">
-          <span>Uploading {{ uploadProgress }} / {{ uploadTotal }}</span>
-          <span>{{ uploadPercent }}%</span>
+      <div v-if="isUploading" class="flex flex-col gap-2">
+        <div
+          class="flex items-center justify-between text-xs font-semibold text-base-content/60"
+        >
+          <span class="flex items-center gap-1.5">
+            <span class="loading loading-spinner loading-xs text-primary" />
+            Uploading {{ uploadProgress }} / {{ uploadTotal }}
+          </span>
+          <span class="font-bold text-primary">{{ uploadPercent }}%</span>
         </div>
         <progress
           class="progress progress-primary w-full"
@@ -411,34 +456,33 @@
       </div>
     </Transition>
 
+    <!-- ── Action buttons ─────────────────────────────────────────────── -->
     <div class="flex gap-2">
       <button
         v-if="queuedFiles.length"
         type="button"
-        class="btn btn-primary flex-1 rounded-2xl"
+        class="btn btn-primary flex-1 rounded-2xl font-black shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0"
         :disabled="isUploading"
         @click="handleBatchUpload"
       >
         <span v-if="isUploading" class="loading loading-spinner loading-sm" />
         <Icon v-else name="kind-icon:camera" class="h-5 w-5" />
-        <span>
-          {{
-            isUploading
-              ? 'Uploading…'
-              : `Upload ${queuedFiles.length} image${queuedFiles.length !== 1 ? 's' : ''}`
-          }}
-        </span>
+        {{
+          isUploading
+            ? 'Uploading…'
+            : `Upload ${queuedFiles.length} image${queuedFiles.length !== 1 ? 's' : ''}`
+        }}
       </button>
 
       <button
         v-else
         type="button"
-        class="btn btn-primary flex-1 rounded-2xl"
+        class="btn btn-primary flex-1 rounded-2xl font-black"
         :disabled="isUploading"
         @click="fileInput?.click()"
       >
         <Icon :name="icon" class="h-5 w-5" />
-        <span>{{ buttonLabel }}</span>
+        {{ buttonLabel }}
       </button>
 
       <button
@@ -451,15 +495,21 @@
       </button>
     </div>
 
+    <!-- Status messages -->
     <Transition name="fade">
-      <p v-if="message" class="text-sm text-success">
-        {{ message }}
+      <p
+        v-if="message"
+        class="flex items-center gap-1.5 text-sm font-semibold text-success"
+      >
+        <icon name="kind-icon:check" class="h-4 w-4" />{{ message }}
       </p>
     </Transition>
-
     <Transition name="fade">
-      <p v-if="error" class="text-sm text-error">
-        {{ error }}
+      <p
+        v-if="error"
+        class="flex items-center gap-1.5 text-sm font-semibold text-error"
+      >
+        <icon name="kind-icon:alert" class="h-4 w-4" />{{ error }}
       </p>
     </Transition>
   </section>
@@ -480,12 +530,9 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { useUserStore } from '@/stores/userStore'
 import { useServerStore } from '@/stores/serverStore'
 
-withDefaults(
-  defineProps<{
-    showModelConnect?: boolean
-  }>(),
-  { showModelConnect: false },
-)
+withDefaults(defineProps<{ showModelConnect?: boolean }>(), {
+  showModelConnect: false,
+})
 
 type ImageUploadForm = {
   promptString: string
@@ -505,17 +552,12 @@ type ImageUploadForm = {
   serverName: string
   serverUrl: string
 }
-
 interface QueuedFile {
   id: string
   file: File
   preview: string
 }
-
-type UploadResult = {
-  fileName?: string | null
-  id?: number
-}
+type UploadResult = { fileName?: string | null; id?: number }
 
 const uploadStore = useUploadStore()
 const artStore = useArtStore()
@@ -572,21 +614,18 @@ const connectableModels: ConnectableModel[] = [
 const icon = computed(
   () => uploadStore.activeTarget?.icon ?? 'kind-icon:camera',
 )
-
 const buttonLabel = computed(
   () => uploadStore.activeTarget?.buttonLabel ?? 'Upload images',
 )
-
-const uploadPercent = computed(() => {
-  if (!uploadTotal.value) return 0
-  return Math.round((uploadProgress.value / uploadTotal.value) * 100)
-})
-
+const uploadPercent = computed(() =>
+  !uploadTotal.value
+    ? 0
+    : Math.round((uploadProgress.value / uploadTotal.value) * 100),
+)
 const selectedCollection = computed(() => collectionStore.currentCollection)
-
-const selectedCollectionLabel = computed(() => {
-  return selectedCollection.value?.label?.trim() || 'None selected'
-})
+const selectedCollectionLabel = computed(
+  () => selectedCollection.value?.label?.trim() || 'None selected',
+)
 
 const connectedModelId = computed<number | null>(() => {
   switch (connectedModelType.value) {
@@ -609,16 +648,11 @@ const connectedModelId = computed<number | null>(() => {
 
 const connectedModelPayload = computed(() => {
   if (!connectedModelType.value || !connectedModelId.value) return null
-
-  return {
-    model: connectedModelType.value,
-    modelId: connectedModelId.value,
-  }
+  return { model: connectedModelType.value, modelId: connectedModelId.value }
 })
 
 function getServerUrl(server: typeof serverStore.activeArtServer): string {
   if (!server) return ''
-
   return (
     server.browserBaseUrl ||
     server.backendBaseUrl ||
@@ -635,6 +669,7 @@ watchEffect(() => {
   imageForm.serverName = activeServer.label || activeServer.title || ''
   imageForm.serverUrl = getServerUrl(activeServer)
 })
+
 function clearModelSelection() {
   botStore.deselectBot()
   characterStore.deselectCharacter()
@@ -653,10 +688,9 @@ function makeQueuedFile(file: File): QueuedFile {
 }
 
 function addFiles(incoming: FileList | File[]) {
-  const valid = Array.from(incoming).filter((file) => {
-    return !uploadStore.validateFile(file)
-  })
-
+  const valid = Array.from(incoming).filter(
+    (file) => !uploadStore.validateFile(file),
+  )
   queuedFiles.value.push(...valid.map(makeQueuedFile))
   succeededNames.value = new Set()
   failedNames.value = new Set()
@@ -672,11 +706,7 @@ function clearUploadedImages() {
   connectedModelType.value = ''
   uploadProgress.value = 0
   uploadTotal.value = 0
-
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-
+  if (fileInput.value) fileInput.value.value = ''
   clearModelSelection()
 }
 
@@ -717,17 +747,14 @@ function appendText(
   const cleanValue = value?.trim()
   if (cleanValue) formData.append(key, cleanValue)
 }
-
 function appendNumber(
   formData: FormData,
   key: string,
   value: number | null | undefined,
 ) {
-  if (typeof value === 'number' && Number.isFinite(value)) {
+  if (typeof value === 'number' && Number.isFinite(value))
     formData.append(key, String(value))
-  }
 }
-
 function appendBoolean(formData: FormData, key: string, value: boolean) {
   formData.append(key, value ? 'true' : 'false')
 }
@@ -736,11 +763,9 @@ function buildImageFormData(file: File): FormData {
   const formData = new FormData()
   const modelConnection = connectedModelPayload.value
   const collectionId = selectedCollection.value?.id ?? null
-
   formData.append('file', file)
   formData.append('fileName', file.name)
   formData.append('fileType', file.type.replace('image/', '') || 'png')
-
   appendNumber(formData, 'userId', userStore.userId || userStore.user?.id || 10)
   appendNumber(formData, 'artCollectionId', collectionId)
   appendNumber(formData, 'serverId', imageForm.serverId)
@@ -748,7 +773,6 @@ function buildImageFormData(file: File): FormData {
   appendNumber(formData, 'steps', imageForm.steps)
   appendNumber(formData, 'cfg', imageForm.cfg)
   appendNumber(formData, 'rarity', imageForm.rarity)
-
   appendText(formData, 'promptString', imageForm.promptString)
   appendText(formData, 'negativePrompt', imageForm.negativePrompt)
   appendText(formData, 'checkpoint', imageForm.checkpoint)
@@ -757,22 +781,18 @@ function buildImageFormData(file: File): FormData {
   appendText(formData, 'genres', imageForm.genres)
   appendText(formData, 'serverName', imageForm.serverName)
   appendText(formData, 'serverUrl', imageForm.serverUrl)
-
   appendBoolean(formData, 'cfgHalf', imageForm.cfgHalf)
   appendBoolean(formData, 'isPublic', imageForm.isPublic)
   appendBoolean(formData, 'isMature', imageForm.isMature)
-
   if (modelConnection) {
     formData.append('connectedModelType', modelConnection.model)
     formData.append('connectedModelId', String(modelConnection.modelId))
   }
-
   return formData
 }
 
 async function handleBatchUpload() {
   if (!queuedFiles.value.length || isUploading.value) return
-
   isUploading.value = true
   uploadProgress.value = 0
   uploadTotal.value = queuedFiles.value.length
@@ -780,13 +800,10 @@ async function handleBatchUpload() {
   failedNames.value = new Set()
   message.value = ''
   error.value = ''
-
   const succeeded: UploadResult[] = []
   const failed: UploadResult[] = []
-
   for (const item of queuedFiles.value) {
     const result = await artStore.uploadImage(buildImageFormData(item.file))
-
     if (result.success && result.data) {
       succeeded.push({
         fileName: result.data.fileName || item.file.name,
@@ -794,28 +811,17 @@ async function handleBatchUpload() {
       })
       succeededNames.value = new Set([...succeededNames.value, item.file.name])
     } else {
-      failed.push({
-        fileName: item.file.name,
-      })
+      failed.push({ fileName: item.file.name })
       failedNames.value = new Set([...failedNames.value, item.file.name])
     }
-
     uploadProgress.value += 1
   }
-
-  if (failed.length) {
+  if (failed.length)
     error.value = `${failed.length} image${failed.length === 1 ? '' : 's'} failed.`
-  }
-
-  if (succeeded.length) {
+  if (succeeded.length)
     message.value = `Uploaded ${succeeded.length} art image${succeeded.length === 1 ? '' : 's'}.`
-  }
-
   isUploading.value = false
-
-  if (succeeded.length && !failed.length) {
-    clearUploadedImages()
-  }
+  if (succeeded.length && !failed.length) clearUploadedImages()
 }
 
 onUnmounted(() => {
@@ -828,19 +834,16 @@ onUnmounted(() => {
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
-
 .grid-enter-active,
 .grid-leave-active {
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
 }
-
 .grid-enter-from,
 .grid-leave-to {
   opacity: 0;

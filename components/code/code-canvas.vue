@@ -341,6 +341,33 @@ function clearCanvasSelection() {
   codeStore.selectNode(null)
 }
 
+async function fitCanvas() {
+  if (!canvasRef.value) {
+    codeStore.fitToView()
+    return
+  }
+
+  codeStore.setViewport(canvasRef.value.clientWidth, canvasRef.value.clientHeight)
+
+  codeStore.fitToView({
+    width: canvasRef.value.clientWidth,
+    height: canvasRef.value.clientHeight,
+  })
+
+  await nextTick()
+
+  if (!codeStore.nodes.length) {
+    return
+  }
+
+  const bounds = codeStore.nodeBounds
+
+  canvasRef.value.scrollTo({
+    left: Math.max(0, bounds.minX * codeStore.zoom - 120),
+    top: Math.max(0, bounds.minY * codeStore.zoom - 120),
+    behavior: 'smooth',
+  })
+}
 
 function updateViewport() {
   if (!canvasRef.value) {

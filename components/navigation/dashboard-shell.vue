@@ -6,7 +6,7 @@
     <!-- Show button — only visible when header is hidden -->
     <button
       v-if="!showHeader"
-      class="btn btn-xs btn-ghost absolute left-2 top-2 z-50 flex h-8 min-h-0 flex-col gap-0 rounded-xl border border-base-300 bg-base-100 px-2 leading-none shadow-sm"
+      class="btn btn-xs btn-ghost absolute left-0 top-0 z-50 flex h-8 min-h-0 flex-col gap-0 rounded-xl border border-base-300 bg-base-100 px-2 leading-none shadow-sm"
       type="button"
       title="Show header"
       @click="toggleHeader"

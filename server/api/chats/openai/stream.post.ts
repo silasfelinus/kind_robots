@@ -3,12 +3,12 @@ import { defineEventHandler, readBody, createError, setHeader } from 'h3'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { OPENAI_API_KEY } = useRuntimeConfig()
+    const { openaiApiKey } = useRuntimeConfig()
 
-    if (!OPENAI_API_KEY) {
+    if (!openaiApiKey) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'OPENAI_API_KEY not configured',
+        statusMessage: 'openaiApiKey not configured',
       })
     }
 
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${openaiApiKey}`,
       },
       body: JSON.stringify(payload),
     })
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'Content-Type', 'text/event-stream')
     setHeader(event, 'Cache-Control', 'no-cache, no-transform')
     setHeader(event, 'Connection', 'keep-alive')
-    setHeader(event, 'X-Accel-Buffering', 'no') // disable nginx buffering
+    setHeader(event, 'X-Accel-Buffering', 'no')
 
     return sendStream(event, upstream.body)
   } catch (error) {
@@ -68,10 +68,6 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-/**
- * Pipe a Web ReadableStream to the h3 response.
- * h3's sendStream wants a Node stream, so we adapt.
- */
 function sendStream(event: any, body: ReadableStream<Uint8Array>) {
   const reader = body.getReader()
   const res = event.node.res
@@ -91,7 +87,5 @@ function sendStream(event: any, body: ReadableStream<Uint8Array>) {
   }
 
   pump()
-  // Return a never-resolving promise so h3 doesn't end the response early.
-  // The pump() above is what actually ends it.
   return new Promise(() => {})
 }

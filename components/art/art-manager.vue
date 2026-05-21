@@ -1,5 +1,4 @@
 <!-- /components/art/art-manager.vue -->
-<!-- /components/art/art-manager.vue -->
 <template>
   <dashboard-shell
     dashboard-key="art"
@@ -92,7 +91,9 @@
         </div>
 
         <div class="min-h-0 xl:col-span-5">
-          <div class="h-full rounded-2xl border border-base-300 bg-base-200 p-3">
+          <div
+            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
+          >
             <server-interact />
           </div>
         </div>

@@ -181,7 +181,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
   'random-image': async (_inputs, values, ctx) => {
     if (!values.collectionId) throw new Error('No collection selected')
     const res = await fetch(
-      `/api/art-collections/${values.collectionId}/random`,
+      `/api/art/collections/${values.collectionId}/random`,
       { signal: ctx.signal },
     )
     if (!res.ok) throw new Error(`Random image failed: ${res.status}`)
@@ -195,7 +195,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     const prompt = coerceToText(inputs.text)
     if (!prompt) throw new Error('Empty prompt')
 
-    const res = await fetch('/api/chat/openai/stream', {
+    const res = await fetch('/api/chats/openai/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctx.signal,
@@ -226,7 +226,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     const prompt = coerceToText(inputs.text)
     if (!prompt) throw new Error('Empty prompt')
 
-    const res = await fetch('/api/chat/anthropic/stream', {
+    const res = await fetch('/api/chats/anthropic/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctx.signal,
@@ -258,7 +258,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
     const prompt = coerceToText(inputs.text)
     if (!prompt) throw new Error('Empty prompt')
 
-    const res = await fetch('/api/chat/ollama/stream', {
+    const res = await fetch('/api/chats/ollama/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctx.signal,
@@ -348,7 +348,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
 
   'text2vid': async (inputs, values, ctx) => {
     const prompt = coerceToText(inputs.prompt ?? inputs.text)
-    const res = await fetch('/api/media/text2vid', {
+    const res = await fetch('/api/comfy/text2vid', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctx.signal,
@@ -362,7 +362,7 @@ export const codeExecutors: Partial<Record<CodeKind, CodeExecutor>> = {
   'img2model': async (inputs, values, ctx) => {
     const image = coerceToImageRef(inputs.image)
     if (!image) throw new Error('No image input')
-    const res = await fetch('/api/media/img2model', {
+    const res = await fetch('/api/comfy/img2model', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: ctx.signal,

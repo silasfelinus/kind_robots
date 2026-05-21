@@ -6,10 +6,10 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
 
     // Resolve Ollama URL. Priority: body.baseUrl > body.serverName lookup (TODO)
-    // > runtimeConfig.OLLAMA_BASE_URL > localhost default.
+    // > runtimeConfig.ollamaBaseUrl > localhost default.
     const baseUrl =
       body.baseUrl ||
-      config.OLLAMA_BASE_URL ||
+      config.ollamaBaseUrl ||
       'http://localhost:11434'
 
     const messages = body.messages ?? [

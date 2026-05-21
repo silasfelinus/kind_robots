@@ -1,7 +1,7 @@
 <!-- /components/code/code-workbench.vue -->
 <template>
   <section
-    class="flex h-full min-h-[700px] w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
     <header
       class="relative z-20 flex flex-col gap-3 border-b border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur sm:p-4 xl:flex-row xl:items-center xl:justify-between"
@@ -101,9 +101,7 @@
         <button
           class="btn btn-sm rounded-2xl"
           :class="
-            codeStore.panelMode === 'library'
-              ? 'btn-primary'
-              : 'btn-outline'
+            codeStore.panelMode === 'library' ? 'btn-primary' : 'btn-outline'
           "
           type="button"
           @click="togglePanel('library')"
@@ -224,7 +222,7 @@
     >
       <aside
         v-if="codeStore.showToybox"
-        class="hidden min-h-0 border-r border-base-300 bg-base-100 lg:block"
+        class="hidden min-h-0 overflow-y-auto border-r border-base-300 bg-base-100 lg:block"
       >
         <code-palette />
       </aside>
@@ -235,7 +233,7 @@
 
       <aside
         v-if="showDesktopPanel"
-        class="hidden min-h-0 w-[360px] border-l border-base-300 bg-base-100 xl:block"
+        class="hidden min-h-0 w-[360px] overflow-y-auto border-l border-base-300 bg-base-100 xl:block"
       >
         <code-settings v-if="codeStore.panelMode === 'node-settings'" />
         <code-library v-else-if="codeStore.panelMode === 'library'" />
@@ -273,13 +271,9 @@
             "
           />
 
-          <code-settings
-            v-else-if="codeStore.mobileTrayMode === 'settings'"
-          />
+          <code-settings v-else-if="codeStore.mobileTrayMode === 'settings'" />
 
-          <code-library
-            v-else-if="codeStore.mobileTrayMode === 'library'"
-          />
+          <code-library v-else-if="codeStore.mobileTrayMode === 'library'" />
         </div>
       </div>
     </div>
@@ -288,7 +282,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useCodeStore, type CodeMobileTrayMode, type CodePanelMode } from '@/stores/codeStore'
+import {
+  useCodeStore,
+  type CodeMobileTrayMode,
+  type CodePanelMode,
+} from '@/stores/codeStore'
 
 const codeStore = useCodeStore()
 
@@ -297,7 +295,9 @@ const showDesktopPanel = computed(() => {
     return true
   }
 
-  return codeStore.panelMode === 'node-settings' && Boolean(codeStore.selectedNode)
+  return (
+    codeStore.panelMode === 'node-settings' && Boolean(codeStore.selectedNode)
+  )
 })
 
 const desktopGridClass = computed(() => {

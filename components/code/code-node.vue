@@ -4,9 +4,13 @@
     ref="nodeRef"
     class="group w-70 select-none overflow-visible rounded-2xl border bg-slate-900/95 text-slate-100 shadow-2xl backdrop-blur transition"
     :class="[
-      isSelected
-        ? 'border-cyan-300 ring-2 ring-cyan-300/40'
-        : 'border-slate-600/70 hover:border-cyan-300/60',
+      isRunning
+        ? 'border-cyan-300 ring-2 ring-cyan-300/60 shadow-cyan-300/30'
+        : isErrored
+          ? 'border-error ring-2 ring-error/40'
+          : isSelected
+            ? 'border-cyan-300 ring-2 ring-cyan-300/40'
+            : 'border-slate-600/70 hover:border-cyan-300/60',
       isDragging ? 'scale-[1.02] opacity-90' : '',
     ]"
     @pointerdown.stop="bringForward"
@@ -48,14 +52,43 @@
           </p>
         </div>
 
-        <button
-          class="btn btn-ghost btn-xs btn-circle text-slate-200 hover:bg-slate-800 hover:text-error"
-          type="button"
-          title="Remove card"
-          @click.stop="codeStore.removeNode(node.id)"
-        >
-          <icon name="kind-icon:x" class="h-4 w-4" />
-        </button>
+        <div class="flex shrink-0 items-center gap-1">
+          <span
+            v-if="isRunning"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-300/20"
+            title="Running"
+          >
+            <icon
+              name="kind-icon:spinner"
+              class="h-3.5 w-3.5 animate-spin text-cyan-300"
+            />
+          </span>
+
+          <span
+            v-else-if="isErrored"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-error/20"
+            title="Error"
+          >
+            <icon name="kind-icon:alert" class="h-3.5 w-3.5 text-error" />
+          </span>
+
+          <span
+            v-else-if="hasResult"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-success/20"
+            title="Complete"
+          >
+            <icon name="kind-icon:check" class="h-3.5 w-3.5 text-success" />
+          </span>
+
+          <button
+            class="btn btn-ghost btn-xs btn-circle text-slate-200 hover:bg-slate-800 hover:text-error"
+            type="button"
+            title="Remove card"
+            @click.stop="codeStore.removeNode(node.id)"
+          >
+            <icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <div
@@ -148,10 +181,30 @@
     </div>
 
     <footer class="border-t border-slate-700/80 bg-slate-950/50 px-3 py-2">
-      <div class="flex items-center justify-between gap-2">
-        <p class="line-clamp-2 text-xs text-slate-400">
-          {{ definition?.description }}
-        </p>
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0 flex-1">
+          <p
+            v-if="errorMessage"
+            class="line-clamp-3 text-xs text-error/90"
+          >
+            <icon name="kind-icon:alert" class="mr-1 inline h-3 w-3" />
+            {{ errorMessage }}
+          </p>
+
+          <p
+            v-else-if="streamingText"
+            class="line-clamp-3 whitespace-pre-wrap text-xs text-cyan-100/90"
+          >
+            {{ streamingText }}<span
+              v-if="isRunning"
+              class="ml-0.5 inline-block h-3 w-1 animate-pulse bg-cyan-300 align-middle"
+            />
+          </p>
+
+          <p v-else class="line-clamp-2 text-xs text-slate-400">
+            {{ definition?.description }}
+          </p>
+        </div>
 
         <button
           class="btn btn-ghost btn-xs rounded-xl text-cyan-100 hover:bg-cyan-300 hover:text-cyan-950"
@@ -161,14 +214,6 @@
         >
           <icon name="kind-icon:settings" class="h-4 w-4" />
         </button>
-
-<p
-  v-if="codeStore.runStreams[`${node.id}:text`]"
-  class="line-clamp-3 text-xs text-cyan-100/80"
->
-  {{ codeStore.runStreams[`${node.id}:text`] }}
-</p>
-
       </div>
     </footer>
   </article>
@@ -195,6 +240,30 @@ let dragOffsetY = 0
 
 const definition = computed(() => codeStore.getDefinition(props.node.kind))
 const isSelected = computed(() => codeStore.selectedNodeId === props.node.id)
+
+const isRunning = computed(() => {
+  return codeStore.activeRunNodeIds?.has(props.node.id) ?? false
+})
+
+const runResult = computed(() => {
+  return codeStore.runResults[props.node.id]
+})
+
+const hasResult = computed(() => {
+  return Boolean(runResult.value?.success)
+})
+
+const isErrored = computed(() => {
+  return Boolean(runResult.value && !runResult.value.success && !isRunning.value)
+})
+
+const errorMessage = computed(() => {
+  return isErrored.value ? runResult.value?.message ?? '' : ''
+})
+
+const streamingText = computed(() => {
+  return codeStore.runStreams?.[`${props.node.id}:text`] ?? ''
+})
 
 const headerClass = computed(() => {
   const accent = definition.value?.accent ?? 'primary'

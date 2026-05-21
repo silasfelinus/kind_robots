@@ -101,18 +101,36 @@
       <span class="hidden sm:inline">Validate</span>
     </button>
 
+    <!-- Cancel button shows while running, Run button shows otherwise -->
     <button
+      v-if="isRunning"
+      class="btn btn-xs btn-warning rounded-2xl"
+      type="button"
+      title="Cancel run (abort all streams)"
+      @click="cancelGraph"
+    >
+      <icon name="kind-icon:stop" class="h-4 w-4" />
+      <span class="hidden sm:inline">Cancel</span>
+      <span
+        v-if="activeCount > 0"
+        class="badge badge-xs badge-warning border-warning-content/20 bg-warning-content/20 text-warning-content"
+      >
+        {{ activeCount }}
+      </span>
+    </button>
+
+    <button
+      v-else
       class="btn btn-xs rounded-2xl"
       :class="runButtonClass"
       type="button"
       title="Run graph"
-      :disabled="codeStore.runStatus === 'running'"
       @click="runGraph"
     >
       <icon
         :name="runIcon"
         class="h-4 w-4"
-        :class="{ 'animate-spin': codeStore.runStatus === 'running' }"
+        :class="{ 'animate-spin': codeStore.runStatus === 'queued' }"
       />
       <span class="hidden sm:inline">
         {{ runLabel }}
@@ -120,7 +138,7 @@
     </button>
 
     <button
-      v-if="codeStore.runStatus !== 'idle'"
+      v-if="codeStore.runStatus !== 'idle' && !isRunning"
       class="btn btn-xs btn-outline rounded-2xl"
       type="button"
       title="Clear run results"
@@ -161,6 +179,16 @@ const statusMessage = ref('')
 const statusTone = ref<'info' | 'success' | 'warning' | 'error'>('info')
 const lastValidationSuccess = ref<boolean | null>(null)
 
+const isRunning = computed(() => {
+  return (
+    codeStore.runStatus === 'running' || codeStore.runStatus === 'queued'
+  )
+})
+
+const activeCount = computed(() => {
+  return codeStore.activeRunNodeIds?.size ?? 0
+})
+
 const validationButtonClass = computed(() => {
   if (lastValidationSuccess.value === true) {
     return 'btn-success'
@@ -186,10 +214,6 @@ const validationIcon = computed(() => {
 })
 
 const runButtonClass = computed(() => {
-  if (codeStore.runStatus === 'running' || codeStore.runStatus === 'queued') {
-    return 'btn-info'
-  }
-
   if (codeStore.runStatus === 'error') {
     return 'btn-error'
   }
@@ -206,7 +230,7 @@ const runButtonClass = computed(() => {
 })
 
 const runIcon = computed(() => {
-  if (codeStore.runStatus === 'running' || codeStore.runStatus === 'queued') {
+  if (codeStore.runStatus === 'queued') {
     return 'kind-icon:spinner'
   }
 
@@ -218,12 +242,18 @@ const runIcon = computed(() => {
     return 'kind-icon:check'
   }
 
+  if (codeStore.runStatus === 'cancelled') {
+    return 'kind-icon:refresh'
+  }
+
   return 'kind-icon:play'
 })
 
 const runLabel = computed(() => {
-  if (codeStore.runStatus === 'running') return 'Running'
   if (codeStore.runStatus === 'queued') return 'Queued'
+  if (codeStore.runStatus === 'success') return 'Done'
+  if (codeStore.runStatus === 'error') return 'Failed'
+  if (codeStore.runStatus === 'cancelled') return 'Run Again'
   return 'Run'
 })
 
@@ -283,6 +313,11 @@ async function runGraph() {
     return
   }
 
-  setStatus(result.message || 'Graph runner not implemented yet.', 'warning')
+  setStatus(result.message || 'Graph run failed.', 'error')
+}
+
+function cancelGraph() {
+  const result = codeStore.cancelRun()
+  setStatus(result.message || 'Run cancelled.', 'warning')
 }
 </script>

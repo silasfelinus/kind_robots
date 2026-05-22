@@ -175,7 +175,7 @@
     </div>
 
     <div
-      class="pointer-events-none absolute bottom-3 right-3 z-[20] max-w-[calc(100%-1.5rem)]"
+      class="pointer-events-none absolute bottom-3 right-3 z-20 max-w-[calc(100%-1.5rem)]"
     >
       <div class="pointer-events-auto">
         <code-controls />
@@ -183,7 +183,7 @@
     </div>
 
     <div
-      class="pointer-events-none absolute bottom-3 left-3 z-[20] flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2"
+      class="pointer-events-none absolute bottom-3 left-3 z-20 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2"
     >
       <div
         v-if="codeStore.pendingConnection"
@@ -211,7 +211,7 @@
 
     <div
       v-if="codeStore.showMiniMap"
-      class="absolute bottom-24 right-3 z-[20] hidden h-28 w-40 rounded-2xl border border-cyan-300/30 bg-slate-900/90 p-2 shadow-lg backdrop-blur md:block"
+      class="absolute bottom-24 right-3 z-20 hidden h-28 w-40 rounded-2xl border border-cyan-300/30 bg-slate-900/90 p-2 shadow-lg backdrop-blur md:block"
     >
       <div
         class="relative h-full w-full overflow-hidden rounded-xl border border-cyan-300/20 bg-slate-950"

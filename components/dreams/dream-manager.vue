@@ -1,20 +1,56 @@
 <!-- /components/dreams/dream-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="dream"
     title="Dream Atlas"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Mapping dreamhouses, suspicious doors, and plot-adjacent furniture..."
     nav-grid-class="sm:grid-cols-3 xl:grid-cols-7"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
-    <template #default="{ activeTab: currentTab }">
+    <template #default="{ activeTab: currentTab, setTab: setShellTab }">
+      <section
+        v-if="currentTab === 'overview'"
+        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+      >
+        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
+          <dream-gallery
+            variant="dropdown"
+            :show-header="false"
+            :show-controls="false"
+            :show-images="true"
+            :show-card-actions="false"
+            :show-open-button="true"
+            :show-stats="true"
+            :show-meta="true"
+          />
+
+          <server-gallery
+            mode="text"
+            variant="dropdown"
+            title="Text Server"
+            subtitle="Choose the chat engine for this dream."
+            v-bind="{ ...readonlyServerGalleryProps, showHeader: false }"
+          />
+
+          <server-gallery
+            mode="art"
+            variant="dropdown"
+            title="Art Server"
+            subtitle="Choose the image engine for dream visuals."
+            v-bind="{ ...readonlyServerGalleryProps, showHeader: false }"
+          />
+        </div>
+
+        <div class="min-h-0 xl:col-span-7">
+          <dream-interact />
+        </div>
+      </section>
+
       <dream-gallery
-        v-if="currentTab === 'dreams'"
+        v-else-if="currentTab === 'dreams'"
         variant="dashboard"
         :show-header="false"
         :show-controls="true"
@@ -27,8 +63,8 @@
 
       <add-dream
         v-else-if="currentTab === 'add'"
-        @saved="onDreamSaved"
-        @created="onDreamSaved"
+        @saved="() => onDreamSaved(setShellTab)"
+        @created="() => onDreamSaved(setShellTab)"
       />
 
       <dream-prompts v-else-if="currentTab === 'prompts'" />
@@ -36,6 +72,7 @@
       <section
         v-else-if="currentTab === 'art'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
+        @vue:mounted="setupUploadTarget"
       >
         <div class="flex min-h-0 flex-col gap-4 xl:col-span-8">
           <div
@@ -204,7 +241,9 @@
       </section>
 
       <dream-interact v-else-if="currentTab === 'interact'" />
+
       <code-interact v-else-if="currentTab === 'code'" />
+
       <div
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
@@ -219,21 +258,20 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useDreamStore } from '@/stores/dreamStore'
-import { useNavStore } from '@/stores/navStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
-const dashboardKey = 'dream' as const
-
 const dreamStore = useDreamStore()
-const navStore = useNavStore()
 const promptStore = usePromptStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 const uploadStore = useUploadStore()
 const collectionStore = useCollectionStore()
+
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
 
 const readonlyServerGalleryProps = {
   showHeader: false,
@@ -252,60 +290,19 @@ const readonlyServerGalleryProps = {
   allowTest: false,
 } as const
 
-const SERVER_MODE_BY_TAB: Record<string, 'art' | 'text' | 'selected'> = {
-  add: 'selected',
-  art: 'art',
-  prompts: 'text',
-  servers: 'text',
-  interact: 'text',
-  dreams: 'selected',
-  collections: 'selected',
-  scenarios: 'selected',
-}
-
-const tabs = computed(() => {
-  const baseTabs = navStore
-    .getDashboardTabs(dashboardKey)
-    .filter((tab) => tab.key !== 'overview')
-
-  if (baseTabs.some((tab) => tab.key === 'add')) return baseTabs
-
-  return [
-    ...baseTabs,
-    {
-      key: 'add',
-      label: 'Add Dream',
-      icon: 'kind-icon:plus',
-      description: 'Create or edit a Dream location.',
-    },
-  ]
+const selectedTitle = computed(() => {
+  return dreamStore.selectedDream?.title || 'No Dream selected'
 })
-
-const fallbackTab = computed(() =>
-  dreamStore.selectedDream?.id ? 'interact' : 'dreams',
-)
-
-const activeTab = computed(() => {
-  const storedTab = navStore.getDashboardTab(dashboardKey)
-  const validTabs = tabs.value.map((tab) => tab.key)
-
-  if (storedTab === 'overview') return fallbackTab.value
-  if (!validTabs.includes(storedTab)) return fallbackTab.value
-
-  return storedTab
-})
-
-const selectedTitle = computed(
-  () => dreamStore.selectedDream?.title || 'No Dream selected',
-)
 
 const managerSummary = computed(() => {
   const selected = dreamStore.selectedDream?.title || 'no dream selected'
+
   return `${dreamStore.activeDreams.length}/${dreamStore.dreams.length} Dreams active. ${scenarioStore.scenarios.length} Scenarios loaded. Current dream: ${selected}.`
 })
 
 function setupUploadTarget() {
   const dream = dreamStore.selectedDream
+
   if (!dream) return
 
   const collectionLabel =
@@ -320,9 +317,9 @@ function setupUploadTarget() {
     applyCollection: async ({ collectionLabel: label }) => {
       await collectionStore.fetchCollections?.()
 
-      const collection = collectionStore.collections.find(
-        (item) => item.label === label,
-      )
+      const collection = collectionStore.collections.find((item) => {
+        return item.label === label
+      })
 
       if (collection?.id) {
         await dreamStore.updateSelectedDream({ artCollectionId: collection.id })
@@ -331,45 +328,22 @@ function setupUploadTarget() {
   })
 }
 
-watch(
-  () => dreamStore.selectedDream?.id,
-  () => {
-    if (activeTab.value === 'art') setupUploadTarget()
-  },
-)
-
-function setTab(tab: string) {
-  const requestedTab = tab === 'overview' ? fallbackTab.value : tab
-  const validTabs = tabs.value.map((item) => item.key)
-  const nextTab = validTabs.includes(requestedTab)
-    ? requestedTab
-    : fallbackTab.value
-
-  navStore.setDashboardTab(dashboardKey, nextTab)
-  serverStore.setCurrentServerMode(SERVER_MODE_BY_TAB[nextTab] ?? 'selected')
-
-  if (nextTab === 'art') setupUploadTarget()
-}
-
-async function onDreamSaved() {
+async function onDreamSaved(setShellTab?: (tab: string) => void) {
   await refreshManagerData()
-  if (dreamStore.selectedDream?.id) {
-    setTab('interact')
-  } else {
-    setTab('dreams')
-  }
-}
 
-const isLoadingManager = ref(false)
-const managerError = ref<string | null>(null)
+  if (dreamStore.selectedDream?.id) {
+    setShellTab?.('interact')
+    return
+  }
+
+  setShellTab?.('dreams')
+}
 
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
-    await navStore.initialize() // sequential
-
     await Promise.all([
       dreamStore.initialize(force),
       promptStore.initialize?.(),
@@ -378,10 +352,10 @@ async function loadManagerData(force = false) {
         fetchRemote: true,
         includeSeeds: true,
       }),
-      serverStore.initialize({ force, fetchRemote: true }), // ← no hasLoaded guard
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
     ])
-
-    setTab(activeTab.value)
   } catch (error) {
     managerError.value =
       error instanceof Error ? error.message : 'Failed to load Dream atlas.'
@@ -393,6 +367,13 @@ async function loadManagerData(force = false) {
 async function refreshManagerData() {
   await loadManagerData(true)
 }
+
+watch(
+  () => dreamStore.selectedDream?.id,
+  () => {
+    setupUploadTarget()
+  },
+)
 
 onMounted(async () => {
   await loadManagerData()

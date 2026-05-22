@@ -26,6 +26,32 @@ describe('Butterfly API', () => {
     })
   })
 
+  after(() => {
+    // Clean up catch record if still present (e.g. delete test was skipped)
+    if (recordId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${recordsUrl}/${recordId}`,
+        headers: { Authorization: `Bearer ${userToken}` },
+        failOnStatusCode: false,
+      })
+    }
+
+    // Always clean up the butterfly created by this suite
+    if (butterflyId) {
+      cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/${butterflyId}`,
+        headers: { Authorization: `Bearer ${adminToken}` },
+        failOnStatusCode: false,
+      }).then((res) => {
+        expect([200, 404], `butterfly ${butterflyId} cleanup`).to.include(
+          res.status,
+        )
+      })
+    }
+  })
+
   it('GET /butterflies — returns public list, no auth required', () => {
     cy.request(baseUrl).then((response) => {
       expect(response.status).to.eq(200)

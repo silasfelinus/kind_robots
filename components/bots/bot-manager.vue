@@ -1,15 +1,13 @@
 <!-- /components/content/bots/bot-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="bot"
     title="Bot Workshop"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading bots, text engines, and charming little nonsense modules..."
     nav-grid-class="xl:grid-cols-5"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
@@ -98,7 +96,6 @@
         <add-bot
           :mode="botStore.currentBot ? 'edit' : 'add'"
           @saved="handleBotSaved"
-          @cancel="setTab('bots')"
         />
       </section>
 
@@ -116,21 +113,14 @@
 import { computed, onMounted, ref } from 'vue'
 import { useBotStore } from '@/stores/botStore'
 import { useChatStore } from '@/stores/chatStore'
-import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
-
-const dashboardKey = 'bot' as const
 
 const botStore = useBotStore()
 const chatStore = useChatStore()
-const navStore = useNavStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const selectedBotName = computed(() => {
   return (
@@ -156,24 +146,12 @@ const managerSummary = computed(() => {
   return `${botCount} bots loaded, ${visibleCount} visible. Current setup: ${selectedBotName.value}, ${activeTextServerName.value}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'overview' || tab === 'interact' || tab === 'servers') {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
-}
-
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
     await Promise.all([
-      navStore.initialize(),
       botStore.initialize({
         force,
         fetchRemote: true,
@@ -203,11 +181,9 @@ async function refreshManagerData() {
 
 async function handleBotSaved() {
   await refreshManagerData()
-  setTab('bots')
 }
 
 onMounted(async () => {
   await loadManagerData()
-  setTab(activeTab.value)
 })
 </script>

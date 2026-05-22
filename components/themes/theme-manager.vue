@@ -1,15 +1,13 @@
 <!-- /components/content/themes/theme-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="theme"
     title="Theme Manager"
     :summary="managerSummary"
-    :tabs="dashboardTabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading themes..."
     nav-grid-class="xl:grid-cols-3"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #actions>
@@ -24,8 +22,11 @@
       <span class="badge badge-neutral">{{ allThemeCount }} themes</span>
     </template>
 
-    <template #default="{ activeTab: currentTab }">
-      <theme-gallery v-if="currentTab === 'gallery'" @edit="setTab('custom')" />
+    <template #default="{ activeTab: currentTab, setTab: setShellTab }">
+      <theme-gallery
+        v-if="currentTab === 'gallery'"
+        @edit="setShellTab('custom')"
+      />
 
       <section
         v-else-if="currentTab === 'custom'"
@@ -93,21 +94,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useNavStore } from '@/stores/navStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
 
-const dashboardKey = 'theme' as const
-
 const themeStore = useThemeStore()
-const navStore = useNavStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 const forgeKey = ref(0)
-
-const dashboardTabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const allThemeCount = computed(() => {
   return (
@@ -142,16 +135,12 @@ function safeThemeValues(value: unknown): Record<string, string> {
     : {}
 }
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-}
-
 async function refreshManagerData() {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
-    await Promise.all([navStore.initialize(), themeStore.getThemes()])
+    await themeStore.getThemes()
   } catch (error) {
     managerError.value =
       error instanceof Error ? error.message : 'Failed to refresh themes.'
@@ -186,7 +175,9 @@ function onForgeSelect(event: Event) {
 
   if (!id) return
 
-  const theme = themeStore.sharedThemes.find((item: Theme) => item.id === id)
+  const theme = themeStore.sharedThemes.find((item: Theme) => {
+    return item.id === id
+  })
 
   if (theme) {
     loadThemeIntoForm(theme)

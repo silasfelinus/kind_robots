@@ -1,15 +1,13 @@
 <!-- /components/content/brainstorm/brainstorm-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="brainstorm"
     title="Brainstorm Workshop"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading pitches, prompts, art hooks, and idea goblin infrastructure..."
     nav-grid-class="xl:grid-cols-4"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #actions>
@@ -615,7 +613,6 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { Pitch, Prompt } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
-import { useNavStore } from '@/stores/navStore'
 import { usePitchStore, PitchType } from '@/stores/pitchStore'
 import { usePromptStore } from '@/stores/promptStore'
 import { useServerStore } from '@/stores/serverStore'
@@ -645,17 +642,11 @@ type PromptStoreWithCreate = ReturnType<typeof usePromptStore> & {
   ) => Promise<ActionResult<Prompt>>
 }
 
-const dashboardKey = 'brainstorm' as const
-
 const pitchStore = usePitchStore()
 const promptStore = usePromptStore() as PromptStoreWithCreate
 const artStore = useArtStore()
-const navStore = useNavStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
@@ -751,17 +742,6 @@ const managerSummary = computed(() => {
   return `${pitchCount} pitches and ${promptCount} prompts loaded. Selected: ${selected}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'servers' || tab === 'overview' || tab === 'interact') {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
-}
-
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
@@ -769,7 +749,6 @@ async function loadManagerData(force = false) {
   try {
     // FIX:
     await Promise.all([
-      navStore.initialize(),
       pitchStore.initialize({ force, fetchRemote: true }),
       promptStore.initialize({ force, fetchRemote: true }),
       artStore.initialize({
@@ -1104,18 +1083,6 @@ async function generateArtImage() {
   }
 }
 
-async function saveCurrentPrompt() {
-  const prompt = promptStore.currentPrompt.trim()
-
-  if (!prompt) return
-
-  await createLinkedPrompt(
-    prompt,
-    selectedPitch.value?.id,
-    selectedPitch.value ? 'HYBRID' : 'HUMAN',
-  )
-}
-
 async function createLinkedPrompt(
   prompt: string,
   _pitchId?: number,
@@ -1373,7 +1340,6 @@ function setAction(message: string, success = true) {
 
 onMounted(async () => {
   await loadManagerData()
-  setTab(activeTab.value)
 })
 </script>
 

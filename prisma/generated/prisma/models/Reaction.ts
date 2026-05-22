@@ -435,6 +435,7 @@ export type ReactionWhereInput = {
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
+  Composition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
@@ -443,7 +444,6 @@ export type ReactionWhereInput = {
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  Composition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
 }
 
 export type ReactionOrderByWithRelationInput = {
@@ -477,6 +477,7 @@ export type ReactionOrderByWithRelationInput = {
   Character?: Prisma.CharacterOrderByWithRelationInput
   Chat?: Prisma.ChatOrderByWithRelationInput
   Component?: Prisma.ComponentOrderByWithRelationInput
+  Composition?: Prisma.CompositionOrderByWithRelationInput
   Dream?: Prisma.DreamOrderByWithRelationInput
   Pitch?: Prisma.PitchOrderByWithRelationInput
   Prompt?: Prisma.PromptOrderByWithRelationInput
@@ -485,7 +486,6 @@ export type ReactionOrderByWithRelationInput = {
   Scenario?: Prisma.ScenarioOrderByWithRelationInput
   Theme?: Prisma.ThemeOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
-  Composition?: Prisma.CompositionOrderByWithRelationInput
   _relevance?: Prisma.ReactionOrderByRelevanceInput
 }
 
@@ -523,6 +523,7 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   Character?: Prisma.XOR<Prisma.CharacterNullableScalarRelationFilter, Prisma.CharacterWhereInput> | null
   Chat?: Prisma.XOR<Prisma.ChatNullableScalarRelationFilter, Prisma.ChatWhereInput> | null
   Component?: Prisma.XOR<Prisma.ComponentNullableScalarRelationFilter, Prisma.ComponentWhereInput> | null
+  Composition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
   Dream?: Prisma.XOR<Prisma.DreamNullableScalarRelationFilter, Prisma.DreamWhereInput> | null
   Pitch?: Prisma.XOR<Prisma.PitchNullableScalarRelationFilter, Prisma.PitchWhereInput> | null
   Prompt?: Prisma.XOR<Prisma.PromptNullableScalarRelationFilter, Prisma.PromptWhereInput> | null
@@ -531,7 +532,6 @@ export type ReactionWhereUniqueInput = Prisma.AtLeast<{
   Scenario?: Prisma.XOR<Prisma.ScenarioNullableScalarRelationFilter, Prisma.ScenarioWhereInput> | null
   Theme?: Prisma.XOR<Prisma.ThemeNullableScalarRelationFilter, Prisma.ThemeWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  Composition?: Prisma.XOR<Prisma.CompositionNullableScalarRelationFilter, Prisma.CompositionWhereInput> | null
 }, "id" | "id">
 
 export type ReactionOrderByWithAggregationInput = {
@@ -608,6 +608,7 @@ export type ReactionCreateInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -616,7 +617,6 @@ export type ReactionCreateInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateInput = {
@@ -659,6 +659,7 @@ export type ReactionUpdateInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -667,7 +668,6 @@ export type ReactionUpdateInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateInput = {
@@ -1586,6 +1586,7 @@ export type ReactionCreateWithoutArtImageInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -1594,7 +1595,6 @@ export type ReactionCreateWithoutArtImageInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutArtImageInput = {
@@ -1690,6 +1690,7 @@ export type ReactionCreateWithoutArtCollectionInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -1698,7 +1699,6 @@ export type ReactionCreateWithoutArtCollectionInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutArtCollectionInput = {
@@ -1765,6 +1765,7 @@ export type ReactionCreateWithoutBotInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -1773,7 +1774,6 @@ export type ReactionCreateWithoutBotInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutBotInput = {
@@ -1840,6 +1840,7 @@ export type ReactionCreateWithoutButterflyInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -1848,7 +1849,6 @@ export type ReactionCreateWithoutButterflyInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutButterflyInput = {
@@ -1915,6 +1915,7 @@ export type ReactionCreateWithoutCharacterInput = {
   Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -1923,7 +1924,6 @@ export type ReactionCreateWithoutCharacterInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutCharacterInput = {
@@ -1990,6 +1990,7 @@ export type ReactionCreateWithoutChatInput = {
   Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -1998,7 +1999,6 @@ export type ReactionCreateWithoutChatInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutChatInput = {
@@ -2065,6 +2065,7 @@ export type ReactionCreateWithoutComponentInput = {
   Butterfly?: Prisma.ButterflyCreateNestedOneWithoutReactionsInput
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -2073,7 +2074,6 @@ export type ReactionCreateWithoutComponentInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutComponentInput = {
@@ -2216,6 +2216,7 @@ export type ReactionCreateWithoutDreamInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
@@ -2223,7 +2224,6 @@ export type ReactionCreateWithoutDreamInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutDreamInput = {
@@ -2291,6 +2291,7 @@ export type ReactionCreateWithoutPitchInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
@@ -2298,7 +2299,6 @@ export type ReactionCreateWithoutPitchInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutPitchInput = {
@@ -2366,6 +2366,7 @@ export type ReactionCreateWithoutPromptInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Resource?: Prisma.ResourceCreateNestedOneWithoutReactionsInput
@@ -2373,7 +2374,6 @@ export type ReactionCreateWithoutPromptInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutPromptInput = {
@@ -2441,6 +2441,7 @@ export type ReactionCreateWithoutResourceInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -2448,7 +2449,6 @@ export type ReactionCreateWithoutResourceInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutResourceInput = {
@@ -2516,6 +2516,7 @@ export type ReactionCreateWithoutRewardInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -2523,7 +2524,6 @@ export type ReactionCreateWithoutRewardInput = {
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutRewardInput = {
@@ -2591,6 +2591,7 @@ export type ReactionCreateWithoutScenarioInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -2598,7 +2599,6 @@ export type ReactionCreateWithoutScenarioInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutScenarioInput = {
@@ -2666,6 +2666,7 @@ export type ReactionCreateWithoutThemeInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -2673,7 +2674,6 @@ export type ReactionCreateWithoutThemeInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   User: Prisma.UserCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutThemeInput = {
@@ -2741,6 +2741,7 @@ export type ReactionCreateWithoutUserInput = {
   Character?: Prisma.CharacterCreateNestedOneWithoutReactionsInput
   Chat?: Prisma.ChatCreateNestedOneWithoutReactionsInput
   Component?: Prisma.ComponentCreateNestedOneWithoutReactionsInput
+  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
   Dream?: Prisma.DreamCreateNestedOneWithoutReactionsInput
   Pitch?: Prisma.PitchCreateNestedOneWithoutReactionsInput
   Prompt?: Prisma.PromptCreateNestedOneWithoutReactionsInput
@@ -2748,7 +2749,6 @@ export type ReactionCreateWithoutUserInput = {
   Reward?: Prisma.RewardCreateNestedOneWithoutReactionsInput
   Scenario?: Prisma.ScenarioCreateNestedOneWithoutReactionsInput
   Theme?: Prisma.ThemeCreateNestedOneWithoutReactionsInput
-  Composition?: Prisma.CompositionCreateNestedOneWithoutReactionsInput
 }
 
 export type ReactionUncheckedCreateWithoutUserInput = {
@@ -2840,6 +2840,7 @@ export type ReactionUpdateWithoutArtImageInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -2848,7 +2849,6 @@ export type ReactionUpdateWithoutArtImageInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutArtImageInput = {
@@ -2939,6 +2939,7 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -2947,7 +2948,6 @@ export type ReactionUpdateWithoutArtCollectionInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutArtCollectionInput = {
@@ -3038,6 +3038,7 @@ export type ReactionUpdateWithoutBotInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -3046,7 +3047,6 @@ export type ReactionUpdateWithoutBotInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutBotInput = {
@@ -3137,6 +3137,7 @@ export type ReactionUpdateWithoutButterflyInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -3145,7 +3146,6 @@ export type ReactionUpdateWithoutButterflyInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutButterflyInput = {
@@ -3236,6 +3236,7 @@ export type ReactionUpdateWithoutCharacterInput = {
   Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -3244,7 +3245,6 @@ export type ReactionUpdateWithoutCharacterInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutCharacterInput = {
@@ -3335,6 +3335,7 @@ export type ReactionUpdateWithoutChatInput = {
   Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -3343,7 +3344,6 @@ export type ReactionUpdateWithoutChatInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutChatInput = {
@@ -3434,6 +3434,7 @@ export type ReactionUpdateWithoutComponentInput = {
   Butterfly?: Prisma.ButterflyUpdateOneWithoutReactionsNestedInput
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -3442,7 +3443,6 @@ export type ReactionUpdateWithoutComponentInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutComponentInput = {
@@ -3633,6 +3633,7 @@ export type ReactionUpdateWithoutDreamInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
@@ -3640,7 +3641,6 @@ export type ReactionUpdateWithoutDreamInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutDreamInput = {
@@ -3732,6 +3732,7 @@ export type ReactionUpdateWithoutPitchInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
@@ -3739,7 +3740,6 @@ export type ReactionUpdateWithoutPitchInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutPitchInput = {
@@ -3831,6 +3831,7 @@ export type ReactionUpdateWithoutPromptInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Resource?: Prisma.ResourceUpdateOneWithoutReactionsNestedInput
@@ -3838,7 +3839,6 @@ export type ReactionUpdateWithoutPromptInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutPromptInput = {
@@ -3930,6 +3930,7 @@ export type ReactionUpdateWithoutResourceInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -3937,7 +3938,6 @@ export type ReactionUpdateWithoutResourceInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutResourceInput = {
@@ -4029,6 +4029,7 @@ export type ReactionUpdateWithoutRewardInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -4036,7 +4037,6 @@ export type ReactionUpdateWithoutRewardInput = {
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutRewardInput = {
@@ -4128,6 +4128,7 @@ export type ReactionUpdateWithoutScenarioInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -4135,7 +4136,6 @@ export type ReactionUpdateWithoutScenarioInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutScenarioInput = {
@@ -4227,6 +4227,7 @@ export type ReactionUpdateWithoutThemeInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -4234,7 +4235,6 @@ export type ReactionUpdateWithoutThemeInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutThemeInput = {
@@ -4326,6 +4326,7 @@ export type ReactionUpdateWithoutUserInput = {
   Character?: Prisma.CharacterUpdateOneWithoutReactionsNestedInput
   Chat?: Prisma.ChatUpdateOneWithoutReactionsNestedInput
   Component?: Prisma.ComponentUpdateOneWithoutReactionsNestedInput
+  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
   Dream?: Prisma.DreamUpdateOneWithoutReactionsNestedInput
   Pitch?: Prisma.PitchUpdateOneWithoutReactionsNestedInput
   Prompt?: Prisma.PromptUpdateOneWithoutReactionsNestedInput
@@ -4333,7 +4334,6 @@ export type ReactionUpdateWithoutUserInput = {
   Reward?: Prisma.RewardUpdateOneWithoutReactionsNestedInput
   Scenario?: Prisma.ScenarioUpdateOneWithoutReactionsNestedInput
   Theme?: Prisma.ThemeUpdateOneWithoutReactionsNestedInput
-  Composition?: Prisma.CompositionUpdateOneWithoutReactionsNestedInput
 }
 
 export type ReactionUncheckedUpdateWithoutUserInput = {
@@ -4419,6 +4419,7 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Character?: boolean | Prisma.Reaction$CharacterArgs<ExtArgs>
   Chat?: boolean | Prisma.Reaction$ChatArgs<ExtArgs>
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
+  Composition?: boolean | Prisma.Reaction$CompositionArgs<ExtArgs>
   Dream?: boolean | Prisma.Reaction$DreamArgs<ExtArgs>
   Pitch?: boolean | Prisma.Reaction$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Reaction$PromptArgs<ExtArgs>
@@ -4427,7 +4428,6 @@ export type ReactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Scenario?: boolean | Prisma.Reaction$ScenarioArgs<ExtArgs>
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  Composition?: boolean | Prisma.Reaction$CompositionArgs<ExtArgs>
 }, ExtArgs["result"]["reaction"]>
 
 
@@ -4467,6 +4467,7 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Character?: boolean | Prisma.Reaction$CharacterArgs<ExtArgs>
   Chat?: boolean | Prisma.Reaction$ChatArgs<ExtArgs>
   Component?: boolean | Prisma.Reaction$ComponentArgs<ExtArgs>
+  Composition?: boolean | Prisma.Reaction$CompositionArgs<ExtArgs>
   Dream?: boolean | Prisma.Reaction$DreamArgs<ExtArgs>
   Pitch?: boolean | Prisma.Reaction$PitchArgs<ExtArgs>
   Prompt?: boolean | Prisma.Reaction$PromptArgs<ExtArgs>
@@ -4475,7 +4476,6 @@ export type ReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Scenario?: boolean | Prisma.Reaction$ScenarioArgs<ExtArgs>
   Theme?: boolean | Prisma.Reaction$ThemeArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  Composition?: boolean | Prisma.Reaction$CompositionArgs<ExtArgs>
 }
 
 export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4488,6 +4488,7 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Character: Prisma.$CharacterPayload<ExtArgs> | null
     Chat: Prisma.$ChatPayload<ExtArgs> | null
     Component: Prisma.$ComponentPayload<ExtArgs> | null
+    Composition: Prisma.$CompositionPayload<ExtArgs> | null
     Dream: Prisma.$DreamPayload<ExtArgs> | null
     Pitch: Prisma.$PitchPayload<ExtArgs> | null
     Prompt: Prisma.$PromptPayload<ExtArgs> | null
@@ -4496,7 +4497,6 @@ export type $ReactionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Scenario: Prisma.$ScenarioPayload<ExtArgs> | null
     Theme: Prisma.$ThemePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs>
-    Composition: Prisma.$CompositionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4869,6 +4869,7 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   Character<T extends Prisma.Reaction$CharacterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$CharacterArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Chat<T extends Prisma.Reaction$ChatArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ChatArgs<ExtArgs>>): Prisma.Prisma__ChatClient<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Component<T extends Prisma.Reaction$ComponentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ComponentArgs<ExtArgs>>): Prisma.Prisma__ComponentClient<runtime.Types.Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Composition<T extends Prisma.Reaction$CompositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$CompositionArgs<ExtArgs>>): Prisma.Prisma__CompositionClient<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Dream<T extends Prisma.Reaction$DreamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$DreamArgs<ExtArgs>>): Prisma.Prisma__DreamClient<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pitch<T extends Prisma.Reaction$PitchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PitchArgs<ExtArgs>>): Prisma.Prisma__PitchClient<runtime.Types.Result.GetResult<Prisma.$PitchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Prompt<T extends Prisma.Reaction$PromptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$PromptArgs<ExtArgs>>): Prisma.Prisma__PromptClient<runtime.Types.Result.GetResult<Prisma.$PromptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -4877,7 +4878,6 @@ export interface Prisma__ReactionClient<T, Null = never, ExtArgs extends runtime
   Scenario<T extends Prisma.Reaction$ScenarioArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ScenarioArgs<ExtArgs>>): Prisma.Prisma__ScenarioClient<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Theme<T extends Prisma.Reaction$ThemeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$ThemeArgs<ExtArgs>>): Prisma.Prisma__ThemeClient<runtime.Types.Result.GetResult<Prisma.$ThemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  Composition<T extends Prisma.Reaction$CompositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reaction$CompositionArgs<ExtArgs>>): Prisma.Prisma__CompositionClient<runtime.Types.Result.GetResult<Prisma.$CompositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5411,6 +5411,25 @@ export type Reaction$ComponentArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Reaction.Composition
+ */
+export type Reaction$CompositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Composition
+   */
+  select?: Prisma.CompositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Composition
+   */
+  omit?: Prisma.CompositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompositionInclude<ExtArgs> | null
+  where?: Prisma.CompositionWhereInput
+}
+
+/**
  * Reaction.Dream
  */
 export type Reaction$DreamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5541,25 +5560,6 @@ export type Reaction$ThemeArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.ThemeInclude<ExtArgs> | null
   where?: Prisma.ThemeWhereInput
-}
-
-/**
- * Reaction.Composition
- */
-export type Reaction$CompositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Composition
-   */
-  select?: Prisma.CompositionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Composition
-   */
-  omit?: Prisma.CompositionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CompositionInclude<ExtArgs> | null
-  where?: Prisma.CompositionWhereInput
 }
 
 /**

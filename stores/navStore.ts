@@ -101,6 +101,13 @@ export const useNavStore = defineStore('navStore', () => {
   const routeHistory = ref<string[]>([])
   const currentIndex = ref(-1)
 
+  const navDebug = true
+
+  function logNav(message: string): void {
+    if (!navDebug) return
+    console.info(`[navStore] ${message}`)
+  }
+
   const dashboardTabs = ref<Record<DashboardKey, string>>(
     getDashboardDefaultTabs(),
   )
@@ -180,11 +187,88 @@ export const useNavStore = defineStore('navStore', () => {
     safeSetLocalStorage(navFavoritesStorageKey, JSON.stringify(favorites.value))
   }
 
-  function syncDashboardTabsToLocalStorage(): void {
-    safeSetLocalStorage(
-      dashboardTabsStorageKey,
-      JSON.stringify(dashboardTabs.value),
+  function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
+    const payload = JSON.stringify(dashboardTabs.value)
+
+    logNav(
+      `saving dashboard tabs. reason="${reason}". art="${dashboardTabs.value.art}". user="${dashboardTabs.value.user}". wonder="${dashboardTabs.value.wonder}".`,
     )
+
+    safeSetLocalStorage(dashboardTabsStorageKey, payload)
+  }
+
+  function syncDashboardTabs(reason = 'manual syncDashboardTabs'): void {
+    syncDashboardTabsToLocalStorage(reason)
+  }
+
+  function hydrateDashboardTabsFromLocalStorage(force = false): void {
+    if (dashboardTabsHydrated.value && !force) {
+      logNav(
+        `skipped dashboard tab hydration. already hydrated. art="${dashboardTabs.value.art}".`,
+      )
+      return
+    }
+
+    const raw = safeGetLocalStorage(dashboardTabsStorageKey)
+    const parsed = safeParseRecord(raw)
+    const normalized = normalizeDashboardTabs(parsed)
+
+    dashboardTabs.value = normalized
+    dashboardTabsHydrated.value = true
+
+    logNav(
+      `hydrated dashboard tabs. force=${force}. raw art="${parsed.art ?? 'missing'}". active art="${dashboardTabs.value.art}".`,
+    )
+  }
+
+  function getDashboardTab(dashboardKey: DashboardKey): string {
+    hydrateDashboardTabsFromLocalStorage()
+
+    const config = dashboardConfigs[dashboardKey]
+    const current = dashboardTabs.value[dashboardKey]
+    const resolved =
+      current && isDashboardTabKey(dashboardKey, current)
+        ? current
+        : config.defaultTab
+
+    logNav(`read dashboard "${dashboardKey}". resolved tab="${resolved}".`)
+
+    return resolved
+  }
+
+  function setDashboardTab(
+    dashboardKey: DashboardKey,
+    tabKey: string,
+    reason = 'unknown',
+  ): string {
+    hydrateDashboardTabsFromLocalStorage()
+
+    const previous = dashboardTabs.value[dashboardKey]
+    const nextTab = isDashboardTabKey(dashboardKey, tabKey)
+      ? tabKey
+      : dashboardConfigs[dashboardKey].defaultTab
+
+    logNav(
+      `set dashboard "${dashboardKey}". incoming="${tabKey}". previous="${previous}". next="${nextTab}". reason="${reason}".`,
+    )
+
+    if (previous === nextTab) {
+      logNav(
+        `no save needed for dashboard "${dashboardKey}". tab already="${nextTab}".`,
+      )
+      return nextTab
+    }
+
+    dashboardTabs.value = {
+      ...dashboardTabs.value,
+      [dashboardKey]: nextTab,
+    }
+
+    syncDashboardTabsToLocalStorage(
+      `setDashboardTab(${dashboardKey}, ${nextTab}) from ${reason}`,
+    )
+
+    return nextTab
   }
 
   function syncWonderLabFolderToLocalStorage(): void {
@@ -195,10 +279,6 @@ export const useNavStore = defineStore('navStore', () => {
     syncIconsToLocalStorage()
     syncFavoritesToLocalStorage()
     syncWonderLabFolderToLocalStorage()
-  }
-
-  function syncDashboardTabs(): void {
-    syncDashboardTabsToLocalStorage()
   }
 
   function hydrateIconsFromLocalStorage(): void {
@@ -215,16 +295,6 @@ export const useNavStore = defineStore('navStore', () => {
     favorites.value = safeParseArray<string>(
       safeGetLocalStorage(navFavoritesStorageKey),
     )
-  }
-
-  function hydrateDashboardTabsFromLocalStorage(force = false): void {
-    if (dashboardTabsHydrated.value && !force) return
-
-    const raw = safeGetLocalStorage(dashboardTabsStorageKey)
-    const parsed = safeParseRecord(raw)
-
-    dashboardTabs.value = normalizeDashboardTabs(parsed)
-    dashboardTabsHydrated.value = true
   }
 
   function hydrateWonderLabFolderFromLocalStorage(): void {
@@ -384,44 +454,6 @@ export const useNavStore = defineStore('navStore', () => {
 
   function getDashboardTabs(dashboardKey: DashboardKey): DashboardTabConfig[] {
     return dashboardConfigs[dashboardKey].tabs
-  }
-
-  function getDashboardTab(dashboardKey: DashboardKey): string {
-    hydrateDashboardTabsFromLocalStorage()
-
-    const config = dashboardConfigs[dashboardKey]
-    const current = dashboardTabs.value[dashboardKey]
-
-    if (current && isDashboardTabKey(dashboardKey, current)) {
-      return current
-    }
-
-    return config.defaultTab
-  }
-
-  function setDashboardTab(
-    dashboardKey: DashboardKey,
-    tabKey: string,
-    reason = 'manual',
-  ): string {
-    hydrateDashboardTabsFromLocalStorage()
-
-    const nextTab = isDashboardTabKey(dashboardKey, tabKey)
-      ? tabKey
-      : dashboardConfigs[dashboardKey].defaultTab
-
-    if (dashboardTabs.value[dashboardKey] === nextTab) {
-      return nextTab
-    }
-
-    dashboardTabs.value = {
-      ...dashboardTabs.value,
-      [dashboardKey]: nextTab,
-    }
-
-    syncDashboardTabsToLocalStorage()
-
-    return nextTab
   }
 
   function resetDashboardTab(

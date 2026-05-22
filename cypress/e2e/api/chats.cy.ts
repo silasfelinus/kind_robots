@@ -17,6 +17,21 @@ describe('Chat API Tests', () => {
     })
   })
 
+  after(() => {
+    // Safety net: delete the chat if it wasn't cleaned up by the delete test
+    // (e.g. the test failed, was skipped, or an earlier assertion threw)
+    if (!chatId || !userToken) return
+
+    cy.request({
+      method: 'DELETE',
+      url: `${baseUrl}/${chatId}`,
+      headers: { Authorization: `Bearer ${userToken}` },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect([200, 404], `chat ${chatId} cleanup`).to.include(res.status)
+    })
+  })
+
   const makeRequest = (
     method: string,
     url: string,
@@ -195,6 +210,8 @@ describe('Chat API Tests', () => {
         expect(response.body.message).to.include(
           `Communication with ID ${chatId} successfully deleted`,
         )
+
+        chatId = null // signal to after() that cleanup is already done
       },
     )
   })

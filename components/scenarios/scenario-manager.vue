@@ -1,15 +1,13 @@
 <!-- /components/scenarios/scenario-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="scenario"
     title="Choose Your Own Weird Adventure"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading weirdness from the database..."
     nav-grid-class="xl:grid-cols-8"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
@@ -135,25 +133,18 @@
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChoiceStore } from '@/stores/choiceStore'
-import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
-const dashboardKey = 'scenario' as const
-
 const characterStore = useCharacterStore()
 const choiceStore = useChoiceStore()
-const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const managerSummary = computed(() => {
   const scenarioCount = scenarioStore.scenarios.length
@@ -177,24 +168,12 @@ const managerSummary = computed(() => {
   return `${scenarioCount} scenarios, ${characterCount} characters, ${rewardCount} rewards, and ${textCount} text servers loaded. Active setup: ${scenarioName}, ${characterName}, ${rewardName}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'overview' || tab === 'interact' || tab === 'servers') {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
-}
-
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
     await Promise.all([
-      navStore.initialize(),
       choiceStore.initialize(),
       characterStore.initialize({
         force,
@@ -230,6 +209,5 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
-  setTab(activeTab.value)
 })
 </script>

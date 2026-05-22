@@ -1,4 +1,4 @@
-// /server/api/compositions/index.post.ts
+// /server/api/composition/index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'

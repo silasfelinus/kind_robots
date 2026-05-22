@@ -201,8 +201,8 @@ export const useNavStore = defineStore('navStore', () => {
     syncWonderLabFolderToLocalStorage()
   }
 
-  function syncDashboardTabs(reason = 'manual dashboard tab sync'): void {
-    syncDashboardTabsToLocalStorage(reason)
+  function syncDashboardTabs(): void {
+    syncDashboardTabsToLocalStorage()
   }
 
   function hydrateIconsFromLocalStorage(): void {

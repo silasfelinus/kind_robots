@@ -350,18 +350,18 @@ function portBadgeClass(type: CodeDataType) {
 
 function portIcon(type: CodeDataType) {
   const icons: Record<CodeDataType, string> = {
-    text: 'kind-icon:chat',
+    text: 'kind-icon:comment',
     image: 'kind-icon:image',
     model: 'kind-icon:cube',
     video: 'kind-icon:video',
-    character: 'kind-icon:character',
-    dream: 'kind-icon:dream',
-    pitch: 'kind-icon:lightbulb',
+    character: 'kind-icon:mask',
+    dream: 'kind-icon:moon',
+    pitch: 'kind-icon:brain',
     prompt: 'kind-icon:prompt',
-    bot: 'kind-icon:bot',
+    bot: 'kind-icon:robot-color',
     reward: 'kind-icon:treasure',
-    scenario: 'kind-icon:story',
-    collection: 'kind-icon:gallery',
+    scenario: 'kind-icon:path',
+    collection: 'kind-icon:paintbrush',
   }
   return icons[type] ?? 'kind-icon:circle'
 }

@@ -14,7 +14,9 @@
     @refresh="refreshManagerData"
   >
     <template #actions="{ activeTab: currentTab }">
-      <div class="hidden items-center gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-base-content/60 lg:flex">
+      <div
+        class="hidden items-center gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-base-content/60 lg:flex"
+      >
         <Icon name="kind-icon:blueprint" class="h-4 w-4 text-primary" />
         {{ getStageTitle(currentTab) }}
       </div>
@@ -95,7 +97,10 @@ const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 const activeStage = computed(() => getBuilderStage(activeTab.value))
 
 const managerSummary = computed(() => {
-  return activeStage.value.summary ?? 'Build a full creative universe from idea to interactive experience.'
+  return (
+    activeStage.value.summary ??
+    'Build a full creative universe from idea to interactive experience.'
+  )
 })
 
 function getStageTitle(tab: string) {

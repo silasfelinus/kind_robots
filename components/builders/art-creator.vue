@@ -1,175 +1,211 @@
 <!-- /components/builders/art-creator.vue -->
 <template>
-  <section class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4">
-    <header class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 p-4">
-      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div class="min-w-0">
-          <p class="text-xs font-bold uppercase tracking-[0.2em] text-base-content/50">
-            {{ contextLabel }} Art Creator
-          </p>
-
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
-            <Icon :name="contextIcon" class="h-6 w-6 text-primary" />
-            {{ title }}
-          </h3>
-
-          <p class="text-sm text-base-content/70">
-            {{ description }}
-          </p>
+  <section
+    class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
+  >
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <header class="rounded-xl border border-base-300 bg-base-200/60 p-3">
+      <div
+        class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"
+      >
+        <div class="flex items-start gap-3">
+          <span
+            class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
+          >
+            <Icon :name="contextIcon" class="h-5 w-5" />
+          </span>
+          <div class="min-w-0">
+            <p
+              class="text-[0.62rem] font-black uppercase tracking-[0.22em] text-base-content/40"
+            >
+              {{ contextLabel }} Art Creator
+            </p>
+            <h3 class="text-lg font-black text-base-content">{{ title }}</h3>
+            <p class="text-sm text-base-content/60">{{ description }}</p>
+          </div>
         </div>
 
-        <div class="flex shrink-0 flex-wrap gap-2">
+        <!-- Mode tab strip -->
+        <div
+          class="flex shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-100"
+        >
           <button
-            class="btn btn-sm rounded-xl"
-            :class="mode === 'prompt' ? 'btn-primary' : 'btn-ghost border border-base-300'"
+            v-for="tab in modeTabs"
+            :key="tab.value"
+            class="flex items-center gap-1.5 px-3 py-2 text-xs font-black transition"
+            :class="
+              mode === tab.value
+                ? 'bg-primary text-primary-content'
+                : 'text-base-content/60 hover:bg-base-200 hover:text-base-content'
+            "
             type="button"
-            @click="mode = 'prompt'"
+            @click="mode = tab.value"
           >
-            <Icon name="kind-icon:prompt" class="h-4 w-4" />
-            Prompt
-          </button>
-
-          <button
-            class="btn btn-sm rounded-xl"
-            :class="mode === 'upload' ? 'btn-primary' : 'btn-ghost border border-base-300'"
-            type="button"
-            @click="mode = 'upload'"
-          >
-            <Icon name="kind-icon:save" class="h-4 w-4" />
-            Upload
-          </button>
-
-          <button
-            class="btn btn-sm rounded-xl"
-            :class="mode === 'gallery' ? 'btn-primary' : 'btn-ghost border border-base-300'"
-            type="button"
-            @click="mode = 'gallery'"
-          >
-            <Icon name="kind-icon:gallery" class="h-4 w-4" />
-            Gallery
-          </button>
-
-          <button
-            class="btn btn-sm rounded-xl"
-            :class="mode === 'generate' ? 'btn-primary' : 'btn-ghost border border-base-300'"
-            type="button"
-            @click="mode = 'generate'"
-          >
-            <Icon name="kind-icon:wand" class="h-4 w-4" />
-            Generate
+            <Icon :name="tab.icon" class="h-3.5 w-3.5" />
+            {{ tab.label }}
           </button>
         </div>
       </div>
     </header>
 
-    <main class="rounded-2xl border border-base-300 bg-base-200 p-4">
-      <section v-if="mode === 'prompt'" class="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_20rem]">
+    <!-- ── Mode content ──────────────────────────────────────────────────── -->
+    <main class="rounded-xl border border-base-300 bg-base-200/40 p-4">
+      <!-- Prompt mode -->
+      <section
+        v-if="mode === 'prompt'"
+        class="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_20rem]"
+      >
         <div class="flex flex-col gap-3">
           <label class="form-control">
             <span class="label-text font-bold">Positive Prompt</span>
-
             <textarea
               v-model="localPrompt"
-              class="textarea textarea-bordered min-h-52 rounded-2xl text-base"
+              class="textarea textarea-bordered min-h-52 rounded-2xl text-base leading-relaxed"
               :placeholder="promptPlaceholder"
             />
           </label>
 
           <label class="form-control">
             <span class="label-text font-bold">Negative Prompt</span>
-
             <textarea
               v-model="localNegativePrompt"
-              class="textarea textarea-bordered min-h-28 rounded-2xl text-base"
+              class="textarea textarea-bordered min-h-24 rounded-2xl text-sm"
               placeholder="text, watermark, logo, signature, blurry, low quality..."
             />
           </label>
         </div>
 
-        <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h4 class="font-bold text-base-content">
+        <aside
+          class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+        >
+          <h4
+            class="flex items-center gap-2 text-sm font-black text-base-content"
+          >
+            <Icon name="kind-icon:sparkles" class="h-4 w-4 text-primary" />
             Prompt Helpers
           </h4>
 
-          <button class="btn btn-secondary rounded-xl" type="button" @click="buildContextPrompt">
-            <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <button
+            class="btn btn-secondary btn-sm rounded-xl"
+            type="button"
+            @click="buildContextPrompt"
+          >
+            <Icon name="kind-icon:wand" class="h-4 w-4" />
             Build Context Prompt
           </button>
 
-          <button class="btn rounded-xl" type="button" @click="appendNoText">
+          <button
+            class="btn btn-ghost btn-sm rounded-xl border border-base-300"
+            type="button"
+            @click="appendNoText"
+          >
             <Icon name="kind-icon:close" class="h-4 w-4" />
             No Text / Watermark
           </button>
 
-          <button class="btn rounded-xl" type="button" @click="clearPrompt">
+          <button
+            class="btn btn-ghost btn-sm rounded-xl border border-base-300"
+            type="button"
+            @click="clearPrompt"
+          >
             <Icon name="kind-icon:trash" class="h-4 w-4" />
             Clear Prompt
           </button>
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+          <div class="mt-1 rounded-xl border border-base-300 bg-base-200 p-3">
+            <p
+              class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            >
               Context Hint
             </p>
-
-            <p class="mt-2 text-sm text-base-content/70">
+            <p class="mt-2 text-sm text-base-content/65 leading-relaxed">
               {{ contextHint }}
             </p>
           </div>
         </aside>
       </section>
 
+      <!-- Upload mode -->
       <section v-else-if="mode === 'upload'" class="flex flex-col gap-3">
-        <h4 class="flex items-center gap-2 font-bold text-base-content">
-          <Icon name="kind-icon:save" class="h-5 w-5 text-primary" />
-          Upload {{ contextLabel }} Art
-        </h4>
-
-        <p class="text-sm text-base-content/60">
-          Upload an image into the ArtImage flow and connect it to this builder context.
-        </p>
-
+        <div class="flex items-center gap-2">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary"
+          >
+            <Icon name="kind-icon:save" class="h-4 w-4" />
+          </span>
+          <div>
+            <h4 class="text-sm font-black text-base-content">
+              Upload {{ contextLabel }} Art
+            </h4>
+            <p class="text-xs text-base-content/55">
+              Upload an image and connect it to this builder context.
+            </p>
+          </div>
+        </div>
         <image-upload />
       </section>
 
+      <!-- Gallery mode -->
       <section v-else-if="mode === 'gallery'" class="flex flex-col gap-3">
-        <h4 class="flex items-center gap-2 font-bold text-base-content">
-          <Icon name="kind-icon:gallery" class="h-5 w-5 text-primary" />
-          Select Existing Art
-        </h4>
-
-        <p class="text-sm text-base-content/60">
-          Pick an existing uploaded or generated image for this {{ contextLabel.toLowerCase() }}.
-        </p>
-
+        <div class="flex items-center gap-2">
+          <span
+            class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/15 text-secondary"
+          >
+            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+          </span>
+          <div>
+            <h4 class="text-sm font-black text-base-content">
+              Select Existing Art
+            </h4>
+            <p class="text-xs text-base-content/55">
+              Pick an existing image for this {{ contextLabel.toLowerCase() }}.
+            </p>
+          </div>
+        </div>
         <art-gallery />
       </section>
 
-      <section v-else-if="mode === 'generate'" class="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_20rem]">
+      <!-- Generate mode -->
+      <section
+        v-else-if="mode === 'generate'"
+        class="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_20rem]"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h4 class="flex items-center gap-2 font-bold text-base-content">
-            <Icon name="kind-icon:wand" class="h-5 w-5 text-primary" />
-            Generate {{ contextLabel }} Art
-          </h4>
-
-          <p class="mt-1 text-sm text-base-content/60">
-            Sync the prompt and options into the art store, then use the existing generator.
-          </p>
-
-          <div class="mt-4">
-            <art-generator />
+          <div class="mb-3 flex items-center gap-2">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 text-accent"
+            >
+              <Icon name="kind-icon:wand" class="h-4 w-4" />
+            </span>
+            <div>
+              <h4 class="text-sm font-black text-base-content">
+                Generate {{ contextLabel }} Art
+              </h4>
+              <p class="text-xs text-base-content/55">
+                Sync prompt to art store, then use the generator.
+              </p>
+            </div>
           </div>
+          <art-generator />
         </div>
 
-        <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
-          <h4 class="font-bold text-base-content">
+        <aside
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+        >
+          <h4
+            class="flex items-center gap-2 text-sm font-black text-base-content"
+          >
+            <Icon name="kind-icon:settings" class="h-4 w-4 text-primary" />
             Generator Options
           </h4>
 
           <div class="grid grid-cols-2 gap-2">
             <label class="form-control">
-              <span class="label-text font-bold">Width</span>
-
-              <select v-model.number="width" class="select select-bordered rounded-2xl">
+              <span class="label-text text-xs font-bold">Width</span>
+              <select
+                v-model.number="width"
+                class="select select-bordered select-sm rounded-xl"
+              >
                 <option :value="512">512</option>
                 <option :value="768">768</option>
                 <option :value="1024">1024</option>
@@ -177,11 +213,12 @@
                 <option :value="1344">1344</option>
               </select>
             </label>
-
             <label class="form-control">
-              <span class="label-text font-bold">Height</span>
-
-              <select v-model.number="height" class="select select-bordered rounded-2xl">
+              <span class="label-text text-xs font-bold">Height</span>
+              <select
+                v-model.number="height"
+                class="select select-bordered select-sm rounded-xl"
+              >
                 <option :value="512">512</option>
                 <option :value="768">768</option>
                 <option :value="1024">1024</option>
@@ -189,25 +226,21 @@
                 <option :value="1344">1344</option>
               </select>
             </label>
-
             <label class="form-control">
-              <span class="label-text font-bold">Steps</span>
-
+              <span class="label-text text-xs font-bold">Steps</span>
               <input
                 v-model.number="steps"
-                class="input input-bordered rounded-2xl"
+                class="input input-bordered input-sm rounded-xl"
                 type="number"
                 min="1"
                 max="80"
               />
             </label>
-
             <label class="form-control">
-              <span class="label-text font-bold">CFG</span>
-
+              <span class="label-text text-xs font-bold">CFG</span>
               <input
                 v-model.number="cfg"
-                class="input input-bordered rounded-2xl"
+                class="input input-bordered input-sm rounded-xl"
                 type="number"
                 min="1"
                 max="20"
@@ -217,76 +250,89 @@
           </div>
 
           <label class="form-control">
-            <span class="label-text font-bold">Seed</span>
-
+            <span class="label-text text-xs font-bold">Seed</span>
             <input
               v-model.number="seed"
-              class="input input-bordered rounded-2xl"
+              class="input input-bordered input-sm rounded-xl"
               type="number"
             />
           </label>
 
-          <div class="grid grid-cols-3 gap-2">
-            <button class="btn btn-sm rounded-xl" type="button" @click="useSquare">
+          <!-- Aspect ratio quick buttons -->
+          <div class="grid grid-cols-3 gap-1.5">
+            <button
+              class="btn btn-xs rounded-lg"
+              type="button"
+              @click="useSquare"
+            >
               Square
             </button>
-
-            <button class="btn btn-sm rounded-xl" type="button" @click="useLandscape">
+            <button
+              class="btn btn-xs rounded-lg"
+              type="button"
+              @click="useLandscape"
+            >
               Wide
             </button>
-
-            <button class="btn btn-sm rounded-xl" type="button" @click="usePortrait">
+            <button
+              class="btn btn-xs rounded-lg"
+              type="button"
+              @click="usePortrait"
+            >
               Tall
             </button>
           </div>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="syncToArtStore">
+          <button
+            class="btn btn-primary btn-sm rounded-xl"
+            type="button"
+            @click="syncToArtStore"
+          >
             <Icon name="kind-icon:sliders" class="h-4 w-4" />
             Apply to Art Store
           </button>
 
-          <p
+          <div
             v-if="syncMessage"
-            class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm text-info"
+            class="flex items-center gap-2 rounded-xl border border-info/30 bg-info/10 p-2.5 text-xs font-semibold text-info"
           >
+            <Icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
             {{ syncMessage }}
-          </p>
+          </div>
         </aside>
       </section>
     </main>
 
-    <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
-      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <!-- ── Summary strip ──────────────────────────────────────────────── -->
+    <section class="rounded-xl border border-base-300 bg-base-200/40 p-3">
+      <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
         <article
           v-for="item in summaryItems"
           :key="item.key"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-2.5"
         >
-          <div class="flex items-start gap-3">
-            <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
-              <img
-                v-if="item.image"
-                :src="item.image"
-                :alt="item.label"
-                class="h-full w-full object-cover"
-              />
-
-              <Icon
-                v-else
-                :name="item.icon"
-                class="h-6 w-6 text-primary"
-              />
-            </div>
-
-            <div class="min-w-0">
-              <p class="font-bold text-base-content">
-                {{ item.label }}
-              </p>
-
-              <p class="mt-1 line-clamp-3 text-sm text-base-content/70">
-                {{ item.value || 'Not selected yet' }}
-              </p>
-            </div>
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+          >
+            <img
+              v-if="item.image"
+              :src="item.image"
+              :alt="item.label"
+              class="h-full w-full object-cover"
+            />
+            <Icon v-else :name="item.icon" class="h-5 w-5 text-primary" />
+          </div>
+          <div class="min-w-0">
+            <p
+              class="text-[0.58rem] font-black uppercase tracking-widest text-base-content/40"
+            >
+              {{ item.label }}
+            </p>
+            <p
+              class="mt-0.5 line-clamp-2 text-xs font-semibold text-base-content/80"
+            >
+              {{ item.value || 'Not selected yet' }}
+            </p>
           </div>
         </article>
       </div>
@@ -306,7 +352,6 @@ type ArtCreatorPurpose =
   | 'character'
   | 'reward'
   | 'scenario'
-
 type ArtCreatorMode = 'prompt' | 'upload' | 'gallery' | 'generate'
 
 type ArtStoreLike = {
@@ -381,6 +426,29 @@ const cfg = ref(3.5)
 const seed = ref(-1)
 const syncMessage = ref('')
 
+const modeTabs = [
+  {
+    value: 'prompt' as ArtCreatorMode,
+    label: 'Prompt',
+    icon: 'kind-icon:prompt',
+  },
+  {
+    value: 'upload' as ArtCreatorMode,
+    label: 'Upload',
+    icon: 'kind-icon:save',
+  },
+  {
+    value: 'gallery' as ArtCreatorMode,
+    label: 'Gallery',
+    icon: 'kind-icon:gallery',
+  },
+  {
+    value: 'generate' as ArtCreatorMode,
+    label: 'Generate',
+    icon: 'kind-icon:wand',
+  },
+]
+
 const contextMap: Record<
   ArtCreatorPurpose,
   {
@@ -400,8 +468,7 @@ const contextMap: Record<
     description:
       'Create or select avatar art for the user identity and designer profile.',
     role: 'avatar',
-    hint:
-      'Focus on identity, expression, profile readability, and a strong silhouette.',
+    hint: 'Focus on identity, expression, profile readability, and a strong silhouette.',
     placeholder:
       'A friendly robot designer avatar with expressive eyes, butterfly accents, cozy sci-fi lighting...',
   },
@@ -412,10 +479,8 @@ const contextMap: Record<
     description:
       'Create a cover or inspiration image for the big-picture pitch.',
     role: 'cover',
-    hint:
-      'Sell the premise at a glance. Prioritize bold composition and clear genre signal.',
-    placeholder:
-      'A cinematic cover image for a surreal fantasy world where...',
+    hint: 'Sell the premise at a glance. Prioritize bold composition and clear genre signal.',
+    placeholder: 'A cinematic cover image for a surreal fantasy world where...',
   },
   dream: {
     label: 'Dream',
@@ -424,8 +489,7 @@ const contextMap: Record<
     description:
       'Create setting, vibe, location, or cover art for the evolved dream world.',
     role: 'world',
-    hint:
-      'Prioritize setting, atmosphere, visual rules, and story-rich environmental details.',
+    hint: 'Prioritize setting, atmosphere, visual rules, and story-rich environmental details.',
     placeholder:
       'A dreamlike location with strange architecture, atmospheric lighting, and story hooks...',
   },
@@ -436,20 +500,16 @@ const contextMap: Record<
     description:
       'Create portrait, full-body, or scene art for a playable or chattable character.',
     role: 'portrait',
-    hint:
-      'Prioritize personality, pose, clothing, expression, silhouette, and role in the world.',
-    placeholder:
-      'A character portrait of a charming disaster wizard with...',
+    hint: 'Prioritize personality, pose, clothing, expression, silhouette, and role in the world.',
+    placeholder: 'A character portrait of a charming disaster wizard with...',
   },
   reward: {
     label: 'Reward',
     icon: 'kind-icon:gift',
     title: 'Create Reward Art',
-    description:
-      'Create item, relic, skill, power, curse, or story-key art.',
+    description: 'Create item, relic, skill, power, curse, or story-key art.',
     role: 'object',
-    hint:
-      'Focus on the object or power itself, its texture, symbolism, and story function.',
+    hint: 'Focus on the object or power itself, its texture, symbolism, and story function.',
     placeholder:
       'A magical artifact shaped like..., glowing with..., presented as...',
   },
@@ -460,8 +520,7 @@ const contextMap: Record<
     description:
       'Create a scene image for a branching adventure choice or narrative moment.',
     role: 'scene',
-    hint:
-      'Frame a moment with tension, choice, environment, character stakes, and consequence.',
+    hint: 'Frame a moment with tension, choice, environment, character stakes, and consequence.',
     placeholder:
       'A dramatic story scene where characters must choose between...',
   },
@@ -471,13 +530,15 @@ const context = computed(() => contextMap[props.purpose])
 const contextLabel = computed(() => context.value.label)
 const contextIcon = computed(() => context.value.icon)
 const title = computed(() => props.title || context.value.title)
-const description = computed(() => props.description || context.value.description)
+const description = computed(
+  () => props.description || context.value.description,
+)
 const contextHint = computed(() => context.value.hint)
 const promptPlaceholder = computed(() => context.value.placeholder)
 const resolvedImageRole = computed(() => props.imageRole || context.value.role)
 
-const previewImage = computed(() => {
-  return (
+const previewImage = computed(
+  () =>
     artStore.selectedArtImage?.imagePath ||
     artStore.selectedArtImage?.imageData ||
     artStore.selectedArtImage?.path ||
@@ -486,9 +547,8 @@ const previewImage = computed(() => {
     artStore.selectedImage?.path ||
     artStore.selectedArt?.imagePath ||
     artStore.selectedArt?.path ||
-    null
-  )
-})
+    null,
+)
 
 const summaryItems = computed(() => [
   {
@@ -502,13 +562,7 @@ const summaryItems = computed(() => [
     label: 'Mode',
     value: mode.value,
     icon:
-      mode.value === 'upload'
-        ? 'kind-icon:save'
-        : mode.value === 'gallery'
-          ? 'kind-icon:gallery'
-          : mode.value === 'generate'
-            ? 'kind-icon:wand'
-            : 'kind-icon:prompt',
+      modeTabs.find((t) => t.value === mode.value)?.icon ?? 'kind-icon:prompt',
   },
   {
     key: 'prompt',
@@ -530,17 +584,14 @@ function buildContextPrompt() {
   const base = modelTitle
     ? `Create original ${resolvedImageRole.value} art for "${modelTitle}".`
     : `Create original ${resolvedImageRole.value} art for a Kind Robots ${contextLabel.value.toLowerCase()}.`
-
   const addition = [
     base,
     contextHint.value,
     'Strong composition, expressive atmosphere, no text, no watermark.',
   ].join(' ')
-
   localPrompt.value = localPrompt.value.trim()
     ? `${localPrompt.value.trim()}\n\n${addition}`
     : addition
-
   emitUpdate()
 }
 
@@ -550,13 +601,9 @@ function appendNoText() {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean)
-
   for (const addition of additions) {
-    if (!existing.includes(addition)) {
-      existing.push(addition)
-    }
+    if (!existing.includes(addition)) existing.push(addition)
   }
-
   localNegativePrompt.value = existing.join(', ')
   emitUpdate()
 }
@@ -565,17 +612,14 @@ function clearPrompt() {
   localPrompt.value = ''
   emitUpdate()
 }
-
 function useSquare() {
   width.value = 1024
   height.value = 1024
 }
-
 function useLandscape() {
   width.value = 1344
   height.value = 768
 }
-
 function usePortrait() {
   width.value = 768
   height.value = 1344
@@ -595,7 +639,6 @@ function syncToArtStore() {
     cfg: cfg.value,
     seed: seed.value,
   }
-
   try {
     if (typeof artStore.updateArtForm === 'function') {
       artStore.updateArtForm(patch)
@@ -603,30 +646,25 @@ function syncToArtStore() {
       emitUpdate()
       return
     }
-
     if (typeof artStore.setArtForm === 'function') {
       artStore.setArtForm(patch)
       syncMessage.value = 'Art store form updated.'
       emitUpdate()
       return
     }
-
     if (artStore.artForm && typeof artStore.artForm === 'object') {
       Object.assign(artStore.artForm, patch)
       syncMessage.value = 'Art form patched directly.'
       emitUpdate()
       return
     }
-
     if (artStore.form && typeof artStore.form === 'object') {
       Object.assign(artStore.form, patch)
       syncMessage.value = 'Art store form patched directly.'
       emitUpdate()
       return
     }
-
-    syncMessage.value =
-      'No writable art form method found. Generator can still use its own store state.'
+    syncMessage.value = 'No writable art form method found.'
     emitUpdate()
   } catch (error) {
     handleError(error, 'syncing art-creator to artStore')
@@ -652,14 +690,12 @@ watch(
     localPrompt.value = value
   },
 )
-
 watch(
   () => props.negativePrompt,
   (value) => {
     localNegativePrompt.value = value
   },
 )
-
 watch([localPrompt, localNegativePrompt, previewImage], () => {
   emitUpdate()
 })

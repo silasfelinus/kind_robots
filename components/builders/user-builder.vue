@@ -15,13 +15,16 @@
     >
       <section v-if="currentSection === 'account'" class="flex flex-col gap-4">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:login" class="h-6 w-6 text-primary" />
             Login or Register
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Start by entering your account. Builder progress needs a real user if it is going to remember all these tiny universe crimes.
+            Start by entering your account. Builder progress needs a real user
+            if it is going to remember all these tiny universe crimes.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -37,9 +40,7 @@
             >
               <Icon name="kind-icon:login" class="h-7 w-7" />
 
-              <p class="mt-2 text-lg font-bold">
-                Login
-              </p>
+              <p class="mt-2 text-lg font-bold">Login</p>
 
               <p class="mt-1 text-sm opacity-70">
                 Return to your existing Kind Robots account.
@@ -58,9 +59,7 @@
             >
               <Icon name="kind-icon:plus" class="h-7 w-7" />
 
-              <p class="mt-2 text-lg font-bold">
-                Register
-              </p>
+              <p class="mt-2 text-lg font-bold">Register</p>
 
               <p class="mt-1 text-sm opacity-70">
                 Create a new builder identity.
@@ -75,21 +74,31 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'designer'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'designer'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:signature" class="h-6 w-6 text-primary" />
             Designer Name
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Your username is your account identity. Your designer name is your creative byline.
+            Your username is your account identity. Your designer name is your
+            creative byline.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -105,9 +114,7 @@
             >
               <Icon name="kind-icon:person" class="h-7 w-7" />
 
-              <p class="mt-2 text-lg font-bold">
-                Use Username
-              </p>
+              <p class="mt-2 text-lg font-bold">Use Username</p>
 
               <p class="mt-1 text-sm opacity-70">
                 Keep your account name and creator name the same.
@@ -126,9 +133,7 @@
             >
               <Icon name="kind-icon:sparkles" class="h-7 w-7" />
 
-              <p class="mt-2 text-lg font-bold">
-                Custom Designer Name
-              </p>
+              <p class="mt-2 text-lg font-bold">Custom Designer Name</p>
 
               <p class="mt-1 text-sm opacity-70">
                 Make a separate public-facing creator identity.
@@ -172,13 +177,20 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'avatar'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'avatar'"
+        class="flex flex-col gap-4"
+      >
         <art-creator
           purpose="user"
           :model-id="userStore.userId"
@@ -189,14 +201,20 @@
         />
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-lg font-bold text-base-content"
+          >
             <Icon name="kind-icon:portrait" class="h-5 w-5 text-primary" />
             Avatar Preview
           </h3>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[12rem_1fr]">
-            <div class="flex justify-center rounded-2xl border border-base-300 bg-base-100 p-4">
-              <div class="flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-primary/40 bg-base-300">
+            <div
+              class="flex justify-center rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
+              <div
+                class="flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-primary/40 bg-base-300"
+              >
                 <img
                   v-if="avatarImagePath"
                   :src="avatarImagePath"
@@ -213,7 +231,9 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <p class="text-sm font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <p
+                class="text-sm font-bold uppercase tracking-[0.18em] text-base-content/50"
+              >
                 Avatar Prompt
               </p>
 
@@ -221,7 +241,9 @@
                 {{ avatarPrompt || 'No avatar prompt yet.' }}
               </p>
 
-              <p class="mt-4 text-sm font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <p
+                class="mt-4 text-sm font-bold uppercase tracking-[0.18em] text-base-content/50"
+              >
                 Avatar Image
               </p>
 
@@ -237,21 +259,31 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'theme'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'theme'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:palette" class="h-6 w-6 text-primary" />
             Theme
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Pick the visual atmosphere for your workspace. This uses the existing theme gallery.
+            Pick the visual atmosphere for your workspace. This uses the
+            existing theme gallery.
           </p>
 
           <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
@@ -264,28 +296,36 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'settings'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'settings'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:sliders" class="h-6 w-6 text-primary" />
             Privacy and Maturity
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Choose builder defaults. Individual records can still override these later.
+            Choose builder defaults. Individual records can still override these
+            later.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Privacy Default
-              </h4>
+              <h4 class="font-bold text-base-content">Privacy Default</h4>
 
               <p class="mt-1 text-sm text-base-content/60">
                 Decide whether new creations should start public or private.
@@ -323,9 +363,7 @@
             </div>
 
             <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Mature Content
-              </h4>
+              <h4 class="font-bold text-base-content">Mature Content</h4>
 
               <p class="mt-1 text-sm text-base-content/60">
                 Decide whether mature content can be shown while building.
@@ -364,9 +402,7 @@
           </div>
 
           <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
-            <h4 class="font-bold text-base-content">
-              Account Panel
-            </h4>
+            <h4 class="font-bold text-base-content">Account Panel</h4>
 
             <p class="mt-1 text-sm text-base-content/60">
               Existing user controls stay available here too.
@@ -383,22 +419,38 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Summary
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'summary'" class="flex flex-col gap-4">
-        <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
-            <Icon name="kind-icon:blueprint" class="h-6 w-6" />
-            User Builder Summary
-          </h3>
+      <section
+        v-else-if="currentSection === 'summary'"
+        class="flex flex-col gap-4"
+      >
+        <div
+          class="rounded-2xl border border-primary/30 bg-primary/10 p-4 flex items-start gap-3"
+        >
+          <span
+            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary"
+          >
+            <Icon name="kind-icon:blueprint" class="h-5 w-5" />
+          </span>
+          <div class="min-w-0">
+            <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
+              <Icon name="kind-icon:blueprint" class="h-6 w-6" />
+              User Builder Summary
+            </h3>
 
-          <p class="mt-1 text-sm text-base-content/70">
-            Review your setup before moving into pitches.
-          </p>
+            <p class="mt-1 text-sm text-base-content/70">
+              Review your setup before moving into pitches.
+            </p>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -408,7 +460,9 @@
             class="rounded-2xl border border-base-300 bg-base-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+              <div
+                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+              >
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -457,7 +511,11 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="setSection('account')">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="setSection('account')"
+          >
             Start Over
           </button>
         </div>
@@ -467,6 +525,7 @@
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
+        <Icon name="kind-icon:alert" class="h-4 w-4 shrink-0" />
         Unknown user builder section: {{ currentSection }}
       </div>
     </template>
@@ -514,21 +573,24 @@ const sections: BuilderSectionConfig[] = [
     label: 'Account',
     icon: 'kind-icon:login',
     title: 'Login or Register',
-    summary: 'Access your account or create a new one so builder work can be saved.',
+    summary:
+      'Access your account or create a new one so builder work can be saved.',
   },
   {
     key: 'designer',
     label: 'Designer',
     icon: 'kind-icon:signature',
     title: 'Designer Name',
-    summary: 'Choose whether your creative byline matches your username or becomes its own persona.',
+    summary:
+      'Choose whether your creative byline matches your username or becomes its own persona.',
   },
   {
     key: 'avatar',
     label: 'Avatar',
     icon: 'kind-icon:portrait',
     title: 'Avatar Art',
-    summary: 'Create, upload, generate, or select avatar art for the user profile.',
+    summary:
+      'Create, upload, generate, or select avatar art for the user profile.',
   },
   {
     key: 'theme',
@@ -542,14 +604,16 @@ const sections: BuilderSectionConfig[] = [
     label: 'Settings',
     icon: 'kind-icon:sliders',
     title: 'Privacy and Maturity',
-    summary: 'Set default privacy and mature-content behavior for new creations.',
+    summary:
+      'Set default privacy and mature-content behavior for new creations.',
   },
   {
     key: 'summary',
     label: 'Summary',
     icon: 'kind-icon:blueprint',
     title: 'User Setup Summary',
-    summary: 'Review account, designer identity, avatar, theme, privacy, and maturity choices.',
+    summary:
+      'Review account, designer identity, avatar, theme, privacy, and maturity choices.',
   },
 ]
 
@@ -606,9 +670,7 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
         ? 'Private by default'
         : 'Public by default',
     icon:
-      defaultPrivacy.value === 'private'
-        ? 'kind-icon:lock'
-        : 'kind-icon:globe',
+      defaultPrivacy.value === 'private' ? 'kind-icon:lock' : 'kind-icon:globe',
     description: 'Default visibility for new creations.',
     editSection: 'settings',
   },

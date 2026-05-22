@@ -1,7 +1,7 @@
 <!-- /components/builders/character-builder.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-200 p-3"
   >
     <header
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 lg:flex-row lg:items-start lg:justify-between"
@@ -441,7 +441,9 @@
       </aside>
     </div>
 
-    <footer class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-2">
+    <footer
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-sm"
+    >
       <div class="flex gap-2 overflow-x-auto pb-1">
         <button
           v-for="card in visibleDeck"

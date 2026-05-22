@@ -128,6 +128,19 @@ export const useNavStore = defineStore('navStore', () => {
     return Array.from(set).sort()
   })
 
+  if (isClient) {
+    hydrateFromLocalStorage()
+
+    watch(
+      () => dashboardTabs.value.art,
+      (next, previous) => {
+        console.info(
+          `[navStore] art dashboard tab changed from "${previous}" to "${next}".`,
+        )
+      },
+    )
+  }
+
   const favoritesIcons = computed(() => {
     const favoriteSet = new Set(favorites.value)
 
@@ -179,6 +192,13 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
+    if (reason === 'unknown') {
+      console.warn(
+        `[navStore] blocked dashboard tab save with unknown reason. Art tab would have been "${dashboardTabs.value.art}".`,
+      )
+      return
+    }
+
     const payload = JSON.stringify(dashboardTabs.value)
 
     console.info(
@@ -195,8 +215,11 @@ export const useNavStore = defineStore('navStore', () => {
   function syncToLocalStorage(): void {
     syncIconsToLocalStorage()
     syncFavoritesToLocalStorage()
-    syncDashboardTabsToLocalStorage()
     syncWonderLabFolderToLocalStorage()
+  }
+
+  function syncDashboardTabs(reason = 'manual dashboard tab sync'): void {
+    syncDashboardTabsToLocalStorage(reason)
   }
 
   function hydrateIconsFromLocalStorage(): void {
@@ -525,6 +548,8 @@ export const useNavStore = defineStore('navStore', () => {
     canGoForward,
     backPath,
     forwardPath,
+
+    syncDashboardTabs,
 
     initialize,
     resetInitialization,

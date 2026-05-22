@@ -178,14 +178,12 @@ export const useNavStore = defineStore('navStore', () => {
     safeSetLocalStorage(navFavoritesStorageKey, JSON.stringify(favorites.value))
   }
 
-  function syncDashboardTabsToLocalStorage(): void {
+  function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
     const payload = JSON.stringify(dashboardTabs.value)
 
-    console.info('[navStore] saving dashboard tabs', {
-      key: dashboardTabsStorageKey,
-      dashboardTabs: dashboardTabs.value,
-      payload,
-    })
+    console.info(
+      `[navStore] saving dashboard tabs because: ${reason}. Art tab is now "${dashboardTabs.value.art}".`,
+    )
 
     safeSetLocalStorage(dashboardTabsStorageKey, payload)
   }
@@ -222,14 +220,11 @@ export const useNavStore = defineStore('navStore', () => {
     const parsed = safeParseRecord(raw)
     const normalized = normalizeDashboardTabs(parsed)
 
-    console.info('[navStore] hydrating dashboard tabs', {
-      key: dashboardTabsStorageKey,
-      raw,
-      parsed,
-      normalized,
-    })
-
     dashboardTabs.value = normalized
+
+    console.info(
+      `[navStore] hydrated dashboard tabs from localStorage. Saved art tab is "${dashboardTabs.value.art}".`,
+    )
   }
 
   function hydrateWonderLabFolderFromLocalStorage(): void {
@@ -401,12 +396,24 @@ export const useNavStore = defineStore('navStore', () => {
     return config.defaultTab
   }
 
-  function setDashboardTab(dashboardKey: DashboardKey, tabKey: string): string {
+  function setDashboardTab(
+    dashboardKey: DashboardKey,
+    tabKey: string,
+    reason = 'unknown',
+  ): string {
     const nextTab = isDashboardTabKey(dashboardKey, tabKey)
       ? tabKey
       : dashboardConfigs[dashboardKey].defaultTab
 
+    console.info(
+      `[navStore] we just set a new tab for ${dashboardKey}. Incoming tab was "${tabKey}". New saved tab is "${nextTab}". Reason: ${reason}.`,
+    )
+
     if (dashboardTabs.value[dashboardKey] === nextTab) {
+      console.info(
+        `[navStore] no save needed for ${dashboardKey}. It was already "${nextTab}".`,
+      )
+
       return nextTab
     }
 
@@ -415,7 +422,9 @@ export const useNavStore = defineStore('navStore', () => {
       [dashboardKey]: nextTab,
     }
 
-    syncDashboardTabsToLocalStorage()
+    syncDashboardTabsToLocalStorage(
+      `setDashboardTab(${dashboardKey}, ${nextTab}) from ${reason}`,
+    )
 
     return nextTab
   }

@@ -480,7 +480,11 @@ function setTab(tabKey: string) {
   const dashboardKey = resolvedDashboardKey.value
 
   if (dashboardKey) {
-    const savedTab = navStore.setDashboardTab(dashboardKey, tabKey)
+    const savedTab = navStore.setDashboardTab(
+      dashboardKey,
+      tabKey,
+      'user clicked dashboard-shell tab button',
+    )
     emit('set-tab', savedTab)
     return
   }
@@ -547,6 +551,13 @@ watch(
 onMounted(async () => {
   await ensureNavStoreReady()
   await hydrateDashboardTab()
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    console.info(
+      `[dashboard-shell] we have just loaded ${dashboardKey} dashboard. The saved tab is "${navStore.getDashboardTab(dashboardKey)}".`,
+    )
+  }
   loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
 })

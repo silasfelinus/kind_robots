@@ -3,9 +3,8 @@
   <section
     class="flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
-    <!-- ── Main header ───────────────────────────────────────────────────── -->
     <header
-      class="relative z-20 flex flex-col gap-3 border-b border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur sm:p-4 xl:flex-row xl:items-center xl:justify-between"
+      class="relative z-[80] flex flex-col gap-3 border-b border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur sm:p-4 xl:flex-row xl:items-center xl:justify-between"
     >
       <div class="min-w-0 space-y-1">
         <h1
@@ -47,41 +46,11 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Mobile tray toggles -->
-        <button
-          class="btn btn-sm rounded-2xl lg:hidden"
-          :class="
-            codeStore.mobileTrayMode === 'toybox'
-              ? 'btn-primary'
-              : 'btn-outline'
-          "
-          type="button"
-          @click="toggleMobileTray('toybox')"
-        >
-          <icon name="kind-icon:toybox" class="h-4 w-4" />
-          Toybox
-        </button>
-
-        <button
-          class="btn btn-sm rounded-2xl lg:hidden"
-          :class="
-            codeStore.mobileTrayMode === 'library'
-              ? 'btn-primary'
-              : 'btn-outline'
-          "
-          type="button"
-          @click="toggleMobileTray('library')"
-        >
-          <icon name="kind-icon:library" class="h-4 w-4" />
-          Library
-        </button>
-
-        <!-- Desktop panel buttons -->
         <button
           class="btn btn-sm rounded-2xl"
-          :class="codeStore.showToybox ? 'btn-primary' : 'btn-outline'"
+          :class="floatingPanel === 'toybox' ? 'btn-primary' : 'btn-outline'"
           type="button"
-          @click="codeStore.toggleToybox()"
+          @click="toggleFloatingPanel('toybox')"
         >
           <icon name="kind-icon:toybox" class="h-4 w-4" />
           <span class="hidden sm:inline">Toybox</span>
@@ -89,11 +58,9 @@
 
         <button
           class="btn btn-sm rounded-2xl"
-          :class="
-            codeStore.panelMode === 'library' ? 'btn-primary' : 'btn-outline'
-          "
+          :class="floatingPanel === 'library' ? 'btn-primary' : 'btn-outline'"
           type="button"
-          @click="togglePanel('library')"
+          @click="toggleFloatingPanel('library')"
         >
           <icon name="kind-icon:library" class="h-4 w-4" />
           <span class="hidden sm:inline">Library</span>
@@ -102,9 +69,19 @@
         <button
           class="btn btn-sm rounded-2xl"
           :class="
-            codeStore.panelMode === 'node-settings'
-              ? 'btn-secondary'
-              : 'btn-outline'
+            floatingPanel === 'templates' ? 'btn-primary' : 'btn-outline'
+          "
+          type="button"
+          @click="toggleFloatingPanel('templates')"
+        >
+          <icon name="kind-icon:sparkles" class="h-4 w-4" />
+          <span class="hidden sm:inline">Templates</span>
+        </button>
+
+        <button
+          class="btn btn-sm rounded-2xl"
+          :class="
+            floatingPanel === 'settings' ? 'btn-secondary' : 'btn-outline'
           "
           :disabled="!codeStore.selectedNode"
           type="button"
@@ -114,51 +91,6 @@
           <span class="hidden sm:inline">Settings</span>
         </button>
 
-        <!-- Templates dropdown – elevated z-index so it clears the canvas -->
-        <div class="relative z-100">
-          <div class="dropdown dropdown-end dropdown-bottom">
-            <button
-              tabindex="0"
-              class="btn btn-sm rounded-2xl border-base-300 bg-base-200"
-              type="button"
-            >
-              <icon name="kind-icon:sparkles" class="h-4 w-4" />
-              Templates
-            </button>
-
-            <div
-              tabindex="0"
-              class="dropdown-content mt-2 w-80 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
-              style="z-index: 9999"
-            >
-              <button
-                v-for="template in codeStore.templates"
-                :key="template.id"
-                class="flex w-full items-center gap-3 rounded-2xl p-3 text-left transition hover:bg-base-200"
-                type="button"
-                @click="codeStore.loadTemplate(template.id)"
-              >
-                <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
-                >
-                  <icon :name="template.icon" class="h-5 w-5" />
-                </span>
-
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate text-sm font-black">
-                    {{ template.title }}
-                  </span>
-
-                  <span class="line-clamp-2 text-xs text-base-content/60">
-                    {{ template.description }}
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Zoom controls -->
         <div
           class="hidden items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200 sm:flex"
         >
@@ -210,119 +142,256 @@
       </div>
     </header>
 
-    <!-- ── Kind Models tab strip ─────────────────────────────────────────── -->
-    <div
-      v-if="kindModelDefs.length"
-      class="relative z-10 flex items-center gap-0.5 overflow-x-auto border-b border-base-300 bg-base-100/90 px-3 py-1.5 shadow-sm"
-    >
-      <span
-        class="mr-2 shrink-0 text-[9px] font-black uppercase tracking-widest text-base-content/30"
-      >
-        Models
-      </span>
-
-      <button
-        v-for="def in kindModelDefs"
-        :key="def.kind"
-        class="group relative flex h-7 w-7 shrink-0 items-center justify-center rounded-xl shadow-sm transition-all hover:scale-110 hover:shadow-md"
-        :class="kindModelIconBg(def.kind)"
-        type="button"
-        @click="addKindModel(def.kind)"
-      >
-        <icon :name="def.icon" class="h-3.5 w-3.5" />
-
-        <!-- Hover tooltip -->
-        <span
-          class="pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded-xl bg-base-300 px-2 py-0.5 text-[10px] font-black text-base-content opacity-0 shadow-md transition-opacity group-hover:opacity-100"
-          style="z-index: 9999"
-        >
-          {{ def.title }}
-        </span>
-      </button>
-    </div>
-
-    <!-- ── Main layout grid ──────────────────────────────────────────────── -->
-    <div
-      class="relative grid min-h-0 flex-1 grid-cols-1 overflow-hidden"
-      :class="desktopGridClass"
-    >
-      <aside
-        v-if="codeStore.showToybox"
-        class="hidden min-h-0 overflow-y-auto border-r border-base-300 bg-base-100 lg:block"
-      >
-        <code-palette />
-      </aside>
-
-      <main class="relative min-h-0 overflow-hidden">
+    <div class="relative min-h-0 flex-1 overflow-hidden">
+      <main class="relative z-0 h-full min-h-0 overflow-hidden">
         <code-canvas />
       </main>
 
-      <aside
-        v-if="showDesktopPanel"
-        class="hidden min-h-0 w-90 overflow-y-auto border-l border-base-300 bg-base-100 xl:block"
-      >
-        <code-settings v-if="codeStore.panelMode === 'node-settings'" />
-        <code-library v-else-if="codeStore.panelMode === 'library'" />
-      </aside>
+      <button
+        v-if="floatingPanel !== 'closed'"
+        class="absolute inset-0 z-[50] cursor-default bg-base-300/10 backdrop-blur-[1px]"
+        type="button"
+        aria-label="Close floating panel"
+        @click="closeFloatingPanel"
+      />
 
-      <!-- Mobile tray -->
       <div
-        v-if="codeStore.mobileTrayMode !== 'closed'"
-        class="fixed inset-x-0 bottom-0 z-50 max-h-[78dvh] overflow-hidden rounded-t-2xl border border-base-300 bg-base-100 shadow-2xl lg:hidden"
+        v-if="kindModelDefs.length"
+        class="pointer-events-none absolute inset-x-3 top-3 z-[60] flex justify-center"
       >
         <div
-          class="flex items-center justify-between border-b border-base-300 p-3"
+          class="pointer-events-auto flex w-full max-w-6xl items-center gap-2 overflow-x-auto rounded-2xl border border-base-300 bg-base-100/90 p-2 shadow-2xl backdrop-blur"
         >
-          <div class="flex items-center gap-2">
-            <icon :name="mobileTrayIcon" class="h-5 w-5 text-primary" />
+          <span
+            class="hidden shrink-0 px-2 text-[10px] font-black uppercase tracking-widest text-base-content/40 sm:inline"
+          >
+            Models
+          </span>
 
-            <h2 class="font-black">
-              {{ mobileTrayTitle }}
-            </h2>
+          <button
+            v-for="def in kindModelDefs"
+            :key="def.kind"
+            class="group relative flex h-12 min-w-28 shrink-0 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black shadow-md transition-all hover:-translate-y-0.5 hover:scale-105 hover:shadow-xl sm:min-w-36"
+            :class="kindModelIconBg(def.kind)"
+            type="button"
+            @click="addKindModel(def.kind)"
+          >
+            <icon :name="def.icon" class="h-5 w-5 shrink-0" />
+
+            <span class="truncate">
+              {{ def.title }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <aside
+        v-if="floatingPanel === 'toybox'"
+        class="absolute bottom-3 left-3 top-20 z-[70] flex w-[calc(100%-1.5rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl lg:top-3 lg:w-80"
+      >
+        <div
+          class="flex items-center justify-between border-b border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex min-w-0 items-center gap-2">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+            >
+              <icon name="kind-icon:toybox" class="h-5 w-5" />
+            </span>
+
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-black">
+                Toybox
+              </h2>
+
+              <p class="truncate text-xs text-base-content/60">
+                Drag cards into the machine.
+              </p>
+            </div>
           </div>
 
           <button
             class="btn btn-ghost btn-sm btn-circle"
             type="button"
-            @click="codeStore.setMobileTray('closed')"
+            aria-label="Close toybox"
+            @click="closeFloatingPanel"
           >
             <icon name="kind-icon:x" class="h-4 w-4" />
           </button>
         </div>
 
-        <div class="max-h-[calc(78dvh-3.5rem)] overflow-y-auto">
-          <code-palette v-if="codeStore.mobileTrayMode === 'toybox'" />
-          <code-settings v-else-if="codeStore.mobileTrayMode === 'settings'" />
-          <code-library v-else-if="codeStore.mobileTrayMode === 'library'" />
+        <div class="min-h-0 flex-1 overflow-y-auto">
+          <code-palette />
         </div>
-      </div>
+      </aside>
+
+      <aside
+        v-if="floatingPanel === 'library'"
+        class="absolute bottom-3 right-3 top-20 z-[70] flex w-[calc(100%-1.5rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl lg:top-3 lg:w-96"
+      >
+        <div
+          class="flex items-center justify-between border-b border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex min-w-0 items-center gap-2">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary"
+            >
+              <icon name="kind-icon:library" class="h-5 w-5" />
+            </span>
+
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-black">
+                Library
+              </h2>
+
+              <p class="truncate text-xs text-base-content/60">
+                Saved graphs, snippets, and reusable nonsense.
+              </p>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-ghost btn-sm btn-circle"
+            type="button"
+            aria-label="Close library"
+            @click="closeFloatingPanel"
+          >
+            <icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <div class="min-h-0 flex-1 overflow-y-auto">
+          <code-library />
+        </div>
+      </aside>
+
+      <aside
+        v-if="floatingPanel === 'settings'"
+        class="absolute bottom-3 right-3 top-20 z-[70] flex w-[calc(100%-1.5rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl lg:top-3 lg:w-96"
+      >
+        <div
+          class="flex items-center justify-between border-b border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex min-w-0 items-center gap-2">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-accent/10 text-accent"
+            >
+              <icon name="kind-icon:settings" class="h-5 w-5" />
+            </span>
+
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-black">
+                Settings
+              </h2>
+
+              <p class="truncate text-xs text-base-content/60">
+                Tune the selected card without summoning chaos.
+              </p>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-ghost btn-sm btn-circle"
+            type="button"
+            aria-label="Close settings"
+            @click="closeFloatingPanel"
+          >
+            <icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <div class="min-h-0 flex-1 overflow-y-auto">
+          <code-settings />
+        </div>
+      </aside>
+
+      <aside
+        v-if="floatingPanel === 'templates'"
+        class="absolute bottom-3 right-3 top-20 z-[90] flex w-[calc(100%-1.5rem)] max-w-lg flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl lg:top-3 lg:w-[30rem]"
+      >
+        <div
+          class="flex items-center justify-between border-b border-base-300 bg-base-100 p-3"
+        >
+          <div class="flex min-w-0 items-center gap-2">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-info/10 text-info"
+            >
+              <icon name="kind-icon:sparkles" class="h-5 w-5" />
+            </span>
+
+            <div class="min-w-0">
+              <h2 class="truncate text-base font-black">
+                Templates
+              </h2>
+
+              <p class="truncate text-xs text-base-content/60">
+                Premade machines for immediate tinkering.
+              </p>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-ghost btn-sm btn-circle"
+            type="button"
+            aria-label="Close templates"
+            @click="closeFloatingPanel"
+          >
+            <icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
+        </div>
+
+        <div class="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
+          <button
+            v-for="template in codeStore.templates"
+            :key="template.id"
+            class="flex w-full items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary hover:bg-base-100 hover:shadow-md"
+            type="button"
+            @click="loadTemplate(template.id)"
+          >
+            <span
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+            >
+              <icon :name="template.icon" class="h-6 w-6" />
+            </span>
+
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-sm font-black">
+                {{ template.title }}
+              </span>
+
+              <span class="line-clamp-3 text-xs text-base-content/60">
+                {{ template.description }}
+              </span>
+            </span>
+          </button>
+        </div>
+      </aside>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   useCodeStore,
   type CodeDefinition,
   type CodeKind,
-  type CodeMobileTrayMode,
-  type CodePanelMode,
 } from '@/stores/codeStore'
 
-const codeStore = useCodeStore()
+type FloatingPanelMode =
+  | 'closed'
+  | 'toybox'
+  | 'library'
+  | 'templates'
+  | 'settings'
 
-// ── Kind Models strip ──────────────────────────────────────────────────────
+const codeStore = useCodeStore()
+const floatingPanel = ref<FloatingPanelMode>('closed')
+
 const kindModelDefs = computed<CodeDefinition[]>(
   () => (codeStore.groupedDefinitions['Kind Models'] ?? []) as CodeDefinition[],
 )
 
-function addKindModel(kind: CodeKind) {
-  const offset = codeStore.nodes.length * 28
-  codeStore.addNode(kind, 120 + offset, 120 + offset)
-}
-
-// Use definition accent → DaisyUI token, same as palette and node
 const accentIconBgMap: Record<string, string> = {
   primary: 'bg-primary text-primary-content',
   secondary: 'bg-secondary text-secondary-content',
@@ -333,69 +402,36 @@ const accentIconBgMap: Record<string, string> = {
   error: 'bg-error text-error-content',
 }
 
+function addKindModel(kind: CodeKind) {
+  const offset = codeStore.nodes.length * 28
+  codeStore.addNode(kind, 120 + offset, 120 + offset)
+}
+
 function kindModelIconBg(kind: string) {
   const def = codeStore.definitions.find((d) => d.kind === kind)
   const accent = def?.accent ?? 'primary'
   return accentIconBgMap[accent] ?? 'bg-base-300 text-base-content'
 }
 
-// ── Layout ─────────────────────────────────────────────────────────────────
-const showDesktopPanel = computed(() => {
-  if (codeStore.panelMode === 'library') {
-    return true
-  }
-
-  return (
-    codeStore.panelMode === 'node-settings' && Boolean(codeStore.selectedNode)
-  )
-})
-
-const desktopGridClass = computed(() => {
-  if (codeStore.showToybox && showDesktopPanel.value) {
-    return 'lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)_360px]'
-  }
-
-  if (codeStore.showToybox) {
-    return 'lg:grid-cols-[300px_minmax(0,1fr)]'
-  }
-
-  if (showDesktopPanel.value) {
-    return 'xl:grid-cols-[minmax(0,1fr)_360px]'
-  }
-
-  return 'grid-cols-1'
-})
-
-// ── Mobile tray ────────────────────────────────────────────────────────────
-const mobileTrayTitle = computed(() => {
-  if (codeStore.mobileTrayMode === 'settings') return 'Settings'
-  if (codeStore.mobileTrayMode === 'library') return 'Library'
-  return 'Toybox'
-})
-
-const mobileTrayIcon = computed(() => {
-  if (codeStore.mobileTrayMode === 'settings') return 'kind-icon:settings'
-  if (codeStore.mobileTrayMode === 'library') return 'kind-icon:library'
-  return 'kind-icon:toybox'
-})
-
-function toggleMobileTray(mode: CodeMobileTrayMode) {
-  if (codeStore.mobileTrayMode === mode) {
-    codeStore.setMobileTray('closed')
+function toggleFloatingPanel(mode: FloatingPanelMode) {
+  if (floatingPanel.value === mode) {
+    closeFloatingPanel()
     return
   }
 
-  codeStore.setMobileTray(mode)
-}
+  floatingPanel.value = mode
 
-// ── Desktop panel ──────────────────────────────────────────────────────────
-function togglePanel(mode: CodePanelMode) {
-  if (codeStore.panelMode === mode) {
-    codeStore.closePanel()
+  if (mode === 'library') {
+    codeStore.openPanel('library')
     return
   }
 
-  codeStore.openPanel(mode)
+  if (mode === 'settings') {
+    codeStore.openSelectedNodeSettings()
+    return
+  }
+
+  codeStore.closePanel()
 }
 
 function toggleSettingsPanel() {
@@ -403,12 +439,17 @@ function toggleSettingsPanel() {
     return
   }
 
-  if (codeStore.panelMode === 'node-settings') {
-    codeStore.closePanel()
-    return
-  }
+  toggleFloatingPanel('settings')
+}
 
-  codeStore.openSelectedNodeSettings()
+function closeFloatingPanel() {
+  floatingPanel.value = 'closed'
+  codeStore.closePanel()
+}
+
+function loadTemplate(templateId: string) {
+  codeStore.loadTemplate(templateId)
+  closeFloatingPanel()
 }
 
 onMounted(() => {

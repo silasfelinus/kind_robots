@@ -1,7 +1,7 @@
 <!-- /components/code/code-controls.vue -->
 <template>
   <section
-    class="flex flex-wrap items-center gap-2 rounded-2xl border border-base-300 bg-base-100/95 p-2 shadow-lg backdrop-blur"
+    class="relative z-[20] flex flex-wrap items-center gap-2 rounded-2xl border border-base-300 bg-base-100/95 p-2 shadow-lg backdrop-blur"
   >
     <div
       class="flex items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200"
@@ -101,16 +101,16 @@
       <span class="hidden sm:inline">Validate</span>
     </button>
 
-    <!-- Cancel button shows while running, Run button shows otherwise -->
     <button
       v-if="isRunning"
       class="btn btn-xs btn-warning rounded-2xl"
       type="button"
-      title="Cancel run (abort all streams)"
+      title="Cancel run"
       @click="cancelGraph"
     >
       <icon name="kind-icon:stop" class="h-4 w-4" />
       <span class="hidden sm:inline">Cancel</span>
+
       <span
         v-if="activeCount > 0"
         class="badge badge-xs badge-warning border-warning-content/20 bg-warning-content/20 text-warning-content"
@@ -132,6 +132,7 @@
         class="h-4 w-4"
         :class="{ 'animate-spin': codeStore.runStatus === 'queued' }"
       />
+
       <span class="hidden sm:inline">
         {{ runLabel }}
       </span>
@@ -180,9 +181,7 @@ const statusTone = ref<'info' | 'success' | 'warning' | 'error'>('info')
 const lastValidationSuccess = ref<boolean | null>(null)
 
 const isRunning = computed(() => {
-  return (
-    codeStore.runStatus === 'running' || codeStore.runStatus === 'queued'
-  )
+  return codeStore.runStatus === 'running' || codeStore.runStatus === 'queued'
 })
 
 const activeCount = computed(() => {
@@ -250,19 +249,31 @@ const runIcon = computed(() => {
 })
 
 const runLabel = computed(() => {
-  if (codeStore.runStatus === 'queued') return 'Queued'
-  if (codeStore.runStatus === 'success') return 'Done'
-  if (codeStore.runStatus === 'error') return 'Failed'
-  if (codeStore.runStatus === 'cancelled') return 'Run Again'
+  if (codeStore.runStatus === 'queued') {
+    return 'Queued'
+  }
+
+  if (codeStore.runStatus === 'success') {
+    return 'Done'
+  }
+
+  if (codeStore.runStatus === 'error') {
+    return 'Failed'
+  }
+
+  if (codeStore.runStatus === 'cancelled') {
+    return 'Run Again'
+  }
+
   return 'Run'
 })
 
 const statusClass = computed(() => {
   const classes = {
-    info: 'border-info/30 bg-info/10 text-info-content',
-    success: 'border-success/30 bg-success/10 text-success-content',
-    warning: 'border-warning/30 bg-warning/10 text-warning-content',
-    error: 'border-error/30 bg-error/10 text-error-content',
+    info: 'border-info/30 bg-info/10 text-info',
+    success: 'border-success/30 bg-success/10 text-success',
+    warning: 'border-warning/30 bg-warning/10 text-warning',
+    error: 'border-error/30 bg-error/10 text-error',
   }
 
   return classes[statusTone.value]

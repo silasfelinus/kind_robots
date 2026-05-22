@@ -781,16 +781,25 @@
         v-else-if="currentSection === 'summary'"
         class="flex flex-col gap-4"
       >
-        <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
-            <Icon name="kind-icon:blueprint" class="h-6 w-6" />
-            Scenario Summary
-          </h3>
+        <div
+          class="rounded-2xl border border-primary/30 bg-primary/10 p-4 flex items-start gap-3"
+        >
+          <span
+            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary"
+          >
+            <Icon name="kind-icon:blueprint" class="h-5 w-5" />
+          </span>
+          <div class="min-w-0">
+            <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
+              <Icon name="kind-icon:blueprint" class="h-6 w-6" />
+              Scenario Summary
+            </h3>
 
-          <p class="mt-1 text-sm text-base-content/70">
-            Review the scenario before saving. A good scenario is basically a
-            suspicious little machine for producing consequences.
-          </p>
+            <p class="mt-1 text-sm text-base-content/70">
+              Review the scenario before saving. A good scenario is basically a
+              suspicious little machine for producing consequences.
+            </p>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_22rem]">
@@ -1047,6 +1056,7 @@
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
+        <Icon name="kind-icon:alert" class="h-4 w-4 shrink-0" />
         Unknown scenario builder section: {{ currentSection }}
       </div>
     </template>

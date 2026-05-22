@@ -15,13 +15,17 @@
     >
       <section v-if="currentSection === 'idea'" class="flex flex-col gap-4">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:idea" class="h-6 w-6 text-primary" />
             Start with the Big Picture
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            A pitch is the seed idea. It should be flexible enough to become dreams, characters, rewards, scenarios, and suspiciously dramatic cover art.
+            A pitch is the seed idea. It should be flexible enough to become
+            dreams, characters, rewards, scenarios, and suspiciously dramatic
+            cover art.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[1fr_18rem]">
@@ -65,7 +69,8 @@
               </h4>
 
               <p class="mt-1 text-sm text-base-content/60">
-                Write it yourself, or use the pitch creator with the random store goblin engine.
+                Write it yourself, or use the pitch creator with the random
+                store goblin engine.
               </p>
 
               <div class="mt-4 flex flex-col gap-2">
@@ -98,8 +103,12 @@
                 </button>
               </div>
 
-              <div class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+              <div
+                class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-3"
+              >
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Current Shape
                 </p>
 
@@ -112,21 +121,31 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'creator'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'creator'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:dice" class="h-6 w-6 text-primary" />
             Pitch Creator
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Use random words, custom lists, and prompt notes to assemble a new pitch.
+            Use random words, custom lists, and prompt notes to assemble a new
+            pitch.
           </p>
 
           <pitch-creator
@@ -141,28 +160,38 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'collection'" class="flex flex-col gap-4">
+      <section
+        v-else-if="currentSection === 'collection'"
+        class="flex flex-col gap-4"
+      >
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-base-content">
+          <h3
+            class="flex items-center gap-2 text-xl font-bold text-base-content"
+          >
             <Icon name="kind-icon:folder" class="h-6 w-6 text-primary" />
             Pitch Collection
           </h3>
 
           <p class="mt-1 text-sm text-base-content/70">
-            Choose or prepare the collection that will hold the pitch cover, inspiration images, and future visual debris.
+            Choose or prepare the collection that will hold the pitch cover,
+            inspiration images, and future visual debris.
           </p>
 
           <div class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[22rem_1fr]">
-            <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">
-                Collection Selection
-              </h4>
+            <aside
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+            >
+              <h4 class="font-bold text-base-content">Collection Selection</h4>
 
               <p class="text-sm text-base-content/60">
                 Use an existing collection or name a new one for this pitch.
@@ -201,7 +230,11 @@
 
               <label class="form-control">
                 <span class="label-text font-bold">
-                  {{ collectionMode === 'new' ? 'New Collection Name' : 'Collection Label' }}
+                  {{
+                    collectionMode === 'new'
+                      ? 'New Collection Name'
+                      : 'Collection Label'
+                  }}
                 </span>
 
                 <input
@@ -251,7 +284,11 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Continue
           </button>
         </div>
@@ -272,29 +309,48 @@
             Back
           </button>
 
-          <button class="btn btn-primary rounded-xl" type="button" @click="goNext">
+          <button
+            class="btn btn-primary rounded-xl"
+            type="button"
+            @click="goNext"
+          >
             Summary
           </button>
         </div>
       </section>
 
-      <section v-else-if="currentSection === 'summary'" class="flex flex-col gap-4">
-        <div class="rounded-2xl border border-primary/30 bg-primary/10 p-4">
-          <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
-            <Icon name="kind-icon:blueprint" class="h-6 w-6" />
-            Pitch Summary
-          </h3>
+      <section
+        v-else-if="currentSection === 'summary'"
+        class="flex flex-col gap-4"
+      >
+        <div
+          class="rounded-2xl border border-primary/30 bg-primary/10 p-4 flex items-start gap-3"
+        >
+          <span
+            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary"
+          >
+            <Icon name="kind-icon:blueprint" class="h-5 w-5" />
+          </span>
+          <div class="min-w-0">
+            <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
+              <Icon name="kind-icon:blueprint" class="h-6 w-6" />
+              Pitch Summary
+            </h3>
 
-          <p class="mt-1 text-sm text-base-content/70">
-            Review the pitch before saving it or sending it forward into dreams.
-          </p>
+            <p class="mt-1 text-sm text-base-content/70">
+              Review the pitch before saving it or sending it forward into
+              dreams.
+            </p>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_22rem]">
           <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
             <div class="flex flex-col gap-3">
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Title
                 </p>
 
@@ -304,17 +360,23 @@
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Pitch
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-base text-base-content/80">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-base text-base-content/80"
+                >
                   {{ pitch || 'No pitch text yet.' }}
                 </p>
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Collection
                 </p>
 
@@ -324,48 +386,74 @@
               </div>
 
               <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Art Prompt
                 </p>
 
-                <p class="mt-1 whitespace-pre-wrap text-sm text-base-content/70">
+                <p
+                  class="mt-1 whitespace-pre-wrap text-sm text-base-content/70"
+                >
                   {{ artPrompt || 'No art prompt yet.' }}
                 </p>
               </div>
 
               <div v-if="artImagePath">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50">
+                <p
+                  class="text-xs font-bold uppercase tracking-[0.18em] text-base-content/50"
+                >
                   Pitch Art
                 </p>
 
-                <div class="mt-2 overflow-hidden rounded-2xl border border-base-300 bg-base-300">
+                <div
+                  class="mt-2 overflow-hidden rounded-2xl border border-base-300 bg-base-300"
+                >
                   <img
                     :src="artImagePath"
                     alt="Pitch art"
-                    class="max-h-[24rem] w-full object-contain"
+                    class="max-h-96 w-full object-contain"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <aside class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4">
-            <button class="btn rounded-xl" type="button" @click="setSection('idea')">
+          <aside
+            class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+          >
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('idea')"
+            >
               <Icon name="kind-icon:edit" class="h-4 w-4" />
               Edit Pitch
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('creator')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('creator')"
+            >
               <Icon name="kind-icon:dice" class="h-4 w-4" />
               Rebuild Randoms
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('collection')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('collection')"
+            >
               <Icon name="kind-icon:folder" class="h-4 w-4" />
               Edit Collection
             </button>
 
-            <button class="btn rounded-xl" type="button" @click="setSection('art')">
+            <button
+              class="btn rounded-xl"
+              type="button"
+              @click="setSection('art')"
+            >
               <Icon name="kind-icon:palette" class="h-4 w-4" />
               Edit Art
             </button>
@@ -403,7 +491,9 @@
             class="rounded-2xl border border-base-300 bg-base-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300">
+              <div
+                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
+              >
                 <img
                   v-if="item.image"
                   :src="item.image"
@@ -452,6 +542,7 @@
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
       >
+        <Icon name="kind-icon:alert" class="h-4 w-4 shrink-0" />
         Unknown pitch builder section: {{ currentSection }}
       </div>
     </template>
@@ -527,28 +618,32 @@ const sections: BuilderSectionConfig[] = [
     label: 'Idea',
     icon: 'kind-icon:idea',
     title: 'Big Picture Idea',
-    summary: 'Write the pitch directly or give the creator enough direction to generate one.',
+    summary:
+      'Write the pitch directly or give the creator enough direction to generate one.',
   },
   {
     key: 'creator',
     label: 'Creator',
     icon: 'kind-icon:dice',
     title: 'Pitch Creator',
-    summary: 'Use random words, custom lists, and prompt notes to assemble a new pitch.',
+    summary:
+      'Use random words, custom lists, and prompt notes to assemble a new pitch.',
   },
   {
     key: 'collection',
     label: 'Collection',
     icon: 'kind-icon:folder',
     title: 'Pitch Collection',
-    summary: 'Choose or prepare the art collection that will hold pitch visuals.',
+    summary:
+      'Choose or prepare the art collection that will hold pitch visuals.',
   },
   {
     key: 'art',
     label: 'Art',
     icon: 'kind-icon:palette',
     title: 'Pitch Art',
-    summary: 'Create, upload, generate, or select cover and inspiration art for the pitch.',
+    summary:
+      'Create, upload, generate, or select cover and inspiration art for the pitch.',
   },
   {
     key: 'summary',
@@ -583,7 +678,11 @@ const resolvedCollectionLabel = computed(() => {
     return collectionName.value.trim() || 'New collection not named yet'
   }
 
-  return selectedCollectionLabel.value || collectionName.value || 'No collection selected yet'
+  return (
+    selectedCollectionLabel.value ||
+    collectionName.value ||
+    'No collection selected yet'
+  )
 })
 
 const summaryItems = computed<BuilderChoiceSummary[]>(() => [
@@ -631,9 +730,12 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
   {
     key: 'save',
     label: 'Save Status',
-    value: selectedPitchId.value ? `Saved as #${selectedPitchId.value}` : 'Not saved yet',
+    value: selectedPitchId.value
+      ? `Saved as #${selectedPitchId.value}`
+      : 'Not saved yet',
     icon: selectedPitchId.value ? 'kind-icon:check' : 'kind-icon:save',
-    description: 'Saved pitches can become dreams, characters, rewards, and scenarios.',
+    description:
+      'Saved pitches can become dreams, characters, rewards, and scenarios.',
     editSection: 'summary',
   },
 ])
@@ -669,7 +771,9 @@ function usePitchTitleForCollection() {
 
 async function fetchCollections() {
   try {
-    const res = (await performFetch<unknown[]>('/api/artCollection')) as PerformFetchResult<unknown[]>
+    const res = (await performFetch<unknown[]>(
+      '/api/artCollection',
+    )) as PerformFetchResult<unknown[]>
 
     if (!res.success || !Array.isArray(res.data)) {
       collectionOptions.value = []
@@ -724,11 +828,14 @@ async function createCollection() {
       isMature: false,
     }
 
-    const res = (await performFetch<Record<string, unknown>>('/api/artCollection', {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    })) as PerformFetchResult<Record<string, unknown>>
+    const res = (await performFetch<Record<string, unknown>>(
+      '/api/artCollection',
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )) as PerformFetchResult<Record<string, unknown>>
 
     if (!res.success || !res.data) {
       throw new Error(res.message || 'Failed to create collection.')

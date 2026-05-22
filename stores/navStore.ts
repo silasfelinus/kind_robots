@@ -218,10 +218,19 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function hydrateDashboardTabsFromLocalStorage(): void {
-    dashboardTabs.value = normalizeDashboardTabs(
-      safeParseRecord(safeGetLocalStorage(dashboardTabsStorageKey)),
-    )
-  }
+  const raw = safeGetLocalStorage(dashboardTabsStorageKey)
+  const parsed = safeParseRecord(raw)
+  const normalized = normalizeDashboardTabs(parsed)
+
+  console.info('[navStore] hydrating dashboard tabs', {
+    key: dashboardTabsStorageKey,
+    raw,
+    parsed,
+    normalized,
+  })
+
+  dashboardTabs.value = normalized
+}
 
   function hydrateWonderLabFolderFromLocalStorage(): void {
     wonderLabFolder.value =
@@ -255,13 +264,17 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   async function initialize(force = false): Promise<void> {
-    if (isInitialized.value && !force) return
+  if (initializePromise.value && !force) {
+    return initializePromise.value
+  }
 
-    if (initializePromise.value && !force) {
-      return initializePromise.value
-    }
+  if (isInitialized.value && !force) {
+    hydrateDashboardTabsFromLocalStorage()
+    hydrateWonderLabFolderFromLocalStorage()
+    return
+  }
 
-    initializePromise.value = (async () => {
+  initializePromise.value = (async () => {
       try {
         isInitializing.value = true
         loading.value = true

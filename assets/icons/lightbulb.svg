@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 28 28">
+	<path d="M0 0h28v28H0z" fill="none" />
+	<g fill="none">
+		<path fill="url(#SVG31diLdqa)" d="m18.421 21.5l-.482 2.008A3.25 3.25 0 0 1 14.78 26h-1.56a3.25 3.25 0 0 1-3.16-2.492L9.579 21.5z" />
+		<path fill="url(#SVG3ttHndZk)" d="m18.421 21.5l-.482 2.008A3.25 3.25 0 0 1 14.78 26h-1.56a3.25 3.25 0 0 1-3.16-2.492L9.579 21.5z" />
+		<path fill="url(#SVG08TAbb1x)" d="M14 2a9 9 0 0 0-5.79 15.89c.402.339.679.736.78 1.158L9.46 21h9.082l.469-1.952c.101-.422.378-.819.78-1.158A9 9 0 0 0 14 2" />
+		<path fill="url(#SVGgkiapetB)" d="M18.661 20.5H9.34L9.7 22h8.6z" />
+		<defs>
+			<radialGradient id="SVG31diLdqa" cx="0" cy="0" r="1" gradientTransform="rotate(72.812 -.822 9.459)scale(18.4961 29.9717)" gradientUnits="userSpaceOnUse">
+				<stop stop-color="#ffe06b" />
+				<stop offset=".376" stop-color="#ffa43d" />
+				<stop offset="1" stop-color="#e67505" />
+			</radialGradient>
+			<radialGradient id="SVG08TAbb1x" cx="0" cy="0" r="1" gradientTransform="matrix(5.9181 20.89185 -31.4453 8.9076 8 4.388)" gradientUnits="userSpaceOnUse">
+				<stop stop-color="#ffe06b" />
+				<stop offset=".376" stop-color="#ffa43d" />
+				<stop offset="1" stop-color="#e67505" />
+			</radialGradient>
+			<linearGradient id="SVG3ttHndZk" x1="13.999" x2="14" y1="21.5" y2="26" gradientUnits="userSpaceOnUse">
+				<stop stop-color="#d34719" />
+				<stop offset="1" stop-color="#d34719" stop-opacity="0" />
+			</linearGradient>
+			<linearGradient id="SVGgkiapetB" x1="13.263" x2="14.448" y1="21.096" y2="24.045" gradientUnits="userSpaceOnUse">
+				<stop stop-color="#ffc7a3" />
+				<stop offset="1" stop-color="#ff9c70" />
+			</linearGradient>
+		</defs>
+	</g>
+</svg>

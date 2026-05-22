@@ -1,22 +1,51 @@
 <!-- /components/content/pages/about-page.vue -->
 <template>
-  <div class="bg-primary flex flex-col items-center space-y-4 py-4">
-    <!-- Loop through each card data to render BaseCard components -->
-    <base-card
-      v-for="(card, index) in cards"
-      :key="index"
-      class="bg-primary text-center max-w-xl mx-auto"
-      :title="card.title"
-      :icon="card.icon"
-      :content="card.content"
-    />
+  <div class="flex flex-col items-center gap-4 bg-base-200 py-6 px-4">
+    <div class="w-full max-w-2xl">
+      <!-- Section header -->
+      <div class="mb-6 flex flex-col items-center gap-2 text-center">
+        <span
+          class="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-accent text-primary-content shadow-lg"
+        >
+          <Icon name="kind-icon:robot-color" class="h-8 w-8" />
+        </span>
+        <h1 class="text-3xl font-black text-base-content">Kind Robots</h1>
+        <p class="max-w-md text-sm text-base-content/60">
+          A playground where creativity, technology, and goodness collide.
+        </p>
+      </div>
+
+      <!-- Card stack -->
+      <div class="flex flex-col gap-3">
+        <div
+          v-for="(card, index) in cards"
+          :key="index"
+          class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div class="mb-3 flex items-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
+            >
+              <Icon :name="card.icon" class="h-5 w-5" />
+            </span>
+            <h2
+              class="text-base font-black uppercase tracking-wider text-base-content"
+            >
+              {{ card.title }}
+            </h2>
+          </div>
+          <p class="text-sm leading-relaxed text-base-content/70">
+            {{ card.content }}
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// Define the card data
 const cards = ref([
   {
     title: 'ABOUT',
@@ -36,7 +65,7 @@ const cards = ref([
   {
     title: 'VALUES',
     icon: 'kind-icon:heart-pulse',
-    content: `kindrobots is founded on a principle of holistic goodness: that every part of an encounter with an AI can be positive, and every part of an exchange can be healthful and supportive to all involved. kindrobots aims for maximizing goodness in community,  in social media interactions, and in philanthropy. The world is rapidly changing, and people are looking for help navigating unfamiliar territories. Kindrobots is here to do our part.`,
+    content: `kindrobots is founded on a principle of holistic goodness: that every part of an encounter with an AI can be positive, and every part of an exchange can be healthful and supportive to all involved. kindrobots aims for maximizing goodness in community, in social media interactions, and in philanthropy. The world is rapidly changing, and people are looking for help navigating unfamiliar territories. Kindrobots is here to do our part.`,
   },
   {
     title: 'KAIZEN',

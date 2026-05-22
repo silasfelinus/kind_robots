@@ -115,12 +115,6 @@ function applyFooterComponentFromContent(footer?: string | null): void {
 }
 
 function applyPageSettings(page: ContentPage): void {
-  if (page.dashboard) {
-    console.info(
-      `[slug] page requested dashboard tab "${page.dashboard}", but persisted dashboard tabs now own active tab state.`,
-    )
-  }
-
   if (page.footer) {
     applyFooterComponentFromContent(page.footer)
   }

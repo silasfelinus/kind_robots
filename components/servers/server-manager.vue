@@ -1,15 +1,13 @@
 <!-- /components/server/server-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="server"
     title="Server Manager"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading servers..."
     nav-grid-class="xl:grid-cols-6"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
@@ -103,20 +101,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCheckpointStore } from '@/stores/checkpointStore'
-import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 
-const dashboardKey = 'server' as const
-
-const navStore = useNavStore()
 const serverStore = useServerStore()
 const checkpointStore = useCheckpointStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const managerSummary = computed(() => {
   const artCount = serverStore.artServers.length
@@ -141,22 +132,6 @@ const managerSummary = computed(() => {
   return `${artCount} art servers, ${textCount} text servers, and ${checkpointCount} checkpoints loaded. Active: ${artName}, ${textName}, ${checkpointName}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'art' || tab === 'checkpoints') {
-    serverStore.setCurrentServerMode('art')
-    return
-  }
-
-  if (tab === 'text') {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
-}
-
 async function refreshManagerData() {
   await loadManagerData(true)
 }
@@ -166,15 +141,10 @@ async function loadManagerData(force = false) {
   managerError.value = null
 
   try {
-    await navStore.initialize()
-
-    // Only fetch servers if kind-loader hasn't already done it
     if (force || !serverStore.hasLoaded) {
       await serverStore.initialize({ force, fetchRemote: true })
     }
 
-    // checkpointStore.initialize() is a sync no-op if already set — fine to keep,
-    // but redundant since kind-loader now owns it
     checkpointStore.initialize()
   } catch (error) {
     managerError.value =
@@ -183,4 +153,8 @@ async function loadManagerData(force = false) {
     isLoadingManager.value = false
   }
 }
+
+onMounted(async () => {
+  await loadManagerData()
+})
 </script>

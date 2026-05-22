@@ -537,7 +537,6 @@ model Reaction {
   scenarioId       Int?
   themeId          Int?
   compositionId    Int?
-  Composition      Composition? @relation(fields: [compositionId], references: [id])
   ArtCollection    ArtCollection?            @relation(fields: [artCollectionId], references: [id])
   ArtImage         ArtImage?                 @relation(fields: [artImageId], references: [id])
   Bot              Bot?                      @relation(fields: [botId], references: [id])
@@ -545,6 +544,7 @@ model Reaction {
   Character        Character?                @relation(fields: [characterId], references: [id])
   Chat             Chat?                     @relation(fields: [chatId], references: [id])
   Component        Component?                @relation(fields: [componentId], references: [id])
+  Composition      Composition?              @relation(fields: [compositionId], references: [id])
   Dream            Dream?                    @relation(fields: [dreamId], references: [id])
   Pitch            Pitch?                    @relation(fields: [pitchId], references: [id])
   Prompt           Prompt?                   @relation(fields: [promptId], references: [id])

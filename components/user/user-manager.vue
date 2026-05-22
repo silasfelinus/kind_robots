@@ -1,15 +1,13 @@
 <!-- /components/content/user/user-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="user"
     title="User Dashboard"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading user account details..."
     nav-grid-class="xl:grid-cols-7"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #actions>
@@ -71,22 +69,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
 
-const dashboardKey = 'user' as const
-
 const userStore = useUserStore()
-const navStore = useNavStore()
 const serverStore = useServerStore()
 
 const isLoggingOut = ref(false)
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const username = computed(() => userStore.username || 'Kind Guest')
 
@@ -100,25 +91,14 @@ const managerSummary = computed(() => {
   return `${username.value}. ${userStatus.value}. Karma: ${userStore.karma}, mana: ${userStore.mana}, match record: ${userStore.matchRecord}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'servers') {
-    serverStore.setCurrentServerMode('selected')
-  }
-}
-
 async function refreshManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
-    await Promise.all([
-      navStore.initialize(),
-      ...(force || !serverStore.hasLoaded
-        ? [serverStore.initialize({ force, fetchRemote: true })]
-        : []),
-    ])
+    if (force || !serverStore.hasLoaded) {
+      await serverStore.initialize({ force, fetchRemote: true })
+    }
   } catch (error) {
     managerError.value =
       error instanceof Error ? error.message : 'Failed to refresh user data.'
@@ -128,8 +108,7 @@ async function refreshManagerData(force = false) {
 }
 
 onMounted(async () => {
-  await refreshManagerData() // ← fires on mount, races kind-loader
-  setTab(activeTab.value)
+  await refreshManagerData()
 })
 
 async function logout(): Promise<void> {
@@ -139,7 +118,6 @@ async function logout(): Promise<void> {
 
   try {
     await userStore.logout()
-    navStore.setDashboardTab(dashboardKey, 'dashboard')
     await navigateTo('/login')
   } finally {
     isLoggingOut.value = false

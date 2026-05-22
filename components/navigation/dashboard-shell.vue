@@ -241,6 +241,7 @@
       <slot
         :active-tab="normalizedActiveTab"
         :active-tab-config="activeTabConfig"
+        :set-tab="setTab"
       />
     </main>
   </div>
@@ -457,8 +458,13 @@ function setTab(tabKey: string) {
     const savedTab = navStore.setDashboardTab(
       dashboardKey,
       tabKey,
-      'user clicked dashboard-shell tab button',
+      'dashboard-shell tab button',
     )
+
+    console.info(
+      `[dashboard-shell] clicked dashboard "${dashboardKey}" tab "${tabKey}". saved tab="${savedTab}".`,
+    )
+
     emit('set-tab', savedTab)
     return
   }
@@ -514,9 +520,13 @@ watch(showHeader, (value) => {
   localStorage.setItem(storageKey, String(value))
 })
 
-onMounted(async () => {
-  if (!navStore.isInitialized && !navStore.isInitializing) {
-    await navStore.initialize()
+onMounted(() => {
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    console.info(
+      `[dashboard-shell] loaded dashboard "${dashboardKey}". active tab="${normalizedActiveTab.value}".`,
+    )
   }
 
   loadHeaderPreference()

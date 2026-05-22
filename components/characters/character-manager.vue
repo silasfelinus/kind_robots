@@ -1,15 +1,13 @@
 <!-- /components/characters/character-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="character"
     title="Character Workshop"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading characters, rewards, scenarios, and narrative goblin permits..."
     nav-grid-class="xl:grid-cols-6"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
@@ -151,28 +149,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
-import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
-const dashboardKey = 'character' as const
-
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
-const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const scenarioStore = useScenarioStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const selectedCharacterName = computed(() => {
   const character = characterStore.selectedCharacter
@@ -220,24 +211,12 @@ const managerSummary = computed(() => {
   return `${characterCount} characters, ${scenarioCount} scenarios, ${rewardCount} rewards, and ${dreamCount} dreams loaded. Current setup: ${selectedCharacterName.value}, ${selectedScenarioName.value}, ${selectedRewardName.value}, ${selectedDreamName.value}, ${selectedTextServerName.value}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'servers' || tab === 'interact' || tab === 'overview') {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
-}
-
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
     await Promise.all([
-      navStore.initialize(),
       characterStore.initialize({
         force,
         fetchRemote: true,
@@ -250,7 +229,9 @@ async function loadManagerData(force = false) {
       }),
       rewardStore.initialize({ force, fetchRemote: true }),
       dreamStore.initialize(force),
-      serverStore.initialize({ force, fetchRemote: true }), // ← no hasLoaded guard
+      ...(force || !serverStore.hasLoaded
+        ? [serverStore.initialize({ force, fetchRemote: true })]
+        : []),
     ])
   } catch (error) {
     managerError.value =
@@ -266,21 +247,7 @@ async function refreshManagerData() {
   await loadManagerData(true)
 }
 
-watch(
-  () => characterStore.selectedCharacterId,
-  (characterId, previousCharacterId) => {
-    if (!characterId || characterId === previousCharacterId) return
-
-    const currentTab = navStore.getDashboardTab(dashboardKey)
-
-    if (currentTab !== 'interact') {
-      navStore.setDashboardTab(dashboardKey, 'interact')
-    }
-  },
-)
-
 onMounted(async () => {
   await loadManagerData()
-  setTab(activeTab.value)
 })
 </script>

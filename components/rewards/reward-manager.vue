@@ -1,15 +1,13 @@
 <!-- /components/content/rewards/reward-manager.vue -->
 <template>
   <dashboard-shell
+    dashboard-key="reward"
     title="Reward Workshop"
     :summary="managerSummary"
-    :tabs="tabs"
-    :active-tab="activeTab"
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading rewards and story goblin collateral..."
     nav-grid-class="xl:grid-cols-5"
-    @set-tab="setTab"
     @refresh="refreshManagerData"
   >
     <template #default="{ activeTab: currentTab }">
@@ -109,22 +107,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
-import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useServerStore } from '@/stores/serverStore'
 
-const dashboardKey = 'reward' as const
-
 const characterStore = useCharacterStore()
-const navStore = useNavStore()
 const rewardStore = useRewardStore()
 const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const tabs = computed(() => navStore.getDashboardTabs(dashboardKey))
-const activeTab = computed(() => navStore.getDashboardTab(dashboardKey))
 
 const selectedRewardText = computed(() => {
   return (
@@ -158,24 +149,12 @@ const managerSummary = computed(() => {
   return `${rewardCount} rewards and ${textCount} text servers loaded. Current setup: ${selectedRewardText.value}, ${selectedTextServerName.value}, optional character: ${selectedCharacterName.value}.`
 })
 
-function setTab(tab: string) {
-  navStore.setDashboardTab(dashboardKey, tab)
-
-  if (tab === 'servers' || tab === 'interact' || tab === 'overview') {
-    serverStore.setCurrentServerMode('text')
-    return
-  }
-
-  serverStore.setCurrentServerMode('selected')
-}
-
 async function loadManagerData(force = false) {
   isLoadingManager.value = true
   managerError.value = null
 
   try {
     await Promise.all([
-      navStore.initialize(),
       characterStore.initialize({
         force,
         fetchRemote: true,
@@ -202,6 +181,5 @@ async function refreshManagerData() {
 
 onMounted(async () => {
   await loadManagerData()
-  setTab(activeTab.value)
 })
 </script>

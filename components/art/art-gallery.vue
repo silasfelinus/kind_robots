@@ -191,7 +191,7 @@
         v-if="!activeGroup && visibleGroups.length === 0"
         class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
       >
-        <Icon name="kind-icon:folder-search" class="h-12 w-12 text-primary" />
+        <Icon name="kind-icon:folder" class="h-12 w-12 text-primary" />
         <p class="mt-2 text-lg font-black text-base-content">
           Nothing to show.
         </p>

@@ -467,15 +467,13 @@ async function ensureNavStoreReady(): Promise<void> {
   navReady.value = true
 }
 
-async function normalizeStoredDashboardTab(): Promise<void> {
+async function hydrateDashboardTab(): Promise<void> {
   const dashboardKey = resolvedDashboardKey.value
 
   if (!dashboardKey) return
 
   await ensureNavStoreReady()
-
-  const activeTab = navStore.getDashboardTab(dashboardKey)
-  navStore.setDashboardTab(dashboardKey, activeTab)
+  navStore.getDashboardTab(dashboardKey)
 }
 
 function setTab(tabKey: string) {
@@ -532,37 +530,23 @@ function loadHeaderPreference() {
   }
 }
 
-watch(
-  showHeader,
-  (value) => {
-    if (!import.meta.client) return
+watch(showHeader, (value) => {
+  if (!import.meta.client) return
 
-    localStorage.setItem(storageKey, String(value))
-  },
-)
+  localStorage.setItem(storageKey, String(value))
+})
 
 watch(
   resolvedDashboardKey,
   async () => {
-    await normalizeStoredDashboardTab()
+    await hydrateDashboardTab()
   },
   { immediate: true },
 )
 
-watch(
-  () => props.activeTab,
-  (tabKey) => {
-    const dashboardKey = resolvedDashboardKey.value
-
-    if (!dashboardKey || !tabKey) return
-
-    navStore.setDashboardTab(dashboardKey, tabKey)
-  },
-)
-
 onMounted(async () => {
   await ensureNavStoreReady()
-  await normalizeStoredDashboardTab()
+  await hydrateDashboardTab()
   loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
 })

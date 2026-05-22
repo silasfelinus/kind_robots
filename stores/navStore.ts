@@ -179,16 +179,16 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function syncDashboardTabsToLocalStorage(): void {
-  const payload = JSON.stringify(dashboardTabs.value)
+    const payload = JSON.stringify(dashboardTabs.value)
 
-  console.info('[navStore] saving dashboard tabs', {
-    key: dashboardTabsStorageKey,
-    dashboardTabs: dashboardTabs.value,
-    payload,
-  })
+    console.info('[navStore] saving dashboard tabs', {
+      key: dashboardTabsStorageKey,
+      dashboardTabs: dashboardTabs.value,
+      payload,
+    })
 
-  safeSetLocalStorage(dashboardTabsStorageKey, payload)
-}
+    safeSetLocalStorage(dashboardTabsStorageKey, payload)
+  }
 
   function syncWonderLabFolderToLocalStorage(): void {
     safeSetLocalStorage(wonderLabFolderStorageKey, wonderLabFolder.value ?? '')
@@ -218,19 +218,19 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function hydrateDashboardTabsFromLocalStorage(): void {
-  const raw = safeGetLocalStorage(dashboardTabsStorageKey)
-  const parsed = safeParseRecord(raw)
-  const normalized = normalizeDashboardTabs(parsed)
+    const raw = safeGetLocalStorage(dashboardTabsStorageKey)
+    const parsed = safeParseRecord(raw)
+    const normalized = normalizeDashboardTabs(parsed)
 
-  console.info('[navStore] hydrating dashboard tabs', {
-    key: dashboardTabsStorageKey,
-    raw,
-    parsed,
-    normalized,
-  })
+    console.info('[navStore] hydrating dashboard tabs', {
+      key: dashboardTabsStorageKey,
+      raw,
+      parsed,
+      normalized,
+    })
 
-  dashboardTabs.value = normalized
-}
+    dashboardTabs.value = normalized
+  }
 
   function hydrateWonderLabFolderFromLocalStorage(): void {
     wonderLabFolder.value =
@@ -264,17 +264,17 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   async function initialize(force = false): Promise<void> {
-  if (initializePromise.value && !force) {
-    return initializePromise.value
-  }
+    if (initializePromise.value && !force) {
+      return initializePromise.value
+    }
 
-  if (isInitialized.value && !force) {
-    hydrateDashboardTabsFromLocalStorage()
-    hydrateWonderLabFolderFromLocalStorage()
-    return
-  }
+    if (isInitialized.value && !force) {
+      hydrateDashboardTabsFromLocalStorage()
+      hydrateWonderLabFolderFromLocalStorage()
+      return
+    }
 
-  initializePromise.value = (async () => {
+    initializePromise.value = (async () => {
       try {
         isInitializing.value = true
         loading.value = true
@@ -402,35 +402,24 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function setDashboardTab(dashboardKey: DashboardKey, tabKey: string): string {
-  const nextTab = isDashboardTabKey(dashboardKey, tabKey)
-    ? tabKey
-    : dashboardConfigs[dashboardKey].defaultTab
+    const nextTab = isDashboardTabKey(dashboardKey, tabKey)
+      ? tabKey
+      : dashboardConfigs[dashboardKey].defaultTab
 
-  console.info('[navStore] setDashboardTab', {
-    dashboardKey,
-    incomingTab: tabKey,
-    savedTab: nextTab,
-    before: dashboardTabs.value,
-  })
+    if (dashboardTabs.value[dashboardKey] === nextTab) {
+      return nextTab
+    }
 
-  dashboardTabs.value = {
-    ...dashboardTabs.value,
-    [dashboardKey]: nextTab,
+    dashboardTabs.value = {
+      ...dashboardTabs.value,
+      [dashboardKey]: nextTab,
+    }
+
+    syncDashboardTabsToLocalStorage()
+
+    return nextTab
   }
 
-  syncDashboardTabsToLocalStorage()
-
-  console.info('[navStore] setDashboardTab complete', {
-    dashboardKey,
-    savedTab: nextTab,
-    after: dashboardTabs.value,
-    localStorageValue: import.meta.client
-      ? localStorage.getItem(dashboardTabsStorageKey)
-      : null,
-  })
-
-  return nextTab
-}
   function resetDashboardTab(dashboardKey: DashboardKey): string {
     return setDashboardTab(
       dashboardKey,
@@ -497,12 +486,6 @@ export const useNavStore = defineStore('navStore', () => {
 
   if (isClient) {
     hydrateFromLocalStorage()
-
-    watch(favorites, () => syncFavoritesToLocalStorage(), { deep: true })
-    watch(dashboardTabs, () => syncDashboardTabsToLocalStorage(), {
-      deep: true,
-    })
-    watch(wonderLabFolder, () => syncWonderLabFolderToLocalStorage())
   }
 
   return {

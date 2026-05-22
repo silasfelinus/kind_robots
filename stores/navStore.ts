@@ -179,11 +179,16 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function syncDashboardTabsToLocalStorage(): void {
-    safeSetLocalStorage(
-      dashboardTabsStorageKey,
-      JSON.stringify(dashboardTabs.value),
-    )
-  }
+  const payload = JSON.stringify(dashboardTabs.value)
+
+  console.info('[navStore] saving dashboard tabs', {
+    key: dashboardTabsStorageKey,
+    dashboardTabs: dashboardTabs.value,
+    payload,
+  })
+
+  safeSetLocalStorage(dashboardTabsStorageKey, payload)
+}
 
   function syncWonderLabFolderToLocalStorage(): void {
     safeSetLocalStorage(wonderLabFolderStorageKey, wonderLabFolder.value ?? '')
@@ -384,20 +389,35 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function setDashboardTab(dashboardKey: DashboardKey, tabKey: string): string {
-    const nextTab = isDashboardTabKey(dashboardKey, tabKey)
-      ? tabKey
-      : dashboardConfigs[dashboardKey].defaultTab
+  const nextTab = isDashboardTabKey(dashboardKey, tabKey)
+    ? tabKey
+    : dashboardConfigs[dashboardKey].defaultTab
 
-    dashboardTabs.value = {
-      ...dashboardTabs.value,
-      [dashboardKey]: nextTab,
-    }
+  console.info('[navStore] setDashboardTab', {
+    dashboardKey,
+    incomingTab: tabKey,
+    savedTab: nextTab,
+    before: dashboardTabs.value,
+  })
 
-    syncDashboardTabsToLocalStorage()
-
-    return nextTab
+  dashboardTabs.value = {
+    ...dashboardTabs.value,
+    [dashboardKey]: nextTab,
   }
 
+  syncDashboardTabsToLocalStorage()
+
+  console.info('[navStore] setDashboardTab complete', {
+    dashboardKey,
+    savedTab: nextTab,
+    after: dashboardTabs.value,
+    localStorageValue: import.meta.client
+      ? localStorage.getItem(dashboardTabsStorageKey)
+      : null,
+  })
+
+  return nextTab
+}
   function resetDashboardTab(dashboardKey: DashboardKey): string {
     return setDashboardTab(
       dashboardKey,

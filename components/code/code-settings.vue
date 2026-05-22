@@ -23,7 +23,7 @@
           class="btn btn-ghost btn-sm btn-circle"
           type="button"
           title="Close settings"
-          @click="codeStore.closeSelectedNodeSettings()"
+     @click="emit('close')"
         >
           <icon name="kind-icon:x" class="h-4 w-4" />
         </button>
@@ -376,12 +376,16 @@
   </section>
 </template>
 
+
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useCodeStore } from '@/stores/codeStore'
 
-const codeStore = useCodeStore()
+const emit = defineEmits<{
+  close: []
+}>()
 
+const codeStore = useCodeStore()
 const node = computed(() => codeStore.selectedNode)
 const definition = computed(() => codeStore.selectedDefinition)
 

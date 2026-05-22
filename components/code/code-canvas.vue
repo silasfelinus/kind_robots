@@ -1,7 +1,7 @@
 <!-- /components/code/code-canvas.vue -->
 <template>
   <section
-    class="relative flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-[#070c1b] shadow-inner"
+    class="relative z-0 flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-800 bg-[#070c1b] shadow-inner"
   >
     <div
       ref="canvasRef"
@@ -174,14 +174,16 @@
       </div>
     </div>
 
-    <div class="pointer-events-none absolute left-3 top-3 z-30">
+    <div
+      class="pointer-events-none absolute bottom-3 right-3 z-[20] max-w-[calc(100%-1.5rem)]"
+    >
       <div class="pointer-events-auto">
         <code-controls />
       </div>
     </div>
 
     <div
-      class="pointer-events-none absolute bottom-3 left-3 z-30 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2"
+      class="pointer-events-none absolute bottom-3 left-3 z-[20] flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2"
     >
       <div
         v-if="codeStore.pendingConnection"
@@ -209,7 +211,7 @@
 
     <div
       v-if="codeStore.showMiniMap"
-      class="absolute bottom-3 right-3 z-30 hidden h-28 w-40 rounded-2xl border border-cyan-300/30 bg-slate-900/90 p-2 shadow-lg backdrop-blur md:block"
+      class="absolute bottom-24 right-3 z-[20] hidden h-28 w-40 rounded-2xl border border-cyan-300/30 bg-slate-900/90 p-2 shadow-lg backdrop-blur md:block"
     >
       <div
         class="relative h-full w-full overflow-hidden rounded-xl border border-cyan-300/20 bg-slate-950"
@@ -242,7 +244,6 @@ const nodeWidth = 280
 const headerOffset = 56
 const portGap = 34
 
-// ─── Pointer-based pan ───────────────────────────────────────────────────────
 const isPanning = ref(false)
 const panPointerId = ref<number | null>(null)
 const lastPointerX = ref(0)
@@ -254,52 +255,6 @@ const canvasCursorClass = computed(() => {
   return 'cursor-default'
 })
 
-function onPointerDown(event: PointerEvent) {
-  // Middle-mouse button or explicit pan mode → drag to scroll
-  if (event.button === 1 || codeStore.isPanMode) {
-    isPanning.value = true
-    panPointerId.value = event.pointerId
-    lastPointerX.value = event.clientX
-    lastPointerY.value = event.clientY
-    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
-    event.preventDefault()
-  }
-}
-
-function onPointerMove(event: PointerEvent) {
-  if (
-    !isPanning.value ||
-    event.pointerId !== panPointerId.value ||
-    !canvasRef.value
-  )
-    return
-  const dx = event.clientX - lastPointerX.value
-  const dy = event.clientY - lastPointerY.value
-  canvasRef.value.scrollLeft -= dx
-  canvasRef.value.scrollTop -= dy
-  lastPointerX.value = event.clientX
-  lastPointerY.value = event.clientY
-}
-
-function onPointerUp(event: PointerEvent) {
-  if (event.pointerId === panPointerId.value || !event.pointerId) {
-    isPanning.value = false
-    panPointerId.value = null
-  }
-}
-
-// ─── Wheel → zoom ────────────────────────────────────────────────────────────
-function onWheel(event: WheelEvent) {
-  // Ctrl/Meta held → zoom; otherwise also zoom (standard canvas-editor behaviour)
-  if (event.deltaY < 0) {
-    codeStore.zoomIn()
-  } else if (event.deltaY > 0) {
-    codeStore.zoomOut()
-  }
-  // Horizontal trackpad scroll → native scroll (no extra logic needed)
-}
-
-// ─── Transform ───────────────────────────────────────────────────────────────
 const canvasTransformStyle = computed(() => {
   return {
     width: `${codeStore.canvasBounds.width}px`,
@@ -309,7 +264,6 @@ const canvasTransformStyle = computed(() => {
   }
 })
 
-// ─── Connections ─────────────────────────────────────────────────────────────
 const visibleConnections = computed(() => {
   return codeStore.connections
     .map((connection) => {
@@ -335,6 +289,50 @@ const visibleConnections = computed(() => {
       Boolean(connection),
     )
 })
+
+function onPointerDown(event: PointerEvent) {
+  if (event.button === 1 || codeStore.isPanMode) {
+    isPanning.value = true
+    panPointerId.value = event.pointerId
+    lastPointerX.value = event.clientX
+    lastPointerY.value = event.clientY
+    ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+    event.preventDefault()
+  }
+}
+
+function onPointerMove(event: PointerEvent) {
+  if (
+    !isPanning.value ||
+    event.pointerId !== panPointerId.value ||
+    !canvasRef.value
+  ) {
+    return
+  }
+
+  const dx = event.clientX - lastPointerX.value
+  const dy = event.clientY - lastPointerY.value
+
+  canvasRef.value.scrollLeft -= dx
+  canvasRef.value.scrollTop -= dy
+  lastPointerX.value = event.clientX
+  lastPointerY.value = event.clientY
+}
+
+function onPointerUp(event: PointerEvent) {
+  if (event.pointerId === panPointerId.value || !event.pointerId) {
+    isPanning.value = false
+    panPointerId.value = null
+  }
+}
+
+function onWheel(event: WheelEvent) {
+  if (event.deltaY < 0) {
+    codeStore.zoomIn()
+  } else if (event.deltaY > 0) {
+    codeStore.zoomOut()
+  }
+}
 
 function getPortIndex(
   nodeId: string,
@@ -376,7 +374,6 @@ function getInputPoint(nodeId: string, portId: string) {
   }
 }
 
-// ─── Drop ────────────────────────────────────────────────────────────────────
 function onDrop(event: DragEvent) {
   const kind = event.dataTransfer?.getData('kindrobots/code-kind') as CodeKind
 
@@ -411,7 +408,6 @@ function clearCanvasSelection() {
   codeStore.selectNode(null)
 }
 
-// ─── Fit ─────────────────────────────────────────────────────────────────────
 async function fitCanvas() {
   if (!canvasRef.value) {
     codeStore.fitToView()

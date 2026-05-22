@@ -78,19 +78,17 @@
           <span class="hidden sm:inline">Templates</span>
         </button>
 
-        <button
-          class="btn btn-sm rounded-2xl"
-          :class="
-            floatingPanel === 'settings' ? 'btn-secondary' : 'btn-outline'
-          "
-          :disabled="!codeStore.selectedNode"
-          type="button"
-          @click="toggleSettingsPanel"
-        >
-          <icon name="kind-icon:settings" class="h-4 w-4" />
-          <span class="hidden sm:inline">Settings</span>
-        </button>
-
+<button
+  class="btn btn-sm rounded-2xl"
+  :class="
+    floatingPanel === 'settings' ? 'btn-secondary' : 'btn-outline'
+  "
+  type="button"
+  @click="toggleSettingsPanel"
+>
+  <icon name="kind-icon:settings" class="h-4 w-4" />
+  <span class="hidden sm:inline">Settings</span>
+</button>
         <div
           class="hidden items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200 sm:flex"
         >
@@ -427,7 +425,12 @@ function toggleFloatingPanel(mode: FloatingPanelMode) {
   }
 
   if (mode === 'settings') {
-    codeStore.openSelectedNodeSettings()
+    if (codeStore.selectedNode) {
+      codeStore.openSelectedNodeSettings()
+      return
+    }
+
+    codeStore.closePanel()
     return
   }
 
@@ -435,10 +438,6 @@ function toggleFloatingPanel(mode: FloatingPanelMode) {
 }
 
 function toggleSettingsPanel() {
-  if (!codeStore.selectedNode) {
-    return
-  }
-
   toggleFloatingPanel('settings')
 }
 

@@ -1,6 +1,6 @@
 // /stores/navStore.ts
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import type { SmartIcon } from '~/prisma/generated/prisma/client'
 import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 import {
@@ -105,6 +105,8 @@ export const useNavStore = defineStore('navStore', () => {
     getDashboardDefaultTabs(),
   )
 
+  const dashboardTabsHydrated = ref(false)
+
   const wonderLabFolder = ref<string | null>(null)
 
   const smartbarStore = useSmartbarStore()
@@ -130,15 +132,6 @@ export const useNavStore = defineStore('navStore', () => {
 
   if (isClient) {
     hydrateFromLocalStorage()
-
-    watch(
-      () => dashboardTabs.value.art,
-      (next, previous) => {
-        console.info(
-          `[navStore] art dashboard tab changed from "${previous}" to "${next}".`,
-        )
-      },
-    )
   }
 
   const favoritesIcons = computed(() => {
@@ -191,21 +184,11 @@ export const useNavStore = defineStore('navStore', () => {
     safeSetLocalStorage(navFavoritesStorageKey, JSON.stringify(favorites.value))
   }
 
-  function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
-    if (reason === 'unknown') {
-      console.warn(
-        `[navStore] blocked dashboard tab save with unknown reason. Art tab would have been "${dashboardTabs.value.art}".`,
-      )
-      return
-    }
-
-    const payload = JSON.stringify(dashboardTabs.value)
-
-    console.info(
-      `[navStore] saving dashboard tabs because: ${reason}. Art tab is now "${dashboardTabs.value.art}".`,
+  function syncDashboardTabsToLocalStorage(): void {
+    safeSetLocalStorage(
+      dashboardTabsStorageKey,
+      JSON.stringify(dashboardTabs.value),
     )
-
-    safeSetLocalStorage(dashboardTabsStorageKey, payload)
   }
 
   function syncWonderLabFolderToLocalStorage(): void {
@@ -238,16 +221,14 @@ export const useNavStore = defineStore('navStore', () => {
     )
   }
 
-  function hydrateDashboardTabsFromLocalStorage(): void {
+  function hydrateDashboardTabsFromLocalStorage(force = false): void {
+    if (dashboardTabsHydrated.value && !force) return
+
     const raw = safeGetLocalStorage(dashboardTabsStorageKey)
     const parsed = safeParseRecord(raw)
-    const normalized = normalizeDashboardTabs(parsed)
 
-    dashboardTabs.value = normalized
-
-    console.info(
-      `[navStore] hydrated dashboard tabs from localStorage. Saved art tab is "${dashboardTabs.value.art}".`,
-    )
+    dashboardTabs.value = normalizeDashboardTabs(parsed)
+    dashboardTabsHydrated.value = true
   }
 
   function hydrateWonderLabFolderFromLocalStorage(): void {
@@ -255,10 +236,10 @@ export const useNavStore = defineStore('navStore', () => {
       safeGetLocalStorage(wonderLabFolderStorageKey) || null
   }
 
-  function hydrateFromLocalStorage(): void {
+  function hydrateFromLocalStorage(force = false): void {
     hydrateIconsFromLocalStorage()
     hydrateFavoritesFromLocalStorage()
-    hydrateDashboardTabsFromLocalStorage()
+    hydrateDashboardTabsFromLocalStorage(force)
     hydrateWonderLabFolderFromLocalStorage()
   }
 
@@ -298,14 +279,11 @@ export const useNavStore = defineStore('navStore', () => {
         loading.value = true
         clearError()
 
-        hydrateFromLocalStorage()
+        hydrateFromLocalStorage(force)
 
         if (!smartbarStore.isInitialized || force) {
           await smartbarStore.initialize({ force })
         }
-
-        hydrateDashboardTabsFromLocalStorage()
-        hydrateWonderLabFolderFromLocalStorage()
 
         applyIconsFromSmartbar()
         syncModelTypeIfNeeded()
@@ -321,7 +299,7 @@ export const useNavStore = defineStore('navStore', () => {
           syncModelTypeIfNeeded()
         }
 
-        hydrateDashboardTabsFromLocalStorage()
+        hydrateDashboardTabsFromLocalStorage(force)
         hydrateWonderLabFolderFromLocalStorage()
 
         isInitialized.value = false
@@ -426,29 +404,13 @@ export const useNavStore = defineStore('navStore', () => {
   function setDashboardTab(
     dashboardKey: DashboardKey,
     tabKey: string,
-    reason = 'unknown',
+    reason = 'manual',
   ): string {
     const nextTab = isDashboardTabKey(dashboardKey, tabKey)
       ? tabKey
       : dashboardConfigs[dashboardKey].defaultTab
 
-    if (reason === 'unknown') {
-      console.warn(
-        `[navStore] blocked unknown dashboard tab write for ${dashboardKey}. Incoming tab was "${tabKey}". Current saved tab remains "${dashboardTabs.value[dashboardKey]}".`,
-      )
-
-      return getDashboardTab(dashboardKey)
-    }
-
-    console.info(
-      `[navStore] we just set a new tab for ${dashboardKey}. Incoming tab was "${tabKey}". New saved tab is "${nextTab}". Reason: ${reason}.`,
-    )
-
     if (dashboardTabs.value[dashboardKey] === nextTab) {
-      console.info(
-        `[navStore] no save needed for ${dashboardKey}. It was already "${nextTab}".`,
-      )
-
       return nextTab
     }
 
@@ -457,9 +419,7 @@ export const useNavStore = defineStore('navStore', () => {
       [dashboardKey]: nextTab,
     }
 
-    syncDashboardTabsToLocalStorage(
-      `setDashboardTab(${dashboardKey}, ${nextTab}) from ${reason}`,
-    )
+    syncDashboardTabsToLocalStorage()
 
     return nextTab
   }

@@ -3,7 +3,6 @@
   <div
     class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl bg-base-200 p-3 sm:p-4"
   >
-    <!-- ── Show-header pill (visible when header collapsed) ─────────── -->
     <transition name="fade-up">
       <button
         v-if="!showHeader"
@@ -17,7 +16,6 @@
       </button>
     </transition>
 
-    <!-- ── Collapsible header ────────────────────────────────────────── -->
     <transition name="fade-up">
       <header
         v-if="showHeader"
@@ -25,14 +23,12 @@
         :class="navZClass"
       >
         <div class="grid gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:p-4">
-          <!-- Left: image + title + action bar -->
           <section class="flex min-w-0 flex-col gap-3">
             <div class="flex min-w-0 items-start gap-4">
-              <!-- Page image doubles as collapse toggle -->
               <button
                 type="button"
                 title="Hide header"
-                class="group relative h-20 w-20 shrink-0 rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24"
+                class="group relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24"
                 @click="toggleHeader"
               >
                 <page-image
@@ -55,11 +51,13 @@
                 >
                   {{ title }}
                 </p>
+
                 <h1
                   class="truncate text-2xl font-black leading-tight text-base-content"
                 >
                   {{ activeTitle }}
                 </h1>
+
                 <p
                   v-if="activeSummary"
                   class="mt-1 line-clamp-2 text-sm text-base-content/55"
@@ -69,14 +67,12 @@
               </div>
             </div>
 
-            <!-- Action bar -->
             <div
               class="flex flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-200/70 p-2"
             >
-              <!-- Channels dropdown -->
               <div ref="channelMenuRef" class="relative">
                 <button
-                  class="btn btn-sm rounded-xl gap-1.5"
+                  class="btn btn-sm gap-1.5 rounded-xl"
                   :class="
                     showChannels
                       ? 'btn-secondary'
@@ -104,7 +100,6 @@
                     v-if="showChannels"
                     class="absolute left-0 top-full z-50 mt-2 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-xl"
                   >
-                    <!-- Dropdown header -->
                     <div
                       class="flex items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3"
                     >
@@ -118,6 +113,7 @@
                           {{ activeChannel.label }}
                         </p>
                       </div>
+
                       <button
                         class="btn btn-xs btn-ghost rounded-lg"
                         type="button"
@@ -128,7 +124,6 @@
                       </button>
                     </div>
 
-                    <!-- Channel grid -->
                     <div
                       class="grid max-h-[55vh] grid-cols-2 gap-1.5 overflow-y-auto p-3"
                     >
@@ -154,9 +149,10 @@
                         >
                           <Icon :name="channel.icon" class="h-4 w-4" />
                         </span>
-                        <span class="min-w-0 truncate">{{
-                          channel.label
-                        }}</span>
+
+                        <span class="min-w-0 truncate">
+                          {{ channel.label }}
+                        </span>
                       </NuxtLink>
                     </div>
                   </div>
@@ -186,7 +182,6 @@
             </div>
           </section>
 
-          <!-- Right: tab nav -->
           <aside
             v-if="resolvedTabs.length"
             class="flex min-h-0 w-fit flex-col gap-2 rounded-xl border border-base-300 bg-base-200/70 p-2"
@@ -220,7 +215,6 @@
       </header>
     </transition>
 
-    <!-- ── Loading / error banners ───────────────────────────────────── -->
     <transition name="fade-up">
       <div
         v-if="loading"
@@ -241,7 +235,6 @@
       </div>
     </transition>
 
-    <!-- ── Main content ──────────────────────────────────────────────── -->
     <main
       class="relative z-0 min-h-0 flex-1 overflow-y-auto rounded-xl border border-base-300 bg-base-100 shadow-sm"
     >
@@ -312,6 +305,7 @@ const navStore = useNavStore()
 
 const showChannels = ref(false)
 const showHeader = ref(true)
+const navReady = ref(false)
 const channelMenuRef = ref<HTMLElement | null>(null)
 
 const channels: ChannelRoute[] = [
@@ -366,82 +360,139 @@ const channels: ChannelRoute[] = [
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = (props.dashboardKey ?? '').trim()
+
   if (!key || !isDashboardKey(key)) return null
+
   return key
 })
 
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
-  const dk = resolvedDashboardKey.value
-  return dk ? navStore.getDashboardTabs(dk) : props.tabs
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    return navStore.getDashboardTabs(dashboardKey)
+  }
+
+  return props.tabs
 })
 
 const requestedActiveTab = computed(() => {
-  const dk = resolvedDashboardKey.value
-  return dk ? navStore.getDashboardTab(dk) : props.activeTab
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    return navStore.getDashboardTab(dashboardKey)
+  }
+
+  return props.activeTab
 })
 
 const fallbackTab = computed<DashboardTabConfig>(() => {
   const firstTab = resolvedTabs.value[0]
   const requested = requestedActiveTab.value
+
   return {
     key: requested || firstTab?.key || 'overview',
     label: firstTab?.label || requested || 'Overview',
     icon: firstTab?.icon || fallbackIcon,
     title: firstTab?.title || firstTab?.label || requested || 'Overview',
-    summary: firstTab?.summary || '',
+    summary: firstTab?.summary || props.summary || '',
   }
 })
 
 const activeTabConfig = computed<DashboardTabConfig>(() => {
   const requested = (requestedActiveTab.value || '').trim()
+
   if (requested) {
     const matched = resolvedTabs.value.find((tab) => tab.key === requested)
+
     if (matched) return matched
+
     return {
       key: requested,
       label: requested,
       icon: fallbackIcon,
       title: requested,
-      summary: '',
+      summary: props.summary || '',
     }
   }
+
   return resolvedTabs.value[0] ?? fallbackTab.value
 })
 
-const normalizedActiveTab = computed(
-  () => requestedActiveTab.value || activeTabConfig.value.key,
-)
-const activeTitle = computed(
-  () => activeTabConfig.value.title || activeTabConfig.value.label,
-)
-const activeSummary = computed(
-  () => activeTabConfig.value.summary || props.summary || '',
-)
+const normalizedActiveTab = computed(() => {
+  return requestedActiveTab.value || activeTabConfig.value.key
+})
 
-const activeChannel = computed<ChannelRoute>(
-  () =>
+const activeTitle = computed(() => {
+  return activeTabConfig.value.title || activeTabConfig.value.label
+})
+
+const activeSummary = computed(() => {
+  return activeTabConfig.value.summary || props.summary || ''
+})
+
+const activeChannel = computed<ChannelRoute>(() => {
+  return (
     channels.find((channel) => isChannelActive(channel)) ??
     channels[0] ?? {
       key: 'home',
       label: 'Home',
       path: '/',
       icon: 'kind-icon:home',
-    },
-)
+    }
+  )
+})
 
 const tabGridStyle = computed(() => {
   const cols = Math.max(1, Math.ceil(resolvedTabs.value.length / 2))
-  return { gridTemplateColumns: `repeat(${cols}, 8.5rem)` }
+
+  return {
+    gridTemplateColumns: `repeat(${cols}, 8.5rem)`,
+  }
 })
 
+async function ensureNavStoreReady(): Promise<void> {
+  if (navReady.value && navStore.isInitialized) return
+
+  if (navStore.initializePromise) {
+    await navStore.initializePromise
+    navReady.value = true
+    return
+  }
+
+  if (!navStore.isInitialized) {
+    await navStore.initialize()
+  }
+
+  navReady.value = true
+}
+
+async function normalizeStoredDashboardTab(): Promise<void> {
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (!dashboardKey) return
+
+  await ensureNavStoreReady()
+
+  const activeTab = navStore.getDashboardTab(dashboardKey)
+  navStore.setDashboardTab(dashboardKey, activeTab)
+}
+
 function setTab(tabKey: string) {
-  const dk = resolvedDashboardKey.value
-  if (dk) navStore.setDashboardTab(dk, tabKey)
+  const dashboardKey = resolvedDashboardKey.value
+
+  if (dashboardKey) {
+    const savedTab = navStore.setDashboardTab(dashboardKey, tabKey)
+    emit('set-tab', savedTab)
+    return
+  }
+
   emit('set-tab', tabKey)
 }
 
 function isChannelActive(channel: ChannelRoute) {
   if (route.path === channel.path) return true
+
   return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
 }
 
@@ -451,33 +502,67 @@ function toggleChannels() {
 
 function toggleHeader() {
   showHeader.value = !showHeader.value
-  if (!showHeader.value) showChannels.value = false
+
+  if (!showHeader.value) {
+    showChannels.value = false
+  }
 }
 
 function handleDocumentClick(event: MouseEvent) {
   const target = event.target
+
   if (!(target instanceof Node)) return
   if (channelMenuRef.value?.contains(target)) return
+
   showChannels.value = false
 }
 
 function loadHeaderPreference() {
   if (!import.meta.client) return
+
   const saved = localStorage.getItem(storageKey)
+
   if (saved === 'true') {
     showHeader.value = true
     return
   }
-  if (saved === 'false') showHeader.value = false
+
+  if (saved === 'false') {
+    showHeader.value = false
+  }
 }
 
-watch(showHeader, (value) => {
-  if (!import.meta.client) return
-  localStorage.setItem(storageKey, String(value))
-})
+watch(
+  showHeader,
+  (value) => {
+    if (!import.meta.client) return
+
+    localStorage.setItem(storageKey, String(value))
+  },
+)
+
+watch(
+  resolvedDashboardKey,
+  async () => {
+    await normalizeStoredDashboardTab()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => props.activeTab,
+  (tabKey) => {
+    const dashboardKey = resolvedDashboardKey.value
+
+    if (!dashboardKey || !tabKey) return
+
+    navStore.setDashboardTab(dashboardKey, tabKey)
+  },
+)
 
 onMounted(async () => {
-  await navStore.initialize()
+  await ensureNavStoreReady()
+  await normalizeStoredDashboardTab()
   loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
 })

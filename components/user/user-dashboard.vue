@@ -1,43 +1,68 @@
 <!-- /components/content/user/user-dashboard.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-300 p-3 sm:p-4"
+    class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-3 sm:p-4"
   >
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
     <header
-      class="rounded-2xl border border-base-300 bg-base-200 p-4 text-center"
+      class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
     >
-      <h1 class="text-2xl font-black text-base-content">User Dashboard</h1>
-      <p class="mt-1 text-sm text-base-content/60">
-        Profile, avatar, settings, and your magnificent heap of creations.
-      </p>
+      <span
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
+      >
+        <Icon name="kind-icon:user" class="h-5 w-5" />
+      </span>
+      <div class="min-w-0">
+        <h1 class="text-xl font-black text-base-content">User Dashboard</h1>
+        <p class="truncate text-xs text-base-content/55">
+          Profile, avatar, settings, and your magnificent heap of creations.
+        </p>
+      </div>
     </header>
 
+    <!-- ── Main grid ───────────────────────────────────────────────────── -->
     <div
       class="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]"
     >
-      <aside
-        class="flex min-h-0 w-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-      >
+      <!-- Left: profile sidebar -->
+      <aside class="flex min-h-0 w-full flex-col gap-3 overflow-y-auto">
+        <!-- Avatar + username -->
         <div
           class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
         >
-          <user-avatar class="h-24 w-24 rounded-full border-2 border-accent" />
+          <div class="relative">
+            <user-avatar
+              class="h-24 w-24 rounded-full ring-2 ring-accent ring-offset-2 ring-offset-base-100"
+            />
+          </div>
 
-          <h2
-            class="max-w-full truncate rounded-2xl border border-accent bg-base-300 px-3 py-2 text-lg font-black"
-          >
-            {{ user?.username || 'Kind Guest' }}
-          </h2>
-
-          <p v-if="!isLoggedIn" class="text-sm text-base-content/50">
-            Not logged in
-          </p>
+          <div class="flex w-full flex-col items-center gap-1">
+            <h2
+              class="max-w-full truncate text-xl font-black text-base-content"
+            >
+              {{ user?.username || 'Kind Guest' }}
+            </h2>
+            <span v-if="isLoggedIn" class="badge badge-accent badge-sm">
+              Logged in
+            </span>
+            <span v-else class="text-xs text-base-content/45"
+              >Not logged in</span
+            >
+          </div>
         </div>
 
-        <div class="min-w-0 rounded-2xl border border-base-300 bg-base-100 p-3">
+        <!-- Avatar upload -->
+        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="mb-2 flex items-center gap-1.5">
+            <Icon name="kind-icon:camera" class="h-3.5 w-3.5 text-primary" />
+            <span class="text-xs font-bold text-base-content/60"
+              >Change Avatar</span
+            >
+          </div>
           <image-upload class="w-full" />
         </div>
 
+        <!-- Widgets row -->
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <div class="flex flex-wrap items-center justify-center gap-3">
             <jellybean-icon />
@@ -45,26 +70,39 @@
           </div>
         </div>
 
+        <!-- Logout -->
         <button
           v-if="isLoggedIn"
-          class="btn btn-warning w-full rounded-xl text-lg"
+          class="btn btn-outline w-full rounded-xl border-error/40 text-error hover:border-error hover:bg-error hover:text-error-content"
           type="button"
           @click="logout"
         >
-          Logout
+          <Icon name="kind-icon:logout" class="h-4 w-4" />
+          Sign out
         </button>
       </aside>
 
+      <!-- Right: main content -->
       <main class="flex min-h-0 min-w-0 flex-col gap-4 overflow-hidden">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <p class="text-lg font-bold">
-            Welcome, {{ user?.username || 'Guest' }}
-          </p>
-          <p class="text-sm text-base-content/60">
-            Keep the settings tidy. Let the galleries make a mess elsewhere.
-          </p>
+        <!-- Welcome banner -->
+        <div
+          class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+        >
+          <Icon
+            name="kind-icon:sparkles"
+            class="h-5 w-5 shrink-0 text-primary"
+          />
+          <div class="min-w-0">
+            <p class="truncate text-base font-black text-base-content">
+              Welcome back, {{ user?.username || 'traveller' }}
+            </p>
+            <p class="text-xs text-base-content/55">
+              Keep the settings tidy. Let the galleries make a mess elsewhere.
+            </p>
+          </div>
         </div>
 
+        <!-- Logged-in content -->
         <div
           v-if="isLoggedIn"
           class="grid min-h-0 flex-1 grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
@@ -73,13 +111,19 @@
           <user-galleries class="min-w-0" />
         </div>
 
+        <!-- Guest empty state -->
         <div
           v-else
-          class="flex min-h-64 items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-6 text-center"
+          class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
         >
+          <span
+            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-base-200 text-base-content/40"
+          >
+            <Icon name="kind-icon:user" class="h-8 w-8" />
+          </span>
           <div>
-            <p class="text-lg font-black">Guest mode activated.</p>
-            <p class="mt-1 text-sm text-base-content/60">
+            <p class="text-lg font-black text-base-content">Guest mode.</p>
+            <p class="mt-1 text-sm text-base-content/55">
               Charming, mysterious, and tragically short on saved stuff.
             </p>
           </div>
@@ -90,7 +134,6 @@
 </template>
 
 <script lang="ts" setup>
-// /components/content/user/user-dashboard.vue
 import { computed, onMounted, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useUploadStore } from '@/stores/uploadStore'
@@ -114,7 +157,6 @@ function configureUserImageUpload() {
     showPreview: false,
     applyImage: async ({ artImageId, imageData }) => {
       if (!userStore.user?.id) return
-
       await userStore.updateUserInfo({
         id: userStore.user.id,
         artImageId,
@@ -127,7 +169,6 @@ function configureUserImageUpload() {
 onMounted(() => {
   configureUserImageUpload()
 })
-
 watch(
   () => userStore.user?.id,
   () => {

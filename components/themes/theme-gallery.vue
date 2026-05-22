@@ -6,12 +6,20 @@
     <header
       class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:flex-row md:items-center md:justify-between"
     >
-      <div class="min-w-0">
-        <h1 class="truncate text-2xl font-black text-primary">Theme Gallery</h1>
-
-        <p class="mt-1 text-sm text-base-content/65">
-          Preview, apply, and edit DaisyUI or shared Kind Robots themes.
-        </p>
+      <div class="flex items-center gap-3 min-w-0">
+        <span
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:paintbrush" class="h-5 w-5" />
+        </span>
+        <div class="min-w-0">
+          <h1 class="truncate text-2xl font-black text-primary">
+            Theme Gallery
+          </h1>
+          <p class="mt-0.5 text-sm text-base-content/60">
+            Preview, apply, and edit DaisyUI or shared Kind Robots themes.
+          </p>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
@@ -23,7 +31,11 @@
           {{ themeStore.sharedThemes.length }} shared
         </span>
 
-        <span v-if="activeThemeName" class="badge badge-accent">
+        <span
+          v-if="activeThemeName"
+          class="flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-black text-accent"
+        >
+          <Icon name="kind-icon:check" class="h-3 w-3" />
           {{ activeThemeName }}
         </span>
       </div>
@@ -31,26 +43,29 @@
 
     <section
       v-if="themeError"
-      class="shrink-0 whitespace-pre-wrap rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+      class="shrink-0 flex items-start gap-2 whitespace-pre-wrap rounded-2xl border border-error/40 bg-error/10 p-3 text-sm font-semibold text-error"
     >
+      <Icon name="kind-icon:alert" class="mt-0.5 h-4 w-4 shrink-0" />
       {{ themeError }}
     </section>
 
     <main class="min-h-0 flex-1 overflow-y-auto">
       <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <div class="mb-4 flex items-center justify-between gap-3">
+          <div class="mb-4 flex items-center gap-3">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"
+            >
+              <Icon name="kind-icon:palette" class="h-5 w-5" />
+            </span>
             <div>
-              <h2 class="text-xl font-black text-base-content">
+              <h2 class="text-lg font-black text-base-content">
                 Default Themes
               </h2>
-
-              <p class="text-sm text-base-content/60">
+              <p class="text-xs text-base-content/55">
                 Built-in DaisyUI palettes.
               </p>
             </div>
-
-            <Icon name="kind-icon:palette" class="h-7 w-7 text-primary" />
           </div>
 
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -69,18 +84,20 @@
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <div class="mb-4 flex items-center justify-between gap-3">
+          <div class="mb-4 flex items-center gap-3">
+            <span
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary/12 text-secondary"
+            >
+              <Icon name="kind-icon:sparkles" class="h-5 w-5" />
+            </span>
             <div>
-              <h2 class="text-xl font-black text-base-content">
+              <h2 class="text-lg font-black text-base-content">
                 Shared Themes
               </h2>
-
-              <p class="text-sm text-base-content/60">
+              <p class="text-xs text-base-content/55">
                 Community and custom palettes.
               </p>
             </div>
-
-            <Icon name="kind-icon:sparkles" class="h-7 w-7 text-secondary" />
           </div>
 
           <div
@@ -120,9 +137,12 @@
         class="mt-6 rounded-2xl border border-base-300 bg-base-100 p-4"
       >
         <div class="mb-2 flex items-center justify-between gap-2">
-          <h2 class="text-lg font-black text-base-content">
-            Active Theme Snapshot
-          </h2>
+          <div class="flex items-center gap-2">
+            <Icon name="kind-icon:code" class="h-4 w-4 text-primary" />
+            <h2 class="text-base font-black text-base-content">
+              Active Theme Snapshot
+            </h2>
+          </div>
 
           <button
             class="btn btn-xs btn-ghost rounded-xl"

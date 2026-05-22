@@ -33,7 +33,9 @@
     <div class="fx-panel">
       <div class="fx-header">
         <div class="fx-title">
-          <span class="fx-logo">✦</span>
+          <span class="fx-logo">
+            <Icon name="kind-icon:sparkles" class="h-7 w-7" />
+          </span>
           <div>
             <h2>Screen FX</h2>
             <p>Layer chaos responsibly.</p>
@@ -131,8 +133,8 @@
       </div>
 
       <div class="fx-footer">
-        <span>Effects stack together.</span>
-        <span>Several of these are absolutely unhinged. Good.</span>
+        <span>Effects stack. Combine freely.</span>
+        <span>Several are absolutely unhinged. Good.</span>
       </div>
     </div>
   </section>

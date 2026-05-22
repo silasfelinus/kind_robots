@@ -452,9 +452,15 @@ const tabGridStyle = computed(() => {
 })
 
 async function ensureNavStoreReady(): Promise<void> {
-  if (navReady.value) return
+  if (navReady.value && navStore.isInitialized) return
 
-  if (!navStore.isInitialized && !navStore.isInitializing) {
+  if (navStore.initializePromise) {
+    await navStore.initializePromise
+    navReady.value = true
+    return
+  }
+
+  if (!navStore.isInitialized) {
     await navStore.initialize()
   }
 

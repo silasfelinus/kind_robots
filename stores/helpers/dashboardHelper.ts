@@ -75,7 +75,7 @@ export const dashboardConfigs = {
       {
         key: 'workbench',
         label: 'Workbench',
-        icon: 'kind-icon:forge',
+        icon: 'kind-icon:foundry',
         title: 'Workbench',
         summary: 'create modular server requests with our special code cards.',
       },

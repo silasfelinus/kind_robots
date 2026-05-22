@@ -130,10 +130,6 @@ export const useNavStore = defineStore('navStore', () => {
     return Array.from(set).sort()
   })
 
-  if (isClient) {
-    hydrateFromLocalStorage()
-  }
-
   const favoritesIcons = computed(() => {
     const favoriteSet = new Set(favorites.value)
 
@@ -391,6 +387,8 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function getDashboardTab(dashboardKey: DashboardKey): string {
+    hydrateDashboardTabsFromLocalStorage()
+
     const config = dashboardConfigs[dashboardKey]
     const current = dashboardTabs.value[dashboardKey]
 
@@ -406,6 +404,8 @@ export const useNavStore = defineStore('navStore', () => {
     tabKey: string,
     reason = 'manual',
   ): string {
+    hydrateDashboardTabsFromLocalStorage()
+
     const nextTab = isDashboardTabKey(dashboardKey, tabKey)
       ? tabKey
       : dashboardConfigs[dashboardKey].defaultTab

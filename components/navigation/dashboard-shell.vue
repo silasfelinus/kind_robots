@@ -305,7 +305,6 @@ const navStore = useNavStore()
 
 const showChannels = ref(false)
 const showHeader = ref(true)
-const navReady = ref(false)
 const channelMenuRef = ref<HTMLElement | null>(null)
 
 const channels: ChannelRoute[] = [
@@ -451,31 +450,6 @@ const tabGridStyle = computed(() => {
   }
 })
 
-async function ensureNavStoreReady(): Promise<void> {
-  if (navReady.value && navStore.isInitialized) return
-
-  if (navStore.initializePromise) {
-    await navStore.initializePromise
-    navReady.value = true
-    return
-  }
-
-  if (!navStore.isInitialized) {
-    await navStore.initialize()
-  }
-
-  navReady.value = true
-}
-
-async function hydrateDashboardTab(): Promise<void> {
-  const dashboardKey = resolvedDashboardKey.value
-
-  if (!dashboardKey) return
-
-  await ensureNavStoreReady()
-  navStore.getDashboardTab(dashboardKey)
-}
-
 function setTab(tabKey: string) {
   const dashboardKey = resolvedDashboardKey.value
 
@@ -540,23 +514,12 @@ watch(showHeader, (value) => {
   localStorage.setItem(storageKey, String(value))
 })
 
-watch(
-  resolvedDashboardKey,
-  async () => {
-    await hydrateDashboardTab()
-  },
-  { immediate: true },
-)
-
 onMounted(async () => {
-  await ensureNavStoreReady()
-  await hydrateDashboardTab()
+  if (!navStore.isInitialized && !navStore.isInitializing) {
+    await navStore.initialize()
+  }
 
   loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleDocumentClick)
 })
 </script>

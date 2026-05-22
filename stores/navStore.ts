@@ -387,7 +387,11 @@ export const useNavStore = defineStore('navStore', () => {
       dashboardConfigs,
     ) as DashboardKey[]) {
       if (isDashboardTabKey(dashboardKey, normalizedTabKey)) {
-        return setDashboardTab(dashboardKey, normalizedTabKey)
+        return setDashboardTab(
+          dashboardKey,
+          normalizedTabKey,
+          `setDashboardTabFromContent received "${normalizedTabKey}"`,
+        )
       }
     }
 
@@ -428,6 +432,14 @@ export const useNavStore = defineStore('navStore', () => {
       ? tabKey
       : dashboardConfigs[dashboardKey].defaultTab
 
+    if (reason === 'unknown') {
+      console.warn(
+        `[navStore] blocked unknown dashboard tab write for ${dashboardKey}. Incoming tab was "${tabKey}". Current saved tab remains "${dashboardTabs.value[dashboardKey]}".`,
+      )
+
+      return getDashboardTab(dashboardKey)
+    }
+
     console.info(
       `[navStore] we just set a new tab for ${dashboardKey}. Incoming tab was "${tabKey}". New saved tab is "${nextTab}". Reason: ${reason}.`,
     )
@@ -452,10 +464,14 @@ export const useNavStore = defineStore('navStore', () => {
     return nextTab
   }
 
-  function resetDashboardTab(dashboardKey: DashboardKey): string {
+  function resetDashboardTab(
+    dashboardKey: DashboardKey,
+    reason = 'resetDashboardTab',
+  ): string {
     return setDashboardTab(
       dashboardKey,
       dashboardConfigs[dashboardKey].defaultTab,
+      reason,
     )
   }
 

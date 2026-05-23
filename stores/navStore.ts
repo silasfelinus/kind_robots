@@ -103,11 +103,6 @@ export const useNavStore = defineStore('navStore', () => {
 
   const navDebug = true
 
-  function logNav(message: string): void {
-    if (!navDebug) return
-    console.info(`[navStore] ${message}`)
-  }
-
   const dashboardTabs = ref<Record<DashboardKey, string>>(
     getDashboardDefaultTabs(),
   )
@@ -190,10 +185,6 @@ export const useNavStore = defineStore('navStore', () => {
   function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
     const payload = JSON.stringify(dashboardTabs.value)
 
-    logNav(
-      `saving dashboard tabs. reason="${reason}". art="${dashboardTabs.value.art}". user="${dashboardTabs.value.user}". wonder="${dashboardTabs.value.wonder}".`,
-    )
-
     safeSetLocalStorage(dashboardTabsStorageKey, payload)
   }
 
@@ -202,23 +193,12 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   function hydrateDashboardTabsFromLocalStorage(force = false): void {
-    if (dashboardTabsHydrated.value && !force) {
-      logNav(
-        `skipped dashboard tab hydration. already hydrated. art="${dashboardTabs.value.art}".`,
-      )
-      return
-    }
-
     const raw = safeGetLocalStorage(dashboardTabsStorageKey)
     const parsed = safeParseRecord(raw)
     const normalized = normalizeDashboardTabs(parsed)
 
     dashboardTabs.value = normalized
     dashboardTabsHydrated.value = true
-
-    logNav(
-      `hydrated dashboard tabs. force=${force}. raw art="${parsed.art ?? 'missing'}". active art="${dashboardTabs.value.art}".`,
-    )
   }
 
   function getDashboardTab(dashboardKey: DashboardKey): string {
@@ -230,8 +210,6 @@ export const useNavStore = defineStore('navStore', () => {
       current && isDashboardTabKey(dashboardKey, current)
         ? current
         : config.defaultTab
-
-    logNav(`read dashboard "${dashboardKey}". resolved tab="${resolved}".`)
 
     return resolved
   }
@@ -248,14 +226,7 @@ export const useNavStore = defineStore('navStore', () => {
       ? tabKey
       : dashboardConfigs[dashboardKey].defaultTab
 
-    logNav(
-      `set dashboard "${dashboardKey}". incoming="${tabKey}". previous="${previous}". next="${nextTab}". reason="${reason}".`,
-    )
-
     if (previous === nextTab) {
-      logNav(
-        `no save needed for dashboard "${dashboardKey}". tab already="${nextTab}".`,
-      )
       return nextTab
     }
 

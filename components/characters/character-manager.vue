@@ -82,6 +82,12 @@
         </div>
       </section>
 
+      <adventure-builder
+        v-else-if="currentTab === 'adventure'"
+        variant="dashboard"
+        :show-header="false"
+      />
+
       <character-gallery
         v-else-if="currentTab === 'characters'"
         variant="dashboard"

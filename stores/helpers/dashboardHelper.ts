@@ -196,6 +196,13 @@ export const dashboardConfigs = {
         summary: 'Select, add, edit, clone, or delete characters.',
       },
       {
+        key: 'adventure',
+        label: 'Adventure',
+        icon: 'kind-icon:mask',
+        title: 'Adventure Creator',
+        summary: 'Create a character with our interactive adventurer',
+      },
+      {
         key: 'scenarios',
         label: 'Scenarios',
         icon: 'kind-icon:map',

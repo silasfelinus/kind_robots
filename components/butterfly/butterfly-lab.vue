@@ -4,12 +4,13 @@
       <div class="flex flex-col gap-1">
         <h2 class="text-2xl font-bold">Butterfly Orientation Lab</h2>
         <p class="text-sm opacity-80">
-          Manually dial X, Y, and Z rotation in step-5 increments and inspect the butterfly.
+          Manually dial X, Y, and Z rotation in step-5 increments and inspect
+          the butterfly.
         </p>
       </div>
 
       <div
-        class="relative flex min-h-[24rem] items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="relative flex min-h-96 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-100"
       >
         <div class="orientation-stage">
           <div class="orientation-guides" />
@@ -119,26 +120,49 @@
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <button class="btn rounded-2xl" type="button" @click="setPreset(0, 0, 0)">
+        <button
+          class="btn rounded-2xl"
+          type="button"
+          @click="setPreset(0, 0, 0)"
+        >
           Reset
         </button>
-        <button class="btn rounded-2xl" type="button" @click="setPreset(0, 90, 0)">
+        <button
+          class="btn rounded-2xl"
+          type="button"
+          @click="setPreset(0, 90, 0)"
+        >
           Side Y 90
         </button>
-        <button class="btn rounded-2xl" type="button" @click="setPreset(0, -90, 0)">
+        <button
+          class="btn rounded-2xl"
+          type="button"
+          @click="setPreset(0, -90, 0)"
+        >
           Side Y -90
         </button>
-        <button class="btn rounded-2xl" type="button" @click="setPreset(90, 0, 0)">
+        <button
+          class="btn rounded-2xl"
+          type="button"
+          @click="setPreset(90, 0, 0)"
+        >
           Top X 90
         </button>
-        <button class="btn rounded-2xl" type="button" @click="setPreset(0, 0, 90)">
+        <button
+          class="btn rounded-2xl"
+          type="button"
+          @click="setPreset(0, 0, 90)"
+        >
           Spin Z 90
         </button>
       </div>
 
       <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
         <div class="mb-2 text-sm font-semibold">Current transform</div>
-        <pre class="overflow-x-auto whitespace-pre-wrap break-words rounded-2xl bg-base-200 p-3 text-xs font-mono">{{ transformString }}</pre>
+        <pre
+          class="overflow-x-auto whitespace-pre-wrap wrap-break-word rounded-2xl bg-base-200 p-3 text-xs font-mono"
+          >{{ transformString }}</pre
+        >
       </div>
     </div>
   </section>

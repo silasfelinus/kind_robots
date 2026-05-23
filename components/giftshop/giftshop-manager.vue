@@ -8,7 +8,6 @@
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Counting butterfly inventory... tiny clipboards take time."
-    nav-grid-class="xl:grid-cols-7"
     @set-tab="setTab"
     @refresh="refreshManagerData"
   >
@@ -45,60 +44,10 @@
     <template #default="{ activeTab: currentTab }">
       <section class="flex min-h-0 flex-col gap-4">
         <div
-          class="overflow-hidden rounded-2xl border border-primary/30 bg-linear-to-br from-primary/15 via-base-200 to-secondary/10 shadow-sm"
+          class="rounded-2xl border border-base-300 bg-base-200/70 px-4 py-3 text-sm text-base-content/70"
         >
-          <div class="grid gap-4 p-4 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div class="min-w-0 space-y-2">
-              <div class="flex flex-wrap items-center gap-2">
-                <Icon
-                  :name="activeTabInfo.icon"
-                  class="h-7 w-7 shrink-0 text-primary"
-                />
-
-                <h2 class="text-2xl font-black text-primary sm:text-3xl">
-                  {{ activeTabInfo.title || activeTabInfo.label }}
-                </h2>
-
-                <div class="badge badge-primary badge-outline">
-                  {{ activeTabInfo.label }}
-                </div>
-              </div>
-
-              <p
-                class="max-w-4xl text-sm leading-relaxed text-base-content/75 sm:text-base"
-              >
-                {{ activeTabInfo.summary }}
-              </p>
-            </div>
-
-            <div
-              class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100/80 p-2 shadow-sm sm:grid-cols-3 lg:w-96 xl:grid-cols-4"
-            >
-              <button
-                v-for="tab in tabs"
-                :key="tab.key"
-                type="button"
-                class="btn min-h-16 rounded-2xl px-2"
-                :class="currentTab === tab.key ? 'btn-primary' : 'btn-ghost'"
-                @click="setTab(tab.key)"
-              >
-                <span class="flex flex-col items-center gap-1 text-center">
-                  <Icon :name="tab.icon" class="h-5 w-5" />
-
-                  <span class="text-xs font-bold leading-tight">
-                    {{ tab.label }}
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="border-t border-base-300/70 bg-base-100/70 px-4 py-3 text-sm text-base-content/70"
-          >
-            <span class="font-bold text-primary">Swarm memo:</span>
-            {{ swarmMemo }}
-          </div>
+          <span class="font-bold text-primary">Swarm memo:</span>
+          {{ swarmMemo }}
         </div>
 
         <section class="min-h-0 flex-1">
@@ -147,7 +96,7 @@
             class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
           >
             The butterflies misplaced tab
-            <span class="font-bold">{{ currentTab }}</span
+            <span class="font-bold">{{ currentTab }}</span>
             >. This is why we do not let them near the router unsupervised.
           </div>
         </section>
@@ -161,7 +110,6 @@ import { computed, onMounted, ref } from 'vue'
 import {
   dashboardConfigs,
   isDashboardTabKey,
-  type DashboardTabConfig,
 } from '@/stores/helpers/dashboardHelper'
 import { useCartStore } from '@/stores/cartStore'
 import { useNavStore } from '@/stores/navStore'
@@ -193,29 +141,6 @@ const storedTab = computed(() => {
 })
 
 const activeTab = computed<GiftshopTabKey>(() => storedTab.value)
-
-const activeTabInfo = computed<DashboardTabConfig>(() => {
-  const activeMatch = dashboardConfig.tabs.find((tab) => {
-    return tab.key === activeTab.value
-  })
-
-  if (activeMatch) return activeMatch
-
-  const defaultMatch = dashboardConfig.tabs.find((tab) => {
-    return tab.key === dashboardConfig.defaultTab
-  })
-
-  if (defaultMatch) return defaultMatch
-
-  return {
-    key: dashboardConfig.defaultTab,
-    label: dashboardConfig.label,
-    icon: 'kind-icon:gift',
-    title: dashboardConfig.label,
-    summary:
-      'The butterflies misplaced the current tab, which is frankly on brand.',
-  }
-})
 
 const managerSummary = computed(() => {
   const cartText = cartStore.hasItems

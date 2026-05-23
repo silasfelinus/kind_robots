@@ -1,3 +1,4 @@
+//server/api/chats/openai/stream.post.ts
 import { defineEventHandler, readBody, createError, setHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {

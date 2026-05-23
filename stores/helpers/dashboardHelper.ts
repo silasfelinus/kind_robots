@@ -730,6 +730,13 @@ export const dashboardConfigs = {
         title: 'Rebel Button',
         summary: 'Push the button. Regret is optional.',
       },
+      {
+        key: 'chat-test',
+        label: 'Test',
+        icon: 'kind-icon:chat',
+        title: 'Chat Test',
+        summary: 'Test different chat streams.',
+      },
     ],
   },
 } as const satisfies Record<string, DashboardConfig>

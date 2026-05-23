@@ -248,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   isDashboardKey,
@@ -521,15 +521,18 @@ watch(showHeader, (value) => {
 })
 
 onMounted(() => {
+  loadHeaderPreference()
+
   const dashboardKey = resolvedDashboardKey.value
 
   if (dashboardKey) {
+    navStore.hydrateDashboardTabs(true)
+
     console.info(
       `[dashboard-shell] loaded dashboard "${dashboardKey}". active tab="${normalizedActiveTab.value}".`,
     )
   }
 
-  loadHeaderPreference()
   document.addEventListener('click', handleDocumentClick)
 })
 </script>

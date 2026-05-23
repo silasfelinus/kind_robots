@@ -732,10 +732,17 @@ export const dashboardConfigs = {
       },
       {
         key: 'chat-test',
-        label: 'Test',
+        label: 'Chat Test',
         icon: 'kind-icon:chat',
         title: 'Chat Test',
         summary: 'Test different chat streams.',
+      },
+      {
+        key: 'image-test',
+        label: 'Image Test',
+        icon: 'kind-icon:image',
+        title: 'Image Test',
+        summary: 'Test our image generators.',
       },
     ],
   },

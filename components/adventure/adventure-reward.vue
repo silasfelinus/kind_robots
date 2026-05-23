@@ -128,7 +128,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAdventureStore } from '@/stores/adventureStore'
-import type { Rarity } from '@/stores/generatorStore'
+import type { Rarity } from '@/stores/rewardStore'
 
 const store = useAdventureStore()
 

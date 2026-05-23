@@ -15,11 +15,8 @@ import {
   type AdventureCard,
   type AdventureStep,
 } from '@/stores/helpers/adventureCards'
-import {
-  useGeneratorStore,
-  type Rarity,
-  type RolledReward,
-} from '@/stores/generatorStore'
+import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
+import { type Rarity } from './rewardStore'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

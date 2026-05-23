@@ -60,7 +60,7 @@
           <!-- Preview value -->
           <span
             v-if="fieldValue(field.key)"
-            class="ml-auto max-w-[4rem] truncate text-[0.6rem] text-base-content/30"
+            class="ml-auto max-w-16 truncate text-[0.6rem] text-base-content/30"
           >
             {{ fieldValue(field.key) }}
           </span>
@@ -140,7 +140,7 @@
           style="max-height: 320px"
         />
         <div
-          class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-base-100/90 to-transparent p-4"
+          class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-100/90 to-transparent p-4"
         >
           <p class="text-sm font-black text-base-content">
             {{ store.sheet.name || 'Unnamed Entity' }}

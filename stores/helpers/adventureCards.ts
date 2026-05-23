@@ -73,8 +73,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The vacancy',
     icon: 'kind-icon:mask',
     flourish: '⚜',
-    deckImage: '/images/adventure/thumb/role.webp',
-    heroImage: '/images/adventure/hero/role.webp',
+    deckImage: '/images/adventure/thumb/role.png',
+    heroImage: '/images/adventure/hero/role.png',
     tagline: 'A position has opened up in the narrative.',
     narrative:
       "Somewhere in the vast administrative structure of narrative possibility, a vacancy has appeared. The universe's HR department has been holding this slot open for some time. They tried an intern. That went poorly. The position does not specify species, consciousness type, or number of limbs. It requires only a willingness to occupy it completely.",
@@ -94,43 +94,139 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             label: 'The Hero',
             subtext:
               'Central. Determined. The plot happens to them on purpose.',
-            image: '/images/adventure/choices/role/hero.webp',
+            image: '/images/adventure/role/hero.png',
           },
           {
             value: 'Companion',
             label: 'The Companion',
             subtext: 'Indispensable. Often the one who actually solves it.',
-            image: '/images/adventure/choices/role/companion.webp',
+            image: '/images/adventure/role/companion.png',
           },
           {
             value: 'Rival',
             label: 'The Rival',
-            subtext: 'A mirror. Wants the same thing. Worse.',
-            image: '/images/adventure/choices/role/rival.webp',
+            subtext:
+              "A mirror. Wants the same thing. Worse. They've already seen your move.",
+            image: '/images/adventure/role/rival.png',
           },
           {
             value: 'Mentor',
             label: 'The Mentor',
-            subtext: 'Has seen this before. Will not say so directly.',
-            image: '/images/adventure/choices/role/mentor.webp',
+            subtext:
+              'Has seen this before. Will not say so directly. Looks tired in an earned way.',
+            image: '/images/adventure/role/mentor.png',
           },
           {
             value: 'Villain',
             label: 'The Villain',
-            subtext: 'Correct, in their own assessment. Strongly.',
-            image: '/images/adventure/choices/role/villain.webp',
+            subtext:
+              "Correct, in their own assessment. Strongly. They're reading something, unbothered.",
+            image: '/images/adventure/role/villain.png',
           },
           {
             value: 'Trickster',
             label: 'The Trickster',
-            subtext: 'Unreliable in ways that turn out to be essential.',
-            image: '/images/adventure/choices/role/trickster.webp',
+            subtext:
+              'Unreliable in ways that turn out to be essential. Three cards are the same card.',
+            image: '/images/adventure/role/trickster.png',
           },
           {
             value: 'Wildcard',
             label: 'The Wildcard',
-            subtext: 'The story did not plan for this one. It should have.',
-            image: '/images/adventure/choices/role/wildcard.webp',
+            subtext:
+              'The story did not plan for this one. The confetti only falls on them.',
+            image: '/images/adventure/role/wildcard.png',
+          },
+          {
+            value: 'Monster',
+            label: 'The Monster',
+            subtext:
+              'Too large for the doorframe. Holding a small flower with great care.',
+            image: '/images/adventure/role/monster.png',
+          },
+          {
+            value: 'Ghost',
+            label: 'The Ghost',
+            subtext:
+              'Watching a party they cannot enter. One hand on the glass.',
+            image: '/images/adventure/role/ghost.png',
+          },
+          {
+            value: 'Pawn',
+            label: 'The Pawn',
+            subtext:
+              'Alone on an enormous chessboard. All other pieces gone. Endgame.',
+            image: '/images/adventure/role/pawn.png',
+          },
+          {
+            value: 'Double',
+            label: 'The Double',
+            subtext:
+              'Two identical figures, back to back. One in light. One in shadow. Neither aware.',
+            image: '/images/adventure/role/double.png',
+          },
+          {
+            value: 'Chronicler',
+            label: 'The Chronicler',
+            subtext:
+              "The great event rages in the background. They're writing it all down. Unnoticed.",
+            image: '/images/adventure/role/chronicler.png',
+          },
+          {
+            value: 'Bystander',
+            label: 'The Bystander',
+            subtext:
+              'Coffee in hand. Something extraordinary happening. More inconvenienced than awed.',
+            image: '/images/adventure/role/bystander.png',
+          },
+          {
+            value: 'Usurper',
+            label: 'The Usurper',
+            subtext:
+              'Already seated on the throne. Examining it for structural problems. Slightly dissatisfied.',
+            image: '/images/adventure/role/usurper.png',
+          },
+          {
+            value: 'Runaway',
+            label: 'The Runaway',
+            subtext:
+              'Full sprint. Something enormous off-frame. Expression: not fear — relief.',
+            image: '/images/adventure/role/runaway.png',
+          },
+          {
+            value: 'Prophet',
+            label: 'The Prophet',
+            subtext:
+              'Hands to temples, eyes white, crowd backing away. One person is writing it down.',
+            image: '/images/adventure/role/prophet.png',
+          },
+          {
+            value: 'Guardian',
+            label: 'The Guardian',
+            subtext:
+              'Arms spread between something precious and something vast. Been here a long time.',
+            image: '/images/adventure/role/guardian.png',
+          },
+          {
+            value: 'Catalyst',
+            label: 'The Catalyst',
+            subtext:
+              'Touches a wall. Cracks of light spread outward, larger than any building.',
+            image: '/images/adventure/role/catalyst.png',
+          },
+          {
+            value: 'Vessel',
+            label: 'The Vessel',
+            subtext:
+              'Sitting perfectly still. Something enormous and luminous visible just beneath the skin.',
+            image: '/images/adventure/role/vessel.png',
+          },
+          {
+            value: 'The Last',
+            label: 'The Last',
+            subtext:
+              'Center of a vast empty space that used to contain many things. Composed, not sad.',
+            image: '/images/adventure/role/last.png',
           },
           {
             value: '',
@@ -161,8 +257,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The ledger awaits',
     icon: 'kind-icon:signature',
     flourish: '✒',
-    deckImage: '/images/adventure/thumb/name.webp',
-    heroImage: '/images/adventure/hero/name.webp',
+    deckImage: '/images/adventure/thumb/name.png',
+    heroImage: '/images/adventure/hero/name.png',
     tagline: 'The quill has been waiting. It is fine.',
     narrative:
       'A name is a surprisingly durable thing. It outlasts the entity who carries it, haunts records, appears on maps, gets shouted across crowded rooms at the worst possible moment. The entity may not use language. They may not have a mouth. These are not obstacles — they are interesting constraints. The ledger has seen stranger.',
@@ -213,8 +309,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The classification problem',
     icon: 'kind-icon:species',
     flourish: '❦',
-    deckImage: '/images/adventure/thumb/origin.webp',
-    heroImage: '/images/adventure/hero/origin.webp',
+    deckImage: '/images/adventure/thumb/origin.png',
+    heroImage: '/images/adventure/hero/origin.png',
     tagline: 'What they are. What they do. What they do about it.',
     narrative:
       'The universal filing system requires three entries: species, calling, and ethical orientation. The system was designed for bipedal mammals and has been failing gracefully ever since. Fill in the fields. Do not let taxonomic anxiety prevent progress. The cosmos has classified things far stranger and lost the documentation either way.',
@@ -256,13 +352,13 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: 'Lawful Good',
             label: 'Lawful Good',
             subtext: 'The rules exist for a reason. The reason is good.',
-            image: '/images/adventure/choices/alignment/lawful.webp',
+            image: '/images/adventure/alignment/lawful.png',
           },
           {
             value: 'Chaotic Good',
             label: 'Chaotic Good',
             subtext: 'The outcome is good. The method is negotiable.',
-            image: '/images/adventure/choices/alignment/chaotic.webp',
+            image: '/images/adventure/alignment/chaotic.png',
           },
           {
             value: 'Chaotic Neutral',
@@ -273,7 +369,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: 'True Neutral',
             label: 'True Neutral',
             subtext: 'The rules exist. Everything does.',
-            image: '/images/adventure/choices/alignment/neutral.webp',
+            image: '/images/adventure/alignment/neutral.png',
           },
           {
             value: 'Lawful Evil',
@@ -305,8 +401,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The frequency',
     icon: 'kind-icon:person',
     flourish: '☾',
-    deckImage: '/images/adventure/thumb/identity.webp',
-    heroImage: '/images/adventure/hero/identity.webp',
+    deckImage: '/images/adventure/thumb/identity.png',
+    heroImage: '/images/adventure/hero/identity.png',
     tagline: 'How they occupy space. Or the concept of space.',
     narrative:
       'Every entity carries a frequency — a way of being legible to others before a single word or signal has been exchanged. Some have thought carefully about this. Some inherited it by accident. Some are a colour. Some are a temperature. Some are a bureaucratic process that has developed opinions. The question applies to all of them, though the answers look different.',
@@ -325,32 +421,32 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: 'man',
             label: 'Masculine',
             subtext: 'He/him, or however the story fits.',
-            image: '/images/adventure/choices/gender/masculine.webp',
+            image: '/images/adventure/gender/masculine.png',
           },
           {
             value: 'woman',
             label: 'Feminine',
             subtext: 'She/her. Presence, power, and all that entails.',
-            image: '/images/adventure/choices/gender/feminine.webp',
+            image: '/images/adventure/gender/feminine.png',
           },
           {
             value: 'nonbinary',
             label: 'Non-Binary',
             subtext: 'They/them. Both. Neither. Something else entirely.',
-            image: '/images/adventure/choices/gender/nonbinary.webp',
+            image: '/images/adventure/gender/nonbinary.png',
           },
           {
             value: 'agender',
             label: 'Pronouns Are Paperwork',
             subtext:
               'Just an entity, moving through space. The rest is administrative.',
-            image: '/images/adventure/choices/gender/neutral.webp',
+            image: '/images/adventure/gender/neutral.png',
           },
           {
             value: 'fluid',
             label: 'Gender Fluid',
             subtext: 'Shifting, contextual, alive. Ask again Thursday.',
-            image: '/images/adventure/choices/gender/fluid.webp',
+            image: '/images/adventure/gender/fluid.png',
           },
           {
             value: 'N/A — inapplicable to entity architecture',
@@ -362,7 +458,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: '',
             label: 'From the full list',
             subtext: 'Two-spirit, demi, intersex, questioning, and more.',
-            image: '/images/adventure/choices/gender/custom.webp',
+            image: '/images/adventure/gender/custom.png',
             opensList: true,
             listOptions: [
               'two-spirit',
@@ -412,8 +508,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The operating system',
     icon: 'kind-icon:heart',
     flourish: '✦',
-    deckImage: '/images/adventure/thumb/personality.webp',
-    heroImage: '/images/adventure/hero/personality.webp',
+    deckImage: '/images/adventure/thumb/personality.png',
+    heroImage: '/images/adventure/hero/personality.png',
     tagline: 'How they move. Especially when panicking.',
     narrative:
       'Personality is the operating system running beneath all behaviour. A sponge has one. A hive-mind has one — expressed through consensus. A very old filing cabinet that achieved consciousness during a bad audit has a very specific one. It does not explain the entity. It explains why they reach for the same wrong answer three times before trying something different.',
@@ -456,8 +552,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'Six numbers, one receipt',
     icon: 'kind-icon:activity',
     flourish: '♛',
-    deckImage: '/images/adventure/thumb/stats.webp',
-    heroImage: '/images/adventure/hero/stats.webp',
+    deckImage: '/images/adventure/thumb/stats.png',
+    heroImage: '/images/adventure/hero/stats.png',
     tagline: "The cosmos lost the documentation. You're redistributing.",
     narrative:
       "Six numbers. One through six. The cosmos distributed these to every entity at inception and immediately lost the paperwork. You are hereby authorised to redistribute them. The stats are abstract by design — a sponge's Rizz is different from a warlord's Rizz, but both are real, both matter, and both get a number between one and six. The universe finds this fair.",
@@ -481,8 +577,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The glorious problem',
     icon: 'kind-icon:story',
     flourish: '§',
-    deckImage: '/images/adventure/thumb/background.webp',
-    heroImage: '/images/adventure/hero/background.webp',
+    deckImage: '/images/adventure/thumb/background.png',
+    heroImage: '/images/adventure/hero/background.png',
     tagline: 'A past. Unfortunate for them. Useful for the story.',
     narrative:
       "Every entity has a past. Even the sponge has a past — it's mostly about being a sponge, which is more complex than it sounds. All pasts contain the same basic elements: something wanted, something lost, something done about it, and one detail that doesn't quite fit but keeps surfacing at the least helpful moment.",
@@ -536,8 +632,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The reliable trick',
     icon: 'kind-icon:bolt',
     flourish: '✧',
-    deckImage: '/images/adventure/thumb/skill-common.webp',
-    heroImage: '/images/adventure/hero/skill-common.webp',
+    deckImage: '/images/adventure/thumb/skill-common.png',
+    heroImage: '/images/adventure/hero/skill-common.png',
     tagline: 'Practical. Theirs. It works.',
     narrative:
       "Every entity carries a reliable trick. Not a miracle — a tool. Four options have been drawn from the Bureau of Narrative Competency's general-applicability stacks. Each has been evaluated for broad utility across species, genre, and ontological status. One of them belongs to this character.",
@@ -563,8 +659,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The specialised edge',
     icon: 'kind-icon:comet',
     flourish: '✶',
-    deckImage: '/images/adventure/thumb/skill-uncommon.webp',
-    heroImage: '/images/adventure/hero/skill-uncommon.webp',
+    deckImage: '/images/adventure/thumb/skill-uncommon.png',
+    heroImage: '/images/adventure/hero/skill-uncommon.png',
     tagline: 'Situational. But when the situation arrives.',
     narrative:
       'An uncommon skill is not for everyday use. It is for the exact right moment — the one that comes along twice per campaign, and both times feels as though it was waiting specifically for this entity. The skill has been patient. It has been waiting longer than the entity has been alive, in some cases.',
@@ -590,8 +686,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'The signature move',
     icon: 'kind-icon:sparkles',
     flourish: '❋',
-    deckImage: '/images/adventure/thumb/skill-rare.webp',
-    heroImage: '/images/adventure/hero/skill-rare.webp',
+    deckImage: '/images/adventure/thumb/skill-rare.png',
+    heroImage: '/images/adventure/hero/skill-rare.png',
     tagline: 'The table should say: wait, you can do WHAT?',
     narrative:
       "This is the signature move. The one that earns a pause. The one referenced later, across sessions, across sequels: 'Wait — can you do that again?' A rare skill is powerful not because of what it does. It is powerful because of what it says about who — or what — this entity fundamentally is.",
@@ -617,8 +713,8 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     title: 'Introduce them properly',
     icon: 'kind-icon:palette',
     flourish: '▣',
-    deckImage: '/images/adventure/thumb/portrait.webp',
-    heroImage: '/images/adventure/hero/portrait.webp',
+    deckImage: '/images/adventure/thumb/portrait.png',
+    heroImage: '/images/adventure/hero/portrait.png',
     tagline: 'They exist. Now make them visible.',
     narrative:
       'The entity exists. Now they need to exist visually — in the specific, unrepeatable way that makes them recognisable across distance, across genre, across the several seconds between encountering them and deciding how to feel about them. Assemble the prompt. Generate the portrait. Introduce them properly to the world that will shortly be inconvenienced by them.',

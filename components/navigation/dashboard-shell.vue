@@ -22,57 +22,62 @@
         class="relative mb-3 shrink-0 overflow-visible rounded-xl border border-base-300 bg-base-100 shadow-sm"
         :class="navZClass"
       >
-        <div class="grid gap-3 p-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:p-4">
-          <section class="flex min-w-0 flex-col gap-3">
-            <div class="flex min-w-0 items-start gap-4">
-              <button
-                type="button"
-                title="Hide header"
-                class="group relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-24 sm:w-24"
-                @click="toggleHeader"
+        <div class="flex flex-col gap-3 p-3 lg:p-4">
+          <!-- Row 1: image · title · controls -->
+          <div class="flex items-start gap-3">
+            <!-- Collapse-on-click image -->
+            <button
+              type="button"
+              title="Hide header"
+              class="group relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-base-300 sm:h-20 sm:w-20"
+              @click="toggleHeader"
+            >
+              <page-image
+                class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
+              />
+              <span
+                class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
               >
-                <page-image
-                  class="h-full w-full rounded-2xl transition-opacity group-hover:opacity-60"
+                <Icon
+                  name="kind-icon:collapse"
+                  class="h-5 w-5 text-base-content drop-shadow"
                 />
-                <span
-                  class="absolute inset-0 flex items-center justify-center rounded-2xl bg-base-content/0 opacity-0 transition-all group-hover:bg-base-content/15 group-hover:opacity-100"
-                >
-                  <Icon
-                    name="kind-icon:collapse"
-                    class="h-5 w-5 text-base-content drop-shadow"
-                  />
-                </span>
-              </button>
+              </span>
+            </button>
 
-              <div class="min-w-0 flex-1 pt-1">
-                <p
-                  v-if="title"
-                  class="truncate text-[0.65rem] font-bold uppercase tracking-[0.22em] text-base-content/40"
-                >
-                  {{ title }}
-                </p>
-
-                <h1
-                  class="truncate text-2xl font-black leading-tight text-base-content"
-                >
-                  {{ activeTitle }}
-                </h1>
-
-                <p
-                  v-if="activeSummary"
-                  class="mt-1 line-clamp-2 text-sm text-base-content/55"
-                >
-                  {{ activeSummary }}
-                </p>
-              </div>
+            <!-- Title + summary -->
+            <div class="min-w-0 flex-1 pt-0.5">
+              <p
+                v-if="title"
+                class="truncate text-[0.6rem] font-bold uppercase tracking-[0.22em] text-base-content/40"
+              >
+                {{ title }}
+              </p>
+              <h1
+                class="truncate text-xl font-black leading-tight text-base-content sm:text-2xl"
+              >
+                {{ activeTitle }}
+              </h1>
+              <p
+                v-if="activeSummary"
+                class="mt-0.5 line-clamp-2 text-sm text-base-content/55"
+              >
+                {{ activeSummary }}
+              </p>
             </div>
 
-            <div
-              class="flex flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-200/70 p-2"
-            >
+            <!-- Top-right controls: actions slot · channel picker · refresh -->
+            <div class="flex shrink-0 items-center gap-1.5 pt-0.5">
+              <slot
+                name="actions"
+                :active-tab="normalizedActiveTab"
+                :active-tab-config="activeTabConfig"
+              />
+
+              <!-- Channel picker -->
               <div ref="channelMenuRef" class="relative">
                 <button
-                  class="btn btn-sm gap-1.5 rounded-xl"
+                  class="btn btn-sm gap-1 rounded-xl"
                   :class="
                     showChannels
                       ? 'btn-secondary'
@@ -83,8 +88,10 @@
                   title="Channels"
                   @click.stop="toggleChannels"
                 >
-                  <Icon name="kind-icon:compass" class="h-4 w-4" />
-                  <span>{{ activeChannel.label }}</span>
+                  <Icon name="kind-icon:compass" class="h-4 w-4 shrink-0" />
+                  <span class="hidden max-w-24 truncate sm:inline">{{
+                    activeChannel.label
+                  }}</span>
                   <Icon
                     :name="
                       showChannels
@@ -98,7 +105,7 @@
                 <Transition name="fade-up">
                   <div
                     v-if="showChannels"
-                    class="absolute left-0 top-full z-50 mt-2 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-xl"
+                    class="absolute right-0 top-full z-50 mt-2 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-xl"
                   >
                     <div
                       class="flex items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3"
@@ -113,7 +120,6 @@
                           {{ activeChannel.label }}
                         </p>
                       </div>
-
                       <button
                         class="btn btn-xs btn-ghost rounded-lg"
                         type="button"
@@ -149,22 +155,16 @@
                         >
                           <Icon :name="channel.icon" class="h-4 w-4" />
                         </span>
-
-                        <span class="min-w-0 truncate">
-                          {{ channel.label }}
-                        </span>
+                        <span class="min-w-0 truncate">{{
+                          channel.label
+                        }}</span>
                       </NuxtLink>
                     </div>
                   </div>
                 </Transition>
               </div>
 
-              <slot
-                name="actions"
-                :active-tab="normalizedActiveTab"
-                :active-tab-config="activeTabConfig"
-              />
-
+              <!-- Refresh -->
               <button
                 v-if="showRefresh"
                 class="btn btn-sm btn-ghost rounded-xl border border-base-300 bg-base-100"
@@ -180,37 +180,26 @@
                 />
               </button>
             </div>
-          </section>
+          </div>
 
-          <aside
-            v-if="resolvedTabs.length"
-            class="flex min-h-0 w-fit flex-col gap-2 rounded-xl border border-base-300 bg-base-200/70 p-2"
-          >
-            <nav
-              class="grid max-h-44 grid-rows-2 gap-1.5 overflow-x-auto overflow-y-hidden pb-1 pr-1 lg:max-h-48"
-              style="scrollbar-width: none; -webkit-overflow-scrolling: touch"
-              :style="tabGridStyle"
+          <!-- Row 2: tabs — flex-wrap, always fits available width -->
+          <nav v-if="resolvedTabs.length" class="flex flex-wrap gap-1.5">
+            <button
+              v-for="tab in resolvedTabs"
+              :key="tab.key"
+              class="btn btn-sm min-h-9 flex-1 basis-30 justify-start rounded-xl transition-all"
+              type="button"
+              :class="
+                normalizedActiveTab === tab.key
+                  ? 'btn-primary shadow-sm'
+                  : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
+              "
+              @click="setTab(tab.key)"
             >
-              <button
-                v-for="tab in resolvedTabs"
-                :key="tab.key"
-                class="btn btn-sm min-h-11 w-full justify-start rounded-xl transition-all"
-                type="button"
-                :class="
-                  normalizedActiveTab === tab.key
-                    ? 'btn-primary shadow-sm'
-                    : 'btn-ghost border border-base-300 bg-base-100 hover:bg-base-200'
-                "
-                @click="setTab(tab.key)"
-              >
-                <Icon
-                  :name="tab.icon || fallbackIcon"
-                  class="h-4 w-4 shrink-0"
-                />
-                <span class="min-w-0 truncate">{{ tab.label }}</span>
-              </button>
-            </nav>
-          </aside>
+              <Icon :name="tab.icon || fallbackIcon" class="h-4 w-4 shrink-0" />
+              <span class="min-w-0 truncate">{{ tab.label }}</span>
+            </button>
+          </nav>
         </div>
       </header>
     </transition>
@@ -360,36 +349,25 @@ const channels: ChannelRoute[] = [
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = (props.dashboardKey ?? '').trim()
-
   if (!key || !isDashboardKey(key)) return null
-
   return key
 })
 
 const resolvedTabs = computed<DashboardTabConfig[]>(() => {
   const dashboardKey = resolvedDashboardKey.value
-
-  if (dashboardKey) {
-    return navStore.getDashboardTabs(dashboardKey)
-  }
-
+  if (dashboardKey) return navStore.getDashboardTabs(dashboardKey)
   return props.tabs
 })
 
 const requestedActiveTab = computed(() => {
   const dashboardKey = resolvedDashboardKey.value
-
-  if (dashboardKey) {
-    return navStore.getDashboardTab(dashboardKey)
-  }
-
+  if (dashboardKey) return navStore.getDashboardTab(dashboardKey)
   return props.activeTab
 })
 
 const fallbackTab = computed<DashboardTabConfig>(() => {
   const firstTab = resolvedTabs.value[0]
   const requested = requestedActiveTab.value
-
   return {
     key: requested || firstTab?.key || 'overview',
     label: firstTab?.label || requested || 'Overview',
@@ -401,12 +379,9 @@ const fallbackTab = computed<DashboardTabConfig>(() => {
 
 const activeTabConfig = computed<DashboardTabConfig>(() => {
   const requested = (requestedActiveTab.value || '').trim()
-
   if (requested) {
     const matched = resolvedTabs.value.find((tab) => tab.key === requested)
-
     if (matched) return matched
-
     return {
       key: requested,
       label: requested,
@@ -415,21 +390,20 @@ const activeTabConfig = computed<DashboardTabConfig>(() => {
       summary: props.summary || '',
     }
   }
-
   return resolvedTabs.value[0] ?? fallbackTab.value
 })
 
-const normalizedActiveTab = computed(() => {
-  return requestedActiveTab.value || activeTabConfig.value.key
-})
+const normalizedActiveTab = computed(
+  () => requestedActiveTab.value || activeTabConfig.value.key,
+)
 
-const activeTitle = computed(() => {
-  return activeTabConfig.value.title || activeTabConfig.value.label
-})
+const activeTitle = computed(
+  () => activeTabConfig.value.title || activeTabConfig.value.label,
+)
 
-const activeSummary = computed(() => {
-  return activeTabConfig.value.summary || props.summary || ''
-})
+const activeSummary = computed(
+  () => activeTabConfig.value.summary || props.summary || '',
+)
 
 const activeChannel = computed<ChannelRoute>(() => {
   return (
@@ -443,34 +417,22 @@ const activeChannel = computed<ChannelRoute>(() => {
   )
 })
 
-const tabGridStyle = computed(() => {
-  const cols = Math.max(1, Math.ceil(resolvedTabs.value.length / 2))
-
-  return {
-    gridTemplateColumns: `repeat(${cols}, 8.5rem)`,
-  }
-})
-
 function setTab(tabKey: string) {
   const dashboardKey = resolvedDashboardKey.value
-
   if (dashboardKey) {
     const savedTab = navStore.setDashboardTab(
       dashboardKey,
       tabKey,
       'dashboard-shell tab button',
     )
-
     emit('set-tab', savedTab)
     return
   }
-
   emit('set-tab', tabKey)
 }
 
 function isChannelActive(channel: ChannelRoute) {
   if (route.path === channel.path) return true
-
   return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
 }
 
@@ -480,51 +442,35 @@ function toggleChannels() {
 
 function toggleHeader() {
   showHeader.value = !showHeader.value
-
-  if (!showHeader.value) {
-    showChannels.value = false
-  }
+  if (!showHeader.value) showChannels.value = false
 }
 
 function handleDocumentClick(event: MouseEvent) {
   const target = event.target
-
   if (!(target instanceof Node)) return
   if (channelMenuRef.value?.contains(target)) return
-
   showChannels.value = false
 }
 
 function loadHeaderPreference() {
   if (!import.meta.client) return
-
   const saved = localStorage.getItem(storageKey)
-
   if (saved === 'true') {
     showHeader.value = true
     return
   }
-
-  if (saved === 'false') {
-    showHeader.value = false
-  }
+  if (saved === 'false') showHeader.value = false
 }
 
 watch(showHeader, (value) => {
   if (!import.meta.client) return
-
   localStorage.setItem(storageKey, String(value))
 })
 
 onMounted(() => {
   loadHeaderPreference()
-
   const dashboardKey = resolvedDashboardKey.value
-
-  if (dashboardKey) {
-    navStore.hydrateDashboardTabs(true)
-  }
-
+  if (dashboardKey) navStore.hydrateDashboardTabs(true)
   document.addEventListener('click', handleDocumentClick)
 })
 </script>

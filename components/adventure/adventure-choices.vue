@@ -53,16 +53,7 @@
         :key="`art-${stepKey}`"
         class="rounded-2xl border border-dashed border-base-300 bg-base-200/50 p-6 text-center"
       >
-        <Icon
-          name="kind-icon:palette"
-          class="mx-auto h-10 w-10 text-primary/40"
-        />
-        <p class="mt-3 font-bold text-base-content/50">
-          Portrait builder loading...
-        </p>
-        <p class="mt-1 text-sm text-base-content/30">
-          The artist is sharpening their pencil. This panel arrives shortly.
-        </p>
+        <adventure-art />
       </div>
 
       <!-- Unknown input type — shouldn't happen, but the void needs filling -->

@@ -524,8 +524,8 @@ export const useNavStore = defineStore('navStore', () => {
     syncWonderLabFolderToLocalStorage()
   }
 
-  if (isClient) {
-    hydrateFromLocalStorage()
+  function hydrateDashboardTabs(force = false): void {
+    hydrateDashboardTabsFromLocalStorage(force)
   }
 
   return {
@@ -563,6 +563,7 @@ export const useNavStore = defineStore('navStore', () => {
     resetInitialization,
     hydrateFromLocalStorage,
     syncToLocalStorage,
+    hydrateDashboardTabs,
 
     setIcons,
     refreshIconsFromSmartbar,

@@ -167,7 +167,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useAdventureStore } from '@/stores/adventureStore'
 import { useUserStore } from '@/stores/userStore'
 import { handleError, performFetch } from '@/stores/utils'
-import type { Rarity } from '@/stores/generatorStore'
+import type { Rarity } from '@/stores/rewardStore'
 import type { RolledReward } from '@/stores/generatorStore'
 
 // ── Stores ──────────────────────────────────────────────────────────────────

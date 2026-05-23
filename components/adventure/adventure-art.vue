@@ -155,9 +155,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useAdventureStore } from '@/stores/adventureStore'
-import { performFetch } from '@/stores/utils'
 
 const store = useAdventureStore()
 
@@ -204,43 +203,15 @@ function assemblePrompt() {
   store.buildArtPrompt(selectedFields.value)
 }
 
-// ── LLM refinement ──────────────────────────────────────────────────────────
+// ── LLM refinement — delegated to store ──────────────────────────────────────
 
-const llmLoading = ref(false)
-const llmError = ref<string | null>(null)
+const llmLoading = computed(() => store.llmLoading)
+const llmError = computed(() => store.llmError)
 
 async function refineWithAI() {
   const current = store.sheet.artPrompt.trim()
   if (!current || llmLoading.value) return
-
-  llmLoading.value = true
-  llmError.value = null
-
-  try {
-    type SuggestResult = { value: string }
-
-    const result = await performFetch<SuggestResult>('/api/adventure/suggest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        field: 'artPrompt',
-        current,
-        sheet: store.sheet,
-        stepKey: 'art',
-      }),
-    })
-
-    if (result.success && result.data?.value) {
-      store.sheet.artPrompt = result.data.value
-    } else {
-      llmError.value =
-        result.message ?? 'The AI returned something unusable. Try again.'
-    }
-  } catch {
-    llmError.value = 'Connection failed. The portrait artist is unreachable.'
-  } finally {
-    llmLoading.value = false
-  }
+  await store.callArtSuggest(current)
 }
 
 // ── Art creator callback ────────────────────────────────────────────────────

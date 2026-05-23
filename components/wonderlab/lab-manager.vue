@@ -30,6 +30,11 @@
         class="h-full w-full"
         :show-header="false"
       />
+      <chat-test
+        v-else-if="currentTab === 'chat-test'"
+        class="h-full w-full"
+        :show-header="false"
+      />
 
       <div
         v-else

@@ -10,13 +10,15 @@
 
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
+import { useServerStore } from '@/stores/serverStore'
+import { performFetch } from '@/stores/utils'
 import {
   ADVENTURE_CARDS,
   type AdventureCard,
   type AdventureStep,
 } from '@/stores/helpers/adventureCards'
 import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
-import { type Rarity } from './rewardStore'
+import { type Rarity } from '@/stores/rewardStore'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -635,6 +637,108 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     )
   }
 
+  // ── LLM suggest via active text server ───────────────────────────────────
+
+  async function callSuggest(
+    field: string,
+    stepKey: string,
+    current: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    llmLoading.value = true
+    llmError.value = null
+    try {
+      const serverStore = useServerStore()
+      const activeServer = serverStore.activeTextServer
+      const serverSnapshot = activeServer
+        ? {
+            serverType: activeServer.serverType ?? null,
+            baseUrl: activeServer.baseUrl ?? null,
+            endpointPath: activeServer.endpointPath ?? null,
+            model: activeServer.model ?? null,
+          }
+        : undefined
+      type SuggestResult = { value: string }
+      const result = await performFetch<SuggestResult>(
+        '/api/adventure/suggest',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            server: serverSnapshot,
+            field,
+            stepKey,
+            current,
+            sheet,
+          }),
+        },
+      )
+      if (result.success && result.data?.value) {
+        setStagedValue(stepKey, result.data.value)
+        return { success: true }
+      }
+      const msg =
+        result.message ?? 'The language model returned nothing useful.'
+      llmError.value = msg
+      return { success: false, message: msg }
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : 'Suggestion request failed.'
+      llmError.value = msg
+      return { success: false, message: msg }
+    } finally {
+      llmLoading.value = false
+    }
+  }
+
+  async function callArtSuggest(
+    current: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    llmLoading.value = true
+    llmError.value = null
+    try {
+      const serverStore = useServerStore()
+      const activeServer = serverStore.activeTextServer
+      const serverSnapshot = activeServer
+        ? {
+            serverType: activeServer.serverType ?? null,
+            baseUrl: activeServer.baseUrl ?? null,
+            endpointPath: activeServer.endpointPath ?? null,
+            model: activeServer.model ?? null,
+          }
+        : undefined
+      type SuggestResult = { value: string }
+      const result = await performFetch<SuggestResult>(
+        '/api/adventure/suggest',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            server: serverSnapshot,
+            field: 'artPrompt',
+            stepKey: 'art',
+            current,
+            sheet,
+          }),
+        },
+      )
+      if (result.success && result.data?.value) {
+        sheet.artPrompt = result.data.value
+        return { success: true }
+      }
+      const msg =
+        result.message ?? 'Art prompt refinement returned nothing useful.'
+      llmError.value = msg
+      return { success: false, message: msg }
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : 'Art suggest request failed.'
+      llmError.value = msg
+      return { success: false, message: msg }
+    } finally {
+      llmLoading.value = false
+    }
+  }
+
   // ── Reset ──────────────────────────────────────────────────────────────
 
   function resetAdventure(userId = 10) {
@@ -691,6 +795,8 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     selectCard,
     randomCard,
     cancelCard,
+    callSuggest,
+    callArtSuggest,
     nextStep,
     prevStep,
     setStagedValue,

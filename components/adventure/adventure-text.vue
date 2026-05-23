@@ -97,9 +97,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useAdventureStore } from '@/stores/adventureStore'
-import { performFetch } from '@/stores/utils'
 
 const store = useAdventureStore()
 
@@ -118,62 +117,25 @@ const stagedValue = computed({
 
 const charCount = computed(() => stagedValue.value.length)
 
-// ── LLM state (local — does not need to live in store) ──────────────────────
-
-const llmLoading = ref(false)
-const llmError = ref<string | null>(null)
+// LLM state lives in store — read directly
+const llmLoading = computed(() => store.llmLoading)
+const llmError = computed(() => store.llmError)
 
 // ── Interactions ────────────────────────────────────────────────────────────
 
-/** Enter on short input: advance / finish if value present */
 function handleEnter() {
   if (!isLong.value && stagedValue.value.trim()) {
     store.finishCard()
   }
 }
 
-/** Generator suggest — no API, instant */
 function handleSuggest() {
-  llmError.value = null
   store.suggestCurrentStep()
 }
 
-/**
- * LLM refine — sends current sheet context + existing value to the API.
- * On success, overwrites stagedValues[stepKey] with the refined string.
- * Writes directly to store — no emit needed.
- */
 async function handleLLMRefine() {
+  const field = activeStep.value?.field ?? stepKey.value
   const current = stagedValue.value.trim()
-  if (!current || llmLoading.value) return
-
-  llmLoading.value = true
-  llmError.value = null
-
-  try {
-    type SuggestResult = { value: string }
-
-    const result = await performFetch<SuggestResult>('/api/adventure/suggest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        field: activeStep.value?.field ?? stepKey.value,
-        current,
-        sheet: store.sheet,
-        stepKey: stepKey.value,
-      }),
-    })
-
-    if (result.success && result.data?.value) {
-      store.setStagedValue(stepKey.value, result.data.value)
-    } else {
-      llmError.value =
-        result.message ?? 'The AI returned something inscrutable. Try again.'
-    }
-  } catch {
-    llmError.value = 'Connection failed. The AI is unavailable or confused.'
-  } finally {
-    llmLoading.value = false
-  }
+  await store.callSuggest(field, stepKey.value, current)
 }
 </script>

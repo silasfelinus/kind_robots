@@ -1,3 +1,4 @@
+//server/api/chats/ollama/stream.post.ts
 import { defineEventHandler, readBody, createError, setHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {
@@ -8,9 +9,7 @@ export default defineEventHandler(async (event) => {
     // Resolve Ollama URL. Priority: body.baseUrl > body.serverName lookup (TODO)
     // > runtimeConfig.ollamaBaseUrl > localhost default.
     const baseUrl =
-      body.baseUrl ||
-      config.ollamaBaseUrl ||
-      'http://localhost:11434'
+      body.baseUrl || config.ollamaBaseUrl || 'http://localhost:11434'
 
     const messages = body.messages ?? [
       ...(body.system ? [{ role: 'system', content: body.system }] : []),

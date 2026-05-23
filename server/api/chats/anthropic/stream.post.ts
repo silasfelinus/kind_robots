@@ -1,3 +1,5 @@
+//server/api/chats/anthropic/stream.post.ts
+
 import { defineEventHandler, readBody, createError, setHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {

@@ -518,6 +518,21 @@ const GENRES: string[] = [
   'Middle Management Horror',
   'The Extremely Long Meeting',
   'Performance Review Arc',
+  // Refined additions
+  'Noir (one detail wrong)',
+  'Carnival (abandoned, still running)',
+  'Infinite Archive',
+  'Mythological Comedy',
+  'Underwater Cathedral',
+  'Green Sky Apocalypse',
+  'Old Forest Folklore',
+  'Bioluminescent Underground',
+  'Too-Close Moon Fairytale',
+  'Empty Parliament Thriller',
+  'Village Creature Pastoral',
+  'Anachronism Mystery',
+  'Western (strange angle)',
+  'Political Candlelight Drama',
 ]
 
 const ALIGNMENT_ETHICS: string[] = [

@@ -12,7 +12,7 @@
     <div
       class="shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
     >
-      <div class="relative aspect-[3/2] w-full overflow-hidden bg-base-300">
+      <div class="relative aspect-3/2 w-full overflow-hidden bg-base-300">
         <img
           v-if="sheet.imagePath"
           :src="sheet.imagePath"

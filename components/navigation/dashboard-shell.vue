@@ -461,10 +461,6 @@ function setTab(tabKey: string) {
       'dashboard-shell tab button',
     )
 
-    console.info(
-      `[dashboard-shell] clicked dashboard "${dashboardKey}" tab "${tabKey}". saved tab="${savedTab}".`,
-    )
-
     emit('set-tab', savedTab)
     return
   }
@@ -527,10 +523,6 @@ onMounted(() => {
 
   if (dashboardKey) {
     navStore.hydrateDashboardTabs(true)
-
-    console.info(
-      `[dashboard-shell] loaded dashboard "${dashboardKey}". active tab="${normalizedActiveTab.value}".`,
-    )
   }
 
   document.addEventListener('click', handleDocumentClick)

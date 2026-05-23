@@ -6,7 +6,7 @@
     <transition name="fade-up">
       <button
         v-if="!showHeader"
-        class="absolute left-3 top-3 z-50 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
+        class="absolute left-1 top-1 z-50 flex items-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-2.5 py-1.5 text-xs font-bold text-base-content shadow-md backdrop-blur transition-all hover:border-primary hover:text-primary active:scale-95"
         type="button"
         title="Show header"
         @click="toggleHeader"

@@ -92,7 +92,6 @@
         <div class="grid grid-cols-1 gap-1">
           <sheet-field label="Name" :value="sheet.name" />
           <sheet-field label="Honorific" :value="sheet.honorific" />
-          <sheet-field label="Title" :value="sheet.title" />
           <sheet-field label="Role" :value="sheet.role" />
           <sheet-field label="Genre" :value="sheet.genre" />
         </div>
@@ -112,16 +111,15 @@
         </div>
       </sheet-section>
 
-      <!-- Identity/presentation block -->
+      <!-- Identity block -->
       <sheet-section
-        v-if="hasPresentation"
-        label="Presence"
+        v-if="sheet.gender"
+        label="Identity"
         icon="kind-icon:person"
         card-key="identity"
       >
         <div class="grid grid-cols-1 gap-1">
           <sheet-field label="Gender" :value="sheet.gender" />
-          <sheet-field label="Presentation" :value="sheet.presentation" long />
         </div>
       </sheet-section>
 
@@ -134,7 +132,6 @@
       >
         <div class="grid grid-cols-1 gap-1">
           <sheet-field label="Personality" :value="sheet.personality" long />
-          <sheet-field label="Drive" :value="sheet.drive" long />
         </div>
       </sheet-section>
 
@@ -176,8 +173,7 @@
       >
         <div class="grid grid-cols-1 gap-1">
           <sheet-field label="Backstory" :value="sheet.backstory" long />
-          <sheet-field label="Achievements" :value="sheet.achievements" long />
-          <sheet-field label="Quirks" :value="sheet.quirks" />
+          <sheet-field label="Quirks" :value="sheet.quirks" long />
         </div>
       </sheet-section>
 
@@ -280,17 +276,10 @@ const hasIdentity = computed(() =>
 const hasOrigin = computed(() =>
   Boolean(sheet.value.species || sheet.value.class || sheet.value.alignment),
 )
-const hasPresentation = computed(() =>
-  Boolean(sheet.value.gender || sheet.value.presentation),
-)
-const hasPersonality = computed(() =>
-  Boolean(sheet.value.personality || sheet.value.drive),
-)
+const hasPersonality = computed(() => Boolean(sheet.value.personality))
 const hasStats = computed(() => sheet.value.stats.some((s) => s.value > 0))
 const hasBackground = computed(() =>
-  Boolean(
-    sheet.value.backstory || sheet.value.achievements || sheet.value.quirks,
-  ),
+  Boolean(sheet.value.backstory || sheet.value.quirks),
 )
 const hasAnySkill = computed(() => Object.keys(sheet.value.rewards).length > 0)
 

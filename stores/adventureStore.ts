@@ -18,9 +18,12 @@ import {
   type AdventureStep,
 } from '@/stores/helpers/adventureCards'
 import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
-import { type Rarity } from '@/stores/rewardStore'
+import type { Rarity } from '@/stores/rewardStore'
 
 // ── Types ──────────────────────────────────────────────────────────────────
+
+const isClient = typeof window !== 'undefined'
+const STORAGE_KEY = 'adventureBuilderState'
 
 export type StatEntry = {
   key: string
@@ -38,7 +41,6 @@ export type AdventureSheet = {
   // Identity
   name: string
   honorific: string
-  title: string
   role: string
   genre: string
   // Origin
@@ -47,13 +49,10 @@ export type AdventureSheet = {
   alignment: string
   // Identity
   gender: string
-  presentation: string // Text — no length limit
   // Personality
   personality: string
-  drive: string // Text — no length limit
   // Background
   backstory: string
-  achievements: string // Text — no length limit
   quirks: string
   // Art
   artPrompt: string
@@ -123,18 +122,14 @@ function defaultSheet(userId = 10): AdventureSheet {
   return {
     name: '',
     honorific: 'adventurer',
-    title: '',
     role: '',
     genre: '',
     species: '',
     class: '',
     alignment: '',
     gender: '',
-    presentation: '',
     personality: '',
-    drive: '',
     backstory: '',
-    achievements: '',
     quirks: '',
     artPrompt: '',
     imagePath: null,
@@ -162,6 +157,25 @@ function tierFromValue(v: number): Rarity {
   if (v === 3) return 'RARE'
   if (v === 2) return 'UNCOMMON'
   return 'COMMON'
+}
+
+// ── Storage helpers ───────────────────────────────────────────────────────────
+
+function saveToStorage(data: unknown): void {
+  if (!isClient) return
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  } catch {}
+}
+
+function loadFromStorage(): unknown {
+  if (!isClient) return null
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
 }
 
 // ── Store ──────────────────────────────────────────────────────────────────
@@ -338,6 +352,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   function setStagedValue(stepKey: string, value: string) {
     stagedValues[stepKey] = value
+    persistState()
   }
 
   function nextStep() {
@@ -358,6 +373,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
    */
   function selectPresetChoice(stepKey: string, value: string) {
     stagedValues[stepKey] = value
+    persistState()
     if (isLastStep.value) {
       finishCard()
     } else {
@@ -381,6 +397,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       }
       syncStatTiers()
       completedCards['stats'] = true
+      persistState()
       _advanceToNextCard(card.key)
       return
     }
@@ -393,6 +410,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       )
       if (option) sheet.rewards[card.rewardSlotKey] = option
       completedCards[card.key] = true
+      persistState()
       _advanceToNextCard(card.key)
       return
     }
@@ -402,6 +420,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       completedCards['art'] = Boolean(
         sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId,
       )
+      persistState()
       _advanceToNextCard(card.key)
       return
     }
@@ -414,6 +433,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     }
 
     completedCards[card.key] = true
+    persistState()
     _advanceToNextCard(card.key)
   }
 
@@ -469,6 +489,9 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       sheet.artPrompt = ''
       return
     }
+    // Dropped fields — silently ignore if restoration is attempted
+    if (['title', 'presentation', 'drive', 'achievements'].includes(field))
+      return
     // Reward slots
     if (field in SLOT_BASE_RARITY) {
       delete sheet.rewards[field]
@@ -570,7 +593,16 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
     if (step.generatorKey) {
       const val = generator.generateOne(step.generatorKey, '')
-      if (val) stagedValues[step.key] = val
+      if (val) {
+        if (step.appendSuggest && stagedValues[step.key]?.trim()) {
+          // Append with comma separator instead of replacing
+          const existing = stagedValues[step.key].trimEnd()
+          const separator = existing.endsWith(',') ? ' ' : ', '
+          stagedValues[step.key] = existing + separator + val
+        } else {
+          stagedValues[step.key] = val
+        }
+      }
     }
   }
 
@@ -593,7 +625,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
     inc('species', sheet.species)
     inc('class', sheet.class)
-    inc('presentation', sheet.presentation)
     inc('personality', sheet.personality, 'personality')
     inc('genre', sheet.genre ? `${sheet.genre} aesthetic` : '')
     inc('role', sheet.role ? `the ${sheet.role}` : '')
@@ -739,6 +770,125 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     }
   }
 
+  // ── Persistence ───────────────────────────────────────────────────────────
+
+  function persistState(): void {
+    saveToStorage({
+      sheet: {
+        ...sheet,
+        stats: sheet.stats.map((s) => ({ ...s })),
+        rewards: { ...sheet.rewards },
+      },
+      completedCards: { ...completedCards },
+      stagedValues: { ...stagedValues },
+      draftStats: draftStats.map((s) => ({ ...s })),
+      rewardOptions: { ...rewardOptions },
+      selectedRewardId: { ...selectedRewardId },
+      activeCardKey: activeCardKey.value,
+      activeStepIndex: activeStepIndex.value,
+    })
+  }
+
+  function restoreState(): void {
+    const saved = loadFromStorage()
+    if (!saved || typeof saved !== 'object') return
+
+    const s = saved as Record<string, unknown>
+
+    // Restore sheet fields
+    if (s.sheet && typeof s.sheet === 'object') {
+      const savedSheet = s.sheet as Partial<AdventureSheet>
+      const keys: Array<keyof AdventureSheet> = [
+        'name',
+        'honorific',
+        'role',
+        'genre',
+        'species',
+        'class',
+        'alignment',
+        'gender',
+        'personality',
+        'backstory',
+        'quirks',
+        'artPrompt',
+        'imagePath',
+        'artImageId',
+        'luck',
+        'might',
+        'wits',
+        'grace',
+        'charm',
+        'empathy',
+        'userId',
+        'isPublic',
+        'isMature',
+      ]
+      for (const key of keys) {
+        if (key in savedSheet) {
+          ;(sheet as Record<string, unknown>)[key] =
+            savedSheet[key] ?? (sheet as Record<string, unknown>)[key]
+        }
+      }
+      // Restore stats array
+      if (Array.isArray(savedSheet.stats)) {
+        for (const saved of savedSheet.stats) {
+          const target = sheet.stats.find((s) => s.key === saved.key)
+          if (target && typeof saved.value === 'number')
+            target.value = saved.value
+        }
+      }
+      // Restore rewards
+      if (savedSheet.rewards && typeof savedSheet.rewards === 'object') {
+        Object.assign(sheet.rewards, savedSheet.rewards)
+      }
+    }
+
+    // Restore completedCards
+    if (s.completedCards && typeof s.completedCards === 'object') {
+      Object.assign(completedCards, s.completedCards)
+    }
+
+    // Restore stagedValues
+    if (s.stagedValues && typeof s.stagedValues === 'object') {
+      Object.assign(stagedValues, s.stagedValues)
+    }
+
+    // Restore draftStats
+    if (Array.isArray(s.draftStats)) {
+      for (const saved of s.draftStats as Array<{
+        key: string
+        value: number
+      }>) {
+        const target = draftStats.find((d) => d.key === saved.key)
+        if (target && typeof saved.value === 'number')
+          target.value = saved.value
+      }
+    }
+
+    // Restore reward options and selections
+    if (s.rewardOptions && typeof s.rewardOptions === 'object') {
+      Object.assign(rewardOptions, s.rewardOptions)
+    }
+    if (s.selectedRewardId && typeof s.selectedRewardId === 'object') {
+      Object.assign(selectedRewardId, s.selectedRewardId)
+    }
+
+    // Restore active card/step — but don't auto-navigate to it yet
+    if (typeof s.activeCardKey === 'string') {
+      activeCardKey.value = s.activeCardKey
+    }
+    if (typeof s.activeStepIndex === 'number') {
+      activeStepIndex.value = s.activeStepIndex
+    }
+  }
+
+  function clearStorage(): void {
+    if (!isClient) return
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
+  }
+
   // ── Reset ──────────────────────────────────────────────────────────────
 
   function resetAdventure(userId = 10) {
@@ -749,6 +899,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     llmError.value = null
     saveMessage.value = ''
     saveError.value = ''
+    clearStorage()
 
     for (const k of Object.keys(stagedValues)) delete stagedValues[k]
     for (const k of Object.keys(completedCards)) delete completedCards[k]
@@ -797,6 +948,9 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     cancelCard,
     callSuggest,
     callArtSuggest,
+    persistState,
+    restoreState,
+    clearStorage,
     nextStep,
     prevStep,
     setStagedValue,

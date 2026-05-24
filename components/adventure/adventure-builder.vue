@@ -232,18 +232,14 @@ async function saveCharacter() {
     const body: Record<string, unknown> = {
       name: s.name.trim(),
       honorific: s.honorific.trim() || 'adventurer',
-      title: s.title.trim() || null,
       role: s.role.trim() || null,
       genre: s.genre.trim() || null,
       species: s.species.trim() || null,
       class: s.class.trim() || null,
       alignment: s.alignment.trim() || null,
       gender: s.gender.trim() || null,
-      presentation: s.presentation.trim() || null,
       personality: s.personality.trim() || null,
-      drive: s.drive.trim() || null,
       backstory: s.backstory.trim() || null,
-      achievements: s.achievements.trim() || null,
       quirks: s.quirks.trim() || null,
       artPrompt: s.artPrompt.trim() || null,
       artImageId: s.artImageId || null,
@@ -354,17 +350,20 @@ function doReset() {
 // ── Lifecycle ────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-  // Set user ID on sheet
+  // Set user ID
   adventureStore.sheet.userId = userStore.userId || 10
+
+  // Restore previous session from localStorage
+  adventureStore.restoreState()
+
+  // If nothing restored or no card active, draw one
+  if (!adventureStore.activeCardKey && adventureStore.visibleCards.length) {
+    adventureStore.randomCard()
+  }
 
   // Breakpoint detection
   updateBreakpoint()
   window.addEventListener('resize', updateBreakpoint)
-
-  // Auto-draw a card if nothing is active
-  if (!adventureStore.activeCardKey && adventureStore.visibleCards.length) {
-    adventureStore.randomCard()
-  }
 })
 </script>
 

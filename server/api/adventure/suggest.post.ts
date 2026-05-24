@@ -38,18 +38,14 @@ type ServerSnapshot = {
 type SheetSnapshot = {
   name?: string
   honorific?: string
-  title?: string
   role?: string
   genre?: string
   species?: string
   class?: string
   alignment?: string
   gender?: string
-  presentation?: string
   personality?: string
-  drive?: string
   backstory?: string
-  achievements?: string
   quirks?: string
   artPrompt?: string
   rewards?: Record<string, { label: string; power: string; rarity: string }>
@@ -116,9 +112,7 @@ function buildSheetContext(sheet: SheetSnapshot): string {
   if (sheet.genre) lines.push(`Genre: ${sheet.genre}`)
   if (sheet.alignment) lines.push(`Alignment: ${sheet.alignment}`)
   if (sheet.gender) lines.push(`Gender: ${sheet.gender}`)
-  if (sheet.presentation) lines.push(`Presentation: ${sheet.presentation}`)
   if (sheet.personality) lines.push(`Personality: ${sheet.personality}`)
-  if (sheet.drive) lines.push(`Drive: ${sheet.drive}`)
   if (sheet.backstory) lines.push(`Backstory: ${sheet.backstory}`)
 
   if (sheet.rewards) {

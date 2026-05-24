@@ -853,6 +853,76 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/species/voidling.png',
           },
           {
+            value: 'Siren',
+            label: 'Siren',
+            subtext:
+              'Voice like a navigation hazard. Technically not their fault.',
+            image: '/images/adventure/species/siren.png',
+          },
+          {
+            value: 'Tardigrade',
+            label: 'Tardigrade',
+            subtext:
+              'Microscopic and unkillable. Survived everything so far. Not worried.',
+            image: '/images/adventure/species/tardigrade.png',
+          },
+          {
+            value: 'Axolotl',
+            label: 'Axolotl',
+            subtext:
+              'Refused to grow up. The universe respected this. Regenerates everything, including bad decisions.',
+            image: '/images/adventure/species/axolotl.png',
+          },
+          {
+            value: 'Mantis Shrimp',
+            label: 'Mantis Shrimp',
+            subtext:
+              'Sees sixteen colours with no names. Punches faster than a bullet. Deeply unimpressed by everything.',
+            image: '/images/adventure/species/mantis-shrimp.png',
+          },
+          {
+            value: 'Murder of Crows',
+            label: 'Murder of Crows',
+            subtext:
+              'Not a metaphor. An actual group of crows that decided to operate as one entity. Consensus is immediate. Grudges are unanimous.',
+            image: '/images/adventure/species/murder-of-crows.png',
+          },
+          {
+            value: 'Leech',
+            label: 'Leech',
+            subtext:
+              'Precise, patient, and medically useful in ways nobody anticipated. Takes exactly what is needed. Usually.',
+            image: '/images/adventure/species/leech.png',
+          },
+          {
+            value: 'Octopus',
+            label: 'Octopus',
+            subtext:
+              'Three hearts, nine brains, infinite arms. Has been something else so long they forgot which one they started as.',
+            image: '/images/adventure/species/octopus.png',
+          },
+          {
+            value: 'Elder God',
+            label: 'Elder God',
+            subtext:
+              'Pre-dates the concept of time. Finds the current era quaint. Not hostile — just incomprehensible, which is worse.',
+            image: '/images/adventure/species/elder-god.png',
+          },
+          {
+            value: 'Platypus',
+            label: 'Platypus',
+            subtext:
+              'Assembled by a committee. Venomous in ways that defy logic. Lays eggs. Done explaining themselves.',
+            image: '/images/adventure/species/platypus.png',
+          },
+          {
+            value: 'Ankylosaurus',
+            label: 'Ankylosaurus',
+            subtext:
+              'Armoured entirely. The tail is a weapon and they know it. Slow to anger. The anger is structural when it arrives.',
+            image: '/images/adventure/species/ankylosaurus.png',
+          },
+          {
             value: '',
             label: 'Something stranger',
             subtext:
@@ -1200,21 +1270,236 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     heroImage: '/images/adventure/hero/background.png',
     tagline: 'A past. Unfortunate for them. Useful for the story.',
     narrative:
-      "Every entity has a past. Even the sponge has a past — it's mostly about being a sponge, which is more complex than it sounds. All pasts contain the same basic elements: something wanted, something lost, something done about it, and one detail that doesn't quite fit but keeps surfacing at the least helpful moment.",
+      "Every entity has a past. Even the sponge has a past — it's mostly about being a sponge, which is more complex than it sounds. All pasts contain the same basic elements: something wanted, something lost, something done about it, and one detail that doesn't quite fit but keeps surfacing at the least helpful moment. Start with the shape of it. The details follow.",
     required: true,
     restoresFields: ['backstory', 'quirks'],
     steps: [
       {
-        key: 'backstory',
-        title: 'Backstory',
+        key: 'backgroundChoice',
+        title: 'Background',
         narrative:
-          'Write the backstory. It should contain desire, trouble, history, and one excellent emotional bruise — the kind that has healed badly and gets pressed on at exactly the wrong moment by exactly the wrong entity.',
-        inputType: 'long',
+          'Before the story started, something happened. This is the shape of it — the narrative origin, the wound-before-the-wound, the reason certain situations land differently for this entity than for anyone else. Choose the one that fits. Or the one that surprises you. Hit Suggest to expand it into a full backstory.',
+        inputType: 'preset',
         field: 'backstory',
-        needsLLM: true,
-        placeholder:
-          'They were created in a lab that no longer admits to having existed. They remember the before-time...',
-        inputLabel: 'Backstory',
+        choices: [
+          {
+            value: 'hunted',
+            label: 'Hunted',
+            subtext:
+              'Someone is looking for them. Maybe many someones. Maybe they deserve it. Probably not entirely.',
+            image: '/images/adventure/backgrounds/hunted.png',
+          },
+          {
+            value: 'tragic-past',
+            label: 'Tragic Past',
+            subtext:
+              'Something terrible happened before page one. They packed lightly, but brought the trauma.',
+            image: '/images/adventure/backgrounds/tragic-past.png',
+          },
+          {
+            value: 'blessed-life',
+            label: 'Blessed Life',
+            subtext:
+              'Good family, good fortune, warm meals, clean sheets. Naturally, the plot took that personally.',
+            image: '/images/adventure/backgrounds/blessed-life.png',
+          },
+          {
+            value: 'survivor',
+            label: 'Survivor',
+            subtext:
+              "The others didn't make it. They are still deciding whether that means guilt, purpose, or paperwork.",
+            image: '/images/adventure/backgrounds/survivor.png',
+          },
+          {
+            value: 'exiled',
+            label: 'Exiled',
+            subtext:
+              'Cast out from somewhere important. The door is closed. The window is negotiable.',
+            image: '/images/adventure/backgrounds/exiled.png',
+          },
+          {
+            value: 'orphaned',
+            label: 'Orphaned',
+            subtext:
+              'Lost the people who should have explained everything. Found danger instead. Classic.',
+            image: '/images/adventure/backgrounds/orphaned.png',
+          },
+          {
+            value: 'resurrected',
+            label: 'Resurrected',
+            subtext:
+              'Died once. Came back. Everyone agrees this is impressive and nobody agrees what it means.',
+            image: '/images/adventure/backgrounds/resurrected.png',
+          },
+          {
+            value: 'witch-blood',
+            label: 'Witch Blood',
+            subtext:
+              'Magic runs in the family. So do secrets, grudges, and one cabinet that whispers.',
+            image: '/images/adventure/backgrounds/witch-blood.png',
+          },
+          {
+            value: 'escaped-cultist',
+            label: 'Escaped Cultist',
+            subtext:
+              'Was devoted to something. The devotion ended. The something may not have.',
+            image: '/images/adventure/backgrounds/escaped-cultist.png',
+          },
+          {
+            value: 'reformed-villain',
+            label: 'Reformed Villain',
+            subtext:
+              'Did terrible things. Stopped. The receipts, rivals, and dramatic lighting remain.',
+            image: '/images/adventure/backgrounds/reformed-villain.png',
+          },
+          {
+            value: 'rejected-destiny',
+            label: 'Rejected Destiny',
+            subtext:
+              'The universe made an offer. They declined. The universe has been weird about it.',
+            image: '/images/adventure/backgrounds/rejected-destiny.png',
+          },
+          {
+            value: 'mutation',
+            label: 'Mutation',
+            subtext:
+              'Changed by blood, radiation, magic, evolution, pollution, or narrative impatience.',
+            image: '/images/adventure/backgrounds/mutation.png',
+          },
+          {
+            value: 'child-prodigy',
+            label: 'Child Prodigy',
+            subtext:
+              'Too brilliant too early. Everyone applauded, then started making plans.',
+            image: '/images/adventure/backgrounds/child-prodigy.png',
+          },
+          {
+            value: 'science-experiment',
+            label: 'Science Experiment',
+            subtext:
+              'Made in a lab, basement, tower, crater, or very confident grant proposal.',
+            image: '/images/adventure/backgrounds/science-experiment.png',
+          },
+          {
+            value: 'cursed',
+            label: 'Cursed',
+            subtext:
+              'Someone, something, or some very petty object made sure life would not proceed normally.',
+            image: '/images/adventure/backgrounds/cursed.png',
+          },
+          {
+            value: 'haunted',
+            label: 'Haunted',
+            subtext:
+              'Something followed them out of the past. It has opinions, timing, and poor boundaries.',
+            image: '/images/adventure/backgrounds/haunted.png',
+          },
+          {
+            value: 'chosen-wrong',
+            label: 'Chosen Wrong',
+            subtext:
+              'A prophecy pointed at them by mistake. Everyone is too invested to admit the error.',
+            image: '/images/adventure/backgrounds/chosen-wrong.png',
+          },
+          {
+            value: 'hidden-heir',
+            label: 'Hidden Heir',
+            subtext:
+              'Born to inherit something dangerous. Hidden away by people who knew exactly how bad that was.',
+            image: '/images/adventure/backgrounds/hidden-heir.png',
+          },
+          {
+            value: 'lost-royal',
+            label: 'Lost Royal',
+            subtext:
+              'A crown is somewhere in their past. Unfortunately, so are assassins, debts, and etiquette.',
+            image: '/images/adventure/backgrounds/lost-royal.png',
+          },
+          {
+            value: 'forbidden-born',
+            label: 'Forbidden Born',
+            subtext:
+              'Their existence broke a law, pact, taboo, bloodline rule, or extremely smug tradition.',
+            image: '/images/adventure/backgrounds/forbidden-born.png',
+          },
+          {
+            value: 'omen-born',
+            label: 'Omen Born',
+            subtext:
+              'Their arrival was interpreted as a warning. Rude, but not necessarily inaccurate.',
+            image: '/images/adventure/backgrounds/omen-born.png',
+          },
+          {
+            value: 'star-fallen',
+            label: 'Star Fallen',
+            subtext:
+              'Came from above, beyond, or elsewhere. The impact crater was only the beginning.',
+            image: '/images/adventure/backgrounds/star-fallen.png',
+          },
+          {
+            value: 'time-lost',
+            label: 'Time Lost',
+            subtext:
+              'From the wrong century, timeline, prophecy cycle, or calendar tab. Adjusting poorly.',
+            image: '/images/adventure/backgrounds/time-lost.png',
+          },
+          {
+            value: 'world-stranded',
+            label: 'World Stranded',
+            subtext:
+              'Their home is somewhere else. The way back is missing, broken, guarded, or pretending.',
+            image: '/images/adventure/backgrounds/world-stranded.png',
+          },
+          {
+            value: 'memory-erased',
+            label: 'Memory Erased',
+            subtext:
+              'Someone took their past. That kind of theft usually leaves fingerprints.',
+            image: '/images/adventure/backgrounds/memory-erased.png',
+          },
+          {
+            value: 'name-stolen',
+            label: 'Name Stolen',
+            subtext:
+              'Their true name was taken, traded, cursed, hidden, or weaponized. Identity got complicated.',
+            image: '/images/adventure/backgrounds/name-stolen.png',
+          },
+          {
+            value: 'debt-born',
+            label: 'Debt Born',
+            subtext:
+              'Came into the world already owing someone. Money would have been simpler.',
+            image: '/images/adventure/backgrounds/debt-born.png',
+          },
+          {
+            value: 'miracle-child',
+            label: 'Miracle Child',
+            subtext:
+              'Impossible birth, impossible survival, impossible expectations. People get weird about miracles.',
+            image: '/images/adventure/backgrounds/miracle-child.png',
+          },
+          {
+            value: 'last-of-kind',
+            label: 'Last of Kind',
+            subtext:
+              'The final ember of a people, species, order, bloodline, or extremely bad idea.',
+            image: '/images/adventure/backgrounds/last-of-kind.png',
+          },
+          {
+            value: 'unmade',
+            label: 'Unmade',
+            subtext:
+              'Something tried to erase them completely. It did a sloppy job. Skill issue.',
+            image: '/images/adventure/backgrounds/unmade.png',
+          },
+          {
+            value: '',
+            label: 'Write my own',
+            subtext:
+              'Any origin, wound, inheritance, or narrative accident that fits.',
+            opensCustom: true,
+          },
+        ],
       },
       {
         key: 'quirks',

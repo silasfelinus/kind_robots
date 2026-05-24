@@ -171,12 +171,12 @@ const PORTRAIT_FIELDS = [
   { key: 'alignment', label: 'Alignment' },
   { key: 'gender', label: 'Gender' },
   { key: 'personality', label: 'Personality' },
-  { key: 'backstory', label: 'Backstory' },
+  { key: 'backstory', label: 'Background / Backstory' },
   { key: 'quirks', label: 'Quirks' },
   { key: 'skills', label: 'Skills' },
 ] as const
 
-const CORE_FIELDS = ['name', 'species', 'class', 'presentation', 'genre']
+const CORE_FIELDS = ['name', 'species', 'class', 'background', 'genre']
 
 const selectedFields = ref<string[]>([...CORE_FIELDS, 'skills'])
 

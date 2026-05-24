@@ -172,7 +172,7 @@
         card-key="background"
       >
         <div class="grid grid-cols-1 gap-1">
-          <sheet-field label="Backstory" :value="sheet.backstory" long />
+          <sheet-field label="Background" :value="sheet.backstory" long />
           <sheet-field label="Quirks" :value="sheet.quirks" long />
         </div>
       </sheet-section>

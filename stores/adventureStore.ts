@@ -3,10 +3,6 @@
 // Pure flow state machine for the CYOA character builder.
 // Owns: active card, step navigation, staged values, reward options.
 // Does NOT own: API calls, LLM calls, final character save.
-//
-// Model-agnostic — the AdventureSheet maps cleanly onto the Character
-// schema (name now nullable, presentation/drive/achievements promoted to Text).
-// Other builders can adapt this store for different entity models.
 
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
@@ -28,48 +24,33 @@ const STORAGE_KEY = 'adventureBuilderState'
 export type StatEntry = {
   key: string
   name: string
-  display: string // emoji shown in the stat grid
-  value: number // 0 = unassigned, 1–6 = assigned
+  display: string
+  value: number
 }
 
-/**
- * The working character sheet.
- * Field names match the Character Prisma model directly —
- * no aliasing, no transformation needed at save time.
- */
 export type AdventureSheet = {
-  // Identity
   name: string
   honorific: string
   role: string
   genre: string
-  // Origin
   species: string
   class: string
   alignment: string
-  // Identity
   gender: string
-  // Personality
   personality: string
-  // Background
   backstory: string
   quirks: string
-  // Art
   artPrompt: string
   imagePath: string | null
   artImageId: number | null
-  // Stats — values 0 (unset) or 1–6
   stats: StatEntry[]
-  // Rarity tiers derived from stat allocation
   luck: Rarity
   might: Rarity
   wits: Rarity
   grace: Rarity
   charm: Rarity
   empathy: Rarity
-  // Reward slots keyed by rewardSlotKey e.g. 'common-skill'
   rewards: Record<string, RolledReward>
-  // Meta
   userId: number
   isPublic: boolean
   isMature: boolean
@@ -79,7 +60,6 @@ export type AdventureSheet = {
 
 export const STAT_BLOCKS = [1, 2, 3, 4, 5, 6] as const
 
-/** Cards whose completion unlocks the skill slots. */
 const CORE_CARD_KEYS = [
   'role',
   'name',
@@ -90,7 +70,6 @@ const CORE_CARD_KEYS = [
   'background',
 ] as const
 
-/** Cards whose completion unlocks the portrait slot. */
 const ALL_REQUIRED_KEYS = [
   ...CORE_CARD_KEYS,
   'common-skill',
@@ -98,7 +77,6 @@ const ALL_REQUIRED_KEYS = [
   'rare-skill',
 ] as const
 
-/** Base rarity for each reward card. */
 const SLOT_BASE_RARITY: Record<string, Rarity> = {
   'common-skill': 'COMMON',
   'uncommon-skill': 'UNCOMMON',
@@ -159,7 +137,7 @@ function tierFromValue(v: number): Rarity {
   return 'COMMON'
 }
 
-// ── Storage helpers ───────────────────────────────────────────────────────────
+// ── Storage helpers ────────────────────────────────────────────────────────
 
 function saveToStorage(data: unknown): void {
   if (!isClient) return
@@ -187,31 +165,17 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   const activeCardKey = ref<string | null>(null)
   const activeStepIndex = ref(0)
-
-  /**
-   * Staged values for the active card's steps.
-   * Key = step.key, value = user's input string.
-   * Written to sheet only when the card is finished.
-   */
   const stagedValues = reactive<Record<string, string>>({})
-
-  /** Completed card keys. */
   const completedCards = reactive<Record<string, boolean>>({})
 
-  // Stats
   const selectedStatBlock = ref<number | null>(null)
   const draftStats = reactive<StatEntry[]>(defaultStats())
 
-  // Rewards
-  /** Rolled options per slot. Key = rewardSlotKey. */
   const rewardOptions = reactive<Record<string, RolledReward[]>>({})
-  /** Selected option id per slot. Key = rewardSlotKey. */
   const selectedRewardId = reactive<Record<string, string>>({})
 
-  // Sheet
   const sheet = reactive<AdventureSheet>(defaultSheet())
 
-  // Status
   const llmLoading = ref(false)
   const llmError = ref<string | null>(null)
   const saveMessage = ref('')
@@ -235,7 +199,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
         return false
       if (card.unlockCondition === 'allComplete' && !allComplete.value)
         return false
-      // Completed cards leave the hand (portrait card always stays)
       if (completedCards[card.key] && card.key !== 'art') return false
       return true
     }),
@@ -290,7 +253,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       const slotKey = activeCard.value?.rewardSlotKey
       return slotKey ? Boolean(selectedRewardId[slotKey]) : false
     }
-    return true // text, long, list, preset, art
+    return true
   })
 
   // ── Card selection ─────────────────────────────────────────────────────
@@ -304,7 +267,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     selectedStatBlock.value = null
     llmError.value = null
 
-    // Pre-fill staged values from what's already on the sheet
     for (const step of card.steps) {
       if (step.field) {
         const existing = (sheet as Record<string, unknown>)[step.field]
@@ -312,19 +274,16 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       }
     }
 
-    // Mirror sheet stats into draftStats if re-entering the stats card
     if (card.key === 'stats') {
       for (const ds of draftStats) {
         ds.value = sheet.stats.find((s) => s.key === ds.key)?.value ?? 0
       }
     }
 
-    // Roll reward options (or reuse existing roll)
     if (card.rewardSlotKey) {
       if (!rewardOptions[card.rewardSlotKey]?.length) {
         rollRewardOptions(card.rewardSlotKey)
       }
-      // Restore previous selection if user had picked one before clearing
       if (!selectedRewardId[card.rewardSlotKey]) {
         const existing = sheet.rewards[card.rewardSlotKey]
         if (existing) selectedRewardId[card.rewardSlotKey] = existing.id
@@ -332,7 +291,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     }
   }
 
-  /** Pick a random card from the visible deck. */
   function randomCard() {
     if (!visibleCards.value.length) return
     const pick = visibleCards.value[
@@ -366,11 +324,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     if (activeStepIndex.value > 0) activeStepIndex.value--
   }
 
-  /**
-   * Select a preset choice for the current step.
-   * If the choice carries a value (not opensCustom / opensList),
-   * commit immediately and advance or finish.
-   */
   function selectPresetChoice(stepKey: string, value: string) {
     stagedValues[stepKey] = value
     persistState()
@@ -388,7 +341,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     saveError.value = ''
     const card = activeCard.value
 
-    // Stats card
     if (card.key === 'stats') {
       if (!statAllocationComplete.value) {
         saveError.value =
@@ -402,7 +354,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       return
     }
 
-    // Reward card
     if (card.rewardSlotKey) {
       const optionId = selectedRewardId[card.rewardSlotKey]
       const option = rewardOptions[card.rewardSlotKey]?.find(
@@ -415,7 +366,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       return
     }
 
-    // Art card
     if (card.key === 'art') {
       completedCards['art'] = Boolean(
         sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId,
@@ -425,7 +375,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       return
     }
 
-    // Standard card — write staged values to sheet fields
     for (const step of card.steps) {
       if (!step.field) continue
       ;(sheet as Record<string, unknown>)[step.field] =
@@ -453,17 +402,12 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   function removeSection(cardKey: string) {
     const card = ADVENTURE_CARDS.find((c) => c.key === cardKey)
     if (!card) return
-
-    for (const field of card.restoresFields) {
-      _clearSheetField(field)
-    }
-
+    for (const field of card.restoresFields) _clearSheetField(field)
     completedCards[cardKey] = false
     if (activeCardKey.value === cardKey) cancelCard()
   }
 
   function _clearSheetField(field: string) {
-    // Stats block
     if (field === 'stats') {
       for (const s of sheet.stats) s.value = 0
       for (const s of draftStats) s.value = 0
@@ -476,7 +420,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
           'COMMON'
       return
     }
-    // Nullables
     if (field === 'imagePath') {
       sheet.imagePath = null
       return
@@ -489,10 +432,12 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       sheet.artPrompt = ''
       return
     }
-    // Dropped fields — silently ignore if restoration is attempted
-    if (['title', 'presentation', 'drive', 'achievements'].includes(field))
+    if (
+      ['title', 'presentation', 'drive', 'achievements', 'background'].includes(
+        field,
+      )
+    )
       return
-    // Reward slots
     if (field in SLOT_BASE_RARITY) {
       delete sheet.rewards[field]
       selectedRewardId[field] = ''
@@ -500,7 +445,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       completedCards[field] = false
       return
     }
-    // String fields
     const key = field as keyof AdventureSheet
     if (typeof sheet[key] === 'string') {
       ;(sheet as Record<string, unknown>)[field] =
@@ -517,21 +461,21 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   function assignStat(statKey: string) {
     if (!selectedStatBlock.value) return
     const block = selectedStatBlock.value
-
-    // Unassign this block from any other slot first
     for (const stat of draftStats) {
       if (stat.key !== statKey && stat.value === block) stat.value = 0
     }
-
     const target = draftStats.find((s) => s.key === statKey)
     if (target) target.value = block
     selectedStatBlock.value = null
   }
 
   function rollAllStats() {
-    const shuffled = [...STAT_BLOCKS].sort(() => Math.random() - 0.5)
+    const shuffled = [...STAT_BLOCKS].sort(
+      () => Math.random() - 0.5,
+    ) as number[]
     draftStats.forEach((stat, i) => {
-      stat.value = shuffled[i] ?? 0
+      // shuffled is always length 6 and i is 0–5; assert non-null
+      stat.value = shuffled[i] as number
     })
     selectedStatBlock.value = null
   }
@@ -539,15 +483,12 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   function syncStatTiers() {
     const val = (key: string) =>
       draftStats.find((s) => s.key === key)?.value ?? 0
-
     sheet.luck = tierFromValue(val('luck'))
     sheet.might = tierFromValue(val('swol'))
     sheet.wits = tierFromValue(val('wits'))
     sheet.grace = tierFromValue(val('flexibility'))
     sheet.charm = tierFromValue(val('rizz'))
     sheet.empathy = tierFromValue(val('empathy'))
-
-    // Mirror into sheet.stats for display
     for (const ds of draftStats) {
       const target = sheet.stats.find((s) => s.key === ds.key)
       if (target) target.value = ds.value
@@ -568,10 +509,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   // ── Suggest (no LLM) ──────────────────────────────────────────────────
 
-  /**
-   * Fill the current step using the generator store.
-   * Steps with needsLLM: true are handled by the parent component via API.
-   */
   function suggestCurrentStep() {
     if (!activeStep.value) return
     const step = activeStep.value
@@ -594,9 +531,8 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     if (step.generatorKey) {
       const val = generator.generateOne(step.generatorKey, '')
       if (val) {
-        if (step.appendSuggest && stagedValues[step.key]?.trim()) {
-          // Append with comma separator instead of replacing
-          const existing = stagedValues[step.key].trimEnd()
+        if (step.appendSuggest && (stagedValues[step.key] ?? '').trim()) {
+          const existing = (stagedValues[step.key] ?? '').trimEnd()
           const separator = existing.endsWith(',') ? ' ' : ', '
           stagedValues[step.key] = existing + separator + val
         } else {
@@ -608,16 +544,11 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
   // ── Art prompt assembly ────────────────────────────────────────────────
 
-  /**
-   * Assemble an art prompt from the user-selected sheet fields.
-   * Writes to sheet.artPrompt and returns the resulting string.
-   */
   function buildArtPrompt(includeFields: string[]): string {
     const parts: string[] = []
     const inc = (key: string, value: string, prefix?: string) => {
-      if (includeFields.includes(key) && value.trim()) {
+      if (includeFields.includes(key) && value.trim())
         parts.push(prefix ? `${prefix}: ${value}` : value)
-      }
     }
 
     if (includeFields.includes('name') && sheet.name)
@@ -633,7 +564,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     const skillText = Object.values(sheet.rewards)
       .map((r) => `${r.rarity.toLowerCase()} skill: ${r.label}`)
       .join(', ')
-
     if (skillText) parts.push(`skills: ${skillText}`)
 
     if (includeFields.includes('backstory') && sheet.backstory)
@@ -648,10 +578,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     return prompt
   }
 
-  /**
-   * Apply art generation results to the sheet.
-   * Called by adventure-art after generation completes.
-   */
   function updateArt(payload: {
     artPrompt?: string
     imagePath?: string | null
@@ -662,13 +588,12 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       sheet.imagePath = payload.imagePath ?? null
     if (payload.artImageId !== undefined)
       sheet.artImageId = payload.artImageId ?? null
-
     completedCards['art'] = Boolean(
       sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId,
     )
   }
 
-  // ── LLM suggest via active text server ───────────────────────────────────
+  // ── LLM suggest via active text server ────────────────────────────────
 
   async function callSuggest(
     field: string,
@@ -770,7 +695,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     }
   }
 
-  // ── Persistence ───────────────────────────────────────────────────────────
+  // ── Persistence ────────────────────────────────────────────────────────
 
   function persistState(): void {
     saveToStorage({
@@ -792,10 +717,8 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   function restoreState(): void {
     const saved = loadFromStorage()
     if (!saved || typeof saved !== 'object') return
-
     const s = saved as Record<string, unknown>
 
-    // Restore sheet fields
     if (s.sheet && typeof s.sheet === 'object') {
       const savedSheet = s.sheet as Partial<AdventureSheet>
       const keys: Array<keyof AdventureSheet> = [
@@ -829,57 +752,37 @@ export const useAdventureStore = defineStore('adventureStore', () => {
             savedSheet[key] ?? (sheet as Record<string, unknown>)[key]
         }
       }
-      // Restore stats array
       if (Array.isArray(savedSheet.stats)) {
-        for (const saved of savedSheet.stats) {
-          const target = sheet.stats.find((s) => s.key === saved.key)
-          if (target && typeof saved.value === 'number')
-            target.value = saved.value
+        for (const sv of savedSheet.stats) {
+          const target = sheet.stats.find((s) => s.key === sv.key)
+          if (target && typeof sv.value === 'number') target.value = sv.value
         }
       }
-      // Restore rewards
       if (savedSheet.rewards && typeof savedSheet.rewards === 'object') {
         Object.assign(sheet.rewards, savedSheet.rewards)
       }
     }
 
-    // Restore completedCards
-    if (s.completedCards && typeof s.completedCards === 'object') {
+    if (s.completedCards && typeof s.completedCards === 'object')
       Object.assign(completedCards, s.completedCards)
-    }
-
-    // Restore stagedValues
-    if (s.stagedValues && typeof s.stagedValues === 'object') {
+    if (s.stagedValues && typeof s.stagedValues === 'object')
       Object.assign(stagedValues, s.stagedValues)
-    }
+    if (s.rewardOptions && typeof s.rewardOptions === 'object')
+      Object.assign(rewardOptions, s.rewardOptions)
+    if (s.selectedRewardId && typeof s.selectedRewardId === 'object')
+      Object.assign(selectedRewardId, s.selectedRewardId)
 
-    // Restore draftStats
     if (Array.isArray(s.draftStats)) {
-      for (const saved of s.draftStats as Array<{
-        key: string
-        value: number
-      }>) {
-        const target = draftStats.find((d) => d.key === saved.key)
-        if (target && typeof saved.value === 'number')
-          target.value = saved.value
+      for (const sv of s.draftStats as Array<{ key: string; value: number }>) {
+        const target = draftStats.find((d) => d.key === sv.key)
+        if (target && typeof sv.value === 'number') target.value = sv.value
       }
     }
 
-    // Restore reward options and selections
-    if (s.rewardOptions && typeof s.rewardOptions === 'object') {
-      Object.assign(rewardOptions, s.rewardOptions)
-    }
-    if (s.selectedRewardId && typeof s.selectedRewardId === 'object') {
-      Object.assign(selectedRewardId, s.selectedRewardId)
-    }
-
-    // Restore active card/step — but don't auto-navigate to it yet
-    if (typeof s.activeCardKey === 'string') {
+    if (typeof s.activeCardKey === 'string')
       activeCardKey.value = s.activeCardKey
-    }
-    if (typeof s.activeStepIndex === 'number') {
+    if (typeof s.activeStepIndex === 'number')
       activeStepIndex.value = s.activeStepIndex
-    }
   }
 
   function clearStorage(): void {
@@ -913,7 +816,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
   // ── Exports ────────────────────────────────────────────────────────────
 
   return {
-    // State
     activeCardKey,
     activeStepIndex,
     stagedValues,
@@ -927,7 +829,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     llmError,
     saveMessage,
     saveError,
-    // Computed
+
     visibleCards,
     activeCard,
     activeStep,
@@ -940,9 +842,9 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     statAllocationComplete,
     activeRewardOptions,
     activeSelectedRewardId,
-    // Constants
+
     statBlocks: STAT_BLOCKS,
-    // Actions
+
     selectCard,
     randomCard,
     cancelCard,

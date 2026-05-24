@@ -185,9 +185,10 @@ onMounted(() => {
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const selectedEndpointId = ref<string>('flux')
-const endpointDef = computed(
+const endpointDef = computed<EndpointDef>(
   () =>
-    ENDPOINTS.find((e) => e.id === selectedEndpointId.value) ?? ENDPOINTS[0],
+    ENDPOINTS.find((e) => e.id === selectedEndpointId.value) ??
+    (ENDPOINTS[0] as EndpointDef),
 )
 
 // form
@@ -289,7 +290,8 @@ function clearImage(slot: 1 | 2): void {
 
 // ─── Payload builder ──────────────────────────────────────────────────────────
 const builtPayload = computed(() => {
-  const def = endpointDef.value
+  const def: EndpointDef | undefined = endpointDef.value
+  if (!def) return {}
   const payload: Record<string, unknown> = {
     serverId: serverId.value,
     promptString: prompt.value,
@@ -357,7 +359,12 @@ async function generate(): Promise<void> {
   errorMsg.value = ''
   startTimer()
 
-  const def = endpointDef.value
+  const def: EndpointDef | undefined = endpointDef.value
+  if (!def) {
+    stopTimer()
+    isGenerating.value = false
+    return
+  }
   const body: Record<string, unknown> = {
     serverId: serverId.value,
     promptString: prompt.value,

@@ -38,7 +38,6 @@ type ServerSnapshot = {
 type SheetSnapshot = {
   name?: string
   honorific?: string
-  role?: string
   genre?: string
   species?: string
   class?: string
@@ -108,7 +107,6 @@ function buildSheetContext(sheet: SheetSnapshot): string {
   if (sheet.name) lines.push(`Name: ${sheet.name}`)
   if (sheet.species) lines.push(`Species: ${sheet.species}`)
   if (sheet.class) lines.push(`Calling: ${sheet.class}`)
-  if (sheet.role) lines.push(`Story role: ${sheet.role}`)
   if (sheet.genre) lines.push(`Genre: ${sheet.genre}`)
   if (sheet.alignment) lines.push(`Alignment: ${sheet.alignment}`)
   if (sheet.gender) lines.push(`Gender: ${sheet.gender}`)
@@ -149,7 +147,7 @@ ${currentNote}`,
     personality: `Write a 2–4 sentence personality description for ${entityName}.
 Capture how they behave under pressure, how they relate to others, their characteristic flaws and strengths.
 Make it feel lived-in and specific — not a list of traits, but a voice.
-Genre: ${sheet.genre || 'any'}. Role: ${sheet.role || 'undefined'}.
+Genre: ${sheet.genre || 'any'}.
 ${currentNote}`,
 
     drive: `Write 1–2 sentences describing what ${entityName} wants badly enough to make a questionable decision about.

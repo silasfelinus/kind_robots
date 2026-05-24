@@ -235,6 +235,15 @@ watch(
   { immediate: true },
 )
 
+// ─── Style helpers (keep CSS custom props out of template expressions) ────────
+const generateBtnStyle = computed(() =>
+  endpointDef.value ? { ['--btn-color']: endpointDef.value.color } : {},
+)
+
+function epTabStyle(ep: EndpointDef, activeId: string): Record<string, string> {
+  return activeId === ep.id ? { ['--ep-color']: ep.color } : {}
+}
+
 // reset image inputs when endpoint changes
 watch(selectedEndpointId, () => {
   sourceImageBase64.value = null
@@ -485,9 +494,7 @@ function downloadImage(): void {
               :key="ep.id"
               class="at-endpoint-btn"
               :class="{ active: selectedEndpointId === ep.id }"
-              :style="
-                selectedEndpointId === ep.id ? { '--ep-color': ep.color } : {}
-              "
+              :style="epTabStyle(ep, selectedEndpointId)"
               @click="selectedEndpointId = ep.id"
             >
               <span
@@ -832,7 +839,7 @@ function downloadImage(): void {
           <button
             class="at-btn at-btn--primary"
             :disabled="isGenerating || !serverId"
-            :style="{ '--btn-color': endpointDef.color }"
+            :style="generateBtnStyle"
             @click="generate"
           >
             <span v-if="isGenerating" class="at-spinner" />

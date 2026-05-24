@@ -1,5 +1,7 @@
+//components/servers/art-test/vue
+
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 
 // ─── Endpoint registry ────────────────────────────────────────────────────────
@@ -23,6 +25,11 @@ interface EndpointDef {
   needsSourceImage2: boolean
   outputType: 'image' | 'model3d'
   engine: string
+}
+
+function setSize(nextWidth: number, nextHeight: number): void {
+  width.value = nextWidth
+  height.value = nextHeight
 }
 
 const ENDPOINTS: EndpointDef[] = [
@@ -182,6 +189,12 @@ onMounted(() => {
     serverStore.initialize({ fetchRemote: true })
   }
 })
+
+function updateSeed(event: Event): void {
+  const target = event.target as HTMLInputElement | null
+  const value = target?.value ?? ''
+  seed.value = value ? Number(value) : null
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const selectedEndpointId = ref<string>('flux')
@@ -609,14 +622,10 @@ function downloadImage(): void {
           <div class="at-seed-row">
             <input
               :value="seed ?? ''"
-              @input="
-                seed = ($event.target as HTMLInputElement).value
-                  ? Number(($event.target as HTMLInputElement).value)
-                  : null
-              "
               class="at-input at-input--grow"
               type="number"
               placeholder="random"
+              @input="updateSeed"
             />
             <button class="at-icon-btn" title="Randomize" @click="seed = null">
               ⟳
@@ -658,46 +667,36 @@ function downloadImage(): void {
           <div class="at-size-presets">
             <button
               class="at-preset-btn"
-              @click="
-                width = 512
-                height = 512
-              "
+              type="button"
+              @click="setSize(512, 512)"
             >
               512²
             </button>
             <button
               class="at-preset-btn"
-              @click="
-                width = 768
-                height = 768
-              "
+              type="button"
+              @click="setSize(768, 768)"
             >
               768²
             </button>
             <button
               class="at-preset-btn"
-              @click="
-                width = 1024
-                height = 1024
-              "
+              type="button"
+              @click="setSize(1024, 1024)"
             >
               1024²
             </button>
             <button
               class="at-preset-btn"
-              @click="
-                width = 1216
-                height = 832
-              "
+              type="button"
+              @click="setSize(1216, 832)"
             >
               16:9
             </button>
             <button
               class="at-preset-btn"
-              @click="
-                width = 832
-                height = 1216
-              "
+              type="button"
+              @click="setSize(832, 1216)"
             >
               9:16
             </button>

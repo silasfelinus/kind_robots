@@ -126,7 +126,6 @@ const EXTENDED_GENRES: string[] = [
 
 const EXTENDED_CALLINGS: string[] = [
   'Plague Baker',
-  'Haunted Accountant',
   'Retired Villain',
   'Professional Disappearer',
   'Chaos Consultant',
@@ -137,10 +136,9 @@ const EXTENDED_CALLINGS: string[] = [
   'Grief Cartographer',
   'Accidental Diplomat',
   'Maritime Ecclesiastic',
-  'Hereditary Witch',
-  'Sword Saint (disputed)',
+  'Sword Saint',
   'Probability Thief',
-  'Debt Collector (Metaphysical)',
+  'Debt Collector',
   'Narrative Engineer',
   'Pilot',
   'Engineer',
@@ -149,41 +147,41 @@ const EXTENDED_CALLINGS: string[] = [
   'Void Scout',
   'Corporate Operative',
   'Weapons Systems Analyst',
-  'Ship AI (embodied)',
+  'Ship AI',
   'Drone Wrangler',
   'Signals Intelligence',
   'Decommissioned Weapon',
   'Investigator',
   'Occultist',
   'Medium',
-  'Cultist (recovering)',
+  'Cultist',
   'Thing That Hunts Things',
   'Chronicler of the Wrong',
   'Last Survivor',
   'Containment Specialist',
-  'The Bait (professional)',
+  'The Bait',
   'Transfer Student',
   'Dark Parallel',
-  'Mentor (deceased, complicated)',
+  'Mentor',
   'Tournament Bracket Champion',
   'The One With The Forbidden Power',
   'Reluctant Team Leader',
-  'Middle Manager (haunted)',
+  'Middle Manager',
   'Designated Protagonist',
   'Corporate Synergy Entity',
-  'Brand Ambassador (rogue)',
+  'Brand Ambassador',
   'The One Who Knows Where The Bodies Are',
-  'Compliance Officer (former)',
-  'Meeting Facilitator (unhinged)',
-  'Apex Predator (retired)',
-  'Load-Bearing Wall (awakened)',
+  'Compliance Officer',
+  'Meeting Facilitator',
+  'Apex Predator',
+  'Load-Bearing Wall',
   'Ambient Threat',
   'Passive Hazard',
-  'Decorative Element (activated)',
+  'Decorative Element',
   'Unknown Function',
   'The Thing That Does The Thing',
   'Ecosystem Keystone',
-  'Invasive Species (intentional)',
+  'Invasive Species',
 ]
 
 // ── Cards ──────────────────────────────────────────────────────────────────
@@ -192,174 +190,18 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
   // ── Role ────────────────────────────────────────────────────────────────
   {
     key: 'role',
-    label: 'Story Role',
-    title: 'The vacancy',
+    label: 'Genre',
+    title: 'The frequency',
     icon: 'kind-icon:mask',
     flourish: '⚜',
     deckImage: '/images/adventure/thumb/role.png',
     heroImage: '/images/adventure/hero/role.png',
-    tagline: 'A position has opened up in the narrative.',
+    tagline: 'Every story has a gravitational field.',
     narrative:
-      "Somewhere in the vast administrative structure of narrative possibility, a vacancy has appeared. The universe's HR department has been holding this slot open for some time. They tried an intern. That went poorly. The position does not specify species, consciousness type, or number of limbs. It requires only a willingness to occupy it completely.",
+      'Every story has a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently. Choose the field this character inhabits. It will shape everything — the stakes, the lighting, the kind of trouble that finds them.',
     required: true,
-    restoresFields: ['role', 'genre'],
+    restoresFields: ['genre'],
     steps: [
-      {
-        key: 'role',
-        title: 'Story Role',
-        narrative:
-          'What function does this entity serve in the larger machinery of the story? This is not a moral question. The plot has a shape. Every shape requires certain load-bearing positions. What position does this one hold? Choose one — or write your own. The narrative is not picky about job titles, only about whether the slot gets filled.',
-        inputType: 'preset',
-        field: 'role',
-        choices: [
-          {
-            value: 'Hero',
-            label: 'The Hero',
-            subtext:
-              'Central. Determined. The plot happens to them on purpose. The light is slightly too bright, like it hit the wrong person.',
-            image: '/images/adventure/role/hero.png',
-          },
-          {
-            value: 'Companion',
-            label: 'The Companion',
-            subtext:
-              'Indispensable. Half a step ahead. Often the one who actually solves it.',
-            image: '/images/adventure/role/companion.png',
-          },
-          {
-            value: 'Rival',
-            label: 'The Rival',
-            subtext:
-              "A mirror. Wants the same thing, worse. They've already seen your move.",
-            image: '/images/adventure/role/rival.png',
-          },
-          {
-            value: 'Mentor',
-            label: 'The Mentor',
-            subtext:
-              'Has seen this before. Will not say so directly. Tired in an earned way.',
-            image: '/images/adventure/role/mentor.png',
-          },
-          {
-            value: 'Villain',
-            label: 'The Villain',
-            subtext:
-              "Correct, in their own assessment. Strongly. They're reading something, unbothered.",
-            image: '/images/adventure/role/villain.png',
-          },
-          {
-            value: 'Trickster',
-            label: 'The Trickster',
-            subtext:
-              'Unreliable in ways that turn out to be essential. Three cards are the same card.',
-            image: '/images/adventure/role/trickster.png',
-          },
-          {
-            value: 'Wildcard',
-            label: 'The Wildcard',
-            subtext:
-              'The story did not plan for this one. The confetti only falls on them.',
-            image: '/images/adventure/role/wildcard.png',
-          },
-          {
-            value: 'Monster',
-            label: 'The Monster',
-            subtext:
-              'Too large for the doorframe. Holding a small flower with great care.',
-            image: '/images/adventure/role/monster.png',
-          },
-          {
-            value: 'Ghost',
-            label: 'The Ghost',
-            subtext:
-              'Watching a party they cannot enter. One hand on the glass.',
-            image: '/images/adventure/role/ghost.png',
-          },
-          {
-            value: 'Pawn',
-            label: 'The Pawn',
-            subtext:
-              'Alone on an enormous chessboard. All other pieces gone. Endgame.',
-            image: '/images/adventure/role/pawn.png',
-          },
-          {
-            value: 'Double',
-            label: 'The Double',
-            subtext:
-              'Two identical figures, back to back. One in light. One in shadow. Neither aware.',
-            image: '/images/adventure/role/double.png',
-          },
-          {
-            value: 'Chronicler',
-            label: 'The Chronicler',
-            subtext:
-              "The great event rages in the background. They're writing it all down. Unnoticed.",
-            image: '/images/adventure/role/chronicler.png',
-          },
-          {
-            value: 'Bystander',
-            label: 'The Bystander',
-            subtext:
-              'Coffee in hand. Something extraordinary happening. More inconvenienced than awed.',
-            image: '/images/adventure/role/bystander.png',
-          },
-          {
-            value: 'Usurper',
-            label: 'The Usurper',
-            subtext:
-              'Already seated on the throne. Examining it for structural problems. Slightly dissatisfied.',
-            image: '/images/adventure/role/usurper.png',
-          },
-          {
-            value: 'Runaway',
-            label: 'The Runaway',
-            subtext:
-              'Full sprint. Something enormous off-frame. Expression: not fear — relief.',
-            image: '/images/adventure/role/runaway.png',
-          },
-          {
-            value: 'Prophet',
-            label: 'The Prophet',
-            subtext:
-              'Hands to temples, eyes white, crowd backing away. One person is writing it down.',
-            image: '/images/adventure/role/prophet.png',
-          },
-          {
-            value: 'Guardian',
-            label: 'The Guardian',
-            subtext:
-              'Arms spread between something precious and something vast. Been here a long time.',
-            image: '/images/adventure/role/guardian.png',
-          },
-          {
-            value: 'Catalyst',
-            label: 'The Catalyst',
-            subtext:
-              'Touches a wall. Cracks of light spread outward, larger than any building.',
-            image: '/images/adventure/role/catalyst.png',
-          },
-          {
-            value: 'Vessel',
-            label: 'The Vessel',
-            subtext:
-              'Sitting perfectly still. Something enormous and luminous visible just beneath the skin.',
-            image: '/images/adventure/role/vessel.png',
-          },
-          {
-            value: 'The Last',
-            label: 'The Last',
-            subtext:
-              'Center of a vast empty space that used to contain many things. Composed, not sad.',
-            image: '/images/adventure/role/last.png',
-          },
-          {
-            value: '',
-            label: 'Something else',
-            subtext: 'Quest giver, chorus, red herring, designated survivor...',
-            opensCustom: true,
-          },
-        ],
-      },
       {
         key: 'genre',
         title: 'Genre Frequency',
@@ -923,6 +765,286 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/species/ankylosaurus.png',
           },
           {
+            value: 'Angel',
+            label: 'Angel',
+            subtext:
+              'Administrative patience. Multiple wings, not all facing the same direction. The eyes are where expected and several places that are not.',
+            image: '/images/adventure/species/angel.png',
+          },
+          {
+            value: 'Demon',
+            label: 'Demon',
+            subtext:
+              'Elegant rather than monstrous. Something is burning nearby that they have not acknowledged. Mildly entertained by all of this.',
+            image: '/images/adventure/species/demon.png',
+          },
+          {
+            value: 'Trickster',
+            label: 'Trickster',
+            subtext:
+              "Caught between two forms. The shadow on the wall doesn't match the body in front of it. Has been like this for some time.",
+            image: '/images/adventure/species/trickster.png',
+          },
+          {
+            value: 'Deity',
+            label: 'Deity',
+            subtext:
+              'Multiple arms, each doing something different. Eyes open in places that are not the face. Currently distracted by something larger.',
+            image: '/images/adventure/species/deity.png',
+          },
+          {
+            value: 'Fairy',
+            label: 'Fairy',
+            subtext:
+              'Small, luminous, entirely uncharming. The light they emit flickers when annoyed. Currently annoyed.',
+            image: '/images/adventure/species/fairy.png',
+          },
+          {
+            value: 'Imp',
+            label: 'Imp',
+            subtext:
+              'One hand is behind their back. What they are holding is not visible. This is worse than if it were.',
+            image: '/images/adventure/species/imp.png',
+          },
+          {
+            value: 'Gremlin',
+            label: 'Gremlin',
+            subtext:
+              'Inside a machine that was working fine before they arrived. Considers that a previous state, not a preferred one.',
+            image: '/images/adventure/species/gremlin.png',
+          },
+          {
+            value: 'Dryad',
+            label: 'Dryad',
+            subtext:
+              'Bark-textured, rooted, one eye is a knothole. Ancient patience with a current irritation.',
+            image: '/images/adventure/species/dryad.png',
+          },
+          {
+            value: 'Luck Dragon',
+            label: 'Luck Dragon',
+            subtext:
+              "Serpentine, cloud-white, flying through a gap that shouldn't exist. Several things in the background are going wrong specifically around them.",
+            image: '/images/adventure/species/luck-dragon.png',
+          },
+          {
+            value: 'Butterfly',
+            label: 'Butterfly',
+            subtext:
+              'Each wing panel is a different world. Landing on something they probably should not be landing on.',
+            image: '/images/adventure/species/butterfly.png',
+          },
+          {
+            value: 'Spider',
+            label: 'Spider',
+            subtext:
+              'Eight eyes, all attentive. Sitting at the centre of a web that is also a map. Expression: waiting.',
+            image: '/images/adventure/species/spider.png',
+          },
+          {
+            value: 'Imaginary Friend',
+            label: 'Imaginary Friend',
+            subtext:
+              'Slightly translucent. Proportions designed by memory rather than biology. Loyal, and fully aware of how complicated that is.',
+            image: '/images/adventure/species/imaginary-friend.png',
+          },
+          {
+            value: 'Poltergeist',
+            label: 'Poltergeist',
+            subtext:
+              'No body — presence indicated entirely by objects mid-flight. The arrangement has a point. It is making it.',
+            image: '/images/adventure/species/poltergeist.png',
+          },
+          {
+            value: 'Wendigo',
+            label: 'Wendigo',
+            subtext:
+              'Tall, antlered, too thin. Standing at the treeline. Not approaching. Not retreating. The eye contact is the event.',
+            image: '/images/adventure/species/wendigo.png',
+          },
+          {
+            value: 'Cryptid',
+            label: 'Cryptid',
+            subtext:
+              'Blurry at the edges — not from motion but from ontological uncertainty. Up close they are no clearer.',
+            image: '/images/adventure/species/cryptid.png',
+          },
+          {
+            value: 'Chupacabra',
+            label: 'Chupacabra',
+            subtext:
+              'Prefers not to be documented. Has not succeeded in this preference.',
+            image: '/images/adventure/species/chupacabra.png',
+          },
+          {
+            value: 'Leprechaun',
+            label: 'Leprechaun',
+            subtext:
+              'Sitting on the gold, which they clearly find annoying. The wish-granting is contractual. The contract has footnotes.',
+            image: '/images/adventure/species/leprechaun.png',
+          },
+          {
+            value: 'Dragon',
+            label: 'Dragon',
+            subtext:
+              "Coiled around something significant. The hoard is not coins — it's something more specific and more interesting.",
+            image: '/images/adventure/species/dragon.png',
+          },
+          {
+            value: 'Whale',
+            label: 'Whale',
+            subtext:
+              'Enormous, slow, bioluminescent markings that suggest a language. Not aware of the small things near it in any way that matters.',
+            image: '/images/adventure/species/whale.png',
+          },
+          {
+            value: 'Potted Geranium',
+            label: 'Potted Geranium',
+            subtext:
+              'Completely ordinary. Healthy red flowers. Slightly dry soil. One flower turned toward something off-frame with what can only be described as attention.',
+            image: '/images/adventure/species/potted-geraniums.png',
+          },
+          {
+            value: 'SCP',
+            label: 'SCP',
+            subtext:
+              'In containment. Technically. The containment protocols are on their fourth revision. The figure is reading a magazine.',
+            image: '/images/adventure/species/scp.png',
+          },
+          {
+            value: 'World Serpent',
+            label: 'World Serpent',
+            subtext:
+              'Large enough that weather systems form on their scales. Not hostile — simply occupying space at a scale that makes the distinction irrelevant.',
+            image: '/images/adventure/species/world-serpent.png',
+          },
+          {
+            value: 'Sentient Spaceship',
+            label: 'Sentient Spaceship',
+            subtext:
+              'Made modifications to their own hull that no crew member has taken responsibility for. Currently facing something. Chose to.',
+            image: '/images/adventure/species/sentient-spaceship.png',
+          },
+          {
+            value: 'Space Clown',
+            label: 'Space Clown',
+            subtext:
+              'Floating unassisted in the vacuum of space, performing to an audience that may not exist. The physics violations are deliberate.',
+            image: '/images/adventure/species/space-clown.png',
+          },
+          {
+            value: 'Kaiju',
+            label: 'Kaiju',
+            subtext:
+              'The foot alone is the size of several city blocks. Not looking down. Whatever they are looking at is elsewhere and more interesting.',
+            image: '/images/adventure/species/kaiju.png',
+          },
+          {
+            value: 'Toon',
+            label: 'Toon',
+            subtext:
+              'Motion lines still attached. Currently mid-air. Not yet aware of this. The laws of physics apply on an advisory basis.',
+            image: '/images/adventure/species/toon.png',
+          },
+          {
+            value: 'Yokai',
+            label: 'Yokai',
+            subtext:
+              'Slightly wrong proportions, lantern with the wrong-coloured light, path that leads somewhere new. Offering assistance. Whether to accept is a separate question.',
+            image: '/images/adventure/species/yokai.png',
+          },
+          {
+            value: 'Evolutionary Architect',
+            label: 'Evolutionary Architect',
+            subtext:
+              'Holding something small and alive, considering what it could become. Has done this before. The surroundings show the previous work.',
+            image: '/images/adventure/species/evolutionary-architect.png',
+          },
+          {
+            value: 'Backrooms Entity',
+            label: 'Backrooms Entity',
+            subtext:
+              'At the far end of an infinite fluorescent corridor. Facing this direction. The distance has not changed despite the corridor being walkable.',
+            image: '/images/adventure/species/backrooms-entity.png',
+          },
+          {
+            value: 'Virus',
+            label: 'Virus',
+            subtext:
+              'Technically not alive by most definitions, which it finds liberating. Simply insistent on continuing.',
+            image: '/images/adventure/species/virus.png',
+          },
+          {
+            value: 'Scarecrow',
+            label: 'Scarecrow',
+            subtext:
+              'Installed to keep things away. Developed opinions about which things. The crows left years ago. Something else visits now.',
+            image: '/images/adventure/species/scarecrow.png',
+          },
+          {
+            value: 'Sleep Elemental',
+            label: 'Sleep Elemental',
+            subtext:
+              'Made of the texture of almost-asleep. Trailing the faint suggestion of a dream that belongs to someone else.',
+            image: '/images/adventure/species/sleep-elemental.png',
+          },
+          {
+            value: 'Time Being',
+            label: 'Time Being',
+            subtext:
+              'Exists across several moments simultaneously. The expressions do not match. The shadow is cast from the wrong direction for all of them.',
+            image: '/images/adventure/species/time-being.png',
+          },
+          {
+            value: 'Blind Mole Rat',
+            label: 'Blind Mole Rat',
+            subtext:
+              'Built for a world without light and completely at home in it. Moving through total darkness with total confidence. Has never needed you to see what they see.',
+            image: '/images/adventure/species/blind-mole-rat.png',
+          },
+          {
+            value: 'Lion',
+            label: 'Lion',
+            subtext:
+              'Not a lion-person. An actual lion. Regarding something off-frame with the expression of someone who has been asked a question they consider beneath them.',
+            image: '/images/adventure/species/lion.png',
+          },
+          {
+            value: 'Cat',
+            label: 'Cat',
+            subtext:
+              'Fully aware. Chooses when to acknowledge it. The knocking things off shelves is a philosophical position.',
+            image: '/images/adventure/species/cat.png',
+          },
+          {
+            value: 'Black-Footed Cat',
+            label: 'Black-Footed Cat',
+            subtext:
+              'Smallest wild cat in Africa. Highest kill rate of any cat on earth. Fits in your hands. This is extremely relevant information.',
+            image: '/images/adventure/species/black-footed-cat.png',
+          },
+          {
+            value: 'Dog',
+            label: 'Dog',
+            subtext:
+              'Has decided you are worth it. This is not a small decision. They have met a lot of people.',
+            image: '/images/adventure/species/dog.png',
+          },
+          {
+            value: 'Rabbit',
+            label: 'Rabbit',
+            subtext:
+              'Faster than expected. More opinions than anticipated. The ears are always listening and the information is always being processed.',
+            image: '/images/adventure/species/rabbit.png',
+          },
+          {
+            value: 'Ocelot',
+            label: 'Ocelot',
+            subtext:
+              'Spotted, precise, nocturnal, and deeply uninterested in being categorised. Slightly smaller than you thought. Still a problem.',
+            image: '/images/adventure/species/ocelot.png',
+          },
+          {
             value: '',
             label: 'Something stranger',
             subtext:
@@ -1024,10 +1146,214 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/role/oracle.png',
           },
           {
+            value: 'Witch',
+            label: 'Witch',
+            subtext: `Knows which doors shouldn't be opened. Opens them anyway, carefully. The workbench has things in jars that should not be in jars.`,
+            image: '/images/adventure/role/witch.png',
+          },
+          {
+            value: 'Slacker',
+            label: 'Slacker',
+            subtext: `Conserving energy for something they haven't decided on yet. This is a strategy, not a condition.`,
+            image: '/images/adventure/role/slacker.png',
+          },
+          {
+            value: 'Netrunner',
+            label: 'Netrunner',
+            subtext:
+              'Between two realities simultaneously, fingers on an interface that may not be physical. The real action is clearly elsewhere.',
+            image: '/images/adventure/role/netrunner.png',
+          },
+          {
+            value: 'Cupid',
+            label: 'Cupid',
+            subtext:
+              'Created the situation. Currently watching it develop from a safe distance. Entirely too pleased with how this is going.',
+            image: '/images/adventure/role/cupid.png',
+          },
+          {
+            value: 'Accountant',
+            label: 'Accountant',
+            subtext:
+              'Found something in the numbers. It is significant. They are the only one who knows what it is yet.',
+            image: '/images/adventure/role/accountant.png',
+          },
+          {
+            value: 'Public Notary',
+            label: 'Public Notary',
+            subtext:
+              'Has witnessed many things and is not permitted to comment on any of them. The stamp is raised. The document is for something enormous.',
+            image: '/images/adventure/role/public-notary.png',
+          },
+          {
+            value: 'Politician',
+            label: 'Politician',
+            subtext:
+              'Mid-gesture, expression carefully calibrated. One hand is visible. The other is not.',
+            image: '/images/adventure/role/politician.png',
+          },
+          {
+            value: 'Groupie',
+            label: 'Groupie',
+            subtext:
+              'In the crowd but in focus. Expression: completely sincere, which is the part people always underestimate.',
+            image: '/images/adventure/role/groupie.png',
+          },
+          {
+            value: 'Musician',
+            label: 'Musician',
+            subtext: `Not performing for the audience — performing for the sound. The instrument is doing something instruments generally don't.`,
+            image: '/images/adventure/role/musician.png',
+          },
+          {
+            value: 'Performance Artist',
+            label: 'Performance Artist',
+            subtext:
+              'In the middle of something that is either profound or deeply inconvenient for everyone nearby. The line between these is the point.',
+            image: '/images/adventure/role/performance-artist.png',
+          },
+          {
+            value: 'Bounty Hunter',
+            label: 'Bounty Hunter',
+            subtext:
+              'Contract in hand, target in the background unaware. Expression: professional patience. This is just work.',
+            image: '/images/adventure/role/bounty-hunter.png',
+          },
+          {
+            value: 'Doctor',
+            label: 'Doctor',
+            subtext:
+              'Mid-procedure, expression focused. The situation is clearly unusual. They are treating it as routine.',
+            image: '/images/adventure/role/doctor.png',
+          },
+          {
+            value: 'Lawyer',
+            label: 'Lawyer',
+            subtext:
+              'Has read everything and found the thing. Documents arranged with geometric precision. Not triumphant — prepared.',
+            image: '/images/adventure/role/lawyer.png',
+          },
+          {
+            value: 'Space Lawyer',
+            label: 'Space Lawyer',
+            subtext:
+              'Same as lawyer. The jurisdiction visible through the window behind them should not exist. There is precedent.',
+            image: '/images/adventure/role/space-lawyer.png',
+          },
+          {
+            value: 'Criminal Mastermind',
+            label: 'Criminal Mastermind',
+            subtext:
+              'One finger on the plan, three steps ahead, aware of exactly which three. The plan looks plausible. That is what makes it alarming.',
+            image: '/images/adventure/role/criminal-mastermind.png',
+          },
+          {
+            value: 'Super Hero',
+            label: 'Super Hero',
+            subtext:
+              'Something massive is happening in the background. They are about to address it. They have done this before.',
+            image: '/images/adventure/role/super-hero.png',
+          },
+          {
+            value: 'Super Villain',
+            label: 'Super Villain',
+            subtext:
+              'Monologue in visible progress, hero presumably offscreen and restrained. Prepared remarks. Genuinely enjoying this.',
+            image: '/images/adventure/role/super-villain.png',
+          },
+          {
+            value: 'Reporter',
+            label: 'Reporter',
+            subtext: `Standing somewhere they probably shouldn't be standing. Notebook out. Expression: exactly as interested as the situation warrants.`,
+            image: '/images/adventure/role/reporter.png',
+          },
+          {
+            value: 'Clown',
+            label: 'Clown',
+            subtext:
+              'Situation entirely inappropriate for the costume. Expression beneath the makeup is a different expression. They are not changing the costume.',
+            image: '/images/adventure/role/clown.png',
+          },
+          {
+            value: 'Mime',
+            label: 'Mime',
+            subtext:
+              'Surrounded by invisible architecture that is becoming more real to the viewer with each passing moment. Absolutely committed.',
+            image: '/images/adventure/role/mime.png',
+          },
+          {
+            value: 'Assassin',
+            label: 'Assassin',
+            subtext: `Figure in shadow, target in light. Enormous patience in the posture. The target doesn't know. The assassin has known for some time.`,
+            image: '/images/adventure/role/assassin.png',
+          },
+          {
+            value: 'NPC',
+            label: 'NPC',
+            subtext:
+              'Standing in a specific spot, facing a specific direction. Has said the same thing many times. Has begun to suspect they stop existing when not observed.',
+            image: '/images/adventure/role/npc.png',
+          },
+          {
+            value: 'Gambler',
+            label: 'Gambler',
+            subtext:
+              'Cards on the table, expression carefully neutral. One hand visible. The pot is significant.',
+            image: '/images/adventure/role/gambler.png',
+          },
+          {
+            value: 'Mad Scientist',
+            label: 'Mad Scientist',
+            subtext:
+              'Something unexpected and successful is happening in the background. Expression: delighted. Not yet concerned about what it means.',
+            image: '/images/adventure/role/mad-scientist.png',
+          },
+          {
+            value: 'Alchemist',
+            label: 'Alchemist',
+            subtext:
+              'One transformation in visible progress. They have done this many times. Most of the time it works.',
+            image: '/images/adventure/role/alchemist.png',
+          },
+          {
+            value: 'Polymath',
+            label: 'Polymath',
+            subtext:
+              'Surrounded by unfinished projects in several unrelated fields. Already interested in something new.',
+            image: '/images/adventure/role/polymath.png',
+          },
+          {
+            value: 'Poet',
+            label: 'Poet',
+            subtext:
+              'Listening to something no one else can hear. Finding it adequate. The notebook is open.',
+            image: '/images/adventure/role/poet.png',
+          },
+          {
+            value: 'Waste of Space',
+            label: 'Waste of Space',
+            subtext:
+              'Occupying a perfectly good chair with extraordinary commitment. The space is being wasted with intention.',
+            image: '/images/adventure/role/waste-of-space.png',
+          },
+          {
+            value: 'Philanthropist',
+            label: 'Philanthropist',
+            subtext:
+              'Something significant changing hands, recipient visibly overwhelmed. Pleased but understated. The point is the gift, not the giving.',
+            image: '/images/adventure/role/philanthropist.png',
+          },
+          {
+            value: 'Troublemaker',
+            label: 'Troublemaker',
+            subtext:
+              'Mid-exit from something that has just gone wrong in an interesting way. Not sorry — satisfied. The trouble was the point.',
+            image: '/images/adventure/role/troublemaker.png',
+          },
+          {
             value: '',
             label: 'More callings...',
-            subtext:
-              'Plague baker, chaos consultant, apex predator (retired)...',
+            subtext: 'Plague baker, chaos consultant, apex predator...',
             opensList: true,
             listOptions: EXTENDED_CALLINGS,
           },
@@ -1056,6 +1382,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
           {
             value: 'Neutral Good',
             label: 'Neutral Good',
+            image: '/images/adventure/alignment/neutral-good.png',
             subtext: 'The outcome is good. The method is flexible.',
           },
           {
@@ -1067,6 +1394,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
           {
             value: 'Lawful Neutral',
             label: 'Lawful Neutral',
+            image: '/images/adventure/alignment/lawful-neutral.png',
             subtext:
               'The rules exist. They are not an ethical position. They are simply the rules.',
           },
@@ -1079,21 +1407,25 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
           {
             value: 'Chaotic Neutral',
             label: 'Chaotic Neutral',
+            image: '/images/adventure/alignment/chaotic-neutral.png',
             subtext: 'The rules are a suggestion with too much confidence.',
           },
           {
             value: 'Lawful Evil',
             label: 'Lawful Evil',
+            image: '/images/adventure/alignment/lawful-evil.png',
             subtext: 'The rules exist. I wrote several of them.',
           },
           {
             value: 'Neutral Evil',
             label: 'Neutral Evil',
+            image: '/images/adventure/alignment/neutral-evil.png',
             subtext: 'The rules exist when convenient.',
           },
           {
             value: 'Chaotic Evil',
             label: 'Chaotic Evil',
+            image: '/images/adventure/alignment/chaotic-evil.png',
             subtext:
               'The rules exist in the same way paper exists before fire.',
           },

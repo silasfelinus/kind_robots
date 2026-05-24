@@ -31,7 +31,6 @@ export type StatEntry = {
 export type AdventureSheet = {
   name: string
   honorific: string
-  role: string
   genre: string
   species: string
   class: string
@@ -100,7 +99,6 @@ function defaultSheet(userId = 10): AdventureSheet {
   return {
     name: '',
     honorific: 'adventurer',
-    role: '',
     genre: '',
     species: '',
     class: '',
@@ -433,9 +431,14 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       return
     }
     if (
-      ['title', 'presentation', 'drive', 'achievements', 'background'].includes(
-        field,
-      )
+      [
+        'title',
+        'presentation',
+        'drive',
+        'achievements',
+        'background',
+        'role',
+      ].includes(field)
     )
       return
     if (field in SLOT_BASE_RARITY) {
@@ -558,7 +561,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     inc('class', sheet.class)
     inc('personality', sheet.personality, 'personality')
     inc('genre', sheet.genre ? `${sheet.genre} aesthetic` : '')
-    inc('role', sheet.role ? `the ${sheet.role}` : '')
     inc('alignment', sheet.alignment)
 
     const skillText = Object.values(sheet.rewards)
@@ -724,7 +726,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
       const keys: Array<keyof AdventureSheet> = [
         'name',
         'honorific',
-        'role',
         'genre',
         'species',
         'class',

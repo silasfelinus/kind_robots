@@ -92,7 +92,6 @@
         <div class="grid grid-cols-1 gap-1">
           <sheet-field label="Name" :value="sheet.name" />
           <sheet-field label="Honorific" :value="sheet.honorific" />
-          <sheet-field label="Role" :value="sheet.role" />
           <sheet-field label="Genre" :value="sheet.genre" />
         </div>
       </sheet-section>
@@ -271,7 +270,7 @@ const identityLine = computed(() =>
 // ── Section visibility ──────────────────────────────────────────────────────
 
 const hasIdentity = computed(() =>
-  Boolean(sheet.value.name || sheet.value.role || sheet.value.genre),
+  Boolean(sheet.value.name || sheet.value.genre),
 )
 const hasOrigin = computed(() =>
   Boolean(sheet.value.species || sheet.value.class || sheet.value.alignment),

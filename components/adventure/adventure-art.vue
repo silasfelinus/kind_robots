@@ -166,7 +166,6 @@ const PORTRAIT_FIELDS = [
   { key: 'name', label: 'Name' },
   { key: 'species', label: 'Species' },
   { key: 'class', label: 'Calling' },
-  { key: 'role', label: 'Role' },
   { key: 'genre', label: 'Genre' },
   { key: 'alignment', label: 'Alignment' },
   { key: 'gender', label: 'Gender' },

@@ -3,31 +3,25 @@
 // Card definitions for the Adventure Character Builder.
 // Tone: Disco Elysium meets Douglas Adams.
 // The sheet is sentient, mildly exasperated, and rooting for you.
-//
-// Design contract:
-//   - needsLLM: true  → AI Suggest button; calls /api/adventure/suggest
-//   - needsLLM: false → generatorStore only; no API
-//   - species + presentation cover physical form; no separate form field
-//   - All narratives assume the entity might be anything. Even a sponge.
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export type AdventureInputType =
-  | 'preset' // illustrated choice buttons with optional sub-flows
-  | 'text' // single-line free entry
-  | 'long' // textarea
-  | 'stats' // 1–6 block assignment grid
-  | 'reward' // four rolled skill options per rarity tier
-  | 'list' // searchable dropdown + custom text fallback
-  | 'art' // field picker → prompt assembly → generation
+  | 'preset'
+  | 'text'
+  | 'long'
+  | 'stats'
+  | 'reward'
+  | 'list'
+  | 'art'
 
 export type PresetChoice = {
-  value: string // written to sheet field; empty = triggers sub-flow
+  value: string
   label: string
   subtext?: string
   image?: string
-  opensCustom?: boolean // reveals inline text input
-  opensList?: boolean // reveals listOptions as a sub-panel
+  opensCustom?: boolean
+  opensList?: boolean
   listOptions?: string[]
 }
 
@@ -36,14 +30,15 @@ export type AdventureStep = {
   title: string
   narrative: string
   inputType: AdventureInputType
-  field?: string // which AdventureSheet key this writes to
+  field?: string
   choices?: PresetChoice[]
-  generatorKey?: string // key into generatorStore
-  listOptions?: string[] // direct option list (alternative to generatorKey)
+  listOptions?: string[]
+  generatorKey?: string
   placeholder?: string
   inputLabel?: string
-  heroImage?: string // overrides card-level heroImage
+  heroImage?: string
   needsLLM?: boolean
+  appendSuggest?: boolean
 }
 
 export type AdventureCard = {
@@ -62,6 +57,134 @@ export type AdventureCard = {
   unlockCondition?: 'always' | 'coreComplete' | 'allComplete'
   steps: AdventureStep[]
 }
+
+// ── Extended lists (shown after gallery via opensList) ─────────────────────
+
+const EXTENDED_GENRES: string[] = [
+  'Bureaucratic Fantasy',
+  'Academic Eldritch',
+  'Municipal Necromancy',
+  'Wilderness Bureaucracy',
+  'Diplomatic Thriller',
+  'Archive Horror',
+  'Revolutionary Pastoral',
+  'Bog Punk',
+  'Culinary Horror',
+  'Geological Romance',
+  'Siege Comedy',
+  'Tender Apocalypse',
+  'Haunted Procedural',
+  'Existential Swashbuckling',
+  'Heist Mythology',
+  'Maritime Mystery',
+  'Pastoral Apocalypse',
+  'Isekai (reluctant)',
+  'Slice of Life (complicated)',
+  'Shonen (aging protagonist)',
+  'Magical Girl (retired)',
+  'Mecha Opera',
+  'Tournament Arc',
+  'School Horror',
+  'Reverse Isekai',
+  'Solarpunk',
+  'Vaporwave Dystopia',
+  'Hard Sci-Fi (soft feelings)',
+  'Generation Ship Drama',
+  'First Contact Comedy',
+  'Deep Space Western',
+  'Alien Bureaucracy',
+  'Corporate Sci-Fi',
+  'Clockpunk Opera',
+  'J-Horror',
+  'Body Horror (tender)',
+  'Cryptid Documentary',
+  "Kaiju (from the kaiju's perspective)",
+  'Folk Horror',
+  'Fungal Horror',
+  'Furry Pastoral',
+  'Aquatic Opera',
+  'Sky Nomad',
+  'Underground Society',
+  'Office Thriller',
+  'Lovecraftian Office Comedy',
+  'Corporate Espionage',
+  'Middle Management Horror',
+  'Noir (one detail wrong)',
+  'Carnival (abandoned, still running)',
+  'Mythological Comedy',
+  'Underwater Cathedral',
+  'Green Sky Apocalypse',
+  'Old Forest Folklore',
+  'Bioluminescent Underground',
+  'Too-Close Moon Fairytale',
+  'Empty Parliament Thriller',
+  'Village Creature Pastoral',
+  'Anachronism Mystery',
+  'Western (strange angle)',
+  'Political Candlelight Drama',
+]
+
+const EXTENDED_CALLINGS: string[] = [
+  'Plague Baker',
+  'Haunted Accountant',
+  'Retired Villain',
+  'Professional Disappearer',
+  'Chaos Consultant',
+  'Institutional Memory',
+  'Reluctant Chosen One',
+  'Tactical Coward',
+  'Unlicensed Exorcist',
+  'Grief Cartographer',
+  'Accidental Diplomat',
+  'Maritime Ecclesiastic',
+  'Hereditary Witch',
+  'Sword Saint (disputed)',
+  'Probability Thief',
+  'Debt Collector (Metaphysical)',
+  'Narrative Engineer',
+  'Pilot',
+  'Engineer',
+  'Hacker',
+  'Xenobiologist',
+  'Void Scout',
+  'Corporate Operative',
+  'Weapons Systems Analyst',
+  'Ship AI (embodied)',
+  'Drone Wrangler',
+  'Signals Intelligence',
+  'Decommissioned Weapon',
+  'Investigator',
+  'Occultist',
+  'Medium',
+  'Cultist (recovering)',
+  'Thing That Hunts Things',
+  'Chronicler of the Wrong',
+  'Last Survivor',
+  'Containment Specialist',
+  'The Bait (professional)',
+  'Transfer Student',
+  'Dark Parallel',
+  'Mentor (deceased, complicated)',
+  'Tournament Bracket Champion',
+  'The One With The Forbidden Power',
+  'Reluctant Team Leader',
+  'Middle Manager (haunted)',
+  'Designated Protagonist',
+  'Corporate Synergy Entity',
+  'Brand Ambassador (rogue)',
+  'The One Who Knows Where The Bodies Are',
+  'Compliance Officer (former)',
+  'Meeting Facilitator (unhinged)',
+  'Apex Predator (retired)',
+  'Load-Bearing Wall (awakened)',
+  'Ambient Threat',
+  'Passive Hazard',
+  'Decorative Element (activated)',
+  'Unknown Function',
+  'The Thing That Does The Thing',
+  'Ecosystem Keystone',
+  'Invasive Species (intentional)',
+]
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +208,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         key: 'role',
         title: 'Story Role',
         narrative:
-          'What function does this entity serve in the larger machinery of the story? This is not a moral question. The plot has a shape. Every shape requires certain load-bearing positions. What position does this one hold?',
+          'What function does this entity serve in the larger machinery of the story? This is not a moral question. The plot has a shape. Every shape requires certain load-bearing positions. What position does this one hold? Choose one — or write your own. The narrative is not picky about job titles, only about whether the slot gets filled.',
         inputType: 'preset',
         field: 'role',
         choices: [
@@ -93,27 +216,28 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: 'Hero',
             label: 'The Hero',
             subtext:
-              'Central. Determined. The plot happens to them on purpose.',
+              'Central. Determined. The plot happens to them on purpose. The light is slightly too bright, like it hit the wrong person.',
             image: '/images/adventure/role/hero.png',
           },
           {
             value: 'Companion',
             label: 'The Companion',
-            subtext: 'Indispensable. Often the one who actually solves it.',
+            subtext:
+              'Indispensable. Half a step ahead. Often the one who actually solves it.',
             image: '/images/adventure/role/companion.png',
           },
           {
             value: 'Rival',
             label: 'The Rival',
             subtext:
-              "A mirror. Wants the same thing. Worse. They've already seen your move.",
+              "A mirror. Wants the same thing, worse. They've already seen your move.",
             image: '/images/adventure/role/rival.png',
           },
           {
             value: 'Mentor',
             label: 'The Mentor',
             subtext:
-              'Has seen this before. Will not say so directly. Looks tired in an earned way.',
+              'Has seen this before. Will not say so directly. Tired in an earned way.',
             image: '/images/adventure/role/mentor.png',
           },
           {
@@ -240,12 +364,100 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         key: 'genre',
         title: 'Genre Frequency',
         narrative:
-          'Every story has a gravitational field — a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently.',
-        inputType: 'list',
+          "Every story has a gravitational field — a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently. Choose the field this character inhabits — or name one that doesn't exist yet.",
+        inputType: 'preset',
         field: 'genre',
-        generatorKey: 'genre',
-        placeholder: 'Cozy horror, alien bureaucracy, bog punk opera...',
-        inputLabel: 'Genre',
+        choices: [
+          {
+            value: 'Gothic Comedy',
+            label: 'Gothic Comedy',
+            subtext: 'Elegant decay. Comedic timing in the crypt.',
+            image: '/images/adventure/genre/gothic.png',
+          },
+          {
+            value: 'Cozy Horror',
+            label: 'Cozy Horror',
+            subtext: 'Something outside the window. Cup of tea inside.',
+            image: '/images/adventure/genre/cozy.png',
+          },
+          {
+            value: 'Mythic Sci-Fi',
+            label: 'Mythic Sci-Fi',
+            subtext: 'Gods with spaceships. Heroes with launch codes.',
+            image: '/images/adventure/genre/scifi.png',
+          },
+          {
+            value: 'Cosmic Dread',
+            label: 'Cosmic Dread',
+            subtext: 'Tiny figure. Enormous moon. The moon has a door.',
+            image: '/images/adventure/genre/cosmic.png',
+          },
+          {
+            value: 'Fantasy',
+            label: 'Classic Fantasy',
+            subtext:
+              'Dragon on a castle. The dragon is reading something, unconcerned.',
+            image: '/images/adventure/genre/fantasy.png',
+          },
+          {
+            value: 'Mystery',
+            label: 'Mystery',
+            subtext: 'The magnifying glass is pointed at the viewer.',
+            image: '/images/adventure/genre/mystery.png',
+          },
+          {
+            value: 'Horror',
+            label: 'Horror',
+            subtext:
+              'The reaching hand is coming from the lantern, not the ground.',
+            image: '/images/adventure/genre/horror.png',
+          },
+          {
+            value: 'Romance',
+            label: 'Romance',
+            subtext:
+              'Two figures almost touching. Both looking at the same third thing, off-frame.',
+            image: '/images/adventure/genre/romance.png',
+          },
+          {
+            value: 'Comedy',
+            label: 'Comedy',
+            subtext: 'Motion lines that spell something.',
+            image: '/images/adventure/genre/comedy.png',
+          },
+          {
+            value: 'Pastoral Apocalypse',
+            label: 'Pastoral Apocalypse',
+            subtext: 'Green sky. Laundry still on the line.',
+            image: '/images/adventure/genre/apocalypse.png',
+          },
+          {
+            value: 'Carnival',
+            label: 'Carnival',
+            subtext: 'Abandoned fairground, still running. There is a queue.',
+            image: '/images/adventure/genre/carnival.png',
+          },
+          {
+            value: 'Infinite Archive',
+            label: 'Infinite Archive',
+            subtext: 'The book is reading back.',
+            image: '/images/adventure/genre/archive.png',
+          },
+          {
+            value: '',
+            label: 'More genres...',
+            subtext:
+              'Isekai, mecha, bog punk, alien bureaucracy, and sixty more.',
+            opensList: true,
+            listOptions: EXTENDED_GENRES,
+          },
+          {
+            value: '',
+            label: 'Write my own',
+            subtext: 'Any genre, vibe, or gravitational field that fits.',
+            opensCustom: true,
+          },
+        ],
       },
     ],
   },
@@ -263,7 +475,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     narrative:
       'A name is a surprisingly durable thing. It outlasts the entity who carries it, haunts records, appears on maps, gets shouted across crowded rooms at the worst possible moment. The entity may not use language. They may not have a mouth. These are not obstacles — they are interesting constraints. The ledger has seen stranger.',
     required: true,
-    restoresFields: ['name', 'honorific', 'title'],
+    restoresFields: ['name', 'honorific'],
     steps: [
       {
         key: 'name',
@@ -287,18 +499,6 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         placeholder: 'the esteemed, formerly known as, technically still a...',
         inputLabel: 'Honorific',
       },
-      {
-        key: 'title',
-        title: 'Epithet',
-        narrative:
-          'Optional. An epithet, formal billing, or rumour that hardened into a proper noun. The Lantern of Wrong Tuesdays. The Smell Before Rain. Currently Under Investigation. All valid. All earned in ways that do not require explanation.',
-        inputType: 'text',
-        field: 'title',
-        generatorKey: 'title',
-        placeholder:
-          'The Lantern of Wrong Tuesdays, Currently Under Investigation...',
-        inputLabel: 'Epithet',
-      },
     ],
   },
 
@@ -321,24 +521,453 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         key: 'species',
         title: 'Species',
         narrative:
-          'What is this entity? Biologically, taxonomically, cosmically, or in terms of whatever classification system applies. Species is origin — not destiny. It is the factory configuration. Many of the most interesting entities have done significant custom work on theirs.',
-        inputType: 'list',
+          'What is this entity? Biologically, taxonomically, cosmically, or in terms of whatever classification system applies. Species is origin, not destiny. It is the factory configuration. Many of the most interesting entities have done significant custom work on theirs.',
+        inputType: 'preset',
         field: 'species',
-        generatorKey: 'species',
-        placeholder:
-          'Sentient Sponge, Distributed Gas Cloud, Haunted Concept...',
-        inputLabel: 'Species',
+        choices: [
+          {
+            value: 'Human',
+            label: 'Human',
+            subtext:
+              'Adaptable, stubborn, wildly overconfident for something with no claws.',
+            image: '/images/adventure/species/human.png',
+          },
+          {
+            value: 'Elf',
+            label: 'Elf',
+            subtext:
+              'Graceful, ancient, dramatic in ways that make furniture uncomfortable.',
+            image: '/images/adventure/species/elf.png',
+          },
+          {
+            value: 'Dwarf',
+            label: 'Dwarf',
+            subtext:
+              'Tough, practical, probably has strong opinions about doors.',
+            image: '/images/adventure/species/dwarf.png',
+          },
+          {
+            value: 'Orc',
+            label: 'Orc',
+            subtext:
+              "Powerful, passionate, done being everyone's default villain.",
+            image: '/images/adventure/species/orc.png',
+          },
+          {
+            value: 'Goblin',
+            label: 'Goblin',
+            subtext: 'Clever, chaotic, economically suspicious.',
+            image: '/images/adventure/species/goblin.png',
+          },
+          {
+            value: 'Halfling',
+            label: 'Halfling',
+            subtext:
+              'Small, brave, armed with snacks and excellent boundaries.',
+            image: '/images/adventure/species/halfling.png',
+          },
+          {
+            value: 'Gnome',
+            label: 'Gnome',
+            subtext:
+              'Inventive, sparkly-brained, three inventions away from local disaster.',
+            image: '/images/adventure/species/gnome.png',
+          },
+          {
+            value: 'Troll',
+            label: 'Troll',
+            subtext:
+              'Large, regenerative, unexpectedly philosophical after midnight.',
+            image: '/images/adventure/species/troll.png',
+          },
+          {
+            value: 'Ogre',
+            label: 'Ogre',
+            subtext:
+              'Enormous, blunt, may have the emotional depth of an old forest.',
+            image: '/images/adventure/species/ogre.png',
+          },
+          {
+            value: 'Giant',
+            label: 'Giant',
+            subtext: 'Towering, mythic, has to crouch through most plotlines.',
+            image: '/images/adventure/species/giant.png',
+          },
+          {
+            value: 'Catfolk',
+            label: 'Catfolk',
+            subtext:
+              'Agile, charming, judging everyone from a morally superior windowsill.',
+            image: '/images/adventure/species/catfolk.png',
+          },
+          {
+            value: 'Wolfkin',
+            label: 'Wolfkin',
+            subtext:
+              'Loyal, instinctive, pack-minded but still extremely individual.',
+            image: '/images/adventure/species/wolfkin.png',
+          },
+          {
+            value: 'Foxkin',
+            label: 'Foxkin',
+            subtext:
+              'Clever, stylish, suspiciously prepared for every social ambush.',
+            image: '/images/adventure/species/foxkin.png',
+          },
+          {
+            value: 'Rabbitfolk',
+            label: 'Rabbitfolk',
+            subtext: 'Fast, alert, underestimated exactly once.',
+            image: '/images/adventure/species/rabbitfolk.png',
+          },
+          {
+            value: 'Bearfolk',
+            label: 'Bearfolk',
+            subtext: 'Strong, warm, protective, terrifying when disappointed.',
+            image: '/images/adventure/species/bearfolk.png',
+          },
+          {
+            value: 'Lizardfolk',
+            label: 'Lizardfolk',
+            subtext:
+              'Cool-blooded, observant, emotionally mysterious but not emotionless.',
+            image: '/images/adventure/species/lizardfolk.png',
+          },
+          {
+            value: 'Frogfolk',
+            label: 'Frogfolk',
+            subtext:
+              'Cheerful, swamp-wise, probably knows a shortcut through something cursed.',
+            image: '/images/adventure/species/frogfolk.png',
+          },
+          {
+            value: 'Birdfolk',
+            label: 'Birdfolk',
+            subtext: 'Sharp-eyed, restless, allergic to staying grounded.',
+            image: '/images/adventure/species/birdfolk.png',
+          },
+          {
+            value: 'Sharkfolk',
+            label: 'Sharkfolk',
+            subtext: 'Sleek, intense, not as mean as the teeth suggest.',
+            image: '/images/adventure/species/sharkfolk.png',
+          },
+          {
+            value: 'Mothfolk',
+            label: 'Mothfolk',
+            subtext:
+              'Soft, luminous, irresistibly drawn to forbidden knowledge and porch lights.',
+            image: '/images/adventure/species/mothfolk.png',
+          },
+          {
+            value: 'Fae',
+            label: 'Fae',
+            subtext: 'Beautiful, dangerous, runs on bargains and loopholes.',
+            image: '/images/adventure/species/fae.png',
+          },
+          {
+            value: 'Satyr',
+            label: 'Satyr',
+            subtext:
+              'Reveler, trickster, emotionally powered by music and terrible ideas.',
+            image: '/images/adventure/species/satyr.png',
+          },
+          {
+            value: 'Merfolk',
+            label: 'Merfolk',
+            subtext:
+              'Ocean-born, elegant, very aware land people are ridiculous.',
+            image: '/images/adventure/species/merfolk.png',
+          },
+          {
+            value: 'Centaur',
+            label: 'Centaur',
+            subtext: 'Swift, noble, physically incapable of subtle entrances.',
+            image: '/images/adventure/species/centaur.png',
+          },
+          {
+            value: 'Minotaur',
+            label: 'Minotaur',
+            subtext:
+              'Labyrinth-bred, powerful, better at finding the truth than the exit.',
+            image: '/images/adventure/species/minotaur.png',
+          },
+          {
+            value: 'Harpy',
+            label: 'Harpy',
+            subtext: 'Fierce, winged, loudly correct.',
+            image: '/images/adventure/species/harpy.png',
+          },
+          {
+            value: 'Sphinx',
+            label: 'Sphinx',
+            subtext:
+              'Regal, cryptic, will absolutely make eye contact during a riddle.',
+            image: '/images/adventure/species/sphinx.png',
+          },
+          {
+            value: 'Dragonkin',
+            label: 'Dragonkin',
+            subtext: 'Draconic, proud, shiny-object adjacent.',
+            image: '/images/adventure/species/dragonkin.png',
+          },
+          {
+            value: 'Phoenixborn',
+            label: 'Phoenixborn',
+            subtext: 'Fire-touched, reborn, melodramatic but with receipts.',
+            image: '/images/adventure/species/phoenixborn.png',
+          },
+          {
+            value: 'Unicorn-Touched',
+            label: 'Unicorn-Touched',
+            subtext: 'Radiant, rare, pure-hearted or aggressively pretending.',
+            image: '/images/adventure/species/unicorn-touched.png',
+          },
+          {
+            value: 'Vampire',
+            label: 'Vampire',
+            subtext: 'Elegant, hungry, old enough to be tired of capes.',
+            image: '/images/adventure/species/vampire.png',
+          },
+          {
+            value: 'Werebeast',
+            label: 'Werebeast',
+            subtext:
+              'Moon-bound, primal, always negotiating with the inner monster.',
+            image: '/images/adventure/species/werebeast.png',
+          },
+          {
+            value: 'Ghost',
+            label: 'Ghost',
+            subtext:
+              'Unfinished, translucent, has unfinished business and possibly unfinished laundry.',
+            image: '/images/adventure/species/ghost.png',
+          },
+          {
+            value: 'Skeleton',
+            label: 'Skeleton',
+            subtext: 'Rattly, persistent, immune to most skincare routines.',
+            image: '/images/adventure/species/skeleton.png',
+          },
+          {
+            value: 'Zombie',
+            label: 'Zombie',
+            subtext: 'Reanimated, stubborn, surprisingly sentimental.',
+            image: '/images/adventure/species/zombie.png',
+          },
+          {
+            value: 'Ghoul',
+            label: 'Ghoul',
+            subtext:
+              'Graveyard-wise, eerie, with impeccable survival instincts.',
+            image: '/images/adventure/species/ghoul.png',
+          },
+          {
+            value: 'Witchborn',
+            label: 'Witchborn',
+            subtext: 'Spell-touched, uncanny, knows which herbs are lying.',
+            image: '/images/adventure/species/witchborn.png',
+          },
+          {
+            value: 'Shadowkin',
+            label: 'Shadowkin',
+            subtext: 'Half-lit, quiet, probably standing where nobody looked.',
+            image: '/images/adventure/species/shadowkin.png',
+          },
+          {
+            value: 'Changeling',
+            label: 'Changeling',
+            subtext: 'Shifting, adaptable, identity as performance art.',
+            image: '/images/adventure/species/changeling.png',
+          },
+          {
+            value: 'Nightmare',
+            label: 'Nightmare',
+            subtext: 'Fear-shaped, dramatic, has excellent stage presence.',
+            image: '/images/adventure/species/nightmare.png',
+          },
+          {
+            value: 'Robot',
+            label: 'Robot',
+            subtext: 'Built, curious, emotionally upgrading in public.',
+            image: '/images/adventure/species/robot.png',
+          },
+          {
+            value: 'Android',
+            label: 'Android',
+            subtext:
+              'Human-shaped, precision-made, asking increasingly dangerous questions.',
+            image: '/images/adventure/species/android.png',
+          },
+          {
+            value: 'Golem',
+            label: 'Golem',
+            subtext:
+              'Clay, stone, metal, or magic given purpose and bad posture.',
+            image: '/images/adventure/species/golem.png',
+          },
+          {
+            value: 'Living Doll',
+            label: 'Living Doll',
+            subtext:
+              'Porcelain, plush, or carved, adorable in the legally haunted sense.',
+            image: '/images/adventure/species/living-doll.png',
+          },
+          {
+            value: 'Slime',
+            label: 'Slime',
+            subtext: 'Squishy, adaptive, impossible to embarrass.',
+            image: '/images/adventure/species/slime.png',
+          },
+          {
+            value: 'Plantfolk',
+            label: 'Plantfolk',
+            subtext:
+              'Rooted, blooming, patient until someone steps on the wrong flower.',
+            image: '/images/adventure/species/plantfolk.png',
+          },
+          {
+            value: 'Mushroomfolk',
+            label: 'Mushroomfolk',
+            subtext: 'Spore-wise, communal, deeply normal about decomposition.',
+            image: '/images/adventure/species/mushroomfolk.png',
+          },
+          {
+            value: 'Crystalborn',
+            label: 'Crystalborn',
+            subtext:
+              'Faceted, resonant, emotionally transparent in the literal sense.',
+            image: '/images/adventure/species/crystalborn.png',
+          },
+          {
+            value: 'Starborn',
+            label: 'Starborn',
+            subtext: 'Cosmic, radiant, homesick for impossible skies.',
+            image: '/images/adventure/species/starborn.png',
+          },
+          {
+            value: 'Voidling',
+            label: 'Voidling',
+            subtext:
+              'Small piece of the abyss, trying its best, occasionally eating light.',
+            image: '/images/adventure/species/voidling.png',
+          },
+          {
+            value: '',
+            label: 'Something stranger',
+            subtext:
+              'Sentient sponge, haunted concept, disappointed weather system...',
+            opensCustom: true,
+          },
+        ],
       },
       {
         key: 'characterClass',
         title: 'Calling',
         narrative:
-          "A class is a compacted life decision. Everything practiced, everything they've been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Any answer is acceptable. 'Unknown' is a class. 'The Thing That Does The Thing' is a class.",
-        inputType: 'list',
+          "A class is a compacted life decision. Everything they've practiced, everything they've been called, the specific shape their existence has taken from doing one thing repeatedly in the direction of the world. Choose from the archetypes below — or expand to the full list. Any answer is acceptable. 'Unknown' is a class.",
+        inputType: 'preset',
         field: 'class',
-        generatorKey: 'class',
-        placeholder: 'Apex Predator (Retired), Load-Bearing Wall (Awakened)...',
-        inputLabel: 'Calling',
+        choices: [
+          {
+            value: 'Rogue',
+            label: 'Rogue',
+            subtext:
+              'Operates in the gap between what is permitted and what is possible.',
+            image: '/images/adventure/role/rogue.png',
+          },
+          {
+            value: 'Warrior',
+            label: 'Warrior',
+            subtext:
+              'The direct approach. Occasionally the only approach. Comfortable with that.',
+            image: '/images/adventure/role/warrior.png',
+          },
+          {
+            value: 'Wizard',
+            label: 'Wizard',
+            subtext:
+              'Has read the manual. Written several. Disagrees with most of them.',
+            image: '/images/adventure/role/wizard.png',
+          },
+          {
+            value: 'Cleric',
+            label: 'Cleric',
+            subtext:
+              'Divine mandate, mortal execution. The gap between these two is where the story lives.',
+            image: '/images/adventure/role/cleric.png',
+          },
+          {
+            value: 'Bard',
+            label: 'Bard',
+            subtext:
+              'Technically a weapon. The paperwork classifies them as entertainment.',
+            image: '/images/adventure/role/bard.png',
+          },
+          {
+            value: 'Ranger',
+            label: 'Ranger',
+            subtext:
+              'Comfortable in the margins. The margins are where interesting things happen.',
+            image: '/images/adventure/role/ranger.png',
+          },
+          {
+            value: 'Paladin',
+            label: 'Paladin',
+            subtext:
+              'Sworn to something. The something has not always made this easy.',
+            image: '/images/adventure/role/paladin.png',
+          },
+          {
+            value: 'Druid',
+            label: 'Druid',
+            subtext:
+              'The natural world has a position on this. They are delivering it.',
+            image: '/images/adventure/role/druid.png',
+          },
+          {
+            value: 'Monk',
+            label: 'Monk',
+            subtext:
+              'Discipline as philosophy. Philosophy as weapon. The peace is real but conditional.',
+            image: '/images/adventure/role/monk.png',
+          },
+          {
+            value: 'Warlock',
+            label: 'Warlock',
+            subtext:
+              'The deal made sense at the time. The time has passed. The deal remains.',
+            image: '/images/adventure/role/warlock.png',
+          },
+          {
+            value: 'Artificer',
+            label: 'Artificer',
+            subtext:
+              "If it can be built, it should be. If it shouldn't be, that's a design challenge.",
+            image: '/images/adventure/role/artificer.png',
+          },
+          {
+            value: 'Oracle',
+            label: 'Oracle',
+            subtext:
+              'Knows what is coming. The question is whether to mention it.',
+            image: '/images/adventure/role/oracle.png',
+          },
+          {
+            value: '',
+            label: 'More callings...',
+            subtext:
+              'Plague baker, chaos consultant, apex predator (retired)...',
+            opensList: true,
+            listOptions: EXTENDED_CALLINGS,
+          },
+          {
+            value: '',
+            label: 'Write my own',
+            subtext: 'Any function, title, or inexplicable life direction.',
+            opensCustom: true,
+          },
+        ],
       },
       {
         key: 'alignment',
@@ -355,15 +984,21 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/alignment/lawful.png',
           },
           {
+            value: 'Neutral Good',
+            label: 'Neutral Good',
+            subtext: 'The outcome is good. The method is flexible.',
+          },
+          {
             value: 'Chaotic Good',
             label: 'Chaotic Good',
             subtext: 'The outcome is good. The method is negotiable.',
             image: '/images/adventure/alignment/chaotic.png',
           },
           {
-            value: 'Chaotic Neutral',
-            label: 'Chaotic Neutral',
-            subtext: 'The rules are a suggestion with too much confidence.',
+            value: 'Lawful Neutral',
+            label: 'Lawful Neutral',
+            subtext:
+              'The rules exist. They are not an ethical position. They are simply the rules.',
           },
           {
             value: 'True Neutral',
@@ -372,9 +1007,19 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/alignment/neutral.png',
           },
           {
+            value: 'Chaotic Neutral',
+            label: 'Chaotic Neutral',
+            subtext: 'The rules are a suggestion with too much confidence.',
+          },
+          {
             value: 'Lawful Evil',
             label: 'Lawful Evil',
             subtext: 'The rules exist. I wrote several of them.',
+          },
+          {
+            value: 'Neutral Evil',
+            label: 'Neutral Evil',
+            subtext: 'The rules exist when convenient.',
           },
           {
             value: 'Chaotic Evil',
@@ -405,9 +1050,9 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     heroImage: '/images/adventure/hero/identity.png',
     tagline: 'How they occupy space. Or the concept of space.',
     narrative:
-      'Every entity carries a frequency — a way of being legible to others before a single word or signal has been exchanged. Some have thought carefully about this. Some inherited it by accident. Some are a colour. Some are a temperature. Some are a bureaucratic process that has developed opinions. The question applies to all of them, though the answers look different.',
+      'Every entity carries a frequency — a way of being legible to others before a single word or signal has been exchanged. Some have thought carefully about this. Some inherited it by accident. Some are a temperature. Some are a bureaucratic process that has developed opinions. The question applies to all of them, though the answers look different.',
     required: true,
-    restoresFields: ['gender', 'presentation'],
+    restoresFields: ['gender'],
     steps: [
       {
         key: 'genderIdentity',
@@ -485,19 +1130,6 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
           },
         ],
       },
-      {
-        key: 'presentation',
-        title: 'Presentation',
-        narrative:
-          'How does this entity show up in the world? Not internally — externally. What do others register before interaction begins? A sponge presents as a sponge, which is useful information. A gas cloud presents differently on Tuesdays. An office printer presents as deeply, specifically resentful. All presentations are valid data for the portrait.',
-        inputType: 'long',
-        field: 'presentation',
-        generatorKey: 'presentation',
-        needsLLM: true,
-        placeholder:
-          'Glamorous under protest. A vaguely threatening ovoid. Shaped like an accusation...',
-        inputLabel: 'Presentation',
-      },
     ],
   },
 
@@ -514,7 +1146,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     narrative:
       'Personality is the operating system running beneath all behaviour. A sponge has one. A hive-mind has one — expressed through consensus. A very old filing cabinet that achieved consciousness during a bad audit has a very specific one. It does not explain the entity. It explains why they reach for the same wrong answer three times before trying something different.',
     required: true,
-    restoresFields: ['personality', 'drive'],
+    restoresFields: ['personality'],
     steps: [
       {
         key: 'personality',
@@ -528,19 +1160,6 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         placeholder:
           "Warm but evasive. Operates on geological time and finds everyone else's urgency baffling. Deeply competent and unaware of it...",
         inputLabel: 'Personality',
-      },
-      {
-        key: 'drive',
-        title: 'Drive',
-        narrative:
-          "What does this entity want badly enough to make a questionable decision about it? Drive is the engine of plot. It does not need to be grand. 'I want to be left alone' has started wars. Even a non-sentient sponge wants to absorb things. That counts.",
-        inputType: 'long',
-        field: 'drive',
-        generatorKey: 'drive',
-        needsLLM: true,
-        placeholder:
-          "To find someone who doesn't want to be found. To absorb every experience available. To be believed, just once, without evidence...",
-        inputLabel: 'Drive',
       },
     ],
   },
@@ -583,7 +1202,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
     narrative:
       "Every entity has a past. Even the sponge has a past — it's mostly about being a sponge, which is more complex than it sounds. All pasts contain the same basic elements: something wanted, something lost, something done about it, and one detail that doesn't quite fit but keeps surfacing at the least helpful moment.",
     required: true,
-    restoresFields: ['backstory', 'achievements', 'quirks'],
+    restoresFields: ['backstory', 'quirks'],
     steps: [
       {
         key: 'backstory',
@@ -598,26 +1217,14 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         inputLabel: 'Backstory',
       },
       {
-        key: 'achievements',
-        title: 'Achievements',
-        narrative:
-          "What have they done? What do others say they've done? What have they done that they're still working out whether it counts? Accomplishments, rumours, failures being rebranded, titles earned the hard way.",
-        inputType: 'long',
-        field: 'achievements',
-        generatorKey: 'achievement',
-        needsLLM: true,
-        placeholder:
-          'Outlasted three prophecies about them. Received an apology from the ocean. Survived the Incident Without Knowing What the Incident Was...',
-        inputLabel: 'Achievements',
-      },
-      {
         key: 'quirks',
         title: 'Quirks',
         narrative:
-          "Every entity has habits the writer didn't plan. Small repeated behaviours, tells that give them away. These are the details others quote later. Give them two or three. Make them specific.",
-        inputType: 'text',
+          "Every entity has habits the writer didn't plan. Small repeated behaviours, tells that give them away. These are the details others quote later. Give them two or three — hit Suggest more than once, or write your own. Make them specific.",
+        inputType: 'long',
         field: 'quirks',
         generatorKey: 'quirk',
+        appendSuggest: true,
         placeholder:
           'Apologises to doors. Emits a faint harmonic when content. Rearranges furniture before difficult conversations...',
         inputLabel: 'Quirks',

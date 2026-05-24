@@ -170,9 +170,9 @@ const PORTRAIT_FIELDS = [
   { key: 'genre', label: 'Genre' },
   { key: 'alignment', label: 'Alignment' },
   { key: 'gender', label: 'Gender' },
-  { key: 'presentation', label: 'Presentation' },
   { key: 'personality', label: 'Personality' },
   { key: 'backstory', label: 'Backstory' },
+  { key: 'quirks', label: 'Quirks' },
   { key: 'skills', label: 'Skills' },
 ] as const
 

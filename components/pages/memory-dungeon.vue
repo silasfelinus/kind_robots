@@ -147,7 +147,7 @@
         />
 
         <div
-          class="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-black/85"
+          class="absolute inset-0 bg-linear-to-b from-black/55 via-transparent to-black/85"
         ></div>
         <div class="splash-vignette pointer-events-none absolute inset-0"></div>
 
@@ -172,11 +172,7 @@
         <div
           class="absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-3 px-4 sm:bottom-10"
         >
-          <button
-            type="button"
-            class="splash-enter-btn"
-            @click="startGame"
-          >
+          <button type="button" class="splash-enter-btn" @click="startGame">
             ⚔️ ENTER THE DUNGEON
           </button>
 
@@ -223,10 +219,7 @@
 
         <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
           <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
-          <ol
-            v-if="leaderboard.length"
-            class="space-y-0.5 text-gray-300"
-          >
+          <ol v-if="leaderboard.length" class="space-y-0.5 text-gray-300">
             <li
               v-for="(user, i) in leaderboard.slice(0, 3)"
               :key="user.id"
@@ -798,11 +791,12 @@ function startGame() {
   )
 }
 
+definePageMeta({ ssr: false })
+
 function handleCardClick(card: DungeonCard) {
   if (!gameStarted.value || gameOver.value || levelTransitioning.value) return
   if (card.matched) return
-
-  memoryStore.handleGalleryClick(card)
+  memoryStore.flipCard(card)
 }
 
 function onMatch(matchedName: string) {
@@ -1220,8 +1214,6 @@ onMounted(async () => {
   if (!milestoneStore.highMatchScores.length) {
     await milestoneStore.fetchHighMatchScores()
   }
-
-  await nextTick()
 })
 
 onUnmounted(() => {

@@ -892,6 +892,37 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     }
   }
 
+  // in memoryStore.ts — add this action, keep selectCard for the old UI
+  function flipCard(card: GalleryImage): void {
+    if (boardLocked.value || card.flipped || card.matched) return
+
+    card.flipped = true
+
+    if (!firstSelected) {
+      firstSelected = card
+      return
+    }
+
+    boardLocked.value = true
+
+    if (firstSelected.pairId === card.pairId && firstSelected.id !== card.id) {
+      card.matched = true
+      firstSelected.matched = true
+      firstSelected = null
+      boardLocked.value = false
+      return
+    }
+
+    const missed = firstSelected
+    firstSelected = null
+
+    window.setTimeout(() => {
+      card.flipped = false
+      missed.flipped = false
+      boardLocked.value = false
+    }, 700)
+  }
+
   async function claimLevelReward(mode = rewardMode.value): Promise<void> {
     if (!rewardReady.value || rewardLoading.value || mode === 'manual') return
 
@@ -1090,10 +1121,18 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     await generateMemoryGameImages()
   }
 
-  async function resetGame(): Promise<void> {
-    await startDungeonRun()
+  async function resetGame(payload?: {
+    level?: number
+    pairModifier?: number
+  }): Promise<void> {
+    if (payload?.level !== undefined) level.value = payload.level
+    // pairModifier isn't a store concept — component owns it, ignore here
+    gameWon.value = false
+    gameOver.value = false
+    boardLocked.value = false
+    firstSelected = null
+    await generateMemoryGameImages()
   }
-
   async function advanceLevel(): Promise<void> {
     level.value += 1
     gameWon.value = false
@@ -1248,5 +1287,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     claimLevelReward,
     generateRewardText,
     generateRewardArt,
+    flipCard,
   }
 })

@@ -268,9 +268,9 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/genre/comedy.png',
           },
           {
-            value: 'Pastoral Apocalypse',
-            label: 'Pastoral Apocalypse',
-            subtext: 'Green sky. Laundry still on the line.',
+            value: 'Post-Apocalypse',
+            label: 'Apocalypse',
+            subtext: 'Still keeping it together despite it all',
             image: '/images/adventure/genre/apocalypse.png',
           },
           {
@@ -278,12 +278,6 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             label: 'Carnival',
             subtext: 'Abandoned fairground, still running. There is a queue.',
             image: '/images/adventure/genre/carnival.png',
-          },
-          {
-            value: 'Infinite Archive',
-            label: 'Infinite Archive',
-            subtext: 'The book is reading back.',
-            image: '/images/adventure/genre/archive.png',
           },
           {
             value: '',
@@ -626,7 +620,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: 'Nightmare',
             label: 'Nightmare',
             subtext: 'Fear-shaped, dramatic, has excellent stage presence.',
-            image: '/images/adventure/species/nightmare.png',
+            image: '/images/adventure/species/nmare.png',
           },
           {
             value: 'Robot',
@@ -980,13 +974,6 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             subtext:
               'Installed to keep things away. Developed opinions about which things. The crows left years ago. Something else visits now.',
             image: '/images/adventure/species/scarecrow.png',
-          },
-          {
-            value: 'Sleep Elemental',
-            label: 'Sleep Elemental',
-            subtext:
-              'Made of the texture of almost-asleep. Trailing the faint suggestion of a dream that belongs to someone else.',
-            image: '/images/adventure/species/sleep-elemental.png',
           },
           {
             value: 'Time Being',

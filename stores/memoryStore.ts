@@ -501,6 +501,46 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     }
   }
 
+  function normalizeImagePath(value: unknown): string {
+    if (typeof value !== 'string') return ''
+
+    if (value.startsWith('http') || value.startsWith('/')) {
+      return value
+    }
+
+    return `/images/gallery/${value}`
+  }
+
+  function extractArtImagePath(image: unknown): string {
+    if (!image || typeof image !== 'object') return ''
+
+    const record = image as Record<string, unknown>
+
+    const candidates = [
+      record.imagePath,
+      record.path,
+      record.thumbnailPath,
+      record.url,
+    ]
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return normalizeImagePath(candidate)
+      }
+    }
+
+    // Fall back to base64 data if present
+    if (typeof record.imageData === 'string' && record.imageData) {
+      const fileType =
+        typeof record.fileType === 'string' && record.fileType
+          ? record.fileType
+          : 'png'
+      return `data:image/${fileType};base64,${record.imageData}`
+    }
+
+    return ''
+  }
+
   async function generateMemoryGameImages(): Promise<void> {
     try {
       isLoading.value = true
@@ -511,24 +551,36 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       clearNotification()
       resetTurnState()
 
-      const response = await performFetch<unknown[]>(
-        `/api/galleries/random/count/${pairsNeeded.value}`,
-      )
+      // Make sure the art store has images loaded
+      await artStore.initialize({
+        fetchRemote: !artStore.hasCachedImages,
+        hydrateImages: true,
+      })
 
-      if (!response.success || !Array.isArray(response.data)) {
+      const showMature = artStore.showMature
+      const pool = artStore.artImages.filter((image) => {
+        if (!image) return false
+        if (!showMature && image.isMature) return false
+        return Boolean(extractArtImagePath(image))
+      })
+
+      if (pool.length < 2) {
         throw new Error(
-          response.message || 'Failed to load memory dungeon images.',
+          'The dungeon could not find enough art images for a memory board. Generate some art first!',
         )
       }
 
-      const imagePaths = response.data
-        .map((image) => normalizeImagePath(image))
+      // Shuffle and slice the required number of unique images
+      const needed = Math.min(pairsNeeded.value, pool.length)
+      const picked = shuffle(pool).slice(0, needed)
+
+      const imagePaths = picked
+        .map((image) => extractArtImagePath(image))
         .filter(Boolean)
-        .slice(0, pairsNeeded.value)
 
       if (imagePaths.length < 2) {
         throw new Error(
-          'The dungeon could not find enough images for a memory board.',
+          'The dungeon could not extract enough valid image paths from the art collection.',
         )
       }
 

@@ -1,29 +1,23 @@
-import { defineContentConfig, defineCollection } from '@nuxt/content'
+// content.config.ts
+
+import { defineCollection, defineContentConfig } from '@nuxt/content'
 import * as z from 'zod'
 
 const contentSchema = z.object({
   title: z.string().optional(),
+  room: z.string().optional(),
   subtitle: z.string().optional(),
-  layout: z.string().optional(),
+  description: z.string().optional(),
   icon: z.string().optional(),
   image: z.string().optional(),
-  gallery: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  category: z.string().optional(),
   tooltip: z.string().optional(),
   dottitip: z.string().optional(),
   amitip: z.string().optional(),
+  artPrompt: z.string().optional(),
   sort: z.string().optional(),
-  navComponent: z.string().optional(),
-  dashboard: z.string().optional(),
-  footer: z.string().optional(),
-  model: z.string().optional(),
-  theme: z.string().optional(),
-  room: z.string().optional(),
+
   path: z.string(),
-  description: z.string().optional(),
-  underConstruction: z.boolean().optional(),
-  showFooter: z.boolean().optional(),
+
   seo: z
     .intersection(
       z.object({
@@ -35,11 +29,13 @@ const contentSchema = z.object({
       z.record(z.string(), z.any()),
     )
     .default({}),
+
   body: z.object({
     type: z.string(),
     children: z.any(),
     toc: z.any(),
   }),
+
   navigation: z
     .union([
       z.boolean(),
@@ -60,6 +56,19 @@ export type ContentType = z.infer<typeof contentSchema> & {
     link?: Record<string, any>[]
     [key: string]: any
   }
+}
+
+export type PageBrief = {
+  title: string
+  room: string
+  subtitle: string
+  description: string
+  icon: string
+  image: string
+  tooltip: string
+  dottitip: string
+  amitip: string
+  artPrompt: string
 }
 
 export default defineContentConfig({

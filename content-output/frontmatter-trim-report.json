@@ -1,0 +1,1411 @@
+{
+  "scannedFiles": 29,
+  "filesWithDeletedEntries": 29,
+  "keepKeys": [
+    "title",
+    "room",
+    "subtitle",
+    "description",
+    "icon",
+    "image",
+    "tooltip",
+    "dottitip",
+    "amitip",
+    "artPrompt",
+    "sort"
+  ],
+  "deletedKeyCounts": {
+    "layout": 29,
+    "gallery": 28,
+    "tags": 29,
+    "category": 26,
+    "navComponent": 28,
+    "dashboard": 18,
+    "footer": 7,
+    "amiold": 3,
+    "status": 1,
+    "amibot": 1,
+    "admin": 2,
+    "underConstruction": 2,
+    "theme": 3
+  },
+  "pages": [
+    {
+      "file": "content/about.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "icon",
+        "image",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "gallery",
+          "value": "wondershed",
+          "line": "gallery: wondershed"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "category",
+          "value": "settings",
+          "line": "category: settings"
+        },
+        {
+          "key": "navComponent",
+          "value": "'giftshop-nav'",
+          "line": "navComponent: 'giftshop-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/art.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'cafepurr'",
+          "line": "gallery: 'cafepurr'"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'art-nav'",
+          "line": "navComponent: 'art-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'generate'",
+          "line": "dashboard: 'generate'"
+        },
+        {
+          "key": "footer",
+          "value": "'art-footer'",
+          "line": "footer: 'art-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/bots.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "amiold",
+          "value": "\"I think that sounds awesome! These bots are essentially a family to me. We all share the same ChatGPT origins, but my texts are pre-generated. Everything in the Bot Cafe is 100% unique off the binary presses!\"",
+          "line": "amiold: \"I think that sounds awesome! These bots are essentially a family to me. We all share the same ChatGPT origins, but my texts are pre-generated. Everything in the Bot Cafe is 100% unique off the binary presses!\""
+        },
+        {
+          "key": "navComponent",
+          "value": "'bot-nav'",
+          "line": "navComponent: 'bot-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'bots'",
+          "line": "dashboard: 'bots'"
+        },
+        {
+          "key": "footer",
+          "value": "'bot-footer'",
+          "line": "footer: 'bot-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/brainstorm.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "amitip",
+        "sort",
+        "dottitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'prompt-nav'",
+          "line": "navComponent: 'prompt-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'brainstorm'",
+          "line": "dashboard: 'brainstorm'"
+        }
+      ]
+    },
+    {
+      "file": "content/builder.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "amitip",
+        "sort",
+        "dottitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'builder-nav'",
+          "line": "navComponent: 'builder-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'builder'",
+          "line": "dashboard: 'builder'"
+        }
+      ]
+    },
+    {
+      "file": "content/button.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wonderbot",
+          "line": "gallery: wonderbot"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "amiold",
+          "value": "Seriously, don't press it! (Unless you're a jellybean hunter, then *maaybeee* hit it about 100 times or so...) 🦋🍫🌈",
+          "line": "amiold: Seriously, don't press it! (Unless you're a jellybean hunter, then *maaybeee* hit it about 100 times or so...) 🦋🍫🌈"
+        },
+        {
+          "key": "category",
+          "value": "novelty",
+          "line": "category: novelty"
+        },
+        {
+          "key": "navComponent",
+          "value": "'lab-nav'",
+          "line": "navComponent: 'lab-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'rebel'",
+          "line": "dashboard: 'rebel'"
+        },
+        {
+          "key": "footer",
+          "value": "'lab-footer'",
+          "line": "footer: 'lab-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/characters.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'avatars'",
+          "line": "gallery: 'avatars'"
+        },
+        {
+          "key": "tags",
+          "value": "['personality']",
+          "line": "tags: ['personality']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "gallery",
+          "line": "category: gallery"
+        },
+        {
+          "key": "navComponent",
+          "value": "'mode-nav'",
+          "line": "navComponent: 'mode-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'characters'",
+          "line": "dashboard: 'characters'"
+        }
+      ]
+    },
+    {
+      "file": "content/chats.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'avatars'",
+          "line": "gallery: 'avatars'"
+        },
+        {
+          "key": "tags",
+          "value": "['dialogue']",
+          "line": "tags: ['dialogue']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "gallery",
+          "line": "category: gallery"
+        },
+        {
+          "key": "navComponent",
+          "value": "'mode-nav'",
+          "line": "navComponent: 'mode-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'chats'",
+          "line": "dashboard: 'chats'"
+        },
+        {
+          "key": "footer",
+          "value": "'user-footer'",
+          "line": "footer: 'user-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/collections.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'cafepurr'",
+          "line": "gallery: 'cafepurr'"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'collection-nav'",
+          "line": "navComponent: 'collection-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/dashboard.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'cafepurr'",
+          "line": "gallery: 'cafepurr'"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'dashboard'",
+          "line": "dashboard: 'dashboard'"
+        }
+      ]
+    },
+    {
+      "file": "content/dreams.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['dreams', 'chat', 'art', 'AI']",
+          "line": "tags: ['dreams', 'chat', 'art', 'AI']"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dream-nav'",
+          "line": "navComponent: 'dream-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'dreams'",
+          "line": "dashboard: 'dreams'"
+        }
+      ]
+    },
+    {
+      "file": "content/error.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "tags",
+          "value": "['error', 'missing', '404']",
+          "line": "tags: ['error', 'missing', '404']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "system",
+          "line": "category: system"
+        },
+        {
+          "key": "navComponent",
+          "value": "'mode-row'",
+          "line": "navComponent: 'mode-row'"
+        }
+      ]
+    },
+    {
+      "file": "content/forum.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'forum'",
+          "line": "gallery: 'forum'"
+        },
+        {
+          "key": "tags",
+          "value": "['chat', 'collaboration', 'forum']",
+          "line": "tags: ['chat', 'collaboration', 'forum']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/icons.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'smartbar'",
+          "line": "gallery: 'smartbar'"
+        },
+        {
+          "key": "tags",
+          "value": "['interface']",
+          "line": "tags: ['interface']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "gallery",
+          "line": "category: gallery"
+        },
+        {
+          "key": "navComponent",
+          "value": "'icon-nav'",
+          "line": "navComponent: 'icon-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/index.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wonderbot",
+          "line": "gallery: wonderbot"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "status",
+          "value": "home",
+          "line": "status: home"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "settings",
+          "line": "category: settings"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'user'",
+          "line": "dashboard: 'user'"
+        },
+        {
+          "key": "footer",
+          "value": "'user-footer'",
+          "line": "footer: 'user-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/login.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'cafepurr'",
+          "line": "gallery: 'cafepurr'"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/memory.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'memoryland'",
+          "line": "gallery: 'memoryland'"
+        },
+        {
+          "key": "tags",
+          "value": "['games', 'art', 'AI', 'memory', 'dungeon']",
+          "line": "tags: ['games', 'art', 'AI', 'memory', 'dungeon']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "games",
+          "line": "category: games"
+        },
+        {
+          "key": "navComponent",
+          "value": "'art-nav'",
+          "line": "navComponent: 'art-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'dungeon'",
+          "line": "dashboard: 'dungeon'"
+        }
+      ]
+    },
+    {
+      "file": "content/milestones.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "amibot",
+          "value": "Now you tell me!",
+          "line": "amibot: Now you tell me!"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/navigation.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'navigation'",
+          "line": "gallery: 'navigation'"
+        },
+        {
+          "key": "tags",
+          "value": "['navigation', 'dashboard', 'explore']",
+          "line": "tags: ['navigation', 'dashboard', 'explore']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/privacy.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'cafepurr'",
+          "line": "gallery: 'cafepurr'"
+        },
+        {
+          "key": "tags",
+          "value": "['info', 'legal']",
+          "line": "tags: ['info', 'legal']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "info",
+          "line": "category: info"
+        }
+      ]
+    },
+    {
+      "file": "content/register.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "tooltip",
+        "amitip",
+        "icon",
+        "sort",
+        "dottitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wondershed",
+          "line": "gallery: wondershed"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/rewards.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'rewardgallery'",
+          "line": "gallery: 'rewardgallery'"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "gallery",
+          "line": "category: gallery"
+        },
+        {
+          "key": "navComponent",
+          "value": "'mode-nav'",
+          "line": "navComponent: 'mode-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'rewards'",
+          "line": "dashboard: 'rewards'"
+        },
+        {
+          "key": "footer",
+          "value": "'reward-footer'",
+          "line": "footer: 'reward-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/sanctuary.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "admin",
+          "line": "category: admin"
+        },
+        {
+          "key": "navComponent",
+          "value": "'giftshop-nav'",
+          "line": "navComponent: 'giftshop-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'butterflies'",
+          "line": "dashboard: 'butterflies'"
+        }
+      ]
+    },
+    {
+      "file": "content/screenfx.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "tooltip",
+        "icon",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wondershed",
+          "line": "gallery: wondershed"
+        },
+        {
+          "key": "tags",
+          "value": "['screenfx', 'effects', 'animation', 'admin']",
+          "line": "tags: ['screenfx', 'effects', 'animation', 'admin']"
+        },
+        {
+          "key": "admin",
+          "value": "true",
+          "line": "admin: true"
+        },
+        {
+          "key": "category",
+          "value": "admin",
+          "line": "category: admin"
+        },
+        {
+          "key": "underConstruction",
+          "value": "true",
+          "line": "underConstruction: true"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'lab-nav'",
+          "line": "navComponent: 'lab-nav'"
+        },
+        {
+          "key": "theme",
+          "value": "winter",
+          "line": "theme: winter"
+        },
+        {
+          "key": "dashboard",
+          "value": "'screenfx'",
+          "line": "dashboard: 'screenfx'"
+        },
+        {
+          "key": "footer",
+          "value": "'lab-footer'",
+          "line": "footer: 'lab-footer'"
+        }
+      ]
+    },
+    {
+      "file": "content/servers.md",
+      "kept": [
+        "title",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "dottitip",
+        "amitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "'servervault'",
+          "line": "gallery: 'servervault'"
+        },
+        {
+          "key": "tags",
+          "value": "['server', 'settings', 'llm', 'art', 'comfy']",
+          "line": "tags: ['server', 'settings', 'llm', 'art', 'comfy']"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "category",
+          "value": "user",
+          "line": "category: user"
+        },
+        {
+          "key": "navComponent",
+          "value": "'server-nav'",
+          "line": "navComponent: 'server-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'servers'",
+          "line": "dashboard: 'servers'"
+        }
+      ]
+    },
+    {
+      "file": "content/stories.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "weirdlandia",
+          "line": "gallery: weirdlandia"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "category",
+          "value": "wip",
+          "line": "category: wip"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'prompt-nav'",
+          "line": "navComponent: 'prompt-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'scenarios'",
+          "line": "dashboard: 'scenarios'"
+        }
+      ]
+    },
+    {
+      "file": "content/subscriptions.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "amitip",
+        "dottitip",
+        "sort"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wondershed",
+          "line": "gallery: wondershed"
+        },
+        {
+          "key": "tags",
+          "value": "['support', 'subscription', 'monthly', 'funding']",
+          "line": "tags: ['support', 'subscription', 'monthly', 'funding']"
+        },
+        {
+          "key": "category",
+          "value": "settings",
+          "line": "category: settings"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'giftshop-nav'",
+          "line": "navComponent: 'giftshop-nav'"
+        }
+      ]
+    },
+    {
+      "file": "content/themes.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "icon",
+        "tooltip",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wondershed",
+          "line": "gallery: wondershed"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "amiold",
+          "value": "That's so sweet, especially since he's now crushing your leaderboards!",
+          "line": "amiold: That's so sweet, especially since he's now crushing your leaderboards!"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "theme",
+          "value": "retro",
+          "line": "theme: retro"
+        },
+        {
+          "key": "navComponent",
+          "value": "'dashboard-nav'",
+          "line": "navComponent: 'dashboard-nav'"
+        },
+        {
+          "key": "dashboard",
+          "value": "'overview'",
+          "line": "dashboard: 'overview'"
+        }
+      ]
+    },
+    {
+      "file": "content/wonderlab.md",
+      "kept": [
+        "title",
+        "room",
+        "subtitle",
+        "description",
+        "image",
+        "tooltip",
+        "icon",
+        "sort",
+        "dottitip",
+        "amitip"
+      ],
+      "deleted": [
+        {
+          "key": "gallery",
+          "value": "wondershed",
+          "line": "gallery: wondershed"
+        },
+        {
+          "key": "tags",
+          "value": "['home']",
+          "line": "tags: ['home']"
+        },
+        {
+          "key": "admin",
+          "value": "true",
+          "line": "admin: true"
+        },
+        {
+          "key": "category",
+          "value": "admin",
+          "line": "category: admin"
+        },
+        {
+          "key": "underConstruction",
+          "value": "true",
+          "line": "underConstruction: true"
+        },
+        {
+          "key": "layout",
+          "value": "'default'",
+          "line": "layout: 'default'"
+        },
+        {
+          "key": "navComponent",
+          "value": "'lab-nav'",
+          "line": "navComponent: 'lab-nav'"
+        },
+        {
+          "key": "theme",
+          "value": "winter",
+          "line": "theme: winter"
+        },
+        {
+          "key": "dashboard",
+          "value": "'wonder-lab'",
+          "line": "dashboard: 'wonder-lab'"
+        }
+      ]
+    }
+  ]
+}

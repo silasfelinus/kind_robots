@@ -139,4 +139,8 @@ i put openai and abthropic at the same task for designing the code workbench, bu
 
 
 5/25/2026
-My adhd jumping from focus to focus may need to be studied.  scaffolding the character builder and just loving how it's coming out. Lots of time spent modeling art.
+My adhd jumping from focus to focus may need to be studied.  scaffolding the character builder and just loving how it's coming out. Lots of time spent modeling art. 
+
+I refreshed the front end styling through anthropic. built out tests for art and text through wonderlab. redesigned dashboard shell two dozen or so times to troubleshoot tab memory issues, but they should now be resolved.
+
+Character builder included the "adventure" folder, though the adventure to a character is quite mundane. I am in love with much of the art that has been created. I may be in a minority, but there are pictures that hit emotional resonance for me, and communicate an idea, and broaden a universe. I love this part of project generation. I added so many quirks, personally, before giving the list to ai, to get my list of 75 or so quirks expanded to 150, which then dropped to 101. The art was very much chatGPT, however, I gave very minimal guidelines, other than style requests and asking that they present characters that are multidimensional, not conventionally gendered, bodied, or necessarily humanoid.

@@ -9,7 +9,13 @@ import { defineStore } from 'pinia'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-type Rarity = 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC'
+export type Rarity =
+  | 'COMMON'
+  | 'UNCOMMON'
+  | 'RARE'
+  | 'EPIC'
+  | 'LEGENDARY'
+  | 'MYTHIC'
 
 export type RewardEntry = {
   label: string
@@ -575,53 +581,8 @@ const ALIGNMENT_MORALS: string[] = [
   'Apologetic',
 ]
 
-const QUIRKS: string[] = [
-  'Apologises to doors',
-  'Counts exits before compliments',
-  'Cannot lie while seated',
-  'Names all tools immediately and grieves them when lost',
-  'Keeps a list of everyone who has ever been correct',
-  'Hums when nervous — a different tune each time',
-  'Asks for the bad news first; forgets to ask for the good',
-  'Refuses to enter rooms that smell of cinnamon',
-  'Maintains exactly one active grudge from a previous life',
-  'Always knows what time it is; refuses to share this information',
-  'Collects doomed spoons',
-  'Flinches at specific chord progressions',
-  'Has memorised three irrelevant poems and recites them at optimal moments',
-  'Refuses to sit with their back to the door, even in closets',
-  'Sends apology notes weeks before the incident',
-  "Knows the names of everyone's grandmothers",
-  'Always carries an exit gift for parties they might need to leave suddenly',
-  'Whispers when confident, speaks loudly when uncertain',
-  'Has a different expression for each kind of bad news',
-  'Keeps a running list of rules they have technically not broken',
-  'Always knows where the nearest body of water is',
-  'Says goodbye to each room before leaving',
-  'Believes in luck and tests it constantly',
-  'Categorises strangers by which bird they most resemble',
-  "Finishes other people's interrupted sentences, always incorrectly",
-  'Carries spare names in case they need an alias immediately',
-  'Rates every chair upon sitting (internally, never aloud)',
-  'Makes eye contact only during the important parts',
-  'Rearranges furniture before difficult conversations',
-  'Always has two contingency plans and forgets which one is current',
-  'Refers to their past self in third person',
-  "Keeps a small rock from every place they've escaped from",
-  "Apologises preemptively to anyone they're about to disappoint",
-  // Non-human quirks
-  'Emits a faint harmonic when content',
-  'Changes colour slightly when lying (claims this is a myth)',
-  'Absorbs information by physical contact; does not mention this',
-  'Processes emotions approximately three hours after the event',
-  'Loses mass when sad; regains it when interested',
-  'Cannot enter a building without first circling it once',
-  'Produces a scent like petrichor when startled',
-  "Communicates in a language that hasn't been invented yet",
-  "Leaves rooms exactly as they found them, including the previous occupant's mood",
-  'Photosynthesises under stress',
-  'Gets louder as the room gets quieter',
-]
+// QUIRKS moved to adventureCards.ts as preset choices
+const QUIRKS: string[] = [] // kept for backward compat
 
 const ACHIEVEMENTS: string[] = [
   'Survived brunch with ghosts',

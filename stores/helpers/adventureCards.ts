@@ -38,7 +38,6 @@ export type AdventureStep = {
   inputLabel?: string
   heroImage?: string
   needsLLM?: boolean
-  appendSuggest?: boolean
 }
 
 export type AdventureCard = {
@@ -1837,14 +1836,715 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
         key: 'quirks',
         title: 'Quirks',
         narrative:
-          "Every entity has habits the writer didn't plan. Small repeated behaviours, tells that give them away. These are the details others quote later. Give them two or three — hit Suggest more than once, or write your own. Make them specific.",
-        inputType: 'long',
+          'Every entity has a defining trait that colours how they move through the world. Not a flaw, not a virtue — just something specific and irreducible about how they are. Pick one that fits. Or one that surprises you. The surprise is usually more interesting.',
+        inputType: 'preset',
         field: 'quirks',
-        generatorKey: 'quirk',
-        appendSuggest: true,
-        placeholder:
-          'Apologises to doors. Emits a faint harmonic when content. Rearranges furniture before difficult conversations...',
-        inputLabel: 'Quirks',
+        choices: [
+          {
+            value: 'double-jointed',
+            label: 'Double-Jointed',
+            subtext: `Bends in directions the skeleton wasn't consulted about. Useful in tight spaces. Deeply unsettling at dinner parties.`,
+            image: '/images/adventure/quirks/double-jointed.png',
+          },
+          {
+            value: 'fortunate',
+            label: 'Fortunate',
+            subtext:
+              'Things just tend to work out. Not through effort or skill — just a kind of ambient probability bias in their favour. Others have noticed.',
+            image: '/images/adventure/quirks/fortunate.png',
+          },
+          {
+            value: 'heterochromia',
+            label: 'Heterochromia',
+            subtext:
+              'Two different eyes, each doing its own thing. Which one to trust is a question strangers spend too long on.',
+            image: '/images/adventure/quirks/heterochromia.png',
+          },
+          {
+            value: 'extra-body-part',
+            label: 'Extra Body Part',
+            subtext: `Has one more of something than expected. They've stopped explaining it. The explanations never helped.`,
+            image: '/images/adventure/quirks/extra-body-part.png',
+          },
+          {
+            value: 'musical',
+            label: 'Musical',
+            subtext: `Hears rhythm in everything. Taps it on surfaces without noticing. Has never been in a room that didn't have a soundtrack.`,
+            image: '/images/adventure/quirks/musical.png',
+          },
+          {
+            value: 'likes-to-dance',
+            label: 'Likes to Dance',
+            subtext:
+              'Will dance. Does not require music, occasion, or permission. The quality varies. The commitment does not.',
+            image: '/images/adventure/quirks/likes-to-dance.png',
+          },
+          {
+            value: 'introverted',
+            label: 'Introverted',
+            subtext: `Recharges in silence and spends social energy like it costs something, because it does. The quiet isn't emptiness — it's maintenance.`,
+            image: '/images/adventure/quirks/introverted.png',
+          },
+          {
+            value: 'extroverted',
+            label: 'Extroverted',
+            subtext:
+              'Gets louder as the room fills up. Every conversation is an investment and the returns are enormous. Silence is just a room waiting to happen.',
+            image: '/images/adventure/quirks/extroverted.png',
+          },
+          {
+            value: 'passionate',
+            label: 'Passionate',
+            subtext:
+              'When they care about something, everyone nearby learns that they care about it. The caring is contagious and non-negotiable.',
+            image: '/images/adventure/quirks/passionate.png',
+          },
+          {
+            value: 'hopeless-romantic',
+            label: 'Hopeless Romantic',
+            subtext:
+              'Believes in love the way some people believe in weather — as a force that arrives without asking. Has been wrong before. Has not updated.',
+            image: '/images/adventure/quirks/hopeless-romantic.png',
+          },
+          {
+            value: 'foolish',
+            label: 'Foolish',
+            subtext:
+              'Presses buttons before reading labels. Asks questions after acting. Has survived this so far through a combination of luck and being very difficult to permanently damage.',
+            image: '/images/adventure/quirks/foolish.png',
+          },
+          {
+            value: 'left-handed',
+            label: 'Left-Handed',
+            subtext:
+              'Operates in a world designed for the other hand and has strong feelings about this. Adapts without comment. Remembers every inconvenience.',
+            image: '/images/adventure/quirks/left-handed.png',
+          },
+          {
+            value: 'easily-frustrated',
+            label: 'Easily Frustrated',
+            subtext: `Things that should work, work. Things that shouldn't work, don't. The problem is the grey area, which is most of the world.`,
+            image: '/images/adventure/quirks/easily-frustrated.png',
+          },
+          {
+            value: 'submissive',
+            label: 'Submissive',
+            subtext:
+              'Defers readily, listens well, lets others lead — not from weakness, but from a considered position that this is usually faster. Usually.',
+            image: '/images/adventure/quirks/submissive.png',
+          },
+          {
+            value: 'dominant',
+            label: 'Dominant',
+            subtext:
+              'Occupies rooms the way weather does. Nobody assigned them the head of the table. They arrived there anyway.',
+            image: '/images/adventure/quirks/dominant.png',
+          },
+          {
+            value: 'narcissistic',
+            label: 'Narcissistic',
+            subtext:
+              'Has a complicated relationship with mirrors — specifically, they think the relationship is perfect and the mirror agrees. Others are invited to observe.',
+            image: '/images/adventure/quirks/narcissistic.png',
+          },
+          {
+            value: 'nervous',
+            label: 'Nervous',
+            subtext:
+              'Something is probably about to go wrong. They have calculated the odds. The calculation did not help. They have redone it anyway.',
+            image: '/images/adventure/quirks/nervous.png',
+          },
+          {
+            value: 'scatter-brained',
+            label: 'Scatter-Brained',
+            subtext:
+              'Brilliant in all directions simultaneously. The problem is that directions are not the same as destinations. The keys are around here somewhere.',
+            image: '/images/adventure/quirks/scatter-brained.png',
+          },
+          {
+            value: 'bookworm',
+            label: 'Bookworm',
+            subtext:
+              'The book is always more interesting than what is currently happening. This has occasionally been wrong. They did not enjoy those occasions.',
+            image: '/images/adventure/quirks/bookworm.png',
+          },
+          {
+            value: 'book-smart',
+            label: 'Book Smart',
+            subtext:
+              'Has read the documentation. All of it. Will cite the relevant section. The relevant section is always exactly correct and rarely sufficient.',
+            image: '/images/adventure/quirks/book-smart.png',
+          },
+          {
+            value: 'obsessive-compulsive',
+            label: 'Obsessive-Compulsive',
+            subtext:
+              'The order of things matters and the order of things is specific and the order of things has been disturbed. This will be addressed.',
+            image: '/images/adventure/quirks/obsessive-compulsive.png',
+          },
+          {
+            value: 'clumsy',
+            label: 'Clumsy',
+            subtext:
+              'Not careless — the relationship between intention and execution is just slightly negotiable. Objects in the vicinity have adjusted their expectations.',
+            image: '/images/adventure/quirks/clumsy.png',
+          },
+          {
+            value: 'obsequious',
+            label: 'Obsequious',
+            subtext:
+              'So eager to please that the eagerness becomes its own kind of pressure. Means well. Applies this meaning with tremendous force.',
+            image: '/images/adventure/quirks/obsequious.png',
+          },
+          {
+            value: 'driven',
+            label: 'Driven',
+            subtext:
+              'Has a goal. The goal is visible from their face at all times. Obstacles are categorised as temporary, permanent, or interesting.',
+            image: '/images/adventure/quirks/driven.png',
+          },
+          {
+            value: 'show-off',
+            label: 'Show-Off',
+            subtext:
+              'Can do the thing without making it a performance, but why would they. The audience is right there. The audience did not ask to be an audience.',
+            image: '/images/adventure/quirks/show-off.png',
+          },
+          {
+            value: 'altruistic',
+            label: 'Altruistic',
+            subtext:
+              'Helps people and expects nothing back, which is the part people find hardest to believe. The nothing is genuine. The helping is also genuine.',
+            image: '/images/adventure/quirks/altruistic.png',
+          },
+          {
+            value: 'generous',
+            label: 'Generous',
+            subtext:
+              'Gives things away — time, objects, attention, food — with a consistency that others eventually stop questioning and start relying on.',
+            image: '/images/adventure/quirks/generous.png',
+          },
+          {
+            value: 'apathetic',
+            label: 'Apathetic',
+            subtext:
+              'Has assessed the situation and found it within acceptable parameters. The chaos in the background is noted. It is within acceptable parameters.',
+            image: '/images/adventure/quirks/apathetic.png',
+          },
+          {
+            value: 'sarcastic',
+            label: 'Sarcastic',
+            subtext:
+              'Says one thing and means another, but makes very sure you know which is which. The gap between them is where the humour lives.',
+            image: '/images/adventure/quirks/sarcastic.png',
+          },
+          {
+            value: 'sense-of-humor',
+            label: 'Sense of Humor',
+            subtext:
+              'Finds things funny. Not everything, but enough. The things they find funny are very specific and theirs, and they will share them.',
+            image: '/images/adventure/quirks/sense-of-humor.png',
+          },
+          {
+            value: 'fatalistic',
+            label: 'Fatalistic',
+            subtext:
+              'The outcome has already been determined by forces indifferent to effort. They are still here anyway. This is not optimism — it is policy.',
+            image: '/images/adventure/quirks/fatalistic.png',
+          },
+          {
+            value: 'optimist',
+            label: 'Optimist',
+            subtext:
+              'Believes things will work out. Has evidence for this. The evidence is selective and they are aware of this and they believe it anyway.',
+            image: '/images/adventure/quirks/optimist.png',
+          },
+          {
+            value: 'pessimist',
+            label: 'Pessimist',
+            subtext:
+              'Has prepared for the worst. The worst has not yet materialised in the precise form anticipated, which means it is still coming.',
+            image: '/images/adventure/quirks/pessimist.png',
+          },
+          {
+            value: 'logical',
+            label: 'Logical',
+            subtext:
+              'If it cannot be reasoned, it cannot be trusted. Feelings are noted, categorised, and addressed in order of urgency. The queue is long.',
+            image: '/images/adventure/quirks/logical.png',
+          },
+          {
+            value: 'emotional',
+            label: 'Emotional',
+            subtext:
+              'Feels things fully and in real time and occasionally before the thing has finished happening. This is efficient for some purposes.',
+            image: '/images/adventure/quirks/emotional.png',
+          },
+          {
+            value: 'notably-tall',
+            label: 'Notably Tall',
+            subtext:
+              'Ducks through doorways as a reflex. Has a perspective on most rooms that nobody else shares. This is sometimes useful and often lonely.',
+            image: '/images/adventure/quirks/notably-tall.png',
+          },
+          {
+            value: 'notably-short',
+            label: 'Notably Short',
+            subtext:
+              'Underestimated continuously and consistently. Has built an entire operational philosophy around this. It works exceptionally well.',
+            image: '/images/adventure/quirks/notably-short.png',
+          },
+          {
+            value: 'charismatic',
+            label: 'Charismatic',
+            subtext: `People listen when they speak. They don't entirely understand why, but they have stopped questioning it and started using it.`,
+            image: '/images/adventure/quirks/charismatic.png',
+          },
+          {
+            value: 'enthusiastic',
+            label: 'Enthusiastic',
+            subtext:
+              'Arrives already excited. The excitement is not dependent on the specifics of what is happening. The specifics will be incorporated.',
+            image: '/images/adventure/quirks/enthusiastic.png',
+          },
+          {
+            value: 'energetic',
+            label: 'Energetic',
+            subtext:
+              'In motion more than not. The stillness, when it comes, is either sleep or something requiring serious attention.',
+            image: '/images/adventure/quirks/energetic.png',
+          },
+          {
+            value: 'hyperactive',
+            label: 'Hyperactive',
+            subtext:
+              'Doing several things right now, will be doing several different things in a moment, has opinions about what happens in between.',
+            image: '/images/adventure/quirks/hyperactive.png',
+          },
+          {
+            value: 'ditzy',
+            label: 'Ditzy',
+            subtext:
+              'Missing information that is technically available. The gap is not malicious — the surrounding details are simply more interesting.',
+            image: '/images/adventure/quirks/ditzy.png',
+          },
+          {
+            value: 'artistic',
+            label: 'Artistic',
+            subtext:
+              'Sees the world as material. Everything is either beautiful, interestingly ugly, or raw potential. Most things are raw potential.',
+            image: '/images/adventure/quirks/artistic.png',
+          },
+          {
+            value: 'authoritarian',
+            label: 'Authoritarian',
+            subtext:
+              'Rules exist for reasons and the reasons are probably good and if everyone would simply follow the rules things would go much more smoothly.',
+            image: '/images/adventure/quirks/authoritarian.png',
+          },
+          {
+            value: 'problem-solver',
+            label: 'Problem-Solver',
+            subtext:
+              'Sees a problem and immediately starts solving it. Has not always confirmed that the problem needed to be solved. Results vary.',
+            image: '/images/adventure/quirks/problem-solver.png',
+          },
+          {
+            value: 'puzzler',
+            label: 'Puzzler',
+            subtext: `Delighted by complexity. The more locked, the more interesting. Has never met a system they didn't immediately want to understand entirely.`,
+            image: '/images/adventure/quirks/puzzler.png',
+          },
+          {
+            value: 'devious',
+            label: 'Devious',
+            subtext:
+              'Plans several moves ahead. Shares only the current one. The rest are none of your business and are going very well.',
+            image: '/images/adventure/quirks/devious.png',
+          },
+          {
+            value: 'kleptomaniac',
+            label: 'Kleptomaniac',
+            subtext:
+              'Acquires small objects without quite meaning to. The objects are always interesting. The pockets are always full. An audit would be complicated.',
+            image: '/images/adventure/quirks/kleptomaniac.png',
+          },
+          {
+            value: 'pyromaniac',
+            label: 'Pyromaniac',
+            subtext:
+              'Has a deep appreciation for fire as a phenomenon. Respects it. Studies it. Would like to observe more of it, under controlled conditions, please.',
+            image: '/images/adventure/quirks/pyromaniac.png',
+          },
+          {
+            value: 'lactose-intolerant',
+            label: 'Lactose Intolerant',
+            subtext:
+              'The cheese is right there and it is extremely good and the consequences are known and this is a decision that will be made with full information.',
+            image: '/images/adventure/quirks/lactose-intolerant.png',
+          },
+          {
+            value: 'allergies',
+            label: 'Allergies',
+            subtext:
+              'The world contains substances that have opinions about this entity. The opinions are expressed immediately and at volume.',
+            image: '/images/adventure/quirks/allergies.png',
+          },
+          {
+            value: 'ignorant',
+            label: 'Ignorant',
+            subtext:
+              'Confidently navigating a situation with incomplete information. The confidence is load-bearing. The information gap is not yet visible.',
+            image: '/images/adventure/quirks/ignorant.png',
+          },
+          {
+            value: 'addict',
+            label: 'Addict',
+            subtext:
+              'There is something they return to. The returning is a fact, not a judgment. What they do with this fact is theirs to determine.',
+            image: '/images/adventure/quirks/addict.png',
+          },
+          {
+            value: 'secret-identity',
+            label: 'Secret Identity',
+            subtext:
+              'The face others see is accurate but not complete. The complete version is stored somewhere safer and brought out when necessary.',
+            image: '/images/adventure/quirks/secret-identity.png',
+          },
+          {
+            value: 'always-online',
+            label: 'Always Online',
+            subtext:
+              'Connected to everything at all times. Fully informed. Slightly exhausted. Eleven tabs open that are technically relevant.',
+            image: '/images/adventure/quirks/always-online.png',
+          },
+          {
+            value: 'obsessive',
+            label: 'Obsessive',
+            subtext:
+              'When interest becomes architecture. Everything eventually connects to the thing. The thing is different from what others think the thing is.',
+            image: '/images/adventure/quirks/obsessive.png',
+          },
+          {
+            value: 'amoral',
+            label: 'Amoral',
+            subtext:
+              'Has assessed the ethical framework and found it optional. Operates by a different system. The system is internally consistent and has been tested.',
+            image: '/images/adventure/quirks/amoral.png',
+          },
+          {
+            value: 'inventive',
+            label: 'Inventive',
+            subtext:
+              'Sees what something could be before seeing what it is. The gap between those two things is where they spend most of their time.',
+            image: '/images/adventure/quirks/inventive.png',
+          },
+          {
+            value: 'creative-writer',
+            label: 'Creative Writer',
+            subtext:
+              'Experiences the world as material. Everything that happens is also something that could be written down. They are writing it down.',
+            image: '/images/adventure/quirks/creative-writer.png',
+          },
+          {
+            value: 'secretive',
+            label: 'Secretive',
+            subtext:
+              'Shares selectively. What is held back is not absence of trust — it is presence of other considerations. The ledger is private.',
+            image: '/images/adventure/quirks/secretive.png',
+          },
+          {
+            value: 'lone-wolf',
+            label: 'Lone Wolf',
+            subtext: `Operates better without the coordination overhead. The team is noted. The team's input will be considered. Separately.`,
+            image: '/images/adventure/quirks/lone-wolf.png',
+          },
+          {
+            value: 'team-player',
+            label: 'Team Player',
+            subtext:
+              'Genuinely believes the group outcome matters more than the individual one. Has evidence for this. Presents it when relevant, which is always.',
+            image: '/images/adventure/quirks/team-player.png',
+          },
+          {
+            value: 'believes-psychic',
+            label: `Believes They're Psychic`,
+            subtext:
+              'Occasionally correct in ways that are statistically explainable. Has declined the statistical explanation. The cards have not been wrong yet.',
+            image: '/images/adventure/quirks/believes-psychic.png',
+          },
+          {
+            value: 'metaphysical',
+            label: 'Metaphysical',
+            subtext:
+              'The questions beneath the questions are the real questions. What is this, actually. No, but actually. Has not stopped asking.',
+            image: '/images/adventure/quirks/metaphysical.png',
+          },
+          {
+            value: 'superstitious',
+            label: 'Superstitious',
+            subtext:
+              'The patterns are there if you look. The looking does not create the patterns. The patterns were already happening. The salt is just good practice.',
+            image: '/images/adventure/quirks/superstitious.png',
+          },
+          {
+            value: 'overly-literal',
+            label: 'Overly Literal',
+            subtext:
+              'Takes the stated meaning. Every time. On purpose or not is a matter of ongoing debate. The stated meaning is right there.',
+            image: '/images/adventure/quirks/overly-literal.png',
+          },
+          {
+            value: 'compulsively-honest',
+            label: 'Compulsively Honest',
+            subtext:
+              'Thinks the truth and then says it before the gap closes. The gap is very small. The truth is sometimes inconvenient. They are aware.',
+            image: '/images/adventure/quirks/compulsively-honest.png',
+          },
+          {
+            value: 'pathological-liar',
+            label: 'Pathological Liar',
+            subtext:
+              'The truth is a starting point from which many directions are possible. They find the directions more interesting. So do most audiences.',
+            image: '/images/adventure/quirks/pathological-liar.png',
+          },
+          {
+            value: 'hoarder',
+            label: 'Hoarder',
+            subtext:
+              'Everything has potential value in a future scenario they can specify. The specification changes. The objects remain. The objects are theirs.',
+            image: '/images/adventure/quirks/hoarder.png',
+          },
+          {
+            value: 'conspiracy-minded',
+            label: 'Conspiracy-Minded',
+            subtext:
+              'Things are connected in ways not immediately visible. The board is very large. Some of the strings are definitely accurate. They know which ones.',
+            image: '/images/adventure/quirks/conspiracy-minded.png',
+          },
+          {
+            value: 'soft-spoken',
+            label: 'Soft-Spoken',
+            subtext:
+              'Speaks quietly enough that others lean in. This is either a habit or a strategy. The distinction may not matter.',
+            image: '/images/adventure/quirks/soft-spoken.png',
+          },
+          {
+            value: 'brash',
+            label: 'Brash',
+            subtext:
+              'Says the thing. Does the thing. Apologises later, if at all, and with genuine bafflement at why the apology was necessary.',
+            image: '/images/adventure/quirks/brash.png',
+          },
+          {
+            value: 'dramatic',
+            label: 'Dramatic',
+            subtext:
+              'Everything deserves the full weight of its moment and they will ensure it receives this. The moment will know it was witnessed.',
+            image: '/images/adventure/quirks/dramatic.png',
+          },
+          {
+            value: 'deadpan',
+            label: 'Deadpan',
+            subtext:
+              'Expression remains constant across all information. The absence of reaction is itself a reaction. Observers have calibrated to this.',
+            image: '/images/adventure/quirks/deadpan.png',
+          },
+          {
+            value: 'melancholy',
+            label: 'Melancholy',
+            subtext: `Carries something. Not visibly, not loudly — but the weight is there in the posture, in the pauses. Doesn't require fixing. Just noticing.`,
+            image: '/images/adventure/quirks/melancholy.png',
+          },
+          {
+            value: 'cheerfully-morbid',
+            label: 'Cheerfully Morbid',
+            subtext:
+              'Has made peace with the difficult things by finding them interesting instead. The result is a cheerfulness that occasionally startles people. Good.',
+            image: '/images/adventure/quirks/cheerfully-morbid.png',
+          },
+          {
+            value: 'worrisome',
+            label: 'Worrisome',
+            subtext:
+              'The list of things that could go wrong is thorough, documented, and updated. The documentation is not comforting. It is accurate.',
+            image: '/images/adventure/quirks/worrisome.png',
+          },
+          {
+            value: 'reckless',
+            label: 'Reckless',
+            subtext:
+              'Assesses risk at the moment of action. The assessment is fast and optimistic. The confidence is genuine. The survivability is, so far, adequate.',
+            image: '/images/adventure/quirks/reckless.png',
+          },
+          {
+            value: 'protective',
+            label: 'Protective',
+            subtext:
+              'Notes threats before they are confirmed as threats. Positions accordingly. Would like everyone to please stay where they can be seen.',
+            image: '/images/adventure/quirks/protective.png',
+          },
+          {
+            value: 'jealous',
+            label: 'Jealous',
+            subtext:
+              'Tracks what others have with precision. Knows exactly what is unfair. Rarely says so. The knowing is the thing.',
+            image: '/images/adventure/quirks/jealous.png',
+          },
+          {
+            value: 'vindictive',
+            label: 'Vindictive',
+            subtext:
+              'Does not forget. Is patient about this. The patience is the part that makes it different from anger. The difference matters.',
+            image: '/images/adventure/quirks/vindictive.png',
+          },
+          {
+            value: 'diplomatic',
+            label: 'Diplomatic',
+            subtext:
+              'Finds the language that everyone can agree was said, regardless of whether everyone agrees on what it means. This is a skill.',
+            image: '/images/adventure/quirks/diplomatic.png',
+          },
+          {
+            value: 'blunt',
+            label: 'Blunt',
+            subtext:
+              'Delivers information directly and at normal volume. The information is accurate. The delivery is not calibrated for reception. Both remain true.',
+            image: '/images/adventure/quirks/blunt.png',
+          },
+          {
+            value: 'curious',
+            label: 'Curious',
+            subtext:
+              'Wants to know what is in the box before deciding if the box is relevant. The relevance can be determined after. Open the box.',
+            image: '/images/adventure/quirks/curious.png',
+          },
+          {
+            value: 'inquisitive',
+            label: 'Inquisitive',
+            subtext:
+              'Has follow-up questions. Then follow-up follow-up questions. The questions are not rhetorical. The patience of others varies.',
+            image: '/images/adventure/quirks/inquisitive.png',
+          },
+          {
+            value: 'gullible',
+            label: 'Gullible',
+            subtext:
+              'Assumes good faith as a baseline. Has been wrong about this. Updates locally, not globally. The baseline holds.',
+            image: '/images/adventure/quirks/gullible.png',
+          },
+          {
+            value: 'suspicious',
+            label: 'Suspicious',
+            subtext:
+              'Something is off. Has not yet confirmed what. Will confirm before acting. The confirmation will take as long as it needs to.',
+            image: '/images/adventure/quirks/suspicious.png',
+          },
+          {
+            value: 'perfectionist',
+            label: 'Perfectionist',
+            subtext:
+              'Good enough is not a standard that has been adopted. The standard in use is different and higher and has not yet been met.',
+            image: '/images/adventure/quirks/perfectionist.png',
+          },
+          {
+            value: 'messy',
+            label: 'Messy',
+            subtext:
+              'The system is not visible to others but it is a system. Everything is exactly where it needs to be for them to know where it is.',
+            image: '/images/adventure/quirks/messy.png',
+          },
+          {
+            value: 'fashionable',
+            label: 'Fashionable',
+            subtext:
+              'Puts thought into what they present to the world. The thought is invisible. The result is not. Both are intentional.',
+            image: '/images/adventure/quirks/fashionable.png',
+          },
+          {
+            value: 'forgetful',
+            label: 'Forgetful',
+            subtext:
+              'The important things stay. The peripheral things — times, names, where they put the key — have a more complicated relationship with memory.',
+            image: '/images/adventure/quirks/forgetful.png',
+          },
+          {
+            value: 'animal-magnet',
+            label: 'Animal Magnet',
+            subtext:
+              'Animals approach them. Not all animals, not always — but consistently enough that it has been noticed. They are not sure what they are doing.',
+            image: '/images/adventure/quirks/animal-magnet.png',
+          },
+          {
+            value: 'green-thumb',
+            label: 'Green Thumb',
+            subtext:
+              'Things grow. Not everything, not everywhere — but in their presence, plants make an effort. The effort is noted and appreciated.',
+            image: '/images/adventure/quirks/green-thumb.png',
+          },
+          {
+            value: 'animist',
+            label: 'Animist',
+            subtext:
+              'Things have interiority. The rock has a perspective. The old building has accumulated something. They listen. Sometimes they hear.',
+            image: '/images/adventure/quirks/animist.png',
+          },
+          {
+            value: 'serene',
+            label: 'Serene',
+            subtext:
+              'The chaos is noted and placed at an appropriate distance. This is not detachment — it is calibration. They are still here. They are fine.',
+            image: '/images/adventure/quirks/serene.png',
+          },
+          {
+            value: 'competitive',
+            label: 'Competitive',
+            subtext:
+              'Has clocked the standings. Knows where they are. Knows where they want to be. The gap is information and information is motivating.',
+            image: '/images/adventure/quirks/competitive.png',
+          },
+          {
+            value: 'flirtatious',
+            label: 'Flirtatious',
+            subtext:
+              'Defaults to charm in social interactions the way others default to handshakes. It is genuine. It is also always happening. Both are true.',
+            image: '/images/adventure/quirks/flirtatious.png',
+          },
+          {
+            value: 'insomniac',
+            label: 'Insomniac',
+            subtext:
+              'Awake when others are not. Uses the time. The time is good for things that require quiet and a tolerance for the ceiling.',
+            image: '/images/adventure/quirks/insomniac.png',
+          },
+          {
+            value: 'daydreamer',
+            label: 'Daydreamer',
+            subtext:
+              'Is present, technically, and also somewhere else. The somewhere else is detailed and ongoing. Check-ins are appreciated with sufficient notice.',
+            image: '/images/adventure/quirks/daydreamer.png',
+          },
+          {
+            value: 'bad-luck-magnet',
+            label: 'Bad Luck Magnet',
+            subtext:
+              'Things happen near them. Specific kinds of things. The probability is documented. Insurance companies have been in touch.',
+            image: '/images/adventure/quirks/bad-luck-magnet.png',
+          },
+          {
+            value: 'daredevil',
+            label: 'Daredevil',
+            subtext:
+              'The risk was assessed. The risk was found acceptable. The assessment was very quick. The ride, however, was excellent.',
+            image: '/images/adventure/quirks/daredevil.png',
+          },
+          {
+            value: '',
+            label: 'Write my own',
+            subtext: 'Anything specific, irreducible, and theirs.',
+            opensCustom: true,
+          },
+        ],
       },
     ],
   },

@@ -533,15 +533,7 @@ export const useAdventureStore = defineStore('adventureStore', () => {
 
     if (step.generatorKey) {
       const val = generator.generateOne(step.generatorKey, '')
-      if (val) {
-        if (step.appendSuggest && (stagedValues[step.key] ?? '').trim()) {
-          const existing = (stagedValues[step.key] ?? '').trimEnd()
-          const separator = existing.endsWith(',') ? ' ' : ', '
-          stagedValues[step.key] = existing + separator + val
-        } else {
-          stagedValues[step.key] = val
-        }
-      }
+      if (val) stagedValues[step.key] = val
     }
   }
 
@@ -793,6 +785,131 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     } catch {}
   }
 
+  // ── Random character generation ───────────────────────────────────────────
+
+  /**
+   * Generate a fully random character in one pass.
+   * Picks random values for every required card, marks all complete,
+   * then opens the portrait card so the user can generate art or save.
+   */
+  function generateRandomCharacter(userId = 10) {
+    // Start fresh
+    resetAdventure(userId)
+
+    // ── Helper: pick a random non-custom choice value from a step ──────────
+    function pickChoice(
+      choices: import('@/stores/helpers/adventureCards').PresetChoice[],
+    ): string {
+      const real = choices.filter(
+        (c) => c.value && !c.opensCustom && !c.opensList,
+      )
+      if (!real.length) return ''
+      const pick = real[Math.floor(Math.random() * real.length)]
+      return pick?.value ?? ''
+    }
+
+    // ── Genre (role card, genre step) ──────────────────────────────────────
+    const roleCard = ADVENTURE_CARDS.find((c) => c.key === 'role')
+    const genreStep = roleCard?.steps.find((s) => s.key === 'genre')
+    if (genreStep?.choices) {
+      sheet.genre = pickChoice(genreStep.choices)
+    } else if (genreStep?.generatorKey) {
+      sheet.genre = generator.generateOne(
+        genreStep.generatorKey,
+        'Gothic Comedy',
+      )
+    }
+    completedCards['role'] = true
+
+    // ── Name ───────────────────────────────────────────────────────────────
+    sheet.name = generator.generateName()
+    sheet.honorific = generator.generateOne('honorific', 'adventurer')
+    completedCards['name'] = true
+
+    // ── Origin: species, class, alignment ─────────────────────────────────
+    const originCard = ADVENTURE_CARDS.find((c) => c.key === 'origin')
+    if (originCard) {
+      for (const step of originCard.steps) {
+        if (!step.field) continue
+        if (step.choices) {
+          ;(sheet as Record<string, unknown>)[step.field] = pickChoice(
+            step.choices,
+          )
+        } else if (step.generatorKey) {
+          ;(sheet as Record<string, unknown>)[step.field] =
+            generator.generateOne(step.generatorKey, '')
+        }
+      }
+      // Alignment fallback: generate two-word if preset gave empty
+      if (!sheet.alignment) sheet.alignment = generator.generateAlignment()
+    }
+    completedCards['origin'] = true
+
+    // ── Identity: gender ───────────────────────────────────────────────────
+    const identityCard = ADVENTURE_CARDS.find((c) => c.key === 'identity')
+    const genderStep = identityCard?.steps.find((s) => s.field === 'gender')
+    if (genderStep?.choices) {
+      sheet.gender = pickChoice(genderStep.choices)
+    }
+    completedCards['identity'] = true
+
+    // ── Personality ────────────────────────────────────────────────────────
+    sheet.personality = generator.generateOne(
+      'personality',
+      'Warm but evasive. Brilliant at the wrong moment.',
+    )
+    completedCards['personality'] = true
+
+    // ── Stats: random allocation ───────────────────────────────────────────
+    rollAllStats()
+    syncStatTiers()
+    completedCards['stats'] = true
+
+    // ── Background: random choice + random quirks ──────────────────────────
+    const bgCard = ADVENTURE_CARDS.find((c) => c.key === 'background')
+    const bgChoiceStep = bgCard?.steps.find((s) => s.key === 'backgroundChoice')
+    if (bgChoiceStep?.choices) {
+      sheet.backstory = pickChoice(bgChoiceStep.choices)
+    }
+    // Random quirk from preset choices
+    const bgCard2 = ADVENTURE_CARDS.find((c) => c.key === 'background')
+    const quirksStep = bgCard2?.steps.find((s) => s.key === 'quirks')
+    if (quirksStep?.choices) {
+      const real = quirksStep.choices.filter((c) => c.value && !c.opensCustom)
+      const pick = real[Math.floor(Math.random() * real.length)]
+      sheet.quirks = pick?.value ?? ''
+    }
+    completedCards['background'] = true
+
+    // ── Skills: random reward for each slot ────────────────────────────────
+    for (const slotKey of ['common-skill', 'uncommon-skill', 'rare-skill']) {
+      const base = SLOT_BASE_RARITY[slotKey] ?? 'COMMON'
+      const options = generator.rollRewardOptions(base, 4)
+      const pick = options[Math.floor(Math.random() * options.length)]
+      if (pick) {
+        sheet.rewards[slotKey] = pick
+        rewardOptions[slotKey] = options
+        selectedRewardId[slotKey] = pick.id
+      }
+      completedCards[slotKey] = true
+    }
+
+    // ── Build a starting art prompt ────────────────────────────────────────
+    buildArtPrompt([
+      'name',
+      'species',
+      'class',
+      'background',
+      'genre',
+      'personality',
+      'skills',
+    ])
+
+    // ── Persist and open the portrait card ────────────────────────────────
+    persistState()
+    selectCard('art')
+  }
+
   // ── Reset ──────────────────────────────────────────────────────────────
 
   function resetAdventure(userId = 10) {
@@ -869,5 +986,6 @@ export const useAdventureStore = defineStore('adventureStore', () => {
     buildArtPrompt,
     updateArt,
     resetAdventure,
+    generateRandomCharacter,
   }
 })

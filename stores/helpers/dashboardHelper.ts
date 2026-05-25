@@ -738,10 +738,10 @@ export const dashboardConfigs = {
         summary: 'Test different chat streams.',
       },
       {
-        key: 'image-test',
-        label: 'Image Test',
+        key: 'art-test',
+        label: 'Art Test',
         icon: 'kind-icon:image',
-        title: 'Image Test',
+        title: 'Art Test',
         summary: 'Test our image generators.',
       },
     ],

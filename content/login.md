@@ -3,7 +3,7 @@ title: 'Login'
 room: 'Login Room'
 subtitle: "Login here"
 description: 'Login to get access to our suite of AI-enhanced tools.'
-image: 'botcat.webp'
+image: splash/login.png
 icon: kind-icon:settings
 tooltip: "login and registration link here"
 dottitip: 'Before you log in, you must solve a puzzle. One of us only lies, and—'

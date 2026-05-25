@@ -3,7 +3,7 @@ title: Direction
 room: 'Lost & Found Room'
 subtitle: "This page wandered off..."
 description: "We couldn’t find the page you were looking for. It might have been renamed, moved, or never existed at all."
-image: 'background/error.png'
+image: splash/error.png
 icon: kind-icon:error
 tooltip: This page doesn't exist, but you're still in good company.
 dottitip: "Looks like someone misplaced a link."

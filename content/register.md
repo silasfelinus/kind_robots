@@ -3,7 +3,7 @@ title: 'Registration'
 room: 'Registration Room'
 subtitle: Welcome to the community
 description: Register to unlock leaderboards, user navigation, jellybean tracking, art collection, prompt retention, and more!
-image: cafepurr/cafepurr-457.webp
+image: splash/register.png
 tooltip: 'Step through the gateway to a world of creativity and camaraderie!'
 amitip: And keep track of who tries to beat me on the leaderboards!
 icon: kind-icon:register

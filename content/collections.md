@@ -3,7 +3,7 @@ title: 'Art Collections'
 room: 'Collection Hall'
 subtitle: "Curated sets of creative art"
 description: "Browse and build themed groupings of art shared by the Kind Community."
-image: 'background/collections.webp'
+image: splash/collectionx.png
 icon: kind-icon:book
 tooltip: Browse and manage curated collections.
 dottitip: "What's the difference between a gallery and a collection?"

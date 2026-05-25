@@ -3,7 +3,7 @@ title: Jellybeans
 room: 'Jellybean Quests Gallery'
 subtitle: Find the jellybeans
 description: Embark on a delightful quest to discover jellybeans scattered across the website.
-image: weirdlandia/weird-69.png
+image: splash/jellybeans.png
 icon: kind-icon:mermaid
 tooltip: Ready for a hunt? Find all 11 jellybeans hidden across the site.
 sort: highlight

@@ -3,7 +3,7 @@ title: Brains
 room: 'Brainstorm! Room'
 subtitle: Enhanced Idea Generator
 description: Need ideas? The sillier, the better
-image: avatars/brain1.webp
+image: splash/brainstorm.png
 icon: kind-icon:brain
 tooltip: Welcome to Brainstorm's lair! From laughable RPG characters to unfortunate date ideas, Brainstorm creates the concept and the example.
 amitip: Hey, Brainstorm's my cousin! Sure his humor is a little dark, but I'm a multifaceted hivemind built to save the world, he's a brain in a jar making silly lists. It colors one's perspective. 🦋🤖😂

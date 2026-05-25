@@ -1425,14 +1425,79 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             value: 'Chaotic Evil',
             label: 'Chaotic Evil',
             image: '/images/adventure/alignment/chaotic-evil.png',
+          },
+          {
+            value: 'Appetite',
+            label: 'Appetite',
             subtext:
-              'The rules exist in the same way paper exists before fire.',
+              'Desire as the organizing principle. Not greed — the honest admission that wanting is the engine. The thing wanted changes. The wanting does not.',
+            image: '/images/adventure/alignment/appetite.png',
+          },
+          {
+            value: 'Onanism',
+            label: 'Onanism',
+            subtext:
+              'To thine own self be true, above all others. The self is the only thing one can truly know and therefore the only thing worth serving. A philosophy, not a flaw.',
+            image: '/images/adventure/alignment/onanism.png',
+          },
+          {
+            value: 'Safety',
+            label: 'Safety',
+            subtext: `Keeping what is known and loved intact is the supreme moral good. Not cowardice — conviction. The emergency exits are always located before the show begins.`,
+            image: '/images/adventure/alignment/safety.png',
+          },
+          {
+            value: 'Curious',
+            label: 'Curious',
+            subtext: `Knowledge as the terminal value. Ethics is an obstacle to data, not a framework for using it. The warning label was read. It was found insufficient.`,
+            image: '/images/adventure/alignment/curious.png',
+          },
+          {
+            value: 'Petty',
+            label: 'Petty',
+            subtext:
+              'The organizing principle is the list of grievances. The list is accurate, well-maintained, and longer than anyone suspects.',
+            image: '/images/adventure/alignment/petty.png',
+          },
+          {
+            value: 'Correct',
+            label: 'Correct',
+            subtext:
+              'Not good, not lawful — right. Demonstrably, verifiably, on-the-record right. The ethical implications are secondary to the accuracy.',
+            image: '/images/adventure/alignment/correct.png',
+          },
+          {
+            value: 'Loyal',
+            label: 'Loyal',
+            subtext:
+              'Aligned to a person, not a principle. Morality is whatever they need it to be. The philosophy updates when the person does.',
+            image: '/images/adventure/alignment/loyal.png',
+          },
+          {
+            value: 'Aesthetic',
+            label: 'Aesthetic',
+            subtext:
+              'Beauty and ugliness as the only real moral categories. The good thing is the beautiful thing. The graceless thing is the evil thing. The thing is beige.',
+            image: '/images/adventure/alignment/aesthetic.png',
+          },
+          {
+            value: 'Utilitarian',
+            label: 'Utilitarian',
+            subtext:
+              'The math is the morality. Most lives saved wins. Always. The feelings about this are irrelevant to the calculation. Someone off-frame is not going to like the answer.',
+            image: '/images/adventure/alignment/utilitarian.png',
+          },
+          {
+            value: 'Transactional',
+            label: 'Transactional',
+            subtext:
+              'Everything is an exchange. Not mercenary — honest. Nothing is free and pretending otherwise is the only real lie. Both parties understand the terms.',
+            image: '/images/adventure/alignment/transactional.png',
           },
           {
             value: '',
             label: 'Custom alignment',
-            subtext:
-              'Aspirationally Petty. Functionally Tired. Professionally Correct.',
+            subtext: 'Any organizing principle not listed above.',
             opensCustom: true,
           },
         ],

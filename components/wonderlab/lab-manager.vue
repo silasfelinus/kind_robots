@@ -35,6 +35,11 @@
         class="h-full w-full"
         :show-header="false"
       />
+      <art-test
+        v-else-if="currentTab === 'image-test'"
+        class="h-full w-full"
+        :show-header="false"
+      />
 
       <div
         v-else

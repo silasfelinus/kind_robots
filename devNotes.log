@@ -130,9 +130,13 @@ Might get into trouble now that Dreams and Locations are getting muddied. One is
 
 
 5/21
-a productive weekend. scaffolded out code aorkbench and it looks better than I expected. 
+a productive weekend. scaffolded out code workbench and it looks better than I expected. 
 finished bug hunting after removing Art, Gallery, and Tag from the database. Plan to replace with Art Image, Collection, and Pitch. The trickiest part was interstitial as I tried to make both work. with AI based development, it reaply makes sense just to run in the direction you want to go. I spend too much time trying to appease multiple systems.
 
 disabled comfy as a cypress test suite, but built out api endpoints for various comfy tasks. Cool to think that things like 3d model generation are just a template change difference from art modeling.
 
 i put openai and abthropic at the same task for designing the code workbench, but openai returned first ao we used its design. Claude reported that the final design was beyond its initial pitch, which makes sense, but I did appreciate how it's pitch dealt with models influencing text and images. i'm not using it's framework, as I think processing models into text and images should be the model codse's duty, but it got me thinking about how to allow, and support, high level model interactions
+
+
+5/25/2026
+My adhd jumping from focus to focus may need to be studied.  scaffolding the character builder and just loving how it's coming out. Lots of time spent modeling art.

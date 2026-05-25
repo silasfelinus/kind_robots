@@ -9,13 +9,7 @@ import { defineStore } from 'pinia'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-export type Rarity =
-  | 'COMMON'
-  | 'UNCOMMON'
-  | 'RARE'
-  | 'EPIC'
-  | 'LEGENDARY'
-  | 'MYTHIC'
+type Rarity = 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC'
 
 export type RewardEntry = {
   label: string

@@ -4,13 +4,48 @@
   Reads activeStep.choices from adventureStore.
   No emits. All state via store.
 
-  Flow:
-    normal choice  → store.selectPresetChoice(step.key, value)
-    opensCustom    → reveals inline text input; commit on Enter or button
-    opensList      → reveals sub-list of listOptions as chips
+  Single-select flow (default):
+    normal choice  → store.selectPresetChoice(step.key, value) → auto-advance
+    opensCustom    → reveals inline text input
+    opensList      → reveals sub-list chips
+
+  Multi-select flow (step.multiSelect: true):
+    choices toggle in/out of a local Set
+    value stored as pipe-separated string via store.setStagedValue
+    "Done" button appears when at least one is selected
+    Sub-flows (opensCustom / opensList) still work, appending to selection
 -->
 <template>
   <div class="flex flex-col gap-4">
+    <!-- Multi-select selection bar -->
+    <Transition name="slide-down">
+      <div
+        v-if="isMultiSelect && selectedValues.size > 0"
+        class="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-2.5"
+      >
+        <Icon name="kind-icon:check" class="h-4 w-4 shrink-0 text-primary" />
+        <div class="flex flex-1 flex-wrap gap-1.5">
+          <span
+            v-for="val in selectedValues"
+            :key="val"
+            class="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-bold text-primary"
+          >
+            {{ labelForValue(val) }}
+            <button
+              type="button"
+              class="ml-0.5 opacity-60 hover:opacity-100"
+              @click="toggleValue(val)"
+            >
+              <Icon name="kind-icon:x" class="h-3 w-3" />
+            </button>
+          </span>
+        </div>
+        <span class="shrink-0 text-xs font-bold text-primary/60">
+          {{ selectedValues.size }} selected
+        </span>
+      </div>
+    </Transition>
+
     <!-- Choice grid -->
     <div class="grid gap-3" :class="gridClass">
       <button
@@ -29,8 +64,6 @@
             :alt="choice.label"
             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-
-          <!-- Fallback: flourish from active card -->
           <div v-else class="flex h-full w-full items-center justify-center">
             <span
               class="select-none text-5xl opacity-20 transition-opacity duration-200 group-hover:opacity-40"
@@ -56,7 +89,7 @@
             </div>
           </Transition>
 
-          <!-- Opens-more badge -->
+          <!-- Sub-flow badge -->
           <div
             v-if="choice.opensCustom || choice.opensList"
             class="absolute bottom-2 right-2 rounded-lg bg-base-100/80 px-2 py-0.5 text-xs font-bold text-base-content/60 backdrop-blur-sm"
@@ -93,7 +126,6 @@
         >
           Write your own
         </p>
-
         <div class="flex gap-2">
           <input
             ref="customInputRef"
@@ -105,7 +137,6 @@
             "
             @keydown.enter="commitCustom"
           />
-
           <button
             type="button"
             class="btn btn-primary rounded-xl"
@@ -113,10 +144,9 @@
             @click="commitCustom"
           >
             <Icon name="kind-icon:check" class="h-4 w-4" />
-            Use this
+            {{ isMultiSelect ? 'Add' : 'Use this' }}
           </button>
         </div>
-
         <button
           type="button"
           class="mt-2 text-xs text-base-content/40 underline-offset-2 hover:text-base-content/70 hover:underline"
@@ -138,7 +168,6 @@
         >
           Select one
         </p>
-
         <div class="flex flex-wrap gap-2">
           <button
             v-for="option in subListOptions"
@@ -155,8 +184,6 @@
             {{ option }}
           </button>
         </div>
-
-        <!-- Custom within sub-list -->
         <div class="mt-3 flex gap-2">
           <input
             v-model="subListCustom"
@@ -174,7 +201,6 @@
             Use
           </button>
         </div>
-
         <button
           type="button"
           class="mt-2 text-xs text-base-content/40 underline-offset-2 hover:text-base-content/70 hover:underline"
@@ -198,11 +224,43 @@ const store = useAdventureStore()
 
 const activeCard = computed(() => store.activeCard)
 const activeStep = computed(() => store.activeStep)
+const isMultiSelect = computed(() => activeStep.value?.multiSelect === true)
 const activeChoices = computed<PresetChoice[]>(
   () => activeStep.value?.choices ?? [],
 )
+const stepKey = computed(() => activeStep.value?.key ?? '')
 
-// ── Local sub-flow state ────────────────────────────────────────────────────
+// ── Multi-select state ──────────────────────────────────────────────────────
+
+// Current stored value is pipe-separated; parse into a Set for toggle logic
+const selectedValues = computed<Set<string>>(() => {
+  const raw = store.stagedValues[stepKey.value] ?? ''
+  if (!raw.trim()) return new Set()
+  return new Set(raw.split('|').filter(Boolean))
+})
+
+function toggleValue(val: string) {
+  if (!val) return
+  const next = new Set(selectedValues.value)
+  if (next.has(val)) {
+    next.delete(val)
+  } else {
+    next.add(val)
+  }
+  store.setStagedValue(stepKey.value, [...next].join('|'))
+}
+
+function labelForValue(val: string): string {
+  return activeChoices.value.find((c) => c.value === val)?.label ?? val
+}
+
+// ── Single-select state ─────────────────────────────────────────────────────
+
+const currentSingleValue = computed(
+  () => store.stagedValues[stepKey.value] ?? '',
+)
+
+// ── Sub-flow state ──────────────────────────────────────────────────────────
 
 const openMode = ref<'custom' | 'list' | null>(null)
 const customValue = ref('')
@@ -211,7 +269,6 @@ const subListSelected = ref('')
 const subListCustom = ref('')
 const customInputRef = ref<HTMLInputElement | null>(null)
 
-// Reset sub-flow when step changes
 watch(activeStep, () => {
   openMode.value = null
   customValue.value = ''
@@ -225,19 +282,17 @@ watch(activeStep, () => {
 const gridClass = computed(() => {
   const count = activeChoices.value.length
   if (count <= 2) return 'grid-cols-2'
-  if (count <= 4) return 'grid-cols-2 sm:grid-cols-2'
+  if (count <= 4) return 'grid-cols-2'
   if (count <= 6) return 'grid-cols-2 sm:grid-cols-3'
   return 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
 })
 
 // ── State helpers ───────────────────────────────────────────────────────────
 
-const stepKey = computed(() => activeStep.value?.key ?? '')
-const currentValue = computed(() => store.stagedValues[stepKey.value] ?? '')
-
 function isSelected(choice: PresetChoice): boolean {
   if (!choice.value) return false
-  return currentValue.value === choice.value
+  if (isMultiSelect.value) return selectedValues.value.has(choice.value)
+  return currentSingleValue.value === choice.value
 }
 
 function choiceBtnClass(choice: PresetChoice): string {
@@ -256,15 +311,13 @@ function choiceBtnClass(choice: PresetChoice): string {
 // ── Interactions ────────────────────────────────────────────────────────────
 
 function handleChoiceClick(choice: PresetChoice) {
-  // Sub-flow: custom text
   if (choice.opensCustom) {
     openMode.value = 'custom'
-    customValue.value = currentValue.value
+    customValue.value = ''
     nextTick(() => customInputRef.value?.focus())
     return
   }
 
-  // Sub-flow: sub-list
   if (choice.opensList && choice.listOptions?.length) {
     openMode.value = 'list'
     subListOptions.value = choice.listOptions
@@ -272,42 +325,59 @@ function handleChoiceClick(choice: PresetChoice) {
     return
   }
 
-  // Normal commit — value carries to sheet, advances step / finishes card
-  if (choice.value) {
-    openMode.value = null
-    store.selectPresetChoice(stepKey.value, choice.value)
+  if (!choice.value) return
+
+  if (isMultiSelect.value) {
+    toggleValue(choice.value)
+    return
   }
+
+  // Single-select: commit and advance
+  openMode.value = null
+  store.selectPresetChoice(stepKey.value, choice.value)
 }
 
 function commitCustom() {
   const val = customValue.value.trim()
   if (!val) return
   openMode.value = null
-  store.selectPresetChoice(stepKey.value, val)
+  if (isMultiSelect.value) {
+    toggleValue(val)
+    customValue.value = ''
+  } else {
+    store.selectPresetChoice(stepKey.value, val)
+  }
 }
 
 function commitSubList(option: string) {
   subListSelected.value = option
   openMode.value = null
-  store.selectPresetChoice(stepKey.value, option)
+  if (isMultiSelect.value) {
+    toggleValue(option)
+  } else {
+    store.selectPresetChoice(stepKey.value, option)
+  }
 }
 
 function commitSubListCustom() {
   const val = subListCustom.value.trim()
   if (!val) return
   openMode.value = null
-  store.selectPresetChoice(stepKey.value, val)
+  if (isMultiSelect.value) {
+    toggleValue(val)
+    subListCustom.value = ''
+  } else {
+    store.selectPresetChoice(stepKey.value, val)
+  }
 }
 </script>
 
 <style scoped>
-/* Choice button image aspect ratio fix */
 .choice-btn {
   display: flex;
   flex-direction: column;
 }
 
-/* Check mark pop animation */
 .check-pop-enter-active {
   transition:
     opacity 150ms ease,
@@ -324,7 +394,6 @@ function commitSubListCustom() {
   opacity: 0;
 }
 
-/* Sub-panel slide */
 .slide-down-enter-active {
   transition:
     opacity 200ms ease,

@@ -2,6 +2,7 @@
 <template>
   <div class="flex h-screen select-none flex-col overflow-hidden bg-base-200">
     <header
+      v-if="gameStarted"
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
     >
       <div>
@@ -133,35 +134,125 @@
       </div>
     </Transition>
 
-    <div class="flex min-h-0 flex-1 overflow-hidden">
+    <!-- ─── SPLASH SCREEN (pre-game takeover) ───────────────── -->
+    <div
+      v-if="!gameStarted"
+      class="splash-screen relative flex min-h-0 flex-1 flex-col overflow-hidden bg-black"
+    >
+      <div class="splash-hero relative min-h-0 flex-1 overflow-hidden">
+        <img
+          src="/images/background/memorydungeon.png"
+          alt="Memory Match Dungeon"
+          class="splash-img absolute inset-0 h-full w-full object-cover"
+        />
+
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-black/85"
+        ></div>
+        <div class="splash-vignette pointer-events-none absolute inset-0"></div>
+
+        <div class="torch torch-left">🔥</div>
+        <div class="torch torch-right">🔥</div>
+
+        <div
+          class="absolute inset-x-0 top-4 z-10 flex flex-col items-center px-4 text-center sm:top-8"
+        >
+          <h1
+            class="splash-title text-4xl font-black tracking-widest text-yellow-100 sm:text-5xl md:text-6xl"
+          >
+            MEMORY MATCH DUNGEON
+          </h1>
+          <p
+            class="mt-2 text-sm italic text-red-300/90 drop-shadow sm:text-base"
+          >
+            Enter at your own peril, mortal
+          </p>
+        </div>
+
+        <div
+          class="absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-3 px-4 sm:bottom-10"
+        >
+          <button
+            type="button"
+            class="splash-enter-btn"
+            @click="startGame"
+          >
+            ⚔️ ENTER THE DUNGEON
+          </button>
+
+          <label
+            class="flex items-center gap-2 rounded-full bg-black/65 px-3 py-1.5 text-sm text-yellow-100 backdrop-blur"
+          >
+            <span class="font-semibold">Difficulty:</span>
+            <select
+              v-model="memoryStore.selectedDifficulty"
+              class="bg-transparent text-yellow-100 outline-none"
+            >
+              <option
+                v-for="difficulty in memoryStore.difficulties"
+                :key="difficulty.label"
+                :value="difficulty"
+                class="bg-base-300 text-base-content"
+              >
+                {{ difficulty.label }}
+              </option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div
+        class="grid shrink-0 grid-cols-1 gap-3 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3 sm:grid-cols-3"
+      >
+        <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
+          <div class="mb-1 font-bold text-yellow-300">📜 How to play</div>
+          <p class="text-gray-300">
+            Match pairs to score. Streaks multiply points. Oracle challenges
+            award 3×. Clear each floor for a random dungeon reward.
+          </p>
+        </div>
+
+        <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
+          <div class="mb-1 font-bold text-yellow-300">⚔️ Powerups</div>
+          <ul class="space-y-0.5 text-gray-300">
+            <li>🔦 Lantern — reveal all cards briefly</li>
+            <li>🛡️ Shield — block one mistake</li>
+            <li>👁️ Oracle's Eye — highlight a matching pair</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
+          <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
+          <ol
+            v-if="leaderboard.length"
+            class="space-y-0.5 text-gray-300"
+          >
+            <li
+              v-for="(user, i) in leaderboard.slice(0, 3)"
+              :key="user.id"
+              class="flex justify-between"
+            >
+              <span>{{ i + 1 }}. {{ user.username }}</span>
+              <span class="font-mono text-yellow-300">
+                {{ user.matchRecord ?? '—' }}
+              </span>
+            </li>
+          </ol>
+          <p v-else class="italic text-gray-500">
+            Be the first to leave a mark.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
+    <div v-else class="flex min-h-0 flex-1 overflow-hidden">
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div
           v-if="memoryStore.isLoading"
           class="flex h-full items-center justify-center"
         >
           <div class="loader"></div>
-        </div>
-
-        <div
-          v-else-if="!gameStarted"
-          class="flex h-full flex-col items-center justify-center gap-6 text-center"
-        >
-          <div class="text-7xl">🏰</div>
-
-          <h2 class="text-3xl font-black">The Memory Dungeon Awaits</h2>
-
-          <p class="max-w-sm text-sm leading-relaxed text-gray-400">
-            Match pairs to score. Survive the Oracle's challenges for triple
-            points. Collect powerups. Clear floors for random dungeon rewards.
-          </p>
-
-          <button
-            class="rounded-xl bg-blue-600 px-8 py-3 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700 active:scale-95"
-            type="button"
-            @click="startGame"
-          >
-            ⚔️ Enter the Dungeon
-          </button>
         </div>
 
         <div
@@ -275,6 +366,7 @@
     </div>
 
     <footer
+      v-if="gameStarted"
       class="flex shrink-0 items-center justify-between border-t border-base-content/10 bg-base-300 px-4 py-2 text-sm"
     >
       <div class="flex flex-wrap gap-4">
@@ -308,7 +400,7 @@
 
     <Transition name="fade-slide">
       <div
-        v-if="isOpen"
+        v-if="isOpen && gameStarted"
         class="max-h-44 shrink-0 overflow-y-auto border-t border-base-content/10 bg-base-100 px-4 py-3"
       >
         <h2 class="mb-2 text-sm font-bold">🏆 Global Leaderboard</h2>
@@ -1255,5 +1347,153 @@ onUnmounted(() => {
 
 .card-matched {
   transition: opacity 0.4s ease;
+}
+
+/* ─── SPLASH SCREEN ──────────────────────────────────────── */
+.splash-screen {
+  background: radial-gradient(ellipse at center, #1a0a2e 0%, #000 100%);
+}
+
+.splash-img {
+  filter: brightness(0.88) contrast(1.08) saturate(1.1);
+  animation: splash-breathe 9s ease-in-out infinite;
+}
+
+@keyframes splash-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.splash-vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 38%,
+    rgba(0, 0, 0, 0.55) 78%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+}
+
+.splash-title {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 0 8px rgba(255, 180, 50, 0.5),
+    0 0 24px rgba(255, 80, 0, 0.4),
+    2px 2px 0 #000,
+    -1px -1px 0 #000;
+  animation: title-glow 4s ease-in-out infinite;
+}
+
+@keyframes title-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 8px rgba(255, 180, 50, 0.5),
+      0 0 24px rgba(255, 80, 0, 0.4),
+      2px 2px 0 #000;
+  }
+  50% {
+    text-shadow:
+      0 0 14px rgba(255, 220, 100, 0.85),
+      0 0 40px rgba(255, 100, 0, 0.6),
+      2px 2px 0 #000;
+  }
+}
+
+.splash-enter-btn {
+  background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #facc15 100%);
+  color: #1a0a0a;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding: 0.9rem 2.4rem;
+  border-radius: 9999px;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(255, 200, 0, 0.4),
+    0 0 30px rgba(255, 100, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.6);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  animation: enter-pulse 2.4s ease-in-out infinite;
+}
+
+.splash-enter-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 4px rgba(255, 200, 0, 0.6),
+    0 0 50px rgba(255, 120, 0, 0.75),
+    0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.splash-enter-btn:active {
+  transform: scale(0.97);
+}
+
+@keyframes enter-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px rgba(255, 200, 0, 0.4),
+      0 0 30px rgba(255, 100, 0, 0.5),
+      0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(255, 200, 0, 0.65),
+      0 0 55px rgba(255, 150, 0, 0.75),
+      0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.torch {
+  position: absolute;
+  font-size: 2.5rem;
+  pointer-events: none;
+  filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.8));
+  animation:
+    flicker 0.18s steps(2) infinite,
+    sway 3s ease-in-out infinite;
+}
+
+.torch-left {
+  top: 30%;
+  left: 5%;
+}
+
+.torch-right {
+  top: 30%;
+  right: 5%;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.85;
+    transform: scale(1) rotate(-2deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 </style>

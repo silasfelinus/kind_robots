@@ -107,22 +107,27 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/tailwind.css'],
 
-runtimeConfig: {
-  openaiApiKey: process.env.OPENAI_API_KEY || '',
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-  ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-  githubId: process.env.GITHUB_ID || '',
-  githubSecret: process.env.GITHUB_SECRET || '',
-  googleId: process.env.GOOGLE_ID || '',
-  googleSecret: process.env.GOOGLE_SECRET || '',
-  authSecret: process.env.AUTH_SECRET || '',
-  jwtSecret: process.env.JWT_SECRET || '',
-  serverSecretKey: process.env.SERVER_SECRET_KEY || '',
-},
-
+  runtimeConfig: {
+    openaiApiKey: process.env.OPENAI_API_KEY || '',
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    githubId: process.env.GITHUB_ID || '',
+    githubSecret: process.env.GITHUB_SECRET || '',
+    googleId: process.env.GOOGLE_ID || '',
+    googleSecret: process.env.GOOGLE_SECRET || '',
+    authSecret: process.env.AUTH_SECRET || '',
+    jwtSecret: process.env.JWT_SECRET || '',
+    serverSecretKey: process.env.SERVER_SECRET_KEY || '',
+  },
 
   devtools: {
     enabled: false,
+  },
+  nitro: {
+    prerender: {
+      crawlLinks: false,
+      routes: [],
+    },
   },
 
   hooks: {

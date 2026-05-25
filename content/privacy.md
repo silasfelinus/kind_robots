@@ -3,7 +3,7 @@ title: 'Privacy'
 room: 'Info Room'
 subtitle: "Our Privacy Policy"
 description: "How Kind Robots handles your data — and why we think you'll like it."
-image: 'utility/security.png'
+image: splash/privacy.png
 icon: kind-icon:shield
 tooltip: Kind Robots privacy policy and data philosophy.
 dottitip: 'Your data belongs to you. Full stop.'

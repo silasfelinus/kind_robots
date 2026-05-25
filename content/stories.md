@@ -3,7 +3,7 @@ title: 'Stories'
 room: 'Story Maker Room'
 subtitle: A multiverse of possibilities
 description: A surreal odyssey powered by ChatGPT.  Craft worlds, weave narratives, and embrace the beautifully bizarre.
-image: story/story1.webp
+image: splash/stories.png
 icon: kind-icon:book
 tooltip: Share in a multiverse of possibilties.
 sort: highlight

@@ -3,7 +3,7 @@ title: Butterfly
 room: 'Butterfly Sanctuary'
 subtitle: butterflies for world harmony
 description: Play around with AMIs digital recreations.
-image: backtree.webp
+image: splash/sanctuary.png
 icon: kind-icon:butterfly
 tooltip: Our animation controller for AMI, our website's digital avatar
 dottitip: AMI, I built you a butterfly sanctuary so you have a place to relax between bouts of digital philanthropy.

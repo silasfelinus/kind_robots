@@ -3,7 +3,7 @@ title: 'Human'
 room: 'Dashboard Room'
 subtitle: "Your Private Page"
 description: 'This is your space!'
-image: 'backtree.webp'
+image: splash/dashboard.png
 icon: kind-icon:settings
 tooltip: user customizations and art sharing settings here.
 dottitip: 'Everyone needs a personal space all to their own.'

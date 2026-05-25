@@ -3,7 +3,7 @@ title: 'Icons'
 room: 'Icon Gallery'
 subtitle: 'Browse smart icons'
 description: 'Customize your smart bar.'
-image: 'utility/icongallery.png'
+image: splash/icons.png
 icon: fa-solid:icons
 tooltip: 'See all icons available to personalize your Kind Robots experience.'
 dottitip: 'Every icon is a tiny door to a new corner of the site.'

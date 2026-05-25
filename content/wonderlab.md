@@ -3,7 +3,7 @@ title: 'Wonder'
 room: 'Wonder Lab'
 subtitle: 'Unveiling the Magic'
 description: A comprehensive showcase of the modular building blocks that power our digital wonderland. Peer into the gears and cogs of our operation.
-image: backtree.webp
+image: splash/wonderlab.png
 tooltip: Here's the behind-the-scenes look at the components that make up our site.
 icon: kind-icon:gearhammer
 sort: highlight

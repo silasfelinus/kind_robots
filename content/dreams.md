@@ -3,7 +3,7 @@ title: Dreams
 room: 'Dream Deck'
 subtitle: Shape a shared generative dream
 description: Start with a prompt or image, then let users steer the story, chat, and visuals as the dream evolves.
-image: dreams/dream-001.png
+image: splash/dream.png
 icon: kind-icon:moon
 tooltip: A shared room where prompts, images, and chat bend the experience together.
 sort: highlight

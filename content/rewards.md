@@ -6,8 +6,8 @@ description: 'Explore community-created rewards: items, powers, and prompts that
 image: splash/rewards.png
 icon: kind-icon:vortex
 tooltip: 'Browse rewards that inject wonder, mischief, or magic into the story.'
-dottitip: 'Rewards here aren’t static trophies. They’re story catalysts.'
-amitip: 'Some are poetic. Some are cursed. Some are sentient!'
+dottitip: Are some of these rewards a tad unbalanced?
+amitip: That's the beauty of a narrative-driven adventure. Anything can keep the story going!
 sort: gallery
 ---
 

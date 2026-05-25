@@ -6,7 +6,7 @@ description: "This is your space to make and share art created with modellers. T
 image: 'background/artgallery.webp'
 icon: splash/aartgallerybout.png
 tooltip: This is a collection of user art. 
-dottitip: "People are asking if what we make counts as art."
+dottitip: People keep asking if AI art is 'real' art. I never know what to say.
 amitip: "If it makes you stop and look, have a conversation, or feel something new, I’d say it does it's job!"
 sort: highlight
 ---

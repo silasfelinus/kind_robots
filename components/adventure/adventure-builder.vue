@@ -232,7 +232,6 @@ async function saveCharacter() {
     const body: Record<string, unknown> = {
       name: s.name.trim(),
       honorific: s.honorific.trim() || 'adventurer',
-      role: s.role.trim() || null,
       genre: s.genre.trim() || null,
       species: s.species.trim() || null,
       class: s.class.trim() || null,

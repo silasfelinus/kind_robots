@@ -6,9 +6,9 @@ description: Build a complete Kind Robots universe from pitch to dreams, charact
 image: splash/builder.png
 icon: kind-icon:blueprint
 tooltip: Welcome to the Builder Tool! Start with a tiny idea goblin and grow it into a full interactive world.
-amitip: This is where ideas stop being polite and start becoming ecosystems. Pitches, dreams, characters, rewards, art, scenarios... tiny universe soup, stirred with a butterfly wing. 🦋✨
-sort: highlight
-dottitip: The Builder Tool guides creators from first spark to playable world. It is structured, flexible, and only mildly haunted by feature creep.
+dottitip: AMI, I added a universe builder. Someone is going to use it to build a universe entirely of sandwiches.
+amitip: That's the thing about free will. Give people the option to do what they want, and they'll do it.
+
 ---
 
 :builder-manager

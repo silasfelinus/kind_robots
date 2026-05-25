@@ -6,8 +6,8 @@ description: Play around with AMIs digital recreations.
 image: splash/sanctuary.png
 icon: kind-icon:butterfly
 tooltip: Our animation controller for AMI, our website's digital avatar
-dottitip: AMI, I built you a butterfly sanctuary so you have a place to relax between bouts of digital philanthropy.
-amitip: "That's the beauty of digital pseudo-intelligences, we can be in many places at once. We can raise money for malaria nets and still enjoy a little flutter-time"
+dottitip: AMI, how many butterflies are you exactly?
+amitip: Yes.
 sort: highlight
 ---
 

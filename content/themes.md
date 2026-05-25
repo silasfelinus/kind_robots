@@ -7,8 +7,8 @@ image: splash/themes.png
 icon: kind-icon:remote
 tooltip: Fun fact, Cupcake was the in-utero name for our firstborn!
 sort: highlight
-dottitip: AMI, I saw the new theme room. Did we need so many options?
-amitip: What can I say, we're all about giving people choices!
+dottitip: AMI, we already have over thirty themes and someone wants to know if we'll add more.
+amitip: Tell them yes and that we'll never stop.
 ---
 
 :theme-manager

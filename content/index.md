@@ -6,8 +6,8 @@ description: Welcome to the Kind Robots, a consortium of AI-assisted tools to ge
 image: splash/robots.png
 icon: kind-icon:home
 tooltip: Hi! I'm Silas, human programmer for Kind Robots!
-dottitip: Hi! I'm Dotti, Bot Builder extraordinaire!  Welcome to my experiential laboratory.
-amitip: And I'm AMI, lab hostess with the mostess, fluttering around to make your day a zillion times better! Stop by our Bot Cafe and say hi!
+dottitip: AMI, we've been building this lab a while. Do you think it's ready?
+amitip: It was ready the moment we decided weird things should exist. Everything else is details.
 sort: highlight
 ---
 

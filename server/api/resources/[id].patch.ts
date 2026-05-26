@@ -8,11 +8,12 @@ import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
 type ResourcePatchBody = Partial<Resource> & {
   connectServerIds?: number[]
   disconnectServerIds?: number[]
+  connectLoraImageIds?: number[]
+  disconnectLoraImageIds?: number[]
 }
 
 function normalizeIdArray(value: unknown): number[] {
   if (!Array.isArray(value)) return []
-
   return value
     .map((id) => Number(id))
     .filter((id) => Number.isInteger(id) && id > 0)
@@ -43,9 +44,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const existingResource = await prisma.resource.findUnique({
-      where: {
-        id: resourceId,
-      },
+      where: { id: resourceId },
       include: {
         Servers: {
           select: {
@@ -60,10 +59,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!existingResource) {
-      throw createError({
-        statusCode: 404,
-        message: 'Resource not found.',
-      })
+      throw createError({ statusCode: 404, message: 'Resource not found.' })
     }
 
     const isOwner = existingResource.userId === user.id
@@ -87,24 +83,18 @@ export default defineEventHandler(async (event) => {
 
     const connectServerIds = normalizeIdArray(body.connectServerIds)
     const disconnectServerIds = normalizeIdArray(body.disconnectServerIds)
+    const connectLoraImageIds = normalizeIdArray(body.connectLoraImageIds)
+    const disconnectLoraImageIds = normalizeIdArray(body.disconnectLoraImageIds)
 
     if (connectServerIds.length) {
       const foundServers = await prisma.server.findMany({
-        where: {
-          id: {
-            in: connectServerIds,
-          },
-        },
-        select: {
-          id: true,
-        },
+        where: { id: { in: connectServerIds } },
+        select: { id: true },
       })
-
-      const foundServerIds = new Set(foundServers.map((server) => server.id))
+      const foundServerIds = new Set(foundServers.map((s) => s.id))
       const missingServerIds = connectServerIds.filter(
         (id) => !foundServerIds.has(id),
       )
-
       if (missingServerIds.length) {
         throw createError({
           statusCode: 404,
@@ -113,13 +103,17 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Strip all relation fields and connection arrays from scalar fields
     const {
-      connectServerIds: _connectServerIds,
-      disconnectServerIds: _disconnectServerIds,
+      connectServerIds: _css,
+      disconnectServerIds: _dss,
+      connectLoraImageIds: _cli,
+      disconnectLoraImageIds: _dli,
       id: _id,
       createdAt: _createdAt,
       updatedAt: _updatedAt,
       ArtImages: _ArtImages,
+      UsedInImages: _UsedInImages,
       Reactions: _Reactions,
       ArtImage: _ArtImage,
       User: _User,
@@ -127,6 +121,7 @@ export default defineEventHandler(async (event) => {
       ...resourceFields
     } = body as ResourcePatchBody & {
       ArtImages?: unknown
+      UsedInImages?: unknown
       Reactions?: unknown
       ArtImage?: unknown
       User?: unknown
@@ -141,6 +136,7 @@ export default defineEventHandler(async (event) => {
       civitaiUrl: resourceFields.civitaiUrl,
       huggingUrl: resourceFields.huggingUrl,
       localPath: resourceFields.localPath,
+      imagePath: resourceFields.imagePath,
       description: resourceFields.description,
       isMature: resourceFields.isMature,
       resourceType: resourceFields.resourceType,
@@ -151,29 +147,27 @@ export default defineEventHandler(async (event) => {
       artPrompt: resourceFields.artPrompt,
       User:
         typeof resourceFields.userId === 'number'
-          ? {
-              connect: {
-                id: resourceFields.userId,
-              },
-            }
+          ? { connect: { id: resourceFields.userId } }
           : undefined,
       ArtImage:
         typeof resourceFields.artImageId === 'number'
-          ? {
-              connect: {
-                id: resourceFields.artImageId,
-              },
-            }
+          ? { connect: { id: resourceFields.artImageId } }
           : resourceFields.artImageId === null
-            ? {
-                disconnect: true,
-              }
+            ? { disconnect: true }
             : undefined,
       Servers:
         connectServerIds.length || disconnectServerIds.length
           ? {
               connect: connectServerIds.map((id) => ({ id })),
               disconnect: disconnectServerIds.map((id) => ({ id })),
+            }
+          : undefined,
+      // M2M: LoRA usage in images
+      UsedInImages:
+        connectLoraImageIds.length || disconnectLoraImageIds.length
+          ? {
+              connect: connectLoraImageIds.map((id) => ({ id })),
+              disconnect: disconnectLoraImageIds.map((id) => ({ id })),
             }
           : undefined,
     }
@@ -186,9 +180,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const data = await prisma.resource.update({
-      where: {
-        id: resourceId,
-      },
+      where: { id: resourceId },
       data: updateData,
       include: {
         Servers: {
@@ -201,11 +193,10 @@ export default defineEventHandler(async (event) => {
           },
         },
         ArtImage: {
-          select: {
-            id: true,
-            imagePath: true,
-            fileName: true,
-          },
+          select: { id: true, imagePath: true, fileName: true },
+        },
+        UsedInImages: {
+          select: { id: true, fileName: true },
         },
       },
     })

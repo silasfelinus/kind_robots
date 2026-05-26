@@ -1,337 +1,212 @@
-// /server/api/resources/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import { errorHandler } from '../../utils/error'
+// /server/api/resources/[id].patch.ts
+import { defineEventHandler, createError, readBody } from 'h3'
 import prisma from '../../utils/prisma'
+import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type {
-  Prisma,
-  Resource,
-  ResourceType,
-  SupportedServer,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma, Resource } from '~/prisma/generated/prisma/client'
 
-type ResourceConnectionsInput = {
-  serverIds?: number[]
-  artImageId?: number | null
-  artImageIdsAsCheckpoint?: number[]
+type ResourcePatchBody = Partial<Resource> & {
+  connectServerIds?: number[]
+  disconnectServerIds?: number[]
+  connectLoraImageIds?: number[]
+  disconnectLoraImageIds?: number[]
 }
 
-type ResourcePostBody = Partial<Resource> & {
-  serverIds?: number[]
-  connections?: ResourceConnectionsInput
+function normalizeIdArray(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((id) => Number(id))
+    .filter((id) => Number.isInteger(id) && id > 0)
 }
 
-type NormalizedResourcePostBody = ResourcePostBody & {
-  name: string
-}
-
-type SavedResource = Prisma.ResourceGetPayload<{
-  include: {
-    Servers: true
-    ArtImage: true
-    ArtImages: true
-  }
-}>
-
-type ResourceSaveResult = {
-  success: boolean
-  message: string
-  data: SavedResource | null
-  input?: ResourcePostBody
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function isNumberArray(value: unknown): value is number[] {
-  return Array.isArray(value) && value.every((entry) => Number.isInteger(entry))
-}
-
-function isOptionalNumberArray(value: unknown): value is number[] | undefined {
-  return value === undefined || isNumberArray(value)
-}
-
-function isOptionalNumberOrNull(
-  value: unknown,
-): value is number | null | undefined {
-  return value === undefined || value === null || Number.isInteger(value)
-}
-
-function normalizeConnections(
-  resourceData: ResourcePostBody,
-): ResourceConnectionsInput {
-  const connections = resourceData.connections ?? {}
-
-  const normalized: ResourceConnectionsInput = {
-    ...connections,
-    serverIds: connections.serverIds ?? resourceData.serverIds,
-    artImageId: connections.artImageId ?? resourceData.artImageId,
-    artImageIdsAsCheckpoint: connections.artImageIdsAsCheckpoint,
-  }
-
-  if (!isOptionalNumberArray(normalized.serverIds)) {
-    throw createError({
-      statusCode: 400,
-      message: '"serverIds" must be an array of server IDs.',
-    })
-  }
-
-  if (!isOptionalNumberOrNull(normalized.artImageId)) {
-    throw createError({
-      statusCode: 400,
-      message: '"artImageId" must be a number or null.',
-    })
-  }
-
-  if (!isOptionalNumberArray(normalized.artImageIdsAsCheckpoint)) {
-    throw createError({
-      statusCode: 400,
-      message: '"artImageIdsAsCheckpoint" must be an array of art image IDs.',
-    })
-  }
-
-  return normalized
-}
-
-function normalizeResourceInput(input: unknown): NormalizedResourcePostBody {
-  if (!isRecord(input)) {
-    throw createError({
-      statusCode: 400,
-      message: 'Each resource must be an object.',
-    })
-  }
-
-  const resourceData = input as ResourcePostBody
-
-  if (!resourceData.name || typeof resourceData.name !== 'string') {
-    throw createError({
-      statusCode: 400,
-      message: '"name" is a required field and must be a string.',
-    })
-  }
-
-  normalizeConnections(resourceData)
-
-  return {
-    ...resourceData,
-    name: resourceData.name,
-  }
-}
-
-function toResourceCreateInput(
-  resourceData: NormalizedResourcePostBody,
-  authenticatedUserId: number,
-): Prisma.ResourceCreateInput {
-  const connections = normalizeConnections(resourceData)
-
-  const {
-    id,
-    createdAt,
-    updatedAt,
-    userId,
-    artImageId,
-    serverIds,
-    connections: ignoredConnections,
-    name,
-    resourceType,
-    supportedServer,
-    ...resourceInput
-  } = resourceData
-
-  return {
-    ...resourceInput,
-    name,
-    resourceType: (resourceType as ResourceType | undefined) ?? 'EMBEDDING',
-    supportedServer:
-      (supportedServer as SupportedServer | undefined) ?? 'UNKNOWN',
-    User: {
-      connect: {
-        id: authenticatedUserId,
-      },
-    },
-    Servers: connections.serverIds?.length
-      ? {
-          connect: connections.serverIds.map((serverId) => ({
-            id: serverId,
-          })),
-        }
-      : undefined,
-    ArtImage: connections.artImageId
-      ? {
-          connect: {
-            id: connections.artImageId,
-          },
-        }
-      : undefined,
-    ArtImages: connections.artImageIdsAsCheckpoint?.length
-      ? {
-          connect: connections.artImageIdsAsCheckpoint.map((artImageId) => ({
-            id: artImageId,
-          })),
-        }
-      : undefined,
-  }
-}
-
-function toResourceUpdateInput(
-  resourceData: NormalizedResourcePostBody,
-  authenticatedUserId: number,
-): Prisma.ResourceUpdateInput {
-  const connections = normalizeConnections(resourceData)
-
-  const {
-    id,
-    createdAt,
-    updatedAt,
-    userId,
-    artImageId,
-    serverIds,
-    connections: ignoredConnections,
-    name,
-    resourceType,
-    supportedServer,
-    ...resourceInput
-  } = resourceData
-
-  return {
-    ...resourceInput,
-    resourceType: (resourceType as ResourceType | undefined) ?? undefined,
-    supportedServer:
-      (supportedServer as SupportedServer | undefined) ?? undefined,
-    User: {
-      connect: {
-        id: authenticatedUserId,
-      },
-    },
-    Servers: connections.serverIds
-      ? {
-          set: connections.serverIds.map((serverId) => ({
-            id: serverId,
-          })),
-        }
-      : undefined,
-    ArtImage:
-      connections.artImageId === undefined
-        ? undefined
-        : connections.artImageId === null
-          ? {
-              disconnect: true,
-            }
-          : {
-              connect: {
-                id: connections.artImageId,
-              },
-            },
-    ArtImages: connections.artImageIdsAsCheckpoint
-      ? {
-          set: connections.artImageIdsAsCheckpoint.map((artImageId) => ({
-            id: artImageId,
-          })),
-        }
-      : undefined,
-  }
-}
-
-async function saveResource(
-  resourceData: NormalizedResourcePostBody,
-  authenticatedUserId: number,
-): Promise<SavedResource> {
-  return await prisma.resource.upsert({
-    where: {
-      name: resourceData.name,
-    },
-    create: toResourceCreateInput(resourceData, authenticatedUserId),
-    update: toResourceUpdateInput(resourceData, authenticatedUserId),
-    include: {
-      Servers: true,
-      ArtImage: true,
-      ArtImages: true,
-    },
-  })
+function hasUpdateData(data: Record<string, unknown>): boolean {
+  return Object.values(data).some((value) => value !== undefined)
 }
 
 export default defineEventHandler(async (event) => {
+  const resourceId = Number(event.context.params?.id)
+
   try {
-    const { isValid, user } = await validateApiKey(event)
-
-    if (!isValid || !user) {
-      event.node.res.statusCode = 401
-
-      return {
-        success: false,
-        message: 'Invalid or expired token.',
-        data: null,
-      }
-    }
-
-    const authenticatedUserId = user.id
-    const body = await readBody<unknown>(event)
-    const resourceInputs = Array.isArray(body) ? body : [body]
-
-    if (!resourceInputs.length) {
+    if (Number.isNaN(resourceId) || resourceId <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Request body must include at least one resource.',
+        message: 'Invalid resource ID. It must be a positive integer.',
       })
     }
 
-    const results: ResourceSaveResult[] = []
+    const { isValid, user } = await validateApiKey(event)
 
-    for (const input of resourceInputs) {
-      try {
-        const resourceData = normalizeResourceInput(input)
-        const data = await saveResource(resourceData, authenticatedUserId)
+    if (!isValid || !user) {
+      throw createError({
+        statusCode: 401,
+        message: 'Invalid or expired token.',
+      })
+    }
 
-        results.push({
-          success: true,
-          message: 'Resource saved successfully.',
-          data,
+    const existingResource = await prisma.resource.findUnique({
+      where: { id: resourceId },
+      include: {
+        Servers: {
+          select: {
+            id: true,
+            title: true,
+            label: true,
+            serverType: true,
+            generationEngine: true,
+          },
+        },
+      },
+    })
+
+    if (!existingResource) {
+      throw createError({ statusCode: 404, message: 'Resource not found.' })
+    }
+
+    const isOwner = existingResource.userId === user.id
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+
+    if (!isOwner && !isAdmin) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to update this resource.',
+      })
+    }
+
+    const body = await readBody<ResourcePatchBody>(event)
+
+    if (!body || Object.keys(body).length === 0) {
+      throw createError({
+        statusCode: 400,
+        message: 'No data provided for update.',
+      })
+    }
+
+    const connectServerIds = normalizeIdArray(body.connectServerIds)
+    const disconnectServerIds = normalizeIdArray(body.disconnectServerIds)
+    const connectLoraImageIds = normalizeIdArray(body.connectLoraImageIds)
+    const disconnectLoraImageIds = normalizeIdArray(body.disconnectLoraImageIds)
+
+    if (connectServerIds.length) {
+      const foundServers = await prisma.server.findMany({
+        where: { id: { in: connectServerIds } },
+        select: { id: true },
+      })
+      const foundServerIds = new Set(foundServers.map((s) => s.id))
+      const missingServerIds = connectServerIds.filter(
+        (id) => !foundServerIds.has(id),
+      )
+      if (missingServerIds.length) {
+        throw createError({
+          statusCode: 404,
+          message: `Server IDs not found: ${missingServerIds.join(', ')}.`,
         })
-      } catch (error) {
-        const { message } = errorHandler(error)
-
-        results.push({
-          success: false,
-          message: message || 'Failed to save resource.',
-          data: null,
-          input: isRecord(input) ? (input as ResourcePostBody) : undefined,
-        })
       }
     }
 
-    const isBatch = Array.isArray(body)
-    const failed = results.filter((result) => !result.success)
-    const succeeded = results.filter((result) => result.success)
-
-    if (failed.length && succeeded.length) {
-      event.node.res.statusCode = 207
-
-      return {
-        success: false,
-        message: `Saved ${succeeded.length} resource(s), but ${failed.length} failed.`,
-        data: results,
-      }
+    // Strip all relation fields and connection arrays from scalar fields
+    const {
+      connectServerIds: _css,
+      disconnectServerIds: _dss,
+      connectLoraImageIds: _cli,
+      disconnectLoraImageIds: _dli,
+      id: _id,
+      createdAt: _createdAt,
+      updatedAt: _updatedAt,
+      ArtImages: _ArtImages,
+      UsedInImages: _UsedInImages,
+      Reactions: _Reactions,
+      ArtImage: _ArtImage,
+      User: _User,
+      Servers: _Servers,
+      ...resourceFields
+    } = body as ResourcePatchBody & {
+      ArtImages?: unknown
+      UsedInImages?: unknown
+      Reactions?: unknown
+      ArtImage?: unknown
+      User?: unknown
+      Servers?: unknown
     }
 
-    if (failed.length) {
-      event.node.res.statusCode = 400
-
-      return {
-        success: false,
-        message: `Failed to save ${failed.length} resource(s).`,
-        data: results,
-      }
+    const updateData: Prisma.ResourceUpdateInput = {
+      name: resourceFields.name,
+      customLabel: resourceFields.customLabel,
+      MediaPath: resourceFields.MediaPath,
+      customUrl: resourceFields.customUrl,
+      civitaiUrl: resourceFields.civitaiUrl,
+      huggingUrl: resourceFields.huggingUrl,
+      localPath: resourceFields.localPath,
+      imagePath: resourceFields.imagePath,
+      description: resourceFields.description,
+      isMature: resourceFields.isMature,
+      resourceType: resourceFields.resourceType,
+      generation: resourceFields.generation,
+      supportedServer: resourceFields.supportedServer,
+      isPublic: resourceFields.isPublic,
+      isActive: resourceFields.isActive,
+      artPrompt: resourceFields.artPrompt,
+      User:
+        typeof resourceFields.userId === 'number'
+          ? { connect: { id: resourceFields.userId } }
+          : undefined,
+      ArtImage:
+        typeof resourceFields.artImageId === 'number'
+          ? { connect: { id: resourceFields.artImageId } }
+          : resourceFields.artImageId === null
+            ? { disconnect: true }
+            : undefined,
+      Servers:
+        connectServerIds.length || disconnectServerIds.length
+          ? {
+              connect: connectServerIds.map((id) => ({ id })),
+              disconnect: disconnectServerIds.map((id) => ({ id })),
+            }
+          : undefined,
+      // M2M: LoRA usage in images
+      UsedInImages:
+        connectLoraImageIds.length || disconnectLoraImageIds.length
+          ? {
+              connect: connectLoraImageIds.map((id) => ({ id })),
+              disconnect: disconnectLoraImageIds.map((id) => ({ id })),
+            }
+          : undefined,
     }
 
-    event.node.res.statusCode = 201
+    if (!hasUpdateData(updateData as Record<string, unknown>)) {
+      throw createError({
+        statusCode: 400,
+        message: 'No valid update fields provided.',
+      })
+    }
+
+    const data = await prisma.resource.update({
+      where: { id: resourceId },
+      data: updateData,
+      include: {
+        Servers: {
+          select: {
+            id: true,
+            title: true,
+            label: true,
+            serverType: true,
+            generationEngine: true,
+          },
+        },
+        ArtImage: {
+          select: { id: true, imagePath: true, fileName: true },
+        },
+        UsedInImages: {
+          select: { id: true, fileName: true },
+        },
+      },
+    })
+
+    event.node.res.statusCode = 200
 
     return {
       success: true,
-      message: isBatch
-        ? `Saved ${succeeded.length} resource(s) successfully.`
-        : 'Resource saved successfully.',
-      data: isBatch ? results : results[0]?.data,
+      message: `Resource with ID ${resourceId} updated successfully.`,
+      data,
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
@@ -339,7 +214,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: false,
-      message: message || 'Failed to save resource.',
+      message: message || `Failed to update resource with ID ${resourceId}.`,
       data: null,
     }
   }

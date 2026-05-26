@@ -104,6 +104,7 @@ const mutableRelationGroups = {
   scenarioCharacters: false,
   characterRewards: false,
   resourceServers: false,
+  resourceLoraImages: false,
 }
 
 let apiBase = fallbackApiBase
@@ -123,13 +124,19 @@ const jsonHeaders = () => ({
   'Content-Type': 'application/json',
 })
 
-const expectSuccess = (response: Cypress.Response<ApiResponse>, statusCodes = [200, 201]) => {
+const expectSuccess = (
+  response: Cypress.Response<ApiResponse>,
+  statusCodes = [200, 201],
+) => {
   expect(statusCodes, JSON.stringify(response.body)).to.include(response.status)
   expect(response.body.success, JSON.stringify(response.body)).to.eq(true)
   expect(response.body.data, JSON.stringify(response.body)).to.exist
 }
 
-const expectFailure = (response: Cypress.Response<ApiResponse>, statusCodes: number[]) => {
+const expectFailure = (
+  response: Cypress.Response<ApiResponse>,
+  statusCodes: number[],
+) => {
   expect(statusCodes, JSON.stringify(response.body)).to.include(response.status)
   expect(response.body.success, JSON.stringify(response.body)).to.eq(false)
 }
@@ -139,14 +146,23 @@ const expectId = (value: unknown, label: string) => {
   expect(value, label).to.be.greaterThan(0)
 }
 
-const listIds = (items: any[] | undefined) => (items || []).map((item) => item.id)
+const listIds = (items: any[] | undefined) =>
+  (items || []).map((item) => item.id)
 
-const expectArrayIncludesId = (items: any[] | undefined, id: number, label: string) => {
+const expectArrayIncludesId = (
+  items: any[] | undefined,
+  id: number,
+  label: string,
+) => {
   expect(items, label).to.be.an('array')
   expect(listIds(items), label).to.include(id)
 }
 
-const expectArrayExcludesId = (items: any[] | undefined, id: number, label: string) => {
+const expectArrayExcludesId = (
+  items: any[] | undefined,
+  id: number,
+  label: string,
+) => {
   expect(items, label).to.be.an('array')
   expect(listIds(items), label).to.not.include(id)
 }
@@ -174,7 +190,11 @@ const postRecord = (key: EndpointKey, body: Record<string, unknown>) => {
     })
 }
 
-const patchRecord = (key: EndpointKey, id: number, body: Record<string, unknown>) => {
+const patchRecord = (
+  key: EndpointKey,
+  id: number,
+  body: Record<string, unknown>,
+) => {
   return cy
     .request<ApiResponse>({
       method: 'PATCH',
@@ -212,12 +232,20 @@ const deleteRecord = (key: EndpointKey, id: number) => {
   })
 }
 
-const expectFieldEquals = (data: any, field: string, expected: number | string | boolean) => {
+const expectFieldEquals = (
+  data: any,
+  field: string,
+  expected: number | string | boolean,
+) => {
   expect(data, `record with ${field}`).to.be.an('object')
   expect(data[field], field).to.eq(expected)
 }
 
-const createReactionFor = (field: string, targetId: number, category: string) => {
+const createReactionFor = (
+  field: string,
+  targetId: number,
+  category: string,
+) => {
   return postRecord('reaction', {
     userId: testUserId,
     reactionType: 'LOVED',
@@ -237,7 +265,8 @@ describe('Relationship API Tests', () => {
       apiBase = String(env.API_BASE || fallbackApiBase)
       userToken = String(env.USER_TOKEN || '')
 
-      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be.empty
+      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+        .empty
     })
   })
 
@@ -337,7 +366,11 @@ describe('Relationship API Tests', () => {
       }).then((collection) => {
         ids.artCollection = collection.id
         expectFieldEquals(collection, 'userId', testUserId)
-        expectArrayIncludesId(collection.ArtImages, ids.artImageA, 'ArtCollection.ArtImages')
+        expectArrayIncludesId(
+          collection.ArtImages,
+          ids.artImageA,
+          'ArtCollection.ArtImages',
+        )
       })
     })
 
@@ -429,7 +462,8 @@ describe('Relationship API Tests', () => {
       postRecord('scenario', {
         title: `Cypress Scenario ${time}`,
         description: 'A scenario designed to test model relationships.',
-        intros: 'The party enters the API layer. Something smells like nullable foreign keys.',
+        intros:
+          'The party enters the API layer. Something smells like nullable foreign keys.',
         userId: testUserId,
         artImageId: ids.artImageA,
         isPublic: false,
@@ -622,7 +656,11 @@ describe('Relationship API Tests', () => {
 
       postRecord('theme', {
         name: `cypress-theme-${time}`,
-        values: JSON.stringify({ primary: '#ff00ff', secondary: '#00ffff', accent: '#ffff00' }),
+        values: JSON.stringify({
+          primary: '#ff00ff',
+          secondary: '#00ffff',
+          accent: '#ffff00',
+        }),
         userId: testUserId,
         isPublic: false,
         tagline: 'Relationship theme fixture',
@@ -641,27 +679,47 @@ describe('Relationship API Tests', () => {
       patchRecord('artCollection', ids.artCollection, {
         addArtImageIds: [ids.artImageB],
       }).then((collection) => {
-        expectArrayIncludesId(collection.ArtImages, ids.artImageB, 'ArtCollection.ArtImages after add')
+        expectArrayIncludesId(
+          collection.ArtImages,
+          ids.artImageB,
+          'ArtCollection.ArtImages after add',
+        )
       })
 
       patchRecord('artCollection', ids.artCollection, {
         removeArtImageIds: [ids.artImageA],
       }).then((collection) => {
-        expectArrayExcludesId(collection.ArtImages, ids.artImageA, 'ArtCollection.ArtImages after remove')
+        expectArrayExcludesId(
+          collection.ArtImages,
+          ids.artImageA,
+          'ArtCollection.ArtImages after remove',
+        )
       })
 
       patchRecord('artCollection', ids.artCollection, {
         artImageIds: [ids.artImageA, ids.artImageB],
         mode: 'replace',
       }).then((collection) => {
-        expectArrayIncludesId(collection.ArtImages, ids.artImageA, 'ArtCollection.ArtImages after replace')
-        expectArrayIncludesId(collection.ArtImages, ids.artImageB, 'ArtCollection.ArtImages after replace')
+        expectArrayIncludesId(
+          collection.ArtImages,
+          ids.artImageA,
+          'ArtCollection.ArtImages after replace',
+        )
+        expectArrayIncludesId(
+          collection.ArtImages,
+          ids.artImageB,
+          'ArtCollection.ArtImages after replace',
+        )
       })
     })
 
     it('returns lightweight nested ArtImages', () => {
       getRecord('artCollection', ids.artCollection).then((collection) => {
-        expectArrayIncludesId(collection.ArtImages, ids.artImageA, 'ArtCollection.ArtImages')
+        expectArrayIncludesId(
+          collection.ArtImages,
+          ids.artImageA,
+          'ArtCollection.ArtImages',
+        )
 
         const firstImage = collection.ArtImages[0]
 
@@ -687,7 +745,11 @@ describe('Relationship API Tests', () => {
         characterIds: [ids.character],
       }).then((dream) => {
         mutableRelationGroups.dreamCharacters = true
-        expectArrayIncludesId(dream.Characters, ids.character, 'Dream.Characters')
+        expectArrayIncludesId(
+          dream.Characters,
+          ids.character,
+          'Dream.Characters',
+        )
       })
     })
 
@@ -705,7 +767,11 @@ describe('Relationship API Tests', () => {
         characterIds: [ids.character],
       }).then((scenario) => {
         mutableRelationGroups.scenarioCharacters = true
-        expectArrayIncludesId(scenario.Characters, ids.character, 'Scenario.Characters')
+        expectArrayIncludesId(
+          scenario.Characters,
+          ids.character,
+          'Scenario.Characters',
+        )
       })
     })
 
@@ -714,7 +780,11 @@ describe('Relationship API Tests', () => {
         rewardIds: [ids.reward],
       }).then((character) => {
         mutableRelationGroups.characterRewards = true
-        expectArrayIncludesId(character.Rewards, ids.reward, 'Character.Rewards')
+        expectArrayIncludesId(
+          character.Rewards,
+          ids.reward,
+          'Character.Rewards',
+        )
       })
     })
 
@@ -734,6 +804,34 @@ describe('Relationship API Tests', () => {
         expectFieldEquals(artImage, 'userId', testUserId)
         expectFieldEquals(artImage, 'checkpointResourceId', ids.resource)
         expectFieldEquals(artImage, 'serverId', ids.server)
+      })
+    })
+
+    it('connects Resource to ArtImage via LoRA (UsedInImages)', () => {
+      patchRecord('resource', ids.resource, {
+        connectLoraImageIds: [ids.artImageA],
+      }).then((resource) => {
+        mutableRelationGroups.resourceLoraImages = true
+        expectArrayIncludesId(
+          resource.UsedInImages,
+          ids.artImageA,
+          'Resource.UsedInImages',
+        )
+      })
+    })
+
+    it('disconnects Resource from ArtImage via LoRA (UsedInImages)', () => {
+      cy.wrap(null).then(() => {
+        if (!mutableRelationGroups.resourceLoraImages) return
+      })
+      patchRecord('resource', ids.resource, {
+        disconnectLoraImageIds: [ids.artImageA],
+      }).then((resource) => {
+        expectArrayExcludesId(
+          resource.UsedInImages,
+          ids.artImageA,
+          'Resource.UsedInImages after disconnect',
+        )
       })
     })
 
@@ -961,9 +1059,17 @@ describe('Relationship API Tests', () => {
         uniqueIds.forEach((id) => {
           deleteRecord(key, id).then((response) => {
             if (response.status !== 404) {
-              expect([200, 202, 204], `${key} ${id} cleanup ${JSON.stringify(response.body)}`).to.include(response.status)
-              if (response.body && Object.prototype.hasOwnProperty.call(response.body, 'success')) {
-                expect(response.body.success, `${key} ${id} cleanup`).to.eq(true)
+              expect(
+                [200, 202, 204],
+                `${key} ${id} cleanup ${JSON.stringify(response.body)}`,
+              ).to.include(response.status)
+              if (
+                response.body &&
+                Object.prototype.hasOwnProperty.call(response.body, 'success')
+              ) {
+                expect(response.body.success, `${key} ${id} cleanup`).to.eq(
+                  true,
+                )
               }
             }
           })

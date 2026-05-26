@@ -295,7 +295,7 @@
       </section>
 
       <section v-else-if="currentSection === 'art'" class="flex flex-col gap-4">
-        <art-creator
+        <art-designer
           purpose="pitch"
           :model-id="selectedPitchId"
           :model-title="title"

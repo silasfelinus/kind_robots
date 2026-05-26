@@ -589,7 +589,7 @@
       </section>
 
       <section v-else-if="currentSection === 'art'" class="flex flex-col gap-4">
-        <art-creator
+        <art-designer
           purpose="scenario"
           :model-id="selectedScenarioId"
           :model-title="title"

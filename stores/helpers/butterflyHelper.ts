@@ -49,6 +49,66 @@ export interface ButterflyState {
   presets: ButterflySettingsWithOptions[]
 }
 
+// /stores/helpers/butterflyHelper.ts
+export const createLoaderButterfly = (
+  settings: ButterflySettingsWithOptions,
+  usedNames: string[],
+): Butterfly => {
+  const primaryColor = randomColor()
+  const secondaryColor = applyColorScheme(settings.colorScheme, primaryColor)
+
+  const baseZIndex =
+    Math.floor(
+      Math.random() * (settings.zIndexRange.max - settings.zIndexRange.min + 1),
+    ) + settings.zIndexRange.min
+
+  return {
+    id: generateFunnyName(usedNames),
+    x: clampToTwoDecimals(
+      Math.random() * (settings.xRange.max - settings.xRange.min) +
+        settings.xRange.min,
+    ),
+    y: clampToTwoDecimals(
+      Math.random() * (settings.yRange.max - settings.yRange.min) +
+        settings.yRange.min,
+    ),
+    z: clampToTwoDecimals(
+      Math.random() * (settings.sizeRange.max - settings.sizeRange.min) +
+        settings.sizeRange.min,
+    ),
+    baseZIndex,
+    zIndex: baseZIndex,
+    rotation: clampToTwoDecimals(
+      Math.random() *
+        (settings.rotationRange.max - settings.rotationRange.min) +
+        settings.rotationRange.min,
+    ),
+    wingTopColor: primaryColor,
+    wingBottomColor: secondaryColor,
+    speed: clampToTwoDecimals(
+      Math.random() * (settings.speedRange.max - settings.speedRange.min) +
+        settings.speedRange.min,
+    ),
+    wingSpeed: clampToTwoDecimals(
+      Math.random() *
+        (settings.wingSpeedRange.max - settings.wingSpeedRange.min) +
+        settings.wingSpeedRange.min,
+    ),
+    scale: clampToTwoDecimals(Math.random() * 1.3 + 0.7),
+    scaleMod: 1,
+    status: settings.status,
+    noiseOffsetX: Math.random() * 1000,
+    noiseOffsetY: Math.random() * 1000,
+    userId: 1,
+    message: 'Fluttering ominously...',
+    designer: 'ami',
+    goal: {
+      x: clampToTwoDecimals(Math.random() * 100),
+      y: clampToTwoDecimals(Math.random() * 100),
+    },
+  }
+}
+
 export interface ButterflySettings {
   sizeRange: Range
   speedRange: Range

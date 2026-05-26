@@ -13,9 +13,7 @@
       :key="butterfly.id"
       class="butterfly"
       :style="{
-        left: butterfly.x + '%',
-        top: butterfly.y + '%',
-        transform: `rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
+        transform: `translate3d(${butterfly.x}vw, ${butterfly.y}vh, 0) rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
       }"
     >
       <div class="left-wing">
@@ -60,7 +58,7 @@ const { butterflies } = storeToRefs(butterflyStore)
 const showSwarm = computed(() => butterflyStore.showSwarm)
 
 onMounted(async () => {
-  await butterflyStore.spawnStartupSwarm(20)
+  await butterflyStore.spawnStartupSwarm(10)
 })
 </script>
 
@@ -108,11 +106,14 @@ onMounted(async () => {
 
 .butterfly {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 100px;
   height: 100px;
   transform-style: preserve-3d;
   pointer-events: none;
-  will-change: transform, left, top;
+  will-change: transform;
+  contain: layout paint style;
 }
 
 .left-wing,

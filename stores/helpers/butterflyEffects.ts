@@ -8,6 +8,7 @@ import {
   clampToTwoDecimals,
   createNewButterfly,
   getNoise,
+  createLoaderButterfly,
 } from './butterflyHelper'
 
 export type ToggleButterflyKey =
@@ -958,7 +959,7 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       const localUsedNames = [...usedNames.value]
 
       for (let i = 0; i < safeAmount; i++) {
-        const butterfly = await createNewButterfly(
+        const butterfly = createLoaderButterfly(
           newButterflySettings,
           localUsedNames,
         )

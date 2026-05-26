@@ -42,6 +42,7 @@ type PatchCollectionBody = {
   addArtImageIds?: unknown
   removeArtImageIds?: unknown
   mode?: unknown
+  artPrompt?: unknown
 }
 
 function normalizeIdArray(value: unknown, fieldName: string): number[] {
@@ -148,7 +149,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (collection.userId !== user.id) {
+    if (collection.userId !== user.id && user.Role !== 'ADMIN') {
       throw createError({
         statusCode: 403,
         message: 'Not authorized to update this collection.',
@@ -172,6 +173,10 @@ export default defineEventHandler(async (event) => {
 
     if (typeof body.isMature === 'boolean') {
       updateData.isMature = body.isMature
+    }
+
+    if (typeof body.artPrompt === 'string') {
+      updateData.artPrompt = body.artPrompt.trim()
     }
 
     const artImageIds = normalizeIdArray(body.artImageIds, 'artImageIds')

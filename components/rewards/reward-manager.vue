@@ -92,6 +92,8 @@
         </div>
       </section>
 
+      <reward-builder v-else-if="currentTab === 'builder'" />
+
       <reward-interact v-else-if="currentTab === 'interact'" />
 
       <div

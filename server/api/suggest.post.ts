@@ -138,6 +138,20 @@ function buildContextString(
       if (c.title) lines.push(`Location: ${c.title}`)
       if (c.pitch) lines.push(`Concept: ${c.pitch}`)
       break
+    case 'reward': {
+      if (c.rewardType) lines.push(`Type: ${c.rewardType}`)
+      if (c.rarity) lines.push(`Rarity: ${c.rarity}`)
+      if (c.text) lines.push(`Name: ${c.text}`)
+      if (c.power) lines.push(`Current power: ${c.power}`)
+      if (c.collection) lines.push(`Collection: ${c.collection}`)
+      if (Array.isArray(c.examples)) {
+        const exs = (
+          c.examples as Array<{ text: string; power: string }>
+        ).slice(0, 2)
+        exs.forEach((e) => lines.push(`Example — ${e.text}: ${e.power}`))
+      }
+      break
+    }
   }
 
   return lines.join('\n')
@@ -166,6 +180,10 @@ function buildUserPrompt(
       'Write 1–2 specific behavioral quirks. Make them specific and interesting.',
     artPrompt:
       'Refine this portrait prompt for AI image generation. Prioritise visual specificity. Keep under 200 words.',
+    rewardText:
+      'Write a short, evocative name for this reward (2–5 words). Specific and memorable.',
+    rewardPower:
+      'Write the power/effect of this reward in 1–2 sentences. Clear mechanical effect with flavourful delivery.',
     description: 'Write a 1–2 sentence evocative description.',
   }
 

@@ -109,6 +109,13 @@ export const dashboardConfigs = {
         summary: 'Select, add, edit, clone, delete, or launch bots.',
       },
       {
+        key: 'builder',
+        label: 'Bot Builder',
+        icon: 'kind-icon:wrench',
+        title: 'Bot Builder',
+        summary: 'Build a robot with our easy builder cards!',
+      },
+      {
         key: 'interact',
         label: 'Interact',
         icon: 'kind-icon:chat',
@@ -163,7 +170,7 @@ export const dashboardConfigs = {
         label: 'Builder',
         icon: 'kind-icon:plan',
         title: 'Pitch Builder',
-        summary: 'Build a Pitch using our builder cards.',
+        summary: 'Build a Pitch using our easy builder cards.',
       },
       {
         key: 'prompts',
@@ -285,6 +292,13 @@ export const dashboardConfigs = {
         icon: 'kind-icon:moon',
         title: 'Dream Gallery',
         summary: 'Select, add, edit, clone, or delete collaborative dreams.',
+      },
+      {
+        key: 'builder',
+        label: 'Location Builder',
+        icon: 'kind-icon:wrench',
+        title: 'Location Builder',
+        summary: 'Build a location with our easy builder cards!',
       },
       {
         key: 'prompts',
@@ -512,6 +526,13 @@ export const dashboardConfigs = {
         summary: 'Select, add, edit, or delete story rewards and artifacts.',
       },
       {
+        key: 'builder',
+        label: 'Reward Builder',
+        icon: 'kind-icon:gift',
+        title: 'Reward Builder',
+        summary: 'Build a reward with our easy builder cards!',
+      },
+      {
         key: 'collections',
         label: 'Collections',
         icon: 'kind-icon:folder',
@@ -554,6 +575,13 @@ export const dashboardConfigs = {
         icon: 'kind-icon:map',
         title: 'Scenario Gallery',
         summary: 'Select, add, clone, or edit the playground.',
+      },
+      {
+        key: 'builder',
+        label: 'Scenario Builder',
+        icon: 'kind-icon:wrench',
+        title: 'Scenario Builder',
+        summary: 'Build a scenario with our easy builder cards!',
       },
       {
         key: 'characters',

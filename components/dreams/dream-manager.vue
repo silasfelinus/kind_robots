@@ -122,6 +122,8 @@
         </aside>
       </section>
 
+      <dream-builder v-else-if="currentTab === 'builder'" />
+
       <section
         v-else-if="currentTab === 'collections'"
         class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"

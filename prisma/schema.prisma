@@ -49,7 +49,8 @@ model ArtImage {
   Pitches                      Pitch[]
   Prompts                      Prompt[]
   Reactions                    Reaction[]
-  Resources                    Resource[]      @relation("ResourcePreviewImage")
+  Resources        Resource[]  @relation("ResourcePreviewImage")
+  LoraResources    Resource[]  @relation("ArtImageLoraResources")     
   Rewards                      Reward[]
   Scenarios                    Scenario[]
   UserProfiles                 User[]          @relation("UserProfileImage")
@@ -590,12 +591,14 @@ model Resource {
   resourceType    ResourceType    @default(EMBEDDING)
   userId          Int?            @default(1)
   artImageId      Int?
+  imagePath       String?
   generation      String?
   supportedServer SupportedServer @default(SDXL)
   isPublic        Boolean         @default(false)
   isActive        Boolean         @default(true)
   artPrompt       String?         @db.Text
   ArtImages       ArtImage[]      @relation("ArtImageCheckpointResource")
+  UsedInImages     ArtImage[]  @relation("ArtImageLoraResources")
   Reactions       Reaction[]
   ArtImage        ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
   User            User?           @relation(fields: [userId], references: [id])

@@ -157,7 +157,12 @@ export const PitchType = {
   VIBE: 'VIBE',
   BOT: 'BOT',
   INSPIRATION: 'INSPIRATION',
-  DREAM: 'DREAM'
+  DREAM: 'DREAM',
+  CHARACTER: 'CHARACTER',
+  REWARD: 'REWARD',
+  SCENARIO: 'SCENARIO',
+  TEXT: 'TEXT',
+  LOCATION: 'LOCATION'
 } as const
 
 export type PitchType = (typeof PitchType)[keyof typeof PitchType]

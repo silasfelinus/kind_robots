@@ -53,7 +53,13 @@ interface ArtImageGenerationRoute {
   engine: ArtImageGenerationEngine
 }
 
-export type ArtImageGenerationEngine = 'a1111' | 'comfy' | 'flux' | 'kontext'
+export type ArtImageGenerationEngine =
+  | 'a1111'
+  | 'comfy'
+  | 'flux'
+  | 'kontext'
+  | 'openai'
+
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
 export interface GenerateArtData {
@@ -376,14 +382,24 @@ export const useArtStore = defineStore('artStore', () => {
       : []
 
     return servers.filter((server) => {
+      if (!server.isActive) return false
+
+      if (server.generationEngine === 'OPENAI_IMAGE') return true
+      if (server.generationEngine === 'FLUX') return true
+      if (server.generationEngine === 'KONTEXT') return true
+      if (server.generationEngine === 'COMFY') return true
+      if (server.generationEngine === 'A1111') return true
+
+      if (server.serverType === 'COMFY') return true
+      if (server.serverType === 'A1111') return true
+
       return Boolean(
-        server.isActive &&
-        server.supportsTxt2Img &&
-        ['A1111', 'COMFY'].includes(server.serverType),
+        server.supportsTxt2Img ||
+        server.supportsComfyWorkflow ||
+        server.supportsFlux,
       )
     })
   })
-
   const activeGenerationServer = computed<Server | null>(() => {
     if (state.artForm.serverId) {
       return serverStore.getServerById(state.artForm.serverId) ?? null
@@ -1366,12 +1382,14 @@ export const useArtStore = defineStore('artStore', () => {
       return data.engine
     }
 
+    if (server.generationEngine === 'OPENAI_IMAGE') return 'openai'
     if (server.generationEngine === 'FLUX') return 'flux'
     if (server.generationEngine === 'KONTEXT') return 'kontext'
     if (server.generationEngine === 'COMFY') return 'comfy'
     if (server.generationEngine === 'A1111') return 'a1111'
 
     if (server.serverType === 'COMFY' || server.supportsComfyWorkflow) {
+      if (server.supportsFlux) return 'flux'
       return 'comfy'
     }
 
@@ -1380,10 +1398,9 @@ export const useArtStore = defineStore('artStore', () => {
     }
 
     throw new Error(
-      `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Flux, and Kontext only.`,
+      `Server "${server.title}" is ${server.serverType}/${server.generationEngine}. This generator supports Stable Diffusion, Comfy SDXL, Comfy Flux, Kontext, and OpenAI Images only.`,
     )
   }
-
   function getArtImageGenerationTransport(
     server: Server,
     data?: GenerateArtData,
@@ -1675,7 +1692,7 @@ export const useArtStore = defineStore('artStore', () => {
     data: GenerateArtData & { imageBase64: string },
   ): Promise<ArtImage> {
     const response = await performFetch<ArtImage>(
-      '/api/art/image/save-generated',
+      '/api/art/save-generated',
       {
         method: 'POST',
         body: JSON.stringify(data),
@@ -1748,13 +1765,39 @@ export const useArtStore = defineStore('artStore', () => {
     engine: ArtImageGenerationEngine,
   ): string {
     const endpoints: Record<ArtImageGenerationEngine, string> = {
-      a1111: '/api/art/image/generate',
-      comfy: '/api/art/image/comfy/generate',
-      flux: '/api/art/image/comfy/flux/generate',
-      kontext: '/api/art/image/comfy/kontext/generate',
+      a1111: '/api/art/generate',
+      comfy: '/api/comfy/sdxl/generate',
+      flux: '/api/comfy/flux/generate',
+      kontext: '/api/comfy/kontext/generate',
+      openai: '/api/chats/openai/images/generate',
     }
 
     return endpoints[engine]
+  }
+
+  function buildBackendGenerationPayload(
+    data: GenerateArtData,
+    engine: ArtImageGenerationEngine,
+  ): Record<string, unknown> {
+    const payload: Record<string, unknown> = { ...data }
+
+    if (engine === 'flux') {
+      return {
+        ...payload,
+        prompt: data.promptString,
+        variant: data.workflow ? undefined : 'dev',
+      }
+    }
+
+    if (engine === 'openai') {
+      return {
+        ...payload,
+        prompt: data.promptString,
+        model: 'gpt-image-2',
+      }
+    }
+
+    return payload
   }
 
   async function generateBackendArtImage(
@@ -1762,12 +1805,13 @@ export const useArtStore = defineStore('artStore', () => {
     engine: ArtImageGenerationEngine,
   ): Promise<ArtImage> {
     const endpoint = getBackendArtImageGenerationEndpoint(engine)
+    const payload = buildBackendGenerationPayload(data, engine)
 
     const response = await performFetch<ArtImage>(
       endpoint,
       {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
       },
       3,

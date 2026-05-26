@@ -42,7 +42,9 @@
       v-if="showImage"
       :class="[
         'relative flex items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-300',
-        imageHeightClass,
+        compact || size === 'xs' || size === 'sm'
+          ? 'aspect-square w-full'
+          : imageHeightClass,
       ]"
     >
       <image-card
@@ -83,7 +85,21 @@
         </div>
       </div>
 
-      <!-- Status badges — only visible when selected or mature is hidden -->
+      <!-- ── Compact overlay label ───────────────────────────────────── -->
+      <div
+        v-if="compact || size === 'xs' || size === 'sm'"
+        class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-px px-2 py-1.5"
+        style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.72))"
+      >
+        <span class="truncate text-[11px] font-bold leading-tight text-white">
+          {{ collectionLabel }}
+        </span>
+        <span class="text-[10px] leading-none text-white/60">
+          {{ imageCountLabel }}
+        </span>
+      </div>
+
+      <!-- Status badges -->
       <div
         v-if="activeSelected || (collection.isMature && !showMature)"
         class="absolute left-2 top-2 flex flex-wrap gap-1"
@@ -110,46 +126,32 @@
     </div>
 
     <!-- ── Text content ──────────────────────────────────────────────── -->
-    <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+    <div
+      v-if="!compact && size !== 'xs' && size !== 'sm'"
+      class="flex min-w-0 flex-1 flex-col gap-1.5"
+    >
       <div class="min-w-0">
         <h2
-          :class="[
-            'font-black leading-tight text-base-content',
-            compact || size === 'xs'
-              ? 'line-clamp-1 text-sm'
-              : size === 'sm'
-                ? 'line-clamp-1 text-sm'
-                : 'text-base',
-          ]"
+          class="font-black leading-tight text-base-content text-base"
           :title="collectionLabel"
         >
           {{ collectionLabel }}
         </h2>
 
         <p
-          v-if="showDescription && size !== 'xs'"
-          :class="[
-            'mt-0.5 text-base-content/60',
-            compact || size === 'sm'
-              ? 'line-clamp-1 text-xs'
-              : 'line-clamp-2 text-xs',
-          ]"
+          v-if="showDescription"
+          class="mt-0.5 text-base-content/60 line-clamp-2 text-xs"
         >
           {{ collectionDescription }}
         </p>
       </div>
-
       <!-- Meta badges -->
       <div v-if="showMeta" class="flex flex-wrap items-center gap-1">
         <span class="badge badge-outline badge-xs">{{ imageCountLabel }}</span>
-        <span
-          v-if="collectionUsername && size !== 'xs'"
-          class="badge badge-primary badge-xs"
-        >
+        <span v-if="collectionUsername" class="badge badge-primary badge-xs">
           {{ collectionUsername }}
         </span>
       </div>
-
       <!-- Stats grid — only when selected AND showStats -->
       <div
         v-if="showStats && activeSelected"
@@ -263,7 +265,7 @@ const props = withDefaults(
     autoLoadPreviewImage: true,
     fallbackImage: '/images/backtree.webp',
     fallbackIcon: 'kind-icon:folder',
-    imageHeightClass: 'h-40',
+    imageHeightClass: 'h-48',
     previewArtImage: null,
   },
 )

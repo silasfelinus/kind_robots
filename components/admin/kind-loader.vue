@@ -34,6 +34,7 @@ import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
+import { useThemeStore } from '@/stores/themeStore'
 
 const errorStore = useErrorStore()
 const displayStore = useDisplayStore()
@@ -58,6 +59,7 @@ const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 const randomStore = useRandomStore()
 const navStore = useNavStore()
+const themeStore = useThemeStore()
 
 const emit = defineEmits<{
   pageReady: [boolean]
@@ -124,6 +126,9 @@ async function initializeStores() {
       smartbarStore.initialize?.(),
       consoleStore.initialize?.(),
       milestoneStore.initialize?.(),
+      themeStore.initialize({
+        fetchShared: true,
+      }),
     ])
 
     // Servers + checkpoints are sequential: checkpoints need a loaded server array

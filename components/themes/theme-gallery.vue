@@ -164,7 +164,7 @@
 
 <script setup lang="ts">
 // /components/content/themes/theme-gallery.vue
-import { computed, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 import { useHead } from '#imports'
 import { useMilestoneStore } from '@/stores/milestoneStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
@@ -247,5 +247,21 @@ watchEffect(() => {
       },
     ],
   })
+})
+
+onMounted(async () => {
+  themeError.value = ''
+
+  await themeStore.initialize({
+    fetchShared: true,
+  })
+
+  if (!themeStore.sharedThemes.length) {
+    await themeStore.getThemes(true)
+  }
+
+  if (themeStore.lastError) {
+    handleThemeError(themeStore.lastError)
+  }
 })
 </script>

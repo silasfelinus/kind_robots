@@ -34,15 +34,6 @@
       </p>
     </div>
 
-    <!-- Genre -->
-    <div v-if="sheet.genre" class="mb-2 flex items-center gap-2">
-      <Icon
-        name="kind-icon:compass"
-        class="h-3.5 w-3.5 shrink-0 text-base-content/40"
-      />
-      <span class="text-xs text-base-content/60">{{ sheet.genre }}</span>
-    </div>
-
     <!-- Icon -->
     <div v-if="sheet.icon" class="mb-2 flex items-center gap-2">
       <Icon :name="sheet.icon" class="h-4 w-4 text-primary" />

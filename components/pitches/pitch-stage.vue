@@ -35,7 +35,7 @@
           class="h-full w-full object-cover opacity-60"
         />
         <div
-          class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-base-100 p-5"
+          class="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-base-100 p-5"
         >
           <p
             class="text-xs font-bold uppercase tracking-widest text-primary/70"

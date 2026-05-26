@@ -1,8 +1,6 @@
-// @ts-nocheck
-/* eslint-disable */
-// test-ignore
+// /cypress/e2e/api/relationships.cy.ts
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
-// /cypress/e2e/api/relationship.cy.ts
 /// <reference types="cypress" />
 
 type ApiResponse<T = any> = {
@@ -43,6 +41,10 @@ const fallbackApiBase = 'https://kind-robots.vercel.app'
 const invalidToken = 'definitely-not-a-real-token'
 const testUserId = 9
 const time = Date.now()
+
+const normalRequestTimeout = 20000
+const expectedFailureTimeout = 8000
+const cleanupRequestTimeout = 12000
 
 const endpointPaths: Record<EndpointKey, string> = {
   artImage: '/api/art/image',
@@ -96,7 +98,16 @@ const created: CreatedRegistry = {
   theme: [],
 }
 
-const ids: Record<string, number> = {}
+const ids: Record<string, number | undefined> = {}
+
+const id = (key: string) => {
+  const value = ids[key]
+
+  expect(value, key).to.be.a('number')
+  expect(value, key).to.be.greaterThan(0)
+
+  return value as number
+}
 
 const mutableRelationGroups = {
   dreamCharacters: false,
@@ -110,9 +121,9 @@ const mutableRelationGroups = {
 let apiBase = fallbackApiBase
 let userToken = ''
 
-const urlFor = (key: EndpointKey, id?: number) => {
+const urlFor = (key: EndpointKey, recordId?: number) => {
   const base = `${apiBase}${endpointPaths[key]}`
-  return id ? `${base}/${id}` : base
+  return recordId ? `${base}/${recordId}` : base
 }
 
 const authHeaders = () => ({
@@ -123,6 +134,52 @@ const authHeaders = () => ({
 const jsonHeaders = () => ({
   'Content-Type': 'application/json',
 })
+
+type ApiRequestOptions = {
+  method: string
+  url: string
+  headers?: Record<string, string>
+  body?: unknown
+  timeout?: number
+}
+
+const apiRequest = <T = any>(options: ApiRequestOptions) => {
+  return cy.request<ApiResponse<T>>({
+    ...options,
+    timeout: options.timeout ?? normalRequestTimeout,
+    failOnStatusCode: false,
+    retryOnStatusCodeFailure: false,
+    retryOnNetworkFailure: false,
+  } as Cypress.RequestOptions)
+}
+
+const expectedFailureRequest = (
+  options: ApiRequestOptions,
+  statusCodes: number[],
+) => {
+  return cy
+    .request<ApiResponse>({
+      ...options,
+      timeout: options.timeout ?? expectedFailureTimeout,
+      failOnStatusCode: false,
+      retryOnStatusCodeFailure: false,
+      retryOnNetworkFailure: false,
+    } as Cypress.RequestOptions)
+    .then((response) => {
+      expectFailure(response, statusCodes)
+      return response
+    })
+}
+
+const cleanupRequest = <T = any>(options: ApiRequestOptions) => {
+  return cy.request<ApiResponse<T>>({
+    ...options,
+    timeout: options.timeout ?? cleanupRequestTimeout,
+    failOnStatusCode: false,
+    retryOnStatusCodeFailure: false,
+    retryOnNetworkFailure: false,
+  } as Cypress.RequestOptions)
+}
 
 const expectSuccess = (
   response: Cypress.Response<ApiResponse>,
@@ -146,89 +203,87 @@ const expectId = (value: unknown, label: string) => {
   expect(value, label).to.be.greaterThan(0)
 }
 
+const expectStoredId = (key: string) => id(key)
+
 const listIds = (items: any[] | undefined) =>
   (items || []).map((item) => item.id)
 
 const expectArrayIncludesId = (
   items: any[] | undefined,
-  id: number,
+  targetId: number,
   label: string,
 ) => {
   expect(items, label).to.be.an('array')
-  expect(listIds(items), label).to.include(id)
+  expect(listIds(items), label).to.include(targetId)
 }
 
 const expectArrayExcludesId = (
   items: any[] | undefined,
-  id: number,
+  targetId: number,
   label: string,
 ) => {
   expect(items, label).to.be.an('array')
-  expect(listIds(items), label).to.not.include(id)
+  expect(listIds(items), label).to.not.include(targetId)
 }
 
-const track = (key: EndpointKey, id: number) => {
+const track = (key: EndpointKey, recordId: number) => {
   if (!created[key]) created[key] = []
-  if (!created[key].includes(id)) created[key].push(id)
+  if (!created[key].includes(recordId)) created[key].push(recordId)
 }
 
 const postRecord = (key: EndpointKey, body: Record<string, unknown>) => {
-  return cy
-    .request<ApiResponse>({
-      method: 'POST',
-      url: urlFor(key),
-      headers: authHeaders(),
-      body,
-      failOnStatusCode: false,
-    })
-    .then((response) => {
-      expectSuccess(response)
-      const id = response.body.data?.id
-      expectId(id, `${key}.id`)
-      track(key, id)
-      return response.body.data
-    })
+  return apiRequest({
+    method: 'POST',
+    url: urlFor(key),
+    headers: authHeaders(),
+    body,
+  }).then((response) => {
+    expectSuccess(response)
+    const createdId = response.body.data?.id
+    expectId(createdId, `${key}.id`)
+    track(key, createdId)
+    return response.body.data
+  })
 }
 
 const patchRecord = (
   key: EndpointKey,
-  id: number,
+  recordId: number,
   body: Record<string, unknown>,
 ) => {
-  return cy
-    .request<ApiResponse>({
-      method: 'PATCH',
-      url: urlFor(key, id),
-      headers: authHeaders(),
-      body,
-      failOnStatusCode: false,
-    })
-    .then((response) => {
-      expectSuccess(response)
-      return response.body.data
-    })
-}
+  expectId(recordId, `${key}.patch.id`)
 
-const getRecord = (key: EndpointKey, id: number, authorized = false) => {
-  return cy
-    .request<ApiResponse>({
-      method: 'GET',
-      url: urlFor(key, id),
-      headers: authorized ? authHeaders() : jsonHeaders(),
-      failOnStatusCode: false,
-    })
-    .then((response) => {
-      expectSuccess(response, [200])
-      return response.body.data
-    })
-}
-
-const deleteRecord = (key: EndpointKey, id: number) => {
-  return cy.request<ApiResponse>({
-    method: 'DELETE',
-    url: urlFor(key, id),
+  return apiRequest({
+    method: 'PATCH',
+    url: urlFor(key, recordId),
     headers: authHeaders(),
-    failOnStatusCode: false,
+    body,
+  }).then((response) => {
+    expectSuccess(response)
+    return response.body.data
+  })
+}
+
+const getRecord = (key: EndpointKey, recordId: number, authorized = false) => {
+  expectId(recordId, `${key}.get.id`)
+
+  return apiRequest({
+    method: 'GET',
+    url: urlFor(key, recordId),
+    headers: authorized ? authHeaders() : jsonHeaders(),
+  }).then((response) => {
+    expectSuccess(response, [200])
+    return response.body.data
+  })
+}
+
+const deleteRecord = (key: EndpointKey, recordId: number) => {
+  expectId(recordId, `${key}.delete.id`)
+
+  return cleanupRequest({
+    method: 'DELETE',
+    url: urlFor(key, recordId),
+    headers: authHeaders(),
   })
 }
 
@@ -246,6 +301,8 @@ const createReactionFor = (
   targetId: number,
   category: string,
 ) => {
+  expectId(targetId, `reaction target ${field}`)
+
   return postRecord('reaction', {
     userId: testUserId,
     reactionType: 'LOVED',
@@ -285,31 +342,35 @@ describe('Relationship API Tests', () => {
         isPublic: false,
         isMature: false,
         isActive: true,
-      }).then((artImage) => {
-        ids.artImageA = artImage.id
-        expectFieldEquals(artImage, 'userId', testUserId)
       })
+        .then((artImage) => {
+          ids.artImageA = artImage.id
+          expectFieldEquals(artImage, 'userId', testUserId)
 
-      postRecord('artImage', {
-        promptString: `relationship test image B ${time}`,
-        artPrompt: `relationship test image B ${time}`,
-        path: `/images/test/relationship-b-${time}.webp`,
-        imagePath: `/images/test/relationship-b-${time}.webp`,
-        fileName: `relationship-b-${time}.webp`,
-        fileType: 'webp',
-        userId: testUserId,
-        seed: null,
-        steps: 10,
-        isPublic: false,
-        isMature: false,
-        isActive: true,
-      }).then((artImage) => {
-        ids.artImageB = artImage.id
-        expectFieldEquals(artImage, 'userId', testUserId)
-      })
+          return postRecord('artImage', {
+            promptString: `relationship test image B ${time}`,
+            artPrompt: `relationship test image B ${time}`,
+            path: `/images/test/relationship-b-${time}.webp`,
+            imagePath: `/images/test/relationship-b-${time}.webp`,
+            fileName: `relationship-b-${time}.webp`,
+            fileType: 'webp',
+            userId: testUserId,
+            seed: null,
+            steps: 10,
+            isPublic: false,
+            isMature: false,
+            isActive: true,
+          })
+        })
+        .then((artImage) => {
+          ids.artImageB = artImage.id
+          expectFieldEquals(artImage, 'userId', testUserId)
+        })
     })
 
     it('creates Resource and Server fixtures', () => {
+      expectStoredId('artImageA')
+
       postRecord('server', {
         title: `Cypress Relationship Server ${time}`,
         label: `cypress-relationship-server-${time}`,
@@ -323,44 +384,52 @@ describe('Relationship API Tests', () => {
         isActive: true,
         isEditable: true,
         supportsTxt2Img: true,
-      }).then((server) => {
-        ids.server = server.id
-        expectFieldEquals(server, 'userId', testUserId)
       })
+        .then((server) => {
+          ids.server = server.id
+          expectFieldEquals(server, 'userId', testUserId)
 
-      postRecord('resource', {
-        name: `cypress-relationship-resource-${time}`,
-        customLabel: `Cypress Relationship Resource ${time}`,
-        description: 'Cypress relationship checkpoint fixture',
-        resourceType: 'CHECKPOINT',
-        supportedServer: 'SDXL',
-        userId: testUserId,
-        artImageId: ids.artImageA,
-        isPublic: false,
-        isActive: true,
-      }).then((resource) => {
-        ids.resource = resource.id
-        expectFieldEquals(resource, 'userId', testUserId)
-        expectFieldEquals(resource, 'artImageId', ids.artImageA)
-      })
+          return postRecord('resource', {
+            name: `cypress-relationship-resource-${time}`,
+            customLabel: `Cypress Relationship Resource ${time}`,
+            description: 'Cypress relationship checkpoint fixture',
+            resourceType: 'CHECKPOINT',
+            supportedServer: 'SDXL',
+            userId: testUserId,
+            artImageId: id('artImageA'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((resource) => {
+          ids.resource = resource.id
+          expectFieldEquals(resource, 'userId', testUserId)
+          expectFieldEquals(resource, 'artImageId', id('artImageA'))
+        })
     })
 
     it('connects ArtImage to checkpoint Resource and generator Server', () => {
-      patchRecord('artImage', ids.artImageA, {
-        checkpointResourceId: ids.resource,
-        serverId: ids.server,
+      expectStoredId('artImageA')
+      expectStoredId('resource')
+      expectStoredId('server')
+
+      patchRecord('artImage', id('artImageA'), {
+        checkpointResourceId: id('resource'),
+        serverId: id('server'),
       }).then((artImage) => {
-        expectFieldEquals(artImage, 'checkpointResourceId', ids.resource)
-        expectFieldEquals(artImage, 'serverId', ids.server)
+        expectFieldEquals(artImage, 'checkpointResourceId', id('resource'))
+        expectFieldEquals(artImage, 'serverId', id('server'))
       })
     })
 
     it('creates ArtCollection fixture', () => {
+      expectStoredId('artImageA')
+
       postRecord('artCollection', {
         label: `cypress-relationship-collection-${time}`,
         description: 'Cypress relationship ArtCollection fixture',
         userId: testUserId,
-        artImageIds: [ids.artImageA],
+        artImageIds: [id('artImageA')],
         isPublic: false,
         isMature: false,
       }).then((collection) => {
@@ -368,13 +437,18 @@ describe('Relationship API Tests', () => {
         expectFieldEquals(collection, 'userId', testUserId)
         expectArrayIncludesId(
           collection.ArtImages,
-          ids.artImageA,
+          id('artImageA'),
           'ArtCollection.ArtImages',
         )
       })
     })
 
     it('creates primary model fixtures with direct relations', () => {
+      expectStoredId('artImageA')
+      expectStoredId('artCollection')
+      expectStoredId('resource')
+      expectStoredId('server')
+
       postRecord('bot', {
         BotType: 'PROMPTBOT',
         name: `cypress-bot-${time}`,
@@ -385,118 +459,136 @@ describe('Relationship API Tests', () => {
         prompt: 'Respond as a relationship test bot.',
         designer: 'cypress',
         userId: testUserId,
-        serverId: ids.server,
-        artImageId: ids.artImageA,
+        serverId: id('server'),
+        artImageId: id('artImageA'),
         isPublic: false,
         canDelete: true,
         isActive: true,
-      }).then((bot) => {
-        ids.bot = bot.id
-        expectFieldEquals(bot, 'userId', testUserId)
-        expectFieldEquals(bot, 'serverId', ids.server)
-        expectFieldEquals(bot, 'artImageId', ids.artImageA)
       })
+        .then((bot) => {
+          ids.bot = bot.id
+          expectFieldEquals(bot, 'userId', testUserId)
+          expectFieldEquals(bot, 'serverId', id('server'))
+          expectFieldEquals(bot, 'artImageId', id('artImageA'))
 
-      postRecord('character', {
-        name: `Cypress Character ${time}`,
-        species: 'Test Goblin',
-        class: 'Relationship Wrangler',
-        backstory: 'Born in a Cypress fixture and immediately suspicious.',
-        userId: testUserId,
-        artImageId: ids.artImageA,
-        isPublic: false,
-        isActive: true,
-      }).then((character) => {
-        ids.character = character.id
-        expectFieldEquals(character, 'userId', testUserId)
-        expectFieldEquals(character, 'artImageId', ids.artImageA)
-      })
+          return postRecord('character', {
+            name: `Cypress Character ${time}`,
+            species: 'Test Goblin',
+            class: 'Relationship Wrangler',
+            backstory: 'Born in a Cypress fixture and immediately suspicious.',
+            userId: testUserId,
+            artImageId: id('artImageA'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((character) => {
+          ids.character = character.id
+          expectFieldEquals(character, 'userId', testUserId)
+          expectFieldEquals(character, 'artImageId', id('artImageA'))
 
-      postRecord('pitch', {
-        title: `Cypress Pitch ${time}`,
-        pitch: `A relationship test pitch ${time}`,
-        designer: 'cypress',
-        userId: testUserId,
-        artImageId: ids.artImageA,
-        isPublic: false,
-        isActive: true,
-      }).then((pitch) => {
-        ids.pitch = pitch.id
-        expectFieldEquals(pitch, 'userId', testUserId)
-        expectFieldEquals(pitch, 'artImageId', ids.artImageA)
-      })
+          return postRecord('pitch', {
+            title: `Cypress Pitch ${time}`,
+            pitch: `A relationship test pitch ${time}`,
+            designer: 'cypress',
+            userId: testUserId,
+            artImageId: id('artImageA'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((pitch) => {
+          ids.pitch = pitch.id
+          expectFieldEquals(pitch, 'userId', testUserId)
+          expectFieldEquals(pitch, 'artImageId', id('artImageA'))
 
-      postRecord('prompt', {
-        prompt: `A relationship test prompt ${time}`,
-        userId: testUserId,
-        artImageId: ids.artImageA,
-        botId: ids.bot,
-        pitchId: ids.pitch,
-        isPublic: false,
-        isActive: true,
-      }).then((prompt) => {
-        ids.prompt = prompt.id
-        expectFieldEquals(prompt, 'userId', testUserId)
-        expectFieldEquals(prompt, 'artImageId', ids.artImageA)
-        expectFieldEquals(prompt, 'botId', ids.bot)
-        expectFieldEquals(prompt, 'pitchId', ids.pitch)
-      })
+          return postRecord('prompt', {
+            prompt: `A relationship test prompt ${time}`,
+            userId: testUserId,
+            artImageId: id('artImageA'),
+            botId: id('bot'),
+            pitchId: id('pitch'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((prompt) => {
+          ids.prompt = prompt.id
+          expectFieldEquals(prompt, 'userId', testUserId)
+          expectFieldEquals(prompt, 'artImageId', id('artImageA'))
+          expectFieldEquals(prompt, 'botId', id('bot'))
+          expectFieldEquals(prompt, 'pitchId', id('pitch'))
 
-      postRecord('reward', {
-        label: `Cypress Reward ${time}`,
-        text: 'A reward for surviving relationship tests.',
-        power: 'Can detect missing include statements at ten paces.',
-        collection: 'cypress',
-        rarity: 'COMMON',
-        rewardType: 'ITEM',
-        userId: testUserId,
-        artImageId: ids.artImageA,
-        isPublic: false,
-        isActive: true,
-      }).then((reward) => {
-        ids.reward = reward.id
-        expectFieldEquals(reward, 'userId', testUserId)
-        expectFieldEquals(reward, 'artImageId', ids.artImageA)
-      })
+          return postRecord('reward', {
+            label: `Cypress Reward ${time}`,
+            text: 'A reward for surviving relationship tests.',
+            power: 'Can detect missing include statements at ten paces.',
+            collection: 'cypress',
+            rarity: 'COMMON',
+            rewardType: 'ITEM',
+            userId: testUserId,
+            artImageId: id('artImageA'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((reward) => {
+          ids.reward = reward.id
+          expectFieldEquals(reward, 'userId', testUserId)
+          expectFieldEquals(reward, 'artImageId', id('artImageA'))
 
-      postRecord('scenario', {
-        title: `Cypress Scenario ${time}`,
-        description: 'A scenario designed to test model relationships.',
-        intros:
-          'The party enters the API layer. Something smells like nullable foreign keys.',
-        userId: testUserId,
-        artImageId: ids.artImageA,
-        isPublic: false,
-        isActive: true,
-      }).then((scenario) => {
-        ids.scenario = scenario.id
-        expectFieldEquals(scenario, 'userId', testUserId)
-        expectFieldEquals(scenario, 'artImageId', ids.artImageA)
-      })
+          return postRecord('scenario', {
+            title: `Cypress Scenario ${time}`,
+            description: 'A scenario designed to test model relationships.',
+            intros:
+              'The party enters the API layer. Something smells like nullable foreign keys.',
+            userId: testUserId,
+            artImageId: id('artImageA'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((scenario) => {
+          ids.scenario = scenario.id
+          expectFieldEquals(scenario, 'userId', testUserId)
+          expectFieldEquals(scenario, 'artImageId', id('artImageA'))
 
-      postRecord('dream', {
-        title: `Cypress Dream ${time}`,
-        slug: `cypress-dream-${time}`,
-        description: 'A dream/location for relationship tests.',
-        userId: testUserId,
-        pitchId: ids.pitch,
-        artImageId: ids.artImageA,
-        artCollectionId: ids.artCollection,
-        scenarioId: ids.scenario,
-        isPublic: false,
-        isActive: true,
-        accessMode: 'PRIVATE',
-      }).then((dream) => {
-        ids.dream = dream.id
-        expectFieldEquals(dream, 'userId', testUserId)
-        expectFieldEquals(dream, 'pitchId', ids.pitch)
-        expectFieldEquals(dream, 'artImageId', ids.artImageA)
-        expectFieldEquals(dream, 'artCollectionId', ids.artCollection)
-        expectFieldEquals(dream, 'scenarioId', ids.scenario)
-      })
+          return postRecord('dream', {
+            title: `Cypress Dream ${time}`,
+            slug: `cypress-dream-${time}`,
+            description: 'A dream/location for relationship tests.',
+            userId: testUserId,
+            pitchId: id('pitch'),
+            artImageId: id('artImageA'),
+            artCollectionId: id('artCollection'),
+            scenarioId: id('scenario'),
+            isPublic: false,
+            isActive: true,
+            accessMode: 'PRIVATE',
+          })
+        })
+        .then((dream) => {
+          ids.dream = dream.id
+          expectFieldEquals(dream, 'userId', testUserId)
+          expectFieldEquals(dream, 'pitchId', id('pitch'))
+          expectFieldEquals(dream, 'artImageId', id('artImageA'))
+          expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
+          expectFieldEquals(dream, 'scenarioId', id('scenario'))
+        })
     })
 
     it('creates secondary model fixtures with direct relations', () => {
+      expectStoredId('artImageA')
+      expectStoredId('artImageB')
+      expectStoredId('bot')
+      expectStoredId('character')
+      expectStoredId('dream')
+      expectStoredId('pitch')
+      expectStoredId('prompt')
+      expectStoredId('reward')
+      expectStoredId('scenario')
+      expectStoredId('server')
+
       postRecord('chat', {
         type: 'Dream',
         sender: `cypress-${time}`,
@@ -504,66 +596,71 @@ describe('Relationship API Tests', () => {
         content: 'Testing every haunted hallway in the relation graph.',
         title: `Cypress Chat ${time}`,
         userId: testUserId,
-        botId: ids.bot,
-        artImageId: ids.artImageA,
-        promptId: ids.prompt,
-        characterId: ids.character,
-        serverId: ids.server,
-        dreamId: ids.dream,
+        botId: id('bot'),
+        artImageId: id('artImageA'),
+        promptId: id('prompt'),
+        characterId: id('character'),
+        serverId: id('server'),
+        dreamId: id('dream'),
         isPublic: false,
         isActive: true,
-      }).then((chat) => {
-        ids.chat = chat.id
-        expectFieldEquals(chat, 'userId', testUserId)
-        expectFieldEquals(chat, 'botId', ids.bot)
-        expectFieldEquals(chat, 'artImageId', ids.artImageA)
-        expectFieldEquals(chat, 'promptId', ids.prompt)
-        expectFieldEquals(chat, 'characterId', ids.character)
-        expectFieldEquals(chat, 'serverId', ids.server)
-        expectFieldEquals(chat, 'dreamId', ids.dream)
       })
+        .then((chat) => {
+          ids.chat = chat.id
+          expectFieldEquals(chat, 'userId', testUserId)
+          expectFieldEquals(chat, 'botId', id('bot'))
+          expectFieldEquals(chat, 'artImageId', id('artImageA'))
+          expectFieldEquals(chat, 'promptId', id('prompt'))
+          expectFieldEquals(chat, 'characterId', id('character'))
+          expectFieldEquals(chat, 'serverId', id('server'))
+          expectFieldEquals(chat, 'dreamId', id('dream'))
 
-      postRecord('component', {
-        folderName: `cypress-relationship-folder-${time}`,
-        componentName: `cypress-relationship-component-${time}`,
-        title: `Cypress Component ${time}`,
-        notes: 'Relationship component fixture',
-        artImageId: ids.artImageA,
-        isWorking: true,
-        underConstruction: false,
-        isBroken: false,
-      }).then((component) => {
-        ids.component = component.id
-        expectFieldEquals(component, 'artImageId', ids.artImageA)
-      })
+          return postRecord('component', {
+            folderName: `cypress-relationship-folder-${time}`,
+            componentName: `cypress-relationship-component-${time}`,
+            title: `Cypress Component ${time}`,
+            notes: 'Relationship component fixture',
+            artImageId: id('artImageA'),
+            isWorking: true,
+            underConstruction: false,
+            isBroken: false,
+          })
+        })
+        .then((component) => {
+          ids.component = component.id
+          expectFieldEquals(component, 'artImageId', id('artImageA'))
 
-      postRecord('composition', {
-        title: `Cypress Composition ${time}`,
-        description: 'A composition tying multiple models together.',
-        label: `cypress-composition-${time}`,
-        mode: 'both',
-        userId: testUserId,
-        artImageId: ids.artImageB,
-        characterId: ids.character,
-        dreamId: ids.dream,
-        scenarioId: ids.scenario,
-        pitchId: ids.pitch,
-        rewardId: ids.reward,
-        isPublic: false,
-        isActive: true,
-      }).then((composition) => {
-        ids.composition = composition.id
-        expectFieldEquals(composition, 'userId', testUserId)
-        expectFieldEquals(composition, 'artImageId', ids.artImageB)
-        expectFieldEquals(composition, 'characterId', ids.character)
-        expectFieldEquals(composition, 'dreamId', ids.dream)
-        expectFieldEquals(composition, 'scenarioId', ids.scenario)
-        expectFieldEquals(composition, 'pitchId', ids.pitch)
-        expectFieldEquals(composition, 'rewardId', ids.reward)
-      })
+          return postRecord('composition', {
+            title: `Cypress Composition ${time}`,
+            description: 'A composition tying multiple models together.',
+            label: `cypress-composition-${time}`,
+            mode: 'both',
+            userId: testUserId,
+            artImageId: id('artImageB'),
+            characterId: id('character'),
+            dreamId: id('dream'),
+            scenarioId: id('scenario'),
+            pitchId: id('pitch'),
+            rewardId: id('reward'),
+            isPublic: false,
+            isActive: true,
+          })
+        })
+        .then((composition) => {
+          ids.composition = composition.id
+          expectFieldEquals(composition, 'userId', testUserId)
+          expectFieldEquals(composition, 'artImageId', id('artImageB'))
+          expectFieldEquals(composition, 'characterId', id('character'))
+          expectFieldEquals(composition, 'dreamId', id('dream'))
+          expectFieldEquals(composition, 'scenarioId', id('scenario'))
+          expectFieldEquals(composition, 'pitchId', id('pitch'))
+          expectFieldEquals(composition, 'rewardId', id('reward'))
+        })
     })
 
     it('creates ownership-only fixtures', () => {
+      expectStoredId('artImageA')
+
       postRecord('butterfly', {
         name: `cypress-butterfly-${time}`,
         message: 'Fluttering through relation tests.',
@@ -576,148 +673,166 @@ describe('Relationship API Tests', () => {
         designer: 'cypress',
         userId: testUserId,
         isPublic: false,
-      }).then((butterfly) => {
-        ids.butterfly = butterfly.id
-        expectFieldEquals(butterfly, 'userId', testUserId)
       })
+        .then((butterfly) => {
+          ids.butterfly = butterfly.id
+          expectFieldEquals(butterfly, 'userId', testUserId)
 
-      postRecord('butterflyRecord', {
-        userId: testUserId,
-        butterflyId: ids.butterfly,
-      }).then((record) => {
-        ids.butterflyRecord = record.id
-        expectFieldEquals(record, 'userId', testUserId)
-        expectFieldEquals(record, 'butterflyId', ids.butterfly)
-      })
+          return postRecord('butterflyRecord', {
+            userId: testUserId,
+            butterflyId: id('butterfly'),
+          })
+        })
+        .then((record) => {
+          ids.butterflyRecord = record.id
+          expectFieldEquals(record, 'userId', testUserId)
+          expectFieldEquals(record, 'butterflyId', id('butterfly'))
 
-      postRecord('code', {
-        userId: testUserId,
-        title: `Cypress Code ${time}`,
-        description: 'Relationship code fixture',
-        icon: 'kind-icon:code',
-        graph: { nodes: [], edges: [], source: 'cypress' },
-        isPublic: false,
-        isOfficial: false,
-        isActive: true,
-      }).then((code) => {
-        ids.code = code.id
-        expectFieldEquals(code, 'userId', testUserId)
-      })
+          return postRecord('code', {
+            userId: testUserId,
+            title: `Cypress Code ${time}`,
+            description: 'Relationship code fixture',
+            icon: 'kind-icon:code',
+            graph: { nodes: [], edges: [], source: 'cypress' },
+            isPublic: false,
+            isOfficial: false,
+            isActive: true,
+          })
+        })
+        .then((code) => {
+          ids.code = code.id
+          expectFieldEquals(code, 'userId', testUserId)
 
-      postRecord('log', {
-        message: `Cypress relationship log ${time}`,
-        timestamp: new Date().toISOString(),
-        username: `cypress-${time}`,
-        userId: testUserId,
-      }).then((log) => {
-        ids.log = log.id
-        expectFieldEquals(log, 'userId', testUserId)
-      })
+          return postRecord('log', {
+            message: `Cypress relationship log ${time}`,
+            timestamp: new Date().toISOString(),
+            username: `cypress-${time}`,
+            userId: testUserId,
+          })
+        })
+        .then((log) => {
+          ids.log = log.id
+          expectFieldEquals(log, 'userId', testUserId)
 
-      postRecord('milestone', {
-        label: `cypress-milestone-${time}`,
-        message: 'Cypress relationship milestone fixture',
-        icon: 'kind-icon:jellybean',
-        karma: 1,
-        isActive: true,
-        isRepeatable: true,
-        artImageId: ids.artImageA,
-      }).then((milestone) => {
-        ids.milestone = milestone.id
-        expectFieldEquals(milestone, 'artImageId', ids.artImageA)
-      })
+          return postRecord('milestone', {
+            label: `cypress-milestone-${time}`,
+            message: 'Cypress relationship milestone fixture',
+            icon: 'kind-icon:jellybean',
+            karma: 1,
+            isActive: true,
+            isRepeatable: true,
+            artImageId: id('artImageA'),
+          })
+        })
+        .then((milestone) => {
+          ids.milestone = milestone.id
+          expectFieldEquals(milestone, 'artImageId', id('artImageA'))
 
-      postRecord('milestoneRecord', {
-        username: `cypress-${time}`,
-        milestoneId: ids.milestone,
-        userId: testUserId,
-        isConfirmed: false,
-      }).then((record) => {
-        ids.milestoneRecord = record.id
-        expectFieldEquals(record, 'milestoneId', ids.milestone)
-        expectFieldEquals(record, 'userId', testUserId)
-      })
+          return postRecord('milestoneRecord', {
+            username: `cypress-${time}`,
+            milestoneId: id('milestone'),
+            userId: testUserId,
+            isConfirmed: false,
+          })
+        })
+        .then((record) => {
+          ids.milestoneRecord = record.id
+          expectFieldEquals(record, 'milestoneId', id('milestone'))
+          expectFieldEquals(record, 'userId', testUserId)
 
-      postRecord('smartIcon', {
-        title: `Cypress SmartIcon ${time}`,
-        type: 'nav',
-        designer: 'cypress',
-        userId: testUserId,
-        icon: 'kind-icon:test-tube',
-        label: 'Relationship Test',
-        link: '/cypress-relationship-test',
-        isPublic: false,
-        category: 'model',
-        isMature: false,
-      }).then((smartIcon) => {
-        ids.smartIcon = smartIcon.id
-        expectFieldEquals(smartIcon, 'userId', testUserId)
-      })
+          return postRecord('smartIcon', {
+            title: `Cypress SmartIcon ${time}`,
+            type: 'nav',
+            designer: 'cypress',
+            userId: testUserId,
+            icon: 'kind-icon:test-tube',
+            label: 'Relationship Test',
+            link: '/cypress-relationship-test',
+            isPublic: false,
+            category: 'model',
+            isMature: false,
+          })
+        })
+        .then((smartIcon) => {
+          ids.smartIcon = smartIcon.id
+          expectFieldEquals(smartIcon, 'userId', testUserId)
 
-      postRecord('theme', {
-        name: `cypress-theme-${time}`,
-        values: JSON.stringify({
-          primary: '#ff00ff',
-          secondary: '#00ffff',
-          accent: '#ffff00',
-        }),
-        userId: testUserId,
-        isPublic: false,
-        tagline: 'Relationship theme fixture',
-        colorScheme: 'light',
-        prefersDark: false,
-        isActive: true,
-      }).then((theme) => {
-        ids.theme = theme.id
-        expectFieldEquals(theme, 'userId', testUserId)
-      })
+          return postRecord('theme', {
+            name: `cypress-theme-${time}`,
+            values: JSON.stringify({
+              primary: '#ff00ff',
+              secondary: '#00ffff',
+              accent: '#ffff00',
+            }),
+            userId: testUserId,
+            isPublic: false,
+            tagline: 'Relationship theme fixture',
+            colorScheme: 'light',
+            prefersDark: false,
+            isActive: true,
+          })
+        })
+        .then((theme) => {
+          ids.theme = theme.id
+          expectFieldEquals(theme, 'userId', testUserId)
+        })
     })
   })
 
   describe('ArtCollection relationship contract', () => {
     it('adds, removes, and replaces ArtImages', () => {
-      patchRecord('artCollection', ids.artCollection, {
-        addArtImageIds: [ids.artImageB],
-      }).then((collection) => {
-        expectArrayIncludesId(
-          collection.ArtImages,
-          ids.artImageB,
-          'ArtCollection.ArtImages after add',
-        )
-      })
+      expectStoredId('artCollection')
+      expectStoredId('artImageA')
+      expectStoredId('artImageB')
 
-      patchRecord('artCollection', ids.artCollection, {
-        removeArtImageIds: [ids.artImageA],
-      }).then((collection) => {
-        expectArrayExcludesId(
-          collection.ArtImages,
-          ids.artImageA,
-          'ArtCollection.ArtImages after remove',
-        )
+      patchRecord('artCollection', id('artCollection'), {
+        addArtImageIds: [id('artImageB')],
       })
+        .then((collection) => {
+          expectArrayIncludesId(
+            collection.ArtImages,
+            id('artImageB'),
+            'ArtCollection.ArtImages after add',
+          )
 
-      patchRecord('artCollection', ids.artCollection, {
-        artImageIds: [ids.artImageA, ids.artImageB],
-        mode: 'replace',
-      }).then((collection) => {
-        expectArrayIncludesId(
-          collection.ArtImages,
-          ids.artImageA,
-          'ArtCollection.ArtImages after replace',
-        )
-        expectArrayIncludesId(
-          collection.ArtImages,
-          ids.artImageB,
-          'ArtCollection.ArtImages after replace',
-        )
-      })
+          return patchRecord('artCollection', id('artCollection'), {
+            removeArtImageIds: [id('artImageA')],
+          })
+        })
+        .then((collection) => {
+          expectArrayExcludesId(
+            collection.ArtImages,
+            id('artImageA'),
+            'ArtCollection.ArtImages after remove',
+          )
+
+          return patchRecord('artCollection', id('artCollection'), {
+            artImageIds: [id('artImageA'), id('artImageB')],
+            mode: 'replace',
+          })
+        })
+        .then((collection) => {
+          expectArrayIncludesId(
+            collection.ArtImages,
+            id('artImageA'),
+            'ArtCollection.ArtImages after replace',
+          )
+          expectArrayIncludesId(
+            collection.ArtImages,
+            id('artImageB'),
+            'ArtCollection.ArtImages after replace',
+          )
+        })
     })
 
     it('returns lightweight nested ArtImages', () => {
-      getRecord('artCollection', ids.artCollection).then((collection) => {
+      expectStoredId('artCollection')
+      expectStoredId('artImageA')
+
+      getRecord('artCollection', id('artCollection')).then((collection) => {
         expectArrayIncludesId(
           collection.ArtImages,
-          ids.artImageA,
+          id('artImageA'),
           'ArtCollection.ArtImages',
         )
 
@@ -741,285 +856,370 @@ describe('Relationship API Tests', () => {
 
   describe('Many-to-many relationship contract', () => {
     it('connects Dream to Character', () => {
-      patchRecord('dream', ids.dream, {
-        characterIds: [ids.character],
+      expectStoredId('dream')
+      expectStoredId('character')
+
+      patchRecord('dream', id('dream'), {
+        characterIds: [id('character')],
       }).then((dream) => {
         mutableRelationGroups.dreamCharacters = true
         expectArrayIncludesId(
           dream.Characters,
-          ids.character,
+          id('character'),
           'Dream.Characters',
         )
       })
     })
 
     it('connects Dream to Reward', () => {
-      patchRecord('dream', ids.dream, {
-        rewardIds: [ids.reward],
+      expectStoredId('dream')
+      expectStoredId('reward')
+
+      patchRecord('dream', id('dream'), {
+        rewardIds: [id('reward')],
       }).then((dream) => {
         mutableRelationGroups.dreamRewards = true
-        expectArrayIncludesId(dream.Rewards, ids.reward, 'Dream.Rewards')
+        expectArrayIncludesId(dream.Rewards, id('reward'), 'Dream.Rewards')
       })
     })
 
     it('connects Scenario to Character', () => {
-      patchRecord('scenario', ids.scenario, {
-        characterIds: [ids.character],
+      expectStoredId('scenario')
+      expectStoredId('character')
+
+      patchRecord('scenario', id('scenario'), {
+        characterIds: [id('character')],
       }).then((scenario) => {
         mutableRelationGroups.scenarioCharacters = true
         expectArrayIncludesId(
           scenario.Characters,
-          ids.character,
+          id('character'),
           'Scenario.Characters',
         )
       })
     })
 
     it('connects Character to Reward', () => {
-      patchRecord('character', ids.character, {
-        rewardIds: [ids.reward],
+      expectStoredId('character')
+      expectStoredId('reward')
+
+      patchRecord('character', id('character'), {
+        rewardIds: [id('reward')],
       }).then((character) => {
         mutableRelationGroups.characterRewards = true
         expectArrayIncludesId(
           character.Rewards,
-          ids.reward,
+          id('reward'),
           'Character.Rewards',
         )
       })
     })
 
     it('connects Resource to Server', () => {
-      patchRecord('resource', ids.resource, {
-        serverIds: [ids.server],
+      expectStoredId('resource')
+      expectStoredId('server')
+
+      patchRecord('resource', id('resource'), {
+        serverIds: [id('server')],
       }).then((resource) => {
         mutableRelationGroups.resourceServers = true
-        expectArrayIncludesId(resource.Servers, ids.server, 'Resource.Servers')
+        expectArrayIncludesId(
+          resource.Servers,
+          id('server'),
+          'Resource.Servers',
+        )
       })
     })
   })
 
   describe('Primary direct relationship verification', () => {
     it('verifies ArtImage direct relations', () => {
-      getRecord('artImage', ids.artImageA, true).then((artImage) => {
+      expectStoredId('artImageA')
+      expectStoredId('resource')
+      expectStoredId('server')
+
+      getRecord('artImage', id('artImageA'), true).then((artImage) => {
         expectFieldEquals(artImage, 'userId', testUserId)
-        expectFieldEquals(artImage, 'checkpointResourceId', ids.resource)
-        expectFieldEquals(artImage, 'serverId', ids.server)
+        expectFieldEquals(artImage, 'checkpointResourceId', id('resource'))
+        expectFieldEquals(artImage, 'serverId', id('server'))
       })
     })
 
     it('connects Resource to ArtImage via LoRA (UsedInImages)', () => {
-      patchRecord('resource', ids.resource, {
-        connectLoraImageIds: [ids.artImageA],
+      expectStoredId('resource')
+      expectStoredId('artImageA')
+
+      patchRecord('resource', id('resource'), {
+        connectLoraImageIds: [id('artImageA')],
       }).then((resource) => {
         mutableRelationGroups.resourceLoraImages = true
         expectArrayIncludesId(
           resource.UsedInImages,
-          ids.artImageA,
+          id('artImageA'),
           'Resource.UsedInImages',
         )
       })
     })
 
     it('disconnects Resource from ArtImage via LoRA (UsedInImages)', () => {
-      cy.wrap(null).then(() => {
-        if (!mutableRelationGroups.resourceLoraImages) return
-      })
-      patchRecord('resource', ids.resource, {
-        disconnectLoraImageIds: [ids.artImageA],
-      }).then((resource) => {
-        expectArrayExcludesId(
-          resource.UsedInImages,
-          ids.artImageA,
-          'Resource.UsedInImages after disconnect',
-        )
+      expectStoredId('resource')
+      expectStoredId('artImageA')
+
+      cy.then(() => {
+        if (!mutableRelationGroups.resourceLoraImages) {
+          return
+        }
+
+        return patchRecord('resource', id('resource'), {
+          disconnectLoraImageIds: [id('artImageA')],
+        }).then((resource) => {
+          expectArrayExcludesId(
+            resource.UsedInImages,
+            id('artImageA'),
+            'Resource.UsedInImages after disconnect',
+          )
+        })
       })
     })
 
     it('verifies Bot direct relations', () => {
-      getRecord('bot', ids.bot, true).then((bot) => {
+      expectStoredId('bot')
+      expectStoredId('artImageA')
+      expectStoredId('server')
+
+      getRecord('bot', id('bot'), true).then((bot) => {
         expectFieldEquals(bot, 'userId', testUserId)
-        expectFieldEquals(bot, 'artImageId', ids.artImageA)
-        expectFieldEquals(bot, 'serverId', ids.server)
+        expectFieldEquals(bot, 'artImageId', id('artImageA'))
+        expectFieldEquals(bot, 'serverId', id('server'))
       })
     })
 
     it('verifies Chat direct relations', () => {
-      getRecord('chat', ids.chat, true).then((chat) => {
+      expectStoredId('chat')
+      expectStoredId('artImageA')
+      expectStoredId('bot')
+      expectStoredId('character')
+      expectStoredId('dream')
+      expectStoredId('prompt')
+      expectStoredId('server')
+
+      getRecord('chat', id('chat'), true).then((chat) => {
         expectFieldEquals(chat, 'userId', testUserId)
-        expectFieldEquals(chat, 'artImageId', ids.artImageA)
-        expectFieldEquals(chat, 'botId', ids.bot)
-        expectFieldEquals(chat, 'characterId', ids.character)
-        expectFieldEquals(chat, 'dreamId', ids.dream)
-        expectFieldEquals(chat, 'promptId', ids.prompt)
-        expectFieldEquals(chat, 'serverId', ids.server)
+        expectFieldEquals(chat, 'artImageId', id('artImageA'))
+        expectFieldEquals(chat, 'botId', id('bot'))
+        expectFieldEquals(chat, 'characterId', id('character'))
+        expectFieldEquals(chat, 'dreamId', id('dream'))
+        expectFieldEquals(chat, 'promptId', id('prompt'))
+        expectFieldEquals(chat, 'serverId', id('server'))
       })
     })
 
     it('verifies Composition direct relations', () => {
-      getRecord('composition', ids.composition, true).then((composition) => {
+      expectStoredId('composition')
+      expectStoredId('artImageB')
+      expectStoredId('character')
+      expectStoredId('dream')
+      expectStoredId('scenario')
+      expectStoredId('pitch')
+      expectStoredId('reward')
+
+      getRecord('composition', id('composition'), true).then((composition) => {
         expectFieldEquals(composition, 'userId', testUserId)
-        expectFieldEquals(composition, 'artImageId', ids.artImageB)
-        expectFieldEquals(composition, 'characterId', ids.character)
-        expectFieldEquals(composition, 'dreamId', ids.dream)
-        expectFieldEquals(composition, 'scenarioId', ids.scenario)
-        expectFieldEquals(composition, 'pitchId', ids.pitch)
-        expectFieldEquals(composition, 'rewardId', ids.reward)
+        expectFieldEquals(composition, 'artImageId', id('artImageB'))
+        expectFieldEquals(composition, 'characterId', id('character'))
+        expectFieldEquals(composition, 'dreamId', id('dream'))
+        expectFieldEquals(composition, 'scenarioId', id('scenario'))
+        expectFieldEquals(composition, 'pitchId', id('pitch'))
+        expectFieldEquals(composition, 'rewardId', id('reward'))
       })
     })
 
     it('verifies Dream direct relations', () => {
-      getRecord('dream', ids.dream, true).then((dream) => {
+      expectStoredId('dream')
+      expectStoredId('artCollection')
+      expectStoredId('artImageA')
+      expectStoredId('pitch')
+      expectStoredId('scenario')
+
+      getRecord('dream', id('dream'), true).then((dream) => {
         expectFieldEquals(dream, 'userId', testUserId)
-        expectFieldEquals(dream, 'artCollectionId', ids.artCollection)
-        expectFieldEquals(dream, 'artImageId', ids.artImageA)
-        expectFieldEquals(dream, 'pitchId', ids.pitch)
-        expectFieldEquals(dream, 'scenarioId', ids.scenario)
+        expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
+        expectFieldEquals(dream, 'artImageId', id('artImageA'))
+        expectFieldEquals(dream, 'pitchId', id('pitch'))
+        expectFieldEquals(dream, 'scenarioId', id('scenario'))
       })
     })
   })
 
   describe('Reaction target relationship contract', () => {
     it('connects Reaction to ArtCollection', () => {
-      createReactionFor('artCollectionId', ids.artCollection, 'ART_COLLECTION')
+      expectStoredId('artCollection')
+      createReactionFor(
+        'artCollectionId',
+        id('artCollection'),
+        'ART_COLLECTION',
+      )
     })
 
     it('connects Reaction to ArtImage', () => {
-      createReactionFor('artImageId', ids.artImageA, 'ART_IMAGE')
+      expectStoredId('artImageA')
+      createReactionFor('artImageId', id('artImageA'), 'ART_IMAGE')
     })
 
     it('connects Reaction to Bot', () => {
-      createReactionFor('botId', ids.bot, 'BOT')
+      expectStoredId('bot')
+      createReactionFor('botId', id('bot'), 'BOT')
     })
 
     it('connects Reaction to Butterfly', () => {
-      createReactionFor('butterflyId', ids.butterfly, 'BUTTERFLY')
+      expectStoredId('butterfly')
+      createReactionFor('butterflyId', id('butterfly'), 'BUTTERFLY')
     })
 
     it('connects Reaction to Character', () => {
-      createReactionFor('characterId', ids.character, 'CHARACTER')
+      expectStoredId('character')
+      createReactionFor('characterId', id('character'), 'CHARACTER')
     })
 
     it('connects Reaction to Chat', () => {
-      createReactionFor('chatId', ids.chat, 'CHAT_EXCHANGE')
+      expectStoredId('chat')
+      createReactionFor('chatId', id('chat'), 'CHAT_EXCHANGE')
     })
 
     it('connects Reaction to Component', () => {
-      createReactionFor('componentId', ids.component, 'COMPONENT')
+      expectStoredId('component')
+      createReactionFor('componentId', id('component'), 'COMPONENT')
     })
 
     it('connects Reaction to Composition', () => {
-      createReactionFor('compositionId', ids.composition, 'COMPOSITION')
+      expectStoredId('composition')
+      createReactionFor('compositionId', id('composition'), 'COMPOSITION')
     })
 
     it('connects Reaction to Dream', () => {
-      createReactionFor('dreamId', ids.dream, 'DREAM')
+      expectStoredId('dream')
+      createReactionFor('dreamId', id('dream'), 'DREAM')
     })
 
     it('connects Reaction to Pitch', () => {
-      createReactionFor('pitchId', ids.pitch, 'PITCH')
+      expectStoredId('pitch')
+      createReactionFor('pitchId', id('pitch'), 'PITCH')
     })
 
     it('connects Reaction to Prompt', () => {
-      createReactionFor('promptId', ids.prompt, 'PROMPT')
+      expectStoredId('prompt')
+      createReactionFor('promptId', id('prompt'), 'PROMPT')
     })
 
     it('connects Reaction to Resource', () => {
-      createReactionFor('resourceId', ids.resource, 'RESOURCE')
+      expectStoredId('resource')
+      createReactionFor('resourceId', id('resource'), 'RESOURCE')
     })
 
     it('connects Reaction to Reward', () => {
-      createReactionFor('rewardId', ids.reward, 'REWARD')
+      expectStoredId('reward')
+      createReactionFor('rewardId', id('reward'), 'REWARD')
     })
 
     it('connects Reaction to Scenario', () => {
-      createReactionFor('scenarioId', ids.scenario, 'SCENARIO')
+      expectStoredId('scenario')
+      createReactionFor('scenarioId', id('scenario'), 'SCENARIO')
     })
 
     it('connects Reaction to Theme', () => {
-      createReactionFor('themeId', ids.theme, 'THEME')
+      expectStoredId('theme')
+      createReactionFor('themeId', id('theme'), 'THEME')
     })
   })
 
   describe('Negative relationship behavior', () => {
     it('rejects ArtCollection relation mutation without auth', () => {
-      cy.request<ApiResponse>({
-        method: 'PATCH',
-        url: urlFor('artCollection', ids.artCollection),
-        headers: jsonHeaders(),
-        body: {
-          addArtImageIds: [ids.artImageA],
+      expectStoredId('artCollection')
+      expectStoredId('artImageA')
+
+      expectedFailureRequest(
+        {
+          method: 'PATCH',
+          url: urlFor('artCollection', id('artCollection')),
+          headers: jsonHeaders(),
+          body: {
+            addArtImageIds: [id('artImageA')],
+          },
         },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expectFailure(response, [401])
-      })
+        [401],
+      )
     })
 
     it('rejects ArtCollection relation mutation with invalid auth', () => {
-      cy.request<ApiResponse>({
-        method: 'PATCH',
-        url: urlFor('artCollection', ids.artCollection),
-        headers: {
-          Authorization: `Bearer ${invalidToken}`,
-          'Content-Type': 'application/json',
+      expectStoredId('artCollection')
+      expectStoredId('artImageA')
+
+      expectedFailureRequest(
+        {
+          method: 'PATCH',
+          url: urlFor('artCollection', id('artCollection')),
+          headers: {
+            Authorization: `Bearer ${invalidToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: {
+            addArtImageIds: [id('artImageA')],
+          },
         },
-        body: {
-          addArtImageIds: [ids.artImageA],
-        },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expectFailure(response, [401])
-      })
+        [401],
+      )
     })
 
     it('rejects adding nonexistent ArtImage to ArtCollection', () => {
-      cy.request<ApiResponse>({
-        method: 'PATCH',
-        url: urlFor('artCollection', ids.artCollection),
-        headers: authHeaders(),
-        body: {
-          addArtImageIds: [999999999],
+      expectStoredId('artCollection')
+
+      expectedFailureRequest(
+        {
+          method: 'PATCH',
+          url: urlFor('artCollection', id('artCollection')),
+          headers: authHeaders(),
+          body: {
+            addArtImageIds: [999999999],
+          },
         },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expectFailure(response, [400, 404, 409])
-      })
+        [400, 404, 409],
+      )
     })
 
     it('rejects Reaction with invalid target id', () => {
-      cy.request<ApiResponse>({
-        method: 'POST',
-        url: urlFor('reaction'),
-        headers: authHeaders(),
-        body: {
-          userId: testUserId,
-          reactionType: 'LOVED',
-          reactionCategory: 'ART_IMAGE',
-          rating: 5,
-          artImageId: 999999999,
+      expectedFailureRequest(
+        {
+          method: 'POST',
+          url: urlFor('reaction'),
+          headers: authHeaders(),
+          body: {
+            userId: testUserId,
+            reactionType: 'LOVED',
+            reactionCategory: 'ART_IMAGE',
+            rating: 5,
+            artImageId: 999999999,
+          },
         },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expectFailure(response, [400, 404, 409])
-      })
+        [400, 404, 409],
+      )
     })
 
     it('rejects Reaction without a target', () => {
-      cy.request<ApiResponse>({
-        method: 'POST',
-        url: urlFor('reaction'),
-        headers: authHeaders(),
-        body: {
-          userId: testUserId,
-          reactionType: 'LOVED',
-          reactionCategory: 'ART_IMAGE',
-          rating: 5,
-          comment: `targetless reaction should fail ${time}`,
+      expectedFailureRequest(
+        {
+          method: 'POST',
+          url: urlFor('reaction'),
+          headers: authHeaders(),
+          body: {
+            userId: testUserId,
+            reactionType: 'LOVED',
+            reactionCategory: 'ART_IMAGE',
+            rating: 5,
+            comment: `targetless reaction should fail ${time}`,
+          },
         },
-        failOnStatusCode: false,
-      }).then((response) => {
-        expectFailure(response, [400, 422])
-      })
+        [400, 422],
+      )
     })
   })
 
@@ -1053,23 +1253,28 @@ describe('Relationship API Tests', () => {
 
       cleanupOrder.forEach((key) => {
         const uniqueIds = Array.from(new Set(created[key] || [])).filter(
-          (id) => typeof id === 'number' && Number.isInteger(id) && id > 0,
+          (recordId) =>
+            typeof recordId === 'number' &&
+            Number.isInteger(recordId) &&
+            recordId > 0,
         )
 
-        uniqueIds.forEach((id) => {
-          deleteRecord(key, id).then((response) => {
+        uniqueIds.forEach((recordId) => {
+          deleteRecord(key, recordId).then((response) => {
             if (response.status !== 404) {
               expect(
                 [200, 202, 204],
-                `${key} ${id} cleanup ${JSON.stringify(response.body)}`,
+                `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
               ).to.include(response.status)
+
               if (
                 response.body &&
                 Object.prototype.hasOwnProperty.call(response.body, 'success')
               ) {
-                expect(response.body.success, `${key} ${id} cleanup`).to.eq(
-                  true,
-                )
+                expect(
+                  response.body.success,
+                  `${key} ${recordId} cleanup`,
+                ).to.eq(true)
               }
             }
           })

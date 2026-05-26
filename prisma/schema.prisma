@@ -987,6 +987,11 @@ enum PitchType {
   BOT
   INSPIRATION
   DREAM
+  CHARACTER
+  REWARD
+  SCENARIO
+  TEXT
+  LOCATION
 }
 
 enum ServerType {

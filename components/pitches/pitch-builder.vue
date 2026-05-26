@@ -176,8 +176,8 @@ function doReset() {
 }
 
 async function doSave() {
-  const result = await pitchStore.savePitch(savedPitchId.value ?? undefined)
-  if (result.success && result.data) {
+  const result = await pitchStore.savePitch()
+  if (result.success && result.data?.id) {
     savedPitchId.value = result.data.id
   }
 }

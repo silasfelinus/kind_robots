@@ -10,7 +10,8 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
-import { usePitchStore, PitchType } from '@/stores/pitchStore'
+import { usePitchStore } from '@/stores/pitchStore'
+import type { PitchType } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import {
   PITCH_CARDS,
@@ -261,7 +262,6 @@ export const usePitchBuilderStore = defineStore('pitchBuilderStore', () => {
           current,
           context: {
             pitch: pitchStore.pitchForm.pitch,
-            genre: pitchStore.pitchForm.genre,
             PitchType: pitchStore.pitchForm.PitchType,
           },
         }),
@@ -293,8 +293,7 @@ export const usePitchBuilderStore = defineStore('pitchBuilderStore', () => {
     const f = pitchStore.pitchForm
 
     if (f.pitch?.trim()) parts.push(f.pitch.trim())
-    if (f.genre?.trim()) parts.push(`${f.genre} aesthetic`)
-    if (f.PitchType === PitchType.DREAM)
+    if ((f.PitchType as string) === 'DREAM')
       parts.push('location concept, sense of place, atmospheric environment')
     parts.push('vivid, evocative, conceptual illustration')
 
@@ -378,9 +377,6 @@ export const usePitchBuilderStore = defineStore('pitchBuilderStore', () => {
     get isSaving() {
       return pitchStore.isSaving
     },
-    get saveMessage() {
-      return ''
-    }, // pitchStore doesn't have saveMessage; use lastError
     get lastError() {
       return pitchStore.lastError
     },

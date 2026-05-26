@@ -783,7 +783,6 @@ watch(
 
     pitchForm.title = pitch.title ?? ''
     pitchForm.pitch = pitch.pitch ?? ''
-    pitchForm.genre = pitch.genre ?? ''
     pitchForm.description = pitch.description ?? ''
     pitchForm.flavorText = pitch.flavorText ?? ''
     pitchForm.artPrompt = pitch.artPrompt ?? ''

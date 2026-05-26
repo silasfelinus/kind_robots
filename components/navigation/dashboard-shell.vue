@@ -74,95 +74,7 @@
                 :active-tab-config="activeTabConfig"
               />
 
-              <!-- Channel picker -->
-              <div ref="channelMenuRef" class="relative">
-                <button
-                  class="btn btn-sm gap-1 rounded-xl"
-                  :class="
-                    showChannels
-                      ? 'btn-secondary'
-                      : 'btn-ghost border border-base-300 bg-base-100'
-                  "
-                  type="button"
-                  :aria-expanded="showChannels"
-                  title="Channels"
-                  @click.stop="toggleChannels"
-                >
-                  <Icon name="kind-icon:compass" class="h-4 w-4 shrink-0" />
-                  <span class="hidden max-w-24 truncate sm:inline">{{
-                    activeChannel.label
-                  }}</span>
-                  <Icon
-                    :name="
-                      showChannels
-                        ? 'kind-icon:chevron-up'
-                        : 'kind-icon:chevron-down'
-                    "
-                    class="h-3.5 w-3.5 opacity-50"
-                  />
-                </button>
-
-                <Transition name="fade-up">
-                  <div
-                    v-if="showChannels"
-                    class="absolute right-0 top-full z-50 mt-2 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-xl"
-                  >
-                    <div
-                      class="flex items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3"
-                    >
-                      <div class="min-w-0">
-                        <p
-                          class="text-[0.6rem] font-black uppercase tracking-[0.2em] text-base-content/40"
-                        >
-                          Navigate to
-                        </p>
-                        <p class="truncate text-sm font-bold text-base-content">
-                          {{ activeChannel.label }}
-                        </p>
-                      </div>
-                      <button
-                        class="btn btn-xs btn-ghost rounded-lg"
-                        type="button"
-                        title="Close"
-                        @click="showChannels = false"
-                      >
-                        <Icon name="kind-icon:close" class="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div
-                      class="grid max-h-[55vh] grid-cols-2 gap-1.5 overflow-y-auto p-3"
-                    >
-                      <NuxtLink
-                        v-for="channel in channels"
-                        :key="channel.key"
-                        :to="channel.path"
-                        class="group flex min-w-0 items-center gap-2.5 rounded-xl border p-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content hover:shadow-sm"
-                        :class="
-                          isChannelActive(channel)
-                            ? 'border-primary bg-primary text-primary-content shadow-sm'
-                            : 'border-base-300 bg-base-100 text-base-content'
-                        "
-                        @click="showChannels = false"
-                      >
-                        <span
-                          class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-110"
-                          :class="
-                            isChannelActive(channel)
-                              ? 'border-primary-content/30 bg-primary-content/20 text-primary-content'
-                              : 'border-base-300 bg-base-200 text-base-content'
-                          "
-                        >
-                          <Icon :name="channel.icon" class="h-4 w-4" />
-                        </span>
-                        <span class="min-w-0 truncate">{{
-                          channel.label
-                        }}</span>
-                      </NuxtLink>
-                    </div>
-                  </div>
-                </Transition>
-              </div>
+              <channel-select />
 
               <!-- Refresh -->
               <button
@@ -238,20 +150,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import {
   isDashboardKey,
   type DashboardKey,
   type DashboardTabConfig,
 } from '@/stores/helpers/dashboardHelper'
 import { useNavStore } from '@/stores/navStore'
-
-type ChannelRoute = {
-  key: string
-  label: string
-  path: string
-  icon: string
-}
 
 const fallbackIcon = 'kind-icon:sparkles'
 const storageKey = 'kind-dashboard-shell-show-header'
@@ -290,72 +194,9 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const route = useRoute()
 const navStore = useNavStore()
 
-const showChannels = ref(false)
 const showHeader = ref(true)
-const channelMenuRef = ref<HTMLElement | null>(null)
-
-const channels: ChannelRoute[] = [
-  { key: 'home', label: 'Home', path: '/', icon: 'kind-icon:home' },
-  {
-    key: 'themes',
-    label: 'Themes',
-    path: '/themes',
-    icon: 'kind-icon:paintbrush',
-  },
-
-  {
-    key: 'characters',
-    label: 'Characters',
-    path: '/characters',
-    icon: 'kind-icon:mask',
-  },
-  { key: 'art', label: 'Art', path: '/art', icon: 'kind-icon:palette' },
-
-  {
-    key: 'dreams',
-    label: 'Locations',
-    path: '/dreams',
-    icon: 'kind-icon:moon',
-  },
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    path: '/rewards',
-    icon: 'kind-icon:trophy',
-  },
-
-  {
-    key: 'builder',
-    label: 'Builder',
-    path: '/builder',
-    icon: 'kind-icon:blueprint',
-  },
-
-  {
-    key: 'stories',
-    label: 'Stories',
-    path: '/stories',
-    icon: 'kind-icon:story',
-  },
-
-  { key: 'bots', label: 'Bots', path: '/bots', icon: 'kind-icon:robot-color' },
-  {
-    key: 'brainstorm',
-    label: 'Brainstorm',
-    path: '/brainstorm',
-    icon: 'kind-icon:brain',
-  },
-  {
-    key: 'sanctuary',
-    label: 'Sanctuary',
-    path: '/sanctuary',
-    icon: 'kind-icon:butterfly',
-  },
-  { key: 'lab', label: 'Lab', path: '/wonderlab', icon: 'kind-icon:foundry' },
-]
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {
   const key = (props.dashboardKey ?? '').trim()
@@ -415,18 +256,6 @@ const activeSummary = computed(
   () => activeTabConfig.value.summary || props.summary || '',
 )
 
-const activeChannel = computed<ChannelRoute>(() => {
-  return (
-    channels.find((channel) => isChannelActive(channel)) ??
-    channels[0] ?? {
-      key: 'home',
-      label: 'Home',
-      path: '/',
-      icon: 'kind-icon:home',
-    }
-  )
-})
-
 function setTab(tabKey: string) {
   const dashboardKey = resolvedDashboardKey.value
   if (dashboardKey) {
@@ -441,25 +270,8 @@ function setTab(tabKey: string) {
   emit('set-tab', tabKey)
 }
 
-function isChannelActive(channel: ChannelRoute) {
-  if (route.path === channel.path) return true
-  return channel.path !== '/' && route.path.startsWith(`${channel.path}/`)
-}
-
-function toggleChannels() {
-  showChannels.value = !showChannels.value
-}
-
 function toggleHeader() {
   showHeader.value = !showHeader.value
-  if (!showHeader.value) showChannels.value = false
-}
-
-function handleDocumentClick(event: MouseEvent) {
-  const target = event.target
-  if (!(target instanceof Node)) return
-  if (channelMenuRef.value?.contains(target)) return
-  showChannels.value = false
 }
 
 function loadHeaderPreference() {
@@ -481,6 +293,5 @@ onMounted(() => {
   loadHeaderPreference()
   const dashboardKey = resolvedDashboardKey.value
   if (dashboardKey) navStore.hydrateDashboardTabs(true)
-  document.addEventListener('click', handleDocumentClick)
 })
 </script>

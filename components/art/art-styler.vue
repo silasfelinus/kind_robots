@@ -20,75 +20,276 @@
       </button>
     </div>
 
-    <!-- ── Source image preview ───────────────────────────────────────── -->
-    <div class="flex gap-3 rounded-xl border border-base-300 bg-base-100 p-3">
-      <div
-        class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-base-300"
-      >
-        <img
-          v-if="sourceImageSrc"
-          :src="sourceImageSrc"
-          :alt="artImage?.fileName || 'Source image'"
-          class="h-full w-full object-cover"
-        />
+    <!-- ── Source image selection ─────────────────────────────────────── -->
+    <div
+      class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+    >
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
+        <span class="text-xs font-black text-base-content">Source Image</span>
+        <div class="flex-1" />
+        <!-- Tab switcher -->
         <div
-          v-else
-          class="flex h-full w-full items-center justify-center bg-base-200"
+          class="flex overflow-hidden rounded-lg border border-base-300 text-xs"
         >
-          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/30" />
-        </div>
-
-        <div
-          v-if="resultImageSrc"
-          class="absolute -right-3 top-1/2 z-10 -translate-y-1/2"
-        >
-          <Icon
-            name="mdi:arrow-right"
-            class="h-5 w-5 text-primary drop-shadow"
-          />
+          <button
+            type="button"
+            class="px-2.5 py-1 font-bold transition"
+            :class="
+              sourceTab === 'upload'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
+            @click="sourceTab = 'upload'"
+          >
+            Upload
+          </button>
+          <button
+            type="button"
+            class="px-2.5 py-1 font-bold transition"
+            :class="
+              sourceTab === 'gallery'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-100 text-base-content/60 hover:bg-base-200'
+            "
+            @click="sourceTab = 'gallery'"
+          >
+            Gallery
+          </button>
         </div>
       </div>
 
+      <!-- Selected source preview -->
       <Transition name="slide-fade">
         <div
-          v-if="resultImageSrc"
-          class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-primary"
+          v-if="selectedSourceImage"
+          class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2"
         >
-          <img
-            :src="resultImageSrc"
-            alt="Styled result"
-            class="h-full w-full object-cover"
-          />
           <div
-            class="absolute inset-0 flex items-center justify-center bg-success/40 backdrop-blur-sm"
+            class="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-base-300"
           >
-            <Icon
-              name="mdi:check-circle"
-              class="h-7 w-7 text-success-content drop-shadow"
+            <img
+              :src="sourceImageSrc"
+              :alt="selectedSourceImage.fileName || 'Source'"
+              class="h-full w-full object-cover"
             />
           </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-xs font-bold text-base-content">
+              {{
+                selectedSourceImage.fileName ||
+                `Image #${selectedSourceImage.id}`
+              }}
+            </p>
+            <p class="text-xs text-base-content/40">Ready to style</p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-circle btn-ghost btn-xs shrink-0"
+            title="Clear source"
+            @click="clearSourceImage"
+          >
+            <Icon name="mdi:close" class="h-3 w-3" />
+          </button>
         </div>
       </Transition>
 
-      <div class="flex min-w-0 flex-col justify-center gap-1">
-        <p class="truncate text-sm font-bold text-base-content">
-          {{
-            artImage?.fileName ||
-            (artImage ? `Image #${artImage.id}` : 'No image')
-          }}
-        </p>
-        <p
-          v-if="selectedStyle"
-          class="flex items-center gap-1 text-xs font-semibold text-primary"
+      <!-- Upload tab -->
+      <div v-if="sourceTab === 'upload'" class="flex flex-col gap-2">
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/png, image/jpeg, image/webp"
+          class="hidden"
+          @change="handleFileSelect"
+        />
+        <div
+          class="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all duration-200"
+          :class="
+            isDragging
+              ? 'scale-[1.01] border-primary bg-primary/10 shadow-md shadow-primary/20'
+              : 'border-base-300 bg-base-200/60 hover:border-primary/60 hover:bg-base-100 hover:shadow-sm'
+          "
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+          @click="fileInput?.click()"
         >
-          <Icon name="mdi:palette" class="h-3 w-3" />
-          {{ selectedStyle.label }}
-        </p>
-        <p v-else class="text-xs text-base-content/40 italic">
-          Pick a style below
-        </p>
+          <span
+            class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-200 transition-transform"
+            :class="
+              isDragging
+                ? 'scale-110 border-primary/40 bg-primary/10 text-primary'
+                : 'text-base-content/40'
+            "
+          >
+            <Icon name="kind-icon:camera" class="h-5 w-5" />
+          </span>
+          <p class="text-xs font-semibold text-base-content/60">
+            Drop image or
+            <span class="font-bold text-primary underline underline-offset-2"
+              >browse</span
+            >
+          </p>
+          <p class="text-[0.65rem] text-base-content/40">PNG · JPEG · WebP</p>
+        </div>
+      </div>
+
+      <!-- Gallery tab -->
+      <div v-else class="flex flex-col gap-2">
+        <!-- Search -->
+        <label
+          class="input input-bordered input-xs flex items-center gap-1.5 bg-base-200"
+        >
+          <Icon
+            name="kind-icon:search"
+            class="h-3.5 w-3.5 shrink-0 text-base-content/40"
+          />
+          <input
+            v-model="gallerySearch"
+            type="search"
+            class="min-w-0 flex-1 bg-transparent"
+            placeholder="Search images…"
+          />
+        </label>
+
+        <!-- Image mini-grid -->
+        <div
+          v-if="galleryImages.length"
+          class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
+        >
+          <button
+            v-for="image in galleryImages"
+            :key="image.id"
+            type="button"
+            class="group relative aspect-square overflow-hidden rounded-xl border-2 transition-all"
+            :class="
+              selectedSourceImage?.id === image.id
+                ? 'border-primary shadow-md shadow-primary/20'
+                : 'border-transparent hover:border-primary/50'
+            "
+            :title="image.fileName || `Image #${image.id}`"
+            @click="selectGalleryImage(image)"
+          >
+            <img
+              v-if="galleryThumbs[image.id]"
+              :src="galleryThumbs[image.id]"
+              :alt="image.fileName || String(image.id)"
+              class="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center bg-base-200"
+            >
+              <Icon
+                name="kind-icon:image"
+                class="h-4 w-4 text-base-content/20"
+              />
+            </div>
+            <div
+              v-if="selectedSourceImage?.id === image.id"
+              class="absolute inset-0 flex items-center justify-center bg-primary/30"
+            >
+              <Icon
+                name="mdi:check-circle"
+                class="h-5 w-5 text-primary-content drop-shadow"
+              />
+            </div>
+          </button>
+        </div>
+
+        <div
+          v-else-if="isLoadingGallery"
+          class="flex min-h-28 items-center justify-center rounded-xl bg-base-200"
+        >
+          <span class="loading loading-spinner loading-sm text-primary" />
+        </div>
+
+        <div
+          v-else
+          class="flex min-h-28 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-200/60 text-center"
+        >
+          <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/20" />
+          <p class="mt-1 text-xs text-base-content/40">No images found</p>
+        </div>
       </div>
     </div>
+
+    <!-- ── Source + result preview row ───────────────────────────────── -->
+    <Transition name="slide-fade">
+      <div
+        v-if="selectedSourceImage || resultImage"
+        class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-100 p-3"
+      >
+        <div
+          class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-base-300"
+        >
+          <img
+            v-if="sourceImageSrc"
+            :src="sourceImageSrc"
+            :alt="selectedSourceImage?.fileName || 'Source image'"
+            class="h-full w-full object-cover"
+          />
+          <div
+            v-else
+            class="flex h-full w-full items-center justify-center bg-base-200"
+          >
+            <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/30" />
+          </div>
+          <div
+            v-if="resultImageSrc"
+            class="absolute -right-3 top-1/2 z-10 -translate-y-1/2"
+          >
+            <Icon
+              name="mdi:arrow-right"
+              class="h-5 w-5 text-primary drop-shadow"
+            />
+          </div>
+        </div>
+
+        <Transition name="slide-fade">
+          <div
+            v-if="resultImageSrc"
+            class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-primary"
+          >
+            <img
+              :src="resultImageSrc"
+              alt="Styled result"
+              class="h-full w-full object-cover"
+            />
+            <div
+              class="absolute inset-0 flex items-center justify-center bg-success/40 backdrop-blur-sm"
+            >
+              <Icon
+                name="mdi:check-circle"
+                class="h-7 w-7 text-success-content drop-shadow"
+              />
+            </div>
+          </div>
+        </Transition>
+
+        <div class="flex min-w-0 flex-col justify-center gap-1">
+          <p class="truncate text-sm font-bold text-base-content">
+            {{
+              selectedSourceImage?.fileName ||
+              (selectedSourceImage
+                ? `Image #${selectedSourceImage.id}`
+                : 'No image')
+            }}
+          </p>
+          <p
+            v-if="selectedStyle"
+            class="flex items-center gap-1 text-xs font-semibold text-primary"
+          >
+            <Icon name="mdi:palette" class="h-3 w-3" />
+            {{ selectedStyle.label }}
+          </p>
+          <p v-else class="text-xs text-base-content/40 italic">
+            Pick a style below
+          </p>
+        </div>
+      </div>
+    </Transition>
 
     <!-- ── Category filter pills ─────────────────────────────────────── -->
     <div class="flex flex-wrap gap-1.5">
@@ -120,29 +321,74 @@
         v-for="style in filteredStyles"
         :key="style.loraPath"
         type="button"
-        class="group relative flex flex-col items-center gap-1.5 rounded-2xl border-2 p-3 text-center transition-all duration-150"
+        class="group relative flex flex-col items-center gap-1.5 overflow-hidden rounded-2xl border-2 p-0 text-center transition-all duration-150"
         :class="
           selectedStyle?.loraPath === style.loraPath
-            ? 'border-primary bg-primary/10 shadow-md shadow-primary/20'
-            : 'border-base-300 bg-base-100 hover:border-primary/50 hover:bg-base-100/80 hover:shadow-sm'
+            ? 'border-primary shadow-md shadow-primary/20'
+            : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
         :title="style.triggerPhrase"
         @click="selectStyle(style)"
       >
-        <span class="text-xl leading-none">{{
-          CATEGORY_ICONS[style.category]
-        }}</span>
-        <span
-          class="text-xs font-bold leading-tight"
+        <!-- Style preview image (if present) -->
+        <div
+          v-if="style.previewImageSrc"
+          class="relative w-full overflow-hidden"
+          style="aspect-ratio: 1 / 1"
+        >
+          <img
+            :src="style.previewImageSrc"
+            :alt="style.label"
+            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+          />
+          <!-- Subtle overlay gradient for label legibility -->
+          <div
+            class="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-base-300/80 to-transparent"
+          />
+          <!-- Label over image -->
+          <div
+            class="absolute inset-x-0 bottom-0 flex flex-col items-center gap-0.5 px-1.5 pb-2 pt-1"
+          >
+            <span
+              class="text-[0.65rem] font-black leading-tight text-white drop-shadow-md"
+            >
+              {{ style.label }}
+            </span>
+          </div>
+          <!-- Category emoji top-left -->
+          <span
+            class="absolute left-1.5 top-1.5 text-base leading-none drop-shadow"
+          >
+            {{ CATEGORY_ICONS[style.category] }}
+          </span>
+        </div>
+
+        <!-- Text-only card (no preview image) -->
+        <div
+          v-else
+          class="flex w-full flex-col items-center gap-1.5 px-2 py-3"
           :class="
             selectedStyle?.loraPath === style.loraPath
-              ? 'text-primary'
-              : 'text-base-content/80 group-hover:text-primary'
+              ? 'bg-primary/10'
+              : 'bg-base-100'
           "
         >
-          {{ style.label }}
-        </span>
+          <span class="text-xl leading-none">{{
+            CATEGORY_ICONS[style.category]
+          }}</span>
+          <span
+            class="text-xs font-bold leading-tight"
+            :class="
+              selectedStyle?.loraPath === style.loraPath
+                ? 'text-primary'
+                : 'text-base-content/80 group-hover:text-primary'
+            "
+          >
+            {{ style.label }}
+          </span>
+        </div>
 
+        <!-- Selected checkmark -->
         <Transition name="pop">
           <div
             v-if="selectedStyle?.loraPath === style.loraPath"
@@ -152,6 +398,7 @@
           </div>
         </Transition>
 
+        <!-- DB badge -->
         <div
           v-if="style.resourceId"
           class="absolute left-1.5 top-1.5"
@@ -262,9 +509,11 @@
         {{
           isGenerating
             ? 'Generating…'
-            : selectedStyle
-              ? `Apply ${selectedStyle.label}`
-              : 'Pick a style'
+            : !selectedSourceImage
+              ? 'Select a source image'
+              : !selectedStyle
+                ? 'Pick a style'
+                : `Apply ${selectedStyle.label}`
         }}
       </button>
 
@@ -282,7 +531,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
@@ -292,10 +541,9 @@ import type { ArtImage } from '~/prisma/generated/prisma/client'
 // ── Props / emits ──────────────────────────────────────────────────────────
 const props = withDefaults(
   defineProps<{
-    artImage: ArtImage | null
     serverId?: number | null
   }>(),
-  { artImage: null, serverId: null },
+  { serverId: null },
 )
 
 const emit = defineEmits<{
@@ -326,6 +574,8 @@ interface StyleEntry {
   triggerPhrase: string
   label: string
   category: StyleCategory
+  /** Optional preview image shown on the style card. Set manually via admin or style manager. */
+  previewImageSrc?: string
   resourceId?: number
 }
 
@@ -342,6 +592,7 @@ const CATEGORY_ICONS: Record<StyleCategory, string> = {
 }
 
 // ── Built-in style catalogue ───────────────────────────────────────────────
+// previewImageSrc is intentionally absent from builtins — populate via admin or resourceStore hydration
 const BUILTIN_STYLES: StyleEntry[] = [
   // Painterly
   {
@@ -584,6 +835,18 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const resultImage = ref<ArtImage | null>(null)
 
+// Source image state
+const selectedSourceImage = ref<ArtImage | null>(null)
+const sourceTab = ref<'upload' | 'gallery'>('upload')
+const uploadedImageData = ref<string | null>(null) // base64 of locally-uploaded file
+const fileInput = ref<HTMLInputElement | null>(null)
+const isDragging = ref(false)
+
+// Gallery picker state
+const gallerySearch = ref('')
+const galleryThumbs = ref<Record<number, string>>({})
+const isLoadingGallery = ref(false)
+
 // ── Derived ────────────────────────────────────────────────────────────────
 const allCategories = computed<StyleCategory[]>(
   () => [...new Set(styles.value.map((s) => s.category))] as StyleCategory[],
@@ -595,10 +858,26 @@ const filteredStyles = computed(() =>
     : styles.value,
 )
 
+/** Gallery images filtered by search, capped for the mini-grid */
+const galleryImages = computed<ArtImage[]>(() => {
+  const query = gallerySearch.value.trim().toLowerCase()
+  return artStore.artImages
+    .filter((img) => {
+      if (!query) return true
+      return [img.fileName, img.promptString, String(img.id)]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
+    })
+    .slice(0, 48)
+})
+
 const sourceImageSrc = computed<string>(() => {
-  // Guard: artImage may be null/undefined while parent is still loading
-  if (!props.artImage) return ''
-  const img = props.artImage as ArtImage & {
+  // Locally uploaded file takes priority
+  if (uploadedImageData.value) return uploadedImageData.value
+  if (!selectedSourceImage.value) return ''
+  const img = selectedSourceImage.value as ArtImage & {
     imageData?: string | null
     thumbnailData?: string | null
     imagePath?: string | null
@@ -608,7 +887,7 @@ const sourceImageSrc = computed<string>(() => {
     return `data:image/${img.fileType || 'png'};base64,${img.thumbnailData}`
   if (img.imageData)
     return `data:image/${img.fileType || 'png'};base64,${img.imageData}`
-  return img.imagePath || img.path || ''
+  return img.imagePath || img.path || galleryThumbs.value[img.id] || ''
 })
 
 const resultImageSrc = computed<string>(() => {
@@ -632,8 +911,128 @@ const canGenerate = computed(
     !isGenerating.value &&
     !!selectedStyle.value &&
     !!activeServerId.value &&
-    !!props.artImage,
+    !!selectedSourceImage.value,
 )
+
+// ── Upload handlers ────────────────────────────────────────────────────────
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files?.[0]) processUploadedFile(input.files[0])
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+function handleDrop(event: DragEvent) {
+  isDragging.value = false
+  const file = event.dataTransfer?.files?.[0]
+  if (file && file.type.startsWith('image/')) processUploadedFile(file)
+}
+
+function processUploadedFile(file: File) {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const dataUrl = e.target?.result as string
+    uploadedImageData.value = dataUrl
+
+    // Build a synthetic ArtImage-like object so the rest of the logic is uniform
+    const synthetic = {
+      id: -1,
+      fileName: file.name,
+      fileType: file.type.replace('image/', ''),
+      imageData: dataUrl.split(',')[1] ?? null,
+      thumbnailData: null,
+      imagePath: null,
+    } as unknown as ArtImage
+
+    selectedSourceImage.value = synthetic
+    errorMessage.value = ''
+    successMessage.value = ''
+    resultImage.value = null
+  }
+  reader.readAsDataURL(file)
+}
+
+// ── Gallery handlers ───────────────────────────────────────────────────────
+async function selectGalleryImage(image: ArtImage) {
+  uploadedImageData.value = null
+  resultImage.value = null
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  // Use cached thumb if available
+  if (galleryThumbs.value[image.id]) {
+    selectedSourceImage.value = image
+    return
+  }
+
+  // Attempt to hydrate thumb
+  try {
+    const fetched = await artStore.getArtImageById(image.id, {
+      includeImageData: false,
+      includeThumbnailData: true,
+    })
+    if (fetched) {
+      const hydrated = fetched as ArtImage & { thumbnailData?: string | null }
+      if (hydrated.thumbnailData) {
+        galleryThumbs.value = {
+          ...galleryThumbs.value,
+          [image.id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
+        }
+      }
+      selectedSourceImage.value = hydrated
+    } else {
+      selectedSourceImage.value = image
+    }
+  } catch {
+    selectedSourceImage.value = image
+  }
+}
+
+function clearSourceImage() {
+  selectedSourceImage.value = null
+  uploadedImageData.value = null
+  resultImage.value = null
+  errorMessage.value = ''
+  successMessage.value = ''
+}
+
+// ── Gallery lazy-load thumbnails for the mini-grid ────────────────────────
+async function hydrateGalleryThumbs() {
+  const missing = galleryImages.value
+    .filter((img) => !galleryThumbs.value[img.id])
+    .slice(0, 24)
+  if (!missing.length) return
+  isLoadingGallery.value = true
+  try {
+    await Promise.all(
+      missing.map(async (img) => {
+        try {
+          const fetched = await artStore.getArtImageById(img.id, {
+            includeImageData: false,
+            includeThumbnailData: true,
+          })
+          const hydrated = fetched as
+            | (ArtImage & { thumbnailData?: string | null })
+            | null
+          if (hydrated?.thumbnailData) {
+            galleryThumbs.value = {
+              ...galleryThumbs.value,
+              [img.id]: `data:image/${hydrated.fileType || 'png'};base64,${hydrated.thumbnailData}`,
+            }
+          } else if (hydrated?.imagePath) {
+            galleryThumbs.value = {
+              ...galleryThumbs.value,
+              [img.id]: hydrated.imagePath,
+            }
+          }
+        } catch {
+          // non-fatal
+        }
+      }),
+    )
+  } finally {
+    isLoadingGallery.value = false
+  }
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 function buildLoraReference(style: StyleEntry): string {
@@ -659,9 +1058,7 @@ function clearSelection() {
 // ── DB resource hydration ─────────────────────────────────────────────────
 async function hydrateFromResourceStore(): Promise<void> {
   try {
-    if (!resourceStore.hasLoaded) {
-      await resourceStore.getResources()
-    }
+    if (!resourceStore.hasLoaded) await resourceStore.getResources()
 
     const dbLoras = resourceStore.resources.filter(
       (r) =>
@@ -670,7 +1067,6 @@ async function hydrateFromResourceStore(): Promise<void> {
           r.supportedServer === 'FLUX' ||
           r.supportedServer === 'GENERIC'),
     )
-
     if (!dbLoras.length) return
 
     const builtinPaths = new Set(styles.value.map((s) => s.loraPath))
@@ -683,7 +1079,13 @@ async function hydrateFromResourceStore(): Promise<void> {
           (stem && r.localPath?.includes(stem)) ||
           r.name?.toLowerCase().includes(style.label.toLowerCase()),
       )
-      return match ? { ...style, resourceId: match.id } : style
+      if (!match) return style
+      return {
+        ...style,
+        resourceId: match.id,
+        // Hydrate previewImageSrc from resource if available and not already set
+        previewImageSrc: style.previewImageSrc || match.imagePath || undefined,
+      }
     })
 
     const newFromDb = dbLoras
@@ -704,12 +1106,12 @@ async function hydrateFromResourceStore(): Promise<void> {
           label: r.customLabel || r.name,
           category: 'Illustration',
           resourceId: r.id,
+          previewImageSrc: r.imagePath || undefined,
         }),
       )
 
     styles.value = [...updated, ...newFromDb]
   } catch (err) {
-    // AbortError fires when a concurrent fetch races ahead — non-fatal
     if (err instanceof Error && err.name === 'AbortError') return
     console.warn('[art-styler] hydrateFromResourceStore:', err)
   }
@@ -717,7 +1119,12 @@ async function hydrateFromResourceStore(): Promise<void> {
 
 // ── Core generation ────────────────────────────────────────────────────────
 async function runStyleTransfer(): Promise<void> {
-  if (!selectedStyle.value || !activeServerId.value || !props.artImage) return
+  if (
+    !selectedStyle.value ||
+    !activeServerId.value ||
+    !selectedSourceImage.value
+  )
+    return
 
   errorMessage.value = ''
   successMessage.value = ''
@@ -736,11 +1143,16 @@ async function runStyleTransfer(): Promise<void> {
       .filter(Boolean)
       .join(', ')
 
-    const sourceImage = props.artImage as ArtImage & {
+    const sourceImage = selectedSourceImage.value as ArtImage & {
       imageData?: string | null
       thumbnailData?: string | null
       negativePrompt?: string | null
     }
+
+    // For a locally uploaded file, imageData is the base64 payload (no prefix)
+    const base64Payload = uploadedImageData.value
+      ? (uploadedImageData.value.split(',')[1] ?? null)
+      : (sourceImage.imageData ?? sourceImage.thumbnailData ?? null)
 
     const result = await artStore.generateArt({
       promptString,
@@ -749,15 +1161,17 @@ async function runStyleTransfer(): Promise<void> {
       serverId: activeServerId.value,
       engine: 'kontext',
       isPublic: isPublic.value,
-      isMature: props.artImage.isMature ?? false,
-      sourceImageId: props.artImage.id,
-      sourceImageBase64:
-        sourceImage.imageData ?? sourceImage.thumbnailData ?? null,
+      isMature: (selectedSourceImage.value as ArtImage).isMature ?? false,
+      // Only pass sourceImageId for real DB images (id > 0)
+      sourceImageId:
+        selectedSourceImage.value.id > 0
+          ? selectedSourceImage.value.id
+          : undefined,
+      sourceImageBase64: base64Payload,
     })
 
-    if (!result.success || !result.data) {
+    if (!result.success || !result.data)
       throw new Error(result.message || 'Generation failed.')
-    }
 
     resultImage.value = result.data
     successMessage.value = `Style applied! Image #${result.data.id} created.`
@@ -769,6 +1183,28 @@ async function runStyleTransfer(): Promise<void> {
     isGenerating.value = false
   }
 }
+
+// ── Watchers ───────────────────────────────────────────────────────────────
+watch(sourceTab, async (tab) => {
+  if (tab === 'gallery') {
+    if (!artStore.artImages.length) {
+      isLoadingGallery.value = true
+      try {
+        await artStore.fetchAllArtImages({
+          force: false,
+          includeImageData: false,
+          includeThumbnailData: false,
+          includePitches: false,
+        })
+      } finally {
+        isLoadingGallery.value = false
+      }
+    }
+    await hydrateGalleryThumbs()
+  }
+})
+
+watch(gallerySearch, () => hydrateGalleryThumbs())
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────
 onMounted(() => {

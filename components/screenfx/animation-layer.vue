@@ -8,18 +8,25 @@
         :style="animationStore.layerStyle"
         aria-live="polite"
       >
-        <component :is="activeComponent" />
+        <div class="absolute inset-0 z-83 pointer-events-none">
+          <component :is="activeComponent" />
+        </div>
 
         <div
-          class="pointer-events-none absolute bottom-4 left-1/2 z-84 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-base-300 bg-base-100/80 px-4 py-3 text-sm font-bold text-base-content shadow-xl backdrop-blur-md"
+          class="pointer-events-auto absolute bottom-4 left-1/2 z-84 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-3 rounded-2xl border border-base-300 bg-base-100/90 px-4 py-3 text-sm font-bold text-base-content shadow-xl backdrop-blur-md"
         >
           <span class="loading loading-spinner loading-sm text-primary" />
+
           <Icon
             :name="animationStore.activeEffect?.icon || 'kind-icon:sparkles'"
-            class="h-5 w-5 text-secondary"
+            class="h-5 w-5 shrink-0 text-secondary"
           />
-          <animation-controls />
-          <span>{{ animationStore.message || 'Generating art...' }}</span>
+
+          <animation-controls class="pointer-events-auto shrink-0" />
+
+          <span class="min-w-0 truncate">
+            {{ animationStore.message || 'Generating art...' }}
+          </span>
         </div>
       </section>
     </Transition>

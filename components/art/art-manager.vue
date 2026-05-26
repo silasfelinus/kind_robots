@@ -67,6 +67,8 @@
         :show-header="false"
       />
 
+      <art-styler v-else-if="currentTab === 'styler'" />
+
       <code-workbench v-else-if="currentTab === 'workbench'" />
 
       <section

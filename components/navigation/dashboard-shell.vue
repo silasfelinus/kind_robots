@@ -300,26 +300,48 @@ const channelMenuRef = ref<HTMLElement | null>(null)
 const channels: ChannelRoute[] = [
   { key: 'home', label: 'Home', path: '/', icon: 'kind-icon:home' },
   {
+    key: 'themes',
+    label: 'Themes',
+    path: '/themes',
+    icon: 'kind-icon:paintbrush',
+  },
+
+  {
+    key: 'characters',
+    label: 'Characters',
+    path: '/characters',
+    icon: 'kind-icon:mask',
+  },
+  { key: 'art', label: 'Art', path: '/art', icon: 'kind-icon:palette' },
+
+  {
+    key: 'dreams',
+    label: 'Locations',
+    path: '/dreams',
+    icon: 'kind-icon:moon',
+  },
+  {
+    key: 'rewards',
+    label: 'Rewards',
+    path: '/rewards',
+    icon: 'kind-icon:trophy',
+  },
+
+  {
     key: 'builder',
     label: 'Builder',
     path: '/builder',
     icon: 'kind-icon:blueprint',
   },
-  { key: 'bots', label: 'Bots', path: '/bots', icon: 'kind-icon:robot-color' },
-  { key: 'art', label: 'Art', path: '/art', icon: 'kind-icon:palette' },
+
   {
     key: 'stories',
     label: 'Stories',
     path: '/stories',
     icon: 'kind-icon:story',
   },
-  {
-    key: 'themes',
-    label: 'Themes',
-    path: '/themes',
-    icon: 'kind-icon:paintbrush',
-  },
-  { key: 'lab', label: 'Lab', path: '/wonderlab', icon: 'kind-icon:foundry' },
+
+  { key: 'bots', label: 'Bots', path: '/bots', icon: 'kind-icon:robot-color' },
   {
     key: 'brainstorm',
     label: 'Brainstorm',
@@ -332,19 +354,7 @@ const channels: ChannelRoute[] = [
     path: '/sanctuary',
     icon: 'kind-icon:butterfly',
   },
-  { key: 'dreams', label: 'Dreams', path: '/dreams', icon: 'kind-icon:moon' },
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    path: '/rewards',
-    icon: 'kind-icon:trophy',
-  },
-  {
-    key: 'characters',
-    label: 'Characters',
-    path: '/characters',
-    icon: 'kind-icon:mask',
-  },
+  { key: 'lab', label: 'Lab', path: '/wonderlab', icon: 'kind-icon:foundry' },
 ]
 
 const resolvedDashboardKey = computed<DashboardKey | null>(() => {

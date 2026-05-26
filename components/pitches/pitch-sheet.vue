@@ -1,4 +1,4 @@
-<!-- components/pitches/pitch-sheet.vue -->
+<!-- components/pitch/pitch-sheet.vue -->
 <!-- Live preview sidebar for the pitch builder. -->
 <template>
   <div class="flex flex-col gap-0 overflow-y-auto p-4">
@@ -90,5 +90,5 @@ import { computed } from 'vue'
 import { usePitchStore } from '@/stores/pitchStore'
 
 const store = usePitchStore()
-const sheet = computed(() => store.sheet)
+const sheet = computed(() => store.pitchForm)
 </script>

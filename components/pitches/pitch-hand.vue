@@ -1,4 +1,4 @@
-<!-- components/pitches/pitch-hand.vue -->
+<!-- components/pitch/pitch-hand.vue -->
 <!-- Scrollable card tray for the pitch builder. -->
 <template>
   <div
@@ -35,10 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
 import type { PitchCard } from '@/stores/helpers/pitchCards'
 
-const store = usePitchStore()
+const store = usePitchBuilderStore()
 
 function cardClass(key: string): string {
   if (store.activeCardKey === key)

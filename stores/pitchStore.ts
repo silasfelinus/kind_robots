@@ -127,6 +127,7 @@ function defaultPitchForm(
   return {
     title: '',
     pitch: '',
+    genre: '',
     designer: username || 'Kind Designer',
     flavorText: '',
     PitchType: PitchType.ARTPITCH,
@@ -616,7 +617,9 @@ export const usePitchStore = defineStore('pitchStore', () => {
       try {
         clearError()
 
-        const res = await performFetch<ArtImage[]>(`/api/pitches/art/${pitchId}`)
+        const res = await performFetch<ArtImage[]>(
+          `/api/pitches/art/${pitchId}`,
+        )
 
         if (res.success) {
           galleryArt.value[pitchId] = res.data || []

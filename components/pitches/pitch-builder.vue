@@ -1,4 +1,4 @@
-<!-- components/pitches/pitch-builder.vue -->
+<!-- components/pitch/pitch-builder.vue -->
 <!--
   Top-level container for the Pitch Builder.
   Three-zone layout matching adventure-builder:
@@ -21,11 +21,13 @@
           Pitch Builder
         </h1>
         <span
-          v-if="pitchStore.sheet.PitchType"
+          v-if="pitchStore.pitchForm.PitchType"
           class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary"
         >
           {{
-            pitchStore.sheet.PitchType === 'ARTPITCH' ? 'Art Pitch' : 'Dream'
+            pitchStore.pitchForm.PitchType === 'ARTPITCH'
+              ? 'Art Pitch'
+              : 'Dream'
           }}
         </span>
       </div>
@@ -114,15 +116,11 @@
     <!-- ── Save feedback ────────────────────────────────────────────────── -->
     <Transition name="slide-up">
       <div
-        v-if="pitchStore.saveMessage || pitchStore.saveError"
+        v-if="pitchStore.lastError"
         class="absolute bottom-24 left-1/2 z-40 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-bold shadow-lg"
-        :class="
-          pitchStore.saveError
-            ? 'bg-error text-error-content'
-            : 'bg-success text-success-content'
-        "
+        :class="'bg-error text-error-content'"
       >
-        {{ pitchStore.saveMessage || pitchStore.saveError }}
+        {{ pitchStore.lastError }}
       </div>
     </Transition>
   </div>
@@ -130,9 +128,11 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
 import { usePitchStore } from '@/stores/pitchStore'
 import { useUserStore } from '@/stores/userStore'
 
+const builder = usePitchBuilderStore()
 const pitchStore = usePitchStore()
 const userStore = useUserStore()
 
@@ -147,9 +147,9 @@ function updateBreakpoint() {
 }
 
 onMounted(() => {
-  pitchStore.restoreState()
-  if (!pitchStore.activeCardKey && pitchStore.visibleCards.length) {
-    pitchStore.selectCard('type')
+  builder.restoreState()
+  if (!builder.activeCardKey && builder.visibleCards.length) {
+    builder.selectCard('type')
   }
   updateBreakpoint()
   window.addEventListener('resize', updateBreakpoint)
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
 
 // Can save once we have a pitch text
 const canSave = computed(
-  () => Boolean(pitchStore.sheet.pitch.trim()) && !pitchStore.isSaving,
+  () => Boolean(pitchStore.pitchForm.pitch?.trim()) && !pitchStore.isSaving,
 )
 
 function confirmReset() {
@@ -171,8 +171,8 @@ function confirmReset() {
 function doReset() {
   showResetConfirm.value = false
   savedPitchId.value = null
-  pitchStore.resetPitch(userStore.user?.id ?? 1)
-  pitchStore.selectCard('type')
+  builder.resetBuilder()
+  builder.selectCard('type')
 }
 
 async function doSave() {

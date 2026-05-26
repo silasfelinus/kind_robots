@@ -8,6 +8,15 @@ export enum PitchType {
   RANDOMLIST = 'RANDOMLIST',
   TITLE = 'TITLE',
   WEIRDLANDIA = 'WEIRDLANDIA',
+  VIBE = 'VIBE',
+  BOT = 'BOT',
+  INSPIRATION = 'INSPIRATION',
+  DREAM = 'DREAM',
+  CHARACTER = 'CHARACTER',
+  REWARD = 'REWARD',
+  SCENARIO = 'SCENARIO',
+  TEXT = 'TEXT',
+  LOCATION = 'LOCATION',
 }
 
 export type CreationSource = 'HUMAN' | 'AI' | 'UNKNOWN' | 'HYBRID' | 'UPLOAD'

@@ -1,4 +1,4 @@
-<!-- components/pitches/pitch-text.vue -->
+<!-- components/pitch/pitch-text.vue -->
 <!-- Text input step for pitch builder — used for the pitch/title field. -->
 <template>
   <div class="flex flex-col gap-3">
@@ -44,9 +44,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
 
-const store = usePitchStore()
+const store = usePitchBuilderStore()
 
 const activeStep = computed(() => store.activeStep)
 const llmLoading = computed(() => store.llmLoading)

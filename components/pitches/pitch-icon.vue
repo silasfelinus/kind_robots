@@ -77,10 +77,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { usePitchStore } from '@/stores/pitchStore'
+import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
 import { useIconStore } from '@/stores/iconStore'
 
-const store = usePitchStore()
+const store = usePitchBuilderStore()
 const iconStore = useIconStore()
 
 const searchQuery = ref('')

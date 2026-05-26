@@ -608,20 +608,18 @@ export const useAdventureStore = defineStore('adventureStore', () => {
           }
         : undefined
       type SuggestResult = { value: string }
-      const result = await performFetch<SuggestResult>(
-        '/api/adventure/suggest',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            server: serverSnapshot,
-            field,
-            stepKey,
-            current,
-            sheet,
-          }),
-        },
-      )
+      const result = await performFetch<SuggestResult>('/api/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          builder: 'adventure',
+          server: serverSnapshot,
+          field,
+          stepKey,
+          current,
+          context: sheet,
+        }),
+      })
       if (result.success && result.data?.value) {
         setStagedValue(stepKey, result.data.value)
         return { success: true }
@@ -657,20 +655,18 @@ export const useAdventureStore = defineStore('adventureStore', () => {
           }
         : undefined
       type SuggestResult = { value: string }
-      const result = await performFetch<SuggestResult>(
-        '/api/adventure/suggest',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            server: serverSnapshot,
-            field: 'artPrompt',
-            stepKey: 'art',
-            current,
-            sheet,
-          }),
-        },
-      )
+      const result = await performFetch<SuggestResult>('/api/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          builder: 'adventure',
+          server: serverSnapshot,
+          field: 'artPrompt',
+          stepKey: 'art',
+          current,
+          context: sheet,
+        }),
+      })
       if (result.success && result.data?.value) {
         sheet.artPrompt = result.data.value
         return { success: true }

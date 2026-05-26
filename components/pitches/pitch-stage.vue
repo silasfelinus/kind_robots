@@ -1,4 +1,4 @@
-<!-- components/pitches/pitch-stage.vue -->
+<!-- components/pitch/pitch-stage.vue -->
 <!-- Active card display for the pitch builder. -->
 <template>
   <div class="flex h-full flex-col">
@@ -112,6 +112,6 @@
 </template>
 
 <script setup lang="ts">
-import { usePitchStore } from '@/stores/pitchStore'
-const store = usePitchStore()
+import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
+const store = usePitchBuilderStore()
 </script>

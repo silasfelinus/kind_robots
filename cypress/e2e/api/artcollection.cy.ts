@@ -259,6 +259,90 @@ describe('ArtCollection API Tests', () => {
     })
   })
 
+  it('Get All ArtCollections', () => {
+    cy.request({
+      method: 'GET',
+      url: baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.log('Get all ArtCollections response:', JSON.stringify(response.body))
+
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('array')
+
+      const matchingCollection = response.body.data.find(
+        (collection: { id: number }) => collection.id === collectionId,
+      )
+
+      expect(matchingCollection).to.exist
+      expect(matchingCollection.ArtImages).to.be.an('array')
+
+      const returnedArtImageIds = matchingCollection.ArtImages.map(
+        (image: ArtImageTestRecord) => image.id,
+      )
+
+      expect(returnedArtImageIds).to.include(artImageId)
+    })
+  })
+
+  it('Get ArtCollection by ID', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.log('Get ArtCollection by ID response:', JSON.stringify(response.body))
+
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+      expect(response.body.data).to.be.an('object')
+      expect(response.body.data.id).to.eq(collectionId)
+      expect(response.body.data.ArtImages).to.be.an('array')
+
+      const returnedArtImageIds = response.body.data.ArtImages.map(
+        (image: ArtImageTestRecord) => image.id,
+      )
+
+      expect(returnedArtImageIds).to.include(artImageId)
+    })
+  })
+
+  it('Get ArtCollection by ID returns lightweight ArtImages only', () => {
+    cy.request({
+      method: 'GET',
+      url: `${baseUrl}/${collectionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(200)
+      expect(response.body.success).to.be.true
+
+      const firstImage = response.body.data.ArtImages[0]
+
+      expect(firstImage).to.not.have.property('imageData')
+      expect(firstImage).to.not.have.property('thumbnailData')
+      expect(firstImage).to.not.have.property('galleryId')
+      expect(firstImage).to.not.have.property('pitchId')
+      expect(firstImage).to.not.have.property('promptId')
+      expect(firstImage).to.not.have.property('resourceId')
+      expect(firstImage).to.not.have.property('rewardId')
+      expect(firstImage).to.not.have.property('characterId')
+      expect(firstImage).to.not.have.property('botId')
+      expect(firstImage).to.not.have.property('componentId')
+      expect(firstImage).to.not.have.property('milestoneId')
+      expect(firstImage).to.not.have.property('chatId')
+    })
+  })
+
   it('should not allow deleting a collection without an authorization token', () => {
     cy.request({
       method: 'DELETE',

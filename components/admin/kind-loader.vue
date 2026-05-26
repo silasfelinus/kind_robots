@@ -32,7 +32,6 @@ import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useComponentStore } from '@/stores/componentStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useNavStore } from '@/stores/navStore'
-import { useButterflyStore } from '@/stores/butterflyStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 
@@ -59,7 +58,6 @@ const smartbarStore = useSmartbarStore()
 const componentStore = useComponentStore()
 const randomStore = useRandomStore()
 const navStore = useNavStore()
-const butterflyStore = useButterflyStore()
 
 const emit = defineEmits<{
   pageReady: [boolean]
@@ -150,7 +148,6 @@ async function initializeStores() {
       choiceStore.initialize?.(),
       componentStore.initialize?.(),
       randomStore.initialize?.(),
-      butterflyStore.initialize?.(),
     ])
   } catch (error) {
     errorStore.setError(

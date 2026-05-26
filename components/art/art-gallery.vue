@@ -198,22 +198,63 @@
         <p class="text-sm">No collections match the current filters.</p>
       </div>
 
-      <!-- Collection grid — clicking a card auto-enters it (no Open button needed) -->
       <div v-else-if="!activeGroup" class="grid gap-2" :class="folderGridClass">
-        <collection-card
+        <button
           v-for="group in pagedGroups"
           :key="group.key"
-          :collection="group.collection"
-          :selected="activeGroupKey === group.key"
-          :compact="viewSize === 'xs' || viewSize === 'sm'"
-          :show-stats="false"
-          :show-select-button="false"
-          :show-mature="showMature"
-          :size="viewSize"
-          :preview-art-image="getPreviewImage(group)"
-          @select="selectGroup(group.key)"
-          @delete="handleCollectionDeleted"
-        />
+          type="button"
+          class="relative aspect-square overflow-hidden rounded-xl border border-base-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-opacity hover:opacity-90"
+          :class="
+            activeGroupKey === group.key
+              ? 'ring-2 ring-primary ring-offset-1'
+              : ''
+          "
+          @click="selectGroup(group.key)"
+        >
+          <!-- Preview image -->
+          <img
+            v-if="
+              getPreviewImage(group)?.imagePath ||
+              getPreviewImage(group)?.imageData
+            "
+            :src="
+              getPreviewImage(group)!.imagePath
+                ? `/art/${getPreviewImage(group)!.imagePath}`
+                : `data:image/webp;base64,${getPreviewImage(group)!.imageData}`
+            "
+            :alt="group.title"
+            class="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+          />
+          <div
+            v-else
+            class="absolute inset-0 flex items-center justify-center bg-base-200 text-base-content/30"
+          >
+            <Icon name="kind-icon:folder" class="h-8 w-8" />
+          </div>
+
+          <!-- Bottom label overlay -->
+          <div
+            class="absolute inset-x-0 bottom-0 flex flex-col gap-px px-2 py-1.5"
+            style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.7))"
+          >
+            <span
+              class="truncate text-[11px] font-bold leading-tight text-white"
+            >
+              {{ group.title }}
+            </span>
+            <span class="text-[10px] leading-none text-white/60">
+              {{ group.images.length }} images
+            </span>
+          </div>
+
+          <!-- Mature badge -->
+          <span
+            v-if="group.isMature"
+            class="absolute right-1 top-1 rounded bg-warning/80 px-1 py-0.5 text-[9px] font-black uppercase text-warning-content"
+            >M</span
+          >
+        </button>
       </div>
 
       <!-- Image view -->
@@ -459,17 +500,16 @@ const selectedImageForOverlay = ref<ArtImage | null>(null)
 const viewSize = ref<ViewSize>('md')
 
 // ── Grid classes ──────────────────────────────────────────────────────────────
-
 const folderGridClass = computed(() => {
   switch (viewSize.value) {
     case 'xs':
-      return 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
+      return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8'
     case 'sm':
-      return 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
+      return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7'
     case 'lg':
-      return 'grid-cols-1 xl:grid-cols-2'
+      return 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
     default:
-      return 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
+      return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'
   }
 })
 

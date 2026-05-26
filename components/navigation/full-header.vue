@@ -26,7 +26,12 @@
         />
       </button>
 
-      <page-image />
+      <!-- Page image, capped at 15% of header row space -->
+      <div
+        class="flex h-full max-w-[15%] shrink-0 basis-[15%] items-center overflow-hidden"
+      >
+        <page-image class="h-full w-full min-w-0" />
+      </div>
 
       <!-- Smart icons bar -->
       <div

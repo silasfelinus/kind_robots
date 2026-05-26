@@ -191,7 +191,7 @@
         v-else-if="currentSection === 'avatar'"
         class="flex flex-col gap-4"
       >
-        <art-creator
+        <art-designer
           purpose="user"
           :model-id="userStore.userId"
           :model-title="designerName || username"
@@ -654,7 +654,7 @@ const summaryItems = computed<BuilderChoiceSummary[]>(() => [
     value: avatarImagePath.value ? 'Avatar image selected' : avatarPrompt.value,
     image: avatarImagePath.value,
     icon: 'kind-icon:portrait',
-    description: 'Avatar art is created through art-creator.',
+    description: 'Avatar art is created through art-designer.',
     editSection: 'avatar',
   },
   {

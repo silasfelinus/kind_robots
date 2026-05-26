@@ -777,13 +777,16 @@ type SelectOption = {
 }
 
 type ArtCreatorPayload = {
-  purpose: string
-  modelId: number | null
-  modelTitle: string
-  prompt: string
-  negativePrompt: string
-  imageRole: string
-  imagePath: string | null
+  prompt?: string
+  imagePath?: string | null
+  artImageId?: number | null
+  artImage?: {
+    id: number
+    imageData?: string | null
+    imagePath?: string | null
+    path?: string | null
+    thumbnailData?: string | null
+  } | null
 }
 
 type PerformFetchResult<T> = {
@@ -1239,10 +1242,13 @@ function buildArtPrompt() {
 }
 
 function updateRewardArt(payload: ArtCreatorPayload) {
-  artPrompt.value = payload.prompt
-  imagePath.value = payload.imagePath
+  artPrompt.value = payload.prompt || artPrompt.value
+  imagePath.value =
+    payload.imagePath ||
+    payload.artImage?.imagePath ||
+    payload.artImage?.path ||
+    imagePath.value
 }
-
 async function fetchSelectOptions() {
   await Promise.all([fetchDreams(), fetchCharacters(), fetchScenarios()])
 }

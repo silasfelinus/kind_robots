@@ -67,7 +67,10 @@
         :show-header="false"
       />
 
-      <art-styler v-else-if="currentTab === 'styler'" />
+      <art-styler
+        v-else-if="currentTab === 'styler'"
+        :art-image="artStore.currentArtImage ?? null"
+      />
 
       <code-workbench v-else-if="currentTab === 'workbench'" />
 

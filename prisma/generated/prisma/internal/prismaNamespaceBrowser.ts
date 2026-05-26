@@ -509,6 +509,7 @@ export const ResourceScalarFieldEnum = {
   resourceType: 'resourceType',
   userId: 'userId',
   artImageId: 'artImageId',
+  imagePath: 'imagePath',
   generation: 'generation',
   supportedServer: 'supportedServer',
   isPublic: 'isPublic',
@@ -996,6 +997,7 @@ export const ResourceOrderByRelevanceFieldEnum = {
   huggingUrl: 'huggingUrl',
   localPath: 'localPath',
   description: 'description',
+  imagePath: 'imagePath',
   generation: 'generation',
   artPrompt: 'artPrompt'
 } as const

@@ -26,6 +26,8 @@
         />
       </button>
 
+      <page-image />
+
       <!-- Smart icons bar -->
       <div
         class="flex h-full min-w-0 flex-1 items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200/60 px-2"

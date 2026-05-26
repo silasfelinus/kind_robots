@@ -198,63 +198,22 @@
         <p class="text-sm">No collections match the current filters.</p>
       </div>
 
+      <!-- Collection grid — clicking a card auto-enters it (no Open button needed) -->
       <div v-else-if="!activeGroup" class="grid gap-2" :class="folderGridClass">
-        <button
+        <collection-card
           v-for="group in pagedGroups"
           :key="group.key"
-          type="button"
-          class="relative aspect-square overflow-hidden rounded-xl border border-base-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-opacity hover:opacity-90"
-          :class="
-            activeGroupKey === group.key
-              ? 'ring-2 ring-primary ring-offset-1'
-              : ''
-          "
-          @click="selectGroup(group.key)"
-        >
-          <!-- Preview image -->
-          <img
-            v-if="
-              getPreviewImage(group)?.imagePath ||
-              getPreviewImage(group)?.imageData
-            "
-            :src="
-              getPreviewImage(group)!.imagePath
-                ? `/art/${getPreviewImage(group)!.imagePath}`
-                : `data:image/webp;base64,${getPreviewImage(group)!.imageData}`
-            "
-            :alt="group.title"
-            class="absolute inset-0 h-full w-full object-cover"
-            loading="lazy"
-          />
-          <div
-            v-else
-            class="absolute inset-0 flex items-center justify-center bg-base-200 text-base-content/30"
-          >
-            <Icon name="kind-icon:folder" class="h-8 w-8" />
-          </div>
-
-          <!-- Bottom label overlay -->
-          <div
-            class="absolute inset-x-0 bottom-0 flex flex-col gap-px px-2 py-1.5"
-            style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.7))"
-          >
-            <span
-              class="truncate text-[11px] font-bold leading-tight text-white"
-            >
-              {{ group.title }}
-            </span>
-            <span class="text-[10px] leading-none text-white/60">
-              {{ group.images.length }} images
-            </span>
-          </div>
-
-          <!-- Mature badge -->
-          <span
-            v-if="group.isMature"
-            class="absolute right-1 top-1 rounded bg-warning/80 px-1 py-0.5 text-[9px] font-black uppercase text-warning-content"
-            >M</span
-          >
-        </button>
+          :collection="group.collection"
+          :selected="activeGroupKey === group.key"
+          :compact="viewSize === 'xs' || viewSize === 'sm'"
+          :show-stats="false"
+          :show-select-button="false"
+          :show-mature="showMature"
+          :size="viewSize"
+          :preview-art-image="getPreviewImage(group)"
+          @select="selectGroup(group.key)"
+          @delete="handleCollectionDeleted"
+        />
       </div>
 
       <!-- Image view -->

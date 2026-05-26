@@ -13,10 +13,10 @@
       />
 
       <div>
-        <p class="text-xs font-black">Creating a personal copy</p>
+        <p class="text-xs font-black">Creating your private copy</p>
 
         <p class="mt-0.5 text-[11px] opacity-70">
-          The original is unchanged. Only you can see this version.
+          The original stays unchanged. This version belongs to you.
         </p>
       </div>
     </div>
@@ -25,17 +25,13 @@
       class="flex shrink-0 items-start justify-between gap-4 border-b border-base-300 px-4 py-3"
     >
       <div>
-        <h2 class="text-sm font-black">
-          {{
-            isCloning
-              ? 'Customize Server'
-              : serverStore.serverForm.id
-                ? 'Edit Server'
-                : 'Configure Server'
-          }}
+        <h2 class="text-base font-black">
+          {{ heading }}
         </h2>
 
-        <p class="mt-0.5 text-[11px] opacity-55">{{ subtitle }}</p>
+        <p class="mt-0.5 text-xs opacity-60">
+          {{ subtitle }}
+        </p>
       </div>
 
       <button
@@ -51,712 +47,596 @@
       class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-base-300"
       @submit.prevent="handleSave"
     >
-      <fieldset
-        class="flex flex-col gap-3 rounded-xl border border-base-300 bg-base-200 p-4"
-      >
-        <legend
-          class="px-1 text-[10px] font-black uppercase tracking-widest opacity-45"
+      <section class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <button
+          v-for="preset in friendlyPresets"
+          :key="preset.key"
+          type="button"
+          class="group flex min-h-32 flex-col items-start gap-3 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          :class="
+            selectedFriendlyPreset === preset.key
+              ? 'border-primary bg-primary/10 shadow-md shadow-primary/10'
+              : 'border-base-300 bg-base-200 hover:border-primary/40'
+          "
+          @click="applyFriendlyPreset(preset.key)"
         >
-          Quick Setup
-        </legend>
-
-        <label v-if="!serverStore.serverForm.id" class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">Blueprint</span>
-
-          <select
-            v-model="serverStore.selectedBlueprintServerId"
-            class="select select-bordered select-sm rounded-xl text-xs"
-            @change="selectBlueprint"
-          >
-            <option :value="null">Start from a new blank server</option>
-
-            <option
-              v-for="server in serverStore.blueprintServers"
-              :key="server.id"
-              :value="server.id"
+          <div class="flex w-full items-start justify-between gap-3">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
             >
-              [{{ server.generationEngine || server.serverType }}]
-              {{ server.label || server.title }}
-            </option>
-          </select>
-        </label>
-
-        <div
-          v-if="selectedBlueprint"
-          class="rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-[11px]"
-        >
-          <div class="flex items-start gap-2">
-            <Icon
-              name="kind-icon:copy"
-              class="mt-0.5 h-3.5 w-3.5 shrink-0 text-info"
-            />
-
-            <div>
-              <p class="font-black">Using blueprint</p>
-
-              <p class="mt-0.5 opacity-70">
-                {{ selectedBlueprint.label || selectedBlueprint.title }}
-              </p>
+              <Icon :name="preset.icon" class="h-6 w-6 text-primary" />
             </div>
+
+            <span
+              v-if="selectedFriendlyPreset === preset.key"
+              class="badge badge-primary badge-sm rounded-2xl"
+            >
+              Selected
+            </span>
+          </div>
+
+          <div>
+            <p class="font-black text-base-content">
+              {{ preset.title }}
+            </p>
+
+            <p class="mt-1 text-xs leading-relaxed text-base-content/65">
+              {{ preset.description }}
+            </p>
+          </div>
+        </button>
+      </section>
+
+      <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="mb-3 flex items-start gap-3">
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10"
+          >
+            <Icon
+              :name="activeFriendlyPreset.icon"
+              class="h-5 w-5 text-primary"
+            />
+          </div>
+
+          <div>
+            <h3 class="text-sm font-black">
+              {{ activeFriendlyPreset.title }}
+            </h3>
+
+            <p class="mt-0.5 text-xs text-base-content/60">
+              {{ activeFriendlyPreset.helpText }}
+            </p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Title</span>
-
-            <input
-              v-model="serverStore.serverForm.title"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="Lola Stable Diffusion"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Label</span>
+        <div class="grid grid-cols-1 gap-3">
+          <label class="form-control">
+            <div class="label py-1">
+              <span class="label-text text-xs font-black"> Friendly Name </span>
+            </div>
 
             <input
               v-model="serverStore.serverForm.label"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="Lola A1111"
+              class="input input-bordered rounded-2xl bg-base-100"
+              :placeholder="activeFriendlyPreset.namePlaceholder"
             />
           </label>
-        </div>
 
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Server Type</span>
-
-            <select
-              v-model="serverStore.serverForm.serverType"
-              class="select select-bordered select-sm rounded-xl text-xs"
-              @change="applyServerTypePreset"
-            >
-              <option value="TEXT">TEXT</option>
-              <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
-              <option value="ART">ART</option>
-              <option value="COMFY">COMFY</option>
-              <option value="A1111">A1111</option>
-              <option value="OTHER">OTHER</option>
-            </select>
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Generation Engine
-            </span>
-
-            <select
-              v-model="serverStore.serverForm.generationEngine"
-              class="select select-bordered select-sm rounded-xl text-xs"
-              @change="applyGenerationEnginePreset"
-            >
-              <option
-                v-for="engine in generationEngineOptions"
-                :key="engine.value"
-                :value="engine.value"
-              >
-                {{ engine.label }}
-              </option>
-            </select>
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Default Transport
-            </span>
-
-            <select
-              v-model="serverStore.serverForm.defaultTransport"
-              class="select select-bordered select-sm rounded-xl text-xs"
-              @change="applyTransportPreset"
-            >
-              <option
-                v-for="transport in transportOptions"
-                :key="transport.value"
-                :value="transport.value"
-              >
-                {{ transport.label }}
-              </option>
-            </select>
-          </label>
-        </div>
-
-        <div
-          class="grid grid-cols-1 gap-3 rounded-xl border border-base-300 bg-base-100 p-3 text-[11px] md:grid-cols-2"
-        >
-          <div>
-            <p class="font-black">
-              {{
-                selectedGenerationEngine?.label ||
-                serverStore.serverForm.generationEngine ||
-                'Generation Engine'
-              }}
-            </p>
-
-            <p class="mt-0.5 opacity-65">
-              {{ selectedGenerationEngine?.description || 'Custom engine.' }}
-            </p>
-          </div>
-
-          <div>
-            <p class="font-black">
-              {{
-                selectedTransport?.label ||
-                serverStore.serverForm.defaultTransport ||
-                'Transport'
-              }}
-            </p>
-
-            <p class="mt-0.5 opacity-65">
-              {{ selectedTransport?.description || 'Custom transport.' }}
-            </p>
-          </div>
-        </div>
-
-        <label class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">Connection Mode</span>
-
-          <select
-            v-model="serverStore.serverForm.accessMode"
-            class="select select-bordered select-sm rounded-xl text-xs"
-            @change="applyAccessModePreset"
-          >
-            <option
-              v-for="mode in accessModeOptions"
-              :key="mode.value"
-              :value="mode.value"
-            >
-              {{ mode.label }}
-            </option>
-          </select>
-        </label>
-
-        <div
-          :class="[
-            'rounded-xl border px-3 py-2 text-[11px]',
-            selectedAccessModeInfo.tone,
-          ]"
-        >
-          <div class="flex items-start gap-2">
-            <Icon
-              :name="selectedAccessModeInfo.icon"
-              class="mt-0.5 h-3.5 w-3.5 shrink-0"
-            />
-
-            <div>
-              <p class="font-black">{{ selectedAccessModeInfo.title }}</p>
-
-              <p class="mt-0.5 opacity-70">
-                {{ selectedAccessModeInfo.description }}
-              </p>
+          <label v-if="activeFriendlyPreset.needsBaseUrl" class="form-control">
+            <div class="label py-1">
+              <span class="label-text text-xs font-black"> Server URL </span>
             </div>
-          </div>
-        </div>
 
-        <label class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">Base URL</span>
-
-          <div class="flex gap-1.5">
-            <input
-              v-model="serverStore.serverForm.baseUrl"
-              class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
-              :placeholder="baseUrlPlaceholder"
-            />
-
-            <button
-              v-if="serverStore.serverForm.baseUrl"
-              type="button"
-              class="btn btn-ghost btn-sm btn-square rounded-xl"
-              title="Copy URL"
-              @click="copyUrl(serverStore.serverForm.baseUrl)"
-            >
-              <Icon
-                :name="copiedUrl ? 'kind-icon:check' : 'kind-icon:copy'"
-                :class="['h-3.5 w-3.5', copiedUrl && 'text-success']"
-              />
-            </button>
-          </div>
-        </label>
-
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Browser Base URL
-            </span>
-
-            <input
-              v-model="serverStore.serverForm.browserBaseUrl"
-              class="input input-bordered input-sm rounded-xl font-mono text-xs"
-              :placeholder="browserBaseUrlPlaceholder"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Backend Base URL
-            </span>
-
-            <input
-              v-model="serverStore.serverForm.backendBaseUrl"
-              class="input input-bordered input-sm rounded-xl font-mono text-xs"
-              :placeholder="backendBaseUrlPlaceholder"
-            />
-          </label>
-        </div>
-
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Endpoint Path</span>
-
-            <input
-              v-model="serverStore.serverForm.endpointPath"
-              class="input input-bordered input-sm rounded-xl font-mono text-xs"
-              :placeholder="endpointPathPlaceholder"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Health Path</span>
-
-            <input
-              v-model="serverStore.serverForm.healthPath"
-              class="input input-bordered input-sm rounded-xl font-mono text-xs"
-              :placeholder="healthPathPlaceholder"
-            />
-          </label>
-        </div>
-
-        <div class="grid grid-cols-1 gap-2 lg:grid-cols-3">
-          <label
-            class="flex cursor-pointer flex-col gap-1 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px]"
-          >
-            <span class="flex items-center gap-2 font-black">
+            <div class="flex gap-2">
               <input
-                v-model="serverStore.serverForm.requiresClientSideCheck"
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-xs"
+                v-model="serverStore.serverForm.baseUrl"
+                class="input input-bordered flex-1 rounded-2xl bg-base-100 font-mono text-sm"
+                :placeholder="activeFriendlyPreset.urlPlaceholder"
               />
-              Health check from browser
-            </span>
 
-            <span class="pl-6 opacity-60">
-              Use this when Vercel cannot reach the server, but your browser
-              can.
-            </span>
-          </label>
+              <button
+                v-if="serverStore.serverForm.baseUrl"
+                type="button"
+                class="btn btn-ghost btn-square rounded-2xl"
+                title="Copy URL"
+                @click="copyUrl(serverStore.serverForm.baseUrl)"
+              >
+                <Icon
+                  :name="copiedUrl ? 'kind-icon:check' : 'kind-icon:copy'"
+                  :class="['h-4 w-4', copiedUrl && 'text-success']"
+                />
+              </button>
+            </div>
 
-          <label
-            class="flex cursor-pointer flex-col gap-1 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px]"
-          >
-            <span class="flex items-center gap-2 font-black">
-              <input
-                v-model="serverStore.serverForm.isPrivateNetwork"
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-xs"
-              />
-              Private / local / tailnet URL
-            </span>
-
-            <span class="pl-6 opacity-60">
-              For localhost, LAN IPs, Tailscale, or anything not publicly
-              reachable.
-            </span>
-          </label>
-
-          <label
-            class="flex cursor-pointer flex-col gap-1 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-[11px]"
-          >
-            <span class="flex items-center gap-2 font-black">
-              <input
-                v-model="serverStore.serverForm.allowBrowserRequests"
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-xs"
-              />
-              Allow browser-direct calls
-            </span>
-
-            <span class="pl-6 opacity-60">
-              Let the frontend fetch this server directly. Requires CORS to
-              allow your site.
-            </span>
-          </label>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Width</span>
-
-            <input
-              v-model.number="serverStore.serverForm.defaultWidth"
-              type="number"
-              min="64"
-              step="8"
-              class="input input-bordered input-sm rounded-xl text-xs"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Height</span>
-
-            <input
-              v-model.number="serverStore.serverForm.defaultHeight"
-              type="number"
-              min="64"
-              step="8"
-              class="input input-bordered input-sm rounded-xl text-xs"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Steps</span>
-
-            <input
-              v-model.number="serverStore.serverForm.defaultSteps"
-              type="number"
-              min="1"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="25"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">CFG / Guidance</span>
-
-            <input
-              v-model.number="serverStore.serverForm.defaultCfg"
-              type="number"
-              step="0.5"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="3.5"
-            />
-          </label>
-        </div>
-
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Default Sampler
-            </span>
-
-            <input
-              v-model="serverStore.serverForm.defaultSampler"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="Euler a, euler, dpmpp_2m..."
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Default Scheduler
-            </span>
-
-            <input
-              v-model="serverStore.serverForm.defaultScheduler"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="normal, simple, beta..."
-            />
-          </label>
-        </div>
-
-        <label class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">
-            API Docs / Info Link
-          </span>
-
-          <input
-            v-model="serverStore.serverForm.apiLink"
-            class="input input-bordered input-sm rounded-xl text-xs"
-            placeholder="https://docs.example.com"
-          />
-        </label>
-
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Model Name</span>
-
-            <input
-              v-model="serverStore.serverForm.model"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="v1-5-pruned, flux-dev, gpt-4o-mini..."
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Designer / Provider
-            </span>
-
-            <input
-              v-model="serverStore.serverForm.designer"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="OpenAI, Stability, Local Lola..."
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Version</span>
-
-            <input
-              v-model="serverStore.serverForm.version"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="1.0, SDXL, Forge, Comfy..."
-            />
-          </label>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 md:grid-cols-5">
-          <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold"
-          >
-            <input
-              v-model="serverStore.serverForm.isEditable"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Editable
-          </label>
-
-          <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold"
-          >
-            <input
-              v-model="serverStore.serverForm.isPublic"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Public
-          </label>
-
-          <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold"
-          >
-            <input
-              v-model="serverStore.serverForm.isOfficial"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Official
-          </label>
-
-          <label
-            class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold"
-          >
-            <input
-              v-model="serverStore.serverForm.isDefault"
-              type="checkbox"
-              class="checkbox checkbox-primary checkbox-xs"
-            />
-            Default
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Sort Order</span>
-
-            <input
-              v-model.number="serverStore.serverForm.sortOrder"
-              type="number"
-              class="input input-bordered input-sm rounded-xl text-xs"
-            />
-          </label>
-        </div>
-
-        <label class="flex flex-col gap-1">
-          <span class="text-[11px] font-bold opacity-70">Notes</span>
-
-          <textarea
-            v-model="serverStore.serverForm.notes"
-            class="textarea textarea-bordered rounded-xl text-xs"
-            rows="2"
-            placeholder="Private setup notes, auth quirks, launch flags, cursed YAML discoveries..."
-          />
-        </label>
-
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold opacity-70">API Key</span>
-
-            <span
-              :class="[
-                'badge badge-xs',
-                serverHasStoredKey ? 'badge-success' : 'badge-neutral',
-              ]"
-            >
-              {{ serverHasStoredKey ? '🔑 Stored' : 'Not set' }}
-            </span>
-          </div>
-
-          <div class="flex gap-1.5">
-            <input
-              v-model="apiKey"
-              :type="showApiKey ? 'text' : 'password'"
-              autocomplete="off"
-              placeholder="Leave blank to keep existing"
-              class="input input-bordered input-sm flex-1 rounded-xl font-mono text-xs"
-            />
-
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl"
-              :title="showApiKey ? 'Hide' : 'Show'"
-              @click="showApiKey = !showApiKey"
-            >
-              <Icon
-                :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'"
-                class="h-3.5 w-3.5"
-              />
-            </button>
-          </div>
-
-          <input
-            v-model="apiKeyName"
-            class="input input-bordered input-sm rounded-xl text-xs"
-            placeholder="Label: OpenAI, Groq, Stability..."
-          />
-
-          <div class="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              class="btn btn-outline btn-xs rounded-lg"
-              :disabled="!apiKey.trim() || serverStore.isSaving"
-              @click="saveKeyOnly"
-            >
-              Save Key Only
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-ghost btn-xs rounded-lg opacity-60"
-              :disabled="
-                !serverStore.serverForm.id || isCloning || serverStore.isSaving
-              "
-              @click="clearKey"
-            >
-              Clear Key
-            </button>
-          </div>
-        </div>
-      </fieldset>
-
-      <details class="group overflow-hidden rounded-xl border border-base-300">
-        <summary
-          class="flex cursor-pointer select-none list-none items-center gap-2 bg-base-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider opacity-60 hover:opacity-90"
-        >
-          <Icon name="kind-icon:workflow" class="h-3.5 w-3.5" />
-          Workflow Settings
-
-          <Icon
-            name="kind-icon:chevron-down"
-            class="ml-auto h-3.5 w-3.5 transition-transform group-open:rotate-180"
-          />
-        </summary>
-
-        <div class="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">Workflow Path</span>
-
-            <input
-              v-model="serverStore.serverForm.workflowPath"
-              class="input input-bordered input-sm rounded-xl font-mono text-xs"
-              placeholder="/workflows/flux-dev.json"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1">
-            <span class="text-[11px] font-bold opacity-70">
-              Workflow Version
-            </span>
-
-            <input
-              v-model="serverStore.serverForm.workflowVersion"
-              class="input input-bordered input-sm rounded-xl text-xs"
-              placeholder="flux-dev-v1"
-            />
-          </label>
-
-          <label class="flex flex-col gap-1 sm:col-span-2">
-            <span class="text-[11px] font-bold opacity-70">Workflow JSON</span>
-
-            <textarea
-              :value="workflowJsonText"
-              class="textarea textarea-bordered min-h-40 rounded-xl font-mono text-xs"
-              placeholder="{ ... Comfy workflow JSON ... }"
-              @input="updateWorkflowJson"
-            />
+            <div class="label py-1">
+              <span class="label-text-alt text-xs opacity-60">
+                {{ activeFriendlyPreset.urlHint }}
+              </span>
+            </div>
           </label>
 
           <div
-            v-if="workflowJsonError"
-            class="rounded-xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error"
+            v-if="activeFriendlyPreset.needsApiKey"
+            class="flex flex-col gap-2"
           >
-            {{ workflowJsonError }}
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black">API Key</span>
+
+              <span
+                :class="[
+                  'badge badge-sm rounded-2xl',
+                  serverHasStoredKey ? 'badge-success' : 'badge-neutral',
+                ]"
+              >
+                {{ serverHasStoredKey ? 'Stored' : 'Not set' }}
+              </span>
+            </div>
+
+            <div class="flex gap-2">
+              <input
+                v-model="apiKey"
+                :type="showApiKey ? 'text' : 'password'"
+                autocomplete="off"
+                class="input input-bordered flex-1 rounded-2xl bg-base-100 font-mono text-sm"
+                :placeholder="activeFriendlyPreset.apiKeyPlaceholder"
+              />
+
+              <button
+                type="button"
+                class="btn btn-ghost btn-square rounded-2xl"
+                :title="showApiKey ? 'Hide' : 'Show'"
+                @click="showApiKey = !showApiKey"
+              >
+                <Icon
+                  :name="showApiKey ? 'kind-icon:eye-off' : 'kind-icon:eye'"
+                  class="h-4 w-4"
+                />
+              </button>
+            </div>
+
+            <input
+              v-model="apiKeyName"
+              class="input input-bordered rounded-2xl bg-base-100 text-sm"
+              :placeholder="activeFriendlyPreset.apiKeyNamePlaceholder"
+            />
+
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-outline btn-sm rounded-2xl"
+                :disabled="!apiKey.trim() || serverStore.isSaving"
+                @click="saveKeyOnly"
+              >
+                <Icon name="kind-icon:key" class="h-4 w-4" />
+                Save Key Only
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm rounded-2xl opacity-70"
+                :disabled="
+                  !serverStore.serverForm.id ||
+                  isCloning ||
+                  serverStore.isSaving
+                "
+                @click="clearKey"
+              >
+                Clear Key
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="rounded-2xl border border-base-300 bg-base-100 p-3 text-xs text-base-content/70"
+          >
+            <div class="flex items-start gap-2">
+              <Icon
+                :name="selectedAccessModeInfo.icon"
+                class="mt-0.5 h-4 w-4 shrink-0 text-primary"
+              />
+
+              <div>
+                <p class="font-black text-base-content">
+                  {{ selectedAccessModeInfo.title }}
+                </p>
+
+                <p class="mt-0.5">
+                  {{ selectedAccessModeInfo.description }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </details>
+      </section>
 
-      <details class="group overflow-hidden rounded-xl border border-base-300">
+      <details class="group overflow-hidden rounded-2xl border border-base-300">
         <summary
-          class="flex cursor-pointer select-none list-none items-center gap-2 bg-base-200 px-4 py-2.5 text-[11px] font-black uppercase tracking-wider opacity-60 hover:opacity-90"
+          class="flex cursor-pointer select-none list-none items-center gap-2 bg-base-200 px-4 py-3 text-xs font-black uppercase tracking-wider text-base-content/60 hover:text-base-content"
         >
-          <Icon name="kind-icon:settings" class="h-3.5 w-3.5" />
-          More Settings
+          <Icon name="kind-icon:settings" class="h-4 w-4" />
+          Advanced Settings
+
+          <span
+            class="ml-1 rounded-2xl bg-base-300 px-2 py-0.5 text-[10px] normal-case tracking-normal opacity-70"
+          >
+            URLs, workflow, transport, flags
+          </span>
 
           <Icon
             name="kind-icon:chevron-down"
-            class="ml-auto h-3.5 w-3.5 transition-transform group-open:rotate-180"
+            class="ml-auto h-4 w-4 transition-transform group-open:rotate-180"
           />
         </summary>
 
-        <div class="flex flex-col gap-3 p-4">
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label class="flex flex-col gap-1">
-              <span class="text-[11px] font-bold opacity-70">Category</span>
-
-              <input
-                v-model="serverStore.serverForm.category"
-                class="input input-bordered input-sm rounded-xl text-xs"
-              />
-            </label>
-
-            <label class="flex flex-col gap-1">
-              <span class="text-[11px] font-bold opacity-70">
-                OIDC Provider
+        <div class="flex flex-col gap-4 p-4">
+          <fieldset
+            class="grid grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 md:grid-cols-2 xl:grid-cols-3"
+          >
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Title</span>
               </span>
 
               <input
-                v-model="serverStore.serverForm.oidcProvider"
-                class="input input-bordered input-sm rounded-xl text-xs"
-                placeholder="authelia"
+                v-model="serverStore.serverForm.title"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="Lola Stable Diffusion"
               />
             </label>
 
-            <label
-              class="flex cursor-pointer items-end gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold"
-            >
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Server Type</span>
+              </span>
+
+              <select
+                v-model="serverStore.serverForm.serverType"
+                class="select select-bordered select-sm rounded-2xl bg-base-100"
+                @change="applyServerTypePreset"
+              >
+                <option value="TEXT">TEXT</option>
+                <option value="OPENAI_COMPATIBLE">OPENAI_COMPATIBLE</option>
+                <option value="ART">ART</option>
+                <option value="COMFY">COMFY</option>
+                <option value="A1111">A1111</option>
+                <option value="OTHER">OTHER</option>
+              </select>
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Generation Engine</span
+                >
+              </span>
+
+              <select
+                v-model="serverStore.serverForm.generationEngine"
+                class="select select-bordered select-sm rounded-2xl bg-base-100"
+                @change="applyGenerationEnginePreset"
+              >
+                <option
+                  v-for="engine in generationEngineOptions"
+                  :key="engine.value"
+                  :value="engine.value"
+                >
+                  {{ engine.label }}
+                </option>
+              </select>
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Connection Mode</span
+                >
+              </span>
+
+              <select
+                v-model="serverStore.serverForm.accessMode"
+                class="select select-bordered select-sm rounded-2xl bg-base-100"
+                @change="applyAccessModePreset"
+              >
+                <option
+                  v-for="mode in accessModeOptions"
+                  :key="mode.value"
+                  :value="mode.value"
+                >
+                  {{ mode.label }}
+                </option>
+              </select>
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Default Transport</span
+                >
+              </span>
+
+              <select
+                v-model="serverStore.serverForm.defaultTransport"
+                class="select select-bordered select-sm rounded-2xl bg-base-100"
+                @change="applyTransportPreset"
+              >
+                <option
+                  v-for="transport in transportOptions"
+                  :key="transport.value"
+                  :value="transport.value"
+                >
+                  {{ transport.label }}
+                </option>
+              </select>
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Endpoint Path</span>
+              </span>
+
               <input
-                v-model="serverStore.serverForm.useOidc"
-                type="checkbox"
-                class="checkbox checkbox-primary checkbox-xs"
-              />
-              Use OIDC
-            </label>
-
-            <label class="flex flex-col gap-1 sm:col-span-2">
-              <span class="text-[11px] font-bold opacity-70">Description</span>
-
-              <textarea
-                v-model="serverStore.serverForm.description"
-                class="textarea textarea-bordered rounded-xl text-xs"
-                rows="2"
+                v-model="serverStore.serverForm.endpointPath"
+                class="input input-bordered input-sm rounded-2xl bg-base-100 font-mono"
+                :placeholder="endpointPathPlaceholder"
               />
             </label>
-          </div>
 
-          <div class="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Health Path</span>
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.healthPath"
+                class="input input-bordered input-sm rounded-2xl bg-base-100 font-mono"
+                :placeholder="healthPathPlaceholder"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Browser Base URL</span
+                >
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.browserBaseUrl"
+                class="input input-bordered input-sm rounded-2xl bg-base-100 font-mono"
+                :placeholder="browserBaseUrlPlaceholder"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Backend Base URL</span
+                >
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.backendBaseUrl"
+                class="input input-bordered input-sm rounded-2xl bg-base-100 font-mono"
+                :placeholder="backendBaseUrlPlaceholder"
+              />
+            </label>
+          </fieldset>
+
+          <fieldset
+            class="grid grid-cols-2 gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 lg:grid-cols-4"
+          >
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Width</span>
+              </span>
+
+              <input
+                v-model.number="serverStore.serverForm.defaultWidth"
+                type="number"
+                min="64"
+                step="8"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Height</span>
+              </span>
+
+              <input
+                v-model.number="serverStore.serverForm.defaultHeight"
+                type="number"
+                min="64"
+                step="8"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Steps</span>
+              </span>
+
+              <input
+                v-model.number="serverStore.serverForm.defaultSteps"
+                type="number"
+                min="1"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="25"
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">CFG / Guidance</span>
+              </span>
+
+              <input
+                v-model.number="serverStore.serverForm.defaultCfg"
+                type="number"
+                step="0.5"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="3.5"
+              />
+            </label>
+          </fieldset>
+
+          <fieldset
+            class="grid grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-200 p-4 md:grid-cols-3"
+          >
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Default Sampler</span
+                >
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.defaultSampler"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="Euler a, euler, dpmpp_2m..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold"
+                  >Default Scheduler</span
+                >
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.defaultScheduler"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="normal, simple, beta..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Model Name</span>
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.model"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="flux-dev, dreamshaper, gpt-image-2..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Provider</span>
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.designer"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="OpenAI, Local Lola, Comfy..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">Version</span>
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.version"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="SDXL, Forge, Flux Dev..."
+              />
+            </label>
+
+            <label class="form-control">
+              <span class="label">
+                <span class="label-text text-xs font-bold">API Docs Link</span>
+              </span>
+
+              <input
+                v-model="serverStore.serverForm.apiLink"
+                class="input input-bordered input-sm rounded-2xl bg-base-100"
+                placeholder="https://docs.example.com"
+              />
+            </label>
+          </fieldset>
+
+          <details
+            class="group overflow-hidden rounded-2xl border border-base-300"
+          >
+            <summary
+              class="flex cursor-pointer select-none list-none items-center gap-2 bg-base-100 px-4 py-3 text-xs font-black uppercase tracking-wider text-base-content/60 hover:text-base-content"
+            >
+              <Icon name="kind-icon:workflow" class="h-4 w-4" />
+              Workflow JSON
+
+              <Icon
+                name="kind-icon:chevron-down"
+                class="ml-auto h-4 w-4 transition-transform group-open:rotate-180"
+              />
+            </summary>
+
+            <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text text-xs font-bold"
+                    >Workflow Path</span
+                  >
+                </span>
+
+                <input
+                  v-model="serverStore.serverForm.workflowPath"
+                  class="input input-bordered input-sm rounded-2xl bg-base-100 font-mono"
+                  placeholder="/workflows/flux-dev.json"
+                />
+              </label>
+
+              <label class="form-control">
+                <span class="label">
+                  <span class="label-text text-xs font-bold"
+                    >Workflow Version</span
+                  >
+                </span>
+
+                <input
+                  v-model="serverStore.serverForm.workflowVersion"
+                  class="input input-bordered input-sm rounded-2xl bg-base-100"
+                  placeholder="flux-dev-v1"
+                />
+              </label>
+
+              <label class="form-control md:col-span-2">
+                <span class="label">
+                  <span class="label-text text-xs font-bold"
+                    >Workflow JSON</span
+                  >
+                </span>
+
+                <textarea
+                  :value="workflowJsonText"
+                  class="textarea textarea-bordered min-h-40 rounded-2xl bg-base-100 font-mono text-xs"
+                  placeholder="{ ... Comfy workflow JSON ... }"
+                  @input="updateWorkflowJson"
+                />
+              </label>
+
+              <div
+                v-if="workflowJsonError"
+                class="rounded-2xl border border-error/30 bg-error/10 px-3 py-2 text-xs text-error md:col-span-2"
+              >
+                {{ workflowJsonError }}
+              </div>
+            </div>
+          </details>
+
+          <fieldset
+            class="grid grid-cols-1 gap-2 rounded-2xl border border-base-300 bg-base-200 p-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
             <label
               v-for="toggle in capabilityToggles"
               :key="toggle.key"
-              class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-2 text-xs font-bold hover:border-primary/40"
+              class="flex cursor-pointer items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs font-bold hover:border-primary/40"
             >
               <input
                 v-model="(serverStore.serverForm as any)[toggle.key]"
@@ -765,14 +645,27 @@
               />
               {{ toggle.label }}
             </label>
-          </div>
+          </fieldset>
+
+          <label class="form-control">
+            <span class="label">
+              <span class="label-text text-xs font-bold">Notes</span>
+            </span>
+
+            <textarea
+              v-model="serverStore.serverForm.notes"
+              class="textarea textarea-bordered rounded-2xl bg-base-100 text-sm"
+              rows="2"
+              placeholder="Private setup notes, auth quirks, launch flags, cursed YAML sightings..."
+            />
+          </label>
         </div>
       </details>
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
-          class="btn btn-ghost btn-sm flex-1 rounded-xl"
+          class="btn btn-ghost flex-1 rounded-2xl"
           @click="serverStore.closeServerForm()"
         >
           Cancel
@@ -780,7 +673,7 @@
 
         <button
           type="submit"
-          class="btn btn-primary btn-sm flex-1 gap-1.5 rounded-xl"
+          class="btn btn-primary flex-1 gap-2 rounded-2xl"
           :disabled="serverStore.isSaving || Boolean(workflowJsonError)"
         >
           <span
@@ -788,15 +681,9 @@
             class="loading loading-spinner loading-xs"
           />
 
-          <Icon v-else name="kind-icon:save" class="h-3.5 w-3.5" />
+          <Icon v-else name="kind-icon:save" class="h-4 w-4" />
 
-          {{
-            isCloning
-              ? 'Save My Copy'
-              : serverStore.serverForm.id
-                ? 'Save Changes'
-                : 'Create Server'
-          }}
+          {{ saveButtonLabel }}
         </button>
       </div>
     </form>
@@ -823,6 +710,282 @@ const apiKeyName = ref('')
 const showApiKey = ref(false)
 const copiedUrl = ref(false)
 const workflowJsonError = ref('')
+
+type FriendlyServerPresetKey =
+  | 'openai-images'
+  | 'stable-diffusion'
+  | 'comfy-sdxl'
+  | 'comfy-flux'
+  | 'openai-compatible'
+
+type FriendlyServerPreset = {
+  key: FriendlyServerPresetKey
+  title: string
+  description: string
+  helpText: string
+  icon: string
+  namePlaceholder: string
+  needsBaseUrl: boolean
+  needsApiKey: boolean
+  urlPlaceholder: string
+  urlHint: string
+  apiKeyPlaceholder: string
+  apiKeyNamePlaceholder: string
+}
+
+const selectedFriendlyPreset = ref<FriendlyServerPresetKey>('stable-diffusion')
+
+const defaultFriendlyPreset: FriendlyServerPreset = {
+  key: 'stable-diffusion',
+  title: 'Stable Diffusion / Forge',
+  description: 'Best for A1111, Forge, and classic local SD servers.',
+  helpText: 'Paste the URL for your local, LAN, or Tailscale image server.',
+  icon: 'kind-icon:palette',
+  namePlaceholder: 'My Stable Diffusion server',
+  needsBaseUrl: true,
+  needsApiKey: false,
+  urlPlaceholder: 'http://127.0.0.1:7860',
+  urlHint: 'Usually http://127.0.0.1:7860, a LAN address, or a Tailscale URL.',
+  apiKeyPlaceholder: '',
+  apiKeyNamePlaceholder: '',
+}
+
+const friendlyPresets = [
+  defaultFriendlyPreset,
+  {
+    key: 'comfy-sdxl',
+    title: 'ComfyUI SDXL',
+    description:
+      'Best for Comfy workflows using SDXL or checkpoint-based generation.',
+    helpText:
+      'Paste the ComfyUI URL. Kind Robots will use the SDXL workflow route.',
+    icon: 'kind-icon:workflow',
+    namePlaceholder: 'My Comfy SDXL server',
+    needsBaseUrl: true,
+    needsApiKey: false,
+    urlPlaceholder: 'http://127.0.0.1:8188',
+    urlHint:
+      'Usually http://127.0.0.1:8188, a LAN address, or a Tailscale URL.',
+    apiKeyPlaceholder: '',
+    apiKeyNamePlaceholder: '',
+  },
+] satisfies [FriendlyServerPreset, ...FriendlyServerPreset[]]
+
+function applyFriendlyPreset(key: FriendlyServerPresetKey) {
+  selectedFriendlyPreset.value = key
+
+  if (key === 'stable-diffusion') {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      title: serverStore.serverForm.title || 'Stable Diffusion Server',
+      label: serverStore.serverForm.label || 'Stable Diffusion',
+      category: 'image',
+      serverType: 'A1111',
+      generationEngine: 'A1111',
+      defaultTransport: 'BROWSER',
+      accessMode: 'LOCAL',
+      baseUrl: serverStore.serverForm.baseUrl || '',
+      endpointPath: '/sdapi/v1/txt2img',
+      healthPath: '/sdapi/v1/progress',
+      requiresClientSideCheck: true,
+      isPrivateNetwork: true,
+      allowBrowserRequests: true,
+      requiresApiKey: false,
+      supportsTxt2Img: true,
+      supportsImg2Img: true,
+      supportsImageEdit: false,
+      supportsComfyWorkflow: false,
+      supportsWorkflowUpload: false,
+      supportsFlux: false,
+      supportsKontext: false,
+      supportsCheckpointOverride: true,
+      supportsSampler: true,
+      supportsNegativePrompt: true,
+      supportsSeed: true,
+      supportsSteps: true,
+      defaultWidth: serverStore.serverForm.defaultWidth || 512,
+      defaultHeight: serverStore.serverForm.defaultHeight || 512,
+      defaultSteps: serverStore.serverForm.defaultSteps || 25,
+      defaultCfg: serverStore.serverForm.defaultCfg || 7,
+      defaultSampler: serverStore.serverForm.defaultSampler || 'Euler a',
+    }
+
+    apiKeyName.value = ''
+    return
+  }
+
+  if (key === 'comfy-sdxl') {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      title: serverStore.serverForm.title || 'ComfyUI SDXL Server',
+      label: serverStore.serverForm.label || 'Comfy SDXL',
+      category: 'image',
+      serverType: 'COMFY',
+      generationEngine: 'COMFY',
+      defaultTransport: 'BROWSER',
+      accessMode: 'LOCAL',
+      baseUrl: serverStore.serverForm.baseUrl || '',
+      endpointPath: '/prompt',
+      healthPath: '/system_stats',
+      requiresClientSideCheck: true,
+      isPrivateNetwork: true,
+      allowBrowserRequests: true,
+      requiresApiKey: false,
+      supportsTxt2Img: true,
+      supportsImg2Img: true,
+      supportsImageEdit: false,
+      supportsComfyWorkflow: true,
+      supportsWorkflowUpload: true,
+      supportsFlux: false,
+      supportsKontext: false,
+      supportsCheckpointOverride: true,
+      supportsSampler: true,
+      supportsNegativePrompt: true,
+      supportsSeed: true,
+      supportsSteps: true,
+      defaultWidth: serverStore.serverForm.defaultWidth || 1024,
+      defaultHeight: serverStore.serverForm.defaultHeight || 1024,
+      defaultSteps: serverStore.serverForm.defaultSteps || 25,
+      defaultCfg: serverStore.serverForm.defaultCfg || 7,
+      defaultSampler: serverStore.serverForm.defaultSampler || 'euler',
+      defaultScheduler: serverStore.serverForm.defaultScheduler || 'normal',
+    }
+
+    apiKeyName.value = ''
+    return
+  }
+
+  if (key === 'comfy-flux') {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      title: serverStore.serverForm.title || 'ComfyUI Flux Server',
+      label: serverStore.serverForm.label || 'Comfy Flux',
+      category: 'image',
+      serverType: 'COMFY',
+      generationEngine: 'FLUX',
+      defaultTransport: 'BROWSER',
+      accessMode: 'LOCAL',
+      baseUrl: serverStore.serverForm.baseUrl || '',
+      endpointPath: '/prompt',
+      healthPath: '/system_stats',
+      requiresClientSideCheck: true,
+      isPrivateNetwork: true,
+      allowBrowserRequests: true,
+      requiresApiKey: false,
+      supportsTxt2Img: true,
+      supportsImg2Img: false,
+      supportsImageEdit: false,
+      supportsComfyWorkflow: true,
+      supportsWorkflowUpload: true,
+      supportsFlux: true,
+      supportsKontext: false,
+      supportsCheckpointOverride: false,
+      supportsSampler: true,
+      supportsNegativePrompt: true,
+      supportsSeed: true,
+      supportsSteps: true,
+      defaultWidth: serverStore.serverForm.defaultWidth || 1024,
+      defaultHeight: serverStore.serverForm.defaultHeight || 1024,
+      defaultSteps: serverStore.serverForm.defaultSteps || 30,
+      defaultCfg: serverStore.serverForm.defaultCfg || 1,
+      defaultSampler: serverStore.serverForm.defaultSampler || 'euler',
+      defaultScheduler: serverStore.serverForm.defaultScheduler || 'normal',
+      model: serverStore.serverForm.model || 'flux1-dev-Q8_0.gguf',
+    }
+
+    apiKeyName.value = ''
+    return
+  }
+
+  if (key === 'openai-images') {
+    serverStore.serverForm = {
+      ...serverStore.serverForm,
+      title: serverStore.serverForm.title || 'OpenAI Images',
+      label: serverStore.serverForm.label || 'OpenAI Images',
+      category: 'image',
+      serverType: 'ART',
+      generationEngine: 'OPENAI_IMAGE',
+      defaultTransport: 'BACKEND',
+      accessMode: 'PUBLIC_API_KEY',
+      baseUrl: 'https://api.openai.com',
+      backendBaseUrl: 'https://api.openai.com',
+      browserBaseUrl: null,
+      endpointPath: '/v1/images/generations',
+      healthPath: '/v1/models',
+      requiresClientSideCheck: false,
+      isPrivateNetwork: false,
+      allowBrowserRequests: false,
+      requiresApiKey: true,
+      supportsTxt2Img: true,
+      supportsImg2Img: false,
+      supportsImageEdit: true,
+      supportsComfyWorkflow: false,
+      supportsWorkflowUpload: false,
+      supportsFlux: false,
+      supportsKontext: false,
+      supportsCheckpointOverride: false,
+      supportsSampler: false,
+      supportsNegativePrompt: false,
+      supportsSeed: false,
+      supportsSteps: false,
+      defaultWidth: serverStore.serverForm.defaultWidth || 1024,
+      defaultHeight: serverStore.serverForm.defaultHeight || 1024,
+      model: serverStore.serverForm.model || 'gpt-image-2',
+      designer: serverStore.serverForm.designer || 'OpenAI',
+    }
+
+    apiKeyName.value = serverStore.serverForm.apiKeyName || 'Authorization'
+    return
+  }
+
+  serverStore.serverForm = {
+    ...serverStore.serverForm,
+    title: serverStore.serverForm.title || 'OpenAI-Compatible Server',
+    label: serverStore.serverForm.label || 'OpenAI Compatible',
+    category: 'text',
+    serverType: 'OPENAI_COMPATIBLE',
+    generationEngine: 'OTHER',
+    defaultTransport: 'BACKEND',
+    accessMode: 'PUBLIC_API_KEY',
+    baseUrl: serverStore.serverForm.baseUrl || '',
+    endpointPath: '/v1/chat/completions',
+    healthPath: '/v1/models',
+    requiresClientSideCheck: false,
+    isPrivateNetwork: false,
+    allowBrowserRequests: false,
+    requiresApiKey: true,
+    supportsChat: true,
+    supportsTxt2Img: false,
+    supportsImg2Img: false,
+    supportsImageEdit: false,
+    supportsComfyWorkflow: false,
+    supportsWorkflowUpload: false,
+    supportsFlux: false,
+    supportsKontext: false,
+  }
+
+  apiKeyName.value = serverStore.serverForm.apiKeyName || 'Authorization'
+}
+
+const activeFriendlyPreset = computed<FriendlyServerPreset>(() => {
+  return (
+    friendlyPresets.find(
+      (preset) => preset.key === selectedFriendlyPreset.value,
+    ) ?? defaultFriendlyPreset
+  )
+})
+
+const heading = computed(() => {
+  if (isCloning.value) return 'Make this server yours'
+  if (serverStore.serverForm.id) return 'Edit connection'
+  return 'Connect an AI server'
+})
+
+const saveButtonLabel = computed(() => {
+  if (isCloning.value) return 'Save My Copy'
+  if (serverStore.serverForm.id) return 'Save Changes'
+  return 'Create Server'
+})
 
 type AccessModeOption = {
   value: ServerAccessMode
@@ -1663,6 +1826,7 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
   if (!serverStore.serverForm.accessMode) {
     serverStore.serverForm.accessMode = 'LOCAL'
   }
@@ -1682,7 +1846,35 @@ onMounted(() => {
 
   apiKeyName.value = serverStore.serverForm.apiKeyName || ''
 
-  window.addEventListener('keydown', onKeydown)
+  if (serverStore.serverForm.generationEngine === 'OPENAI_IMAGE') {
+    selectedFriendlyPreset.value = 'openai-images'
+    return
+  }
+
+  if (serverStore.serverForm.generationEngine === 'FLUX') {
+    selectedFriendlyPreset.value = 'comfy-flux'
+    return
+  }
+
+  if (
+    serverStore.serverForm.generationEngine === 'COMFY' ||
+    serverStore.serverForm.serverType === 'COMFY'
+  ) {
+    selectedFriendlyPreset.value = 'comfy-sdxl'
+    return
+  }
+
+  if (
+    serverStore.serverForm.generationEngine === 'A1111' ||
+    serverStore.serverForm.serverType === 'A1111'
+  ) {
+    selectedFriendlyPreset.value = 'stable-diffusion'
+    return
+  }
+
+  if (serverStore.serverForm.serverType === 'OPENAI_COMPATIBLE') {
+    selectedFriendlyPreset.value = 'openai-compatible'
+  }
 })
 
 onUnmounted(() => {

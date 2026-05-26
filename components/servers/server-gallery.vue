@@ -42,6 +42,17 @@
         </div>
       </div>
 
+      <button
+        class="btn btn-ghost btn-sm rounded-xl"
+        type="button"
+        @click="showAdvancedCards = !showAdvancedCards"
+      >
+        <Icon name="kind-icon:settings" class="h-4 w-4" />
+        <span class="hidden sm:inline">
+          {{ showAdvancedCards ? 'Simple View' : 'Advanced' }}
+        </span>
+      </button>
+
       <div
         v-if="shouldShowControls"
         class="flex flex-col gap-2 lg:flex-row lg:items-center"
@@ -247,16 +258,16 @@
           :compact="isCompact"
           :show-actions="showCardActions"
           :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-capabilities="showCapabilities"
+          :show-meta="showAdvancedCards && showMeta"
+          :show-capabilities="showAdvancedCards && showCapabilities"
           :show-use-buttons="showUseButtons"
-          :show-debug="showDebug"
-          :show-workflow="showWorkflow"
-          :show-defaults="showDefaults"
+          :show-debug="showAdvancedCards && showDebug"
+          :show-workflow="showAdvancedCards && showWorkflow"
+          :show-defaults="showAdvancedCards && showDefaults"
           :show-status="showStatus"
           :status-compact="statusCompact"
           :allow-edit="allowEdit"
-          :allow-delete="allowDelete"
+          :allow-delete="showAdvancedCards && allowDelete"
           :allow-test="allowTest"
         />
       </div>
@@ -307,20 +318,20 @@ const props = withDefaults(
     title: '',
     subtitle: '',
     showHeader: true,
-    showControls: true,
+    showControls: false,
     showCardActions: true,
     showDescriptions: true,
-    showMeta: true,
-    showCapabilities: true,
+    showMeta: false,
+    showCapabilities: false,
     showUseButtons: true,
     showDebug: false,
-    showWorkflow: true,
-    showDefaults: true,
+    showWorkflow: false,
+    showDefaults: false,
     showStatus: true,
-    statusCompact: false,
+    statusCompact: true,
     allowAdd: true,
     allowEdit: true,
-    allowDelete: true,
+    allowDelete: false,
     allowTest: true,
     compact: false,
     autoLoad: true,
@@ -329,6 +340,8 @@ const props = withDefaults(
 
 const serverStore = useServerStore()
 const userStore = useUserStore()
+
+const showAdvancedCards = ref(false)
 
 const selectedType = ref<ServerType | 'all'>('all')
 const searchQuery = ref('')

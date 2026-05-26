@@ -2203,210 +2203,210 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             label: 'Hunted',
             subtext:
               'Someone is looking for them. Maybe many someones. Maybe they deserve it. Probably not entirely.',
-            image: '/images/adventure/backgrounds/hunted.webp',
+            image: '/images/adventure/background/hunted.webp',
           },
           {
             value: 'tragic-past',
             label: 'Tragic Past',
             subtext:
               'Something terrible happened before page one. They packed lightly, but brought the trauma.',
-            image: '/images/adventure/backgrounds/tragic-past.webp',
+            image: '/images/adventure/background/tragic-past.webp',
           },
           {
             value: 'blessed-life',
             label: 'Blessed Life',
             subtext:
               'Good family, good fortune, warm meals, clean sheets. Naturally, the plot took that personally.',
-            image: '/images/adventure/backgrounds/blessed-life.webp',
+            image: '/images/adventure/background/blessed-life.webp',
           },
           {
             value: 'survivor',
             label: 'Survivor',
             subtext:
               "The others didn't make it. They are still deciding whether that means guilt, purpose, or paperwork.",
-            image: '/images/adventure/backgrounds/survivor.webp',
+            image: '/images/adventure/background/survivor.webp',
           },
           {
             value: 'exiled',
             label: 'Exiled',
             subtext:
               'Cast out from somewhere important. The door is closed. The window is negotiable.',
-            image: '/images/adventure/backgrounds/exiled.webp',
+            image: '/images/adventure/background/exiled.webp',
           },
           {
             value: 'orphaned',
             label: 'Orphaned',
             subtext:
               'Lost the people who should have explained everything. Found danger instead. Classic.',
-            image: '/images/adventure/backgrounds/orphaned.webp',
+            image: '/images/adventure/background/orphaned.webp',
           },
           {
             value: 'resurrected',
             label: 'Resurrected',
             subtext:
               'Died once. Came back. Everyone agrees this is impressive and nobody agrees what it means.',
-            image: '/images/adventure/backgrounds/resurrected.webp',
+            image: '/images/adventure/background/resurrected.webp',
           },
           {
             value: 'witch-blood',
             label: 'Witch Blood',
             subtext:
               'Magic runs in the family. So do secrets, grudges, and one cabinet that whispers.',
-            image: '/images/adventure/backgrounds/witch-blood.webp',
+            image: '/images/adventure/background/witch-blood.webp',
           },
           {
             value: 'escaped-cultist',
             label: 'Escaped Cultist',
             subtext:
               'Was devoted to something. The devotion ended. The something may not have.',
-            image: '/images/adventure/backgrounds/escaped-cultist.webp',
+            image: '/images/adventure/background/escaped-cultist.webp',
           },
           {
             value: 'reformed-villain',
             label: 'Reformed Villain',
             subtext:
               'Did terrible things. Stopped. The receipts, rivals, and dramatic lighting remain.',
-            image: '/images/adventure/backgrounds/reformed-villain.webp',
+            image: '/images/adventure/background/reformed-villain.webp',
           },
           {
             value: 'rejected-destiny',
             label: 'Rejected Destiny',
             subtext:
               'The universe made an offer. They declined. The universe has been weird about it.',
-            image: '/images/adventure/backgrounds/rejected-destiny.webp',
+            image: '/images/adventure/background/rejected-destiny.webp',
           },
           {
             value: 'mutation',
             label: 'Mutation',
             subtext:
               'Changed by blood, radiation, magic, evolution, pollution, or narrative impatience.',
-            image: '/images/adventure/backgrounds/mutation.webp',
+            image: '/images/adventure/background/mutation.webp',
           },
           {
             value: 'child-prodigy',
             label: 'Child Prodigy',
             subtext:
               'Too brilliant too early. Everyone applauded, then started making plans.',
-            image: '/images/adventure/backgrounds/child-prodigy.webp',
+            image: '/images/adventure/background/child-prodigy.webp',
           },
           {
             value: 'science-experiment',
             label: 'Science Experiment',
             subtext:
               'Made in a lab, basement, tower, crater, or very confident grant proposal.',
-            image: '/images/adventure/backgrounds/science-experiment.webp',
+            image: '/images/adventure/background/science-experiment.webp',
           },
           {
             value: 'cursed',
             label: 'Cursed',
             subtext:
               'Someone, something, or some very petty object made sure life would not proceed normally.',
-            image: '/images/adventure/backgrounds/cursed.webp',
+            image: '/images/adventure/background/cursed.webp',
           },
           {
             value: 'haunted',
             label: 'Haunted',
             subtext:
               'Something followed them out of the past. It has opinions, timing, and poor boundaries.',
-            image: '/images/adventure/backgrounds/haunted.webp',
+            image: '/images/adventure/background/haunted.webp',
           },
           {
             value: 'chosen-wrong',
             label: 'Chosen Wrong',
             subtext:
               'A prophecy pointed at them by mistake. Everyone is too invested to admit the error.',
-            image: '/images/adventure/backgrounds/chosen-wrong.webp',
+            image: '/images/adventure/background/chosen-wrong.webp',
           },
           {
             value: 'hidden-heir',
             label: 'Hidden Heir',
             subtext:
               'Born to inherit something dangerous. Hidden away by people who knew exactly how bad that was.',
-            image: '/images/adventure/backgrounds/hidden-heir.webp',
+            image: '/images/adventure/background/hidden-heir.webp',
           },
           {
             value: 'lost-royal',
             label: 'Lost Royal',
             subtext:
               'A crown is somewhere in their past. Unfortunately, so are assassins, debts, and etiquette.',
-            image: '/images/adventure/backgrounds/lost-royal.webp',
+            image: '/images/adventure/background/lost-royal.webp',
           },
           {
             value: 'forbidden-born',
             label: 'Forbidden Born',
             subtext:
               'Their existence broke a law, pact, taboo, bloodline rule, or extremely smug tradition.',
-            image: '/images/adventure/backgrounds/forbidden-born.webp',
+            image: '/images/adventure/background/forbidden-born.webp',
           },
           {
             value: 'omen-born',
             label: 'Omen Born',
             subtext:
               'Their arrival was interpreted as a warning. Rude, but not necessarily inaccurate.',
-            image: '/images/adventure/backgrounds/omen-born.webp',
+            image: '/images/adventure/background/omen-born.webp',
           },
           {
             value: 'star-fallen',
             label: 'Star Fallen',
             subtext:
               'Came from above, beyond, or elsewhere. The impact crater was only the beginning.',
-            image: '/images/adventure/backgrounds/star-fallen.webp',
+            image: '/images/adventure/background/star-fallen.webp',
           },
           {
             value: 'time-lost',
             label: 'Time Lost',
             subtext:
               'From the wrong century, timeline, prophecy cycle, or calendar tab. Adjusting poorly.',
-            image: '/images/adventure/backgrounds/time-lost.webp',
+            image: '/images/adventure/background/time-lost.webp',
           },
           {
             value: 'world-stranded',
             label: 'World Stranded',
             subtext:
               'Their home is somewhere else. The way back is missing, broken, guarded, or pretending.',
-            image: '/images/adventure/backgrounds/world-stranded.webp',
+            image: '/images/adventure/background/world-stranded.webp',
           },
           {
             value: 'memory-erased',
             label: 'Memory Erased',
             subtext:
               'Someone took their past. That kind of theft usually leaves fingerprints.',
-            image: '/images/adventure/backgrounds/memory-erased.webp',
+            image: '/images/adventure/background/memory-erased.webp',
           },
           {
             value: 'name-stolen',
             label: 'Name Stolen',
             subtext:
               'Their true name was taken, traded, cursed, hidden, or weaponized. Identity got complicated.',
-            image: '/images/adventure/backgrounds/name-stolen.webp',
+            image: '/images/adventure/background/name-stolen.webp',
           },
           {
             value: 'debt-born',
             label: 'Debt Born',
             subtext:
               'Came into the world already owing someone. Money would have been simpler.',
-            image: '/images/adventure/backgrounds/debt-born.webp',
+            image: '/images/adventure/background/debt-born.webp',
           },
           {
             value: 'miracle-child',
             label: 'Miracle Child',
             subtext:
               'Impossible birth, impossible survival, impossible expectations. People get weird about miracles.',
-            image: '/images/adventure/backgrounds/miracle-child.webp',
+            image: '/images/adventure/background/miracle-child.webp',
           },
           {
             value: 'last-of-kind',
             label: 'Last of Kind',
             subtext:
               'The final ember of a people, species, order, bloodline, or extremely bad idea.',
-            image: '/images/adventure/backgrounds/last-of-kind.webp',
+            image: '/images/adventure/background/last-of-kind.webp',
           },
           {
             value: 'unmade',
             label: 'Unmade',
             subtext:
               'Something tried to erase them completely. It did a sloppy job. Skill issue.',
-            image: '/images/adventure/backgrounds/unmade.webp',
+            image: '/images/adventure/background/unmade.webp',
           },
           {
             value: '',
@@ -2595,7 +2595,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             label: 'Bad Luck Magnet',
             subtext:
               'Things happen near them. Specific kinds of things. The probability is documented. Insurance companies have been in touch.',
-            image: '/images/adventure/quirks/bad-luck-magnet.webp',
+            image: '/images/adventure/quirks/bad-luck.webp',
           },
           {
             value: '',

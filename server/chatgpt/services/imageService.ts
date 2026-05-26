@@ -76,7 +76,6 @@ const ImageUploadSchema = z
     designer: z.string().trim().min(1).max(764).optional(),
     genres: z.string().trim().min(1).optional(),
     rarity: z.number().int().optional(),
-    galleryId: z.number().int().positive().optional(),
     serverId: z.number().int().positive().optional(),
     serverName: z.string().trim().min(1).max(256).optional(),
     serverUrl: z.string().trim().min(1).max(764).optional(),
@@ -119,7 +118,6 @@ const artImageMetadataSelect = {
   id: true,
   createdAt: true,
   updatedAt: true,
-  galleryId: true,
   userId: true,
   fileName: true,
   fileType: true,
@@ -143,7 +141,6 @@ const artImageMetadataSelect = {
   serverId: true,
   serverName: true,
   serverUrl: true,
-  artId: true,
   botId: true,
   componentId: true,
   milestoneId: true,
@@ -228,7 +225,6 @@ function assertValidImageData(imageData: string) {
 const directArtImageForeignKeyByResource: Partial<
   Record<ImageConnectResource, string>
 > = {
-  art: 'artId',
   bot: 'botId',
   character: 'characterId',
   chat: 'chatId',
@@ -666,7 +662,6 @@ function buildCreateData({
     designer: input.designer,
     genres: input.genres,
     rarity: input.rarity,
-    galleryId: input.galleryId,
     serverId: input.serverId,
     serverName: input.serverName,
     serverUrl: input.serverUrl,

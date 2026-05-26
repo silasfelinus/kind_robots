@@ -195,6 +195,9 @@
         <div
           class="rounded-lg border border-base-300 bg-base-200 px-3 py-2 font-mono text-xs text-base-content/60"
         >
+          <span class="text-warning">{{
+            buildLoraReference(selectedStyle)
+          }}</span>
           <span class="text-primary"> {{ selectedStyle.triggerPhrase }}</span>
           <span v-if="extraPrompt.trim()">, {{ extraPrompt }}</span>
         </div>

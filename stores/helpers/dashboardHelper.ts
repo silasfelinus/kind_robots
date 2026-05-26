@@ -73,6 +73,13 @@ export const dashboardConfigs = {
         summary: 'Manage image generation servers.',
       },
       {
+        key: 'styler',
+        label: 'Styler',
+        icon: 'kind-icon:paintbrush',
+        title: 'Art Styler',
+        summary: 'Remix an image into a fresh style',
+      },
+      {
         key: 'workbench',
         label: 'Workbench',
         icon: 'kind-icon:foundry',

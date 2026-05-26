@@ -51,7 +51,7 @@ const endpointPaths: Record<EndpointKey, string> = {
   artCollection: '/api/art/collection',
   bot: '/api/bots',
   butterfly: '/api/butterflies',
-  butterflyRecord: '/api/butterfly-records',
+  butterflyRecord: '/api/butterflies/records',
   character: '/api/characters',
   chat: '/api/chats',
   code: '/api/code',

@@ -1,6 +1,8 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <template>
-  <div class="flex h-screen select-none flex-col overflow-hidden bg-base-200">
+  <div
+    class="flex h-full min-h-0 select-none flex-col overflow-hidden bg-base-200"
+  >
     <header
       v-if="gameStarted"
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
@@ -51,6 +53,16 @@
             {{ difficulty.label }}
           </option>
         </select>
+
+        <collection-picker
+          class="max-w-2xl"
+          title="Dungeon Deck"
+          :mode="memoryStore.cardSource.type"
+          :collection-id="memoryStore.cardSource.collectionId"
+          :collection-ids="memoryStore.cardSource.collectionIds"
+          :allow-multiple="true"
+          @change="handleCollectionPickerChange"
+        />
 
         <button
           class="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
@@ -240,7 +252,7 @@
 
     <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
     <div v-else class="flex min-h-0 flex-1 overflow-hidden">
-      <div class="min-h-0 flex-1 overflow-y-auto p-4">
+      <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-3 sm:p-4">
         <div
           v-if="memoryStore.isLoading"
           class="flex h-full items-center justify-center"
@@ -275,14 +287,15 @@
 
         <div
           v-else
-          class="flex flex-wrap justify-center gap-3"
+          class="grid h-full w-full place-content-center"
           :class="{ 'board-reveal': revealActive }"
+          :style="boardGridStyle"
         >
           <div
             v-for="card in memoryStore.galleryImages"
             :key="card.id"
             :class="[
-              'card-container relative cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
+              'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
               card.matched
                 ? 'card-matched pointer-events-none opacity-40'
                 : 'hover:scale-105 active:scale-95',
@@ -297,34 +310,16 @@
                 ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
                 : '',
             ]"
-            :style="{ width: `${cardSize}px`, height: `${cardSize}px` }"
             @click="handleCardClick(card)"
-          >
-            <div
-              class="card-inner h-full"
-              :class="{ flipped: card.flipped || card.matched }"
-            >
-              <img
-                class="card-back absolute inset-0 h-full w-full object-cover"
-                src="/images/kindtitle.webp"
-                alt="Card Back"
-              />
-
-              <img
-                class="card-front absolute inset-0 h-full w-full object-cover"
-                :src="card.imagePath"
-                :alt="card.galleryName"
-              />
-            </div>
-          </div>
+          ></div>
         </div>
       </div>
 
       <aside
-        class="hidden w-56 shrink-0 flex-col overflow-hidden border-l border-base-content/10 bg-base-300 lg:flex xl:w-64"
+        class="hidden w-60 shrink-0 flex-col overflow-hidden border-l border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md lg:flex xl:w-72"
       >
         <div
-          class="shrink-0 border-b border-base-content/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-400"
+          class="shrink-0 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs font-black uppercase tracking-widest text-base-content"
         >
           📜 Dungeon Log
         </div>
@@ -339,16 +334,22 @@
               v-for="entry in dungeonLog"
               :key="entry.id"
               :class="[
-                'rounded-lg px-2 py-1.5 text-xs leading-snug',
-                entry.type === 'match' ? 'bg-green-900/40 text-green-300' : '',
-                entry.type === 'mismatch' ? 'bg-red-900/40 text-red-300' : '',
+                'rounded-xl border px-2.5 py-2 text-xs font-semibold leading-snug shadow-sm',
+                entry.type === 'match'
+                  ? 'border-success/40 bg-success/15 text-success-content'
+                  : '',
+                entry.type === 'mismatch'
+                  ? 'border-error/40 bg-error/15 text-error-content'
+                  : '',
                 entry.type === 'challenge'
-                  ? 'bg-yellow-900/40 text-yellow-300'
+                  ? 'border-warning/50 bg-warning/20 text-warning-content'
                   : '',
                 entry.type === 'award'
-                  ? 'bg-purple-900/40 text-purple-300'
+                  ? 'border-secondary/40 bg-secondary/20 text-secondary-content'
                   : '',
-                entry.type === 'system' ? 'bg-base-100/60 text-gray-400' : '',
+                entry.type === 'system'
+                  ? 'border-base-content/15 bg-base-100 text-base-content'
+                  : '',
               ]"
             >
               {{ entry.text }}
@@ -438,6 +439,12 @@ import {
   ref,
   watch,
 } from 'vue'
+import type { CSSProperties } from 'vue'
+import { useArtStore } from '@/stores/artStore'
+import type { MemoryCardSourceType } from '@/stores/memoryStore'
+import type { CollectionPickerMode } from '@/components/art/collection-picker.vue'
+
+const artStore = useArtStore()
 
 import type { GalleryImage } from '@/stores/memoryStore'
 
@@ -485,6 +492,8 @@ type MemoryStoreWithFlexibleReset = typeof memoryStore & {
   resetGame: (payload?: ResetGamePayload) => void
 }
 
+const playableCollections = computed(() => artStore.generationCollections)
+
 const memoryStore = useMemoryStore()
 const milestoneStore = useMilestoneStore()
 
@@ -498,6 +507,67 @@ const CHALLENGE_MULTIPLIER = 3
 const POWERUP_CHANCE = 0.3
 const CHALLENGE_EVERY_N = 4
 const MAX_POWERUPS = 3
+
+function handleSourceTypeChange(event: Event) {
+  const target = event.target as HTMLSelectElement
+  const type = target.value as MemoryCardSourceType
+
+  if (type === 'all') {
+    memoryStore.useAllArtImages()
+    return
+  }
+
+  if (type === 'generated') {
+    memoryStore.useGeneratedArtImages()
+    return
+  }
+
+  if (type === 'collection') {
+    memoryStore.useCollection(memoryStore.cardSource.collectionId)
+    return
+  }
+
+  if (type === 'collections') {
+    memoryStore.useCollections(memoryStore.cardSource.collectionIds)
+  }
+}
+
+function handleCollectionChange(event: Event) {
+  const target = event.target as HTMLSelectElement
+  const id = Number(target.value)
+
+  memoryStore.useCollection(Number.isInteger(id) && id > 0 ? id : null)
+}
+
+function updateBoardBounds() {
+  const element = boardPanel.value
+
+  if (!element) return
+
+  const rect = element.getBoundingClientRect()
+
+  boardBounds.width = rect.width
+  boardBounds.height = rect.height
+}
+
+async function bindBoardObserver() {
+  await nextTick()
+
+  if (boardResizeObserver) {
+    boardResizeObserver.disconnect()
+    boardResizeObserver = null
+  }
+
+  if (!boardPanel.value) return
+
+  updateBoardBounds()
+
+  boardResizeObserver = new ResizeObserver(() => {
+    updateBoardBounds()
+  })
+
+  boardResizeObserver.observe(boardPanel.value)
+}
 
 const POWERUP_DEFS: Omit<Powerup, 'id'>[] = [
   {
@@ -617,6 +687,31 @@ const shieldActive = ref(false)
 const powerups = ref<Powerup[]>([])
 const dungeonLog = ref<LogEntry[]>([])
 
+function handleCollectionPickerChange(value: {
+  mode: CollectionPickerMode
+  collectionId: number | null
+  collectionIds: number[]
+}) {
+  if (value.mode === 'all') {
+    memoryStore.useAllArtImages()
+    return
+  }
+
+  if (value.mode === 'generated') {
+    memoryStore.useGeneratedArtImages()
+    return
+  }
+
+  if (value.mode === 'collection') {
+    memoryStore.useCollection(value.collectionId)
+    return
+  }
+
+  if (value.mode === 'collections') {
+    memoryStore.useCollections(value.collectionIds)
+  }
+}
+
 const challenge = reactive({
   active: false,
   targetName: '',
@@ -641,7 +736,68 @@ let logId = 0
 let prevMatchedNames: string[] = []
 let prevFlippedCount = 0
 
-const cardSize = computed(() => memoryStore.cardSize)
+const boardPanel = ref<HTMLElement | null>(null)
+
+const boardBounds = reactive({
+  width: 0,
+  height: 0,
+})
+
+let boardResizeObserver: ResizeObserver | null = null
+
+const boardGap = computed(() => {
+  if (boardBounds.width < 480) return 6
+  if (boardBounds.width < 768) return 8
+  return 12
+})
+
+const boardLayout = computed(() => {
+  const count = galleryCards.value.length
+  const width = Math.floor(boardBounds.width)
+  const height = Math.floor(boardBounds.height)
+
+  if (count <= 0 || width <= 0 || height <= 0) {
+    return {
+      columns: 1,
+      rows: 1,
+      size: 96,
+    }
+  }
+
+  let best = {
+    columns: Math.ceil(Math.sqrt(count)),
+    rows: Math.ceil(count / Math.ceil(Math.sqrt(count))),
+    size: 72,
+  }
+
+  for (let columns = 1; columns <= count; columns++) {
+    const rows = Math.ceil(count / columns)
+    const widthAvailable = width - boardGap.value * (columns - 1)
+    const heightAvailable = height - boardGap.value * (rows - 1)
+    const size = Math.floor(
+      Math.min(widthAvailable / columns, heightAvailable / rows),
+    )
+
+    if (size > best.size) {
+      best = {
+        columns,
+        rows,
+        size,
+      }
+    }
+  }
+
+  return {
+    ...best,
+    size: Math.max(48, Math.min(best.size, 190)),
+  }
+})
+
+const boardGridStyle = computed<CSSProperties>(() => ({
+  gridTemplateColumns: `repeat(${boardLayout.value.columns}, minmax(0, ${boardLayout.value.size}px))`,
+  gap: `${boardGap.value}px`,
+}))
+
 const leaderboard = computed(() => milestoneStore.highMatchScores)
 
 const galleryCards = computed(() => memoryStore.galleryImages as DungeonCard[])
@@ -662,6 +818,20 @@ const totalPairs = computed(() => galleryCards.value.length / 2)
 const flippedUnmatchedCount = computed(
   () =>
     galleryCards.value.filter((card) => card.flipped && !card.matched).length,
+)
+
+watch(gameStarted, async (started) => {
+  if (!started) return
+  await bindBoardObserver()
+})
+
+watch(
+  () => galleryCards.value.length,
+  async () => {
+    if (!gameStarted.value) return
+    await nextTick()
+    updateBoardBounds()
+  },
 )
 
 watch(matchedGalleryNames, (newValue) => {
@@ -939,11 +1109,17 @@ function onLevelComplete() {
 
   grantFloorReward(wasFlawless) // random bonus on top, as before
 
-  setTimeout(() => {
+  setTimeout(async () => {
     level.value++
     streak.value = 0
-    resetBoardForCurrentLevel() // ← board reset while still transitioning
-    levelTransitioning.value = false // ← guard drops after
+
+    resetBoardForCurrentLevel()
+
+    await nextTick()
+
+    updateBoardBounds()
+
+    levelTransitioning.value = false
   }, 1400)
 }
 
@@ -1036,7 +1212,7 @@ function getWeightedReward(rewards: FloorReward[]): FloorReward | null {
 }
 
 function grantFloorReward(wasFlawless: boolean) {
-  const nextPairTotal = totalPairs.value + levelPairModifier.value
+  const nextPairTotal = totalPairs.value
   const canGainMaxHp = maxLives.value < MAX_POSSIBLE_LIVES
   const canHeal = lives.value < maxLives.value
   const canReduceCards = nextPairTotal > MIN_LEVEL_PAIRS
@@ -1214,10 +1390,23 @@ onMounted(async () => {
   if (!milestoneStore.highMatchScores.length) {
     await milestoneStore.fetchHighMatchScores()
   }
+
+  window.addEventListener('resize', updateBoardBounds)
+
+  if (gameStarted.value) {
+    await bindBoardObserver()
+  }
 })
 
 onUnmounted(() => {
   cancelChallenge()
+
+  window.removeEventListener('resize', updateBoardBounds)
+
+  if (boardResizeObserver) {
+    boardResizeObserver.disconnect()
+    boardResizeObserver = null
+  }
 
   if (revealTimer) clearTimeout(revealTimer)
   if (oracleTimer) clearTimeout(oracleTimer)

@@ -24,6 +24,20 @@ export interface GalleryImage {
   matched: boolean
 }
 
+export type MemoryCardSourceType =
+  | 'all'
+  | 'generated'
+  | 'collection'
+  | 'collections'
+  | 'manual'
+
+export interface MemoryCardSourceConfig {
+  type: MemoryCardSourceType
+  collectionId: number | null
+  collectionIds: number[]
+  manualArtImageIds: number[]
+}
+
 export interface DifficultyOption {
   label: string
   pairs: number
@@ -66,6 +80,7 @@ const isClient = typeof window !== 'undefined'
 const highScoreStorageKey = 'memoryDungeonHighScore'
 const rewardModeStorageKey = 'memoryDungeonRewardMode'
 const autoClaimRewardsStorageKey = 'memoryDungeonAutoClaimRewards'
+const memoryCardSourceStorageKey = 'memoryDungeonCardSource'
 
 const roundFlavors = [
   'You enter the Hall of Suspiciously Repeated Portraits. Every artifact has a twin. Probably tax reasons.',
@@ -143,6 +158,39 @@ const rewardTitles = [
   'The Dungeon Grants A Weird Boon',
   'Tiny Skeleton Standing Ovation',
 ]
+
+function safeParseMemoryCardSource(raw: string | null): MemoryCardSourceConfig {
+  if (!raw) {
+    return {
+      type: 'all',
+      collectionId: null,
+      collectionIds: [],
+      manualArtImageIds: [],
+    }
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<MemoryCardSourceConfig>
+
+    return {
+      type: parsed.type || 'all',
+      collectionId: parsed.collectionId ?? null,
+      collectionIds: Array.isArray(parsed.collectionIds)
+        ? parsed.collectionIds.filter(Number.isInteger)
+        : [],
+      manualArtImageIds: Array.isArray(parsed.manualArtImageIds)
+        ? parsed.manualArtImageIds.filter(Number.isInteger)
+        : [],
+    }
+  } catch {
+    return {
+      type: 'all',
+      collectionId: null,
+      collectionIds: [],
+      manualArtImageIds: [],
+    }
+  }
+}
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
@@ -312,6 +360,150 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       ) ?? null
     )
   })
+
+  function setCardSource(source: Partial<MemoryCardSourceConfig>): void {
+    cardSource.value = {
+      ...cardSource.value,
+      ...source,
+    }
+  }
+
+  function useAllArtImages(): void {
+    setCardSource({
+      type: 'all',
+      collectionId: null,
+      collectionIds: [],
+      manualArtImageIds: [],
+    })
+  }
+
+  function useGeneratedArtImages(): void {
+    setCardSource({
+      type: 'generated',
+      collectionId: null,
+      collectionIds: [],
+      manualArtImageIds: [],
+    })
+  }
+
+  function useCollection(collectionId: number | null): void {
+    setCardSource({
+      type: collectionId ? 'collection' : 'all',
+      collectionId,
+      collectionIds: [],
+      manualArtImageIds: [],
+    })
+  }
+
+  function useCollections(collectionIds: number[]): void {
+    setCardSource({
+      type: collectionIds.length ? 'collections' : 'all',
+      collectionId: null,
+      collectionIds: [...new Set(collectionIds)],
+      manualArtImageIds: [],
+    })
+  }
+
+  function getCollectionArtImages(collection: unknown): ArtImage[] {
+    if (!collection || typeof collection !== 'object') return []
+
+    const record = collection as Record<string, unknown>
+    const candidates = [record.ArtImages, record.artImages]
+
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) {
+        return candidate as ArtImage[]
+      }
+    }
+
+    return []
+  }
+
+  function uniqueArtImages(images: ArtImage[]): ArtImage[] {
+    const map = new Map<number, ArtImage>()
+
+    for (const image of images) {
+      if (image?.id) {
+        map.set(image.id, image)
+      }
+    }
+
+    return [...map.values()]
+  }
+
+  function filterPlayableArtImages(images: ArtImage[]): ArtImage[] {
+    const showMature = artStore.showMature
+
+    return uniqueArtImages(images).filter((image) => {
+      if (!image) return false
+      if (!showMature && image.isMature) return false
+      return Boolean(extractArtImagePath(image))
+    })
+  }
+
+  async function getMemoryCardPool(): Promise<ArtImage[]> {
+    await artStore.initialize({
+      fetchRemote: !artStore.hasCachedImages,
+      hydrateImages: true,
+      initializeCollections: true,
+    })
+
+    const source = cardSource.value
+
+    if (source.type === 'generated') {
+      return filterPlayableArtImages(artStore.generatedArtImages)
+    }
+
+    if (source.type === 'manual') {
+      const ids = new Set(source.manualArtImageIds)
+
+      return filterPlayableArtImages(
+        artStore.artImages.filter((image) => ids.has(image.id)),
+      )
+    }
+
+    if (source.type === 'collection' && source.collectionId) {
+      const collection =
+        artStore.collections.find(
+          (storedCollection) => storedCollection.id === source.collectionId,
+        ) ?? null
+
+      return filterPlayableArtImages(getCollectionArtImages(collection))
+    }
+
+    if (source.type === 'collections' && source.collectionIds.length) {
+      const ids = new Set(source.collectionIds)
+
+      const images = artStore.collections
+        .filter((collection) => ids.has(collection.id))
+        .flatMap((collection) => getCollectionArtImages(collection))
+
+      return filterPlayableArtImages(images)
+    }
+
+    return filterPlayableArtImages(artStore.artImages)
+  }
+
+  function useManualArtImages(artImageIds: number[]): void {
+    setCardSource({
+      type: artImageIds.length ? 'manual' : 'all',
+      collectionId: null,
+      collectionIds: [],
+      manualArtImageIds: [...new Set(artImageIds)],
+    })
+  }
+
+  const cardSource = ref<MemoryCardSourceConfig>(
+    safeParseMemoryCardSource(safeGetLocalStorage(memoryCardSourceStorageKey)),
+  )
+
+  watch(
+    cardSource,
+    (value) => {
+      safeSetLocalStorage(memoryCardSourceStorageKey, JSON.stringify(value))
+    },
+    { deep: true },
+  )
 
   const cardSize = computed(() => {
     const screen = displayStore.viewportSize
@@ -551,18 +743,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       clearNotification()
       resetTurnState()
 
-      // Make sure the art store has images loaded
-      await artStore.initialize({
-        fetchRemote: !artStore.hasCachedImages,
-        hydrateImages: true,
-      })
-
-      const showMature = artStore.showMature
-      const pool = artStore.artImages.filter((image) => {
-        if (!image) return false
-        if (!showMature && image.isMature) return false
-        return Boolean(extractArtImagePath(image))
-      })
+      const pool = await getMemoryCardPool()
 
       if (pool.length < 2) {
         throw new Error(
@@ -1340,5 +1521,11 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     generateRewardText,
     generateRewardArt,
     flipCard,
+    cardSource,
+    setCardSource,
+    useAllArtImages,
+    useGeneratedArtImages,
+    useCollection,
+    useCollections,
   }
 })

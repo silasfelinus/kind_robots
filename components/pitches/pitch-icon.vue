@@ -1,16 +1,12 @@
-<!-- components/pitches/pitch-icon.vue -->
-<!--
-  Icon picker using iconStore's validIcons list.
-  Searchable grid — selecting writes to sheet.icon and stagedValues.
--->
+<!-- /components/pitches/pitch-icon.vue -->
 <template>
   <div class="flex flex-col gap-3">
-    <!-- Search -->
     <div class="relative">
       <Icon
         name="kind-icon:search"
         class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-base-content/40"
       />
+
       <input
         v-model="searchQuery"
         type="text"
@@ -19,22 +15,23 @@
       />
     </div>
 
-    <!-- Current selection -->
     <Transition name="slide-down">
       <div
         v-if="currentIcon"
         class="flex items-center gap-3 rounded-2xl border-2 border-primary/40 bg-primary/8 px-4 py-3"
       >
         <Icon :name="currentIcon" class="h-8 w-8 text-primary" />
-        <div class="flex-1 min-w-0">
+
+        <div class="min-w-0 flex-1">
           <p class="text-xs font-bold text-primary">Selected</p>
           <p class="truncate font-mono text-sm text-base-content/70">
-            {{ currentIcon }}
+            {{ iconLabel(currentIcon) }}
           </p>
         </div>
+
         <button
           type="button"
-          class="shrink-0 text-base-content/30 hover:text-error transition-colors"
+          class="shrink-0 text-base-content/30 transition-colors hover:text-error"
           @click="clearIcon"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />
@@ -42,7 +39,6 @@
       </div>
     </Transition>
 
-    <!-- Icon grid -->
     <div class="grid grid-cols-6 gap-1.5 sm:grid-cols-8 lg:grid-cols-10">
       <button
         v-for="icon in filteredIcons"
@@ -54,7 +50,7 @@
             ? 'border-primary bg-primary/15 text-primary shadow-md shadow-primary/20'
             : 'border-base-300 bg-base-100 text-base-content/60 hover:border-primary/40 hover:bg-primary/5 hover:text-primary'
         "
-        :title="icon.replace('kind-icon:', '')"
+        :title="iconLabel(icon)"
         @click="selectIcon(icon)"
       >
         <Icon :name="icon" class="h-5 w-5" />
@@ -76,6 +72,7 @@
 </template>
 
 <script setup lang="ts">
+// /components/pitches/pitch-icon.vue
 import { computed, ref } from 'vue'
 import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
 import { usePitchStore } from '@/stores/pitchStore'
@@ -86,20 +83,39 @@ const pitchStore = usePitchStore()
 const iconStore = useIconStore()
 
 const searchQuery = ref('')
+
 const stepKey = computed(() => store.activeStep?.key ?? '')
-const currentIcon = computed(() => store.stagedValues[stepKey.value] ?? '')
+
+const currentIcon = computed(() => {
+  const icon = store.stagedValues[stepKey.value] ?? ''
+  return icon ? normalizeIcon(icon) : ''
+})
+
+const normalizedIcons = computed(() => iconStore.icons.map(normalizeIcon))
 
 const filteredIcons = computed(() => {
-  const q = searchQuery.value.toLowerCase().trim()
-  if (!q) return iconStore.icons
-  return iconStore.icons.filter((icon: string) =>
-    icon.replace('kind-icon:', '').includes(q),
+  const query = searchQuery.value.toLowerCase().trim()
+
+  if (!query) return normalizedIcons.value
+
+  return normalizedIcons.value.filter((icon) =>
+    iconLabel(icon).toLowerCase().includes(query),
   )
 })
 
+function normalizeIcon(icon: string) {
+  return icon.startsWith('kind-icon:') ? icon : `kind-icon:${icon}`
+}
+
+function iconLabel(icon: string) {
+  return icon.replace('kind-icon:', '')
+}
+
 function selectIcon(icon: string) {
-  store.setStagedValue(stepKey.value, icon)
-  pitchStore.setPitchForm({ icon })
+  const normalizedIcon = normalizeIcon(icon)
+
+  store.setStagedValue(stepKey.value, normalizedIcon)
+  pitchStore.setPitchForm({ icon: normalizedIcon })
 }
 
 function clearIcon() {
@@ -114,11 +130,13 @@ function clearIcon() {
     opacity 200ms ease,
     transform 200ms cubic-bezier(0.34, 1.2, 0.64, 1);
 }
+
 .slide-down-leave-active {
   transition:
     opacity 150ms ease,
     transform 150ms ease;
 }
+
 .slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;

@@ -159,6 +159,13 @@ export const dashboardConfigs = {
         summary: 'Browse, select, add, edit, and delete big-picture ideas.',
       },
       {
+        key: 'builder',
+        label: 'Builder',
+        icon: 'kind-icon:plan',
+        title: 'Pitch Builder',
+        summary: 'Build a Pitch using our builder cards.',
+      },
+      {
         key: 'prompts',
         label: 'Prompts',
         icon: 'kind-icon:prompt',

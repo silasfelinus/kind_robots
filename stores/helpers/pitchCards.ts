@@ -49,71 +49,6 @@ export type PitchCard = {
   steps: PitchStep[]
 }
 
-// ── Extended genre list (reused from adventure) ────────────────────────────
-
-const EXTENDED_GENRES: string[] = [
-  'Bureaucratic Fantasy',
-  'Academic Eldritch',
-  'Municipal Necromancy',
-  'Wilderness Bureaucracy',
-  'Diplomatic Thriller',
-  'Archive Horror',
-  'Revolutionary Pastoral',
-  'Bog Punk',
-  'Culinary Horror',
-  'Geological Romance',
-  'Siege Comedy',
-  'Tender Apocalypse',
-  'Haunted Procedural',
-  'Existential Swashbuckling',
-  'Heist Mythology',
-  'Maritime Mystery',
-  'Isekai (reluctant)',
-  'Slice of Life (complicated)',
-  'Shonen (aging protagonist)',
-  'Magical Girl (retired)',
-  'Mecha Opera',
-  'Tournament Arc',
-  'School Horror',
-  'Reverse Isekai',
-  'Solarpunk',
-  'Vaporwave Dystopia',
-  'Hard Sci-Fi (soft feelings)',
-  'Generation Ship Drama',
-  'First Contact Comedy',
-  'Deep Space Western',
-  'Alien Bureaucracy',
-  'Corporate Sci-Fi',
-  'Clockpunk Opera',
-  'J-Horror',
-  'Body Horror (tender)',
-  'Cryptid Documentary',
-  "Kaiju (from the kaiju's perspective)",
-  'Folk Horror',
-  'Fungal Horror',
-  'Furry Pastoral',
-  'Aquatic Opera',
-  'Sky Nomad',
-  'Underground Society',
-  'Office Thriller',
-  'Lovecraftian Office Comedy',
-  'Corporate Espionage',
-  'Middle Management Horror',
-  'Noir (one detail wrong)',
-  'Carnival (abandoned, still running)',
-  'Mythological Comedy',
-  'Underwater Cathedral',
-  'Green Sky Apocalypse',
-  'Old Forest Folklore',
-  'Bioluminescent Underground',
-  'Too-Close Moon Fairytale',
-  'Empty Parliament Thriller',
-  'Village Creature Pastoral',
-  'Anachronism Mystery',
-  'Western (strange angle)',
-  'Political Candlelight Drama',
-]
-
 // ── Cards ──────────────────────────────────────────────────────────────────
 
 export const PITCH_CARDS: PitchCard[] = [
@@ -190,124 +125,6 @@ export const PITCH_CARDS: PitchCard[] = [
     ],
   },
 
-  // ── Genre ─────────────────────────────────────────────────────────────────
-  {
-    key: 'genre',
-    label: 'Genre',
-    title: 'The gravitational field',
-    icon: 'kind-icon:compass',
-    flourish: '⊕',
-    deckImage: '/images/pitch/thumb/genre.png',
-    heroImage: '/images/pitch/hero/genre.png',
-    tagline: 'Optional. But genre is how the pitch bends light.',
-    narrative:
-      'Genre is not required. A pitch can exist without one and generate in any direction. But naming the genre is naming the gravitational field — it changes what kinds of ideas the pitch attracts. "Tardigrades in space" is one thing. "Tardigrades in space (cozy horror)" is a different sentence that happens to use the same words.',
-    required: false,
-    restoresFields: ['genre'],
-    steps: [
-      {
-        key: 'pitchGenre',
-        title: 'Genre',
-        narrative:
-          'Choose the genre field this pitch inhabits. Or skip it — not every pitch needs one. The pitch will work without it. The genre is just a lens.',
-        inputType: 'preset',
-        field: 'genre',
-        optional: true,
-        choices: [
-          {
-            value: 'Gothic Comedy',
-            label: 'Gothic Comedy',
-            subtext: 'Elegant decay. Comedic timing in the crypt.',
-            image: '/images/adventure/genre/gothic.png',
-          },
-          {
-            value: 'Cozy Horror',
-            label: 'Cozy Horror',
-            subtext: 'Something outside the window. Cup of tea inside.',
-            image: '/images/adventure/genre/cozy.png',
-          },
-          {
-            value: 'Mythic Sci-Fi',
-            label: 'Mythic Sci-Fi',
-            subtext: 'Gods with spaceships. Heroes with launch codes.',
-            image: '/images/adventure/genre/scifi.png',
-          },
-          {
-            value: 'Cosmic Dread',
-            label: 'Cosmic Dread',
-            subtext: 'Tiny figure. Enormous moon. The moon has a door.',
-            image: '/images/adventure/genre/cosmic.png',
-          },
-          {
-            value: 'Fantasy',
-            label: 'Classic Fantasy',
-            subtext:
-              'Dragon on a castle. The dragon is reading something, unconcerned.',
-            image: '/images/adventure/genre/fantasy.png',
-          },
-          {
-            value: 'Mystery',
-            label: 'Mystery',
-            subtext: 'The magnifying glass is pointed at the viewer.',
-            image: '/images/adventure/genre/mystery.png',
-          },
-          {
-            value: 'Horror',
-            label: 'Horror',
-            subtext:
-              'The reaching hand is coming from the lantern, not the ground.',
-            image: '/images/adventure/genre/horror.png',
-          },
-          {
-            value: 'Romance',
-            label: 'Romance',
-            subtext:
-              'Two figures almost touching. Both looking at the same third thing, off-frame.',
-            image: '/images/adventure/genre/romance.png',
-          },
-          {
-            value: 'Comedy',
-            label: 'Comedy',
-            subtext: 'Motion lines that spell something.',
-            image: '/images/adventure/genre/comedy.png',
-          },
-          {
-            value: 'Pastoral Apocalypse',
-            label: 'Pastoral Apocalypse',
-            subtext: 'Green sky. Laundry still on the line.',
-            image: '/images/adventure/genre/apocalypse.png',
-          },
-          {
-            value: 'Carnival',
-            label: 'Carnival',
-            subtext: 'Abandoned fairground, still running. There is a queue.',
-            image: '/images/adventure/genre/carnival.png',
-          },
-          {
-            value: 'Infinite Archive',
-            label: 'Infinite Archive',
-            subtext: 'The book is reading back.',
-            image: '/images/adventure/genre/archive.png',
-          },
-          {
-            value: '',
-            label: 'More genres...',
-            subtext:
-              'Isekai, mecha, bog punk, alien bureaucracy, and sixty more.',
-            opensList: true,
-            listOptions: EXTENDED_GENRES,
-          },
-          {
-            value: '',
-            label: 'Write my own',
-            subtext: 'Any genre, vibe, or gravitational field.',
-            opensCustom: true,
-          },
-        ],
-      },
-    ],
-  },
-
   // ── Icon ──────────────────────────────────────────────────────────────────
   {
     key: 'icon',
@@ -355,7 +172,7 @@ export const PITCH_CARDS: PitchCard[] = [
         key: 'pitchArt',
         title: 'Build the Image',
         narrative:
-          "Use the pitch text, type, and genre to build an image that represents this idea. The art prompt can be refined before generating. The image becomes the pitch's cover.",
+          "Use the pitch text and type to build an image that represents this idea. The art prompt can be refined before generating. The image becomes the pitch's cover.",
         inputType: 'art',
         field: 'artPrompt',
         optional: true,

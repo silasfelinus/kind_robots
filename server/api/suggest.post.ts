@@ -2,21 +2,6 @@
 //
 // Unified LLM suggest endpoint for all Kind Robots builders.
 // One file. Builder-specific system prompts + context.
-//
-// Request body:
-//   builder  — 'adventure' | 'pitch' | 'reward' | 'dream' (routes system prompt)
-//   server   — serverStore.activeTextServer snapshot (provider derived from this)
-//   field    — schema field being suggested
-//   stepKey  — card step key
-//   current  — existing text (may be empty)
-//   context  — builder-specific context object (sheet, pitchForm, etc.)
-//
-// Provider resolution (from server.baseUrl / server.serverType):
-//   anthropic.com   → anthropic
-//   openai.com      → openai
-//   OPENAI_COMPAT   → openai_compatible (uses server.baseUrl)
-//   localhost/ollama → ollama
-//   fallback        → anthropic
 
 import { defineEventHandler, readBody, createError } from 'h3'
 
@@ -41,12 +26,20 @@ type SuggestBody = {
   context?: Record<string, unknown>
 }
 
-// ── Provider derivation ────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+/** Coerce any config value → string, with optional fallback.
+ *  Accepts unknown so Nuxt runtimeConfig fields (string | undefined) pass without casts. */
+function str(val: unknown, fallback = ''): string {
+  if (val == null || val === '') return fallback
+  if (typeof val === 'string') return val
+  return fallback
+}
 
 function deriveProvider(server?: ServerSnapshot): Provider {
   if (!server?.baseUrl && !server?.serverType) return 'anthropic'
-  const url = (server.baseUrl || '').toLowerCase()
-  const type = (server.serverType || '').toUpperCase()
+  const url = str(server.baseUrl).toLowerCase()
+  const type = str(server.serverType).toUpperCase()
   if (url.includes('anthropic.com')) return 'anthropic'
   if (url.includes('openai.com')) return 'openai'
   if (
@@ -73,7 +66,7 @@ function resolveModel(provider: Provider, serverModel?: string | null): string {
   }
 }
 
-// ── System prompts by builder ──────────────────────────────────────────────
+// ── System prompts ─────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   adventure: `You are the writing engine for a character builder called the Adventure Builder on Kind Robots.
@@ -110,7 +103,8 @@ Rules:
 - Keep it under 150 words unless the field specifically requires more.`,
 }
 
-const DEFAULT_SYSTEM = SYSTEM_PROMPTS.adventure
+const DEFAULT_SYSTEM =
+  SYSTEM_PROMPTS.adventure ?? 'You are a helpful creative writing assistant.'
 
 // ── Context builders ───────────────────────────────────────────────────────
 
@@ -119,10 +113,10 @@ function buildContextString(
   context: Record<string, unknown>,
 ): string {
   const lines: string[] = []
+  const c = context as Record<string, string | undefined>
 
   switch (builder) {
-    case 'adventure': {
-      const c = context as Record<string, string | undefined>
+    case 'adventure':
       if (c.name) lines.push(`Name: ${c.name}`)
       if (c.species) lines.push(`Species: ${c.species}`)
       if (c.class) lines.push(`Calling: ${c.class}`)
@@ -132,23 +126,18 @@ function buildContextString(
       if (c.personality) lines.push(`Personality: ${c.personality}`)
       if (c.backstory) lines.push(`Backstory: ${c.backstory}`)
       break
-    }
-    case 'pitch': {
-      const c = context as Record<string, string | undefined>
-      if (c.PitchType === 'DREAM')
-        lines.push('Type: Location pitch (a place for stories to happen)')
-      else lines.push('Type: Art pitch (a concept for image generation)')
+    case 'pitch':
+      lines.push(
+        c.PitchType === 'DREAM'
+          ? 'Type: Location pitch (a place for stories to happen)'
+          : 'Type: Art pitch (a concept for image generation)',
+      )
       if (c.pitch) lines.push(`Current pitch: ${c.pitch}`)
-      if (c.genre) lines.push(`Genre: ${c.genre}`)
       break
-    }
-    case 'dream': {
-      const c = context as Record<string, string | undefined>
+    case 'dream':
       if (c.title) lines.push(`Location: ${c.title}`)
       if (c.pitch) lines.push(`Concept: ${c.pitch}`)
-      if (c.genre) lines.push(`Genre: ${c.genre}`)
       break
-    }
   }
 
   return lines.join('\n')
@@ -167,25 +156,27 @@ function buildUserPrompt(
     ? `\n\nExisting value to refine:\n"${current.trim()}"\nReturn only the improved version.`
     : '\nReturn only the value. No preamble.'
 
-  // Field-specific prompts
   const FIELD_PROMPTS: Record<string, string> = {
-    pitch: `Write or refine a pitch sentence for this creative seed.`,
-    personality: `Write a 2–3 sentence personality description. Capture how they behave under pressure, their characteristic flaws and strengths.`,
-    backstory: `Write a 3–5 sentence backstory. Include: something wanted, something lost, a formative event, one detail that still surfaces at wrong moments.`,
-    quirks: `Write 1–2 specific behavioral quirks. Make them specific and interesting.`,
-    artPrompt: `Refine this portrait prompt for AI image generation. Prioritise visual specificity. Keep under 200 words.`,
-    description: `Write a 1–2 sentence evocative description.`,
+    pitch: 'Write or refine a pitch sentence for this creative seed.',
+    personality:
+      'Write a 2–3 sentence personality description. Capture how they behave under pressure, their characteristic flaws and strengths.',
+    backstory:
+      'Write a 3–5 sentence backstory. Include: something wanted, something lost, a formative event, one detail that still surfaces at wrong moments.',
+    quirks:
+      'Write 1–2 specific behavioral quirks. Make them specific and interesting.',
+    artPrompt:
+      'Refine this portrait prompt for AI image generation. Prioritise visual specificity. Keep under 200 words.',
+    description: 'Write a 1–2 sentence evocative description.',
   }
 
   const fieldPrompt =
     FIELD_PROMPTS[field] ??
     FIELD_PROMPTS[stepKey] ??
     `Generate an appropriate value for the "${field}" field.`
-
   return `${fieldPrompt}${ctxNote}${currentNote}`
 }
 
-// ── Provider calls ────────────────────────────────────────────────────────
+// ── Provider calls ─────────────────────────────────────────────────────────
 
 async function callAnthropic(
   systemPrompt: string,
@@ -208,13 +199,11 @@ async function callAnthropic(
       messages: [{ role: 'user', content: userPrompt }],
     }),
   })
-  if (!response.ok) {
-    const err = await response.text().catch(() => '')
+  if (!response.ok)
     throw createError({
       statusCode: response.status,
-      statusMessage: `Anthropic: ${response.statusText}. ${err}`,
+      statusMessage: `Anthropic: ${response.statusText}`,
     })
-  }
   type R = { content: Array<{ type: string; text?: string }> }
   const data = (await response.json()) as R
   return data.content?.[0]?.text?.trim() ?? ''
@@ -228,8 +217,7 @@ async function callOpenAI(
   baseUrl = 'https://api.openai.com',
   endpointPath = '/v1/chat/completions',
 ): Promise<string> {
-  const endpoint = `${baseUrl.replace(/\/$/, '')}${endpointPath}`
-  const response = await fetch(endpoint, {
+  const response = await fetch(`${baseUrl.replace(/\/$/, '')}${endpointPath}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -246,13 +234,11 @@ async function callOpenAI(
       ],
     }),
   })
-  if (!response.ok) {
-    const err = await response.text().catch(() => '')
+  if (!response.ok)
     throw createError({
       statusCode: response.status,
-      statusMessage: `OpenAI: ${response.statusText}. ${err}`,
+      statusMessage: `OpenAI: ${response.statusText}`,
     })
-  }
   type R = { choices: Array<{ message: { content: string } }> }
   const data = (await response.json()) as R
   return data.choices?.[0]?.message?.content?.trim() ?? ''
@@ -277,40 +263,41 @@ async function callOllama(
       options: { num_predict: 512 },
     }),
   })
-  if (!response.ok) {
-    const err = await response.text().catch(() => '')
+  if (!response.ok)
     throw createError({
       statusCode: response.status,
-      statusMessage: `Ollama: ${response.statusText}. ${err}`,
+      statusMessage: `Ollama: ${response.statusText}`,
     })
-  }
   type R = { message: { content: string } }
   const data = (await response.json()) as R
   return data.message?.content?.trim() ?? ''
 }
 
-// ── Handler ───────────────────────────────────────────────────────────────
+// ── Handler ────────────────────────────────────────────────────────────────
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<SuggestBody>(event)
-    const {
-      builder = 'adventure',
-      server,
-      field,
-      stepKey = field,
-      current = '',
-      context = {},
-    } = body ?? {}
 
-    if (!field && !stepKey) {
+    // Read fields directly — avoids body ?? {} widening field/stepKey to string | undefined
+    const field = body?.field ?? ''
+    const stepKey = body?.stepKey ?? body?.field ?? ''
+    const builder = body?.builder ?? 'adventure'
+    const server = body?.server
+    const current = body?.current ?? ''
+    const context = body?.context ?? {}
+
+    if (!field) {
       return { success: false, message: 'field or stepKey is required.' }
     }
 
     const config = useRuntimeConfig()
     const provider = deriveProvider(server)
     const model = resolveModel(provider, server?.model)
-    const systemPrompt = SYSTEM_PROMPTS[builder] ?? DEFAULT_SYSTEM
+    const systemPrompt =
+      SYSTEM_PROMPTS[builder] ??
+      DEFAULT_SYSTEM ??
+      'You are a helpful creative writing assistant.'
     const userPrompt = buildUserPrompt(
       builder,
       field,
@@ -323,40 +310,42 @@ export default defineEventHandler(async (event) => {
 
     let value: string
 
+    // str() coerces string | null | undefined → string, so all args are clean strings
     if (provider === 'ollama') {
-      const baseUrl =
-        server?.baseUrl ||
-        (config.ollamaBaseUrl as string | undefined) ||
-        'http://localhost:11434'
-      value = await callOllama(systemPrompt, userPrompt, model, baseUrl)
+      value = await callOllama(
+        systemPrompt,
+        userPrompt,
+        model,
+        str(
+          server?.baseUrl,
+          str(config.ollamaBaseUrl, 'http://localhost:11434'),
+        ),
+      )
     } else if (provider === 'openai_compatible') {
-      const apiKey = (config.openaiApiKey as string | undefined) || ''
-      const baseUrl = server?.baseUrl || 'http://localhost:1234'
-      const endpointPath = server?.endpointPath || '/v1/chat/completions'
       value = await callOpenAI(
         systemPrompt,
         userPrompt,
         model,
-        apiKey,
-        baseUrl,
-        endpointPath,
+        str(config.openaiApiKey),
+        str(server?.baseUrl, 'http://localhost:1234'),
+        str(server?.endpointPath, '/v1/chat/completions'),
       )
     } else if (provider === 'openai') {
-      const apiKey = config.openaiApiKey as string | undefined
-      if (!apiKey)
+      const key = str(config.openaiApiKey)
+      if (!key)
         throw createError({
           statusCode: 500,
           statusMessage: 'openaiApiKey not configured',
         })
-      value = await callOpenAI(systemPrompt, userPrompt, model, apiKey)
+      value = await callOpenAI(systemPrompt, userPrompt, model, key)
     } else {
-      const apiKey = config.anthropicApiKey as string | undefined
-      if (!apiKey)
+      const key = str(config.anthropicApiKey)
+      if (!key)
         throw createError({
           statusCode: 500,
           statusMessage: 'anthropicApiKey not configured',
         })
-      value = await callAnthropic(systemPrompt, userPrompt, model, apiKey)
+      value = await callAnthropic(systemPrompt, userPrompt, model, key)
     }
 
     if (!value) {

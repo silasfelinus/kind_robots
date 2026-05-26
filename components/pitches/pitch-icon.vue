@@ -78,9 +78,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { usePitchBuilderStore } from '@/stores/pitchBuilderStore'
+import { usePitchStore } from '@/stores/pitchStore'
 import { useIconStore } from '@/stores/iconStore'
 
 const store = usePitchBuilderStore()
+const pitchStore = usePitchStore()
 const iconStore = useIconStore()
 
 const searchQuery = ref('')
@@ -97,12 +99,12 @@ const filteredIcons = computed(() => {
 
 function selectIcon(icon: string) {
   store.setStagedValue(stepKey.value, icon)
-  store.sheet.icon = icon
+  pitchStore.setPitchForm({ icon })
 }
 
 function clearIcon() {
   store.setStagedValue(stepKey.value, '')
-  store.sheet.icon = ''
+  pitchStore.setPitchForm({ icon: '' })
 }
 </script>
 

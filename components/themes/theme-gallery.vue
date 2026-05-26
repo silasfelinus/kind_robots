@@ -50,7 +50,7 @@
     </section>
 
     <main class="min-h-0 flex-1 overflow-y-auto">
-      <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <section class="flex flex-col gap-6">
         <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
           <div class="mb-4 flex items-center gap-3">
             <span

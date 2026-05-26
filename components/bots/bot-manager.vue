@@ -89,6 +89,8 @@
         </div>
       </section>
 
+      <bot-builder v-else-if="currentTab === 'builder'" />
+
       <section
         v-else-if="currentTab === 'forge'"
         class="rounded-2xl border border-base-300 bg-base-200 p-3"

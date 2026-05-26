@@ -75,6 +75,8 @@
         :show-header="false"
       />
 
+      <scenario-builder v-else-if="currentTab === 'builder'" />
+
       <character-gallery
         v-else-if="currentTab === 'characters'"
         variant="dashboard"

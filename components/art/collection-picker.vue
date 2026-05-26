@@ -168,6 +168,7 @@ export type CollectionPickerMode =
   | 'generated'
   | 'collection'
   | 'collections'
+  | 'manual'
 
 const props = withDefaults(
   defineProps<{

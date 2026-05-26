@@ -1,16 +1,4 @@
 <!-- /components/art/art-styler.vue -->
-<!--
-  art-styler.vue
-  Takes a source ArtImage, lets the user pick a Kontext LoRA style,
-  builds a GenerateArtData payload, and fires off generateArt().
-
-  Props:
-    artImage  — required ArtImage to stylize
-    serverId  — optional override; falls back to activeGenerationServer
-  Emits:
-    generated(ArtImage) — after successful generation
-    close               — user dismisses the panel
--->
 <template>
   <section
     class="art-styler flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
@@ -40,7 +28,7 @@
         <img
           v-if="sourceImageSrc"
           :src="sourceImageSrc"
-          :alt="artImage.fileName || 'Source image'"
+          :alt="artImage?.fileName || 'Source image'"
           class="h-full w-full object-cover"
         />
         <div
@@ -50,7 +38,6 @@
           <Icon name="kind-icon:image" class="h-8 w-8 text-base-content/30" />
         </div>
 
-        <!-- Arrow overlay to result -->
         <div
           v-if="resultImageSrc"
           class="absolute -right-3 top-1/2 z-10 -translate-y-1/2"
@@ -62,7 +49,6 @@
         </div>
       </div>
 
-      <!-- Result preview (appears after generation) -->
       <Transition name="slide-fade">
         <div
           v-if="resultImageSrc"
@@ -86,7 +72,10 @@
 
       <div class="flex min-w-0 flex-col justify-center gap-1">
         <p class="truncate text-sm font-bold text-base-content">
-          {{ artImage.fileName || `Image #${artImage.id}` }}
+          {{
+            artImage?.fileName ||
+            (artImage ? `Image #${artImage.id}` : 'No image')
+          }}
         </p>
         <p
           v-if="selectedStyle"
@@ -140,12 +129,9 @@
         :title="style.triggerPhrase"
         @click="selectStyle(style)"
       >
-        <!-- Category emoji -->
         <span class="text-xl leading-none">{{
           CATEGORY_ICONS[style.category]
         }}</span>
-
-        <!-- Style name -->
         <span
           class="text-xs font-bold leading-tight"
           :class="
@@ -157,7 +143,6 @@
           {{ style.label }}
         </span>
 
-        <!-- Selected checkmark -->
         <Transition name="pop">
           <div
             v-if="selectedStyle?.loraPath === style.loraPath"
@@ -167,7 +152,6 @@
           </div>
         </Transition>
 
-        <!-- DB resource badge -->
         <div
           v-if="style.resourceId"
           class="absolute left-1.5 top-1.5"
@@ -298,7 +282,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
@@ -308,10 +292,10 @@ import type { ArtImage } from '~/prisma/generated/prisma/client'
 // ── Props / emits ──────────────────────────────────────────────────────────
 const props = withDefaults(
   defineProps<{
-    artImage: ArtImage
+    artImage: ArtImage | null
     serverId?: number | null
   }>(),
-  { serverId: null },
+  { artImage: null, serverId: null },
 )
 
 const emit = defineEmits<{
@@ -337,12 +321,12 @@ type StyleCategory =
   | 'Ink'
 
 interface StyleEntry {
-  loraPath: string // bare path as it appears in <lora:...>
-  loraWeight: number // default weight (can be overridden)
-  triggerPhrase: string // the phrase that activates the style
-  label: string // human-readable display name
+  loraPath: string
+  loraWeight: number
+  triggerPhrase: string
+  label: string
   category: StyleCategory
-  resourceId?: number // set when matched from DB
+  resourceId?: number
 }
 
 // ── Category icons ─────────────────────────────────────────────────────────
@@ -403,7 +387,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'DB4RZ Painterly',
     category: 'Painterly',
   },
-
   // Illustration
   {
     loraPath: 'FLUX/digital-illustration.safetensors',
@@ -447,8 +430,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Collage',
     category: 'Illustration',
   },
-
-  // Cartoon / Animation
+  // Cartoon
   {
     loraPath: 'FLUX/disney_lora_comfy_converted.safetensors',
     loraWeight: 1,
@@ -484,7 +466,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Digital Cartoon',
     category: 'Cartoon',
   },
-
   // Anime
   {
     loraPath: 'FLUX/kontext-qtorealanime.safetensors',
@@ -493,7 +474,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Real Anime',
     category: 'Anime',
   },
-
   // Ink
   {
     loraPath: 'FLUX/ink_style-4-500.safetensors',
@@ -509,8 +489,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Fae Ink',
     category: 'Ink',
   },
-
-  // 3D / Craft
+  // 3D/Craft
   {
     loraPath: 'FLUX/Claymation.safetensors',
     loraWeight: 1,
@@ -539,8 +518,7 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Cute Animals',
     category: '3D/Craft',
   },
-
-  // Trippy / Stylized
+  // Trippy
   {
     loraPath: 'FLUX/LSD_and_Mushrooms_from_Trippy_Lalaland_Ethanar.safetensors',
     loraWeight: 1,
@@ -569,7 +547,6 @@ const BUILTIN_STYLES: StyleEntry[] = [
     label: 'Weird Things',
     category: 'Trippy',
   },
-
   // Realism
   {
     loraPath: 'FLUX/aidmaHyperrealism-FLUX-v0.3.safetensors',
@@ -607,7 +584,7 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const resultImage = ref<ArtImage | null>(null)
 
-// ── Derived state ──────────────────────────────────────────────────────────
+// ── Derived ────────────────────────────────────────────────────────────────
 const allCategories = computed<StyleCategory[]>(
   () => [...new Set(styles.value.map((s) => s.category))] as StyleCategory[],
 )
@@ -619,6 +596,8 @@ const filteredStyles = computed(() =>
 )
 
 const sourceImageSrc = computed<string>(() => {
+  // Guard: artImage may be null/undefined while parent is still loading
+  if (!props.artImage) return ''
   const img = props.artImage as ArtImage & {
     imageData?: string | null
     thumbnailData?: string | null
@@ -649,29 +628,21 @@ const activeServerId = computed<number | null>(
 )
 
 const canGenerate = computed(
-  () => !isGenerating.value && !!selectedStyle.value && !!activeServerId.value,
+  () =>
+    !isGenerating.value &&
+    !!selectedStyle.value &&
+    !!activeServerId.value &&
+    !!props.artImage,
 )
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-/**
- * Build the <lora:PATH:WEIGHT> reference string for the prompt.
- */
 function buildLoraReference(style: StyleEntry): string {
-  // itacomic already encodes the version hash in the path with no .safetensors
-  const path = `<lora:${style.loraPath}:${style.loraWeight}>`
-  return path
+  return `<lora:${style.loraPath}:${style.loraWeight}>`
 }
 
-// Expose on StyleEntry for the template preview
 function selectStyle(style: StyleEntry) {
   selectedStyle.value =
-    selectedStyle.value?.loraPath === style.loraPath
-      ? null
-      : ({
-          ...style,
-          loraReference: buildLoraReference(style),
-        } as StyleEntry & { loraReference: string })
-
+    selectedStyle.value?.loraPath === style.loraPath ? null : { ...style }
   errorMessage.value = ''
   successMessage.value = ''
   resultImage.value = null
@@ -686,10 +657,6 @@ function clearSelection() {
 }
 
 // ── DB resource hydration ─────────────────────────────────────────────────
-/**
- * Pull LORA/KONTEXT resources from the DB and cross-reference with builtin
- * styles so we can mark which ones have DB records (and inherit resourceId).
- */
 async function hydrateFromResourceStore(): Promise<void> {
   try {
     if (!resourceStore.hasLoaded) {
@@ -706,33 +673,31 @@ async function hydrateFromResourceStore(): Promise<void> {
 
     if (!dbLoras.length) return
 
+    const builtinPaths = new Set(styles.value.map((s) => s.loraPath))
+
     const updated = styles.value.map((style) => {
+      const stem =
+        style.loraPath.split('/').pop()?.replace('.safetensors', '') || ''
       const match = dbLoras.find(
         (r) =>
-          r.localPath?.includes(
-            style.loraPath.split('/').pop()?.replace('.safetensors', '') || '',
-          ) || r.name?.toLowerCase().includes(style.label.toLowerCase()),
+          (stem && r.localPath?.includes(stem)) ||
+          r.name?.toLowerCase().includes(style.label.toLowerCase()),
       )
-
-      if (match) {
-        return { ...style, resourceId: match.id }
-      }
-
-      return style
+      return match ? { ...style, resourceId: match.id } : style
     })
 
-    // Append any DB LoRAs that aren't in the built-in list
-    const builtinPaths = new Set(styles.value.map((s) => s.loraPath))
     const newFromDb = dbLoras
-      .filter(
-        (r) =>
-          r.localPath &&
-          !builtinPaths.has(`FLUX/${r.localPath.split('/').pop()}`),
-      )
+      .filter((r) => {
+        if (!r.localPath) return false
+        const fullPath = r.localPath.startsWith('FLUX/')
+          ? r.localPath
+          : `FLUX/${r.localPath}`
+        return !builtinPaths.has(fullPath)
+      })
       .map(
         (r): StyleEntry => ({
-          loraPath: r.localPath?.startsWith('FLUX/')
-            ? r.localPath
+          loraPath: r.localPath!.startsWith('FLUX/')
+            ? r.localPath!
             : `FLUX/${r.localPath}`,
           loraWeight: 1,
           triggerPhrase: r.artPrompt || r.customLabel || r.name,
@@ -744,14 +709,15 @@ async function hydrateFromResourceStore(): Promise<void> {
 
     styles.value = [...updated, ...newFromDb]
   } catch (err) {
-    // Non-fatal: silently fall back to built-in list
-    console.warn('[art-styler] Could not hydrate from resourceStore:', err)
+    // AbortError fires when a concurrent fetch races ahead — non-fatal
+    if (err instanceof Error && err.name === 'AbortError') return
+    console.warn('[art-styler] hydrateFromResourceStore:', err)
   }
 }
 
 // ── Core generation ────────────────────────────────────────────────────────
 async function runStyleTransfer(): Promise<void> {
-  if (!selectedStyle.value || !activeServerId.value) return
+  if (!selectedStyle.value || !activeServerId.value || !props.artImage) return
 
   errorMessage.value = ''
   successMessage.value = ''
@@ -762,25 +728,23 @@ async function runStyleTransfer(): Promise<void> {
     const style = selectedStyle.value
     const loraRef = buildLoraReference(style)
 
-    const promptParts = [
+    const promptString = [
       loraRef,
       style.triggerPhrase,
       extraPrompt.value.trim(),
-    ].filter(Boolean)
-
-    const promptString = promptParts.join(', ')
+    ]
+      .filter(Boolean)
+      .join(', ')
 
     const sourceImage = props.artImage as ArtImage & {
       imageData?: string | null
       thumbnailData?: string | null
+      negativePrompt?: string | null
     }
 
     const result = await artStore.generateArt({
       promptString,
-      negativePrompt: useNegative.value
-        ? (props.artImage as ArtImage & { negativePrompt?: string | null })
-            .negativePrompt || ''
-        : '',
+      negativePrompt: useNegative.value ? sourceImage.negativePrompt || '' : '',
       userId: userStore.userId ?? undefined,
       serverId: activeServerId.value,
       engine: 'kontext',
@@ -813,7 +777,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ── Transitions ─────────────────────────────────────────────────────────── */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition:
@@ -825,7 +788,6 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(-6px);
 }
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.18s ease;
@@ -834,7 +796,6 @@ onMounted(() => {
 .fade-leave-to {
   opacity: 0;
 }
-
 .pop-enter-active {
   transition:
     opacity 0.15s ease,

@@ -546,13 +546,16 @@ type DesignerMode = 'username' | 'custom'
 type PrivacyDefault = 'private' | 'public'
 
 type ArtCreatorPayload = {
-  purpose: string
-  modelId: number | null
-  modelTitle: string
-  prompt: string
-  negativePrompt: string
-  imageRole: string
-  imagePath: string | null
+  prompt?: string
+  imagePath?: string | null
+  artImageId?: number | null
+  artImage?: {
+    id: number
+    imageData?: string | null
+    imagePath?: string | null
+    path?: string | null
+    thumbnailData?: string | null
+  } | null
 }
 
 const userStore = useUserStore()
@@ -690,8 +693,12 @@ function useUsernameAsDesigner() {
 }
 
 function updateAvatarArt(payload: ArtCreatorPayload) {
-  avatarPrompt.value = payload.prompt
-  avatarImagePath.value = payload.imagePath
+  avatarPrompt.value = payload.prompt || avatarPrompt.value
+  avatarImagePath.value =
+    payload.imagePath ||
+    payload.artImage?.imagePath ||
+    payload.artImage?.path ||
+    avatarImagePath.value
 }
 
 async function saveDesignerName() {

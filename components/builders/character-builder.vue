@@ -500,14 +500,15 @@ type SelectOption = {
 }
 
 type ArtCreatorPayload = {
-  purpose: string
-  modelId: number | null
-  modelTitle: string
-  prompt: string
-  negativePrompt?: string
-  imageRole: string
+  prompt?: string
   imagePath?: string | null
   artImageId?: number | null
+  artImage?: {
+    id: number
+    imageData: string | null
+    imagePath?: string | null
+    path?: string | null
+  } | null
 }
 
 type PerformFetchResult<T> = {
@@ -1763,13 +1764,18 @@ function buildRewardArtPrompt(slot: BuilderRewardSlot, label: string) {
 
 function updateCharacterArt(payload: ArtCreatorPayload) {
   sheet.artPrompt = payload.prompt || sheet.artPrompt
-  sheet.imagePath = payload.imagePath || sheet.imagePath
-  sheet.artImageId = payload.artImageId || sheet.artImageId
+  sheet.imagePath =
+    payload.imagePath ||
+    payload.artImage?.imagePath ||
+    payload.artImage?.path ||
+    sheet.imagePath
+  sheet.artImageId =
+    payload.artImageId || payload.artImage?.id || sheet.artImageId
+
   completedCards.art = Boolean(
     sheet.artPrompt.trim() || sheet.imagePath || sheet.artImageId,
   )
 }
-
 // ---------------------------------------------------------------------------
 // Save
 // ---------------------------------------------------------------------------

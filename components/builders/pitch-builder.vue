@@ -570,13 +570,16 @@ type GeneratedPitchPayload = {
 }
 
 type ArtCreatorPayload = {
-  purpose: string
-  modelId: number | null
-  modelTitle: string
-  prompt: string
-  negativePrompt: string
-  imageRole: string
-  imagePath: string | null
+  prompt?: string
+  imagePath?: string | null
+  artImageId?: number | null
+  artImage?: {
+    id: number
+    imageData?: string | null
+    imagePath?: string | null
+    path?: string | null
+    thumbnailData?: string | null
+  } | null
 }
 
 type SelectOption = {
@@ -760,8 +763,12 @@ function applyGeneratedPitch(payload: GeneratedPitchPayload) {
 }
 
 function updatePitchArt(payload: ArtCreatorPayload) {
-  artPrompt.value = payload.prompt
-  artImagePath.value = payload.imagePath
+  artPrompt.value = payload.prompt || artPrompt.value
+  artImagePath.value =
+    payload.imagePath ||
+    payload.artImage?.imagePath ||
+    payload.artImage?.path ||
+    artImagePath.value
 }
 
 function usePitchTitleForCollection() {

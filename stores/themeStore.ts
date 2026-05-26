@@ -206,8 +206,61 @@ export const useThemeStore = defineStore('themeStore', () => {
     }
 
     if (typeof input === 'string') {
+      const sharedTheme = sharedThemes.value.find(
+        (theme) => theme.name === input,
+      )
+
+      if (sharedTheme) {
+        const rawValues = sharedTheme.values
+        let parsedValues: Record<string, string> = {}
+
+        if (typeof rawValues === 'string') {
+          try {
+            const parsed = JSON.parse(rawValues)
+
+            parsedValues =
+              parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+                ? (parsed as Record<string, string>)
+                : {}
+          } catch {
+            parsedValues = {}
+          }
+        } else if (
+          rawValues &&
+          typeof rawValues === 'object' &&
+          !Array.isArray(rawValues)
+        ) {
+          parsedValues = rawValues as Record<string, string>
+        }
+
+        if (!isThemeValuesRecord(parsedValues)) {
+          const message = `[themeStore] Shared theme "${input}" has invalid theme values`
+          console.warn(message)
+          return { success: false, message }
+        }
+
+        const values = sanitizeThemeValues(parsedValues)
+        const normalized = normalizeThemeFromServer({
+          ...sharedTheme,
+          values,
+        })
+
+        clearAppliedThemeValues()
+        applyThemeValues(values)
+        document.documentElement.setAttribute('data-theme', 'custom')
+        safeSetLocalStorage(themeStorageKey, input)
+        safeSetLocalStorage(themeFormStorageKey, JSON.stringify(normalized))
+
+        activeTheme.value = normalized
+        themeForm.value = normalized
+        firstThemeChanged.value = true
+        lastError.value = null
+
+        return { success: true }
+      }
+
       if (!daisyuiThemes.includes(input)) {
-        const message = `[themeStore] Invalid theme name: "${input}" not found in DaisyUI`
+        const message = `[themeStore] Invalid theme name: "${input}" not found in DaisyUI or shared themes`
         console.warn(message)
         return { success: false, message }
       }
@@ -237,6 +290,7 @@ export const useThemeStore = defineStore('themeStore', () => {
       applyThemeValues(values)
       document.documentElement.setAttribute('data-theme', 'custom')
       safeSetLocalStorage(themeStorageKey, nextThemeName)
+      safeSetLocalStorage(themeFormStorageKey, JSON.stringify(normalized))
 
       activeTheme.value = normalized
       themeForm.value = normalized

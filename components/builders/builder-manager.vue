@@ -44,6 +44,14 @@
         <dream-builder />
       </section>
 
+<section
+        v-else-if="currentTab === 'bot'"
+        class="flex min-h-full flex-col gap-4"
+      >
+        <bot-builder />
+      </section>
+
+
       <section
         v-else-if="currentTab === 'character'"
         class="flex min-h-full flex-col gap-4"

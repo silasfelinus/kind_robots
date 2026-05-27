@@ -298,7 +298,7 @@ export const useBotStore = defineStore('botStore', () => {
     try {
       clearError()
 
-      const response = await performFetch<Partial<Bot>>('/api/bot/generate', {
+      const response = await performFetch<Partial<Bot>>('/api/bots/generate', {
         method: 'POST',
         body: JSON.stringify({
           bot: botForm.value,

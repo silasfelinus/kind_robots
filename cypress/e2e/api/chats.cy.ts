@@ -154,7 +154,7 @@ describe('Chat API Tests', () => {
   })
 
   it('Get Chats by Bot ID', () => {
-    makeRequest('GET', `${baseUrl}/bot/${botId}`, userToken).then(
+    makeRequest('GET', `${baseUrl}/bots/${botId}`, userToken).then(
       (response) => {
         expect(response.status).to.eq(200)
         expect(response.body).to.have.property('success', true)

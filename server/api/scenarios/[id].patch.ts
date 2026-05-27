@@ -22,6 +22,8 @@ type ScenarioPatchInput = {
   tier?: unknown
   group?: unknown
   secretNotes?: unknown
+  characterIds?: unknown
+  compositionIds?: unknown
 }
 
 function normalizeRequiredString(
@@ -107,6 +109,28 @@ function normalizeNullableInteger(
   return parsed
 }
 
+function normalizePositiveIdArray(value: unknown, field: string): number[] {
+  if (typeof value === 'undefined') return []
+
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `The "${field}" field must be an array of positive integer IDs.`,
+    })
+  }
+
+  const ids = value.map((entry) => Number(entry))
+
+  if (!ids.every((entry) => Number.isInteger(entry) && entry > 0)) {
+    throw createError({
+      statusCode: 400,
+      message: `The "${field}" field must contain only positive integer IDs.`,
+    })
+  }
+
+  return [...new Set(ids)]
+}
+
 function normalizeIntros(value: unknown): string {
   if (value === null) return '[]'
 
@@ -173,9 +197,50 @@ function normalizeArtImageRelation(
   }
 }
 
-function buildScenarioUpdateInput(
+async function assertRelatedRecordsExist(options: {
+  characterIds: number[]
+  compositionIds: number[]
+}) {
+  const { characterIds, compositionIds } = options
+
+  if (characterIds.length) {
+    const characters = await prisma.character.findMany({
+      where: { id: { in: characterIds } },
+      select: { id: true },
+    })
+
+    const foundIds = new Set(characters.map((character) => character.id))
+    const missingIds = characterIds.filter((id) => !foundIds.has(id))
+
+    if (missingIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Character IDs not found: ${missingIds.join(', ')}.`,
+      })
+    }
+  }
+
+  if (compositionIds.length) {
+    const compositions = await prisma.composition.findMany({
+      where: { id: { in: compositionIds } },
+      select: { id: true },
+    })
+
+    const foundIds = new Set(compositions.map((composition) => composition.id))
+    const missingIds = compositionIds.filter((id) => !foundIds.has(id))
+
+    if (missingIds.length) {
+      throw createError({
+        statusCode: 404,
+        message: `Composition IDs not found: ${missingIds.join(', ')}.`,
+      })
+    }
+  }
+}
+
+async function buildScenarioUpdateInput(
   body: ScenarioPatchInput,
-): Prisma.ScenarioUpdateInput {
+): Promise<Prisma.ScenarioUpdateInput> {
   const data: Prisma.ScenarioUpdateInput = {}
 
   if ('title' in body) data.title = normalizeRequiredString(body.title, 'title')
@@ -220,6 +285,32 @@ function buildScenarioUpdateInput(
   }
   if ('artImageId' in body) {
     data.ArtImage = normalizeArtImageRelation(body.artImageId)
+  }
+
+  const characterIds = normalizePositiveIdArray(
+    body.characterIds,
+    'characterIds',
+  )
+  const compositionIds = normalizePositiveIdArray(
+    body.compositionIds,
+    'compositionIds',
+  )
+
+  await assertRelatedRecordsExist({
+    characterIds,
+    compositionIds,
+  })
+
+  if (characterIds.length) {
+    data.Characters = {
+      connect: characterIds.map((id) => ({ id })),
+    }
+  }
+
+  if (compositionIds.length) {
+    data.Compositions = {
+      connect: compositionIds.map((id) => ({ id })),
+    }
   }
 
   return data
@@ -278,7 +369,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = buildScenarioUpdateInput(body)
+    const data = await buildScenarioUpdateInput(body)
 
     if (Object.keys(data).length === 0) {
       throw createError({

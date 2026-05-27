@@ -1,549 +1,718 @@
-<!-- /components/builders/user-builder.vue -->
+<!-- components/builders/user-builder.vue -->
+<!--
+  User Builder — onboarding and profile setup.
+  Uses the established hand/stage/sheet pattern.
+  Reads/writes directly to userStore — no separate builder store.
+  Each card saves independently; no final "save all".
+  Smart auth detection: skips or collapses login when already signed in.
+-->
 <template>
-  <builder-shell
-    builder-key="user"
-    title="User Builder"
-    :sections="sections"
-    :summary-items="summaryItems"
-    initial-section="account"
-    summary-title="User Setup Summary"
-    summary-subtitle="Review account access, designer identity, avatar art, theme, privacy, and maturity settings."
-    @section-change="activeSection = $event"
-  >
-    <template
-      #default="{ activeSection: currentSection, setSection, goNext, goBack }"
+  <div class="relative flex h-full w-full flex-col overflow-hidden">
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <header
+      class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100/80 px-4 py-2.5 backdrop-blur-sm"
     >
-      <section v-if="currentSection === 'account'" class="flex flex-col gap-4">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:login" class="h-6 w-6 text-primary" />
-            Login or Register
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Start by entering your account. Builder progress needs a real user
-            if it is going to remember all these tiny universe crimes.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <button
-              class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
-              :class="
-                accountMode === 'login'
-                  ? 'border-primary bg-primary text-primary-content shadow-md'
-                  : 'border-base-300 bg-base-100 text-base-content'
-              "
-              type="button"
-              @click="accountMode = 'login'"
-            >
-              <Icon name="kind-icon:login" class="h-7 w-7" />
-
-              <p class="mt-2 text-lg font-bold">Login</p>
-
-              <p class="mt-1 text-sm opacity-70">
-                Return to your existing Kind Robots account.
-              </p>
-            </button>
-
-            <button
-              class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
-              :class="
-                accountMode === 'register'
-                  ? 'border-primary bg-primary text-primary-content shadow-md'
-                  : 'border-base-300 bg-base-100 text-base-content'
-              "
-              type="button"
-              @click="accountMode = 'register'"
-            >
-              <Icon name="kind-icon:plus" class="h-7 w-7" />
-
-              <p class="mt-2 text-lg font-bold">Register</p>
-
-              <p class="mt-1 text-sm opacity-70">
-                Create a new builder identity.
-              </p>
-            </button>
-          </div>
-        </div>
-
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-          <login-page v-if="accountMode === 'login'" />
-          <registration-page v-else />
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'designer'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:signature" class="h-6 w-6 text-primary" />
-            Designer Name
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Your username is your account identity. Your designer name is your
-            creative byline.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <button
-              class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
-              :class="
-                designerMode === 'username'
-                  ? 'border-primary bg-primary text-primary-content shadow-md'
-                  : 'border-base-300 bg-base-100 text-base-content'
-              "
-              type="button"
-              @click="useUsernameAsDesigner"
-            >
-              <Icon name="kind-icon:person" class="h-7 w-7" />
-
-              <p class="mt-2 text-lg font-bold">Use Username</p>
-
-              <p class="mt-1 text-sm opacity-70">
-                Keep your account name and creator name the same.
-              </p>
-            </button>
-
-            <button
-              class="rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-primary-content"
-              :class="
-                designerMode === 'custom'
-                  ? 'border-primary bg-primary text-primary-content shadow-md'
-                  : 'border-base-300 bg-base-100 text-base-content'
-              "
-              type="button"
-              @click="designerMode = 'custom'"
-            >
-              <Icon name="kind-icon:sparkles" class="h-7 w-7" />
-
-              <p class="mt-2 text-lg font-bold">Custom Designer Name</p>
-
-              <p class="mt-1 text-sm opacity-70">
-                Make a separate public-facing creator identity.
-              </p>
-            </button>
-          </div>
-
-          <label class="form-control mt-4">
-            <span class="label-text font-bold">Designer Name</span>
-
-            <input
-              v-model="designerName"
-              class="input input-bordered rounded-2xl text-base"
-              type="text"
-              placeholder="Example: The Velvet Goblin Atelier"
-              :disabled="designerMode === 'username'"
-            />
-          </label>
-
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary rounded-xl"
-              type="button"
-              @click="saveDesignerName"
-            >
-              <Icon name="kind-icon:save" class="h-4 w-4" />
-              Save Designer Name
-            </button>
-
-            <p
-              v-if="designerMessage"
-              class="rounded-2xl border border-info/30 bg-info/10 px-3 py-2 text-sm text-info"
-            >
-              {{ designerMessage }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'avatar'"
-        class="flex flex-col gap-4"
-      >
-        <art-designer
-          purpose="user"
-          :model-id="userStore.userId"
-          :model-title="designerName || username"
-          :prompt="avatarPrompt"
-          image-role="avatar"
-          @update="updateAvatarArt"
-        />
-
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-lg font-bold text-base-content"
-          >
-            <Icon name="kind-icon:portrait" class="h-5 w-5 text-primary" />
-            Avatar Preview
-          </h3>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[12rem_1fr]">
-            <div
-              class="flex justify-center rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
-              <div
-                class="flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-primary/40 bg-base-300"
-              >
-                <img
-                  v-if="avatarImagePath"
-                  :src="avatarImagePath"
-                  alt="Selected avatar"
-                  class="h-full w-full object-cover"
-                />
-
-                <Icon
-                  v-else
-                  name="kind-icon:person"
-                  class="h-16 w-16 text-primary"
-                />
-              </div>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <p
-                class="text-sm font-bold uppercase tracking-[0.18em] text-base-content/50"
-              >
-                Avatar Prompt
-              </p>
-
-              <p class="mt-2 whitespace-pre-wrap text-sm text-base-content/70">
-                {{ avatarPrompt || 'No avatar prompt yet.' }}
-              </p>
-
-              <p
-                class="mt-4 text-sm font-bold uppercase tracking-[0.18em] text-base-content/50"
-              >
-                Avatar Image
-              </p>
-
-              <p class="mt-2 break-all text-sm text-base-content/70">
-                {{ avatarImagePath || 'No avatar image selected yet.' }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'theme'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:palette" class="h-6 w-6 text-primary" />
-            Theme
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Pick the visual atmosphere for your workspace. This uses the
-            existing theme gallery.
-          </p>
-
-          <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
-            <theme-gallery />
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Continue
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'settings'"
-        class="flex flex-col gap-4"
-      >
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <h3
-            class="flex items-center gap-2 text-xl font-bold text-base-content"
-          >
-            <Icon name="kind-icon:sliders" class="h-6 w-6 text-primary" />
-            Privacy and Maturity
-          </h3>
-
-          <p class="mt-1 text-sm text-base-content/70">
-            Choose builder defaults. Individual records can still override these
-            later.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">Privacy Default</h4>
-
-              <p class="mt-1 text-sm text-base-content/60">
-                Decide whether new creations should start public or private.
-              </p>
-
-              <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <button
-                  class="btn rounded-xl"
-                  :class="
-                    defaultPrivacy === 'private'
-                      ? 'btn-primary'
-                      : 'btn-ghost border border-base-300'
-                  "
-                  type="button"
-                  @click="defaultPrivacy = 'private'"
-                >
-                  <Icon name="kind-icon:lock" class="h-4 w-4" />
-                  Private
-                </button>
-
-                <button
-                  class="btn rounded-xl"
-                  :class="
-                    defaultPrivacy === 'public'
-                      ? 'btn-primary'
-                      : 'btn-ghost border border-base-300'
-                  "
-                  type="button"
-                  @click="defaultPrivacy = 'public'"
-                >
-                  <Icon name="kind-icon:globe" class="h-4 w-4" />
-                  Public
-                </button>
-              </div>
-            </div>
-
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
-              <h4 class="font-bold text-base-content">Mature Content</h4>
-
-              <p class="mt-1 text-sm text-base-content/60">
-                Decide whether mature content can be shown while building.
-              </p>
-
-              <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <button
-                  class="btn rounded-xl"
-                  :class="
-                    allowMature
-                      ? 'btn-primary'
-                      : 'btn-ghost border border-base-300'
-                  "
-                  type="button"
-                  @click="allowMature = true"
-                >
-                  <Icon name="kind-icon:eye" class="h-4 w-4" />
-                  Allow
-                </button>
-
-                <button
-                  class="btn rounded-xl"
-                  :class="
-                    !allowMature
-                      ? 'btn-primary'
-                      : 'btn-ghost border border-base-300'
-                  "
-                  type="button"
-                  @click="allowMature = false"
-                >
-                  <Icon name="kind-icon:shield" class="h-4 w-4" />
-                  Filter
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 rounded-2xl border border-base-300 bg-base-100 p-4">
-            <h4 class="font-bold text-base-content">Account Panel</h4>
-
-            <p class="mt-1 text-sm text-base-content/60">
-              Existing user controls stay available here too.
-            </p>
-
-            <div class="mt-3">
-              <user-panel />
-            </div>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="goNext"
-          >
-            Summary
-          </button>
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentSection === 'summary'"
-        class="flex flex-col gap-4"
-      >
-        <div
-          class="rounded-2xl border border-primary/30 bg-primary/10 p-4 flex items-start gap-3"
+      <div class="flex items-center gap-2.5">
+        <Icon name="kind-icon:person" class="h-5 w-5 text-primary" />
+        <h1 class="text-lg font-black tracking-tight">User Builder</h1>
+        <span
+          v-if="userStore.isLoggedIn"
+          class="rounded-full border border-success/40 bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success"
         >
-          <span
-            class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary"
-          >
-            <Icon name="kind-icon:blueprint" class="h-5 w-5" />
-          </span>
-          <div class="min-w-0">
-            <h3 class="flex items-center gap-2 text-xl font-bold text-primary">
-              <Icon name="kind-icon:blueprint" class="h-6 w-6" />
-              User Builder Summary
-            </h3>
+          {{ userStore.username }}
+        </span>
+        <span
+          v-else
+          class="rounded-full border border-warning/40 bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning"
+        >
+          not signed in
+        </span>
+      </div>
 
-            <p class="mt-1 text-sm text-base-content/70">
-              Review your setup before moving into pitches.
+      <!-- Progress dots -->
+      <div class="flex items-center gap-1.5">
+        <div
+          v-for="card in CARDS"
+          :key="card.key"
+          class="h-2 w-2 rounded-full transition-all"
+          :class="
+            completedCards[card.key]
+              ? 'bg-success'
+              : activeCardKey === card.key
+                ? 'bg-primary scale-125'
+                : 'bg-base-300'
+          "
+        />
+      </div>
+    </header>
+
+    <!-- ── Body ────────────────────────────────────────────────────────── -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Sidebar: profile preview -->
+      <aside
+        v-if="!isMobile"
+        class="flex w-64 shrink-0 flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm overflow-y-auto p-4 gap-3"
+      >
+        <p
+          class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+        >
+          Profile Preview
+        </p>
+
+        <!-- Avatar -->
+        <div class="flex flex-col items-center gap-2">
+          <div
+            class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-primary/30 bg-base-200"
+          >
+            <img
+              v-if="userStore.user?.avatarImage"
+              :src="userStore.user.avatarImage"
+              alt="Avatar"
+              class="h-full w-full object-cover"
+            />
+            <Icon
+              v-else
+              name="kind-icon:person"
+              class="h-10 w-10 text-base-content/30"
+            />
+          </div>
+          <div class="text-center">
+            <p class="font-black text-base-content">
+              {{ userStore.user?.designerName || userStore.username || '—' }}
+            </p>
+            <p
+              v-if="userStore.user?.designerName && userStore.username"
+              class="text-xs text-base-content/40"
+            >
+              @{{ userStore.username }}
             </p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <article
-            v-for="item in summaryItems"
-            :key="item.key"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
+        <!-- Status items -->
+        <div class="flex flex-col gap-1.5">
+          <div
+            class="flex items-center gap-2 rounded-xl px-2 py-1.5"
+            :class="userStore.isLoggedIn ? 'bg-success/8' : 'bg-warning/8'"
           >
-            <div class="flex items-start gap-3">
-              <div
-                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-base-300"
-              >
-                <img
-                  v-if="item.image"
-                  :src="item.image"
-                  :alt="item.label"
-                  class="h-full w-full object-cover"
-                />
-
-                <Icon
-                  v-else
-                  :name="item.icon || 'kind-icon:sparkles'"
-                  class="h-7 w-7 text-primary"
-                />
-              </div>
-
-              <div class="min-w-0">
-                <p class="font-bold text-base-content">
-                  {{ item.label }}
-                </p>
-
-                <p class="mt-1 line-clamp-3 text-sm text-base-content/70">
-                  {{ displaySummaryValue(item.value) }}
-                </p>
-
-                <p
-                  v-if="item.description"
-                  class="mt-1 line-clamp-2 text-xs text-base-content/50"
-                >
-                  {{ item.description }}
-                </p>
-              </div>
-            </div>
-
-            <button
-              v-if="item.editSection"
-              class="btn btn-sm mt-3 rounded-xl"
-              type="button"
-              @click="setSection(item.editSection)"
+            <Icon
+              :name="
+                userStore.isLoggedIn ? 'kind-icon:check' : 'kind-icon:alert'
+              "
+              class="h-3.5 w-3.5"
+              :class="userStore.isLoggedIn ? 'text-success' : 'text-warning'"
+            />
+            <span
+              class="text-xs"
+              :class="userStore.isLoggedIn ? 'text-success' : 'text-warning'"
+              >{{ userStore.isLoggedIn ? 'Signed in' : 'Not signed in' }}</span
             >
-              Reconfigure
-            </button>
-          </article>
-        </div>
-
-        <div class="flex justify-between gap-2">
-          <button class="btn rounded-xl" type="button" @click="goBack">
-            Back
-          </button>
-
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="setSection('account')"
+          </div>
+          <div
+            v-if="userStore.user?.designerName"
+            class="flex items-center gap-2 rounded-xl bg-base-200 px-2 py-1.5"
           >
-            Start Over
+            <Icon
+              name="kind-icon:signature"
+              class="h-3.5 w-3.5 text-base-content/40"
+            />
+            <span class="text-xs text-base-content/60 truncate">{{
+              userStore.user.designerName
+            }}</span>
+          </div>
+          <div
+            class="flex items-center gap-2 rounded-xl bg-base-200 px-2 py-1.5"
+          >
+            <Icon
+              :name="
+                userStore.user?.showMature
+                  ? 'kind-icon:eye'
+                  : 'kind-icon:shield'
+              "
+              class="h-3.5 w-3.5 text-base-content/40"
+            />
+            <span class="text-xs text-base-content/60">{{
+              userStore.user?.showMature ? 'Mature: on' : 'Mature: off'
+            }}</span>
+          </div>
+        </div>
+
+        <!-- Section list -->
+        <div class="flex flex-col gap-1">
+          <button
+            v-for="card in CARDS"
+            :key="card.key"
+            type="button"
+            class="flex items-center gap-2 rounded-xl px-2.5 py-2 text-left text-xs font-semibold transition-all"
+            :class="
+              activeCardKey === card.key
+                ? 'bg-primary/15 text-primary'
+                : completedCards[card.key]
+                  ? 'text-success/70 hover:bg-success/8'
+                  : 'text-base-content/50 hover:bg-base-200'
+            "
+            @click="selectCard(card.key)"
+          >
+            <Icon :name="card.icon" class="h-3.5 w-3.5 shrink-0" />
+            <span>{{ card.label }}</span>
+            <Icon
+              v-if="completedCards[card.key]"
+              name="kind-icon:check"
+              class="ml-auto h-3 w-3 text-success"
+            />
           </button>
         </div>
-      </section>
+      </aside>
 
-      <div
-        v-else
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      <!-- ── Stage ──────────────────────────────────────────────────────── -->
+      <main class="flex flex-1 flex-col overflow-hidden">
+        <!-- No card selected -->
+        <div
+          v-if="!activeCardKey"
+          class="flex flex-1 flex-col items-center justify-center gap-5 p-8 text-center"
+        >
+          <div
+            class="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10"
+          >
+            <Icon name="kind-icon:person" class="h-10 w-10 text-primary" />
+          </div>
+          <div>
+            <h2 class="text-2xl font-black text-base-content">
+              {{
+                userStore.isLoggedIn
+                  ? `Welcome back, ${userStore.username}.`
+                  : 'Get started.'
+              }}
+            </h2>
+            <p class="mt-2 text-sm text-base-content/60 max-w-sm">
+              {{
+                userStore.isLoggedIn
+                  ? 'Set up your designer identity, avatar, theme, and preferences.'
+                  : 'Log in or create an account to start building.'
+              }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary rounded-2xl gap-2"
+            @click="startFromBeginning"
+          >
+            <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+            {{ userStore.isLoggedIn ? 'Set up profile' : 'Get started' }}
+          </button>
+        </div>
+
+        <!-- Active card -->
+        <template v-else>
+          <!-- Hero -->
+          <div
+            class="relative h-36 w-full shrink-0 overflow-hidden bg-base-300"
+          >
+            <div
+              class="absolute inset-0 opacity-30"
+              :style="`background: radial-gradient(circle at 30% 50%, ${activeCard?.color ?? 'oklch(var(--p))'}, transparent 70%)`"
+            />
+            <div class="absolute inset-0 flex flex-col justify-end p-5">
+              <p
+                class="text-xs font-bold uppercase tracking-widest text-primary/80"
+              >
+                {{ activeCard?.label }}
+              </p>
+              <h2 class="text-2xl font-black leading-tight text-base-content">
+                {{ activeCard?.title }}
+              </h2>
+              <p class="mt-0.5 text-sm text-base-content/60">
+                {{ activeCard?.tagline }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Card content -->
+          <div class="flex flex-1 flex-col overflow-y-auto">
+            <!-- ── Account ─────────────────────────────────────────────── -->
+            <section
+              v-if="activeCardKey === 'account'"
+              class="flex flex-col gap-4 p-5"
+            >
+              <!-- Already logged in -->
+              <div
+                v-if="userStore.isLoggedIn"
+                class="rounded-2xl border border-success/30 bg-success/8 p-5"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex h-12 w-12 items-center justify-center rounded-2xl bg-success/20"
+                  >
+                    <Icon name="kind-icon:check" class="h-6 w-6 text-success" />
+                  </div>
+                  <div>
+                    <p class="font-black text-base-content">
+                      Signed in as {{ userStore.username }}
+                    </p>
+                    <p class="text-sm text-base-content/60">
+                      Your work will be saved to this account.
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-4 flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm rounded-xl"
+                    @click="finishCard"
+                  >
+                    Continue to designer setup
+                    <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-sm rounded-xl text-error"
+                    @click="userStore.logout?.()"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+
+              <!-- Not logged in -->
+              <template v-else>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="flex-1 rounded-2xl border p-4 text-center transition-all"
+                    :class="
+                      accountMode === 'login'
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/30'
+                    "
+                    @click="accountMode = 'login'"
+                  >
+                    <Icon name="kind-icon:login" class="mx-auto h-6 w-6" />
+                    <p class="mt-2 text-sm font-black">Log In</p>
+                  </button>
+                  <button
+                    type="button"
+                    class="flex-1 rounded-2xl border p-4 text-center transition-all"
+                    :class="
+                      accountMode === 'register'
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/30'
+                    "
+                    @click="accountMode = 'register'"
+                  >
+                    <Icon name="kind-icon:plus" class="mx-auto h-6 w-6" />
+                    <p class="mt-2 text-sm font-black">Register</p>
+                  </button>
+                </div>
+
+                <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                  <login-page v-if="accountMode === 'login'" />
+                  <registration-page v-else />
+                </div>
+              </template>
+            </section>
+
+            <!-- ── Designer ────────────────────────────────────────────── -->
+            <section
+              v-else-if="activeCardKey === 'designer'"
+              class="flex flex-col gap-4 p-5"
+            >
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="flex-1 rounded-2xl border p-4 text-center transition-all"
+                  :class="
+                    designerMode === 'username'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/30'
+                  "
+                  @click="useUsernameAsDesigner"
+                >
+                  <Icon name="kind-icon:person" class="mx-auto h-6 w-6" />
+                  <p class="mt-2 text-sm font-black">Use Username</p>
+                  <p class="mt-1 text-xs opacity-70">
+                    @{{ userStore.username }}
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 rounded-2xl border p-4 text-center transition-all"
+                  :class="
+                    designerMode === 'custom'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/30'
+                  "
+                  @click="designerMode = 'custom'"
+                >
+                  <Icon name="kind-icon:sparkles" class="mx-auto h-6 w-6" />
+                  <p class="mt-2 text-sm font-black">Custom Name</p>
+                  <p class="mt-1 text-xs opacity-70">Creative byline</p>
+                </button>
+              </div>
+
+              <div v-if="designerMode === 'custom'" class="flex flex-col gap-2">
+                <label
+                  class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                  >Designer Name</label
+                >
+                <input
+                  v-model="designerName"
+                  type="text"
+                  class="input input-bordered w-full rounded-2xl bg-base-100 focus:border-primary"
+                  placeholder="The Velvet Goblin Atelier, Inkwright Studios..."
+                  maxlength="100"
+                  @keydown.enter="saveDesignerName"
+                />
+              </div>
+
+              <div v-else class="rounded-xl bg-base-200 p-3">
+                <p class="text-xs text-base-content/50">
+                  Designer name will be set to
+                  <span class="font-bold text-base-content">{{
+                    userStore.username
+                  }}</span
+                  >.
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm rounded-xl gap-1.5"
+                  :disabled="isSavingDesigner"
+                  @click="saveDesignerName"
+                >
+                  <span
+                    v-if="isSavingDesigner"
+                    class="loading loading-spinner loading-xs"
+                  />
+                  <Icon v-else name="kind-icon:save" class="h-4 w-4" />
+                  Save & continue
+                </button>
+                <p
+                  v-if="designerMessage"
+                  class="text-xs"
+                  :class="designerError ? 'text-error' : 'text-success'"
+                >
+                  {{ designerMessage }}
+                </p>
+              </div>
+            </section>
+
+            <!-- ── Avatar ─────────────────────────────────────────────── -->
+            <section
+              v-else-if="activeCardKey === 'avatar'"
+              class="flex flex-col gap-4 p-5"
+            >
+              <art-designer
+                purpose="user"
+                :model-id="userStore.userId"
+                :model-title="
+                  userStore.user?.designerName || userStore.username || 'User'
+                "
+                :prompt="avatarPrompt"
+                image-role="avatar"
+                @update="updateAvatarArt"
+              />
+
+              <!-- Current avatar -->
+              <div
+                v-if="userStore.user?.avatarImage"
+                class="flex items-center gap-4 rounded-2xl border border-success/30 bg-success/8 p-4"
+              >
+                <div class="h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
+                  <img
+                    :src="userStore.user.avatarImage"
+                    alt="Avatar"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-success">Avatar saved</p>
+                  <p class="text-xs text-base-content/50 truncate max-w-xs">
+                    {{ userStore.user.avatarImage }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="ml-auto btn btn-ghost btn-sm rounded-xl"
+                  @click="finishCard"
+                >
+                  Continue <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+                </button>
+              </div>
+            </section>
+
+            <!-- ── Theme ──────────────────────────────────────────────── -->
+            <section
+              v-else-if="activeCardKey === 'theme'"
+              class="flex flex-col gap-4 p-5"
+            >
+              <p class="text-sm text-base-content/60">
+                Pick the visual atmosphere for your workspace. Changes apply
+                immediately.
+              </p>
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                <theme-gallery />
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-xl self-start gap-1.5"
+                @click="finishCard"
+              >
+                <Icon name="kind-icon:check" class="h-4 w-4" />
+                Theme selected — continue
+              </button>
+            </section>
+
+            <!-- ── Settings ───────────────────────────────────────────── -->
+            <section
+              v-else-if="activeCardKey === 'settings'"
+              class="flex flex-col gap-4 p-5"
+            >
+              <!-- Privacy -->
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+                <p class="text-sm font-black text-base-content">
+                  Default Privacy
+                </p>
+                <p class="mt-0.5 text-xs text-base-content/60">
+                  New creations start public or private by default.
+                </p>
+                <div class="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm flex-1 rounded-xl gap-1.5"
+                    :class="
+                      !defaultPublic
+                        ? 'btn-primary'
+                        : 'btn-ghost border border-base-300'
+                    "
+                    @click="defaultPublic = false"
+                  >
+                    <Icon name="kind-icon:lock" class="h-4 w-4" /> Private
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm flex-1 rounded-xl gap-1.5"
+                    :class="
+                      defaultPublic
+                        ? 'btn-primary'
+                        : 'btn-ghost border border-base-300'
+                    "
+                    @click="defaultPublic = true"
+                  >
+                    <Icon name="kind-icon:globe" class="h-4 w-4" /> Public
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mature content -->
+              <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+                <p class="text-sm font-black text-base-content">
+                  Mature Content
+                </p>
+                <p class="mt-0.5 text-xs text-base-content/60">
+                  Show or filter mature content while building.
+                </p>
+                <div class="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm flex-1 rounded-xl gap-1.5"
+                    :class="
+                      !showMature
+                        ? 'btn-primary'
+                        : 'btn-ghost border border-base-300'
+                    "
+                    @click="showMature = false"
+                  >
+                    <Icon name="kind-icon:shield" class="h-4 w-4" /> Filter
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm flex-1 rounded-xl gap-1.5"
+                    :class="
+                      showMature
+                        ? 'btn-primary'
+                        : 'btn-ghost border border-base-300'
+                    "
+                    @click="showMature = true"
+                  >
+                    <Icon name="kind-icon:eye" class="h-4 w-4" /> Allow
+                  </button>
+                </div>
+              </div>
+
+              <!-- User panel (existing controls) -->
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+                <p
+                  class="mb-3 text-xs font-bold uppercase tracking-widest text-base-content/40"
+                >
+                  Account Controls
+                </p>
+                <user-panel />
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-xl self-start gap-1.5"
+                :disabled="isSavingSettings"
+                @click="saveSettings"
+              >
+                <span
+                  v-if="isSavingSettings"
+                  class="loading loading-spinner loading-xs"
+                />
+                <Icon v-else name="kind-icon:save" class="h-4 w-4" />
+                Save settings
+              </button>
+              <p
+                v-if="settingsMessage"
+                class="text-xs"
+                :class="settingsError ? 'text-error' : 'text-success'"
+              >
+                {{ settingsMessage }}
+              </p>
+            </section>
+
+            <!-- ── Summary ─────────────────────────────────────────────── -->
+            <section
+              v-else-if="activeCardKey === 'summary'"
+              class="flex flex-col gap-4 p-5"
+            >
+              <div
+                class="rounded-2xl border border-primary/30 bg-primary/8 p-4"
+              >
+                <h3 class="font-black text-primary">Setup complete.</h3>
+                <p class="mt-1 text-sm text-base-content/60">
+                  Your profile is configured. You can return to any section to
+                  change settings at any time.
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div
+                  v-for="item in summaryItems"
+                  :key="item.key"
+                  class="rounded-2xl border border-base-300 bg-base-200 p-4"
+                >
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-base-300"
+                    >
+                      <img
+                        v-if="item.image"
+                        :src="item.image"
+                        :alt="item.label"
+                        class="h-full w-full object-cover"
+                      />
+                      <Icon
+                        v-else
+                        :name="item.icon"
+                        class="h-5 w-5 text-primary"
+                      />
+                    </div>
+                    <div class="min-w-0">
+                      <p
+                        class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+                      >
+                        {{ item.label }}
+                      </p>
+                      <p
+                        class="mt-0.5 text-sm font-semibold text-base-content truncate"
+                      >
+                        {{ item.value || '—' }}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-xs mt-3 rounded-xl"
+                    @click="selectCard(item.editCard)"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline rounded-xl btn-sm"
+                  @click="selectCard('account')"
+                >
+                  Start over
+                </button>
+                <a
+                  href="/pitches"
+                  class="btn btn-primary rounded-xl btn-sm gap-1.5"
+                >
+                  Go build something
+                  <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+                </a>
+              </div>
+            </section>
+          </div>
+
+          <!-- ── Card footer (for non-self-saving cards) ──────────────── -->
+          <div
+            v-if="showFooter"
+            class="flex shrink-0 items-center justify-between border-t border-base-300 px-5 py-3"
+          >
+            <button
+              v-if="currentCardIndex > 0"
+              type="button"
+              class="btn btn-ghost btn-sm rounded-xl"
+              @click="goPrev"
+            >
+              <Icon name="kind-icon:arrow-left" class="h-4 w-4" /> Back
+            </button>
+            <div v-else />
+            <button
+              type="button"
+              class="btn btn-primary btn-sm rounded-xl gap-1.5"
+              @click="finishCard"
+            >
+              {{ isLastCard ? 'Finish' : 'Next' }}
+              <Icon name="kind-icon:arrow-right" class="h-4 w-4" />
+            </button>
+          </div>
+        </template>
+      </main>
+    </div>
+
+    <!-- ── Hand tray ────────────────────────────────────────────────────── -->
+    <div
+      class="flex shrink-0 items-center gap-2 overflow-x-auto border-t border-base-300 bg-base-100/80 px-4 py-2.5 backdrop-blur-sm scrollbar-thin"
+    >
+      <button
+        v-for="card in CARDS"
+        :key="card.key"
+        type="button"
+        class="relative flex shrink-0 flex-col items-center gap-1 rounded-2xl border-2 px-3 py-2 text-center transition-all duration-200"
+        :class="handCardClass(card.key)"
+        @click="selectCard(card.key)"
       >
-        <Icon name="kind-icon:alert" class="h-4 w-4 shrink-0" />
-        Unknown user builder section: {{ currentSection }}
-      </div>
-    </template>
-  </builder-shell>
+        <Icon :name="card.icon" class="h-5 w-5" />
+        <span class="text-xs font-bold leading-tight">{{ card.label }}</span>
+        <span
+          v-if="completedCards[card.key]"
+          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content"
+        >
+          <Icon name="kind-icon:check" class="h-2.5 w-2.5" />
+        </span>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type {
-  BuilderChoiceSummary,
-  BuilderSectionConfig,
-} from '@/components/builders/builder-shell.vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { handleError } from '@/stores/utils'
 
+// ── Types ──────────────────────────────────────────────────────────────────
+
 type AccountMode = 'login' | 'register'
 type DesignerMode = 'username' | 'custom'
-type PrivacyDefault = 'private' | 'public'
 
 type ArtCreatorPayload = {
   prompt?: string
@@ -551,214 +720,371 @@ type ArtCreatorPayload = {
   artImageId?: number | null
   artImage?: {
     id: number
-    imageData?: string | null
     imagePath?: string | null
     path?: string | null
     thumbnailData?: string | null
   } | null
 }
 
+// ── Store ──────────────────────────────────────────────────────────────────
+
 const userStore = useUserStore()
 
-const activeSection = ref<string>('account')
-const accountMode = ref<AccountMode>('login')
-const designerMode = ref<DesignerMode>('username')
-const designerName = ref('')
-const designerMessage = ref('')
-const avatarPrompt = ref('')
-const avatarImagePath = ref<string | null>(null)
-const defaultPrivacy = ref<PrivacyDefault>('private')
-const allowMature = ref(false)
+// ── Card definitions ───────────────────────────────────────────────────────
 
-const sections: BuilderSectionConfig[] = [
+const CARDS = [
   {
     key: 'account',
     label: 'Account',
     icon: 'kind-icon:login',
-    title: 'Login or Register',
-    summary:
-      'Access your account or create a new one so builder work can be saved.',
+    title: 'Sign in or create account',
+    tagline: 'Builder progress needs a real user.',
+    color: 'oklch(0.7 0.2 250)',
   },
   {
     key: 'designer',
     label: 'Designer',
     icon: 'kind-icon:signature',
-    title: 'Designer Name',
-    summary:
-      'Choose whether your creative byline matches your username or becomes its own persona.',
+    title: 'Your creative identity',
+    tagline: 'Username for access. Designer name for the work.',
+    color: 'oklch(0.7 0.2 290)',
   },
   {
     key: 'avatar',
     label: 'Avatar',
     icon: 'kind-icon:portrait',
-    title: 'Avatar Art',
-    summary:
-      'Create, upload, generate, or select avatar art for the user profile.',
+    title: 'Give yourself a face',
+    tagline: 'Generate, upload, or select avatar art.',
+    color: 'oklch(0.7 0.2 200)',
   },
   {
     key: 'theme',
     label: 'Theme',
     icon: 'kind-icon:palette',
-    title: 'Theme',
-    summary: 'Choose the visual style for the builder workspace.',
+    title: 'The atmosphere',
+    tagline: 'Visual style for your workspace.',
+    color: 'oklch(0.7 0.2 330)',
   },
   {
     key: 'settings',
     label: 'Settings',
     icon: 'kind-icon:sliders',
-    title: 'Privacy and Maturity',
-    summary:
-      'Set default privacy and mature-content behavior for new creations.',
+    title: 'Privacy and maturity',
+    tagline: 'Defaults for new creations.',
+    color: 'oklch(0.7 0.2 160)',
   },
   {
     key: 'summary',
     label: 'Summary',
     icon: 'kind-icon:blueprint',
-    title: 'User Setup Summary',
-    summary:
-      'Review account, designer identity, avatar, theme, privacy, and maturity choices.',
+    title: 'Setup complete',
+    tagline: 'Review and go build something.',
+    color: 'oklch(0.7 0.2 80)',
   },
-]
+] as const
 
-const username = computed(() => {
-  return userStore.username || 'Guest'
-})
+type CardKey = (typeof CARDS)[number]['key']
 
-const resolvedDesignerName = computed(() => {
-  return designerName.value.trim() || username.value
-})
+// ── UI state ───────────────────────────────────────────────────────────────
 
-const summaryItems = computed<BuilderChoiceSummary[]>(() => [
+const activeCardKey = ref<CardKey | null>(null)
+const completedCards = reactive<Partial<Record<CardKey, boolean>>>({})
+
+const accountMode = ref<AccountMode>('login')
+const designerMode = ref<DesignerMode>('username')
+const designerName = ref(
+  userStore.user?.designerName ?? userStore.username ?? '',
+)
+
+const avatarPrompt = ref('')
+const isMobile = ref(false)
+
+const defaultPublic = ref(true)
+const showMature = ref(userStore.user?.showMature ?? false)
+
+const isSavingDesigner = ref(false)
+const designerMessage = ref('')
+const designerError = ref(false)
+
+const isSavingSettings = ref(false)
+const settingsMessage = ref('')
+const settingsError = ref(false)
+
+// ── Computed ───────────────────────────────────────────────────────────────
+
+const activeCard = computed(
+  () => CARDS.find((c) => c.key === activeCardKey.value) ?? null,
+)
+
+const currentCardIndex = computed(() =>
+  CARDS.findIndex((c) => c.key === activeCardKey.value),
+)
+
+const isLastCard = computed(() => currentCardIndex.value >= CARDS.length - 1)
+
+// Cards that save themselves — no footer Next button needed
+const selfSavingCards: CardKey[] = ['designer', 'avatar', 'settings']
+const noFooterCards: CardKey[] = ['account', 'theme', 'summary']
+
+const showFooter = computed(
+  () =>
+    activeCardKey.value !== null &&
+    !selfSavingCards.includes(activeCardKey.value as CardKey) &&
+    !noFooterCards.includes(activeCardKey.value as CardKey),
+)
+
+const summaryItems = computed(() => [
   {
     key: 'account',
-    label: 'Account Mode',
-    value: accountMode.value === 'login' ? 'Login' : 'Register',
-    icon: accountMode.value === 'login' ? 'kind-icon:login' : 'kind-icon:plus',
-    description: 'How the user enters the builder flow.',
-    editSection: 'account',
+    label: 'Account',
+    value: userStore.isLoggedIn ? `@${userStore.username}` : 'Not signed in',
+    icon: 'kind-icon:login',
+    image: null as string | null,
+    editCard: 'account' as CardKey,
   },
   {
     key: 'designer',
     label: 'Designer Name',
-    value: resolvedDesignerName.value,
+    value: userStore.user?.designerName || userStore.username || '—',
     icon: 'kind-icon:signature',
-    description:
-      designerMode.value === 'username'
-        ? 'Using the account username as the designer name.'
-        : 'Using a separate creative byline.',
-    editSection: 'designer',
+    image: null as string | null,
+    editCard: 'designer' as CardKey,
   },
   {
     key: 'avatar',
     label: 'Avatar',
-    value: avatarImagePath.value ? 'Avatar image selected' : avatarPrompt.value,
-    image: avatarImagePath.value,
+    value: userStore.user?.avatarImage ? 'Image set' : 'No avatar yet',
     icon: 'kind-icon:portrait',
-    description: 'Avatar art is created through art-designer.',
-    editSection: 'avatar',
+    image: userStore.user?.avatarImage ?? null,
+    editCard: 'avatar' as CardKey,
   },
   {
     key: 'theme',
     label: 'Theme',
-    value: 'Selected in Theme Gallery',
+    value: 'Set in theme gallery',
     icon: 'kind-icon:palette',
-    description: 'Theme selection uses the existing theme gallery.',
-    editSection: 'theme',
+    image: null as string | null,
+    editCard: 'theme' as CardKey,
   },
   {
-    key: 'privacy',
-    label: 'Privacy Default',
-    value:
-      defaultPrivacy.value === 'private'
-        ? 'Private by default'
-        : 'Public by default',
-    icon:
-      defaultPrivacy.value === 'private' ? 'kind-icon:lock' : 'kind-icon:globe',
-    description: 'Default visibility for new creations.',
-    editSection: 'settings',
-  },
-  {
-    key: 'maturity',
-    label: 'Mature Content',
-    value: allowMature.value ? 'Allowed' : 'Filtered',
-    icon: allowMature.value ? 'kind-icon:eye' : 'kind-icon:shield',
-    description: 'Controls whether mature content is visible while building.',
-    editSection: 'settings',
+    key: 'settings',
+    label: 'Settings',
+    value: `${showMature.value ? 'Mature on' : 'Mature off'} · ${defaultPublic.value ? 'Public' : 'Private'} default`,
+    icon: 'kind-icon:sliders',
+    image: null as string | null,
+    editCard: 'settings' as CardKey,
   },
 ])
 
-function useUsernameAsDesigner() {
-  designerMode.value = 'username'
-  designerName.value = username.value
+// ── Methods ────────────────────────────────────────────────────────────────
+
+function handCardClass(key: string): string {
+  if (activeCardKey.value === key)
+    return 'border-primary bg-primary/10 text-primary scale-105 shadow-md shadow-primary/20'
+  if (completedCards[key as CardKey])
+    return 'border-success/40 bg-success/5 text-success/80 hover:border-success'
+  return 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/40 hover:text-primary hover:-translate-y-0.5'
 }
 
-function updateAvatarArt(payload: ArtCreatorPayload) {
-  avatarPrompt.value = payload.prompt || avatarPrompt.value
-  avatarImagePath.value =
-    payload.imagePath ||
-    payload.artImage?.imagePath ||
-    payload.artImage?.path ||
-    avatarImagePath.value
+function selectCard(key: CardKey | string) {
+  activeCardKey.value = key as CardKey
+  designerMessage.value = ''
+  settingsMessage.value = ''
+}
+
+function startFromBeginning() {
+  // If already logged in, skip account card
+  const startKey: CardKey = userStore.isLoggedIn ? 'designer' : 'account'
+  selectCard(startKey)
+}
+
+function finishCard() {
+  if (!activeCardKey.value) return
+  completedCards[activeCardKey.value] = true
+  persistState()
+
+  const idx = currentCardIndex.value
+  if (idx < CARDS.length - 1) {
+    selectCard(CARDS[idx + 1]!.key)
+  }
+}
+
+function goPrev() {
+  const idx = currentCardIndex.value
+  if (idx > 0) selectCard(CARDS[idx - 1]!.key)
+}
+
+function useUsernameAsDesigner() {
+  designerMode.value = 'username'
+  designerName.value = userStore.username ?? ''
 }
 
 async function saveDesignerName() {
+  isSavingDesigner.value = true
   designerMessage.value = ''
+  designerError.value = false
 
   try {
-    const name = resolvedDesignerName.value.trim()
+    const name =
+      designerMode.value === 'username'
+        ? (userStore.username ?? '')
+        : designerName.value.trim()
 
     if (!name) {
-      designerMessage.value = 'Designer name cannot be blank.'
+      designerMessage.value = 'Name cannot be blank.'
+      designerError.value = true
       return
     }
 
-    const store = userStore as unknown as {
-      patchUser?: (payload: Record<string, unknown>) => Promise<unknown>
-      updateUser?: (payload: Record<string, unknown>) => Promise<unknown>
-      updateProfile?: (payload: Record<string, unknown>) => Promise<unknown>
-    }
-
-    const payload = {
-      designer: name,
-      designerName: name,
-    }
+    const store = userStore as Record<string, unknown>
+    const payload = { designerName: name }
 
     if (typeof store.patchUser === 'function') {
-      await store.patchUser(payload)
-      designerMessage.value = 'Designer name saved.'
-      return
+      await (store.patchUser as (p: Record<string, unknown>) => Promise<void>)(
+        payload,
+      )
+    } else if (typeof store.updateUser === 'function') {
+      await (store.updateUser as (p: Record<string, unknown>) => Promise<void>)(
+        payload,
+      )
+    } else if (typeof store.updateProfile === 'function') {
+      await (
+        store.updateProfile as (p: Record<string, unknown>) => Promise<void>
+      )(payload)
     }
 
-    if (typeof store.updateUser === 'function') {
-      await store.updateUser(payload)
-      designerMessage.value = 'Designer name saved.'
-      return
-    }
+    designerMessage.value = 'Designer name saved.'
+    completedCards['designer'] = true
+    persistState()
 
-    if (typeof store.updateProfile === 'function') {
-      await store.updateProfile(payload)
-      designerMessage.value = 'Designer name saved.'
-      return
-    }
-
-    designerMessage.value =
-      'Designer name staged locally. Add a userStore update action when ready.'
+    // Auto-advance after a beat
+    setTimeout(() => finishCard(), 800)
   } catch (error) {
-    handleError(error, 'saving designer name from user-builder')
+    handleError(error, 'saving designer name')
     designerMessage.value =
-      error instanceof Error ? error.message : 'Failed to save designer name.'
+      error instanceof Error ? error.message : 'Save failed.'
+    designerError.value = true
+  } finally {
+    isSavingDesigner.value = false
   }
 }
 
-function displaySummaryValue(value: BuilderChoiceSummary['value']) {
-  if (value === null || value === undefined || value === '') {
-    return 'Not selected yet'
+function updateAvatarArt(payload: ArtCreatorPayload) {
+  avatarPrompt.value = payload.prompt ?? avatarPrompt.value
+  // The art-designer component saves directly to userStore/API
+  // When an image is confirmed, mark avatar complete
+  const path =
+    payload.imagePath ?? payload.artImage?.imagePath ?? payload.artImage?.path
+  if (path) {
+    completedCards['avatar'] = true
+    persistState()
   }
-
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No'
-  }
-
-  return String(value)
 }
+
+async function saveSettings() {
+  isSavingSettings.value = true
+  settingsMessage.value = ''
+  settingsError.value = false
+
+  try {
+    const store = userStore as Record<string, unknown>
+    const payload = { showMature: showMature.value }
+
+    if (typeof store.patchUser === 'function') {
+      await (store.patchUser as (p: Record<string, unknown>) => Promise<void>)(
+        payload,
+      )
+    } else if (typeof store.updateUser === 'function') {
+      await (store.updateUser as (p: Record<string, unknown>) => Promise<void>)(
+        payload,
+      )
+    } else if (typeof store.updateProfile === 'function') {
+      await (
+        store.updateProfile as (p: Record<string, unknown>) => Promise<void>
+      )(payload)
+    }
+
+    // Update store directly if it has showMature
+    if ('showMature' in store && typeof store.showMature === 'boolean') {
+      ;(store as { showMature: boolean }).showMature = showMature.value
+    }
+
+    settingsMessage.value = 'Settings saved.'
+    completedCards['settings'] = true
+    persistState()
+
+    setTimeout(() => finishCard(), 800)
+  } catch (error) {
+    handleError(error, 'saving settings')
+    settingsMessage.value =
+      error instanceof Error ? error.message : 'Save failed.'
+    settingsError.value = true
+  } finally {
+    isSavingSettings.value = false
+  }
+}
+
+// ── Persistence ───────────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'userBuilderState'
+
+function persistState() {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        completedCards: { ...completedCards },
+        activeCardKey: activeCardKey.value,
+      }),
+    )
+  } catch {}
+}
+
+function restoreState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return
+    const s = JSON.parse(raw) as {
+      completedCards?: Record<string, boolean>
+      activeCardKey?: string
+    }
+    if (s.completedCards) Object.assign(completedCards, s.completedCards)
+    if (s.activeCardKey) activeCardKey.value = s.activeCardKey as CardKey
+  } catch {}
+}
+
+// ── Watchers ──────────────────────────────────────────────────────────────
+
+// Mark account card complete when user logs in
+watch(
+  () => userStore.isLoggedIn,
+  (loggedIn) => {
+    if (loggedIn) {
+      completedCards['account'] = true
+      designerName.value =
+        userStore.user?.designerName ?? userStore.username ?? ''
+      showMature.value = userStore.user?.showMature ?? false
+      persistState()
+    }
+  },
+  { immediate: true },
+)
+
+// ── Lifecycle ─────────────────────────────────────────────────────────────
+
+function updateBreakpoint() {
+  isMobile.value = window.innerWidth < 1024
+}
+
+onMounted(() => {
+  restoreState()
+  updateBreakpoint()
+  window.addEventListener('resize', updateBreakpoint)
+
+  // Pre-fill from store
+  if (userStore.user?.designerName)
+    designerName.value = userStore.user.designerName
+  if (userStore.user?.showMature !== undefined)
+    showMature.value = userStore.user.showMature
+})
 </script>

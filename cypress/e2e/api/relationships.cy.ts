@@ -305,9 +305,10 @@ const expectFieldEquals = (
   data: any,
   field: string,
   expected: number | string | boolean,
+  label = 'record',
 ) => {
-  expect(data, `record with ${field}`).to.be.an('object')
-  expect(data[field], field).to.eq(expected)
+  expect(data, `${label} with ${field}`).to.be.an('object')
+  expect(data[field], `${label}.${field}`).to.eq(expected)
 }
 
 const createReactionFor = (
@@ -484,9 +485,9 @@ describe('Relationship API Tests', () => {
       })
         .then((bot) => {
           ids.bot = bot.id
-          expectFieldEquals(bot, 'userId', testUserId)
-          expectFieldEquals(bot, 'serverId', id('server'))
-          expectFieldEquals(bot, 'artImageId', id('artImageA'))
+          expectFieldEquals(bot, 'userId', testUserId, 'bot')
+          expectFieldEquals(bot, 'serverId', id('server'), 'bot')
+          expectFieldEquals(bot, 'artImageId', id('artImageA'), 'bot')
 
           return postRecord('character', {
             name: `Cypress Character ${time}`,
@@ -501,9 +502,13 @@ describe('Relationship API Tests', () => {
         })
         .then((character) => {
           ids.character = character.id
-          expectFieldEquals(character, 'userId', testUserId)
-          expectFieldEquals(character, 'artImageId', id('artImageA'))
-
+          expectFieldEquals(character, 'userId', testUserId, 'character')
+          expectFieldEquals(
+            character,
+            'artImageId',
+            id('artImageA'),
+            'character',
+          )
           return postRecord('pitch', {
             title: `Cypress Pitch ${time}`,
             pitch: `A relationship test pitch ${time}`,
@@ -516,8 +521,8 @@ describe('Relationship API Tests', () => {
         })
         .then((pitch) => {
           ids.pitch = pitch.id
-          expectFieldEquals(pitch, 'userId', testUserId)
-          expectFieldEquals(pitch, 'artImageId', id('artImageA'))
+          expectFieldEquals(pitch, 'userId', testUserId, 'pitch')
+          expectFieldEquals(pitch, 'artImageId', id('artImageA'), 'pitch')
 
           return postRecord('prompt', {
             prompt: `A relationship test prompt ${time}`,
@@ -531,10 +536,10 @@ describe('Relationship API Tests', () => {
         })
         .then((prompt) => {
           ids.prompt = prompt.id
-          expectFieldEquals(prompt, 'userId', testUserId)
-          expectFieldEquals(prompt, 'artImageId', id('artImageA'))
-          expectFieldEquals(prompt, 'botId', id('bot'))
-          expectFieldEquals(prompt, 'pitchId', id('pitch'))
+          expectFieldEquals(prompt, 'userId', testUserId, 'prompt')
+          expectFieldEquals(prompt, 'artImageId', id('artImageA'), 'prompt')
+          expectFieldEquals(prompt, 'botId', id('bot'), 'prompt')
+          expectFieldEquals(prompt, 'pitchId', id('pitch'), 'prompt')
 
           return postRecord('reward', {
             label: `Cypress Reward ${time}`,
@@ -551,8 +556,9 @@ describe('Relationship API Tests', () => {
         })
         .then((reward) => {
           ids.reward = reward.id
-          expectFieldEquals(reward, 'userId', testUserId)
-          expectFieldEquals(reward, 'artImageId', id('artImageA'))
+
+          expectFieldEquals(reward, 'userId', testUserId, 'reward')
+          expectFieldEquals(reward, 'artImageId', id('artImageA'), 'reward')
 
           return postRecord('scenario', {
             title: `Cypress Scenario ${time}`,
@@ -567,8 +573,8 @@ describe('Relationship API Tests', () => {
         })
         .then((scenario) => {
           ids.scenario = scenario.id
-          expectFieldEquals(scenario, 'userId', testUserId)
-          expectFieldEquals(scenario, 'artImageId', id('artImageA'))
+          expectFieldEquals(scenario, 'userId', testUserId, 'scenario')
+          expectFieldEquals(scenario, 'artImageId', id('artImageA'), 'scenario')
 
           return postRecord('dream', {
             title: `Cypress Dream ${time}`,
@@ -697,7 +703,7 @@ describe('Relationship API Tests', () => {
       )
         .then((butterfly) => {
           ids.butterfly = butterfly.id
-          expectFieldEquals(butterfly, 'userId', testUserId)
+          expectFieldEquals(butterfly, 'userId', 1, 'butterfly')
 
           return postRecord('butterflyRecord', {
             userId: testUserId,

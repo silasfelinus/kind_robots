@@ -88,6 +88,8 @@
         :show-header="false"
       />
 
+      <stage-manager v-else-if="currentTab === 'stage'" />
+
       <character-gallery
         v-else-if="currentTab === 'characters'"
         variant="dashboard"

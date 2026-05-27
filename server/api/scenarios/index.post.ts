@@ -15,6 +15,13 @@ type ScenarioPostInput = {
   artPrompt?: unknown
   genres?: unknown
   inspirations?: unknown
+  isMature?: unknown
+  isPublic?: unknown
+  isActive?: unknown
+  difficulty?: unknown
+  tier?: unknown
+  group?: unknown
+  secretNotes?: unknown
 }
 
 type SkippedScenario = {
@@ -63,6 +70,34 @@ function normalizeNullableString(value: unknown): string | null | undefined {
 
   const trimmed = value.trim()
   return trimmed || null
+}
+
+function normalizeBoolean(value: unknown, fallback: boolean): boolean {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+
+    if (normalized === 'true') return true
+    if (normalized === 'false') return false
+  }
+
+  return fallback
+}
+
+function normalizeNullableInteger(value: unknown): number | null | undefined {
+  if (value === null) return null
+  if (value === undefined || value === '') return undefined
+
+  const parsed = Number(value)
+
+  if (!Number.isInteger(parsed)) {
+    throw createError({
+      statusCode: 400,
+      message: 'difficulty must be an integer when provided.',
+    })
+  }
+
+  return parsed
 }
 
 function normalizeIntros(value: unknown): string {
@@ -128,6 +163,7 @@ function buildScenarioCreateInput(
 ): Prisma.ScenarioCreateInput {
   const title = normalizeRequiredString(scenarioData.title, 'title')
   const artImageId = normalizeOptionalId(scenarioData.artImageId)
+  const difficulty = normalizeNullableInteger(scenarioData.difficulty)
 
   return {
     User: { connect: { id: authenticatedUserId } },
@@ -139,6 +175,13 @@ function buildScenarioCreateInput(
     artPrompt: normalizeNullableString(scenarioData.artPrompt),
     genres: normalizeNullableString(scenarioData.genres),
     inspirations: normalizeNullableString(scenarioData.inspirations),
+    isMature: normalizeBoolean(scenarioData.isMature, false),
+    isPublic: normalizeBoolean(scenarioData.isPublic, true),
+    isActive: normalizeBoolean(scenarioData.isActive, true),
+    difficulty,
+    tier: normalizeNullableString(scenarioData.tier),
+    group: normalizeNullableString(scenarioData.group),
+    secretNotes: normalizeNullableString(scenarioData.secretNotes),
     ArtImage: artImageId ? { connect: { id: artImageId } } : undefined,
   }
 }
@@ -221,6 +264,8 @@ export default defineEventHandler(async (event) => {
                 username: true,
               },
             },
+            Characters: true,
+            Compositions: true,
           },
         })
 

@@ -1,7 +1,3 @@
-// @ts-nocheck
-/* eslint-disable */
-// test-ignore
-
 // /server/api/compositions/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'

@@ -541,19 +541,17 @@ describe('Relationship API Tests', () => {
           expectFieldEquals(prompt, 'botId', id('bot'), 'prompt')
           expectFieldEquals(prompt, 'pitchId', id('pitch'), 'prompt')
 
-          return postRecord('dream', {
-            title: `Cypress Dream ${time}`,
-            slug: `cypress-dream-${time}`,
-            description: 'A dream/location for relationship tests.',
-            currentVibe: 'cypress relationship test chamber',
+          return postRecord('reward', {
+            label: `Cypress Reward ${time}`,
+            text: 'A reward for surviving relationship tests.',
+            power: 'Can detect missing include statements at ten paces.',
+            collection: 'cypress',
+            rarity: 'COMMON',
+            rewardType: 'ITEM',
             userId: testUserId,
-            pitchId: id('pitch'),
             artImageId: id('artImageA'),
-            artCollectionId: id('artCollection'),
-            scenarioId: id('scenario'),
             isPublic: false,
             isActive: true,
-            accessMode: 'PRIVATE',
           })
         })
         .then((reward) => {

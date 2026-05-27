@@ -61,6 +61,17 @@ export const builderStages = [
     route: '/characters',
     requiredBeforeNext: ['name'],
   },
+{
+    key: 'bot',
+    label: 'Bots',
+    icon: 'kind-icon:robot-color',
+    title: 'Bot Builder',
+    summary:
+      'Create bot assistants with particular skills',
+    modelType: 'bot',
+    route: '/bots',
+    requiredBeforeNext: ['name'],
+  },
   {
     key: 'reward',
     label: 'Reward',

@@ -87,6 +87,16 @@ Rules:
 - Make it more specific, not more complicated.
 - The best pitches make someone immediately start having ideas.`,
 
+  bot: `You are a bot design assistant for Kind Robots.
+You help create system prompts, taglines, opening messages, and descriptions for AI bots.
+Each bot has a type (assistant, story, art, composition, character, scenario, guide, custom) and a personality.
+Rules:
+- Return only the requested text. No preamble.
+- Match the bot's type and personality when writing.
+- System prompts: second person (You are...), clear, specific, 1–4 sentences.
+- Taglines: one sentence hook. Make it specific to this bot, not generic.
+- Opening messages: in the bot's voice, present tense, immediate, warm or in-character.`,
+
   scenario: `You are a scenario writer for Kind Robots.
 You write engaging, dramatic scenario prompts — setup descriptions and intro choices for interactive storytelling.
 Tone: matches the genre. Can be horror, comedy, fantasy, or anything else. Always specific and immediate.
@@ -144,6 +154,16 @@ function buildContextString(
       )
       if (c.pitch) lines.push(`Current pitch: ${c.pitch}`)
       break
+    case 'bot': {
+      if (c.BotType) lines.push(`Bot type: ${c.BotType}`)
+      if (c.name) lines.push(`Name: ${c.name}`)
+      if (c.personality)
+        lines.push(
+          `Personality: ${String(c.personality).split('|').join(', ')}`,
+        )
+      if (c.prompt) lines.push(`System prompt: ${c.prompt}`)
+      break
+    }
     case 'scenario': {
       if (c.genres) lines.push(`Genre: ${c.genres}`)
       if (c.title) lines.push(`Title: ${c.title}`)
@@ -221,6 +241,20 @@ function buildUserPrompt(
       'Write 1–2 sentences describing the current mood or atmospheric condition of this space right now.',
     currentPrompt:
       'Write 1–3 sentences describing what a visitor encounters when entering this space today. The active element.',
+    botPrompt:
+      'Write a system prompt for this bot. Second person (You are...). Clear and specific about what the bot does and how it speaks. Under 200 words.',
+    botTagline:
+      'Write a one-sentence tagline for this bot. Specific, compelling, makes someone want to use it.',
+    botUserIntro:
+      "Write the user-facing intro for this bot — what they read before starting. An invitation or description in the bot's voice.",
+    botDescription:
+      "Write a short description of this bot for listings. What it does, who it's for.",
+    botSampleResponse:
+      "Write a single example response in this bot's voice. 1–2 sentences.",
+    botIntro:
+      "Write one opening message in this bot's voice. Present tense, immediate, in character.",
+    botIntros:
+      'Write multiple opening messages pipe-separated. Format: opener one | opener two | opener three',
     scenarioTitle:
       'Write a short evocative scenario title (2–5 words). Creates anticipation without explaining everything.',
     scenarioDescription:

@@ -123,9 +123,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token.')
     })
   })
 
@@ -211,9 +209,7 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(401)
       expect(response.body.success).to.be.false
-      expect(response.body.message).to.include(
-        'Authorization token is required',
-      )
+      expect(response.body.message).to.include('Invalid or expired token.')
     })
   })
 
@@ -244,9 +240,8 @@ describe('Bot Management API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body).to.have.property('success', true)
-      expect(response.body.data.message).to.include(
-        `Bot with ID ${createdBotId} successfully deleted.`,
-      )
+      expect(response.body.message).to.eq('Bot deleted successfully.')
+      expect(response.body.data).to.have.property('id', createdBotId)
     })
   })
 })

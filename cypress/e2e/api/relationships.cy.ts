@@ -942,7 +942,7 @@ describe('Relationship API Tests', () => {
       expectStoredId('server')
 
       patchRecord('resource', id('resource'), {
-        serverIds: [id('server')],
+        connectServerIds: [id('server')],
       }).then((resource) => {
         mutableRelationGroups.resourceServers = true
         expectArrayIncludesId(

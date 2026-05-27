@@ -559,7 +559,11 @@ export const ScenarioScalarFieldEnum = {
   inspirations: 'inspirations',
   isMature: 'isMature',
   isPublic: 'isPublic',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  difficulty: 'difficulty',
+  tier: 'tier',
+  group: 'group',
+  secretNotes: 'secretNotes'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
@@ -1026,7 +1030,10 @@ export const ScenarioOrderByRelevanceFieldEnum = {
   locations: 'locations',
   artPrompt: 'artPrompt',
   genres: 'genres',
-  inspirations: 'inspirations'
+  inspirations: 'inspirations',
+  tier: 'tier',
+  group: 'group',
+  secretNotes: 'secretNotes'
 } as const
 
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]

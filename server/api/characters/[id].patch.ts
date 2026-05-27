@@ -1,25 +1,58 @@
-import { defineEventHandler, createError, readBody } from 'h3'
+// /server/api/characters/[id].patch.ts
+import { defineEventHandler, createError, getRouterParam, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { validateApiKey } from '../../utils/validateKey'
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import type { Character, Prisma } from '~/prisma/generated/prisma/client'
+
+type CharacterPatchBody = Partial<Character> & {
+  rewardIds?: number[]
+  scenarioIds?: number[]
+  dreamIds?: number[]
+}
+
+function normalizeIdArray(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+
+  return Array.from(
+    new Set(
+      value
+        .map((entry) => Number(entry))
+        .filter((entry) => Number.isInteger(entry) && entry > 0),
+    ),
+  )
+}
+
+function getStringOrUndefined(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined
+}
+
+function getBooleanOrUndefined(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined
+}
+
+function getNumberOrUndefined(value: unknown): number | undefined {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
+function hasUpdateData(data: Record<string, unknown>): boolean {
+  return Object.values(data).some((value) => value !== undefined)
+}
 
 export default defineEventHandler(async (event) => {
-  let id: number | null = null
-  let response
+  const id = Number(getRouterParam(event, 'id'))
 
   try {
-    // Parse and validate the character ID from the URL params
-    id = Number(event.context.params?.id)
-    if (isNaN(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= 0) {
       throw createError({
         statusCode: 400,
         message: 'Invalid character ID. It must be a positive integer.',
       })
     }
 
-    // Use validateApiKey to authenticate
-    const { isValid, user } = await validateApiKey(event)
+    const { isValid, user, kind } = await validateApiKey(event)
+
     if (!isValid || !user) {
       throw createError({
         statusCode: 401,
@@ -27,12 +60,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userId = user.id
-
-    // Fetch the existing character to verify ownership
     const existingCharacter = await prisma.character.findUnique({
       where: { id },
+      select: {
+        id: true,
+        userId: true,
+      },
     })
+
     if (!existingCharacter) {
       throw createError({
         statusCode: 404,
@@ -40,55 +75,143 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verify ownership of the character
-    if (existingCharacter.userId !== userId && user.Role !== 'ADMIN') {
+    const isAdmin = user.Role === 'ADMIN' || user.id === 1
+    const isServerKey = kind === 'server'
+    const isOwner = existingCharacter.userId === user.id
+
+    if (!isOwner && !isAdmin && !isServerKey) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this character.',
       })
     }
 
-    // Parse the incoming request body as partial character data
-    const characterData: Prisma.CharacterUpdateInput = await readBody(event)
-    if (!characterData || Object.keys(characterData).length === 0) {
+    const body = await readBody<CharacterPatchBody>(event)
+
+    if (!body || Object.keys(body).length === 0) {
       throw createError({
         statusCode: 400,
         message: 'No data provided for update.',
       })
     }
 
-    if (Array.isArray(characterData.Rewards)) {
-      characterData.Rewards = {
-        set: (characterData.Rewards as Array<{ id: number }>).map((reward) => ({
-          id: reward.id,
-        })),
-      }
+    const rewardIds = normalizeIdArray(body.rewardIds)
+    const scenarioIds = normalizeIdArray(body.scenarioIds)
+    const dreamIds = normalizeIdArray(body.dreamIds)
+
+    const updateData: Prisma.CharacterUpdateInput = {
+      name: getStringOrUndefined(body.name),
+      honorific: getStringOrUndefined(body.honorific),
+      title: getStringOrUndefined(body.title),
+      role: getStringOrUndefined(body.role),
+      class: getStringOrUndefined(body.class),
+      species: getStringOrUndefined(body.species),
+      gender: getStringOrUndefined(body.gender),
+      presentation: getStringOrUndefined(body.presentation),
+      genre: getStringOrUndefined(body.genre),
+      alignment: getStringOrUndefined(body.alignment),
+      personality: getStringOrUndefined(body.personality),
+      drive: getStringOrUndefined(body.drive),
+      backstory: getStringOrUndefined(body.backstory),
+      achievements: getStringOrUndefined(body.achievements),
+      quirks: getStringOrUndefined(body.quirks),
+      artPrompt: getStringOrUndefined(body.artPrompt),
+      imagePath: getStringOrUndefined(body.imagePath),
+      designer: getStringOrUndefined(body.designer),
+      experience: getNumberOrUndefined(body.experience),
+      level: getNumberOrUndefined(body.level),
+      isPublic: getBooleanOrUndefined(body.isPublic),
+      isMature: getBooleanOrUndefined(body.isMature),
+      isActive: getBooleanOrUndefined(body.isActive),
+      luck: body.luck,
+      might: body.might,
+      wits: body.wits,
+      grace: body.grace,
+      charm: body.charm,
+      empathy: body.empathy,
+
+      ArtImage:
+        typeof body.artImageId === 'number'
+          ? { connect: { id: body.artImageId } }
+          : body.artImageId === null
+            ? { disconnect: true }
+            : undefined,
+
+      Rewards: rewardIds.length
+        ? {
+            connect: rewardIds.map((rewardId) => ({ id: rewardId })),
+          }
+        : undefined,
+
+      Scenarios: scenarioIds.length
+        ? {
+            connect: scenarioIds.map((scenarioId) => ({ id: scenarioId })),
+          }
+        : undefined,
+
+      Dreams: dreamIds.length
+        ? {
+            connect: dreamIds.map((dreamId) => ({ id: dreamId })),
+          }
+        : undefined,
     }
 
-    // Update the character in the database
+    if (!hasUpdateData(updateData as Record<string, unknown>)) {
+      throw createError({
+        statusCode: 400,
+        message: 'No valid character fields provided for update.',
+      })
+    }
+
     const data = await prisma.character.update({
       where: { id },
-      data: characterData,
+      data: updateData,
+      include: {
+        ArtImage: {
+          select: {
+            id: true,
+            imagePath: true,
+            fileName: true,
+          },
+        },
+        Rewards: {
+          select: {
+            id: true,
+            label: true,
+          },
+        },
+        Scenarios: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        Dreams: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
     })
 
-    // Successful response with updated character
-    response = {
+    event.node.res.statusCode = 200
+
+    return {
       success: true,
       message: 'Character updated successfully.',
       data,
       statusCode: 200,
     }
-    event.node.res.statusCode = 200
-  } catch (error: unknown) {
-    const handledError = errorHandler(error)
-    event.node.res.statusCode = handledError.statusCode || 500
-    response = {
+  } catch (error) {
+    const { message, statusCode } = errorHandler(error)
+    event.node.res.statusCode = statusCode || 500
+
+    return {
       success: false,
-      message:
-        handledError.message || `Failed to update character with ID ${id}.`,
+      message: message || `Failed to update character with ID ${id}.`,
+      data: null,
       statusCode: event.node.res.statusCode,
     }
   }
-
-  return response
 })

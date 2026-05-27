@@ -1,4 +1,4 @@
-<!-- components/builders/user-builder.vue -->
+<!-- components/users/user-builder.vue -->
 <!--
   User Builder — onboarding and profile setup.
   Uses the established hand/stage/sheet pattern.
@@ -936,22 +936,7 @@ async function saveDesignerName() {
       return
     }
 
-    const store = userStore as Record<string, unknown>
-    const payload = { designerName: name }
-
-    if (typeof store.patchUser === 'function') {
-      await (store.patchUser as (p: Record<string, unknown>) => Promise<void>)(
-        payload,
-      )
-    } else if (typeof store.updateUser === 'function') {
-      await (store.updateUser as (p: Record<string, unknown>) => Promise<void>)(
-        payload,
-      )
-    } else if (typeof store.updateProfile === 'function') {
-      await (
-        store.updateProfile as (p: Record<string, unknown>) => Promise<void>
-      )(payload)
-    }
+    await userStore.updateUser({ designerName: name })
 
     designerMessage.value = 'Designer name saved.'
     completedCards['designer'] = true
@@ -987,27 +972,7 @@ async function saveSettings() {
   settingsError.value = false
 
   try {
-    const store = userStore as Record<string, unknown>
-    const payload = { showMature: showMature.value }
-
-    if (typeof store.patchUser === 'function') {
-      await (store.patchUser as (p: Record<string, unknown>) => Promise<void>)(
-        payload,
-      )
-    } else if (typeof store.updateUser === 'function') {
-      await (store.updateUser as (p: Record<string, unknown>) => Promise<void>)(
-        payload,
-      )
-    } else if (typeof store.updateProfile === 'function') {
-      await (
-        store.updateProfile as (p: Record<string, unknown>) => Promise<void>
-      )(payload)
-    }
-
-    // Update store directly if it has showMature
-    if ('showMature' in store && typeof store.showMature === 'boolean') {
-      ;(store as { showMature: boolean }).showMature = showMature.value
-    }
+    await userStore.updateUser({ showMature: showMature.value })
 
     settingsMessage.value = 'Settings saved.'
     completedCards['settings'] = true

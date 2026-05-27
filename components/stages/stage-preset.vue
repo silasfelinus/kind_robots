@@ -73,15 +73,3 @@ const emit = defineEmits<{
   select: [stageId: string]
 }>()
 </script>
-<script setup lang="ts">
-import type { StagePreset } from '@/stores/helpers/stageHelper'
-
-defineProps<{
-  preset: StagePreset
-  isSelected: boolean
-}>()
-
-const emit = defineEmits<{
-  select: [stageId: string]
-}>()
-</script>

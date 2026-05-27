@@ -46,6 +46,10 @@ const normalRequestTimeout = 20000
 const expectedFailureTimeout = 8000
 const cleanupRequestTimeout = 12000
 
+let apiBase = fallbackApiBase
+let userToken = ''
+let adminToken = ''
+
 const endpointPaths: Record<EndpointKey, string> = {
   artImage: '/api/art/image',
   artCollection: '/api/art/collection',
@@ -128,6 +132,11 @@ const urlFor = (key: EndpointKey, recordId?: number) => {
 
 const authHeaders = () => ({
   Authorization: `Bearer ${userToken}`,
+  'Content-Type': 'application/json',
+})
+
+const adminHeaders = () => ({
+  Authorization: `Bearer ${adminToken}`,
   'Content-Type': 'application/json',
 })
 
@@ -231,11 +240,15 @@ const track = (key: EndpointKey, recordId: number) => {
   if (!created[key].includes(recordId)) created[key].push(recordId)
 }
 
-const postRecord = (key: EndpointKey, body: Record<string, unknown>) => {
+const postRecord = (
+  key: EndpointKey,
+  body: Record<string, unknown>,
+  headers: Record<string, string> = authHeaders(),
+) => {
   return apiRequest({
     method: 'POST',
     url: urlFor(key),
-    headers: authHeaders(),
+    headers,
     body,
   }).then((response) => {
     expectSuccess(response)
@@ -277,13 +290,17 @@ const getRecord = (key: EndpointKey, recordId: number, authorized = false) => {
   })
 }
 
-const deleteRecord = (key: EndpointKey, recordId: number) => {
+const deleteRecord = (
+  key: EndpointKey,
+  recordId: number,
+  headers: Record<string, string> = authHeaders(),
+) => {
   expectId(recordId, `${key}.delete.id`)
 
   return cleanupRequest({
     method: 'DELETE',
     url: urlFor(key, recordId),
-    headers: authHeaders(),
+    headers,
   })
 }
 
@@ -318,14 +335,16 @@ const createReactionFor = (
 
 describe('Relationship API Tests', () => {
   before(() => {
-    cy.env(['API_BASE', 'USER_TOKEN']).then((env) => {
-      apiBase = String(env.API_BASE || fallbackApiBase)
-      userToken = String(env.USER_TOKEN || '')
+  cy.env(['API_BASE', 'USER_TOKEN', 'ADMIN_TOKEN']).then((env) => {
+    apiBase = String(env.API_BASE || fallbackApiBase)
+    userToken = String(env.USER_TOKEN || '')
+    adminToken = String(env.ADMIN_TOKEN || '')
 
-      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
-        .empty
-    })
+    expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be.empty
+    expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
+      .empty
   })
+})
 
   describe('Fixture setup', () => {
     it('creates core ArtImage fixtures', () => {
@@ -659,125 +678,128 @@ describe('Relationship API Tests', () => {
     })
 
     it('creates ownership-only fixtures', () => {
-      expectStoredId('artImageA')
+  expectStoredId('artImageA')
 
-      postRecord('butterfly', {
-        name: `cypress-butterfly-${time}`,
-        message: 'Fluttering through relation tests.',
-        wingTopColor: '#ff00ff',
-        wingBottomColor: '#00ffff',
-        speed: 1.5,
-        wingSpeed: 2.5,
-        scale: 1,
-        rarityNumber: Number(String(time).slice(-8)),
+  postRecord(
+    'butterfly',
+    {
+      name: `cypress-butterfly-${time}`,
+      message: 'Fluttering through relation tests.',
+      wingTopColor: '#ff00ff',
+      wingBottomColor: '#00ffff',
+      speed: 1.5,
+      wingSpeed: 2.5,
+      scale: 1,
+      rarityNumber: Number(String(time).slice(-8)),
+      designer: 'cypress',
+      userId: testUserId,
+      isPublic: false,
+    },
+    adminHeaders(),
+  )
+    .then((butterfly) => {
+      ids.butterfly = butterfly.id
+      expectFieldEquals(butterfly, 'userId', testUserId)
+
+      return postRecord('butterflyRecord', {
+        userId: testUserId,
+        butterflyId: id('butterfly'),
+      })
+    })
+    .then((record) => {
+      ids.butterflyRecord = record.id
+      expectFieldEquals(record, 'userId', testUserId)
+      expectFieldEquals(record, 'butterflyId', id('butterfly'))
+
+      return postRecord('code', {
+        userId: testUserId,
+        title: `Cypress Code ${time}`,
+        description: 'Relationship code fixture',
+        icon: 'kind-icon:code',
+        graph: { nodes: [], edges: [], source: 'cypress' },
+        isPublic: false,
+        isOfficial: false,
+        isActive: true,
+      })
+    })
+    .then((code) => {
+      ids.code = code.id
+      expectFieldEquals(code, 'userId', testUserId)
+
+      return postRecord('log', {
+        message: `Cypress relationship log ${time}`,
+        timestamp: new Date().toISOString(),
+        username: `cypress-${time}`,
+        userId: testUserId,
+      })
+    })
+    .then((log) => {
+      ids.log = log.id
+      expectFieldEquals(log, 'userId', testUserId)
+
+      return postRecord('milestone', {
+        label: `cypress-milestone-${time}`,
+        message: 'Cypress relationship milestone fixture',
+        icon: 'kind-icon:jellybean',
+        karma: 1,
+        isActive: true,
+        isRepeatable: true,
+        artImageId: id('artImageA'),
+      })
+    })
+    .then((milestone) => {
+      ids.milestone = milestone.id
+      expectFieldEquals(milestone, 'artImageId', id('artImageA'))
+
+      return postRecord('milestoneRecord', {
+        username: `cypress-${time}`,
+        milestoneId: id('milestone'),
+        userId: testUserId,
+        isConfirmed: false,
+      })
+    })
+    .then((record) => {
+      ids.milestoneRecord = record.id
+      expectFieldEquals(record, 'milestoneId', id('milestone'))
+      expectFieldEquals(record, 'userId', testUserId)
+
+      return postRecord('smartIcon', {
+        title: `Cypress SmartIcon ${time}`,
+        type: 'nav',
         designer: 'cypress',
         userId: testUserId,
+        icon: 'kind-icon:test-tube',
+        label: 'Relationship Test',
+        link: '/cypress-relationship-test',
         isPublic: false,
+        category: 'model',
+        isMature: false,
       })
-        .then((butterfly) => {
-          ids.butterfly = butterfly.id
-          expectFieldEquals(butterfly, 'userId', testUserId)
-
-          return postRecord('butterflyRecord', {
-            userId: testUserId,
-            butterflyId: id('butterfly'),
-          })
-        })
-        .then((record) => {
-          ids.butterflyRecord = record.id
-          expectFieldEquals(record, 'userId', testUserId)
-          expectFieldEquals(record, 'butterflyId', id('butterfly'))
-
-          return postRecord('code', {
-            userId: testUserId,
-            title: `Cypress Code ${time}`,
-            description: 'Relationship code fixture',
-            icon: 'kind-icon:code',
-            graph: { nodes: [], edges: [], source: 'cypress' },
-            isPublic: false,
-            isOfficial: false,
-            isActive: true,
-          })
-        })
-        .then((code) => {
-          ids.code = code.id
-          expectFieldEquals(code, 'userId', testUserId)
-
-          return postRecord('log', {
-            message: `Cypress relationship log ${time}`,
-            timestamp: new Date().toISOString(),
-            username: `cypress-${time}`,
-            userId: testUserId,
-          })
-        })
-        .then((log) => {
-          ids.log = log.id
-          expectFieldEquals(log, 'userId', testUserId)
-
-          return postRecord('milestone', {
-            label: `cypress-milestone-${time}`,
-            message: 'Cypress relationship milestone fixture',
-            icon: 'kind-icon:jellybean',
-            karma: 1,
-            isActive: true,
-            isRepeatable: true,
-            artImageId: id('artImageA'),
-          })
-        })
-        .then((milestone) => {
-          ids.milestone = milestone.id
-          expectFieldEquals(milestone, 'artImageId', id('artImageA'))
-
-          return postRecord('milestoneRecord', {
-            username: `cypress-${time}`,
-            milestoneId: id('milestone'),
-            userId: testUserId,
-            isConfirmed: false,
-          })
-        })
-        .then((record) => {
-          ids.milestoneRecord = record.id
-          expectFieldEquals(record, 'milestoneId', id('milestone'))
-          expectFieldEquals(record, 'userId', testUserId)
-
-          return postRecord('smartIcon', {
-            title: `Cypress SmartIcon ${time}`,
-            type: 'nav',
-            designer: 'cypress',
-            userId: testUserId,
-            icon: 'kind-icon:test-tube',
-            label: 'Relationship Test',
-            link: '/cypress-relationship-test',
-            isPublic: false,
-            category: 'model',
-            isMature: false,
-          })
-        })
-        .then((smartIcon) => {
-          ids.smartIcon = smartIcon.id
-          expectFieldEquals(smartIcon, 'userId', testUserId)
-
-          return postRecord('theme', {
-            name: `cypress-theme-${time}`,
-            values: JSON.stringify({
-              primary: '#ff00ff',
-              secondary: '#00ffff',
-              accent: '#ffff00',
-            }),
-            userId: testUserId,
-            isPublic: false,
-            tagline: 'Relationship theme fixture',
-            colorScheme: 'light',
-            prefersDark: false,
-            isActive: true,
-          })
-        })
-        .then((theme) => {
-          ids.theme = theme.id
-          expectFieldEquals(theme, 'userId', testUserId)
-        })
     })
-  })
+    .then((smartIcon) => {
+      ids.smartIcon = smartIcon.id
+      expectFieldEquals(smartIcon, 'userId', testUserId)
+
+      return postRecord('theme', {
+        name: `cypress-theme-${time}`,
+        values: JSON.stringify({
+          primary: '#ff00ff',
+          secondary: '#00ffff',
+          accent: '#ffff00',
+        }),
+        userId: testUserId,
+        isPublic: false,
+        tagline: 'Relationship theme fixture',
+        colorScheme: 'light',
+        prefersDark: false,
+        isActive: true,
+      })
+    })
+    .then((theme) => {
+      ids.theme = theme.id
+      expectFieldEquals(theme, 'userId', testUserId)
+    })
+})
 
   describe('ArtCollection relationship contract', () => {
     it('adds, removes, and replaces ArtImages', () => {
@@ -1072,9 +1094,9 @@ describe('Relationship API Tests', () => {
     })
 
     it('connects Reaction to Butterfly', () => {
-      expectStoredId('butterfly')
-      createReactionFor('butterflyId', id('butterfly'), 'BUTTERFLY')
-    })
+  expectStoredId('butterfly')
+  createReactionFor('butterflyId', id('butterfly'), 'BUTTERFLY')
+})
 
     it('connects Reaction to Character', () => {
       expectStoredId('character')
@@ -1260,25 +1282,24 @@ describe('Relationship API Tests', () => {
         )
 
         uniqueIds.forEach((recordId) => {
-          deleteRecord(key, recordId).then((response) => {
-            if (response.status !== 404) {
-              expect(
-                [200, 202, 204],
-                `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
-              ).to.include(response.status)
+  const headers = key === 'butterfly' ? adminHeaders() : authHeaders()
 
-              if (
-                response.body &&
-                Object.prototype.hasOwnProperty.call(response.body, 'success')
-              ) {
-                expect(
-                  response.body.success,
-                  `${key} ${recordId} cleanup`,
-                ).to.eq(true)
-              }
-            }
-          })
-        })
+  deleteRecord(key, recordId, headers).then((response) => {
+    if (response.status !== 404) {
+      expect(
+        [200, 202, 204],
+        `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
+      ).to.include(response.status)
+
+      if (
+        response.body &&
+        Object.prototype.hasOwnProperty.call(response.body, 'success')
+      ) {
+        expect(response.body.success, `${key} ${recordId} cleanup`).to.eq(true)
+      }
+    }
+  })
+})
       })
     })
   })

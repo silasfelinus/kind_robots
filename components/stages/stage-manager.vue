@@ -1,423 +1,875 @@
-<!-- /components/stages/stage-manager.vue -->
+<!-- components/stages/stage-manager.vue -->
+<!--
+  Stage Manager — rebuilt on the hand/stage/sheet pattern.
+  Four cards: Stage → Cast → Settings → Run.
+  Reuses existing: stage-preset.vue, stage-slot.vue, stage-message.vue.
+  Sidebar shows live cast status + show progress.
+-->
 <template>
-  <div class="flex h-full w-full flex-col gap-3 overflow-y-auto p-3">
-    <header class="flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <Icon name="mdi:theater" class="h-7 w-7 text-primary" />
-        <h1 class="text-xl font-bold leading-none md:text-2xl">Stage</h1>
-        <span v-if="store.selectedStage" class="badge badge-outline badge-sm">
+  <div class="relative flex h-full w-full flex-col overflow-hidden">
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <header
+      class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100/80 px-4 py-2.5 backdrop-blur-sm"
+    >
+      <div class="flex items-center gap-2.5">
+        <Icon name="mdi:theater" class="h-5 w-5 text-primary" />
+        <h1 class="text-lg font-black tracking-tight">Stage</h1>
+        <span
+          v-if="store.selectedStage"
+          class="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary"
+        >
           {{ store.selectedStage.label }}
+        </span>
+        <span
+          v-if="store.isRunning && !store.isPaused"
+          class="rounded-full border border-success/40 bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success"
+        >
+          ● Live
+        </span>
+        <span
+          v-else-if="store.isPaused"
+          class="rounded-full border border-warning/40 bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning"
+        >
+          Paused
         </span>
       </div>
 
-      <div class="flex items-center gap-1">
+      <!-- Run controls always visible in header when running -->
+      <div class="flex items-center gap-1.5">
+        <template v-if="store.isRunning">
+          <button
+            v-if="!store.isPaused"
+            type="button"
+            class="btn btn-warning btn-xs rounded-xl"
+            @click="store.pause()"
+          >
+            <Icon name="mdi:pause" class="h-3.5 w-3.5" /> Pause
+          </button>
+          <button
+            v-else
+            type="button"
+            class="btn btn-success btn-xs rounded-xl"
+            @click="store.resume()"
+          >
+            <Icon name="mdi:play" class="h-3.5 w-3.5" /> Resume
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-xl"
+            @click="store.stop()"
+          >
+            <Icon name="mdi:stop" class="h-3.5 w-3.5" />
+          </button>
+        </template>
         <button
-          class="btn btn-ghost btn-sm"
-          title="Persist now"
+          type="button"
+          class="btn btn-ghost btn-xs rounded-xl"
           @click="store.persist()"
         >
-          <Icon name="mdi:content-save" class="h-4 w-4" />
+          <Icon name="mdi:content-save" class="h-3.5 w-3.5" />
         </button>
-
         <button
-          class="btn btn-ghost btn-sm text-error"
-          title="Clear transcript"
+          type="button"
+          class="btn btn-ghost btn-xs rounded-xl text-error/60 hover:text-error"
           @click="store.clearTranscript()"
         >
-          <Icon name="mdi:broom" class="h-4 w-4" />
+          <Icon name="mdi:broom" class="h-3.5 w-3.5" />
         </button>
       </div>
     </header>
 
-    <section
-      class="overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-xl"
-    >
-      <div class="relative h-56 w-full overflow-hidden sm:h-64 lg:h-80">
-        <img
-          :src="introSplashImagePath"
-          alt="Kind Robots Stage"
-          class="h-full w-full object-cover"
-        />
-
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-base-100/95 via-base-100/55 to-base-100/5"
-        />
-
-        <div
-          class="absolute inset-0 bg-gradient-to-t from-base-100/85 via-transparent to-transparent"
-        />
-
-        <div
-          class="absolute inset-0 flex max-w-2xl flex-col justify-end gap-3 p-4 sm:p-6"
-        >
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="badge badge-primary badge-sm rounded-2xl">
-              New Feature
-            </span>
-            <span class="badge badge-outline badge-sm rounded-2xl">
-              Character Theater
-            </span>
-          </div>
-
-          <h2 class="text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
-            Cast the chaos.
-            <span class="block text-primary">Run the show.</span>
-          </h2>
-
-          <p class="max-w-xl text-sm text-base-content/85 sm:text-base">
-            Pick a stage, cast performers, and let your characters, bots,
-            goblins, sphinxes, robots, cryptids, and suspiciously confident
-            experts improvise their tiny multidimensional hearts out.
-          </p>
-
-          <div class="flex flex-wrap gap-2 pt-1">
-            <button
-              class="btn btn-primary btn-sm rounded-2xl"
-              :disabled="!store.castReady"
-              @click="store.start()"
-            >
-              <Icon name="mdi:play" class="h-4 w-4" />
-              Start Show
-            </button>
-
-            <a href="#stage-cast" class="btn btn-secondary btn-sm rounded-2xl">
-              <Icon name="mdi:account-multiple-plus" class="h-4 w-4" />
-              Cast Roles
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="flex flex-col gap-2">
-      <h2 class="text-sm font-semibold uppercase opacity-70">Pick a Stage</h2>
-
-      <div class="grid gap-2 stage-preset-grid">
-        <StagePresetCard
-          v-for="preset in store.presets"
-          :key="preset.id"
-          :preset="preset"
-          :is-selected="preset.id === store.selectedStageId"
-          @select="store.selectStage($event)"
-        />
-      </div>
-
-      <p v-if="store.selectedStage" class="px-1 text-xs italic opacity-70">
-        {{ store.selectedStage.description }}
-      </p>
-    </section>
-
-    <section class="grid gap-2 md:grid-cols-2">
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">
-            Show Title
-          </span>
-        </div>
-        <input
-          v-model="store.showTitle"
-          type="text"
-          class="input input-bordered input-sm w-full rounded-2xl"
-          placeholder="Optional"
-          @change="store.persist()"
-        />
-      </label>
-
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">
-            Topic / Premise
-          </span>
-        </div>
-        <input
-          v-model="store.showTopic"
-          type="text"
-          class="input input-bordered input-sm w-full rounded-2xl"
-          placeholder="What's the show about tonight?"
-          @change="store.persist()"
-        />
-      </label>
-
-      <label class="form-control w-full md:col-span-2">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">
-            Custom Opening Cue
-          </span>
-        </div>
-        <input
-          v-model="store.customOpening"
-          type="text"
-          class="input input-bordered input-sm w-full rounded-2xl"
-          :placeholder="store.selectedStage?.openingCue || ''"
-          @change="store.persist()"
-        />
-      </label>
-
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">
-            Turns ({{ store.maxTurns }})
-          </span>
-        </div>
-        <input
-          v-model.number="store.maxTurns"
-          type="range"
-          min="2"
-          max="40"
-          step="1"
-          class="range range-primary range-sm"
-          @change="store.persist()"
-        />
-      </label>
-
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">
-            Delay between turns ({{ store.turnDelayMs }}ms)
-          </span>
-        </div>
-        <input
-          v-model.number="store.turnDelayMs"
-          type="range"
-          min="0"
-          max="3000"
-          step="100"
-          class="range range-sm"
-          @change="store.persist()"
-        />
-      </label>
-
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">
-            Text Server
-          </span>
-        </div>
-        <select
-          v-model="store.selectedTextServerId"
-          class="select select-bordered select-sm w-full rounded-2xl"
-          @change="store.persist()"
-        >
-          <option :value="null">Default (botcafe)</option>
-          <option
-            v-for="server in textServers"
-            :key="server.id"
-            :value="server.id"
-          >
-            {{ server.title }}
-          </option>
-        </select>
-      </label>
-
-      <label class="form-control w-full">
-        <div class="label py-1">
-          <span class="label-text text-xs uppercase opacity-70">Model</span>
-        </div>
-        <input
-          v-model="store.selectedModel"
-          type="text"
-          class="input input-bordered input-sm w-full rounded-2xl"
-          placeholder="gpt-4o-mini, llama3.1, claude-3-5-sonnet, …"
-          @change="store.persist()"
-        />
-      </label>
-    </section>
-
-    <section id="stage-cast" v-if="store.selectedStage" class="flex flex-col gap-3">
-      <h2 class="text-sm font-semibold uppercase opacity-70">Cast</h2>
-
-      <div
-        v-for="role in store.selectedStage.roles"
-        :key="role.key"
-        class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
+    <!-- ── Body ────────────────────────────────────────────────────────── -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Sidebar: cast status + progress -->
+      <aside
+        v-if="!isMobile"
+        class="flex w-64 shrink-0 flex-col border-r border-base-300 bg-base-100/60 backdrop-blur-sm overflow-y-auto p-4 gap-3"
       >
-        <header class="flex items-center justify-between gap-2">
-          <div class="flex min-w-0 items-center gap-3">
-            <img
-              v-if="role.badgeImagePath"
-              :src="role.badgeImagePath"
-              :alt="role.label"
-              class="h-10 w-10 shrink-0 rounded-2xl border border-base-300 object-cover"
+        <p
+          class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+        >
+          Show Status
+        </p>
+
+        <!-- Stage -->
+        <div
+          v-if="store.selectedStage"
+          class="overflow-hidden rounded-2xl border border-base-300"
+        >
+          <img
+            v-if="store.selectedStageImagePath"
+            :src="store.selectedStageImagePath"
+            :alt="store.selectedStage.label"
+            class="h-20 w-full object-cover opacity-80"
+          />
+          <div class="p-2.5">
+            <p class="text-xs font-black text-base-content">
+              {{ store.selectedStage.label }}
+            </p>
+            <p class="text-xs text-base-content/50 mt-0.5 line-clamp-2">
+              {{ store.selectedStage.tagline }}
+            </p>
+          </div>
+        </div>
+        <div
+          v-else
+          class="rounded-2xl border border-dashed border-base-300 p-4 text-center"
+        >
+          <Icon
+            name="mdi:theater"
+            class="mx-auto h-6 w-6 text-base-content/20"
+          />
+          <p class="mt-1 text-xs text-base-content/30">No stage selected</p>
+        </div>
+
+        <!-- Cast status -->
+        <div v-if="store.selectedStage" class="flex flex-col gap-1.5">
+          <p
+            class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+          >
+            Cast
+          </p>
+          <div
+            v-for="role in store.selectedStage.roles"
+            :key="role.key"
+            class="flex flex-col gap-0.5"
+          >
+            <p class="text-xs font-semibold text-base-content/60">
+              {{ role.label }}
+            </p>
+            <div class="flex flex-wrap gap-1">
+              <div
+                v-for="slot in slotsForRole(role.key)"
+                :key="slot.slotId"
+                class="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border-2"
+                :class="
+                  isSlotFilled(slot)
+                    ? 'border-success bg-success/15'
+                    : 'border-base-300 bg-base-200'
+                "
+              >
+                <Icon
+                  v-if="!isSlotFilled(slot)"
+                  name="mdi:account-outline"
+                  class="h-3.5 w-3.5 text-base-content/30"
+                />
+                <img
+                  v-else-if="slotImage(slot)"
+                  :src="slotImage(slot)!"
+                  alt=""
+                  class="h-full w-full object-cover"
+                />
+                <Icon
+                  v-else
+                  name="mdi:check"
+                  class="h-3.5 w-3.5 text-success"
+                />
+              </div>
+              <div
+                v-for="i in Math.max(
+                  0,
+                  role.min - slotsForRole(role.key).length,
+                )"
+                :key="`empty-${i}`"
+                class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-dashed border-warning/40 bg-warning/8"
+              >
+                <Icon name="mdi:plus" class="h-3 w-3 text-warning/50" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Turn progress -->
+        <div v-if="store.transcript.length" class="flex flex-col gap-1.5">
+          <p
+            class="text-xs font-bold uppercase tracking-widest text-base-content/40"
+          >
+            Progress
+          </p>
+          <div class="flex items-center gap-2">
+            <div class="flex-1 h-1.5 rounded-full bg-base-300 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full transition-all"
+                :style="`width: ${Math.min(100, (store.turnIndex / store.maxTurns) * 100)}%`"
+              />
+            </div>
+            <span class="text-xs text-base-content/50 shrink-0"
+              >{{ store.turnIndex }}/{{ store.maxTurns }}</span
+            >
+          </div>
+        </div>
+
+        <!-- Cast ready badge -->
+        <div
+          class="rounded-xl p-2.5 text-center text-xs font-bold"
+          :class="
+            store.castReady
+              ? 'bg-success/10 text-success'
+              : 'bg-base-200 text-base-content/40'
+          "
+        >
+          {{ store.castReady ? '✓ Cast ready' : 'Cast not ready' }}
+        </div>
+      </aside>
+
+      <!-- ── Stage area ──────────────────────────────────────────────── -->
+      <main class="flex flex-1 flex-col overflow-hidden">
+        <!-- Stage → Select a preset -->
+        <section
+          v-if="activeCard === 'stage'"
+          class="flex flex-1 flex-col overflow-y-auto p-5 gap-4"
+        >
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-black text-base-content">Pick a Stage</h2>
+            <p class="text-sm text-base-content/60">
+              Choose the format. This determines the roles, rotation, and tone
+              of the performance.
+            </p>
+          </div>
+
+          <div
+            class="grid gap-3"
+            style="
+              grid-template-columns: repeat(
+                auto-fill,
+                minmax(min(200px, 100%), 1fr)
+              );
+            "
+          >
+            <StagePresetCard
+              v-for="preset in store.presets"
+              :key="preset.id"
+              :preset="preset"
+              :is-selected="preset.id === store.selectedStageId"
+              @select="onSelectStage"
             />
-            <div class="min-w-0">
-              <h3 class="text-sm font-semibold">{{ role.label }}</h3>
-              <p class="text-xs opacity-70">{{ role.description }}</p>
+          </div>
+        </section>
+
+        <!-- Cast → Assign performers to roles -->
+        <section
+          v-else-if="activeCard === 'cast'"
+          class="flex flex-1 flex-col overflow-y-auto p-5 gap-4"
+        >
+          <div
+            v-if="!store.selectedStage"
+            class="flex flex-1 items-center justify-center text-center"
+          >
+            <div>
+              <Icon
+                name="mdi:theater"
+                class="mx-auto h-10 w-10 text-base-content/20"
+              />
+              <p class="mt-2 text-sm text-base-content/40">
+                Select a stage first.
+              </p>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-xl mt-3"
+                @click="activeCard = 'stage'"
+              >
+                Go to Stage
+              </button>
             </div>
           </div>
 
-          <div class="flex items-center gap-1">
-            <span class="badge badge-outline badge-xs">
-              {{ role.min }}–{{ role.max }}
-            </span>
+          <template v-else>
+            <div class="flex flex-col gap-1">
+              <h2 class="text-2xl font-black text-base-content">
+                Cast the Show
+              </h2>
+              <p class="text-sm text-base-content/60">
+                Assign characters, bots, or preset performers to each role.
+                Required slots are shown first.
+              </p>
+            </div>
 
-            <button
-              v-if="canAddSlot(role.key)"
-              class="btn btn-ghost btn-xs"
-              title="Add another seat"
-              @click="store.addCastSlot(role.key)"
+            <!-- Performer gallery toggle -->
+            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <button
+                type="button"
+                class="flex items-center gap-2 text-sm font-semibold text-base-content/70 hover:text-base-content"
+                @click="showPerformerGallery = !showPerformerGallery"
+              >
+                <Icon
+                  :name="
+                    showPerformerGallery
+                      ? 'mdi:chevron-down'
+                      : 'mdi:chevron-right'
+                  "
+                  class="h-4 w-4"
+                />
+                Performer Gallery ({{ store.performers.length }} preset
+                performers)
+              </button>
+              <Transition name="expand">
+                <div
+                  v-if="showPerformerGallery"
+                  class="mt-3 grid gap-2"
+                  style="
+                    grid-template-columns: repeat(
+                      auto-fill,
+                      minmax(min(180px, 100%), 1fr)
+                    );
+                  "
+                >
+                  <button
+                    v-for="p in store.performers"
+                    :key="p.id"
+                    type="button"
+                    class="flex items-center gap-2 rounded-2xl border border-base-300 bg-base-100 p-2.5 text-left hover:border-primary/40 transition-all"
+                    :draggable="true"
+                    @click="pendingPerformer = p"
+                  >
+                    <img
+                      :src="p.imagePath"
+                      :alt="p.name"
+                      class="h-10 w-10 shrink-0 rounded-xl object-cover"
+                    />
+                    <div class="min-w-0">
+                      <p class="text-xs font-bold text-base-content truncate">
+                        {{ p.name }}
+                      </p>
+                      <p class="text-xs text-base-content/50 truncate">
+                        {{ p.species }}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </Transition>
+            </div>
+
+            <!-- Pending performer to assign -->
+            <Transition name="slide-up">
+              <div
+                v-if="pendingPerformer"
+                class="rounded-2xl border-2 border-primary bg-primary/10 p-3 flex items-center gap-3"
+              >
+                <img
+                  :src="pendingPerformer.imagePath"
+                  :alt="pendingPerformer.name"
+                  class="h-12 w-12 rounded-2xl object-cover"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-black text-primary">
+                    {{ pendingPerformer.name }}
+                  </p>
+                  <p class="text-xs text-base-content/60">
+                    Click a slot below to assign
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs rounded-xl"
+                  @click="pendingPerformer = null"
+                >
+                  <Icon name="mdi:close" class="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </Transition>
+
+            <!-- Role slots -->
+            <div
+              v-for="role in store.selectedStage.roles"
+              :key="role.key"
+              class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
             >
-              <Icon name="mdi:plus" class="h-3 w-3" />
+              <header class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <img
+                    v-if="role.badgeImagePath"
+                    :src="role.badgeImagePath"
+                    :alt="role.label"
+                    class="h-10 w-10 rounded-2xl border border-base-300 object-cover"
+                  />
+                  <div>
+                    <h3 class="text-sm font-black text-base-content">
+                      {{ role.label }}
+                    </h3>
+                    <p class="text-xs text-base-content/60">
+                      {{ role.description }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span
+                    class="rounded-full border border-base-300 px-2 py-0.5 text-xs text-base-content/50"
+                    >{{ role.min }}–{{ role.max }}</span
+                  >
+                  <button
+                    v-if="canAddSlot(role.key)"
+                    type="button"
+                    class="btn btn-ghost btn-xs rounded-xl"
+                    @click="store.addCastSlot(role.key)"
+                  >
+                    <Icon name="mdi:plus" class="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </header>
+
+              <div
+                class="grid gap-2"
+                style="
+                  grid-template-columns: repeat(
+                    auto-fill,
+                    minmax(min(220px, 100%), 1fr)
+                  );
+                "
+              >
+                <div
+                  v-for="slot in slotsForRole(role.key)"
+                  :key="slot.slotId"
+                  class="relative"
+                  :class="pendingPerformer ? 'cursor-pointer' : ''"
+                  @click="
+                    pendingPerformer
+                      ? assignPendingPerformer(slot.slotId)
+                      : null
+                  "
+                >
+                  <div
+                    v-if="pendingPerformer && !isSlotFilled(slot)"
+                    class="absolute inset-0 rounded-2xl border-2 border-dashed border-primary animate-pulse z-10 pointer-events-none"
+                  />
+                  <StageRoleSlot
+                    :slot="slot"
+                    :characters="characterStore.characters || []"
+                    :bots="botStore.bots || []"
+                    :performers="performersForRole(role.key)"
+                    :removable="slotsForRole(role.key).length > role.min"
+                    :resolve-image="resolveImage"
+                    @assign-performer="assignPerformer"
+                    @assign-character="store.assignCharacter"
+                    @assign-bot="store.assignBot"
+                    @clear="store.clearSlot"
+                    @remove-slot="store.removeCastSlot"
+                    @request-temporary="onRequestTemporary"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="btn btn-primary rounded-xl gap-1.5"
+                :disabled="!store.castReady"
+                @click="activeCard = 'settings'"
+              >
+                Cast ready — configure show
+                <Icon name="mdi:arrow-right" class="h-4 w-4" />
+              </button>
+            </div>
+          </template>
+        </section>
+
+        <!-- Settings → Topic, turns, server -->
+        <section
+          v-else-if="activeCard === 'settings'"
+          class="flex flex-1 flex-col overflow-y-auto p-5 gap-4"
+        >
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-black text-base-content">
+              Configure the Show
+            </h2>
+            <p class="text-sm text-base-content/60">
+              Optional topic, custom opening, turn count, and server settings.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <!-- Show title -->
+            <div class="flex flex-col gap-1.5">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Show Title</label
+              >
+              <input
+                v-model="store.showTitle"
+                type="text"
+                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                placeholder="Optional title"
+                @change="store.persist()"
+              />
+            </div>
+
+            <!-- Topic -->
+            <div class="flex flex-col gap-1.5">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Topic / Premise</label
+              >
+              <input
+                v-model="store.showTopic"
+                type="text"
+                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                placeholder="What's the show about tonight?"
+                @change="store.persist()"
+              />
+            </div>
+
+            <!-- Custom opening -->
+            <div class="flex flex-col gap-1.5 sm:col-span-2">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Custom Opening Cue</label
+              >
+              <input
+                v-model="store.customOpening"
+                type="text"
+                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                :placeholder="
+                  store.selectedStage?.openingCue || 'Opening cue...'
+                "
+                @change="store.persist()"
+              />
+            </div>
+
+            <!-- Turns -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Turns ({{ store.maxTurns }})</label
+              >
+              <input
+                v-model.number="store.maxTurns"
+                type="range"
+                min="2"
+                max="40"
+                step="1"
+                class="range range-primary range-sm"
+                @change="store.persist()"
+              />
+              <div class="flex justify-between text-xs text-base-content/30">
+                <span>2</span><span>20</span><span>40</span>
+              </div>
+            </div>
+
+            <!-- Delay -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Delay between turns ({{ store.turnDelayMs }}ms)</label
+              >
+              <input
+                v-model.number="store.turnDelayMs"
+                type="range"
+                min="0"
+                max="3000"
+                step="100"
+                class="range range-sm"
+                @change="store.persist()"
+              />
+              <div class="flex justify-between text-xs text-base-content/30">
+                <span>instant</span><span>1.5s</span><span>3s</span>
+              </div>
+            </div>
+
+            <!-- Server -->
+            <div class="flex flex-col gap-1.5">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Text Server</label
+              >
+              <select
+                v-model="store.selectedTextServerId"
+                class="select select-bordered rounded-2xl bg-base-100 focus:border-primary"
+                @change="store.persist()"
+              >
+                <option :value="null">Default (botcafe)</option>
+                <option
+                  v-for="server in textServers"
+                  :key="server.id"
+                  :value="server.id"
+                >
+                  {{ server.title }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Model -->
+            <div class="flex flex-col gap-1.5">
+              <label
+                class="text-xs font-bold uppercase tracking-widest text-base-content/50"
+                >Model</label
+              >
+              <input
+                v-model="store.selectedModel"
+                type="text"
+                class="input input-bordered rounded-2xl bg-base-100 focus:border-primary"
+                placeholder="gpt-4o-mini, llama3.1..."
+                @change="store.persist()"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              class="btn btn-outline rounded-xl"
+              @click="activeCard = 'cast'"
+            >
+              <Icon name="mdi:arrow-left" class="h-4 w-4" /> Back
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary rounded-xl gap-1.5"
+              :disabled="!store.castReady"
+              @click="goToRun"
+            >
+              <Icon name="mdi:play" class="h-4 w-4" />
+              Start the show
             </button>
           </div>
-        </header>
+        </section>
 
-        <div class="grid gap-2 stage-slot-grid">
-          <StageRoleSlot
-            v-for="slot in slotsForRole(role.key)"
-            :key="slot.slotId"
-            :slot="slot"
-            :characters="characterStore.characters || []"
-            :bots="botStore.bots || []"
-            :performers="performersForRole(role.key)"
-            :removable="slotsForRole(role.key).length > role.min"
-            :resolve-image="resolveImage"
-            @assign-performer="assignPerformer"
-            @assign-character="store.assignCharacter"
-            @assign-bot="store.assignBot"
-            @clear="store.clearSlot"
-            @remove-slot="store.removeCastSlot"
-            @request-temporary="onRequestTemporary"
+        <!-- Run → Live performance -->
+        <section
+          v-else-if="activeCard === 'run'"
+          class="flex flex-1 flex-col overflow-hidden"
+        >
+          <!-- Transcript -->
+          <div
+            class="flex flex-1 flex-col gap-2 overflow-y-auto p-4"
+            :style="transcriptStyle"
+          >
+            <StageMessageCard
+              v-for="entry in store.transcript"
+              :key="entry.id"
+              :entry="entry"
+              :resolve-image="resolveImage"
+            />
+            <div
+              v-if="!store.transcript.length"
+              class="flex flex-1 flex-col items-center justify-center gap-3 py-12 text-center"
+            >
+              <img
+                v-if="store.splashImagePath"
+                :src="store.splashImagePath"
+                alt="Stage"
+                class="mx-auto h-32 w-auto rounded-2xl object-cover opacity-60"
+              />
+              <div>
+                <p class="text-lg font-black text-base-content/40">
+                  {{
+                    store.castReady ? 'Cast is ready.' : 'Cast is not ready.'
+                  }}
+                </p>
+                <p class="mt-1 text-sm text-base-content/30">
+                  {{
+                    store.castReady
+                      ? 'Hit Start to begin the performance.'
+                      : 'Go to Cast to fill the roles.'
+                  }}
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  v-if="!store.castReady"
+                  type="button"
+                  class="btn btn-outline btn-sm rounded-xl"
+                  @click="activeCard = 'cast'"
+                >
+                  <Icon name="mdi:account-multiple-plus" class="h-4 w-4" /> Cast
+                  Roles
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm rounded-xl gap-1.5"
+                  :disabled="!store.castReady"
+                  @click="store.start()"
+                >
+                  <Icon name="mdi:play" class="h-4 w-4" /> Start Show
+                </button>
+              </div>
+            </div>
+            <div ref="transcriptBottom" />
+          </div>
+
+          <!-- Controls bar -->
+          <div
+            class="flex shrink-0 flex-wrap items-center gap-2 border-t border-base-300 bg-base-100/90 px-4 py-2.5 backdrop-blur-sm"
+          >
+            <!-- Start/Pause/Resume/Stop -->
+            <template v-if="!store.isRunning">
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-2xl gap-1.5"
+                :disabled="!store.castReady"
+                @click="store.start()"
+              >
+                <Icon name="mdi:play" class="h-4 w-4" /> Start
+              </button>
+            </template>
+            <template v-else-if="!store.isPaused">
+              <button
+                type="button"
+                class="btn btn-warning btn-sm rounded-2xl"
+                @click="store.pause()"
+              >
+                <Icon name="mdi:pause" class="h-4 w-4" /> Pause
+              </button>
+            </template>
+            <template v-else>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm rounded-2xl"
+                @click="store.resume()"
+              >
+                <Icon name="mdi:play" class="h-4 w-4" /> Resume
+              </button>
+            </template>
+
+            <button
+              v-if="store.isRunning"
+              type="button"
+              class="btn btn-ghost btn-sm rounded-2xl"
+              @click="store.stop()"
+            >
+              <Icon name="mdi:stop" class="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm rounded-2xl"
+              :disabled="store.isGenerating || !store.transcript.length"
+              @click="store.regenerateLastTurn()"
+            >
+              <Icon name="mdi:refresh" class="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm rounded-2xl"
+              :disabled="store.isGenerating"
+              @click="store.generateNextTurn()"
+            >
+              <Icon name="mdi:skip-next" class="h-4 w-4" />
+            </button>
+
+            <span class="flex-1 text-xs text-base-content/50">
+              Turn {{ store.turnIndex }}/{{ store.maxTurns }}
+              <span
+                v-if="store.isGenerating"
+                class="loading loading-dots loading-xs ml-1.5"
+              />
+            </span>
+            <span
+              v-if="!store.castReady"
+              class="text-xs italic text-base-content/40"
+              >Fill required roles to start.</span
+            >
+          </div>
+
+          <!-- Interjection bar -->
+          <div
+            class="flex shrink-0 flex-col gap-2 border-t border-base-300 bg-base-100/90 px-4 py-2.5 backdrop-blur-sm"
+          >
+            <div class="flex gap-2">
+              <input
+                v-model="interjection"
+                type="text"
+                class="input input-bordered input-sm flex-1 rounded-2xl bg-base-100 focus:border-primary"
+                placeholder="Jump in as yourself…"
+                @keydown.enter.prevent="submitInterjection"
+              />
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm rounded-2xl"
+                :disabled="!interjection.trim()"
+                @click="submitInterjection"
+              >
+                <Icon name="mdi:send" class="h-4 w-4" />
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <input
+                v-model="narratorBeat"
+                type="text"
+                class="input input-bordered input-sm flex-1 rounded-2xl bg-base-100 focus:border-primary"
+                placeholder="Add a stage direction or scene beat…"
+                @keydown.enter.prevent="submitNarratorBeat"
+              />
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm rounded-2xl"
+                :disabled="!narratorBeat.trim()"
+                @click="submitNarratorBeat"
+              >
+                <Icon name="mdi:script-text" class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- No card selected -->
+        <div
+          v-else
+          class="flex flex-1 flex-col items-center justify-center gap-5 p-8 text-center"
+        >
+          <img
+            v-if="store.splashImagePath"
+            :src="store.splashImagePath"
+            alt="Stage"
+            class="mx-auto h-40 w-auto rounded-3xl object-cover opacity-70 shadow-xl"
           />
+          <div class="max-w-sm">
+            <h2 class="text-2xl font-black text-base-content">
+              Cast the chaos.
+            </h2>
+            <p class="mt-2 text-sm text-base-content/60">
+              Pick a stage, cast your performers, and run the show.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary rounded-2xl gap-2"
+            @click="activeCard = 'stage'"
+          >
+            <Icon name="mdi:theater" class="h-5 w-5" />
+            Pick a stage
+          </button>
         </div>
-      </div>
-    </section>
+      </main>
+    </div>
 
-    <section
-      class="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 rounded-2xl bg-base-200/90 p-2 backdrop-blur"
+    <!-- ── Hand tray ────────────────────────────────────────────────────── -->
+    <div
+      class="flex shrink-0 items-center gap-2 overflow-x-auto border-t border-base-300 bg-base-100/80 px-4 py-2.5 backdrop-blur-sm scrollbar-thin"
     >
       <button
-        v-if="!store.isRunning"
-        class="btn btn-primary btn-sm rounded-2xl"
-        :disabled="!store.castReady"
-        @click="store.start()"
+        v-for="card in CARDS"
+        :key="card.key"
+        type="button"
+        class="relative flex shrink-0 flex-col items-center gap-1 rounded-2xl border-2 px-3 py-2 text-center transition-all duration-200"
+        :class="handCardClass(card.key)"
+        @click="activeCard = card.key"
       >
-        <Icon name="mdi:play" class="h-4 w-4" />
-        Start
-      </button>
-
-      <button
-        v-else-if="!store.isPaused"
-        class="btn btn-warning btn-sm rounded-2xl"
-        @click="store.pause()"
-      >
-        <Icon name="mdi:pause" class="h-4 w-4" />
-        Pause
-      </button>
-
-      <button
-        v-else
-        class="btn btn-primary btn-sm rounded-2xl"
-        @click="store.resume()"
-      >
-        <Icon name="mdi:play" class="h-4 w-4" />
-        Resume
-      </button>
-
-      <button
-        v-if="store.isRunning"
-        class="btn btn-ghost btn-sm rounded-2xl"
-        @click="store.stop()"
-      >
-        <Icon name="mdi:stop" class="h-4 w-4" />
-        Stop
-      </button>
-
-      <button
-        class="btn btn-ghost btn-sm rounded-2xl"
-        :disabled="store.isGenerating || !store.transcript.length"
-        @click="store.regenerateLastTurn()"
-      >
-        <Icon name="mdi:refresh" class="h-4 w-4" />
-        Regen
-      </button>
-
-      <button
-        class="btn btn-ghost btn-sm rounded-2xl"
-        :disabled="store.isGenerating"
-        @click="store.generateNextTurn()"
-      >
-        <Icon name="mdi:skip-next" class="h-4 w-4" />
-        Next
-      </button>
-
-      <div class="flex-1 px-2 text-xs opacity-70">
-        Turn {{ store.turnIndex }} / {{ store.maxTurns }}
+        <Icon :name="card.icon" class="h-5 w-5" />
+        <span class="text-xs font-bold leading-tight">{{ card.label }}</span>
         <span
-          v-if="store.isGenerating"
-          class="loading loading-dots loading-xs ml-2"
-        />
-      </div>
-
-      <span v-if="!store.castReady" class="text-xs italic opacity-70">
-        Fill required cast roles to start.
-      </span>
-    </section>
-
-    <section class="flex flex-col gap-2">
-      <h2 class="text-sm font-semibold uppercase opacity-70">Transcript</h2>
-
-      <div
-        class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100/70 p-2"
-        :style="transcriptBackgroundStyle"
-      >
-        <StageMessageCard
-          v-for="entry in store.transcript"
-          :key="entry.id"
-          :entry="entry"
-          :resolve-image="resolveImage"
-        />
-
-        <div
-          v-if="!store.transcript.length"
-          class="py-8 text-center text-sm italic opacity-50"
+          v-if="card.key === 'cast' && store.castReady"
+          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content"
         >
-          No show running. Cast your stage and hit Start.
-        </div>
-      </div>
-    </section>
-
-    <section class="flex flex-col gap-1 border-t border-base-300 pt-2">
-      <div class="flex gap-2">
-        <input
-          v-model="interjection"
-          type="text"
-          class="input input-bordered input-sm flex-1 rounded-2xl"
-          placeholder="Jump in as yourself…"
-          @keydown.enter.prevent="submitInterjection"
-        />
-
-        <button
-          class="btn btn-secondary btn-sm rounded-2xl"
-          :disabled="!interjection.trim()"
-          @click="submitInterjection"
+          <Icon name="mdi:check" class="h-2.5 w-2.5" />
+        </span>
+        <span
+          v-else-if="card.key === 'stage' && store.selectedStage"
+          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content"
         >
-          <Icon name="mdi:send" class="h-4 w-4" />
-        </button>
-      </div>
-
-      <div class="flex gap-2">
-        <input
-          v-model="narratorBeat"
-          type="text"
-          class="input input-bordered input-sm flex-1 rounded-2xl"
-          placeholder="Add a stage direction or scene beat…"
-          @keydown.enter.prevent="submitNarratorBeat"
-        />
-
-        <button
-          class="btn btn-ghost btn-sm rounded-2xl"
-          :disabled="!narratorBeat.trim()"
-          @click="submitNarratorBeat"
+          <Icon name="mdi:check" class="h-2.5 w-2.5" />
+        </span>
+        <span
+          v-else-if="card.key === 'run' && store.transcript.length"
+          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-content"
         >
-          <Icon name="mdi:script-text" class="h-4 w-4" />
-        </button>
-      </div>
-    </section>
+          <span class="text-[8px] font-black">{{ store.turnIndex }}</span>
+        </span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useStageStore } from '@/stores/stageStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useBotStore } from '@/stores/botStore'
@@ -431,7 +883,11 @@ import {
   performerToTemporaryParticipant,
   type StagePerformer,
 } from '@/stores/helpers/stageCards'
+import type { CastSlot } from '@/stores/helpers/stageHelper'
 
+// ── Types ──────────────────────────────────────────────────────────────────
+
+type CardKey = 'stage' | 'cast' | 'settings' | 'run'
 type TextServerOption = {
   id: number
   title: string
@@ -439,47 +895,164 @@ type TextServerOption = {
   isActive: boolean
 }
 
-const introSplashImagePath = '/images/stage/splash.webp'
+// ── Stores ─────────────────────────────────────────────────────────────────
 
 const store = useStageStore()
 const characterStore = useCharacterStore()
 const botStore = useBotStore()
 const serverStore = useServerStore()
 
+// ── UI state ───────────────────────────────────────────────────────────────
+
+const activeCard = ref<CardKey | null>(null)
+const isMobile = ref(false)
+const showPerformerGallery = ref(false)
+const pendingPerformer = ref<StagePerformer | null>(null)
 const interjection = ref('')
 const narratorBeat = ref('')
+const transcriptBottom = ref<HTMLElement | null>(null)
+
+// ── Card definitions ───────────────────────────────────────────────────────
+
+const CARDS = [
+  { key: 'stage' as CardKey, label: 'Stage', icon: 'mdi:theater' },
+  { key: 'cast' as CardKey, label: 'Cast', icon: 'mdi:account-multiple' },
+  { key: 'settings' as CardKey, label: 'Settings', icon: 'mdi:tune' },
+  { key: 'run' as CardKey, label: 'Run', icon: 'mdi:play-circle' },
+]
+
+// ── Computed ───────────────────────────────────────────────────────────────
 
 const textServers = computed<TextServerOption[]>(() => {
   const servers =
-    (serverStore as { servers?: TextServerOption[] }).servers || []
-
-  return servers.filter((server) => {
-    return (
-      server.isActive &&
-      (server.serverType === 'TEXT' ||
-        server.serverType === 'OPENAI_COMPATIBLE')
-    )
-  })
+    (serverStore as { servers?: TextServerOption[] }).servers ?? []
+  return servers.filter(
+    (s) =>
+      s.isActive &&
+      (s.serverType === 'TEXT' || s.serverType === 'OPENAI_COMPATIBLE'),
+  )
 })
 
-const transcriptBackgroundStyle = computed(() => {
+const transcriptStyle = computed(() => {
   if (!store.transcriptBackgroundImagePath) return {}
-
   return {
-    backgroundImage: `linear-gradient(rgba(18, 18, 24, 0.78), rgba(18, 18, 24, 0.78)), url(${store.transcriptBackgroundImagePath})`,
+    backgroundImage: `linear-gradient(rgba(18,18,24,0.78),rgba(18,18,24,0.78)),url(${store.transcriptBackgroundImagePath})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   }
 })
 
-onMounted(() => {
-  store.hydrate()
-  maybeInitialize(characterStore)
-  maybeInitialize(botStore)
-  maybeInitialize(serverStore)
-})
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-function maybeInitialize(source: unknown): void {
+function handCardClass(key: string): string {
+  if (activeCard.value === key)
+    return 'border-primary bg-primary/10 text-primary scale-105 shadow-md shadow-primary/20'
+  return 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/40 hover:text-primary hover:-translate-y-0.5 hover:shadow-sm'
+}
+
+function slotsForRole(roleKey: string) {
+  return store.cast.filter((slot) => slot.roleKey === roleKey)
+}
+
+function canAddSlot(roleKey: string): boolean {
+  const stage = store.selectedStage
+  if (!stage) return false
+  const role = stage.roles.find((r) => r.key === roleKey)
+  if (!role) return false
+  return slotsForRole(roleKey).length < role.max
+}
+
+function isSlotFilled(slot: CastSlot): boolean {
+  return slot.participantId != null || slot.temporary != null
+}
+
+function slotImage(slot: CastSlot): string | null {
+  if (slot.temporary?.imagePath) return slot.temporary.imagePath
+  if (slot.participantType === 'character' && slot.participantId) {
+    const c = (characterStore.characters ?? []).find(
+      (c) => c.id === slot.participantId,
+    )
+    return c?.imagePath ?? null
+  }
+  if (slot.participantType === 'bot' && slot.participantId) {
+    const b = (botStore.bots ?? []).find((b) => b.id === slot.participantId)
+    return b?.avatarImage ?? null
+  }
+  return null
+}
+
+function performersForRole(roleKey: string): StagePerformer[] {
+  return performersForStageRole(store.selectedStageId, roleKey)
+}
+
+function resolveImage(artImageId: number | null): string | null {
+  if (!artImageId) return null
+  return `/api/art/image/${artImageId}/thumb`
+}
+
+function assignPerformer(slotId: string, performerId: string): void {
+  const performer = getStagePerformerById(performerId)
+  if (!performer) return
+  store.assignTemporary(slotId, performerToTemporaryParticipant(performer))
+}
+
+function assignPendingPerformer(slotId: string): void {
+  if (!pendingPerformer.value) return
+  store.assignTemporary(
+    slotId,
+    performerToTemporaryParticipant(pendingPerformer.value),
+  )
+  pendingPerformer.value = null
+}
+
+function onSelectStage(stageId: string): void {
+  store.selectStage(stageId)
+  activeCard.value = 'cast'
+}
+
+function goToRun(): void {
+  activeCard.value = 'run'
+  store.start()
+}
+
+function onRequestTemporary(slotId: string, roleKey: string): void {
+  const name = window.prompt(`Name for this ${roleKey}?`) || ''
+  if (!name.trim()) return
+  const personality =
+    window.prompt(`Personality / voice notes for ${name}?`) || ''
+  store.assignTemporary(slotId, {
+    name: name.trim(),
+    imagePath: store.temporaryPerformerImagePath,
+    personality: personality.trim() || undefined,
+  })
+}
+
+function submitInterjection(): void {
+  const text = interjection.value.trim()
+  if (!text) return
+  store.addUserInterjection(text)
+  interjection.value = ''
+}
+
+function submitNarratorBeat(): void {
+  const text = narratorBeat.value.trim()
+  if (!text) return
+  store.addNarratorBeat(text)
+  narratorBeat.value = ''
+}
+
+// Auto-scroll transcript
+watch(
+  () => store.transcript.length,
+  async () => {
+    await nextTick()
+    transcriptBottom.value?.scrollIntoView({ behavior: 'smooth' })
+  },
+)
+
+// ── Lifecycle ─────────────────────────────────────────────────────────────
+
+function maybeInit(source: unknown): void {
   if (
     source &&
     typeof source === 'object' &&
@@ -490,84 +1063,49 @@ function maybeInitialize(source: unknown): void {
   }
 }
 
-function slotsForRole(roleKey: string) {
-  return store.cast.filter((slot) => slot.roleKey === roleKey)
+function updateBreakpoint() {
+  isMobile.value = window.innerWidth < 1024
 }
 
-function canAddSlot(roleKey: string): boolean {
-  const stage = store.selectedStage
-
-  if (!stage) return false
-
-  const role = stage.roles.find((entry) => entry.key === roleKey)
-
-  if (!role) return false
-
-  return slotsForRole(roleKey).length < role.max
-}
-
-function performersForRole(roleKey: string): StagePerformer[] {
-  return performersForStageRole(store.selectedStageId, roleKey)
-}
-
-function assignPerformer(slotId: string, performerId: string): void {
-  const performer = getStagePerformerById(performerId)
-
-  if (!performer) return
-
-  store.assignTemporary(slotId, performerToTemporaryParticipant(performer))
-}
-
-function resolveImage(artImageId: number | null): string | null {
-  if (!artImageId) return null
-
-  return `/api/art/image/${artImageId}/thumb`
-}
-
-function onRequestTemporary(slotId: string, roleKey: string): void {
-  const name = window.prompt(`Name for this ${roleKey}?`) || ''
-
-  if (!name.trim()) return
-
-  const personality =
-    window.prompt(`Personality / voice notes for ${name}?`) || ''
-
-  store.assignTemporary(slotId, {
-    name: name.trim(),
-    imagePath: store.temporaryPerformerImagePath,
-    personality: personality.trim() || undefined,
-  })
-}
-
-function submitInterjection(): void {
-  const text = interjection.value.trim()
-
-  if (!text) return
-
-  store.addUserInterjection(text)
-  interjection.value = ''
-}
-
-function submitNarratorBeat(): void {
-  const text = narratorBeat.value.trim()
-
-  if (!text) return
-
-  store.addNarratorBeat(text)
-  narratorBeat.value = ''
-}
+onMounted(() => {
+  store.hydrate()
+  maybeInit(characterStore)
+  maybeInit(botStore)
+  maybeInit(serverStore)
+  updateBreakpoint()
+  window.addEventListener('resize', updateBreakpoint)
+})
 </script>
 
 <style scoped>
-.stage-preset-grid {
-  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+.expand-enter-active,
+.expand-leave-active {
+  transition:
+    opacity 200ms ease,
+    max-height 300ms ease;
+}
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 800px;
 }
 
-.stage-slot-grid {
-  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+.slide-up-enter-active {
+  transition:
+    opacity 200ms ease,
+    transform 200ms cubic-bezier(0.34, 1.2, 0.64, 1);
 }
-
-section.sticky {
-  box-shadow: 0 -4px 12px -8px rgba(0, 0, 0, 0.25);
+.slide-up-leave-active {
+  transition: opacity 150ms ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
 }
 </style>

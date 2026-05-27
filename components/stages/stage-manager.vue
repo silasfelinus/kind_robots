@@ -223,11 +223,7 @@
       </label>
     </section>
 
-    <section
-      id="stage-cast"
-      v-if="store.selectedStage"
-      class="flex flex-col gap-3"
-    >
+    <section id="stage-cast" v-if="store.selectedStage" class="flex flex-col gap-3">
       <h2 class="text-sm font-semibold uppercase opacity-70">Cast</h2>
 
       <div

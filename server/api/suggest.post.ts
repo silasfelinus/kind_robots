@@ -135,8 +135,10 @@ function buildContextString(
       if (c.pitch) lines.push(`Current pitch: ${c.pitch}`)
       break
     case 'dream':
-      if (c.title) lines.push(`Location: ${c.title}`)
-      if (c.pitch) lines.push(`Concept: ${c.pitch}`)
+      if (c.vibeTag) lines.push(`Atmosphere: ${c.vibeTag}`)
+      if (c.title) lines.push(`Title: ${c.title}`)
+      if (c.description) lines.push(`Description: ${c.description}`)
+      if (c.currentVibe) lines.push(`Current vibe: ${c.currentVibe}`)
       break
     case 'reward': {
       if (c.rewardType) lines.push(`Type: ${c.rewardType}`)
@@ -184,7 +186,14 @@ function buildUserPrompt(
       'Write a short, evocative name for this reward (2–5 words). Specific and memorable.',
     rewardPower:
       'Write the power/effect of this reward in 1–2 sentences. Clear mechanical effect with flavourful delivery.',
-    description: 'Write a 1–2 sentence evocative description.',
+    title:
+      'Write a short, evocative title for this location or dream space (2–5 words).',
+    description:
+      'Write a 2–4 sentence description of this space as it exists when undisturbed. Atmosphere, history, defining features.',
+    currentVibe:
+      'Write 1–2 sentences describing the current mood or atmospheric condition of this space right now.',
+    currentPrompt:
+      'Write 1–3 sentences describing what a visitor encounters when entering this space today. The active element.',
   }
 
   const fieldPrompt =

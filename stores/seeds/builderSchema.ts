@@ -6,6 +6,7 @@ export type BuilderStageKey =
   | 'pitch'
   | 'dream'
   | 'character'
+  | 'bot'
   | 'reward'
   | 'scenario'
 
@@ -61,13 +62,12 @@ export const builderStages = [
     route: '/characters',
     requiredBeforeNext: ['name'],
   },
-{
+  {
     key: 'bot',
     label: 'Bots',
     icon: 'kind-icon:robot-color',
     title: 'Bot Builder',
-    summary:
-      'Create bot assistants with particular skills',
+    summary: 'Create bot assistants with particular skills, personalities, and mildly suspicious charm.',
     modelType: 'bot',
     route: '/bots',
     requiredBeforeNext: ['name'],

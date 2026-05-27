@@ -87,6 +87,16 @@ Rules:
 - Make it more specific, not more complicated.
 - The best pitches make someone immediately start having ideas.`,
 
+  scenario: `You are a scenario writer for Kind Robots.
+You write engaging, dramatic scenario prompts — setup descriptions and intro choices for interactive storytelling.
+Tone: matches the genre. Can be horror, comedy, fantasy, or anything else. Always specific and immediate.
+Rules:
+- Return only the requested text. No preamble.
+- Descriptions set scene and stakes in 2–5 sentences.
+- Intros drop the player directly into a dramatic opening moment — present tense, immediate, specific.
+- When generating multiple intros, return them pipe-separated: INTRO ONE: text | INTRO TWO: text
+- Each intro should be a distinct way into the scenario, not variations of the same entry point.`,
+
   reward: `You are a reward and ability writer for Kind Robots.
 You write compelling, evocative names and descriptions for skills, powers, and rewards.
 Tone: game-mechanical but flavourful. The ability should feel earned and specific.
@@ -134,6 +144,23 @@ function buildContextString(
       )
       if (c.pitch) lines.push(`Current pitch: ${c.pitch}`)
       break
+    case 'scenario': {
+      if (c.genres) lines.push(`Genre: ${c.genres}`)
+      if (c.title) lines.push(`Title: ${c.title}`)
+      if (c.description) lines.push(`Description: ${c.description}`)
+      if (c.inspirations) lines.push(`Inspirations: ${c.inspirations}`)
+      if (c.introIndex !== undefined) {
+        lines.push(
+          `Writing intro ${Number(c.introIndex) + 1} of ${c.totalIntros}`,
+        )
+        if (Array.isArray(c.otherIntros) && c.otherIntros.length)
+          lines.push(
+            `Other intros already written: ${(c.otherIntros as string[]).join(' | ')}`,
+          )
+      }
+      if (c.count) lines.push(`Generate ${c.count} intros, pipe-separated`)
+      break
+    }
     case 'dream':
       if (c.vibeTag) lines.push(`Atmosphere: ${c.vibeTag}`)
       if (c.title) lines.push(`Title: ${c.title}`)
@@ -194,6 +221,14 @@ function buildUserPrompt(
       'Write 1–2 sentences describing the current mood or atmospheric condition of this space right now.',
     currentPrompt:
       'Write 1–3 sentences describing what a visitor encounters when entering this space today. The active element.',
+    scenarioTitle:
+      'Write a short evocative scenario title (2–5 words). Creates anticipation without explaining everything.',
+    scenarioDescription:
+      'Write the scenario setup in 2–5 sentences. Situation, stakes, and tone.',
+    intro:
+      'Write one scenario intro — drop the player into a dramatic opening moment. Present tense, specific, immediate. 2–4 sentences.',
+    intros:
+      'Write multiple scenario intros pipe-separated. Each is a distinct entry point. Format: TITLE IN CAPS: text | TITLE IN CAPS: text',
   }
 
   const fieldPrompt =

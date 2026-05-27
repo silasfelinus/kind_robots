@@ -2,6 +2,7 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { validateApiKey } from '../../utils/validateKey'
 import {
   ReactionType,
   Reaction_reactionCategory,
@@ -31,6 +32,7 @@ type ReactionBody = {
   scenarioId?: unknown
   themeId?: unknown
 }
+
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
 
@@ -96,9 +98,7 @@ function normalizeReactionCategory(value: unknown): Reaction_reactionCategory {
     .replace(/[\s-]+/g, '_')
   const aliased = reactionCategoryAliases[normalizedKey]
 
-  if (aliased) {
-    return aliased
-  }
+  if (aliased) return aliased
 
   const normalized = normalizedKey as Reaction_reactionCategory
 
@@ -187,9 +187,7 @@ function buildTargetWhere(
 ): Prisma.ReactionWhereInput {
   const expectedField = getExpectedTargetField(category)
 
-  if (!expectedField) {
-    return {}
-  }
+  if (!expectedField) return {}
 
   const expectedId = targets[expectedField]
 
@@ -205,37 +203,115 @@ function buildTargetWhere(
   }
 }
 
+async function assertReactionTargetExists(
+  category: Reaction_reactionCategory,
+  targets: ReturnType<typeof getTargetFields>,
+) {
+  const expectedField = getExpectedTargetField(category)
+
+  if (!expectedField) return
+
+  const targetId = targets[expectedField]
+
+  if (!targetId) return
+
+  const checks: Record<string, () => Promise<unknown>> = {
+    artImageId: () =>
+      prisma.artImage.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    artCollectionId: () =>
+      prisma.artCollection.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    botId: () =>
+      prisma.bot.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    butterflyId: () =>
+      prisma.butterfly.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    characterId: () =>
+      prisma.character.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    chatId: () =>
+      prisma.chat.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    componentId: () =>
+      prisma.component.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    compositionId: () =>
+      prisma.composition.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    dreamId: () =>
+      prisma.dream.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    pitchId: () =>
+      prisma.pitch.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    promptId: () =>
+      prisma.prompt.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    resourceId: () =>
+      prisma.resource.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    rewardId: () =>
+      prisma.reward.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    scenarioId: () =>
+      prisma.scenario.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+    themeId: () =>
+      prisma.theme.findUnique({
+        where: { id: targetId },
+        select: { id: true },
+      }),
+  }
+
+  const check = checks[expectedField]
+
+  if (!check) return
+
+  const found = await check()
+
+  if (!found) {
+    throw createError({
+      statusCode: 404,
+      message: `${expectedField} target not found: ${targetId}.`,
+    })
+  }
+}
+
 export default defineEventHandler(async (event) => {
   try {
-    const authorizationHeader = event.node.req.headers.authorization
+    const { isValid, user } = await validateApiKey(event)
 
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1]?.trim()
-
-    if (!token) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token is empty.',
-      })
-    }
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (!user) {
+    if (!isValid || !user) {
       throw createError({
         statusCode: 401,
         message: 'Invalid or expired token.',
@@ -255,6 +331,8 @@ export default defineEventHandler(async (event) => {
     const reactionCategory = normalizeReactionCategory(body.reactionCategory)
     const targets = getTargetFields(body)
     const targetWhere = buildTargetWhere(reactionCategory, targets)
+
+    await assertReactionTargetExists(reactionCategory, targets)
 
     const existingReaction = await prisma.reaction.findFirst({
       where: {

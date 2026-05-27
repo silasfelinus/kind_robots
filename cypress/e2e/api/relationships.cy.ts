@@ -558,7 +558,6 @@ describe('Relationship API Tests', () => {
         })
         .then((reward) => {
           ids.reward = reward.id
-
           expectFieldEquals(reward, 'userId', testUserId, 'reward')
           expectFieldEquals(reward, 'artImageId', id('artImageA'), 'reward')
 
@@ -595,11 +594,16 @@ describe('Relationship API Tests', () => {
         })
         .then((dream) => {
           ids.dream = dream.id
-          expectFieldEquals(dream, 'userId', testUserId)
-          expectFieldEquals(dream, 'pitchId', id('pitch'))
-          expectFieldEquals(dream, 'artImageId', id('artImageA'))
-          expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
-          expectFieldEquals(dream, 'scenarioId', id('scenario'))
+          expectFieldEquals(dream, 'userId', testUserId, 'dream')
+          expectFieldEquals(dream, 'pitchId', id('pitch'), 'dream')
+          expectFieldEquals(dream, 'artImageId', id('artImageA'), 'dream')
+          expectFieldEquals(
+            dream,
+            'artCollectionId',
+            id('artCollection'),
+            'dream',
+          )
+          expectFieldEquals(dream, 'scenarioId', id('scenario'), 'dream')
         })
     })
 

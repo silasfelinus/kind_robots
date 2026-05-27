@@ -8,7 +8,7 @@
     :loading="isLoadingManager"
     :error="managerError"
     loading-message="Loading builder systems..."
-    nav-grid-class="xl:grid-cols-8"
+    nav-grid-class="xl:grid-cols-7"
     refresh-label="Refresh Builder"
     @set-tab="setTab"
     @refresh="refreshManagerData"
@@ -44,19 +44,18 @@
         <dream-builder />
       </section>
 
-<section
-        v-else-if="currentTab === 'bot'"
-        class="flex min-h-full flex-col gap-4"
-      >
-        <bot-builder />
-      </section>
-
-
       <section
         v-else-if="currentTab === 'character'"
         class="flex min-h-full flex-col gap-4"
       >
         <character-builder />
+      </section>
+
+      <section
+        v-else-if="currentTab === 'bot'"
+        class="flex min-h-full flex-col gap-4"
+      >
+        <bot-builder />
       </section>
 
       <section

@@ -741,14 +741,30 @@ describe('Relationship API Tests', () => {
           ids.log = log.id
           expectFieldEquals(log, 'userId', testUserId)
 
-          return postRecord('milestone', {
-            label: `cypress-milestone-${time}`,
-            message: 'Cypress relationship milestone fixture',
-            icon: 'kind-icon:jellybean',
-            karma: 1,
-            isActive: true,
-            isRepeatable: true,
-            artImageId: id('artImageA'),
+          return apiRequest({
+            method: 'POST',
+            url: urlFor('milestone'),
+            headers: authHeaders(),
+            body: [
+              {
+                label: `cypress-milestone-${time}`,
+                message: 'Cypress relationship milestone fixture',
+                icon: 'kind-icon:jellybean',
+                karma: 1,
+                isActive: true,
+                isRepeatable: true,
+                artImageId: id('artImageA'),
+              },
+            ],
+          }).then((response) => {
+            expectSuccess(response)
+            const milestone = Array.isArray(response.body.data)
+              ? response.body.data[0]
+              : response.body.data
+
+            expectId(milestone?.id, 'milestone.id')
+            track('milestone', milestone.id)
+            return milestone
           })
         })
         .then((milestone) => {

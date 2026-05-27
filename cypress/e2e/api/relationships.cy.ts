@@ -46,10 +46,6 @@ const normalRequestTimeout = 20000
 const expectedFailureTimeout = 8000
 const cleanupRequestTimeout = 12000
 
-let apiBase = fallbackApiBase
-let userToken = ''
-let adminToken = ''
-
 const endpointPaths: Record<EndpointKey, string> = {
   artImage: '/api/art/image',
   artCollection: '/api/art/collection',
@@ -124,6 +120,7 @@ const mutableRelationGroups = {
 
 let apiBase = fallbackApiBase
 let userToken = ''
+let adminToken = ''
 
 const urlFor = (key: EndpointKey, recordId?: number) => {
   const base = `${apiBase}${endpointPaths[key]}`
@@ -335,16 +332,17 @@ const createReactionFor = (
 
 describe('Relationship API Tests', () => {
   before(() => {
-  cy.env(['API_BASE', 'USER_TOKEN', 'ADMIN_TOKEN']).then((env) => {
-    apiBase = String(env.API_BASE || fallbackApiBase)
-    userToken = String(env.USER_TOKEN || '')
-    adminToken = String(env.ADMIN_TOKEN || '')
+    cy.env(['API_BASE', 'USER_TOKEN', 'ADMIN_TOKEN']).then((env) => {
+      apiBase = String(env.API_BASE || fallbackApiBase)
+      userToken = String(env.USER_TOKEN || '')
+      adminToken = String(env.ADMIN_TOKEN || '')
 
-    expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be.empty
-    expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
-      .empty
+      expect(userToken, 'cy.env("USER_TOKEN")').to.be.a('string').and.not.be
+        .empty
+      expect(adminToken, 'cy.env("ADMIN_TOKEN")').to.be.a('string').and.not.be
+        .empty
+    })
   })
-})
 
   describe('Fixture setup', () => {
     it('creates core ArtImage fixtures', () => {
@@ -678,628 +676,634 @@ describe('Relationship API Tests', () => {
     })
 
     it('creates ownership-only fixtures', () => {
-  expectStoredId('artImageA')
-
-  postRecord(
-    'butterfly',
-    {
-      name: `cypress-butterfly-${time}`,
-      message: 'Fluttering through relation tests.',
-      wingTopColor: '#ff00ff',
-      wingBottomColor: '#00ffff',
-      speed: 1.5,
-      wingSpeed: 2.5,
-      scale: 1,
-      rarityNumber: Number(String(time).slice(-8)),
-      designer: 'cypress',
-      userId: testUserId,
-      isPublic: false,
-    },
-    adminHeaders(),
-  )
-    .then((butterfly) => {
-      ids.butterfly = butterfly.id
-      expectFieldEquals(butterfly, 'userId', testUserId)
-
-      return postRecord('butterflyRecord', {
-        userId: testUserId,
-        butterflyId: id('butterfly'),
-      })
-    })
-    .then((record) => {
-      ids.butterflyRecord = record.id
-      expectFieldEquals(record, 'userId', testUserId)
-      expectFieldEquals(record, 'butterflyId', id('butterfly'))
-
-      return postRecord('code', {
-        userId: testUserId,
-        title: `Cypress Code ${time}`,
-        description: 'Relationship code fixture',
-        icon: 'kind-icon:code',
-        graph: { nodes: [], edges: [], source: 'cypress' },
-        isPublic: false,
-        isOfficial: false,
-        isActive: true,
-      })
-    })
-    .then((code) => {
-      ids.code = code.id
-      expectFieldEquals(code, 'userId', testUserId)
-
-      return postRecord('log', {
-        message: `Cypress relationship log ${time}`,
-        timestamp: new Date().toISOString(),
-        username: `cypress-${time}`,
-        userId: testUserId,
-      })
-    })
-    .then((log) => {
-      ids.log = log.id
-      expectFieldEquals(log, 'userId', testUserId)
-
-      return postRecord('milestone', {
-        label: `cypress-milestone-${time}`,
-        message: 'Cypress relationship milestone fixture',
-        icon: 'kind-icon:jellybean',
-        karma: 1,
-        isActive: true,
-        isRepeatable: true,
-        artImageId: id('artImageA'),
-      })
-    })
-    .then((milestone) => {
-      ids.milestone = milestone.id
-      expectFieldEquals(milestone, 'artImageId', id('artImageA'))
-
-      return postRecord('milestoneRecord', {
-        username: `cypress-${time}`,
-        milestoneId: id('milestone'),
-        userId: testUserId,
-        isConfirmed: false,
-      })
-    })
-    .then((record) => {
-      ids.milestoneRecord = record.id
-      expectFieldEquals(record, 'milestoneId', id('milestone'))
-      expectFieldEquals(record, 'userId', testUserId)
-
-      return postRecord('smartIcon', {
-        title: `Cypress SmartIcon ${time}`,
-        type: 'nav',
-        designer: 'cypress',
-        userId: testUserId,
-        icon: 'kind-icon:test-tube',
-        label: 'Relationship Test',
-        link: '/cypress-relationship-test',
-        isPublic: false,
-        category: 'model',
-        isMature: false,
-      })
-    })
-    .then((smartIcon) => {
-      ids.smartIcon = smartIcon.id
-      expectFieldEquals(smartIcon, 'userId', testUserId)
-
-      return postRecord('theme', {
-        name: `cypress-theme-${time}`,
-        values: JSON.stringify({
-          primary: '#ff00ff',
-          secondary: '#00ffff',
-          accent: '#ffff00',
-        }),
-        userId: testUserId,
-        isPublic: false,
-        tagline: 'Relationship theme fixture',
-        colorScheme: 'light',
-        prefersDark: false,
-        isActive: true,
-      })
-    })
-    .then((theme) => {
-      ids.theme = theme.id
-      expectFieldEquals(theme, 'userId', testUserId)
-    })
-})
-
-  describe('ArtCollection relationship contract', () => {
-    it('adds, removes, and replaces ArtImages', () => {
-      expectStoredId('artCollection')
       expectStoredId('artImageA')
-      expectStoredId('artImageB')
 
-      patchRecord('artCollection', id('artCollection'), {
-        addArtImageIds: [id('artImageB')],
-      })
-        .then((collection) => {
-          expectArrayIncludesId(
-            collection.ArtImages,
-            id('artImageB'),
-            'ArtCollection.ArtImages after add',
-          )
+      postRecord(
+        'butterfly',
+        {
+          name: `cypress-butterfly-${time}`,
+          message: 'Fluttering through relation tests.',
+          wingTopColor: '#ff00ff',
+          wingBottomColor: '#00ffff',
+          speed: 1.5,
+          wingSpeed: 2.5,
+          scale: 1,
+          rarityNumber: Number(String(time).slice(-8)),
+          designer: 'cypress',
+          userId: testUserId,
+          isPublic: false,
+        },
+        adminHeaders(),
+      )
+        .then((butterfly) => {
+          ids.butterfly = butterfly.id
+          expectFieldEquals(butterfly, 'userId', testUserId)
 
-          return patchRecord('artCollection', id('artCollection'), {
-            removeArtImageIds: [id('artImageA')],
+          return postRecord('butterflyRecord', {
+            userId: testUserId,
+            butterflyId: id('butterfly'),
           })
         })
-        .then((collection) => {
-          expectArrayExcludesId(
-            collection.ArtImages,
-            id('artImageA'),
-            'ArtCollection.ArtImages after remove',
-          )
+        .then((record) => {
+          ids.butterflyRecord = record.id
+          expectFieldEquals(record, 'userId', testUserId)
+          expectFieldEquals(record, 'butterflyId', id('butterfly'))
 
-          return patchRecord('artCollection', id('artCollection'), {
-            artImageIds: [id('artImageA'), id('artImageB')],
-            mode: 'replace',
+          return postRecord('code', {
+            userId: testUserId,
+            title: `Cypress Code ${time}`,
+            description: 'Relationship code fixture',
+            icon: 'kind-icon:code',
+            graph: { nodes: [], edges: [], source: 'cypress' },
+            isPublic: false,
+            isOfficial: false,
+            isActive: true,
           })
         })
-        .then((collection) => {
-          expectArrayIncludesId(
-            collection.ArtImages,
-            id('artImageA'),
-            'ArtCollection.ArtImages after replace',
-          )
-          expectArrayIncludesId(
-            collection.ArtImages,
-            id('artImageB'),
-            'ArtCollection.ArtImages after replace',
-          )
+        .then((code) => {
+          ids.code = code.id
+          expectFieldEquals(code, 'userId', testUserId)
+
+          return postRecord('log', {
+            message: `Cypress relationship log ${time}`,
+            timestamp: new Date().toISOString(),
+            username: `cypress-${time}`,
+            userId: testUserId,
+          })
+        })
+        .then((log) => {
+          ids.log = log.id
+          expectFieldEquals(log, 'userId', testUserId)
+
+          return postRecord('milestone', {
+            label: `cypress-milestone-${time}`,
+            message: 'Cypress relationship milestone fixture',
+            icon: 'kind-icon:jellybean',
+            karma: 1,
+            isActive: true,
+            isRepeatable: true,
+            artImageId: id('artImageA'),
+          })
+        })
+        .then((milestone) => {
+          ids.milestone = milestone.id
+          expectFieldEquals(milestone, 'artImageId', id('artImageA'))
+
+          return postRecord('milestoneRecord', {
+            username: `cypress-${time}`,
+            milestoneId: id('milestone'),
+            userId: testUserId,
+            isConfirmed: false,
+          })
+        })
+        .then((record) => {
+          ids.milestoneRecord = record.id
+          expectFieldEquals(record, 'milestoneId', id('milestone'))
+          expectFieldEquals(record, 'userId', testUserId)
+
+          return postRecord('smartIcon', {
+            title: `Cypress SmartIcon ${time}`,
+            type: 'nav',
+            designer: 'cypress',
+            userId: testUserId,
+            icon: 'kind-icon:test-tube',
+            label: 'Relationship Test',
+            link: '/cypress-relationship-test',
+            isPublic: false,
+            category: 'model',
+            isMature: false,
+          })
+        })
+        .then((smartIcon) => {
+          ids.smartIcon = smartIcon.id
+          expectFieldEquals(smartIcon, 'userId', testUserId)
+
+          return postRecord('theme', {
+            name: `cypress-theme-${time}`,
+            values: JSON.stringify({
+              primary: '#ff00ff',
+              secondary: '#00ffff',
+              accent: '#ffff00',
+            }),
+            userId: testUserId,
+            isPublic: false,
+            tagline: 'Relationship theme fixture',
+            colorScheme: 'light',
+            prefersDark: false,
+            isActive: true,
+          })
+        })
+        .then((theme) => {
+          ids.theme = theme.id
+          expectFieldEquals(theme, 'userId', testUserId)
         })
     })
 
-    it('returns lightweight nested ArtImages', () => {
-      expectStoredId('artCollection')
-      expectStoredId('artImageA')
+    describe('ArtCollection relationship contract', () => {
+      it('adds, removes, and replaces ArtImages', () => {
+        expectStoredId('artCollection')
+        expectStoredId('artImageA')
+        expectStoredId('artImageB')
 
-      getRecord('artCollection', id('artCollection')).then((collection) => {
-        expectArrayIncludesId(
-          collection.ArtImages,
-          id('artImageA'),
-          'ArtCollection.ArtImages',
-        )
+        patchRecord('artCollection', id('artCollection'), {
+          addArtImageIds: [id('artImageB')],
+        })
+          .then((collection) => {
+            expectArrayIncludesId(
+              collection.ArtImages,
+              id('artImageB'),
+              'ArtCollection.ArtImages after add',
+            )
 
-        const firstImage = collection.ArtImages[0]
+            return patchRecord('artCollection', id('artCollection'), {
+              removeArtImageIds: [id('artImageA')],
+            })
+          })
+          .then((collection) => {
+            expectArrayExcludesId(
+              collection.ArtImages,
+              id('artImageA'),
+              'ArtCollection.ArtImages after remove',
+            )
 
-        expect(firstImage).to.not.have.property('imageData')
-        expect(firstImage).to.not.have.property('thumbnailData')
-        expect(firstImage).to.not.have.property('galleryId')
-        expect(firstImage).to.not.have.property('pitchId')
-        expect(firstImage).to.not.have.property('promptId')
-        expect(firstImage).to.not.have.property('resourceId')
-        expect(firstImage).to.not.have.property('rewardId')
-        expect(firstImage).to.not.have.property('characterId')
-        expect(firstImage).to.not.have.property('botId')
-        expect(firstImage).to.not.have.property('componentId')
-        expect(firstImage).to.not.have.property('milestoneId')
-        expect(firstImage).to.not.have.property('chatId')
+            return patchRecord('artCollection', id('artCollection'), {
+              artImageIds: [id('artImageA'), id('artImageB')],
+              mode: 'replace',
+            })
+          })
+          .then((collection) => {
+            expectArrayIncludesId(
+              collection.ArtImages,
+              id('artImageA'),
+              'ArtCollection.ArtImages after replace',
+            )
+            expectArrayIncludesId(
+              collection.ArtImages,
+              id('artImageB'),
+              'ArtCollection.ArtImages after replace',
+            )
+          })
       })
-    })
-  })
 
-  describe('Many-to-many relationship contract', () => {
-    it('connects Dream to Character', () => {
-      expectStoredId('dream')
-      expectStoredId('character')
+      it('returns lightweight nested ArtImages', () => {
+        expectStoredId('artCollection')
+        expectStoredId('artImageA')
 
-      patchRecord('dream', id('dream'), {
-        characterIds: [id('character')],
-      }).then((dream) => {
-        mutableRelationGroups.dreamCharacters = true
-        expectArrayIncludesId(
-          dream.Characters,
-          id('character'),
-          'Dream.Characters',
-        )
-      })
-    })
+        getRecord('artCollection', id('artCollection')).then((collection) => {
+          expectArrayIncludesId(
+            collection.ArtImages,
+            id('artImageA'),
+            'ArtCollection.ArtImages',
+          )
 
-    it('connects Dream to Reward', () => {
-      expectStoredId('dream')
-      expectStoredId('reward')
+          const firstImage = collection.ArtImages[0]
 
-      patchRecord('dream', id('dream'), {
-        rewardIds: [id('reward')],
-      }).then((dream) => {
-        mutableRelationGroups.dreamRewards = true
-        expectArrayIncludesId(dream.Rewards, id('reward'), 'Dream.Rewards')
-      })
-    })
-
-    it('connects Scenario to Character', () => {
-      expectStoredId('scenario')
-      expectStoredId('character')
-
-      patchRecord('scenario', id('scenario'), {
-        characterIds: [id('character')],
-      }).then((scenario) => {
-        mutableRelationGroups.scenarioCharacters = true
-        expectArrayIncludesId(
-          scenario.Characters,
-          id('character'),
-          'Scenario.Characters',
-        )
-      })
-    })
-
-    it('connects Character to Reward', () => {
-      expectStoredId('character')
-      expectStoredId('reward')
-
-      patchRecord('character', id('character'), {
-        rewardIds: [id('reward')],
-      }).then((character) => {
-        mutableRelationGroups.characterRewards = true
-        expectArrayIncludesId(
-          character.Rewards,
-          id('reward'),
-          'Character.Rewards',
-        )
+          expect(firstImage).to.not.have.property('imageData')
+          expect(firstImage).to.not.have.property('thumbnailData')
+          expect(firstImage).to.not.have.property('galleryId')
+          expect(firstImage).to.not.have.property('pitchId')
+          expect(firstImage).to.not.have.property('promptId')
+          expect(firstImage).to.not.have.property('resourceId')
+          expect(firstImage).to.not.have.property('rewardId')
+          expect(firstImage).to.not.have.property('characterId')
+          expect(firstImage).to.not.have.property('botId')
+          expect(firstImage).to.not.have.property('componentId')
+          expect(firstImage).to.not.have.property('milestoneId')
+          expect(firstImage).to.not.have.property('chatId')
+        })
       })
     })
 
-    it('connects Resource to Server', () => {
-      expectStoredId('resource')
-      expectStoredId('server')
+    describe('Many-to-many relationship contract', () => {
+      it('connects Dream to Character', () => {
+        expectStoredId('dream')
+        expectStoredId('character')
 
-      patchRecord('resource', id('resource'), {
-        connectServerIds: [id('server')],
-      }).then((resource) => {
-        mutableRelationGroups.resourceServers = true
-        expectArrayIncludesId(
-          resource.Servers,
-          id('server'),
-          'Resource.Servers',
-        )
+        patchRecord('dream', id('dream'), {
+          characterIds: [id('character')],
+        }).then((dream) => {
+          mutableRelationGroups.dreamCharacters = true
+          expectArrayIncludesId(
+            dream.Characters,
+            id('character'),
+            'Dream.Characters',
+          )
+        })
       })
-    })
-  })
 
-  describe('Primary direct relationship verification', () => {
-    it('verifies ArtImage direct relations', () => {
-      expectStoredId('artImageA')
-      expectStoredId('resource')
-      expectStoredId('server')
+      it('connects Dream to Reward', () => {
+        expectStoredId('dream')
+        expectStoredId('reward')
 
-      getRecord('artImage', id('artImageA'), true).then((artImage) => {
-        expectFieldEquals(artImage, 'userId', testUserId)
-        expectFieldEquals(artImage, 'checkpointResourceId', id('resource'))
-        expectFieldEquals(artImage, 'serverId', id('server'))
+        patchRecord('dream', id('dream'), {
+          rewardIds: [id('reward')],
+        }).then((dream) => {
+          mutableRelationGroups.dreamRewards = true
+          expectArrayIncludesId(dream.Rewards, id('reward'), 'Dream.Rewards')
+        })
       })
-    })
 
-    it('connects Resource to ArtImage via LoRA (UsedInImages)', () => {
-      expectStoredId('resource')
-      expectStoredId('artImageA')
+      it('connects Scenario to Character', () => {
+        expectStoredId('scenario')
+        expectStoredId('character')
 
-      patchRecord('resource', id('resource'), {
-        connectLoraImageIds: [id('artImageA')],
-      }).then((resource) => {
-        mutableRelationGroups.resourceLoraImages = true
-        expectArrayIncludesId(
-          resource.UsedInImages,
-          id('artImageA'),
-          'Resource.UsedInImages',
-        )
+        patchRecord('scenario', id('scenario'), {
+          characterIds: [id('character')],
+        }).then((scenario) => {
+          mutableRelationGroups.scenarioCharacters = true
+          expectArrayIncludesId(
+            scenario.Characters,
+            id('character'),
+            'Scenario.Characters',
+          )
+        })
       })
-    })
 
-    it('disconnects Resource from ArtImage via LoRA (UsedInImages)', () => {
-      expectStoredId('resource')
-      expectStoredId('artImageA')
+      it('connects Character to Reward', () => {
+        expectStoredId('character')
+        expectStoredId('reward')
 
-      cy.then(() => {
-        if (!mutableRelationGroups.resourceLoraImages) {
-          return
-        }
+        patchRecord('character', id('character'), {
+          rewardIds: [id('reward')],
+        }).then((character) => {
+          mutableRelationGroups.characterRewards = true
+          expectArrayIncludesId(
+            character.Rewards,
+            id('reward'),
+            'Character.Rewards',
+          )
+        })
+      })
 
-        return patchRecord('resource', id('resource'), {
-          disconnectLoraImageIds: [id('artImageA')],
+      it('connects Resource to Server', () => {
+        expectStoredId('resource')
+        expectStoredId('server')
+
+        patchRecord('resource', id('resource'), {
+          connectServerIds: [id('server')],
         }).then((resource) => {
-          expectArrayExcludesId(
+          mutableRelationGroups.resourceServers = true
+          expectArrayIncludesId(
+            resource.Servers,
+            id('server'),
+            'Resource.Servers',
+          )
+        })
+      })
+    })
+
+    describe('Primary direct relationship verification', () => {
+      it('verifies ArtImage direct relations', () => {
+        expectStoredId('artImageA')
+        expectStoredId('resource')
+        expectStoredId('server')
+
+        getRecord('artImage', id('artImageA'), true).then((artImage) => {
+          expectFieldEquals(artImage, 'userId', testUserId)
+          expectFieldEquals(artImage, 'checkpointResourceId', id('resource'))
+          expectFieldEquals(artImage, 'serverId', id('server'))
+        })
+      })
+
+      it('connects Resource to ArtImage via LoRA (UsedInImages)', () => {
+        expectStoredId('resource')
+        expectStoredId('artImageA')
+
+        patchRecord('resource', id('resource'), {
+          connectLoraImageIds: [id('artImageA')],
+        }).then((resource) => {
+          mutableRelationGroups.resourceLoraImages = true
+          expectArrayIncludesId(
             resource.UsedInImages,
             id('artImageA'),
-            'Resource.UsedInImages after disconnect',
+            'Resource.UsedInImages',
           )
+        })
+      })
+
+      it('disconnects Resource from ArtImage via LoRA (UsedInImages)', () => {
+        expectStoredId('resource')
+        expectStoredId('artImageA')
+
+        cy.then(() => {
+          if (!mutableRelationGroups.resourceLoraImages) {
+            return
+          }
+
+          return patchRecord('resource', id('resource'), {
+            disconnectLoraImageIds: [id('artImageA')],
+          }).then((resource) => {
+            expectArrayExcludesId(
+              resource.UsedInImages,
+              id('artImageA'),
+              'Resource.UsedInImages after disconnect',
+            )
+          })
+        })
+      })
+
+      it('verifies Bot direct relations', () => {
+        expectStoredId('bot')
+        expectStoredId('artImageA')
+        expectStoredId('server')
+
+        getRecord('bot', id('bot'), true).then((bot) => {
+          expectFieldEquals(bot, 'userId', testUserId)
+          expectFieldEquals(bot, 'artImageId', id('artImageA'))
+          expectFieldEquals(bot, 'serverId', id('server'))
+        })
+      })
+
+      it('verifies Chat direct relations', () => {
+        expectStoredId('chat')
+        expectStoredId('artImageA')
+        expectStoredId('bot')
+        expectStoredId('character')
+        expectStoredId('dream')
+        expectStoredId('prompt')
+        expectStoredId('server')
+
+        getRecord('chat', id('chat'), true).then((chat) => {
+          expectFieldEquals(chat, 'userId', testUserId)
+          expectFieldEquals(chat, 'artImageId', id('artImageA'))
+          expectFieldEquals(chat, 'botId', id('bot'))
+          expectFieldEquals(chat, 'characterId', id('character'))
+          expectFieldEquals(chat, 'dreamId', id('dream'))
+          expectFieldEquals(chat, 'promptId', id('prompt'))
+          expectFieldEquals(chat, 'serverId', id('server'))
+        })
+      })
+
+      it('verifies Composition direct relations', () => {
+        expectStoredId('composition')
+        expectStoredId('artImageB')
+        expectStoredId('character')
+        expectStoredId('dream')
+        expectStoredId('scenario')
+        expectStoredId('pitch')
+        expectStoredId('reward')
+
+        getRecord('composition', id('composition'), true).then(
+          (composition) => {
+            expectFieldEquals(composition, 'userId', testUserId)
+            expectFieldEquals(composition, 'artImageId', id('artImageB'))
+            expectFieldEquals(composition, 'characterId', id('character'))
+            expectFieldEquals(composition, 'dreamId', id('dream'))
+            expectFieldEquals(composition, 'scenarioId', id('scenario'))
+            expectFieldEquals(composition, 'pitchId', id('pitch'))
+            expectFieldEquals(composition, 'rewardId', id('reward'))
+          },
+        )
+      })
+
+      it('verifies Dream direct relations', () => {
+        expectStoredId('dream')
+        expectStoredId('artCollection')
+        expectStoredId('artImageA')
+        expectStoredId('pitch')
+        expectStoredId('scenario')
+
+        getRecord('dream', id('dream'), true).then((dream) => {
+          expectFieldEquals(dream, 'userId', testUserId)
+          expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
+          expectFieldEquals(dream, 'artImageId', id('artImageA'))
+          expectFieldEquals(dream, 'pitchId', id('pitch'))
+          expectFieldEquals(dream, 'scenarioId', id('scenario'))
         })
       })
     })
 
-    it('verifies Bot direct relations', () => {
-      expectStoredId('bot')
-      expectStoredId('artImageA')
-      expectStoredId('server')
-
-      getRecord('bot', id('bot'), true).then((bot) => {
-        expectFieldEquals(bot, 'userId', testUserId)
-        expectFieldEquals(bot, 'artImageId', id('artImageA'))
-        expectFieldEquals(bot, 'serverId', id('server'))
-      })
-    })
-
-    it('verifies Chat direct relations', () => {
-      expectStoredId('chat')
-      expectStoredId('artImageA')
-      expectStoredId('bot')
-      expectStoredId('character')
-      expectStoredId('dream')
-      expectStoredId('prompt')
-      expectStoredId('server')
-
-      getRecord('chat', id('chat'), true).then((chat) => {
-        expectFieldEquals(chat, 'userId', testUserId)
-        expectFieldEquals(chat, 'artImageId', id('artImageA'))
-        expectFieldEquals(chat, 'botId', id('bot'))
-        expectFieldEquals(chat, 'characterId', id('character'))
-        expectFieldEquals(chat, 'dreamId', id('dream'))
-        expectFieldEquals(chat, 'promptId', id('prompt'))
-        expectFieldEquals(chat, 'serverId', id('server'))
-      })
-    })
-
-    it('verifies Composition direct relations', () => {
-      expectStoredId('composition')
-      expectStoredId('artImageB')
-      expectStoredId('character')
-      expectStoredId('dream')
-      expectStoredId('scenario')
-      expectStoredId('pitch')
-      expectStoredId('reward')
-
-      getRecord('composition', id('composition'), true).then((composition) => {
-        expectFieldEquals(composition, 'userId', testUserId)
-        expectFieldEquals(composition, 'artImageId', id('artImageB'))
-        expectFieldEquals(composition, 'characterId', id('character'))
-        expectFieldEquals(composition, 'dreamId', id('dream'))
-        expectFieldEquals(composition, 'scenarioId', id('scenario'))
-        expectFieldEquals(composition, 'pitchId', id('pitch'))
-        expectFieldEquals(composition, 'rewardId', id('reward'))
-      })
-    })
-
-    it('verifies Dream direct relations', () => {
-      expectStoredId('dream')
-      expectStoredId('artCollection')
-      expectStoredId('artImageA')
-      expectStoredId('pitch')
-      expectStoredId('scenario')
-
-      getRecord('dream', id('dream'), true).then((dream) => {
-        expectFieldEquals(dream, 'userId', testUserId)
-        expectFieldEquals(dream, 'artCollectionId', id('artCollection'))
-        expectFieldEquals(dream, 'artImageId', id('artImageA'))
-        expectFieldEquals(dream, 'pitchId', id('pitch'))
-        expectFieldEquals(dream, 'scenarioId', id('scenario'))
-      })
-    })
-  })
-
-  describe('Reaction target relationship contract', () => {
-    it('connects Reaction to ArtCollection', () => {
-      expectStoredId('artCollection')
-      createReactionFor(
-        'artCollectionId',
-        id('artCollection'),
-        'ART_COLLECTION',
-      )
-    })
-
-    it('connects Reaction to ArtImage', () => {
-      expectStoredId('artImageA')
-      createReactionFor('artImageId', id('artImageA'), 'ART_IMAGE')
-    })
-
-    it('connects Reaction to Bot', () => {
-      expectStoredId('bot')
-      createReactionFor('botId', id('bot'), 'BOT')
-    })
-
-    it('connects Reaction to Butterfly', () => {
-  expectStoredId('butterfly')
-  createReactionFor('butterflyId', id('butterfly'), 'BUTTERFLY')
-})
-
-    it('connects Reaction to Character', () => {
-      expectStoredId('character')
-      createReactionFor('characterId', id('character'), 'CHARACTER')
-    })
-
-    it('connects Reaction to Chat', () => {
-      expectStoredId('chat')
-      createReactionFor('chatId', id('chat'), 'CHAT_EXCHANGE')
-    })
-
-    it('connects Reaction to Component', () => {
-      expectStoredId('component')
-      createReactionFor('componentId', id('component'), 'COMPONENT')
-    })
-
-    it('connects Reaction to Composition', () => {
-      expectStoredId('composition')
-      createReactionFor('compositionId', id('composition'), 'COMPOSITION')
-    })
-
-    it('connects Reaction to Dream', () => {
-      expectStoredId('dream')
-      createReactionFor('dreamId', id('dream'), 'DREAM')
-    })
-
-    it('connects Reaction to Pitch', () => {
-      expectStoredId('pitch')
-      createReactionFor('pitchId', id('pitch'), 'PITCH')
-    })
-
-    it('connects Reaction to Prompt', () => {
-      expectStoredId('prompt')
-      createReactionFor('promptId', id('prompt'), 'PROMPT')
-    })
-
-    it('connects Reaction to Resource', () => {
-      expectStoredId('resource')
-      createReactionFor('resourceId', id('resource'), 'RESOURCE')
-    })
-
-    it('connects Reaction to Reward', () => {
-      expectStoredId('reward')
-      createReactionFor('rewardId', id('reward'), 'REWARD')
-    })
-
-    it('connects Reaction to Scenario', () => {
-      expectStoredId('scenario')
-      createReactionFor('scenarioId', id('scenario'), 'SCENARIO')
-    })
-
-    it('connects Reaction to Theme', () => {
-      expectStoredId('theme')
-      createReactionFor('themeId', id('theme'), 'THEME')
-    })
-  })
-
-  describe('Negative relationship behavior', () => {
-    it('rejects ArtCollection relation mutation without auth', () => {
-      expectStoredId('artCollection')
-      expectStoredId('artImageA')
-
-      expectedFailureRequest(
-        {
-          method: 'PATCH',
-          url: urlFor('artCollection', id('artCollection')),
-          headers: jsonHeaders(),
-          body: {
-            addArtImageIds: [id('artImageA')],
-          },
-        },
-        [401],
-      )
-    })
-
-    it('rejects ArtCollection relation mutation with invalid auth', () => {
-      expectStoredId('artCollection')
-      expectStoredId('artImageA')
-
-      expectedFailureRequest(
-        {
-          method: 'PATCH',
-          url: urlFor('artCollection', id('artCollection')),
-          headers: {
-            Authorization: `Bearer ${invalidToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: {
-            addArtImageIds: [id('artImageA')],
-          },
-        },
-        [401],
-      )
-    })
-
-    it('rejects adding nonexistent ArtImage to ArtCollection', () => {
-      expectStoredId('artCollection')
-
-      expectedFailureRequest(
-        {
-          method: 'PATCH',
-          url: urlFor('artCollection', id('artCollection')),
-          headers: authHeaders(),
-          body: {
-            addArtImageIds: [999999999],
-          },
-        },
-        [400, 404, 409],
-      )
-    })
-
-    it('rejects Reaction with invalid target id', () => {
-      expectedFailureRequest(
-        {
-          method: 'POST',
-          url: urlFor('reaction'),
-          headers: authHeaders(),
-          body: {
-            userId: testUserId,
-            reactionType: 'LOVED',
-            reactionCategory: 'ART_IMAGE',
-            rating: 5,
-            artImageId: 999999999,
-          },
-        },
-        [400, 404, 409],
-      )
-    })
-
-    it('rejects Reaction without a target', () => {
-      expectedFailureRequest(
-        {
-          method: 'POST',
-          url: urlFor('reaction'),
-          headers: authHeaders(),
-          body: {
-            userId: testUserId,
-            reactionType: 'LOVED',
-            reactionCategory: 'ART_IMAGE',
-            rating: 5,
-            comment: `targetless reaction should fail ${time}`,
-          },
-        },
-        [400, 422],
-      )
-    })
-  })
-
-  describe('Cleanup', () => {
-    it('deletes all relationship fixtures in dependency order', () => {
-      const cleanupOrder: EndpointKey[] = [
-        'reaction',
-        'chat',
-        'composition',
-        'milestoneRecord',
-        'milestone',
-        'butterflyRecord',
-        'butterfly',
-        'dream',
-        'scenario',
-        'reward',
-        'character',
-        'prompt',
-        'pitch',
-        'bot',
-        'component',
-        'resource',
-        'server',
-        'theme',
-        'smartIcon',
-        'code',
-        'log',
-        'artCollection',
-        'artImage',
-      ]
-
-      cleanupOrder.forEach((key) => {
-        const uniqueIds = Array.from(new Set(created[key] || [])).filter(
-          (recordId) =>
-            typeof recordId === 'number' &&
-            Number.isInteger(recordId) &&
-            recordId > 0,
+    describe('Reaction target relationship contract', () => {
+      it('connects Reaction to ArtCollection', () => {
+        expectStoredId('artCollection')
+        createReactionFor(
+          'artCollectionId',
+          id('artCollection'),
+          'ART_COLLECTION',
         )
+      })
 
-        uniqueIds.forEach((recordId) => {
-  const headers = key === 'butterfly' ? adminHeaders() : authHeaders()
+      it('connects Reaction to ArtImage', () => {
+        expectStoredId('artImageA')
+        createReactionFor('artImageId', id('artImageA'), 'ART_IMAGE')
+      })
 
-  deleteRecord(key, recordId, headers).then((response) => {
-    if (response.status !== 404) {
-      expect(
-        [200, 202, 204],
-        `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
-      ).to.include(response.status)
+      it('connects Reaction to Bot', () => {
+        expectStoredId('bot')
+        createReactionFor('botId', id('bot'), 'BOT')
+      })
 
-      if (
-        response.body &&
-        Object.prototype.hasOwnProperty.call(response.body, 'success')
-      ) {
-        expect(response.body.success, `${key} ${recordId} cleanup`).to.eq(true)
-      }
-    }
-  })
-})
+      it('connects Reaction to Butterfly', () => {
+        expectStoredId('butterfly')
+        createReactionFor('butterflyId', id('butterfly'), 'BUTTERFLY')
+      })
+
+      it('connects Reaction to Character', () => {
+        expectStoredId('character')
+        createReactionFor('characterId', id('character'), 'CHARACTER')
+      })
+
+      it('connects Reaction to Chat', () => {
+        expectStoredId('chat')
+        createReactionFor('chatId', id('chat'), 'CHAT_EXCHANGE')
+      })
+
+      it('connects Reaction to Component', () => {
+        expectStoredId('component')
+        createReactionFor('componentId', id('component'), 'COMPONENT')
+      })
+
+      it('connects Reaction to Composition', () => {
+        expectStoredId('composition')
+        createReactionFor('compositionId', id('composition'), 'COMPOSITION')
+      })
+
+      it('connects Reaction to Dream', () => {
+        expectStoredId('dream')
+        createReactionFor('dreamId', id('dream'), 'DREAM')
+      })
+
+      it('connects Reaction to Pitch', () => {
+        expectStoredId('pitch')
+        createReactionFor('pitchId', id('pitch'), 'PITCH')
+      })
+
+      it('connects Reaction to Prompt', () => {
+        expectStoredId('prompt')
+        createReactionFor('promptId', id('prompt'), 'PROMPT')
+      })
+
+      it('connects Reaction to Resource', () => {
+        expectStoredId('resource')
+        createReactionFor('resourceId', id('resource'), 'RESOURCE')
+      })
+
+      it('connects Reaction to Reward', () => {
+        expectStoredId('reward')
+        createReactionFor('rewardId', id('reward'), 'REWARD')
+      })
+
+      it('connects Reaction to Scenario', () => {
+        expectStoredId('scenario')
+        createReactionFor('scenarioId', id('scenario'), 'SCENARIO')
+      })
+
+      it('connects Reaction to Theme', () => {
+        expectStoredId('theme')
+        createReactionFor('themeId', id('theme'), 'THEME')
+      })
+    })
+
+    describe('Negative relationship behavior', () => {
+      it('rejects ArtCollection relation mutation without auth', () => {
+        expectStoredId('artCollection')
+        expectStoredId('artImageA')
+
+        expectedFailureRequest(
+          {
+            method: 'PATCH',
+            url: urlFor('artCollection', id('artCollection')),
+            headers: jsonHeaders(),
+            body: {
+              addArtImageIds: [id('artImageA')],
+            },
+          },
+          [401],
+        )
+      })
+
+      it('rejects ArtCollection relation mutation with invalid auth', () => {
+        expectStoredId('artCollection')
+        expectStoredId('artImageA')
+
+        expectedFailureRequest(
+          {
+            method: 'PATCH',
+            url: urlFor('artCollection', id('artCollection')),
+            headers: {
+              Authorization: `Bearer ${invalidToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: {
+              addArtImageIds: [id('artImageA')],
+            },
+          },
+          [401],
+        )
+      })
+
+      it('rejects adding nonexistent ArtImage to ArtCollection', () => {
+        expectStoredId('artCollection')
+
+        expectedFailureRequest(
+          {
+            method: 'PATCH',
+            url: urlFor('artCollection', id('artCollection')),
+            headers: authHeaders(),
+            body: {
+              addArtImageIds: [999999999],
+            },
+          },
+          [400, 404, 409],
+        )
+      })
+
+      it('rejects Reaction with invalid target id', () => {
+        expectedFailureRequest(
+          {
+            method: 'POST',
+            url: urlFor('reaction'),
+            headers: authHeaders(),
+            body: {
+              userId: testUserId,
+              reactionType: 'LOVED',
+              reactionCategory: 'ART_IMAGE',
+              rating: 5,
+              artImageId: 999999999,
+            },
+          },
+          [400, 404, 409],
+        )
+      })
+
+      it('rejects Reaction without a target', () => {
+        expectedFailureRequest(
+          {
+            method: 'POST',
+            url: urlFor('reaction'),
+            headers: authHeaders(),
+            body: {
+              userId: testUserId,
+              reactionType: 'LOVED',
+              reactionCategory: 'ART_IMAGE',
+              rating: 5,
+              comment: `targetless reaction should fail ${time}`,
+            },
+          },
+          [400, 422],
+        )
+      })
+    })
+
+    describe('Cleanup', () => {
+      it('deletes all relationship fixtures in dependency order', () => {
+        const cleanupOrder: EndpointKey[] = [
+          'reaction',
+          'chat',
+          'composition',
+          'milestoneRecord',
+          'milestone',
+          'butterflyRecord',
+          'butterfly',
+          'dream',
+          'scenario',
+          'reward',
+          'character',
+          'prompt',
+          'pitch',
+          'bot',
+          'component',
+          'resource',
+          'server',
+          'theme',
+          'smartIcon',
+          'code',
+          'log',
+          'artCollection',
+          'artImage',
+        ]
+
+        cleanupOrder.forEach((key) => {
+          const uniqueIds = Array.from(new Set(created[key] || [])).filter(
+            (recordId) =>
+              typeof recordId === 'number' &&
+              Number.isInteger(recordId) &&
+              recordId > 0,
+          )
+
+          uniqueIds.forEach((recordId) => {
+            const headers = key === 'butterfly' ? adminHeaders() : authHeaders()
+
+            deleteRecord(key, recordId, headers).then((response) => {
+              if (response.status !== 404) {
+                expect(
+                  [200, 202, 204],
+                  `${key} ${recordId} cleanup ${JSON.stringify(response.body)}`,
+                ).to.include(response.status)
+
+                if (
+                  response.body &&
+                  Object.prototype.hasOwnProperty.call(response.body, 'success')
+                ) {
+                  expect(
+                    response.body.success,
+                    `${key} ${recordId} cleanup`,
+                  ).to.eq(true)
+                }
+              }
+            })
+          })
+        })
       })
     })
   })

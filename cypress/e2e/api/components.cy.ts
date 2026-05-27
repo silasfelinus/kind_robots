@@ -39,6 +39,7 @@ describe('Component Management API Tests', () => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
       },
       body: {
         folderName: uniqueFolderName,
@@ -50,7 +51,7 @@ describe('Component Management API Tests', () => {
         userId: 9,
       },
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(201)
       expect(response.body).to.have.property('success', true)
 
       componentId = response.body.data.id

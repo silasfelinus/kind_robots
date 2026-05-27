@@ -224,6 +224,13 @@ export const dashboardConfigs = {
         summary: 'Create a character with our interactive adventurer',
       },
       {
+        key: 'stage',
+        label: 'Stage',
+        icon: 'kind-icon:mask',
+        title: 'Stage Performance',
+        summary: 'Create a scene with one or more Performers',
+      },
+      {
         key: 'scenarios',
         label: 'Scenarios',
         icon: 'kind-icon:map',

@@ -657,12 +657,17 @@ model Scenario {
   isMature     Boolean     @default(false)
   isPublic     Boolean     @default(true)
   isActive     Boolean     @default(true)
+  difficulty   Int?
+  tier         String?
+  group        String?
+  secretNotes  String?
   Dream        Dream[]
   Reactions    Reaction[]
   ArtImage     ArtImage?   @relation(fields: [artImageId], references: [id])
   User         User        @relation(fields: [userId], references: [id])
   Characters   Character[] @relation("CharacterToScenario")
   Compositions  Composition[]
+
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")

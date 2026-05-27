@@ -20,7 +20,7 @@ export async function updateBot(
       ...(avatarImage ? { avatarImage } : {}),
     }
 
-    const response = await performFetch<Bot>(`/api/bot/${id}`, {
+    const response = await performFetch<Bot>(`/api/bots/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(payload),
     })
@@ -70,7 +70,7 @@ export async function addBots(botsData: BotPayload[]): Promise<Bot[]> {
 
 export async function deleteBot(id: number): Promise<boolean> {
   try {
-    const response = await performFetch(`/api/bot/${id}`, {
+    const response = await performFetch(`/api/bots/${id}`, {
       method: 'DELETE',
     })
 
@@ -83,7 +83,7 @@ export async function deleteBot(id: number): Promise<boolean> {
 
 export async function getBotById(id: number): Promise<Bot | null> {
   try {
-    const response = await performFetch<Bot>(`/api/bot/${id}`)
+    const response = await performFetch<Bot>(`/api/bots/${id}`)
     return response.success && response.data ? response.data : null
   } catch (error: unknown) {
     handleError(error, 'fetching this bot by id')

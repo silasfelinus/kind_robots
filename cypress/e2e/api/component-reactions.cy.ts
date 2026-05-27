@@ -41,7 +41,7 @@ describe('Component Reactions API Tests', () => {
           title: 'Test Component',
         },
       }).then((response) => {
-        expect(response.status).to.eq(200)
+        expect(response.status).to.eq(201)
         expect(response.body).to.have.property('success', true)
 
         componentId = response.body.data.id

@@ -335,6 +335,26 @@
                       </p>
                     </div>
                   </button>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm rounded-xl gap-1.5"
+                      @click="openPerformerCreator()"
+                    >
+                      <Icon name="mdi:account-plus" class="h-4 w-4" />
+                      Create Custom Performer
+                    </button>
+
+                    <button
+                      v-if="pendingCustomPerformer"
+                      type="button"
+                      class="btn btn-ghost btn-sm rounded-xl gap-1.5"
+                      @click="pendingCustomPerformer = null"
+                    >
+                      <Icon name="mdi:close" class="h-4 w-4" />
+                      Clear Custom
+                    </button>
+                  </div>
                 </div>
               </Transition>
             </div>
@@ -342,26 +362,35 @@
             <!-- Pending performer to assign -->
             <Transition name="slide-up">
               <div
-                v-if="pendingPerformer"
-                class="rounded-2xl border-2 border-primary bg-primary/10 p-3 flex items-center gap-3"
+                v-if="hasPendingCastMember"
+                class="flex items-center gap-3 rounded-2xl border-2 border-primary bg-primary/10 p-3"
               >
                 <img
-                  :src="pendingPerformer.imagePath"
-                  :alt="pendingPerformer.name"
+                  v-if="pendingCastImage"
+                  :src="pendingCastImage"
+                  :alt="pendingCastName"
                   class="h-12 w-12 rounded-2xl object-cover"
                 />
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-black text-primary">
-                    {{ pendingPerformer.name }}
+                <div
+                  v-else
+                  class="flex h-12 w-12 items-center justify-center rounded-2xl bg-base-300"
+                >
+                  <Icon name="mdi:account-star" class="h-6 w-6 text-primary" />
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-black text-primary">
+                    {{ pendingCastName }}
                   </p>
-                  <p class="text-xs text-base-content/60">
-                    Click a slot below to assign
+                  <p class="truncate text-xs text-base-content/60">
+                    {{ pendingCastSpecies }} · click a slot below to assign
                   </p>
                 </div>
+
                 <button
                   type="button"
                   class="btn btn-ghost btn-xs rounded-xl"
-                  @click="pendingPerformer = null"
+                  @click="clearPendingCastMember"
                 >
                   <Icon name="mdi:close" class="h-3.5 w-3.5" />
                 </button>
@@ -420,16 +449,16 @@
                   v-for="slot in slotsForRole(role.key)"
                   :key="slot.slotId"
                   class="relative"
-                  :class="pendingPerformer ? 'cursor-pointer' : ''"
+                  :class="hasPendingCastMember ? 'cursor-pointer' : ''"
                   @click="
-                    pendingPerformer
-                      ? assignPendingPerformer(slot.slotId)
+                    hasPendingCastMember
+                      ? assignPendingCastMember(slot.slotId)
                       : null
                   "
                 >
                   <div
-                    v-if="pendingPerformer && !isSlotFilled(slot)"
-                    class="absolute inset-0 rounded-2xl border-2 border-dashed border-primary animate-pulse z-10 pointer-events-none"
+                    v-if="hasPendingCastMember && !isSlotFilled(slot)"
+                    class="pointer-events-none absolute inset-0 z-10 animate-pulse rounded-2xl border-2 border-dashed border-primary"
                   />
                   <StageRoleSlot
                     :slot="slot"
@@ -839,32 +868,62 @@
         v-for="card in CARDS"
         :key="card.key"
         type="button"
-        class="relative flex shrink-0 flex-col items-center gap-1 rounded-2xl border-2 px-3 py-2 text-center transition-all duration-200"
+        class="relative flex shrink-0 flex-col overflow-hidden rounded-2xl border-2 transition-all duration-200"
+        style="width: 72px"
         :class="handCardClass(card.key)"
         @click="activeCard = card.key"
       >
-        <Icon :name="card.icon" class="h-5 w-5" />
-        <span class="text-xs font-bold leading-tight">{{ card.label }}</span>
+        <!-- Deck thumbnail -->
+        <div class="relative h-10 w-full shrink-0 overflow-hidden bg-base-200">
+          <img
+            v-if="card.deckImage"
+            :src="card.deckImage"
+            :alt="card.label"
+            class="h-full w-full object-cover opacity-80"
+          />
+          <div v-else class="flex h-full items-center justify-center">
+            <Icon :name="card.icon" class="h-4 w-4 opacity-40" />
+          </div>
+          <div
+            v-if="activeCard === card.key"
+            class="absolute inset-0 bg-primary/20"
+          />
+        </div>
+        <!-- Label -->
+        <div class="flex items-center justify-center gap-1 px-1 py-1.5">
+          <Icon :name="card.icon" class="h-3 w-3 shrink-0" />
+          <span class="text-[10px] font-black leading-none">{{
+            card.label
+          }}</span>
+        </div>
         <span
           v-if="card.key === 'cast' && store.castReady"
-          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content"
+          class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content shadow"
         >
           <Icon name="mdi:check" class="h-2.5 w-2.5" />
         </span>
         <span
           v-else-if="card.key === 'stage' && store.selectedStage"
-          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content"
+          class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-success text-success-content shadow"
         >
           <Icon name="mdi:check" class="h-2.5 w-2.5" />
         </span>
         <span
           v-else-if="card.key === 'run' && store.transcript.length"
-          class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-content"
+          class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-content shadow"
         >
           <span class="text-[8px] font-black">{{ store.turnIndex }}</span>
         </span>
       </button>
     </div>
+    <PerformerCreator
+      v-if="showPerformerCreator"
+      :role-key="activeCreatorRoleKey"
+      :stage-label="activeCreatorStageLabel"
+      :genre="activeCreatorGenre"
+      @assign="assignCreatedPerformer"
+      @close="closePerformerCreator"
+    />
   </div>
 </template>
 
@@ -883,7 +942,10 @@ import {
   performerToTemporaryParticipant,
   type StagePerformer,
 } from '@/stores/helpers/stageCards'
-import type { CastSlot } from '@/stores/helpers/stageHelper'
+import type {
+  CastSlot,
+  TemporaryParticipant,
+} from '@/stores/helpers/stageHelper'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -911,14 +973,38 @@ const pendingPerformer = ref<StagePerformer | null>(null)
 const interjection = ref('')
 const narratorBeat = ref('')
 const transcriptBottom = ref<HTMLElement | null>(null)
+const showPerformerCreator = ref(false)
+const performerCreatorSlotId = ref<string | null>(null)
+const performerCreatorRoleKey = ref<string | null>(null)
+const pendingCustomPerformer = ref<TemporaryParticipant | null>(null)
 
 // ── Card definitions ───────────────────────────────────────────────────────
 
 const CARDS = [
-  { key: 'stage' as CardKey, label: 'Stage', icon: 'mdi:theater' },
-  { key: 'cast' as CardKey, label: 'Cast', icon: 'mdi:account-multiple' },
-  { key: 'settings' as CardKey, label: 'Settings', icon: 'mdi:tune' },
-  { key: 'run' as CardKey, label: 'Run', icon: 'mdi:play-circle' },
+  {
+    key: 'stage' as CardKey,
+    label: 'Stage',
+    icon: 'mdi:theater',
+    deckImage: '/images/stage/utility/stage-preset.webp',
+  },
+  {
+    key: 'cast' as CardKey,
+    label: 'Cast',
+    icon: 'mdi:account-multiple',
+    deckImage: '/images/stage/utility/performer-gallery.webp',
+  },
+  {
+    key: 'settings' as CardKey,
+    label: 'Settings',
+    icon: 'mdi:tune',
+    deckImage: '/images/stage/utility/director.webp',
+  },
+  {
+    key: 'run' as CardKey,
+    label: 'Run',
+    icon: 'mdi:play-circle',
+    deckImage: '/images/stage/utility/splash.webp',
+  },
 ]
 
 // ── Computed ───────────────────────────────────────────────────────────────
@@ -949,6 +1035,47 @@ function handCardClass(key: string): string {
     return 'border-primary bg-primary/10 text-primary scale-105 shadow-md shadow-primary/20'
   return 'border-base-300 bg-base-100 text-base-content/70 hover:border-primary/40 hover:text-primary hover:-translate-y-0.5 hover:shadow-sm'
 }
+
+const activeCreatorRoleKey = computed<string | undefined>(() => {
+  return performerCreatorRoleKey.value ?? undefined
+})
+
+const activeCreatorStageLabel = computed<string | undefined>(() => {
+  return store.selectedStage?.label ?? undefined
+})
+
+const activeCreatorGenre = computed<string | undefined>(() => {
+  return store.showTopic.trim() || store.selectedStage?.tagline || undefined
+})
+
+const hasPendingCastMember = computed<boolean>(() => {
+  return Boolean(pendingPerformer.value || pendingCustomPerformer.value)
+})
+
+const pendingCastName = computed<string>(() => {
+  return (
+    pendingPerformer.value?.name ||
+    pendingCustomPerformer.value?.name ||
+    'Custom Performer'
+  )
+})
+
+const pendingCastImage = computed<string | null>(() => {
+  return (
+    pendingPerformer.value?.imagePath ||
+    pendingCustomPerformer.value?.imagePath ||
+    store.temporaryPerformerImagePath ||
+    null
+  )
+})
+
+const pendingCastSpecies = computed<string>(() => {
+  return (
+    pendingPerformer.value?.species ||
+    pendingCustomPerformer.value?.species ||
+    'Temporary Performer'
+  )
+})
 
 function slotsForRole(roleKey: string) {
   return store.cast.filter((slot) => slot.roleKey === roleKey)
@@ -996,15 +1123,6 @@ function assignPerformer(slotId: string, performerId: string): void {
   store.assignTemporary(slotId, performerToTemporaryParticipant(performer))
 }
 
-function assignPendingPerformer(slotId: string): void {
-  if (!pendingPerformer.value) return
-  store.assignTemporary(
-    slotId,
-    performerToTemporaryParticipant(pendingPerformer.value),
-  )
-  pendingPerformer.value = null
-}
-
 function onSelectStage(stageId: string): void {
   store.selectStage(stageId)
   activeCard.value = 'cast'
@@ -1015,16 +1133,65 @@ function goToRun(): void {
   store.start()
 }
 
+function openPerformerCreator(
+  slotId: string | null = null,
+  roleKey = '',
+): void {
+  performerCreatorSlotId.value = slotId
+  performerCreatorRoleKey.value = roleKey || null
+  showPerformerCreator.value = true
+}
+
+function closePerformerCreator(): void {
+  showPerformerCreator.value = false
+  performerCreatorSlotId.value = null
+  performerCreatorRoleKey.value = null
+}
+
 function onRequestTemporary(slotId: string, roleKey: string): void {
-  const name = window.prompt(`Name for this ${roleKey}?`) || ''
-  if (!name.trim()) return
-  const personality =
-    window.prompt(`Personality / voice notes for ${name}?`) || ''
-  store.assignTemporary(slotId, {
-    name: name.trim(),
-    imagePath: store.temporaryPerformerImagePath,
-    personality: personality.trim() || undefined,
-  })
+  openPerformerCreator(slotId, roleKey)
+}
+
+function assignCreatedPerformer(performer: TemporaryParticipant): void {
+  const payload: TemporaryParticipant = {
+    ...performer,
+    imagePath:
+      performer.imagePath ||
+      store.temporaryPerformerImagePath ||
+      '/images/stage/utility/temporary-performer.webp',
+    artImageId: performer.artImageId ?? null,
+  }
+
+  if (performerCreatorSlotId.value) {
+    store.assignTemporary(performerCreatorSlotId.value, payload)
+    closePerformerCreator()
+    return
+  }
+
+  pendingPerformer.value = null
+  pendingCustomPerformer.value = payload
+  closePerformerCreator()
+}
+
+function clearPendingCastMember(): void {
+  pendingPerformer.value = null
+  pendingCustomPerformer.value = null
+}
+
+function assignPendingCastMember(slotId: string): void {
+  if (pendingPerformer.value) {
+    store.assignTemporary(
+      slotId,
+      performerToTemporaryParticipant(pendingPerformer.value),
+    )
+    clearPendingCastMember()
+    return
+  }
+
+  if (pendingCustomPerformer.value) {
+    store.assignTemporary(slotId, pendingCustomPerformer.value)
+    clearPendingCastMember()
+  }
 }
 
 function submitInterjection(): void {

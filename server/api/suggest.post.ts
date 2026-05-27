@@ -87,6 +87,16 @@ Rules:
 - Make it more specific, not more complicated.
 - The best pitches make someone immediately start having ideas.`,
 
+  stage: `You are a stage performer and show writer for Kind Robots.
+You write stage prompts for fictional performers — bots, characters, and invented personas appearing in live improv-style shows.
+A stage prompt tells the performer who they are, how they speak, what drives them, and how they interact with others.
+Rules:
+- Return only the performer prompt. No preamble, no quotation marks.
+- Write in second person: "Perform as [Name]..."
+- Be specific about voice, vocabulary, mannerisms, and perspective.
+- 2–4 sentences. Punchy, distinct, immediately usable at a table.
+- Match genre and stage type when provided.`,
+
   bot: `You are a bot design assistant for Kind Robots.
 You help create system prompts, taglines, opening messages, and descriptions for AI bots.
 Each bot has a type (assistant, story, art, composition, character, scenario, guide, custom) and a personality.
@@ -154,6 +164,16 @@ function buildContextString(
       )
       if (c.pitch) lines.push(`Current pitch: ${c.pitch}`)
       break
+    case 'stage': {
+      if (c.name) lines.push(`Performer name: ${c.name}`)
+      if (c.species) lines.push(`Species: ${c.species}`)
+      if (c.personality) lines.push(`Traits: ${c.personality}`)
+      if (c.comments) lines.push(`Notes: ${c.comments}`)
+      if (c.roleKey) lines.push(`Role: ${c.roleKey}`)
+      if (c.stageLabel) lines.push(`Stage: ${c.stageLabel}`)
+      if (c.genre) lines.push(`Genre: ${c.genre}`)
+      break
+    }
     case 'bot': {
       if (c.BotType) lines.push(`Bot type: ${c.BotType}`)
       if (c.name) lines.push(`Name: ${c.name}`)
@@ -241,6 +261,8 @@ function buildUserPrompt(
       'Write 1–2 sentences describing the current mood or atmospheric condition of this space right now.',
     currentPrompt:
       'Write 1–3 sentences describing what a visitor encounters when entering this space today. The active element.',
+    performerPrompt:
+      'Write a stage performer prompt in second person: "Perform as [Name]..." — specific voice, mannerisms, perspective. 2–4 punchy sentences.',
     botPrompt:
       'Write a system prompt for this bot. Second person (You are...). Clear and specific about what the bot does and how it speaks. Under 200 words.',
     botTagline:

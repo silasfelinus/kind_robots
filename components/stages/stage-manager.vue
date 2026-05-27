@@ -30,31 +30,61 @@
     </header>
 
     <section
-      v-if="store.splashImagePath"
-      class="overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow"
+      class="overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-xl"
     >
-      <div class="relative h-44 w-full overflow-hidden md:h-64">
+      <div class="relative h-56 w-full overflow-hidden sm:h-64 lg:h-80">
         <img
-          :src="store.splashImagePath"
+          :src="introSplashImagePath"
           alt="Kind Robots Stage"
           class="h-full w-full object-cover"
         />
+
         <div
-          class="absolute inset-0 bg-linear-to-r from-base-100/90 via-base-100/40 to-transparent"
+          class="absolute inset-0 bg-gradient-to-r from-base-100/95 via-base-100/55 to-base-100/5"
         />
+
         <div
-          class="absolute inset-0 flex max-w-xl flex-col justify-end gap-2 p-4"
+          class="absolute inset-0 bg-gradient-to-t from-base-100/85 via-transparent to-transparent"
+        />
+
+        <div
+          class="absolute inset-0 flex max-w-2xl flex-col justify-end gap-3 p-4 sm:p-6"
         >
-          <p class="text-xs font-bold uppercase tracking-wide text-primary">
-            Kind Robots Stage
-          </p>
-          <h2 class="text-2xl font-black leading-tight md:text-4xl">
-            Cast the chaos. Run the show.
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="badge badge-primary badge-sm rounded-2xl">
+              New Feature
+            </span>
+            <span class="badge badge-outline badge-sm rounded-2xl">
+              Character Theater
+            </span>
+          </div>
+
+          <h2 class="text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+            Cast the chaos.
+            <span class="block text-primary">Run the show.</span>
           </h2>
-          <p class="max-w-md text-sm text-base-content/80">
-            Pick a stage, cast performers, then let your characters and bots
-            improvise their tiny multidimensional hearts out.
+
+          <p class="max-w-xl text-sm text-base-content/85 sm:text-base">
+            Pick a stage, cast performers, and let your characters, bots,
+            goblins, sphinxes, robots, cryptids, and suspiciously confident
+            experts improvise their tiny multidimensional hearts out.
           </p>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button
+              class="btn btn-primary btn-sm rounded-2xl"
+              :disabled="!store.castReady"
+              @click="store.start()"
+            >
+              <Icon name="mdi:play" class="h-4 w-4" />
+              Start Show
+            </button>
+
+            <a href="#stage-cast" class="btn btn-secondary btn-sm rounded-2xl">
+              <Icon name="mdi:account-multiple-plus" class="h-4 w-4" />
+              Cast Roles
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -87,7 +117,7 @@
         <input
           v-model="store.showTitle"
           type="text"
-          class="input input-bordered input-sm w-full"
+          class="input input-bordered input-sm w-full rounded-2xl"
           placeholder="Optional"
           @change="store.persist()"
         />
@@ -102,7 +132,7 @@
         <input
           v-model="store.showTopic"
           type="text"
-          class="input input-bordered input-sm w-full"
+          class="input input-bordered input-sm w-full rounded-2xl"
           placeholder="What's the show about tonight?"
           @change="store.persist()"
         />
@@ -117,7 +147,7 @@
         <input
           v-model="store.customOpening"
           type="text"
-          class="input input-bordered input-sm w-full"
+          class="input input-bordered input-sm w-full rounded-2xl"
           :placeholder="store.selectedStage?.openingCue || ''"
           @change="store.persist()"
         />
@@ -165,7 +195,7 @@
         </div>
         <select
           v-model="store.selectedTextServerId"
-          class="select select-bordered select-sm w-full"
+          class="select select-bordered select-sm w-full rounded-2xl"
           @change="store.persist()"
         >
           <option :value="null">Default (botcafe)</option>
@@ -186,14 +216,18 @@
         <input
           v-model="store.selectedModel"
           type="text"
-          class="input input-bordered input-sm w-full"
+          class="input input-bordered input-sm w-full rounded-2xl"
           placeholder="gpt-4o-mini, llama3.1, claude-3-5-sonnet, …"
           @change="store.persist()"
         />
       </label>
     </section>
 
-    <section v-if="store.selectedStage" class="flex flex-col gap-3">
+    <section
+      id="stage-cast"
+      v-if="store.selectedStage"
+      class="flex flex-col gap-3"
+    >
       <h2 class="text-sm font-semibold uppercase opacity-70">Cast</h2>
 
       <div
@@ -257,7 +291,7 @@
     >
       <button
         v-if="!store.isRunning"
-        class="btn btn-primary btn-sm"
+        class="btn btn-primary btn-sm rounded-2xl"
         :disabled="!store.castReady"
         @click="store.start()"
       >
@@ -267,21 +301,25 @@
 
       <button
         v-else-if="!store.isPaused"
-        class="btn btn-warning btn-sm"
+        class="btn btn-warning btn-sm rounded-2xl"
         @click="store.pause()"
       >
         <Icon name="mdi:pause" class="h-4 w-4" />
         Pause
       </button>
 
-      <button v-else class="btn btn-primary btn-sm" @click="store.resume()">
+      <button
+        v-else
+        class="btn btn-primary btn-sm rounded-2xl"
+        @click="store.resume()"
+      >
         <Icon name="mdi:play" class="h-4 w-4" />
         Resume
       </button>
 
       <button
         v-if="store.isRunning"
-        class="btn btn-ghost btn-sm"
+        class="btn btn-ghost btn-sm rounded-2xl"
         @click="store.stop()"
       >
         <Icon name="mdi:stop" class="h-4 w-4" />
@@ -289,7 +327,7 @@
       </button>
 
       <button
-        class="btn btn-ghost btn-sm"
+        class="btn btn-ghost btn-sm rounded-2xl"
         :disabled="store.isGenerating || !store.transcript.length"
         @click="store.regenerateLastTurn()"
       >
@@ -298,7 +336,7 @@
       </button>
 
       <button
-        class="btn btn-ghost btn-sm"
+        class="btn btn-ghost btn-sm rounded-2xl"
         :disabled="store.isGenerating"
         @click="store.generateNextTurn()"
       >
@@ -347,13 +385,13 @@
         <input
           v-model="interjection"
           type="text"
-          class="input input-bordered input-sm flex-1"
+          class="input input-bordered input-sm flex-1 rounded-2xl"
           placeholder="Jump in as yourself…"
           @keydown.enter.prevent="submitInterjection"
         />
 
         <button
-          class="btn btn-secondary btn-sm"
+          class="btn btn-secondary btn-sm rounded-2xl"
           :disabled="!interjection.trim()"
           @click="submitInterjection"
         >
@@ -365,13 +403,13 @@
         <input
           v-model="narratorBeat"
           type="text"
-          class="input input-bordered input-sm flex-1"
+          class="input input-bordered input-sm flex-1 rounded-2xl"
           placeholder="Add a stage direction or scene beat…"
           @keydown.enter.prevent="submitNarratorBeat"
         />
 
         <button
-          class="btn btn-ghost btn-sm"
+          class="btn btn-ghost btn-sm rounded-2xl"
           :disabled="!narratorBeat.trim()"
           @click="submitNarratorBeat"
         >
@@ -404,6 +442,8 @@ type TextServerOption = {
   serverType: string
   isActive: boolean
 }
+
+const introSplashImagePath = '/images/stage/splash.webp'
 
 const store = useStageStore()
 const characterStore = useCharacterStore()

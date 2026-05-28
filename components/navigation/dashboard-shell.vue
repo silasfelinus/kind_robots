@@ -75,6 +75,7 @@
               />
 
               <channel-select />
+              <server-selector />
 
               <!-- Refresh -->
               <button

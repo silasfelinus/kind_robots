@@ -2,19 +2,30 @@
 import { suggestSheets } from './sheets'
 import type { SuggestSheet, SuggestSheetSummary } from './suggestTypes'
 
-const fallbackSheet = suggestSheets.find((sheet) => sheet.builder === 'adventure') ?? suggestSheets[0]
+function getFallbackSuggestSheet(): SuggestSheet {
+  const fallback =
+    suggestSheets.find((sheet) => sheet.builder === 'adventure') ??
+    suggestSheets[0]
+
+  if (!fallback) {
+    throw new Error(
+      '[suggestRegistry] No suggest sheets are registered. Add at least adventureSuggest to /server/utils/suggest/sheets/index.ts.',
+    )
+  }
+
+  return fallback
+}
 
 export function getSuggestSheets(): SuggestSheet[] {
   return suggestSheets
 }
 
 export function getSuggestSheet(builder?: string): SuggestSheet {
-  if (!builder) return fallbackSheet
+  const fallback = getFallbackSuggestSheet()
 
-  return (
-    suggestSheets.find((sheet) => sheet.builder === builder) ??
-    fallbackSheet
-  )
+  if (!builder) return fallback
+
+  return suggestSheets.find((sheet) => sheet.builder === builder) ?? fallback
 }
 
 export function getSuggestSheetSummary(): SuggestSheetSummary[] {

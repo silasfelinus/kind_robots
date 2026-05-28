@@ -101,46 +101,8 @@
                   <span class="block truncate font-black">
                     {{ option.label }}
                   </span>
-
-                  <span class="block truncate text-xs opacity-70">
-                    {{ option.summary }}
-                  </span>
                 </span>
               </button>
-            </div>
-
-            <div
-              v-if="visibleArtServers.length"
-              class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
-            >
-              <p class="mb-2 font-black text-base-content">
-                Your configured art servers
-              </p>
-
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-for="server in visibleArtServers"
-                  :key="server.id"
-                  class="btn btn-xs rounded-xl"
-                  :class="
-                    serverStore.activeArtServer?.id === server.id
-                      ? 'btn-primary text-white'
-                      : 'btn-outline'
-                  "
-                  type="button"
-                  @click="activateArtServer(server.id)"
-                >
-                  {{ serverTitle(server) }}
-                </button>
-              </div>
-            </div>
-
-            <div
-              v-else
-              class="rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning"
-            >
-              No configured art servers found. Choose OpenAI, Stable Diffusion,
-              or Comfy below, then save one.
             </div>
 
             <div class="flex flex-col gap-3 rounded-2xl bg-base-100 p-3">
@@ -214,7 +176,7 @@
                   class="loading loading-spinner loading-xs"
                 />
                 <Icon v-else name="kind-icon:check" class="h-4 w-4" />
-                Save My Art Server
+                Save Art Settings
               </button>
             </div>
 
@@ -322,46 +284,8 @@
                   <span class="block truncate font-black">
                     {{ option.label }}
                   </span>
-
-                  <span class="block truncate text-xs opacity-70">
-                    {{ option.summary }}
-                  </span>
                 </span>
               </button>
-            </div>
-
-            <div
-              v-if="visibleTextServers.length"
-              class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
-            >
-              <p class="mb-2 font-black text-base-content">
-                Your configured text servers
-              </p>
-
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-for="server in visibleTextServers"
-                  :key="server.id"
-                  class="btn btn-xs rounded-xl"
-                  :class="
-                    serverStore.activeTextServer?.id === server.id
-                      ? 'btn-secondary text-white'
-                      : 'btn-outline'
-                  "
-                  type="button"
-                  @click="activateTextServer(server.id)"
-                >
-                  {{ serverTitle(server) }}
-                </button>
-              </div>
-            </div>
-
-            <div
-              v-else
-              class="rounded-2xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning"
-            >
-              No configured text servers found. Choose OpenAI, Anthropic, or
-              Ollama below, then save one.
             </div>
 
             <div class="flex flex-col gap-3 rounded-2xl bg-base-100 p-3">
@@ -435,7 +359,7 @@
                   class="loading loading-spinner loading-xs"
                 />
                 <Icon v-else name="kind-icon:check" class="h-4 w-4" />
-                Save My Text Server
+                Save Text Settings
               </button>
             </div>
           </div>
@@ -502,7 +426,6 @@ type TextMode = 'openai' | 'anthropic' | 'ollama'
 type SelectorOption<T extends string> = {
   value: T
   label: string
-  summary: string
   icon: string
 }
 
@@ -535,19 +458,16 @@ const artOptions: SelectorOption<ArtMode>[] = [
   {
     value: 'openai',
     label: 'OpenAI',
-    summary: 'API key',
     icon: 'kind-icon:image',
   },
   {
     value: 'sd',
     label: 'Stable Diffusion',
-    summary: 'URL',
     icon: 'kind-icon:palette',
   },
   {
     value: 'comfy',
     label: 'Comfy',
-    summary: 'URL',
     icon: 'kind-icon:workflow',
   },
 ]
@@ -556,19 +476,16 @@ const textOptions: SelectorOption<TextMode>[] = [
   {
     value: 'openai',
     label: 'OpenAI',
-    summary: 'API key',
     icon: 'kind-icon:chat',
   },
   {
     value: 'anthropic',
     label: 'Anthropic',
-    summary: 'API key',
     icon: 'kind-icon:brain',
   },
   {
     value: 'ollama',
     label: 'Ollama',
-    summary: 'URL',
     icon: 'kind-icon:server',
   },
 ]
@@ -851,21 +768,22 @@ async function saveArtServer() {
 
   try {
     const payload = buildArtPayload()
-    const sourceId = findArtBlueprintId()
+    const existing = findCurrentArtServerForMode()
 
-    const result = await serverStore.saveServerAsUserCopy(
-      sourceId,
-      payload,
-      'art',
-    )
+    const result = existing
+      ? await serverStore.updateServer(existing.id, payload)
+      : await serverStore.addServer(payload)
 
     if (!result.success || !result.data) {
       setStatus(result.message || 'Could not save art server.', 'error')
       return
     }
 
+    await serverStore.setActiveArtServer(result.data.id)
     serverStore.setCurrentServerMode('art')
     serverStore.setCurrentServer(result.data.id)
+
+    hydrateArtForm(result.data)
     setStatus(result.message || 'Art server saved.', 'success')
   } finally {
     isSavingArt.value = false
@@ -877,20 +795,21 @@ async function saveTextServer() {
 
   try {
     const payload = buildTextPayload()
-    const sourceId = findTextBlueprintId()
+    const existing = findCurrentTextServerForMode()
 
-    const result = await serverStore.saveServerAsUserCopy(
-      sourceId,
-      payload,
-      'text',
-    )
+    const result = existing
+      ? await serverStore.updateServer(existing.id, payload)
+      : await serverStore.addServer(payload)
 
     if (!result.success || !result.data) {
       setStatus(result.message || 'Could not save text server.', 'error')
       return
     }
 
+    await serverStore.setActiveTextServer(result.data.id)
     serverStore.setCurrentServerMode('art')
+
+    hydrateTextForm(result.data)
     setStatus(result.message || 'Text server saved.', 'success')
   } finally {
     isSavingText.value = false
@@ -1094,6 +1013,42 @@ function buildTextPayload(): Partial<Server> {
     isActive: true,
     isEditable: true,
   }
+}
+
+function findCurrentArtServerForMode(): Server | null {
+  const active = serverStore.activeArtServer
+
+  if (
+    active &&
+    isVisibleConfiguredServer(active) &&
+    artModeFromServer(active) === artMode.value
+  ) {
+    return active
+  }
+
+  return (
+    visibleArtServers.value.find((server) => {
+      return artModeFromServer(server) === artMode.value
+    }) || null
+  )
+}
+
+function findCurrentTextServerForMode(): Server | null {
+  const active = serverStore.activeTextServer
+
+  if (
+    active &&
+    isVisibleConfiguredServer(active) &&
+    textModeFromServer(active) === textMode.value
+  ) {
+    return active
+  }
+
+  return (
+    visibleTextServers.value.find((server) => {
+      return textModeFromServer(server) === textMode.value
+    }) || null
+  )
 }
 
 function findArtBlueprintId() {

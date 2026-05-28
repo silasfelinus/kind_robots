@@ -1,126 +1,68 @@
 // /server/utils/suggest/suggestPrompt.ts
-import type {
-  RegisteredSuggestSheet,
-  SuggestBody,
-  SuggestContextEntry,
-  SuggestFieldPromptArgs,
-  SuggestPromptResult,
-} from './suggestTypes'
-import { getSuggestSheet } from './suggestRegistry'
+import type { SuggestBody, SuggestSheet } from './suggestTypes'
 
-function toCleanString(value: unknown): string {
+function formatValue(value: unknown): string {
   if (value == null) return ''
-  if (typeof value === 'string') return value.trim()
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-  if (Array.isArray(value)) {
-    return value
-      .map((entry) => toCleanString(entry))
-      .filter(Boolean)
-      .join(', ')
-  }
-  if (typeof value === 'object') {
-    try {
-      return JSON.stringify(value)
-    } catch {
-      return ''
-    }
-  }
-  return ''
+  if (Array.isArray(value)) return value.filter(Boolean).join(' | ')
+  if (typeof value === 'object') return JSON.stringify(value)
+  return String(value)
 }
 
-function readContextValue(
-  context: Record<string, unknown>,
-  entry: SuggestContextEntry,
-): unknown {
-  const keys = [entry.contextKey, entry.source, ...(entry.aliases ?? [])].filter(
-    Boolean,
-  ) as string[]
-
-  for (const key of keys) {
-    if (key in context) return context[key]
-  }
-
-  return undefined
-}
-
-function buildContextString(
-  sheet: RegisteredSuggestSheet,
-  context: Record<string, unknown>,
-): string {
+function defaultContextLines(sheet: SuggestSheet, body: SuggestBody): string[] {
+  const context = body.context ?? {}
+  const keys = sheet.contextKeys ?? []
   const lines: string[] = []
 
-  for (const entry of sheet.contextFields ?? []) {
-    const rawValue = readContextValue(context, entry)
-
-    const value = entry.transform
-      ? entry.transform(rawValue, context)
-      : toCleanString(rawValue)
-
-    if (!value) continue
-
-    lines.push(`${entry.label ?? entry.source}: ${value}`)
+  for (const key of keys) {
+    const value = context[key]
+    const text = formatValue(value)
+    if (text) lines.push(`${key}: ${text}`)
   }
 
-  return lines.join('\n')
+  const extraContext = body.extra?.configContext ?? {}
+  for (const [key, value] of Object.entries(extraContext)) {
+    const text = formatValue(value)
+    if (text) lines.push(`${key}: ${text}`)
+  }
+
+  const stepContext = body.extra?.stepContext ?? {}
+  for (const [key, value] of Object.entries(stepContext)) {
+    const text = formatValue(value)
+    if (text) lines.push(`${key}: ${text}`)
+  }
+
+  if (body.extra?.cardTitle) lines.push(`Card: ${body.extra.cardTitle}`)
+  if (body.extra?.stepTitle) lines.push(`Step: ${body.extra.stepTitle}`)
+
+  return lines
 }
 
-function resolvePromptTemplate(
-  template: string | ((args: SuggestFieldPromptArgs) => string) | undefined,
-  args: SuggestFieldPromptArgs,
-): string | null {
-  if (!template) return null
-  if (typeof template === 'function') return template(args).trim()
-  return template.trim()
-}
-
-function buildFieldPrompt(
-  sheet: RegisteredSuggestSheet,
-  args: SuggestFieldPromptArgs,
-): string {
-  return (
-    resolvePromptTemplate(sheet.fieldPrompts?.[args.field], args) ??
-    resolvePromptTemplate(sheet.stepPrompts?.[args.stepKey], args) ??
-    sheet.defaultFieldPrompt ??
-    `Generate an appropriate value for the "${args.field}" field.`
-  )
-}
-
-export function buildSuggestPrompt(body: SuggestBody): SuggestPromptResult {
-  const builder = body.builder?.trim() || 'adventure'
-  const field = body.field?.trim() || ''
-  const stepKey = body.stepKey?.trim() || field
+export function buildSuggestUserPrompt(sheet: SuggestSheet, body: SuggestBody): string {
+  const field = body.field ?? ''
+  const stepKey = body.stepKey ?? field
   const current = body.current ?? ''
-  const context = body.context ?? {}
-  const extra = body.extra ?? {}
-  const sheet = getSuggestSheet(builder)
 
-  const args: SuggestFieldPromptArgs = {
-    builder,
-    field,
-    stepKey,
-    current,
-    context,
-    extra,
-  }
+  const customInstruction = sheet.buildInstruction?.(body)
+  const extraInstruction = body.extra?.instruction?.trim()
 
-  const baseFieldPrompt = buildFieldPrompt(sheet, args)
-  const instruction = typeof extra.instruction === 'string' && extra.instruction.trim()
-    ? extra.instruction.trim()
+  const fieldPrompt =
+    customInstruction ??
+    extraInstruction ??
+    sheet.fieldPrompts?.[field] ??
+    sheet.stepPrompts?.[stepKey] ??
+    `Generate an appropriate value for the "${field || stepKey}" field.`
+
+  const contextLines = sheet.buildContext
+    ? sheet.buildContext(body.context ?? {}, body)
+    : defaultContextLines(sheet, body)
+
+  const contextBlock = contextLines.length
+    ? `\n\nContext:\n${contextLines.join('\n')}`
     : ''
-  const fieldPrompt = instruction
-    ? `${baseFieldPrompt}\n\nAdditional instruction:\n${instruction}`
-    : baseFieldPrompt
-  const contextText = buildContextString(sheet, context)
-  const contextNote = contextText ? `\n\nContext:\n${contextText}` : ''
-  const currentNote = current.trim()
-    ? `\n\nExisting value to refine:\n${current.trim()}\nReturn only the improved version.`
-    : '\n\nReturn only the value. No preamble, no explanation, no quotation marks.'
 
-  return {
-    systemPrompt: sheet.systemPrompt,
-    userPrompt: `${fieldPrompt}${contextNote}${currentNote}`,
-    maxTokens: sheet.maxTokens ?? 512,
-    temperature: sheet.temperature ?? 0.7,
-    sheet,
-  }
+  const currentBlock = current.trim()
+    ? `\n\nExisting value to refine:\n"${current.trim()}"\nReturn only the improved version.`
+    : '\nReturn only the value. No preamble.'
+
+  return `${fieldPrompt}${contextBlock}${currentBlock}`
 }

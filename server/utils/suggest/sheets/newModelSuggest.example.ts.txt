@@ -1,0 +1,25 @@
+// /server/utils/suggest/sheets/newModelSuggest.example.ts
+import type { SuggestSheet } from '../suggestTypes'
+
+const newModelSuggest: SuggestSheet = {
+  builder: 'new-model',
+  label: 'New Model Builder',
+  systemPrompt: `You are the writing assistant for the New Model Builder.
+Rules:
+- Return only the requested field value.
+- No preamble.
+- Be specific and useful.`,
+  contextKeys: ['name', 'title', 'description'],
+  fieldPrompts: {
+    title: 'Write a short evocative title.',
+    description: 'Write a concise description.',
+    artPrompt: 'Write a visual AI image prompt.',
+  },
+}
+
+export default newModelSuggest
+
+// To activate:
+// 1. Rename this file to newModelSuggest.ts.
+// 2. Import it in /server/utils/suggest/sheets/index.ts.
+// 3. Add it to the suggestSheets array.

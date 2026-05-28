@@ -1,6 +1,8 @@
 // /server/utils/suggest/suggestTypes.ts
 export type SuggestProvider = 'anthropic' | 'openai' | 'openai_compatible' | 'ollama'
 
+export type SuggestBuilder = string
+
 export type SuggestServerSnapshot = {
   serverType?: string | null
   baseUrl?: string | null
@@ -8,65 +10,53 @@ export type SuggestServerSnapshot = {
   model?: string | null
 }
 
+export type SuggestExtra = {
+  modelType?: string
+  builderLabel?: string
+  cardKey?: string
+  cardTitle?: string
+  stepTitle?: string
+  instruction?: string
+  configContext?: Record<string, unknown>
+  stepContext?: Record<string, unknown>
+  cardPayload?: Record<string, unknown>
+  stepPayload?: Record<string, unknown>
+}
+
 export type SuggestBody = {
-  builder?: string
+  builder?: SuggestBuilder
   server?: SuggestServerSnapshot
   field?: string
   stepKey?: string
   current?: string
   context?: Record<string, unknown>
-  extra?: Record<string, unknown>
-}
-
-export type SuggestFieldPromptArgs = {
-  builder: string
-  field: string
-  stepKey: string
-  current: string
-  context: Record<string, unknown>
-  extra: Record<string, unknown>
-}
-
-export type SuggestContextEntry = {
-  source: string
-  label?: string
-  contextKey?: string
-  aliases?: string[]
-  transform?: (value: unknown, context: Record<string, unknown>) => string | null
+  extra?: SuggestExtra
 }
 
 export type SuggestSheet = {
-  builder: string
+  builder: SuggestBuilder
   label: string
   systemPrompt: string
-  defaultFieldPrompt?: string
-  fieldPrompts?: Record<string, string | ((args: SuggestFieldPromptArgs) => string)>
-  stepPrompts?: Record<string, string | ((args: SuggestFieldPromptArgs) => string)>
-  contextFields?: SuggestContextEntry[]
-  maxTokens?: number
-  temperature?: number
-  fallbackBuilder?: string
+  fallbackSystemPrompt?: string
+  contextKeys?: string[]
+  fieldPrompts?: Record<string, string>
+  stepPrompts?: Record<string, string>
+  buildContext?: (context: Record<string, unknown>, body: SuggestBody) => string[]
+  buildInstruction?: (body: SuggestBody) => string | null
 }
 
-export type RegisteredSuggestSheet = SuggestSheet & {
+export type SuggestSheetSummary = {
   builder: string
+  label: string
+  contextKeys: string[]
+  fieldPromptKeys: string[]
+  stepPromptKeys: string[]
 }
 
-export type SuggestPromptResult = {
-  systemPrompt: string
-  userPrompt: string
-  maxTokens: number
-  temperature: number
-  sheet: RegisteredSuggestSheet
-}
-
-export type ProviderCallArgs = {
-  systemPrompt: string
-  userPrompt: string
-  model: string
-  maxTokens: number
-  temperature: number
+export type SuggestProviderOptions = {
   provider: SuggestProvider
-  server?: SuggestServerSnapshot
-  runtimeConfig: Record<string, unknown>
+  model: string
+  apiKey?: string
+  baseUrl?: string
+  endpointPath?: string
 }

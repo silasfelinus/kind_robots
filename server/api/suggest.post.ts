@@ -1,53 +1,78 @@
 // /server/api/suggest.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { buildSuggestPrompt } from '@/server/utils/suggest/suggestPrompt'
+import { buildSuggestUserPrompt } from '../utils/suggest/suggestPrompt'
+import { getSuggestSheet } from '../utils/suggest/suggestRegistry'
 import {
   callSuggestProvider,
-  deriveProvider,
-  resolveModel,
-} from '@/server/utils/suggest/suggestProviders'
-import type { SuggestBody } from '@/server/utils/suggest/suggestTypes'
+  deriveSuggestProvider,
+  resolveSuggestModel,
+  str,
+} from '../utils/suggest/suggestProviders'
+import type { SuggestBody } from '../utils/suggest/suggestTypes'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<SuggestBody>(event)
-    const field = body?.field?.trim() ?? ''
-    const stepKey = body?.stepKey?.trim() || field
-    const builder = body?.builder?.trim() || 'adventure'
+
+    const field = body?.field ?? ''
+    const stepKey = body?.stepKey ?? body?.field ?? ''
+    const builder = body?.builder ?? 'adventure'
     const server = body?.server
+    const current = body?.current ?? ''
+    const context = body?.context ?? {}
 
     if (!field && !stepKey) {
-      return { success: false, message: 'field or stepKey is required.' }
+      return {
+        success: false,
+        message: 'field or stepKey is required.',
+      }
     }
 
-    const runtimeConfig = useRuntimeConfig() as unknown as Record<string, unknown>
-    const provider = deriveProvider(server)
-    const model = resolveModel(provider, server?.model)
-    const prompt = buildSuggestPrompt({
+    const config = useRuntimeConfig()
+    const provider = deriveSuggestProvider(server)
+    const model = resolveSuggestModel(provider, server?.model)
+    const sheet = getSuggestSheet(builder)
+
+    const systemPrompt =
+      sheet.systemPrompt ||
+      sheet.fallbackSystemPrompt ||
+      'You are a helpful creative writing assistant.'
+
+    const userPrompt = buildSuggestUserPrompt(sheet, {
       ...body,
       builder,
-      field: field || stepKey,
+      field,
       stepKey,
+      current,
+      context,
     })
 
     console.log('[suggest]', {
       builder,
-      sheet: prompt.sheet.builder,
+      sheet: sheet.builder,
       provider,
       model,
-      field: field || stepKey,
+      field,
       stepKey,
     })
 
-    const value = await callSuggestProvider({
+    const value = await callSuggestProvider(systemPrompt, userPrompt, {
       provider,
-      server,
       model,
-      systemPrompt: prompt.systemPrompt,
-      userPrompt: prompt.userPrompt,
-      maxTokens: prompt.maxTokens,
-      temperature: prompt.temperature,
-      runtimeConfig,
+      apiKey:
+        provider === 'anthropic'
+          ? str(config.anthropicApiKey)
+          : str(config.openaiApiKey),
+      baseUrl:
+        provider === 'ollama'
+          ? str(server?.baseUrl, str(config.ollamaBaseUrl, 'http://localhost:11434'))
+          : provider === 'openai_compatible'
+            ? str(server?.baseUrl, 'http://localhost:1234')
+            : undefined,
+      endpointPath:
+        provider === 'openai_compatible'
+          ? str(server?.endpointPath, '/v1/chat/completions')
+          : undefined,
     })
 
     if (!value) {
@@ -59,19 +84,20 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: {
-        value,
-        builder,
-        sheet: prompt.sheet.builder,
-      },
+      message: 'Suggestion generated.',
+      data: { value },
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('[suggest] error:', message)
+    console.error('[suggest] failed:', error)
+
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+      throw error
+    }
 
     throw createError({
       statusCode: 500,
-      statusMessage: `Suggestion failed: ${message}`,
+      statusMessage:
+        error instanceof Error ? error.message : 'Suggestion request failed.',
     })
   }
 })

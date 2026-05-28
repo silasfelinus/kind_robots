@@ -6,59 +6,21 @@
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-export type AdventureInputType =
-  | 'preset'
-  | 'text'
-  | 'long'
-  | 'stats'
-  | 'reward'
-  | 'list'
-  | 'art'
-
-export type PresetChoice = {
-  value: string
-  label: string
-  subtext?: string
-  image?: string
-  opensCustom?: boolean
-  opensList?: boolean
-  listOptions?: string[]
-}
-
-export type AdventureStep = {
-  key: string
-  title: string
-  narrative: string
-  inputType: AdventureInputType
-  field?: string
-  choices?: PresetChoice[]
-  listOptions?: string[]
-  generatorKey?: string
-  placeholder?: string
-  inputLabel?: string
-  heroImage?: string
-  needsLLM?: boolean
-  multiSelect?: boolean // true = user picks multiple; value stored as pipe-separated string
-}
-
-export type AdventureCard = {
-  key: string
-  label: string
-  title: string
-  icon: string
-  flourish: string
-  deckImage: string
-  heroImage: string
-  tagline: string
-  narrative: string
-  required?: boolean
-  rewardSlotKey?: string
-  restoresFields: string[]
-  unlockCondition?: 'always' | 'coreComplete' | 'allComplete'
-  steps: AdventureStep[]
-}
-
 // ── Extended lists (shown after gallery via opensList) ─────────────────────
+import type {
+  BuilderCard,
+  BuilderChoice,
+  BuilderSplash,
+  BuilderStatEntry,
+  BuilderRewardOption,
+  BuilderSheet,
+  BuilderStep,
+} from '@/stores/helpers/builderCards'
+import type { Rarity } from '@/stores/rewardStore'
+
+export type PresetChoice = BuilderChoice
+export type AdventureStep = BuilderStep
+export type AdventureCard = BuilderCard
 
 const EXTENDED_GENRES: string[] = [
   'Bureaucratic Fantasy',
@@ -183,6 +145,86 @@ const EXTENDED_CALLINGS: string[] = [
   'Ecosystem Keystone',
   'Invasive Species',
 ]
+
+export type AdventureBuilderSheet = BuilderSheet & {
+  name: string
+  honorific: string
+  genre: string
+  species: string
+  class: string
+  alignment: string
+  gender: string
+  personality: string
+  backstory: string
+  quirks: string
+  artPrompt: string
+  imagePath: string | null
+  artImageId: number | null
+  stats: BuilderStatEntry[]
+  luck: Rarity
+  might: Rarity
+  wits: Rarity
+  grace: Rarity
+  charm: Rarity
+  empathy: Rarity
+  rewards: Record<string, BuilderRewardOption>
+  userId: number
+  isPublic: boolean
+  isMature: boolean
+}
+
+export function defaultAdventureStats(): BuilderStatEntry[] {
+  return [
+    { key: 'luck', name: 'Luck', display: '🍀', value: 0 },
+    { key: 'swol', name: 'Swol', display: '💪', value: 0 },
+    { key: 'wits', name: 'Wits', display: '🧠', value: 0 },
+    { key: 'flexibility', name: 'Flexibility', display: '🤸', value: 0 },
+    { key: 'rizz', name: 'Rizz', display: '✨', value: 0 },
+    { key: 'empathy', name: 'Empathy', display: '💜', value: 0 },
+  ]
+}
+
+export function defaultAdventureSheet(userId = 10): AdventureBuilderSheet {
+  return {
+    name: '',
+    honorific: 'adventurer',
+    genre: '',
+    species: '',
+    class: '',
+    alignment: '',
+    gender: '',
+    personality: '',
+    backstory: '',
+    quirks: '',
+    artPrompt: '',
+    imagePath: null,
+    artImageId: null,
+    stats: defaultAdventureStats(),
+    luck: 'COMMON',
+    might: 'COMMON',
+    wits: 'COMMON',
+    grace: 'COMMON',
+    charm: 'COMMON',
+    empathy: 'COMMON',
+    rewards: {},
+    userId,
+    isPublic: true,
+    isMature: false,
+  }
+}
+
+export const ADVENTURE_SPLASH: BuilderSplash = {
+  title: 'Adventure Builder',
+  subtitle:
+    'Character creation for entities, accidents, and narrative hazards.',
+  tagline:
+    'Make someone weird. Give them stats. Make it everyone else’s problem.',
+  description:
+    'Build a character one dramatic card at a time: genre, name, origin, identity, personality, stats, backstory, skills, and portrait.',
+  imagePath: '/images/adventure/splash.webp',
+  ctaLabel: 'Begin the Ledger',
+  secondaryLabel: 'Draw a Random Card',
+}
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 

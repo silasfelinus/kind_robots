@@ -1,202 +1,86 @@
-<!-- components/adventure/adventure-builder.vue -->
-<!--
-  Top-level adventure character builder.
-  Layout:
-    Header  — title, sheet toggle (mobile), save / reset
-    Body    — [ adventure-sheet sidebar ] + [ adventure-stage ]
-    Footer  — adventure-hand (card tray)
-
-  Owns: save flow (rewards then character), reset, mobile sidebar toggle.
-  All step/card flow lives in adventureStore.
-  No emits.
--->
+<!-- /components/adventure/adventure-builder.vue -->
 <template>
   <section
-    class="builder flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl bg-base-200"
+    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-200"
   >
-    <!-- Header -->
-    <header
-      class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-200 px-4 py-3"
+    <div
+      v-if="saveMessage || saveError"
+      class="rounded-2xl border px-4 py-3 text-sm font-semibold"
+      :class="
+        saveError
+          ? 'border-error/30 bg-error/10 text-error'
+          : 'border-success/30 bg-success/10 text-success'
+      "
     >
-      <!-- Sheet toggle (mobile only) -->
-      <button
-        type="button"
-        class="btn btn-sm btn-ghost rounded-xl lg:hidden"
-        :class="showSheet ? 'btn-active' : ''"
-        :aria-label="
-          showSheet ? 'Hide character sheet' : 'Show character sheet'
-        "
-        @click="showSheet = !showSheet"
-      >
-        <Icon name="kind-icon:blueprint" class="h-4 w-4" />
-      </button>
-
-      <!-- Title -->
-      <div class="min-w-0 flex-1">
-        <h2
-          class="flex items-center gap-2 text-lg font-black text-base-content leading-tight"
-        >
-          <Icon
-            name="kind-icon:sparkles"
-            class="h-5 w-5 text-primary shrink-0"
-          />
-          <span class="truncate">
-            {{ adventureStore.sheet.name || 'New Character' }}
-          </span>
-        </h2>
-        <p class="text-xs text-base-content/40 truncate">
-          {{ headerSubtitle }}
-        </p>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex shrink-0 items-center gap-2">
-        <!-- Reset -->
-        <button
-          type="button"
-          class="btn btn-sm btn-ghost rounded-xl text-base-content/40 hover:text-error"
-          :disabled="isSaving"
-          @click="confirmReset"
-        >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
-          <span class="hidden sm:inline">Reset</span>
-        </button>
-
-        <!-- Save -->
-        <button
-          type="button"
-          class="btn btn-sm btn-primary rounded-xl gap-1.5"
-          :disabled="isSaving || !canSave"
-          @click="saveCharacter"
-        >
-          <span v-if="isSaving" class="loading loading-spinner loading-xs" />
-          <Icon v-else name="kind-icon:save" class="h-4 w-4" />
-          {{ saveLabel }}
-        </button>
-      </div>
-    </header>
-
-    <!-- Save feedback -->
-    <Transition name="feedback-slide">
-      <div
-        v-if="saveMessage || saveError"
-        class="shrink-0 border-b px-4 py-2 text-sm font-semibold"
-        :class="
-          saveError
-            ? 'border-error/30 bg-error/10 text-error'
-            : 'border-success/30 bg-success/10 text-success'
-        "
-      >
-        {{ saveError || saveMessage }}
-      </div>
-    </Transition>
-
-    <!-- Main body -->
-    <div class="flex min-h-0 flex-1 overflow-hidden">
-      <!-- Sheet sidebar — always visible lg+, toggle on mobile -->
-      <Transition name="sheet-slide">
-        <div
-          v-show="showSheet || isDesktop"
-          class="sheet-sidebar shrink-0 overflow-y-auto border-r border-base-300 bg-base-100 p-3"
-          :class="showSheet ? 'w-64' : 'hidden lg:block lg:w-64'"
-        >
-          <adventure-sheet />
-        </div>
-      </Transition>
-
-      <!-- Stage column -->
-      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <!-- Adventure stage — hero zone + choices + nav -->
-        <div class="min-h-0 flex-1 overflow-hidden p-2">
-          <adventure-stage />
-        </div>
-
-        <!-- Card hand tray -->
-        <div class="shrink-0 border-t border-base-300 bg-base-200 py-1">
-          <adventure-hand />
-        </div>
-      </div>
+      {{ saveError || saveMessage }}
     </div>
 
-    <!-- Reset confirmation modal -->
-    <Teleport to="body">
-      <Transition name="modal-fade">
-        <div
-          v-if="showResetConfirm"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4"
-          @click.self="showResetConfirm = false"
-        >
-          <div class="absolute inset-0 bg-base-300/60 backdrop-blur-sm" />
+    <div class="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        class="btn btn-sm btn-ghost rounded-2xl text-base-content/50 hover:text-error"
+        :disabled="isSaving"
+        @click="resetAdventureBuilder"
+      >
+        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        Reset
+      </button>
 
-          <div
-            class="relative w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-xl"
-          >
-            <h3 class="text-lg font-black text-base-content">
-              Clear the sheet?
-            </h3>
-            <p class="mt-2 text-sm text-base-content/60">
-              All answers, stats, and skills will be discarded. The character
-              will return to a state of pure potential. Which sounds better than
-              it is.
-            </p>
-            <div class="mt-5 flex gap-2 justify-end">
-              <button
-                type="button"
-                class="btn btn-sm btn-ghost rounded-xl"
-                @click="showResetConfirm = false"
-              >
-                Keep it
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-error rounded-xl"
-                @click="doReset"
-              >
-                Clear everything
-              </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+      <button
+        type="button"
+        class="btn btn-sm btn-primary rounded-2xl"
+        :disabled="isSaving || !canSave"
+        @click="saveCharacter"
+      >
+        <span v-if="isSaving" class="loading loading-spinner loading-xs" />
+        <Icon v-else name="kind-icon:save" class="h-4 w-4" />
+        {{ saveLabel }}
+      </button>
+    </div>
+
+    <builder-manager />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useAdventureStore } from '@/stores/adventureStore'
+import { computed, onMounted, watch, ref } from 'vue'
+import { useBuilderStore } from '@/stores/builderStore'
+import { useGeneratorStore, type RolledReward } from '@/stores/generatorStore'
 import { useUserStore } from '@/stores/userStore'
 import { handleError, performFetch } from '@/stores/utils'
+import type { BuilderRewardOption } from '@/stores/helpers/builderCards'
 import type { Rarity } from '@/stores/rewardStore'
-import type { RolledReward } from '@/stores/generatorStore'
+import {
+  ADVENTURE_CARDS,
+  ADVENTURE_SPLASH,
+  defaultAdventureSheet,
+  defaultAdventureStats,
+} from '@/stores/helpers/adventureCards'
+import {
+  ADVENTURE_CORE_CARD_KEYS,
+  ADVENTURE_REQUIRED_CARD_KEYS,
+  ADVENTURE_SKILL_RARITY,
+  adventureRewardToBuilderOption,
+  builderOptionToAdventureReward,
+  buildAdventureArtPrompt,
+  syncAdventureStatTiers,
+} from '@/stores/helpers/adventureHelper'
 
-// ── Stores ──────────────────────────────────────────────────────────────────
-
-const adventureStore = useAdventureStore()
+const builderStore = useBuilderStore()
+const generatorStore = useGeneratorStore()
 const userStore = useUserStore()
 
-// ── UI state ────────────────────────────────────────────────────────────────
-
-const showSheet = ref(false)
-const showResetConfirm = ref(false)
+const savedCharId = ref<number | null>(null)
 const isSaving = ref(false)
 const saveMessage = ref('')
 const saveError = ref('')
-const savedCharId = ref<number | null>(null)
 
-// Detect desktop breakpoint for sidebar visibility
-const isDesktop = ref(false)
-
-function updateBreakpoint() {
-  isDesktop.value = window.innerWidth >= 1024
-}
-
-// ── Computed ────────────────────────────────────────────────────────────────
-
-const canSave = computed(
-  () =>
-    Boolean(adventureStore.sheet.name?.trim()) && adventureStore.allComplete,
-)
+const canSave = computed(() => {
+  return (
+    Boolean(String(builderStore.sheet.name ?? '').trim()) &&
+    builderStore.allComplete
+  )
+})
 
 const saveLabel = computed(() =>
   isSaving.value
@@ -206,16 +90,87 @@ const saveLabel = computed(() =>
       : 'Save Character',
 )
 
-const headerSubtitle = computed(() => {
-  if (adventureStore.allComplete) return 'Sheet complete. Ready to save.'
-  const done = Object.keys(adventureStore.completedCards).length
-  const total = 10
-  return `${done} of ${total} cards placed`
-})
+function seedAdventureRewardSlot(slotKey: string): void {
+  if (builderStore.rewardOptions[slotKey]?.length) return
 
-// ── Save ────────────────────────────────────────────────────────────────────
+  const rarity = ADVENTURE_SKILL_RARITY[slotKey] ?? 'COMMON'
+  const options = generatorStore
+    .rollRewardOptions(rarity, 4)
+    .map(adventureRewardToBuilderOption)
 
-async function saveCharacter() {
+  builderStore.setRewardOptions(slotKey, options)
+}
+
+function seedActiveRewardSlot(): void {
+  const slotKey = builderStore.activeCard?.rewardSlotKey
+
+  if (!slotKey) return
+
+  seedAdventureRewardSlot(slotKey)
+}
+
+function resetAdventureBuilder(): void {
+  savedCharId.value = null
+  saveMessage.value = ''
+  saveError.value = ''
+
+  builderStore.resetBuilder()
+  builderStore.updateSheet({
+    userId: userStore.userId || 10,
+  })
+
+  builderStore.randomCard()
+}
+
+function getAdventureRewards(): RolledReward[] {
+  const rawRewards = builderStore.sheet.rewards
+
+  if (
+    !rawRewards ||
+    typeof rawRewards !== 'object' ||
+    Array.isArray(rawRewards)
+  ) {
+    return []
+  }
+
+  return Object.values(rawRewards as Record<string, BuilderRewardOption>).map(
+    builderOptionToAdventureReward,
+  )
+}
+
+async function saveRewards(): Promise<number[]> {
+  const ids: number[] = []
+
+  for (const reward of getAdventureRewards()) {
+    type RewardResponse = { id: number }
+
+    const response = await performFetch<RewardResponse>('/api/rewards', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        label: reward.label,
+        text: reward.text,
+        power: reward.power,
+        rarity: reward.rarity as Rarity,
+        rewardType: 'SKILL',
+        icon: reward.icon,
+        collection: 'adventure-starting-skill',
+        userId: userStore.userId || 10,
+        isPublic: Boolean(builderStore.sheet.isPublic),
+        isMature: Boolean(builderStore.sheet.isMature),
+        isActive: true,
+      }),
+    })
+
+    if (response.success && response.data?.id) {
+      ids.push(response.data.id)
+    }
+  }
+
+  return ids
+}
+
+async function saveCharacter(): Promise<void> {
   if (!canSave.value || isSaving.value) return
 
   isSaving.value = true
@@ -223,41 +178,43 @@ async function saveCharacter() {
   saveError.value = ''
 
   try {
-    // 1. Save each reward draft
-    const savedRewardIds = await saveRewards()
+    syncAdventureStatTiers(builderStore.sheet)
 
-    // 2. Build the character payload — field names match Prisma model directly
-    const s = adventureStore.sheet
+    if (!String(builderStore.sheet.artPrompt ?? '').trim()) {
+      builderStore.updateArt({
+        artPrompt: buildAdventureArtPrompt(builderStore.sheet),
+      })
+    }
+
+    const savedRewardIds = await saveRewards()
+    const s = builderStore.sheet
 
     const body: Record<string, unknown> = {
-      name: s.name.trim(),
-      honorific: s.honorific.trim() || 'adventurer',
-      genre: s.genre.trim() || null,
-      species: s.species.trim() || null,
-      class: s.class.trim() || null,
-      alignment: s.alignment.trim() || null,
-      gender: s.gender.trim() || null,
-      personality: s.personality.trim() || null,
-      backstory: s.backstory.trim() || null,
-      quirks: s.quirks.trim() || null,
-      artPrompt: s.artPrompt.trim() || null,
-      artImageId: s.artImageId || null,
+      name: String(s.name ?? '').trim(),
+      honorific: String(s.honorific ?? '').trim() || 'adventurer',
+      genre: String(s.genre ?? '').trim() || null,
+      species: String(s.species ?? '').trim() || null,
+      class: String(s.class ?? '').trim() || null,
+      alignment: String(s.alignment ?? '').trim() || null,
+      gender: String(s.gender ?? '').trim() || null,
+      personality: String(s.personality ?? '').trim() || null,
+      backstory: String(s.backstory ?? '').trim() || null,
+      quirks: String(s.quirks ?? '').trim() || null,
+      artPrompt: String(s.artPrompt ?? '').trim() || null,
+      artImageId: Number(s.artImageId ?? 0) || null,
       imagePath: s.imagePath || null,
-      // Rarity tiers
       luck: s.luck,
       might: s.might,
       wits: s.wits,
       grace: s.grace,
       charm: s.charm,
       empathy: s.empathy,
-      // Meta
-      userId: userStore.userId || s.userId || 10,
-      isPublic: s.isPublic,
-      isMature: s.isMature,
+      userId: userStore.userId || Number(s.userId ?? 10) || 10,
+      isPublic: Boolean(s.isPublic),
+      isMature: Boolean(s.isMature),
       isActive: true,
       experience: 0,
       level: 1,
-      // Linked rewards
       rewardIds: savedRewardIds,
     }
 
@@ -280,11 +237,6 @@ async function saveCharacter() {
 
     savedCharId.value = response.data.id
     saveMessage.value = `Character #${response.data.id} committed to the record. The ledger has been updated.`
-
-    // Clear message after 5s
-    setTimeout(() => {
-      saveMessage.value = ''
-    }, 5000)
   } catch (error) {
     handleError(error, 'saving adventure character')
     saveError.value =
@@ -296,131 +248,46 @@ async function saveCharacter() {
   }
 }
 
-async function saveRewards(): Promise<number[]> {
-  const ids: number[] = []
-
-  for (const reward of Object.values(
-    adventureStore.sheet.rewards,
-  ) as RolledReward[]) {
-    type RewardResponse = { id: number }
-
-    const response = await performFetch<RewardResponse>('/api/rewards', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        label: reward.label,
-        text: reward.text,
-        power: reward.power,
-        rarity: reward.rarity as Rarity,
-        rewardType: 'SKILL',
-        icon: reward.icon,
-        collection: 'adventure-starting-skill',
-        userId: userStore.userId || 10,
-        isPublic: adventureStore.sheet.isPublic,
-        isMature: adventureStore.sheet.isMature,
-        isActive: true,
-      }),
-    })
-
-    if (response.success && response.data?.id) {
-      ids.push(response.data.id)
-    }
-  }
-
-  return ids
-}
-
-// ── Reset ────────────────────────────────────────────────────────────────────
-
-function confirmReset() {
-  showResetConfirm.value = true
-}
-
-function doReset() {
-  showResetConfirm.value = false
-  savedCharId.value = null
-  saveMessage.value = ''
-  saveError.value = ''
-  adventureStore.resetAdventure(userStore.userId || 10)
-  // Auto-draw first card
-  adventureStore.randomCard()
-}
-
-// ── Lifecycle ────────────────────────────────────────────────────────────────
-
 onMounted(() => {
-  // Set user ID
-  adventureStore.sheet.userId = userStore.userId || 10
+  builderStore.registerBuilder({
+    key: 'adventure',
+    label: 'Adventure',
+    title: 'Adventure Builder',
+    modelType: 'adventure',
+    storageKey: 'kindrobots.builder.adventure.v1',
+    cards: ADVENTURE_CARDS,
+    splash: ADVENTURE_SPLASH,
+    defaultSheet: () => defaultAdventureSheet(userStore.userId || 10),
+    coreCardKeys: ADVENTURE_CORE_CARD_KEYS,
+    requiredCardKeys: ADVENTURE_REQUIRED_CARD_KEYS,
+    finalCardKey: 'art',
+    clearFieldDefaults: {
+      honorific: 'adventurer',
+      imagePath: null,
+      artImageId: null,
+      artPrompt: '',
+      userId: userStore.userId || 10,
+      isPublic: true,
+      isMature: false,
+      rewards: {},
+      stats: defaultAdventureStats(),
+    },
+  })
 
-  // Restore previous session from localStorage
-  adventureStore.restoreState()
+  builderStore.setBuilder('adventure')
+  builderStore.updateSheet({
+    userId: userStore.userId || 10,
+  })
 
-  // If nothing restored or no card active, draw one
-  if (!adventureStore.activeCardKey && adventureStore.visibleCards.length) {
-    adventureStore.randomCard()
+  if (!builderStore.activeCardKey && builderStore.visibleCards.length) {
+    builderStore.randomCard()
   }
 
-  // Breakpoint detection
-  updateBreakpoint()
-  window.addEventListener('resize', updateBreakpoint)
+  seedActiveRewardSlot()
 })
+
+watch(
+  () => builderStore.activeCard?.rewardSlotKey,
+  () => seedActiveRewardSlot(),
+)
 </script>
-
-<style scoped>
-.builder {
-  container-type: inline-size;
-}
-
-/* Sidebar slide on mobile */
-.sheet-slide-enter-active {
-  transition:
-    opacity 200ms ease,
-    transform 200ms ease;
-}
-.sheet-slide-leave-active {
-  transition:
-    opacity 150ms ease,
-    transform 150ms ease;
-}
-.sheet-slide-enter-from {
-  opacity: 0;
-  transform: translateX(-8px);
-}
-.sheet-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-8px);
-}
-
-/* Feedback bar */
-.feedback-slide-enter-active {
-  transition:
-    opacity 200ms ease,
-    max-height 200ms ease;
-  max-height: 60px;
-  overflow: hidden;
-}
-.feedback-slide-leave-active {
-  transition:
-    opacity 300ms ease,
-    max-height 300ms ease;
-  max-height: 60px;
-  overflow: hidden;
-}
-.feedback-slide-enter-from,
-.feedback-slide-leave-to {
-  opacity: 0;
-  max-height: 0;
-}
-
-/* Modal */
-.modal-fade-enter-active {
-  transition: opacity 200ms ease;
-}
-.modal-fade-leave-active {
-  transition: opacity 150ms ease;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-</style>

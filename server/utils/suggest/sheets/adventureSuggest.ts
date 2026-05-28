@@ -14,6 +14,7 @@ Rules:
 - Keep responses concise and punchy.`,
   contextKeys: [
     'name',
+    'honorific',
     'species',
     'class',
     'genre',
@@ -21,8 +22,14 @@ Rules:
     'gender',
     'personality',
     'backstory',
+    'quirks',
   ],
   fieldPrompts: {
+    name: 'Write a vivid character name. It may be a normal name, title, designation, sound, or strange identity marker. Keep it short and memorable.',
+    honorific:
+      'Write a short honorific or social title for this entity. Examples: the esteemed, formerly known as, technically still a saint, captain, oracle, witness.',
+    alignment:
+      'Write a strange but usable alignment or organizing principle. It should describe how this entity believes, chooses, or justifies action.',
     personality:
       'Write a 2–3 sentence personality description. Capture how they behave under pressure, their characteristic flaws and strengths.',
     backstory:

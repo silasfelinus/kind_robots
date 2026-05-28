@@ -12,6 +12,7 @@ export interface Butterfly {
   zIndex: number
   baseZIndex: number
   rotation: number
+  heading: number
   wingTopColor: string
   wingBottomColor: string
   name?: string
@@ -83,6 +84,7 @@ export const createLoaderButterfly = (
         (settings.rotationRange.max - settings.rotationRange.min) +
         settings.rotationRange.min,
     ),
+    heading: 0,
     wingTopColor: primaryColor,
     wingBottomColor: secondaryColor,
     speed: clampToTwoDecimals(
@@ -240,6 +242,7 @@ export const createNewButterfly = async (
         (settings.rotationRange.max - settings.rotationRange.min) +
         settings.rotationRange.min,
     ),
+    heading: 0,
     wingTopColor: primaryColor,
     wingBottomColor: secondaryColor,
     speed: clampToTwoDecimals(

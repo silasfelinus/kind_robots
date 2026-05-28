@@ -100,6 +100,60 @@ type LoaderScene = {
   orbitSharedRotation: boolean
 }
 
+function normalizeDegrees(value: number) {
+  return ((value % 360) + 360) % 360
+}
+
+function shortestAngleDelta(from: number, to: number) {
+  return ((to - from + 540) % 360) - 180
+}
+
+function lerpDegrees(from: number, to: number, amount: number) {
+  return normalizeDegrees(from + shortestAngleDelta(from, to) * amount)
+}
+
+function getHeadingFromMotion(dx: number, dy: number, fallback = 0) {
+  const distance = Math.sqrt(dx * dx + dy * dy)
+
+  if (distance < 0.01) return fallback
+
+  return normalizeDegrees(Math.atan2(dy, dx) * (180 / Math.PI) + 90)
+}
+
+function applyButterflyOrientation(
+  butterfly: Butterfly,
+  previousX: number,
+  previousY: number,
+  options: {
+    headingEase?: number
+    bankEase?: number
+    bankStrength?: number
+  } = {},
+) {
+  const headingEase = options.headingEase ?? 0.12
+  const bankEase = options.bankEase ?? 0.08
+  const bankStrength = options.bankStrength ?? 1
+
+  const motionDx = butterfly.x - previousX
+  const motionDy = butterfly.y - previousY
+  const targetHeading = getHeadingFromMotion(
+    motionDx,
+    motionDy,
+    butterfly.heading,
+  )
+
+  butterfly.heading = clampToTwoDecimals(
+    lerpDegrees(butterfly.heading, targetHeading, headingEase),
+  )
+
+  const targetBank = motionDx >= 0 ? 120 : 30
+
+  butterfly.rotation = clampToTwoDecimals(
+    butterfly.rotation +
+      (targetBank - butterfly.rotation) * bankEase * bankStrength,
+  )
+}
+
 type ButterflyEffectsInput = {
   butterflies: Ref<Butterfly[]>
   selectedButterflyId: Ref<string>
@@ -342,6 +396,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     butterfly.baseZIndex = 50
     butterfly.zIndex = 50
     butterfly.scaleMod = 1
+    butterfly.heading = getHeadingFromMotion(
+      anchor.x - spawn.x,
+      anchor.y - spawn.y,
+      butterfly.heading,
+    )
     butterfly.rotation = butterfly.x < anchor.x ? 120 : 30
 
     toggleButterflyIds.value[key] = butterfly.id
@@ -384,11 +443,10 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     butterfly.goal.x = clampPercent(state.anchor.x + driftX)
     butterfly.goal.y = clampPercent(state.anchor.y + driftY)
 
-    const dx = butterfly.goal.x - butterfly.x
-    const targetRotation = dx >= 0 ? 120 : 30
-    butterfly.rotation = clampToTwoDecimals(
-      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.08,
-    )
+    applyButterflyOrientation(butterfly, butterfly.x, butterfly.y, {
+      headingEase: 0.08,
+      bankEase: 0.06,
+    })
   }
 
   function moveTowardGoalWithNoise(
@@ -399,6 +457,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   ) {
     const noise2D = getNoise()
     const t = now * 0.001
+    const previousX = butterfly.x
+    const previousY = butterfly.y
 
     const angle =
       noise2D(
@@ -435,8 +495,10 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       butterfly.y + goalUnitY * pull + tangentY * sway,
     )
 
-    const targetRotation =
-      Math.abs(goalDx) > 0.5 ? (goalDx >= 0 ? 120 : 30) : sway >= 0 ? 120 : 30
+    applyButterflyOrientation(butterfly, previousX, previousY, {
+      headingEase: 0.1,
+      bankEase: 0.06,
+    })
 
     butterfly.rotation = clampToTwoDecimals(
       butterfly.rotation + (targetRotation - butterfly.rotation) * 0.06,
@@ -480,6 +542,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
   function moveExitingButterfly(butterfly: Butterfly, now: number) {
     const noise2D = getNoise()
     const state = getExitWanderState(butterfly)
+    const previousX = butterfly.x
+    const previousY = butterfly.y
 
     refreshExitWanderDecision(butterfly, state, now)
 
@@ -526,11 +590,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         tangentY * (flutterNoise * sway + wobble * 0.18),
     )
 
-    const rotationDriver = chosenX * 0.7 + forwardX * 0.3
-    const targetRotation = rotationDriver >= 0 ? 120 : 30
-    butterfly.rotation = clampToTwoDecimals(
-      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.075,
-    )
+    applyButterflyOrientation(butterfly, previousX, previousY, {
+      headingEase: 0.16,
+      bankEase: 0.08,
+      bankStrength: now < state.burstUntil ? 1.25 : 1,
+    })
 
     butterfly.scaleMod = clampToTwoDecimals(
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
@@ -586,13 +650,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       butterfly.goal.y = clampPercent(orbitY)
 
       moveTowardGoalWithNoise(butterfly, 0.45, 1.15, now)
-
-      const tangentDx =
-        -Math.sin(state.orbitAngle) * state.orbitDirection * state.orbitRadius
-      butterfly.rotation = clampToTwoDecimals(
-        butterfly.rotation +
-          ((tangentDx >= 0 ? 120 : 30) - butterfly.rotation) * 0.06,
-      )
 
       const angleDiff = Math.abs(
         Math.atan2(
@@ -650,6 +707,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         toggleState.mode === 'approaching' ||
         toggleState.mode === 'returning'
       ) {
+        const previousX = butterfly.x
+        const previousY = butterfly.y
         butterfly.goal.x = toggleState.anchor.x
         butterfly.goal.y = toggleState.anchor.y
       }
@@ -666,11 +725,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       )
       butterfly.y = clampToTwoDecimals(
         butterfly.y + (dy / distance) * butterfly.speed * (1 + speedBoost),
-      )
-
-      const targetRotation = dx >= 0 ? 120 : 30
-      butterfly.rotation = clampToTwoDecimals(
-        butterfly.rotation + (targetRotation - butterfly.rotation) * 0.08,
       )
 
       butterfly.scaleMod = clampToTwoDecimals(
@@ -700,6 +754,10 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       ) {
         butterfly.x = butterfly.goal.x
         butterfly.y = butterfly.goal.y
+        applyButterflyOrientation(butterfly, previousX, previousY, {
+          headingEase: toggleState.mode === 'fleeing' ? 0.18 : 0.1,
+          bankEase: 0.08,
+        })
       }
       return
     }
@@ -730,10 +788,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     const noiseDx = Math.cos(angle) * butterfly.speed * moveScale
     const noiseDy = Math.sin(angle) * butterfly.speed * moveScale
 
-    const targetRotation = noiseDx >= 0 ? 120 : 30
-    butterfly.rotation = clampToTwoDecimals(
-      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.05,
-    )
+    const previousX = butterfly.x
+    const previousY = butterfly.y
 
     butterfly.x = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.x + noiseDx, 100)),
@@ -741,6 +797,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     butterfly.y = clampToTwoDecimals(
       Math.max(0, Math.min(butterfly.y + noiseDy, 100)),
     )
+
+    applyButterflyOrientation(butterfly, previousX, previousY, {
+      headingEase: 0.07,
+      bankEase: 0.05,
+    })
     butterfly.scaleMod = clampToTwoDecimals(
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
     )
@@ -933,6 +994,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         : scene.routeMode === 'orbit'
           ? 110
           : 30
+    butterfly.heading = getHeadingFromMotion(
+      butterfly.goal.x - butterfly.x,
+      butterfly.goal.y - butterfly.y,
+      butterfly.heading,
+    )
   }
 
   async function spawnLoaderButterflies(

@@ -19,7 +19,7 @@
         :key="butterfly.id"
         class="butterfly"
         :style="{
-          transform: `translate3d(${butterfly.x}vw, ${butterfly.y}vh, 0) rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
+          transform: `translate3d(${butterfly.x}vw, ${butterfly.y}vh, 0) rotateZ(${butterfly.heading ?? 0}deg) rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
         }"
       >
         <div class="left-wing">

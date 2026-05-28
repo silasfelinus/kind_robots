@@ -53,6 +53,36 @@ interface ArtImageGenerationRoute {
   engine: ArtImageGenerationEngine
 }
 
+function validateImagePrompt(prompt: string): {
+  success: boolean
+  message?: string
+} {
+  const cleanPrompt = prompt.trim()
+
+  if (!cleanPrompt) {
+    return {
+      success: false,
+      message: 'Image prompt is empty.',
+    }
+  }
+
+  if (cleanPrompt.length < 3) {
+    return {
+      success: false,
+      message: 'Image prompt is too short.',
+    }
+  }
+
+  if (cleanPrompt.length > 4000) {
+    return {
+      success: false,
+      message: `Image prompt is too long. Received ${cleanPrompt.length} characters. Maximum is 4000.`,
+    }
+  }
+
+  return { success: true }
+}
+
 export type ArtImageGenerationEngine =
   | 'a1111'
   | 'comfy'
@@ -1851,7 +1881,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     const promptString = promptStore
       .processPromptPlaceholders(basePrompt.trim())
-      .replace(/\./g, ',')
+      .replace(/\s+/g, ' ')
 
     return {
       promptString,
@@ -1971,10 +2001,12 @@ export const useArtStore = defineStore('artStore', () => {
 
       const data = buildGenerateArtData(artData)
 
-      if (!promptStore.validatePromptString(data.promptString)) {
+      const promptValidation = validateImagePrompt(data.promptString)
+
+      if (!promptValidation.success) {
         return {
           success: false,
-          message: `Invalid prompt. Received ${data.promptString.length} characters after cleanup.`,
+          message: promptValidation.message || 'Invalid image prompt.',
         }
       }
 

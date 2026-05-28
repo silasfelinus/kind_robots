@@ -169,7 +169,14 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     animationPaused.value = false
 
     const animate = () => {
-      const now = Date.now()
+      if (!butterflies.value.length) {
+        animationFrameId.value = null
+        showSwarm.value = false
+        return
+      }
+
+      const now = performance.now()
+
       for (let i = butterflies.value.length - 1; i >= 0; i--) {
         const butterfly = butterflies.value[i]!
         updateButterflyPosition(butterfly, now)
@@ -183,6 +190,12 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
               butterflies.value.find((b) => !b.isExiting)?.id || ''
           }
         }
+      }
+
+      if (!butterflies.value.length) {
+        animationFrameId.value = null
+        showSwarm.value = false
+        return
       }
 
       animationFrameId.value = requestAnimationFrame(animate)

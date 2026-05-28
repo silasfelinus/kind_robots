@@ -913,16 +913,30 @@ export const useDisplayStore = defineStore('displayStore', () => {
     }
   }
 
-  function updateViewport() {
-    if (resizeTimeout.value) clearTimeout(resizeTimeout.value)
+  const viewportFrame = ref<number | null>(null)
 
-    resizeTimeout.value = setTimeout(() => {
+  function updateViewport() {
+    if (viewportFrame.value !== null) {
+      cancelAnimationFrame(viewportFrame.value)
+    }
+
+    viewportFrame.value = requestAnimationFrame(() => {
       applyViewportSize()
-      resizeTimeout.value = null
-    }, 80)
+      viewportFrame.value = null
+    })
   }
 
   function removeViewportWatcher() {
+    if (resizeTimeout.value) {
+      clearTimeout(resizeTimeout.value)
+      resizeTimeout.value = null
+    }
+
+    if (viewportFrame.value !== null) {
+      cancelAnimationFrame(viewportFrame.value)
+      viewportFrame.value = null
+    }
+
     window.removeEventListener('resize', updateViewport)
     window.removeEventListener('orientationchange', updateViewport)
     window.visualViewport?.removeEventListener('resize', updateViewport)
@@ -1072,11 +1086,18 @@ export const useDisplayStore = defineStore('displayStore', () => {
 
     try {
       loadState()
-      applyViewportSize()
 
-      window.addEventListener('resize', updateViewport)
-      window.addEventListener('orientationchange', updateViewport)
-      window.visualViewport?.addEventListener('resize', updateViewport)
+      requestAnimationFrame(() => {
+        applyViewportSize()
+      })
+
+      window.addEventListener('resize', updateViewport, { passive: true })
+      window.addEventListener('orientationchange', updateViewport, {
+        passive: true,
+      })
+      window.visualViewport?.addEventListener('resize', updateViewport, {
+        passive: true,
+      })
     } catch (error) {
       state.isInitialized = false
       handleError(error, 'Task Failed: ')
@@ -1194,6 +1215,7 @@ export const useDisplayStore = defineStore('displayStore', () => {
     channelPanelVisible,
     channelPanelHeight,
     channelPanelStyle,
+    viewportFrame,
   }
 })
 

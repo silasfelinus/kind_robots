@@ -77,7 +77,7 @@ function doFade() {
   }
 
   fallbackFadeTimeoutId = setTimeout(() => {
-    emit('hidden')
+    emitHiddenOnce()
   }, OVERLAY_FADE_MS + 120)
 }
 
@@ -100,7 +100,7 @@ function scheduleFade() {
 function handleTransitionEnd(event: TransitionEvent) {
   if (event.propertyName !== 'opacity') return
   if (!fadeOverlay.value) return
-  emit('hidden')
+  emitHiddenOnce()
 }
 
 async function runVisualSequence() {
@@ -124,6 +124,14 @@ async function runVisualSequence() {
     nextMessage()
     if (props.storesReady) scheduleFade()
   }, ROTATING_MESSAGE_MS)
+}
+
+const hiddenEmitted = ref(false)
+
+function emitHiddenOnce() {
+  if (hiddenEmitted.value) return
+  hiddenEmitted.value = true
+  emit('hidden')
 }
 
 watch(
@@ -167,6 +175,8 @@ onBeforeUnmount(() => {
   opacity: 1;
   transition: opacity 0.95s ease;
   pointer-events: auto;
+  contain: layout paint style;
+  will-change: opacity;
 }
 
 .loading-overlay--fade {
@@ -187,7 +197,8 @@ onBeforeUnmount(() => {
   font-weight: 700;
   text-align: center;
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 .bubble-loader {

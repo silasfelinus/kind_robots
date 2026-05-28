@@ -57,8 +57,16 @@ const { butterflies } = storeToRefs(butterflyStore)
 
 const showSwarm = computed(() => butterflyStore.showSwarm)
 
-onMounted(async () => {
-  await butterflyStore.spawnStartupSwarm(10)
+function afterNextPaint(callback: () => void) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(callback)
+  })
+}
+
+onMounted(() => {
+  afterNextPaint(() => {
+    void butterflyStore.spawnStartupSwarm(8)
+  })
 })
 </script>
 
@@ -87,6 +95,14 @@ onMounted(async () => {
   }
 }
 
+.butterfly-layer--overlay {
+  z-index: 84;
+}
+
+.butterfly-layer--released {
+  z-index: 5;
+}
+
 .butterfly-layer {
   position: fixed;
   inset: 0;
@@ -94,14 +110,8 @@ onMounted(async () => {
   height: 100vh;
   pointer-events: none;
   transition: z-index 0s linear 0.2s;
-}
-
-.butterfly-layer--overlay {
-  z-index: 84;
-}
-
-.butterfly-layer--released {
-  z-index: 5;
+  contain: layout paint style;
+  transform: translateZ(0);
 }
 
 .butterfly {
@@ -114,6 +124,7 @@ onMounted(async () => {
   pointer-events: none;
   will-change: transform;
   contain: layout paint style;
+  backface-visibility: hidden;
 }
 
 .left-wing,

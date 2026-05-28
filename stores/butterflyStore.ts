@@ -157,6 +157,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       baseZIndex,
       zIndex: baseZIndex,
       rotation: 110,
+      heading: 0,
       status: 'random',
       isExiting: false,
       userId: db.userId,

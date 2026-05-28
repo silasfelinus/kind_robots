@@ -27,21 +27,6 @@
             :show-personality="true"
             :compact="true"
           />
-
-          <server-gallery
-            mode="text"
-            variant="dropdown"
-            :show-header="false"
-            :show-controls="false"
-            :show-card-actions="false"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="false"
-            :show-use-buttons="false"
-            :show-workflow="false"
-            :show-defaults="false"
-            :show-status="false"
-          />
         </div>
 
         <div class="min-h-0 xl:col-span-7">
@@ -58,36 +43,6 @@
       <bot-interact v-else-if="currentTab === 'interact'" />
 
       <composition-manager v-else-if="currentTab === 'composition'" />
-
-      <section
-        v-else-if="currentTab === 'servers'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="min-h-0 xl:col-span-7">
-          <server-gallery
-            mode="text"
-            variant="dashboard"
-            :show-header="false"
-            :show-controls="true"
-            :show-card-actions="true"
-            :show-descriptions="true"
-            :show-meta="true"
-            :show-capabilities="true"
-            :show-use-buttons="true"
-            :show-workflow="true"
-            :show-defaults="true"
-            :show-status="true"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-5">
-          <div
-            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <server-interact />
-          </div>
-        </div>
-      </section>
 
       <bot-builder v-else-if="currentTab === 'builder'" />
 

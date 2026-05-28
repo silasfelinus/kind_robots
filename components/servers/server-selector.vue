@@ -23,9 +23,8 @@
             </div>
 
             <p class="mt-1 text-sm text-base-content/60">
-              Choose one art route and one text route. Existing configured
-              servers appear as quick buttons. New ones only ask for the one
-              thing they actually need.
+              Choose one art route and one text route. This updates your saved
+              personal defaults instead of spawning goblin clones.
             </p>
           </div>
 
@@ -55,8 +54,10 @@
         </section>
 
         <section class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <div
+          <form
             class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            autocomplete="off"
+            @submit.prevent="saveArtServer"
           >
             <div class="flex items-start gap-3">
               <div
@@ -115,6 +116,7 @@
                   v-model="artName"
                   class="input input-bordered rounded-xl bg-base-200"
                   type="text"
+                  autocomplete="off"
                   placeholder="My art server"
                 />
               </label>
@@ -128,8 +130,8 @@
                   v-model="artApiKey"
                   class="input input-bordered rounded-xl bg-base-200"
                   type="password"
-                  autocomplete="off"
-                  placeholder="Paste your key"
+                  autocomplete="new-password"
+                  placeholder="Paste API key"
                 />
               </label>
 
@@ -143,6 +145,7 @@
                     v-model="artUrl"
                     class="input input-bordered rounded-xl bg-base-200"
                     type="url"
+                    autocomplete="off"
                     placeholder="https://your-server.example.com"
                   />
                 </label>
@@ -155,6 +158,7 @@
                   <select
                     v-model="artAccessMode"
                     class="select select-bordered rounded-xl bg-base-200"
+                    autocomplete="off"
                   >
                     <option value="LOCAL">Open / browser accessible</option>
                     <option value="TAILSCALE">Tailscale</option>
@@ -167,9 +171,8 @@
 
               <button
                 class="btn btn-primary rounded-2xl text-white"
-                type="button"
+                type="submit"
                 :disabled="isSavingArt || !canSaveArt"
-                @click="saveArtServer"
               >
                 <span
                   v-if="isSavingArt"
@@ -236,10 +239,12 @@
               :allow-refresh="true"
               :auto-load="true"
             />
-          </div>
+          </form>
 
-          <div
+          <form
             class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            autocomplete="off"
+            @submit.prevent="saveTextServer"
           >
             <div class="flex items-start gap-3">
               <div
@@ -298,6 +303,7 @@
                   v-model="textName"
                   class="input input-bordered rounded-xl bg-base-200"
                   type="text"
+                  autocomplete="off"
                   placeholder="My text server"
                 />
               </label>
@@ -311,8 +317,8 @@
                   v-model="textApiKey"
                   class="input input-bordered rounded-xl bg-base-200"
                   type="password"
-                  autocomplete="off"
-                  placeholder="Paste your key"
+                  autocomplete="new-password"
+                  placeholder="Paste API key"
                 />
               </label>
 
@@ -326,6 +332,7 @@
                     v-model="textUrl"
                     class="input input-bordered rounded-xl bg-base-200"
                     type="url"
+                    autocomplete="off"
                     placeholder="http://localhost:11434"
                   />
                 </label>
@@ -338,6 +345,7 @@
                   <select
                     v-model="textAccessMode"
                     class="select select-bordered rounded-xl bg-base-200"
+                    autocomplete="off"
                   >
                     <option value="LOCAL">Open / browser accessible</option>
                     <option value="TAILSCALE">Tailscale</option>
@@ -350,9 +358,8 @@
 
               <button
                 class="btn btn-secondary rounded-2xl text-white"
-                type="button"
+                type="submit"
                 :disabled="isSavingText || !canSaveText"
-                @click="saveTextServer"
               >
                 <span
                   v-if="isSavingText"
@@ -362,7 +369,7 @@
                 Save Text Settings
               </button>
             </div>
-          </div>
+          </form>
         </section>
 
         <footer
@@ -422,6 +429,7 @@ import { useUserStore } from '@/stores/userStore'
 
 type ArtMode = 'openai' | 'sd' | 'comfy'
 type TextMode = 'openai' | 'anthropic' | 'ollama'
+type ComfyModelFamily = 'sdxl' | 'flux'
 
 type SelectorOption<T extends string> = {
   value: T
@@ -441,13 +449,12 @@ const statusTone = ref<'info' | 'success' | 'warning' | 'error'>('info')
 
 const artMode = ref<ArtMode>('sd')
 const textMode = ref<TextMode>('openai')
-type ComfyModelFamily = 'sdxl' | 'flux'
+const comfyModelFamily = ref<ComfyModelFamily>('sdxl')
 
 const artName = ref('Stable Diffusion')
 const artApiKey = ref('')
 const artUrl = ref('')
 const artAccessMode = ref<ServerAccessMode>('TAILSCALE')
-const comfyModelFamily = ref<ComfyModelFamily>('sdxl')
 
 const textName = ref('OpenAI')
 const textApiKey = ref('')
@@ -550,20 +557,19 @@ const canSaveText = computed(() => {
   return false
 })
 
-const visibleArtServers = computed(() => {
+const personalServers = computed(() => {
   return serverStore.servers
-    .filter(isVisibleConfiguredServer)
-    .filter(isArtServer)
+    .filter(isPersonalConfiguredServer)
     .filter((server) => !isBackendServer(server))
     .sort(sortServers)
 })
 
+const visibleArtServers = computed(() => {
+  return personalServers.value.filter(isArtServer)
+})
+
 const visibleTextServers = computed(() => {
-  return serverStore.servers
-    .filter(isVisibleConfiguredServer)
-    .filter(isTextServer)
-    .filter((server) => !isBackendServer(server))
-    .sort(sortServers)
+  return personalServers.value.filter(isTextServer)
 })
 
 const showArtCheckpoint = computed(() => {
@@ -639,7 +645,7 @@ function hydrateModesFromActiveServers() {
   const artServer = serverStore.activeArtServer
   const textServer = serverStore.activeTextServer
 
-  if (artServer) {
+  if (artServer && isPersonalConfiguredServer(artServer)) {
     artMode.value = artModeFromServer(artServer)
     hydrateArtForm(artServer)
   } else if (visibleArtServers.value[0]) {
@@ -647,7 +653,7 @@ function hydrateModesFromActiveServers() {
     hydrateArtForm(visibleArtServers.value[0])
   }
 
-  if (textServer) {
+  if (textServer && isPersonalConfiguredServer(textServer)) {
     textMode.value = textModeFromServer(textServer)
     hydrateTextForm(textServer)
   } else if (visibleTextServers.value[0]) {
@@ -660,13 +666,7 @@ function selectArtMode(mode: ArtMode) {
   artMode.value = mode
   statusMessage.value = ''
 
-  if (mode === 'comfy' && !comfyModelFamily.value) {
-    comfyModelFamily.value = 'sdxl'
-  }
-
-  const existing = visibleArtServers.value.find((server) => {
-    return artModeFromServer(server) === mode
-  })
+  const existing = findCurrentArtServerForMode()
 
   if (existing) {
     void activateArtServer(existing.id)
@@ -691,15 +691,14 @@ function selectArtMode(mode: ArtMode) {
   artName.value = 'Comfy'
   artUrl.value = ''
   artAccessMode.value = 'TAILSCALE'
+  comfyModelFamily.value = 'sdxl'
 }
 
 function selectTextMode(mode: TextMode) {
   textMode.value = mode
   statusMessage.value = ''
 
-  const existing = visibleTextServers.value.find((server) => {
-    return textModeFromServer(server) === mode
-  })
+  const existing = findCurrentTextServerForMode()
 
   if (existing) {
     void activateTextServer(existing.id)
@@ -759,7 +758,8 @@ async function activateTextServer(id: number) {
     return
   }
 
-  serverStore.setCurrentServerMode('art')
+  serverStore.setCurrentServerMode('text')
+  serverStore.setCurrentServer(id)
   setStatus(result.message || 'Text server activated.', 'success')
 }
 
@@ -807,7 +807,8 @@ async function saveTextServer() {
     }
 
     await serverStore.setActiveTextServer(result.data.id)
-    serverStore.setCurrentServerMode('art')
+    serverStore.setCurrentServerMode('text')
+    serverStore.setCurrentServer(result.data.id)
 
     hydrateTextForm(result.data)
     setStatus(result.message || 'Text server saved.', 'success')
@@ -953,6 +954,7 @@ function buildTextPayload(): Partial<Server> {
       isEditable: true,
     }
   }
+
   if (textMode.value === 'anthropic') {
     return {
       title: cleanName(textName.value, 'Anthropic'),
@@ -1020,7 +1022,7 @@ function findCurrentArtServerForMode(): Server | null {
 
   if (
     active &&
-    isVisibleConfiguredServer(active) &&
+    isPersonalConfiguredServer(active) &&
     artModeFromServer(active) === artMode.value
   ) {
     return active
@@ -1038,7 +1040,7 @@ function findCurrentTextServerForMode(): Server | null {
 
   if (
     active &&
-    isVisibleConfiguredServer(active) &&
+    isPersonalConfiguredServer(active) &&
     textModeFromServer(active) === textMode.value
   ) {
     return active
@@ -1051,30 +1053,7 @@ function findCurrentTextServerForMode(): Server | null {
   )
 }
 
-function findArtBlueprintId() {
-  const preferred = serverStore.servers.find((server) => {
-    if (!server.isOfficial && !server.isPublic && !server.isDefault)
-      return false
-
-    return artModeFromServer(server) === artMode.value
-  })
-
-  return preferred?.id ?? null
-}
-
-function findTextBlueprintId() {
-  const preferred = serverStore.servers.find((server) => {
-    if (!server.isOfficial && !server.isPublic && !server.isDefault)
-      return false
-
-    return textModeFromServer(server) === textMode.value
-  })
-
-  return preferred?.id ?? null
-}
-
-function isVisibleConfiguredServer(server: Server) {
-  if (!server.isActive) return false
+function isPersonalConfiguredServer(server: Server) {
   if (serverStore.isServerHidden(server.id)) return false
   if (server.isOfficial || server.isDefault || server.isPublic) return false
   if (isBackendServer(server)) return false

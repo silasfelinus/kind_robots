@@ -26,22 +26,6 @@
             :show-stats="true"
             :show-meta="true"
           />
-
-          <server-gallery
-            mode="text"
-            variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the chat engine for this dream."
-            v-bind="{ ...readonlyServerGalleryProps, showHeader: false }"
-          />
-
-          <server-gallery
-            mode="art"
-            variant="dropdown"
-            title="Art Server"
-            subtitle="Choose the image engine for dream visuals."
-            v-bind="{ ...readonlyServerGalleryProps, showHeader: false }"
-          />
         </div>
 
         <div class="min-h-0 xl:col-span-7">
@@ -110,12 +94,6 @@
             :allow-delete="false"
             :allow-merge="false"
             :allow-refresh="false"
-          />
-
-          <server-gallery
-            mode="art"
-            variant="dropdown"
-            v-bind="readonlyServerGalleryProps"
           />
 
           <dream-list list-type="art" />
@@ -208,37 +186,6 @@
 
         <div class="min-h-0 xl:col-span-8">
           <scenario-gallery variant="dashboard" :show-header="false" />
-        </div>
-      </section>
-
-      <section
-        v-else-if="currentTab === 'servers'"
-        class="grid min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
-      >
-        <div class="flex min-h-0 flex-col gap-4 xl:col-span-5">
-          <server-gallery
-            mode="text"
-            variant="dropdown"
-            title="Text Server"
-            subtitle="Choose the chat engine for this dream."
-            v-bind="{ ...readonlyServerGalleryProps, showHeader: true }"
-          />
-
-          <server-gallery
-            mode="art"
-            variant="dropdown"
-            title="Art Server"
-            subtitle="Choose the image engine for dream visuals."
-            v-bind="{ ...readonlyServerGalleryProps, showHeader: true }"
-          />
-        </div>
-
-        <div class="min-h-0 xl:col-span-7">
-          <div
-            class="h-full rounded-2xl border border-base-300 bg-base-200 p-3"
-          >
-            <server-interact />
-          </div>
         </div>
       </section>
 

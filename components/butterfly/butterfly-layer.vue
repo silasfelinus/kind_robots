@@ -8,30 +8,37 @@
       'butterfly-layer--released': !overlayVisible,
     }"
   >
-    <div
-      v-for="butterfly in butterflies"
-      :key="butterfly.id"
-      class="butterfly"
-      :style="{
-        transform: `translate3d(${butterfly.x}vw, ${butterfly.y}vh, 0) rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
-      }"
-    >
-      <div class="left-wing">
-        <div class="top" :style="{ background: butterfly.wingTopColor }" />
-        <div
-          class="bottom"
-          :style="{ background: butterfly.wingBottomColor }"
-        />
-      </div>
+    <butterfly-animation
+      v-if="useLegacyStartupButterflies && overlayVisible"
+      class="butterfly-layer__legacy"
+    />
 
-      <div class="right-wing">
-        <div class="top" :style="{ background: butterfly.wingTopColor }" />
-        <div
-          class="bottom"
-          :style="{ background: butterfly.wingBottomColor }"
-        />
+    <template v-else>
+      <div
+        v-for="butterfly in butterflies"
+        :key="butterfly.id"
+        class="butterfly"
+        :style="{
+          transform: `translate3d(${butterfly.x}vw, ${butterfly.y}vh, 0) rotate3d(1, 0.5, 0, ${butterfly.rotation}deg) scale(${butterfly.scale * butterfly.scaleMod})`,
+        }"
+      >
+        <div class="left-wing">
+          <div class="top" :style="{ background: butterfly.wingTopColor }" />
+          <div
+            class="bottom"
+            :style="{ background: butterfly.wingBottomColor }"
+          />
+        </div>
+
+        <div class="right-wing">
+          <div class="top" :style="{ background: butterfly.wingTopColor }" />
+          <div
+            class="bottom"
+            :style="{ background: butterfly.wingBottomColor }"
+          />
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -53,7 +60,7 @@ const props = withDefaults(
 )
 
 const butterflyStore = useButterflyStore()
-const { butterflies } = storeToRefs(butterflyStore)
+const { butterflies, useLegacyStartupButterflies } = storeToRefs(butterflyStore)
 
 const showSwarm = computed(() => butterflyStore.showSwarm)
 
@@ -68,6 +75,17 @@ onMounted(() => {
     void butterflyStore.spawnStartupSwarm(8)
   })
 })
+
+watch(
+  () => props.beginExit,
+  (beginExit) => {
+    if (!beginExit) return
+
+    butterflyStore.triggerLoaderButterflyExit(
+      useLegacyStartupButterflies.value ? 250 : 0,
+    )
+  },
+)
 </script>
 
 <style scoped>
@@ -112,6 +130,11 @@ onMounted(() => {
   transition: z-index 0s linear 0.2s;
   contain: layout paint style;
   transform: translateZ(0);
+}
+
+.butterfly-layer__legacy {
+  position: absolute;
+  inset: 0;
 }
 
 .butterfly {

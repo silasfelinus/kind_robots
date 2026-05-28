@@ -66,6 +66,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
   const showSwarm = ref(true)
 
+  type StartupButterflyMode = 'legacy' | 'dynamic'
+
+  const startupButterflyMode = ref<StartupButterflyMode>('legacy')
+
   const loaderEffectName = ref('startup-exit')
 
   function logLoaderEffect(
@@ -383,6 +387,15 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         selectedButterflyId.value = ''
         targetCount.value = amount
         showSwarm.value = true
+
+        if (startupButterflyMode.value === 'legacy') {
+          loaderEffectName.value = 'startup-legacy-css'
+
+          logLoaderEffect('legacy:start', { amount })
+
+          return
+        }
+
         loaderEffectName.value = 'startup-immediate-exit'
 
         logLoaderEffect('spawn:start', { amount })
@@ -427,6 +440,20 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
       delay: safeDelay,
       mode: safeDelay === 0 ? 'immediate' : 'delayed',
     })
+
+    if (startupButterflyMode.value === 'legacy') {
+      if (safeDelay === 0) {
+        showSwarm.value = false
+        return
+      }
+
+      drainStartTimeoutId.value = setTimeout(() => {
+        drainStartTimeoutId.value = null
+        showSwarm.value = false
+      }, safeDelay)
+
+      return
+    }
 
     if (safeDelay === 0) {
       markAllButterfliesForExit()
@@ -795,6 +822,19 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     showSwarm.value = value
   }
 
+  function setStartupButterflyMode(mode: StartupButterflyMode) {
+    startupButterflyMode.value = mode
+  }
+
+  function toggleStartupButterflyMode() {
+    startupButterflyMode.value =
+      startupButterflyMode.value === 'legacy' ? 'dynamic' : 'legacy'
+  }
+
+  const useLegacyStartupButterflies = computed(
+    () => startupButterflyMode.value === 'legacy',
+  )
+
   function setInspected(butterfly: Butterfly) {
     inspectedButterfly.value = butterfly
   }
@@ -905,6 +945,10 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     lastError,
     resetInitialization,
     clearLoaderStates,
+    startupButterflyMode,
+    useLegacyStartupButterflies,
+    setStartupButterflyMode,
+    toggleStartupButterflyMode,
   }
 })
 

@@ -36,7 +36,7 @@
         :show-header="false"
       />
       <art-test
-        v-else-if="currentTab === 'image-test'"
+        v-else-if="currentTab === 'art-test'"
         class="h-full w-full"
         :show-header="false"
       />

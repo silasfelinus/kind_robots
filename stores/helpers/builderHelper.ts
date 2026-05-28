@@ -48,7 +48,10 @@ export function builderArrayFromPiped(value: string): string[] {
 }
 
 export function builderPipedFromArray(values: string[]): string {
-  return values.map((entry) => entry.trim()).filter(Boolean).join('|')
+  return values
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .join('|')
 }
 
 export function getBuilderCard(
@@ -71,7 +74,8 @@ export function getBuilderStepValue(
   step: BuilderStep,
   stagedValues: Record<string, string>,
 ): string {
-  if (stagedValues[step.key] !== undefined) return stagedValues[step.key]
+  const staged = stagedValues[step.key]
+  if (staged !== undefined) return staged
   if (!step.field) return step.defaultValue ?? ''
   return normalizeBuilderText(sheet[step.field]) || step.defaultValue || ''
 }
@@ -172,7 +176,12 @@ export function isBuilderCardUnlocked(args: {
   coreCardKeys?: string[]
   requiredCardKeys?: string[]
 }): boolean {
-  const { card, completedCards, coreCardKeys = [], requiredCardKeys = [] } = args
+  const {
+    card,
+    completedCards,
+    coreCardKeys = [],
+    requiredCardKeys = [],
+  } = args
 
   if (!card.unlockCondition || card.unlockCondition === 'always') return true
 
@@ -230,18 +239,26 @@ export function selectBuilderChoiceValue(args: {
   if (!step.multiSelect) {
     stagedValues[step.key] = choice.value
     selectedChoiceValues[step.key] = choice.value ? [choice.value] : []
-    return stagedValues[step.key]
+
+    return choice.value
   }
 
-  const current = selectedChoiceValues[step.key] ?? builderArrayFromPiped(stagedValues[step.key] ?? '')
+  const current =
+    selectedChoiceValues[step.key] ??
+    builderArrayFromPiped(stagedValues[step.key] ?? '')
+
   const exists = current.includes(choice.value)
+
   const next = exists
     ? current.filter((entry) => entry !== choice.value)
     : [...current, choice.value]
 
   selectedChoiceValues[step.key] = next
-  stagedValues[step.key] = builderPipedFromArray(next)
-  return stagedValues[step.key]
+
+  const value = builderPipedFromArray(next)
+  stagedValues[step.key] = value
+
+  return value
 }
 
 export function createBuilderSnapshot<TSheet extends BuilderSheet>(args: {
@@ -312,7 +329,9 @@ export function mergeBuilderSheet<TSheet extends BuilderSheet>(
   source: Partial<TSheet>,
 ): void {
   for (const [key, value] of Object.entries(source)) {
-    target[key as keyof TSheet] = cloneBuilderValue(value) as TSheet[keyof TSheet]
+    target[key as keyof TSheet] = cloneBuilderValue(
+      value,
+    ) as TSheet[keyof TSheet]
   }
 }
 
@@ -329,7 +348,13 @@ export function builderStepCanFinish(args: {
   statAllocationComplete: boolean
   activeCard: BuilderCard | null
 }): boolean {
-  const { step, stagedValues, selectedRewardId, statAllocationComplete, activeCard } = args
+  const {
+    step,
+    stagedValues,
+    selectedRewardId,
+    statAllocationComplete,
+    activeCard,
+  } = args
 
   if (!step) return false
   if (step.inputType === 'stats') return statAllocationComplete
@@ -352,8 +377,8 @@ export function defaultFinishBuilderCard<TSheet extends BuilderSheet>(
   if (card.key === 'art') {
     completedCards[card.key] = Boolean(
       normalizeBuilderText(sheet.artPrompt).trim() ||
-        normalizeBuilderText(sheet.imagePath).trim() ||
-        Number(sheet.artImageId ?? 0) > 0,
+      normalizeBuilderText(sheet.imagePath).trim() ||
+      Number(sheet.artImageId ?? 0) > 0,
     )
 
     return { handled: true, success: true }
@@ -373,22 +398,26 @@ export function defaultFinishBuilderCard<TSheet extends BuilderSheet>(
       }
     }
 
-    const rewards = sheet.rewards
+    const builderSheet = sheet as BuilderSheet
+    const rewards = builderSheet['rewards']
+
     const nextRewards =
       rewards && typeof rewards === 'object' && !Array.isArray(rewards)
         ? { ...(rewards as Record<string, unknown>) }
         : {}
 
     nextRewards[card.rewardSlotKey] = option
-    sheet.rewards = nextRewards
+    builderSheet['rewards'] = nextRewards
     completedCards[card.key] = true
 
     return { handled: true, success: true }
   }
 
   if (card.steps.some((step) => step.inputType === 'stats')) {
-    sheet.stats = cloneBuilderValue(context.draftStats)
+    const builderSheet = sheet as BuilderSheet
+    builderSheet['stats'] = cloneBuilderValue(context.draftStats)
     completedCards[card.key] = true
+
     return { handled: true, success: true }
   }
 
@@ -397,6 +426,7 @@ export function defaultFinishBuilderCard<TSheet extends BuilderSheet>(
   }
 
   completedCards[card.key] = true
+
   return { handled: true, success: true }
 }
 

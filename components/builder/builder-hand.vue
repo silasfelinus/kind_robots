@@ -1,0 +1,56 @@
+<!-- /components/builder/builder-hand.vue -->
+<template>
+  <div class="flex items-center gap-2 overflow-x-auto px-1 py-1">
+    <button
+      v-for="card in handCards"
+      :key="card.key"
+      type="button"
+      class="group relative flex min-w-24 max-w-24 shrink-0 flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:-translate-y-0.5"
+      :class="thumbClass(card.key)"
+      @click="store.selectCard(card.key)"
+    >
+      <div class="relative aspect-2/3 w-full overflow-hidden bg-base-300">
+        <img
+          v-if="card.deckImage"
+          :src="card.deckImage"
+          :alt="card.label"
+          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div v-else class="flex h-full w-full items-center justify-center">
+          <Icon :name="card.icon || 'kind-icon:cards'" class="h-8 w-8 text-base-content/25" />
+        </div>
+
+        <div v-if="store.completedCards[card.key]" class="absolute inset-0 flex items-center justify-center bg-success/20 backdrop-blur-[1px]">
+          <Icon name="kind-icon:check" class="h-6 w-6 rounded-full bg-success p-1 text-success-content" />
+        </div>
+      </div>
+
+      <div class="w-full bg-base-100 px-2 py-1.5">
+        <p class="truncate text-center text-xs font-black text-base-content/70">{{ card.label }}</p>
+      </div>
+    </button>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useBuilderStore } from '@/stores/builderStore'
+
+const store = useBuilderStore()
+
+const handCards = computed(() => {
+  const map = new Map(store.cards.map((card) => [card.key, card]))
+  const active = store.activeCard ? [store.activeCard] : []
+  const completed = store.completedCardList
+  const visible = store.visibleCards
+  return [...active, ...completed, ...visible].filter((card, index, list) => {
+    return list.findIndex((entry) => entry.key === card.key) === index && map.has(card.key)
+  })
+})
+
+function thumbClass(cardKey: string): string {
+  if (store.activeCardKey === cardKey) return 'border-primary bg-primary/10 shadow shadow-primary/20'
+  if (store.completedCards[cardKey]) return 'border-success/60 bg-success/5'
+  return 'border-base-300 bg-base-200 hover:border-primary/60'
+}
+</script>

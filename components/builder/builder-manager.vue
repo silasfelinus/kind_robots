@@ -1,7 +1,11 @@
 <!-- /components/builder/builder-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200">
-    <header class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-3">
+  <section
+    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+  >
+    <header
+      class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-3"
+    >
       <button
         type="button"
         class="btn btn-sm btn-ghost rounded-xl lg:hidden"
@@ -13,8 +17,13 @@
       </button>
 
       <div class="min-w-0 flex-1">
-        <h2 class="flex items-center gap-2 truncate text-lg font-black leading-tight text-base-content">
-          <Icon name="kind-icon:sparkles" class="h-5 w-5 shrink-0 text-primary" />
+        <h2
+          class="flex items-center gap-2 truncate text-lg font-black leading-tight text-base-content"
+        >
+          <Icon
+            name="kind-icon:sparkles"
+            class="h-5 w-5 shrink-0 text-primary"
+          />
           <span class="truncate">{{ title }}</span>
         </h2>
         <p class="truncate text-xs text-base-content/50">{{ subtitle }}</p>
@@ -45,7 +54,11 @@
       <div
         v-if="store.lastError || store.statusMessage"
         class="shrink-0 border-b px-4 py-2 text-sm font-semibold"
-        :class="store.lastError ? 'border-error/30 bg-error/10 text-error' : 'border-success/30 bg-success/10 text-success'"
+        :class="
+          store.lastError
+            ? 'border-error/30 bg-error/10 text-error'
+            : 'border-success/30 bg-success/10 text-success'
+        "
       >
         {{ store.lastError || store.statusMessage }}
       </div>
@@ -61,7 +74,7 @@
         </aside>
       </Transition>
 
-      <main class="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <div class="min-h-0 flex-1 overflow-y-auto p-3">
           <builder-stage />
         </div>
@@ -80,16 +93,30 @@
           @click.self="showResetConfirm = false"
         >
           <div class="absolute inset-0 bg-base-300/60 backdrop-blur-sm" />
-          <div class="relative w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-xl">
-            <h3 class="text-lg font-black text-base-content">Clear this builder?</h3>
+          <div
+            class="relative w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-xl"
+          >
+            <h3 class="text-lg font-black text-base-content">
+              Clear this builder?
+            </h3>
             <p class="mt-2 text-sm leading-relaxed text-base-content/60">
-              This clears staged answers, completed cards, rewards, stats, and local saved state for this builder. Pure potential. Slightly haunted.
+              This clears staged answers, completed cards, rewards, stats, and
+              local saved state for this builder. Pure potential. Slightly
+              haunted.
             </p>
             <div class="mt-5 flex justify-end gap-2">
-              <button type="button" class="btn btn-sm btn-ghost rounded-xl" @click="showResetConfirm = false">
+              <button
+                type="button"
+                class="btn btn-sm btn-ghost rounded-xl"
+                @click="showResetConfirm = false"
+              >
                 Keep it
               </button>
-              <button type="button" class="btn btn-sm btn-error rounded-xl" @click="resetBuilder">
+              <button
+                type="button"
+                class="btn btn-sm btn-error rounded-xl"
+                @click="resetBuilder"
+              >
                 Clear everything
               </button>
             </div>
@@ -111,7 +138,9 @@ const isDesktop = ref(false)
 
 const title = computed(() => {
   const sheetTitle = String(store.sheet.name || store.sheet.title || '').trim()
-  return sheetTitle || store.activeConfig.title || store.splash.title || 'Builder'
+  return (
+    sheetTitle || store.activeConfig.title || store.splash.title || 'Builder'
+  )
 })
 
 const subtitle = computed(() => {

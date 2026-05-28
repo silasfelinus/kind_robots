@@ -22,7 +22,7 @@
             class="h-5 w-5 shrink-0 text-secondary"
           />
 
-          <animation-controls class="pointer-events-auto shrink-0" />
+          <animation-interact class="pointer-events-auto shrink-0" />
 
           <span class="min-w-0 truncate">
             {{ animationStore.message || 'Generating art...' }}

@@ -1,4 +1,4 @@
-<!-- components/screen-fx/animation-controls.vue -->
+<!-- components/screen-fx/animation-interact.vue -->
 <template>
   <div
     v-if="animationStore.isActive"

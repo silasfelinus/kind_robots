@@ -1,18 +1,18 @@
 // /server/utils/suggest/suggestProviders.ts
 import { createError } from 'h3'
 import type {
-  ProviderCallArgs,
   SuggestProvider,
+  SuggestProviderOptions,
   SuggestServerSnapshot,
 } from './suggestTypes'
 
-export function str(val: unknown, fallback = ''): string {
-  if (val == null || val === '') return fallback
-  if (typeof val === 'string') return val
+export function str(value: unknown, fallback = ''): string {
+  if (value == null || value === '') return fallback
+  if (typeof value === 'string') return value
   return fallback
 }
 
-export function deriveProvider(server?: SuggestServerSnapshot): SuggestProvider {
+export function deriveSuggestProvider(server?: SuggestServerSnapshot): SuggestProvider {
   if (!server?.baseUrl && !server?.serverType) return 'anthropic'
 
   const url = str(server.baseUrl).toLowerCase()
@@ -27,15 +27,15 @@ export function deriveProvider(server?: SuggestServerSnapshot): SuggestProvider 
   ) {
     return 'ollama'
   }
-  if (type === 'OPENAI_COMPATIBLE' || type === 'TEXT') return 'openai_compatible'
+
+  if (type === 'OPENAI_COMPATIBLE' || type === 'TEXT') {
+    return 'openai_compatible'
+  }
 
   return 'anthropic'
 }
 
-export function resolveModel(
-  provider: SuggestProvider,
-  serverModel?: string | null,
-): string {
+export function resolveSuggestModel(provider: SuggestProvider, serverModel?: string | null): string {
   if (serverModel?.trim()) return serverModel.trim()
 
   switch (provider) {
@@ -49,21 +49,31 @@ export function resolveModel(
   }
 }
 
-async function callAnthropic(args: ProviderCallArgs & { apiKey: string }) {
+async function callAnthropic(
+  systemPrompt: string,
+  userPrompt: string,
+  options: SuggestProviderOptions,
+): Promise<string> {
+  if (!options.apiKey) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'anthropicApiKey not configured',
+    })
+  }
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': args.apiKey,
+      'x-api-key': options.apiKey,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: args.model,
-      max_tokens: args.maxTokens,
+      model: options.model,
+      max_tokens: 512,
       stream: false,
-      system: args.systemPrompt,
-      messages: [{ role: 'user', content: args.userPrompt }],
-      temperature: args.temperature,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
     }),
   })
 
@@ -76,33 +86,39 @@ async function callAnthropic(args: ProviderCallArgs & { apiKey: string }) {
 
   type AnthropicResponse = { content: Array<{ type: string; text?: string }> }
   const data = (await response.json()) as AnthropicResponse
+
   return data.content?.[0]?.text?.trim() ?? ''
 }
 
 async function callOpenAI(
-  args: ProviderCallArgs & {
-    apiKey: string
-    baseUrl?: string
-    endpointPath?: string
-  },
-) {
-  const baseUrl = args.baseUrl ?? 'https://api.openai.com'
-  const endpointPath = args.endpointPath ?? '/v1/chat/completions'
+  systemPrompt: string,
+  userPrompt: string,
+  options: SuggestProviderOptions,
+): Promise<string> {
+  if (!options.apiKey) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'openaiApiKey not configured',
+    })
+  }
 
-  const response = await fetch(`${baseUrl.replace(/\/$/, '')}${endpointPath}`, {
+  const baseUrl = (options.baseUrl || 'https://api.openai.com').replace(/\/$/, '')
+  const endpointPath = options.endpointPath || '/v1/chat/completions'
+
+  const response = await fetch(`${baseUrl}${endpointPath}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${args.apiKey}`,
+      Authorization: `Bearer ${options.apiKey}`,
     },
     body: JSON.stringify({
-      model: args.model,
-      max_tokens: args.maxTokens,
+      model: options.model,
+      max_tokens: 512,
       stream: false,
-      temperature: args.temperature,
+      temperature: 0.7,
       messages: [
-        { role: 'system', content: args.systemPrompt },
-        { role: 'user', content: args.userPrompt },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
     }),
   })
@@ -116,28 +132,28 @@ async function callOpenAI(
 
   type OpenAIResponse = { choices: Array<{ message: { content: string } }> }
   const data = (await response.json()) as OpenAIResponse
+
   return data.choices?.[0]?.message?.content?.trim() ?? ''
 }
 
 async function callOllama(
-  args: ProviderCallArgs & {
-    baseUrl: string
-  },
-) {
-  const response = await fetch(`${args.baseUrl.replace(/\/$/, '')}/api/chat`, {
+  systemPrompt: string,
+  userPrompt: string,
+  options: SuggestProviderOptions,
+): Promise<string> {
+  const baseUrl = (options.baseUrl || 'http://localhost:11434').replace(/\/$/, '')
+
+  const response = await fetch(`${baseUrl}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: args.model,
+      model: options.model,
       stream: false,
       messages: [
-        { role: 'system', content: args.systemPrompt },
-        { role: 'user', content: args.userPrompt },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
-      options: {
-        num_predict: args.maxTokens,
-        temperature: args.temperature,
-      },
+      options: { num_predict: 512 },
     }),
   })
 
@@ -150,58 +166,22 @@ async function callOllama(
 
   type OllamaResponse = { message: { content: string } }
   const data = (await response.json()) as OllamaResponse
+
   return data.message?.content?.trim() ?? ''
 }
 
-export async function callSuggestProvider(args: ProviderCallArgs): Promise<string> {
-  if (args.provider === 'ollama') {
-    return callOllama({
-      ...args,
-      baseUrl: str(
-        args.server?.baseUrl,
-        str(args.runtimeConfig.ollamaBaseUrl, 'http://localhost:11434'),
-      ),
-    })
+export async function callSuggestProvider(
+  systemPrompt: string,
+  userPrompt: string,
+  options: SuggestProviderOptions,
+): Promise<string> {
+  if (options.provider === 'ollama') {
+    return callOllama(systemPrompt, userPrompt, options)
   }
 
-  if (args.provider === 'openai_compatible') {
-    const key = str(args.runtimeConfig.openaiApiKey)
-
-    return callOpenAI({
-      ...args,
-      apiKey: key,
-      baseUrl: str(args.server?.baseUrl, 'http://localhost:1234'),
-      endpointPath: str(args.server?.endpointPath, '/v1/chat/completions'),
-    })
+  if (options.provider === 'openai' || options.provider === 'openai_compatible') {
+    return callOpenAI(systemPrompt, userPrompt, options)
   }
 
-  if (args.provider === 'openai') {
-    const key = str(args.runtimeConfig.openaiApiKey)
-
-    if (!key) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'openaiApiKey not configured',
-      })
-    }
-
-    return callOpenAI({
-      ...args,
-      apiKey: key,
-    })
-  }
-
-  const key = str(args.runtimeConfig.anthropicApiKey)
-
-  if (!key) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'anthropicApiKey not configured',
-    })
-  }
-
-  return callAnthropic({
-    ...args,
-    apiKey: key,
-  })
+  return callAnthropic(systemPrompt, userPrompt, options)
 }

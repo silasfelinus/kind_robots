@@ -1,18 +1,13 @@
 // /server/api/suggest/sheets.get.ts
 import { defineEventHandler } from 'h3'
-import { listSuggestSheets } from '@/server/utils/suggest/suggestRegistry'
+import { getSuggestSheetSummary } from '../../utils/suggest/suggestRegistry'
 
 export default defineEventHandler(() => {
   return {
     success: true,
+    message: 'Suggest sheets loaded.',
     data: {
-      sheets: listSuggestSheets().map((sheet) => ({
-        builder: sheet.builder,
-        label: sheet.label,
-        fields: Object.keys(sheet.fieldPrompts ?? {}),
-        steps: Object.keys(sheet.stepPrompts ?? {}),
-        contextFields: (sheet.contextFields ?? []).map((field) => field.source),
-      })),
+      sheets: getSuggestSheetSummary(),
     },
   }
 })

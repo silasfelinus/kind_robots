@@ -218,13 +218,57 @@
               </button>
             </div>
 
+            <section
+              v-if="artMode === 'comfy'"
+              class="rounded-2xl border border-base-300 bg-base-100 p-3"
+            >
+              <div class="mb-2 flex items-center gap-2">
+                <Icon name="kind-icon:workflow" class="h-5 w-5 text-primary" />
+
+                <h3 class="font-black text-base-content">
+                  Comfy Workflow Family
+                </h3>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  class="btn rounded-2xl"
+                  :class="
+                    comfyModelFamily === 'sdxl'
+                      ? 'btn-primary text-white'
+                      : 'btn-ghost border border-base-300 bg-base-200'
+                  "
+                  type="button"
+                  @click="comfyModelFamily = 'sdxl'"
+                >
+                  <Icon name="kind-icon:checkpoint" class="h-4 w-4" />
+                  SDXL
+                </button>
+
+                <button
+                  class="btn rounded-2xl"
+                  :class="
+                    comfyModelFamily === 'flux'
+                      ? 'btn-primary text-white'
+                      : 'btn-ghost border border-base-300 bg-base-200'
+                  "
+                  type="button"
+                  @click="comfyModelFamily = 'flux'"
+                >
+                  <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+                  Flux
+                </button>
+              </div>
+            </section>
+
             <checkpoint-gallery
               v-if="showArtCheckpoint"
               variant="dropdown"
-              title="Art Checkpoint"
-              subtitle="Checkpoint for Stable Diffusion."
+              :title="checkpointTitle"
+              :subtitle="checkpointSubtitle"
+              :model-family="checkpointModelFamily"
               :show-header="false"
-              :show-sampler="true"
+              :show-sampler="artMode === 'sd'"
               :show-status="false"
               :allow-add="true"
               :allow-refresh="true"
@@ -474,11 +518,13 @@ const statusTone = ref<'info' | 'success' | 'warning' | 'error'>('info')
 
 const artMode = ref<ArtMode>('sd')
 const textMode = ref<TextMode>('openai')
+type ComfyModelFamily = 'sdxl' | 'flux'
 
 const artName = ref('Stable Diffusion')
 const artApiKey = ref('')
 const artUrl = ref('')
 const artAccessMode = ref<ServerAccessMode>('TAILSCALE')
+const comfyModelFamily = ref<ComfyModelFamily>('sdxl')
 
 const textName = ref('OpenAI')
 const textApiKey = ref('')
@@ -604,11 +650,32 @@ const visibleTextServers = computed(() => {
 })
 
 const showArtCheckpoint = computed(() => {
-  const server = serverStore.activeArtServer
+  return artMode.value === 'sd' || artMode.value === 'comfy'
+})
 
-  if (!server) return false
+const checkpointModelFamily = computed(() => {
+  if (artMode.value === 'comfy') return comfyModelFamily.value
+  return 'sdxl'
+})
 
-  return artModeFromServer(server) === 'sd'
+const checkpointTitle = computed(() => {
+  if (artMode.value === 'comfy') {
+    return comfyModelFamily.value === 'flux'
+      ? 'Comfy Flux Checkpoint'
+      : 'Comfy SDXL Checkpoint'
+  }
+
+  return 'Stable Diffusion Checkpoint'
+})
+
+const checkpointSubtitle = computed(() => {
+  if (artMode.value === 'comfy') {
+    return comfyModelFamily.value === 'flux'
+      ? 'Choose a Flux-compatible resource for Comfy workflows.'
+      : 'Choose an SDXL-compatible resource for Comfy workflows.'
+  }
+
+  return 'Choose the Stable Diffusion checkpoint used for image generation.'
 })
 
 watch(
@@ -675,6 +742,10 @@ function hydrateModesFromActiveServers() {
 function selectArtMode(mode: ArtMode) {
   artMode.value = mode
   statusMessage.value = ''
+
+  if (mode === 'comfy' && !comfyModelFamily.value) {
+    comfyModelFamily.value = 'sdxl'
+  }
 
   const existing = visibleArtServers.value.find((server) => {
     return artModeFromServer(server) === mode

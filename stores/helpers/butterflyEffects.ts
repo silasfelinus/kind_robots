@@ -442,11 +442,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
 
     butterfly.goal.x = clampPercent(state.anchor.x + driftX)
     butterfly.goal.y = clampPercent(state.anchor.y + driftY)
-
-    applyButterflyOrientation(butterfly, butterfly.x, butterfly.y, {
-      headingEase: 0.08,
-      bankEase: 0.06,
-    })
   }
 
   function moveTowardGoalWithNoise(
@@ -499,10 +494,6 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       headingEase: 0.1,
       bankEase: 0.06,
     })
-
-    butterfly.rotation = clampToTwoDecimals(
-      butterfly.rotation + (targetRotation - butterfly.rotation) * 0.06,
-    )
 
     butterfly.scaleMod = clampToTwoDecimals(
       0.33 + ((2 - (butterfly.x / 100 + butterfly.y / 100)) / 2) * 0.67,
@@ -697,9 +688,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
     const toggleState = getToggleButterflyState(butterfly.id)
 
     if (toggleState) {
-      const dx = butterfly.goal.x - butterfly.x
-      const dy = butterfly.goal.y - butterfly.y
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1
+      const previousX = butterfly.x
+      const previousY = butterfly.y
 
       if (toggleState.mode === 'hover') {
         idleToggleButterfly(butterfly, toggleState, now)
@@ -707,11 +697,13 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
         toggleState.mode === 'approaching' ||
         toggleState.mode === 'returning'
       ) {
-        const previousX = butterfly.x
-        const previousY = butterfly.y
         butterfly.goal.x = toggleState.anchor.x
         butterfly.goal.y = toggleState.anchor.y
       }
+
+      const dx = butterfly.goal.x - butterfly.x
+      const dy = butterfly.goal.y - butterfly.y
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1
 
       const speedBoost =
         toggleState.mode === 'fleeing'
@@ -726,6 +718,11 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       butterfly.y = clampToTwoDecimals(
         butterfly.y + (dy / distance) * butterfly.speed * (1 + speedBoost),
       )
+
+      applyButterflyOrientation(butterfly, previousX, previousY, {
+        headingEase: toggleState.mode === 'fleeing' ? 0.18 : 0.1,
+        bankEase: 0.08,
+      })
 
       butterfly.scaleMod = clampToTwoDecimals(
         0.9 + Math.sin(now * 0.01 + toggleState.idleSeed) * 0.04,
@@ -754,11 +751,8 @@ export function createButterflyEffects(input: ButterflyEffectsInput) {
       ) {
         butterfly.x = butterfly.goal.x
         butterfly.y = butterfly.goal.y
-        applyButterflyOrientation(butterfly, previousX, previousY, {
-          headingEase: toggleState.mode === 'fleeing' ? 0.18 : 0.1,
-          bankEase: 0.08,
-        })
       }
+
       return
     }
 

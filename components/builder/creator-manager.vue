@@ -48,7 +48,7 @@
         v-else-if="currentTab === 'character'"
         class="flex min-h-full flex-col gap-4"
       >
-        <character-builder />
+        <adventure-builder />
       </section>
 
       <section

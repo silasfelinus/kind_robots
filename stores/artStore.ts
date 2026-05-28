@@ -64,6 +64,8 @@ export type ArtImageGenerationTransport = 'browser' | 'backend'
 
 export interface GenerateArtData {
   promptString: string
+  prompt?: string
+  artPrompt?: string
   negativePrompt?: string
   pitch?: string
   title?: string
@@ -587,6 +589,8 @@ export const useArtStore = defineStore('artStore', () => {
       ...overrides,
       promptString:
         overrides.promptString?.trim() ||
+        overrides.artPrompt?.trim() ||
+        overrides.prompt?.trim() ||
         finalPromptString.value ||
         state.artForm.promptString ||
         '',
@@ -1839,6 +1843,8 @@ export const useArtStore = defineStore('artStore', () => {
 
     const basePrompt =
       artData?.promptString ||
+      artData?.artPrompt ||
+      artData?.prompt ||
       getPromptString.value ||
       promptStore.promptField ||
       getArtListAddonPrompt()
@@ -1968,7 +1974,7 @@ export const useArtStore = defineStore('artStore', () => {
       if (!promptStore.validatePromptString(data.promptString)) {
         return {
           success: false,
-          message: 'Invalid prompt',
+          message: `Invalid prompt. Received ${data.promptString.length} characters after cleanup.`,
         }
       }
 

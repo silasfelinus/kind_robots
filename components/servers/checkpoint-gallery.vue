@@ -383,10 +383,12 @@ type CheckpointResource = Partial<Resource> & {
 }
 
 type CheckpointGalleryVariant = 'dashboard' | 'row' | 'compact' | 'dropdown'
+type CheckpointModelFamily = 'all' | 'sdxl' | 'flux'
 
 const props = withDefaults(
   defineProps<{
     variant?: CheckpointGalleryVariant
+    modelFamily?: CheckpointModelFamily
     title?: string
     subtitle?: string
     compact?: boolean
@@ -406,6 +408,7 @@ const props = withDefaults(
   }>(),
   {
     variant: 'dashboard',
+    modelFamily: 'all',
     title: 'Checkpoints',
     subtitle: 'Choose the art model used for image generation.',
     compact: false,
@@ -513,6 +516,10 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
     return resourceSupportsServer(checkpoint, activeServer.value)
   })
 
+  checkpoints = checkpoints.filter((checkpoint) => {
+    return matchesModelFamily(checkpoint, props.modelFamily)
+  })
+
   if (!showMature.value) {
     checkpoints = checkpoints.filter((checkpoint) => !checkpoint.isMature)
   }
@@ -521,24 +528,7 @@ const visibleCheckpoints = computed<CheckpointResource[]>(() => {
 
   if (query) {
     checkpoints = checkpoints.filter((checkpoint) => {
-      const haystack = [
-        checkpoint.name,
-        checkpoint.customLabel,
-        checkpoint.description,
-        checkpoint.localPath,
-        checkpoint.MediaPath,
-        checkpoint.customUrl,
-        checkpoint.civitaiUrl,
-        checkpoint.huggingUrl,
-        checkpoint.generation,
-        checkpoint.supportedServer,
-      ]
-        .map((value) => safeText(value).trim())
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-
-      return haystack.includes(query)
+      return checkpointHaystack(checkpoint).includes(query)
     })
   }
 
@@ -641,6 +631,51 @@ function safeText(value: unknown): string {
   }
 
   return ''
+}
+
+function checkpointHaystack(checkpoint: CheckpointResource): string {
+  return [
+    checkpoint.name,
+    checkpoint.customLabel,
+    checkpoint.description,
+    checkpoint.localPath,
+    checkpoint.MediaPath,
+    checkpoint.customUrl,
+    checkpoint.civitaiUrl,
+    checkpoint.huggingUrl,
+    checkpoint.generation,
+    checkpoint.supportedServer,
+  ]
+    .map((value) => safeText(value).trim())
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
+function matchesModelFamily(
+  checkpoint: CheckpointResource,
+  family: CheckpointModelFamily,
+): boolean {
+  if (family === 'all') return true
+
+  const haystack = checkpointHaystack(checkpoint)
+
+  if (family === 'flux') {
+    return (
+      haystack.includes('flux') ||
+      haystack.includes(' schnell') ||
+      haystack.includes(' dev') ||
+      haystack.includes('kontext')
+    )
+  }
+
+  return (
+    haystack.includes('sdxl') ||
+    haystack.includes('xl') ||
+    haystack.includes('stable diffusion') ||
+    haystack.includes('checkpoint') ||
+    haystack.includes('a1111')
+  )
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {

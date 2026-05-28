@@ -49,7 +49,6 @@
         :show-toolbar="true"
       />
 
-      <server-gallery v-else-if="currentTab === 'servers'" />
 
       <sample-interact v-else-if="currentTab === 'interact'" />
 

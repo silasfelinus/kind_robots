@@ -66,13 +66,6 @@ export const dashboardConfigs = {
           'Choose checkpoints, samplers, and verify active backend models.',
       },
       {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Art Servers',
-        summary: 'Manage image generation servers.',
-      },
-      {
         key: 'styler',
         label: 'Styler',
         icon: 'kind-icon:paintbrush',
@@ -121,13 +114,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:chat',
         title: 'Bot Interact',
         summary: 'Chat with the selected bot.',
-      },
-      {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Text Servers',
-        summary: 'Manage text engines for bot conversations.',
       },
       {
         key: 'forge',
@@ -252,13 +238,6 @@ export const dashboardConfigs = {
         summary: 'Use characters inside collaborative dream sessions.',
       },
       {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Character Servers',
-        summary: 'Choose text and art engines.',
-      },
-      {
         key: 'interact',
         label: 'Interact',
         icon: 'kind-icon:chat',
@@ -336,13 +315,7 @@ export const dashboardConfigs = {
         title: 'Scenario Link',
         summary: 'Optionally ground the dream in a storytelling scenario.',
       },
-      {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Dream Servers',
-        summary: 'Choose text and art engines for generation.',
-      },
+
       {
         key: 'add',
         label: 'Add/Edit',
@@ -547,13 +520,7 @@ export const dashboardConfigs = {
         summary:
           'Organize rewards by story type, item family, or chaos flavor.',
       },
-      {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Server Manager',
-        summary: 'Manage the AI engines behind reward prompts.',
-      },
+
       {
         key: 'interact',
         label: 'Generate',
@@ -604,13 +571,7 @@ export const dashboardConfigs = {
         title: 'Reward Gallery',
         summary: 'Select, add, or edit story powers and plot grenades.',
       },
-      {
-        key: 'servers',
-        label: 'Servers',
-        icon: 'kind-icon:server',
-        title: 'Server Gallery',
-        summary: 'Manage the AI engines behind the curtain.',
-      },
+
       {
         key: 'interact',
         label: 'Interact',

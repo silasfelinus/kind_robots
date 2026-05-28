@@ -13,7 +13,10 @@
             {{ resolvedTitle }}
           </h2>
 
-          <p v-if="activeServer" class="truncate text-sm text-base-content/70">
+          <p
+            v-if="activeServer && !resolvedUseDefault"
+            class="truncate text-sm text-base-content/70"
+          >
             Selected:
             <span class="font-semibold text-primary">
               {{ activeServerDisplayName(activeServer) }}
@@ -26,7 +29,10 @@
         </div>
 
         <div class="flex shrink-0 items-center gap-2">
-          <span v-if="!isLoading" class="badge badge-ghost">
+          <span
+            v-if="!isLoading && !resolvedUseDefault"
+            class="badge badge-ghost"
+          >
             {{ filteredServers.length }}
           </span>
 
@@ -42,7 +48,60 @@
         </div>
       </div>
 
+      <label
+        v-if="showUseDefaultToggle"
+        class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+      >
+        <span class="label-text font-bold"> Use Kind Robots default </span>
+
+        <input
+          :checked="resolvedUseDefault"
+          type="checkbox"
+          class="toggle toggle-primary toggle-sm"
+          @change="toggleUseDefault"
+        />
+      </label>
+
+      <div
+        v-if="showFamilySelect && !resolvedUseDefault"
+        class="grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_auto]"
+      >
+        <label class="form-control min-w-0">
+          <span class="label py-1">
+            <span
+              class="label-text text-xs font-bold uppercase text-base-content/50"
+            >
+              {{ familyLabel }}
+            </span>
+          </span>
+
+          <select
+            v-model="selectedFamilyValue"
+            class="select select-bordered select-sm w-full rounded-xl bg-base-100"
+          >
+            <option
+              v-for="family in familyOptions"
+              :key="family.value"
+              :value="family.value"
+            >
+              {{ family.label }}
+            </option>
+          </select>
+        </label>
+
+        <button
+          v-if="allowAdd"
+          class="btn btn-primary btn-sm self-end rounded-xl"
+          type="button"
+          @click="openAddServer"
+        >
+          <Icon name="kind-icon:plus" class="h-4 w-4" />
+          Add Server
+        </button>
+      </div>
+
       <button
+        v-if="showAdvancedToggle && !resolvedUseDefault"
         class="btn btn-ghost btn-sm rounded-xl"
         type="button"
         @click="showAdvancedCards = !showAdvancedCards"
@@ -54,7 +113,7 @@
       </button>
 
       <div
-        v-if="shouldShowControls"
+        v-if="shouldShowControls && !resolvedUseDefault"
         class="flex flex-col gap-2 lg:flex-row lg:items-center"
       >
         <select
@@ -88,11 +147,12 @@
       <div class="mb-3 flex items-center justify-between gap-3">
         <div class="min-w-0">
           <h3 class="truncate text-base font-black text-primary">
-            {{ formTitle }}
+            Add {{ modeLabel }} server
           </h3>
 
           <p class="text-sm text-base-content/60">
-            {{ formSubtitle }}
+            Start from a matching public blueprint, then save your own private
+            copy.
           </p>
         </div>
 
@@ -104,6 +164,53 @@
           <Icon name="kind-icon:x" class="h-4 w-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
+      </div>
+
+      <div
+        v-if="blueprintServers.length"
+        class="mb-3 grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_auto]"
+      >
+        <label class="form-control min-w-0">
+          <span class="label py-1">
+            <span
+              class="label-text text-xs font-bold uppercase text-base-content/50"
+            >
+              Server blueprint
+            </span>
+          </span>
+
+          <select
+            v-model="selectedBlueprintId"
+            class="select select-bordered w-full rounded-xl bg-base-200"
+          >
+            <option value="">Start from blank {{ modeLabel }} server</option>
+
+            <option
+              v-for="server in blueprintServers"
+              :key="server.id"
+              :value="server.id"
+            >
+              {{ activeServerDisplayName(server) }}
+            </option>
+          </select>
+        </label>
+
+        <button
+          class="btn btn-secondary self-end rounded-xl"
+          type="button"
+          @click="applySelectedBlueprint"
+        >
+          <Icon name="kind-icon:copy" class="h-4 w-4" />
+          Use Blueprint
+        </button>
+      </div>
+
+      <div
+        v-else
+        class="mb-3 rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
+      >
+        No public {{ modeLabel }} blueprints match this family. Starting from a
+        blank server.
       </div>
 
       <add-server />
@@ -123,6 +230,22 @@
       >
         <p class="text-lg font-bold">
           {{ serverStore.lastError }}
+        </p>
+      </div>
+
+      <div
+        v-else-if="resolvedUseDefault"
+        class="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-6 text-center"
+      >
+        <Icon :name="defaultIcon" class="h-12 w-12 text-primary" />
+
+        <p class="text-2xl font-black text-primary">
+          Using Kind Robots default
+        </p>
+
+        <p class="max-w-md text-sm text-base-content/65">
+          No custom {{ modeLabel }} server is selected. Toggle this off when you
+          want to use one of your configured servers.
         </p>
       </div>
 
@@ -155,30 +278,6 @@
                 <p class="truncate text-sm text-base-content/60">
                   {{ activeServerSubtitle }}
                 </p>
-
-                <div
-                  v-if="activeServer"
-                  class="mt-2 flex flex-wrap items-center gap-1"
-                >
-                  <span class="badge badge-primary badge-sm">
-                    {{ activeServer.serverType }}
-                  </span>
-
-                  <span class="badge badge-secondary badge-sm">
-                    {{ activeServer.generationEngine }}
-                  </span>
-
-                  <span class="badge badge-accent badge-sm">
-                    {{ activeServer.defaultTransport }}
-                  </span>
-
-                  <span
-                    v-if="activeServer.model"
-                    class="badge badge-ghost badge-sm max-w-full truncate"
-                  >
-                    {{ activeServer.model }}
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -208,7 +307,7 @@
               :key="server.id"
               :value="server.id"
             >
-              {{ serverDropdownLabel(server) }}
+              {{ activeServerDisplayName(server) }}
             </option>
 
             <option v-if="allowAdd" disabled>──────────</option>
@@ -220,23 +319,25 @@
             v-if="filteredServers.length === 0"
             class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
           >
-            No configured {{ modeLabel }} servers yet. Add one when you are
-            ready to wire up the glorious robot plumbing.
+            No configured {{ modeLabel }} servers yet. Use Add Server to make
+            your own copy from a blueprint.
           </p>
         </div>
       </div>
 
       <div
         v-else-if="filteredServers.length === 0"
-        class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
+        class="flex h-full min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:server" class="h-10 w-10" />
 
-        <p class="text-lg font-bold">No configured servers found.</p>
+        <p class="text-lg font-bold">
+          No configured {{ modeLabel }} servers found.
+        </p>
 
         <p class="max-w-xl text-sm opacity-70">
-          This view only shows servers owned by the current user unless you
-          explicitly opt into public or admin visibility.
+          This view only shows your configured servers. Blueprints stay hidden
+          until you click Add Server.
         </p>
 
         <button
@@ -285,6 +386,19 @@ type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 type ServerGalleryMode = 'art' | 'text' | 'all'
 type ServerVisibility = 'owned' | 'owned-and-public' | 'all'
 
+type ArtFamily =
+  | 'sd'
+  | 'comfy-sdxl'
+  | 'comfy-flux'
+  | 'kontext'
+  | 'kombine'
+  | 'openai-art'
+  | 'invoke'
+
+type TextFamily = 'anthropic' | 'openai' | 'ollama'
+
+type FamilyValue = ArtFamily | TextFamily | 'all'
+
 const props = withDefaults(
   defineProps<{
     mode?: ServerGalleryMode
@@ -292,8 +406,13 @@ const props = withDefaults(
     visibility?: ServerVisibility
     title?: string
     subtitle?: string
+    selectedFamily?: FamilyValue
+    useDefault?: boolean | null
     showHeader?: boolean
     showControls?: boolean
+    showFamilySelect?: boolean
+    showUseDefaultToggle?: boolean
+    showAdvancedToggle?: boolean
     showCardActions?: boolean
     showDescriptions?: boolean
     showMeta?: boolean
@@ -317,8 +436,13 @@ const props = withDefaults(
     visibility: 'owned',
     title: '',
     subtitle: '',
+    selectedFamily: 'all',
+    useDefault: null,
     showHeader: true,
     showControls: false,
+    showFamilySelect: true,
+    showUseDefaultToggle: true,
+    showAdvancedToggle: true,
     showCardActions: true,
     showDescriptions: true,
     showMeta: false,
@@ -338,16 +462,70 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  'update:useDefault': [value: boolean]
+  'update:selectedFamily': [value: FamilyValue]
+}>()
+
 const serverStore = useServerStore()
 const userStore = useUserStore()
 
 const showAdvancedCards = ref(false)
-
 const selectedType = ref<ServerType | 'all'>('all')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const showAddServer = ref(false)
 const formMode = ref<'add' | 'edit'>('add')
+const localUseDefault = ref(true)
+const localSelectedFamily = ref<FamilyValue>('all')
+const selectedBlueprintId = ref('')
+
+const artFamilies: { value: ArtFamily; label: string }[] = [
+  { value: 'sd', label: 'SD' },
+  { value: 'comfy-sdxl', label: 'Comfy-SDXL' },
+  { value: 'comfy-flux', label: 'Comfy-Flux' },
+  { value: 'kontext', label: 'Kontext' },
+  { value: 'kombine', label: 'Kombine' },
+  { value: 'openai-art', label: 'OpenAI Art' },
+  { value: 'invoke', label: 'Invoke' },
+]
+
+const textFamilies: { value: TextFamily; label: string }[] = [
+  { value: 'anthropic', label: 'Anthropic' },
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'ollama', label: 'Ollama' },
+]
+
+const familyOptions = computed(() => {
+  if (props.mode === 'art') return artFamilies
+  if (props.mode === 'text') return textFamilies
+  return [{ value: 'all' as const, label: 'All' }]
+})
+
+const selectedFamilyValue = computed({
+  get: () => {
+    if (props.selectedFamily && props.selectedFamily !== 'all') {
+      return props.selectedFamily
+    }
+
+    return localSelectedFamily.value
+  },
+  set: (value: FamilyValue) => {
+    localSelectedFamily.value = value
+    emit('update:selectedFamily', value)
+  },
+})
+
+const resolvedUseDefault = computed({
+  get: () => {
+    if (typeof props.useDefault === 'boolean') return props.useDefault
+    return localUseDefault.value
+  },
+  set: (value: boolean) => {
+    localUseDefault.value = value
+    emit('update:useDefault', value)
+  },
+})
 
 const resolvedTitle = computed(() => {
   if (props.title) return props.title
@@ -357,66 +535,57 @@ const resolvedTitle = computed(() => {
 })
 
 const resolvedSubtitle = computed(() => {
+  if (resolvedUseDefault.value) return 'Using the Kind Robots default.'
   if (props.subtitle) return props.subtitle
   if (props.mode === 'art') return 'Your configured image engines.'
   if (props.mode === 'text') return 'Your configured chat engines.'
   return 'Your configured model servers.'
 })
 
-const formTitle = computed(() => {
-  return formMode.value === 'edit' ? 'Edit Server' : 'Add Server'
-})
-
-const formSubtitle = computed(() => {
-  return formMode.value === 'edit'
-    ? 'Update this server config.'
-    : 'Create or clone a server config.'
-})
-
 const shouldShowControls = computed(() => {
   return props.showControls && props.variant !== 'dropdown'
 })
 
-const activeServer = computed(() => {
-  if (serverStore.currentServer) return serverStore.currentServer
+const currentUserId = computed(() => {
+  return userStore.userId ?? userStore.user?.id ?? null
+})
+
+const rawActiveServer = computed(() => {
   if (props.mode === 'art') return serverStore.activeArtServer
   if (props.mode === 'text') return serverStore.activeTextServer
   return serverStore.selectedServer
 })
 
+const activeServer = computed(() => {
+  if (resolvedUseDefault.value) return null
+
+  const server = rawActiveServer.value
+
+  if (!server) return null
+  if (!isConfiguredUserServer(server)) return null
+  if (!matchesMode(server)) return null
+  if (!matchesSelectedFamily(server)) return null
+  if (isBackendServer(server)) return null
+
+  return server
+})
+
 const activeServerTitle = computed(() => {
-  const server = activeServer.value
+  if (!activeServer.value) return `No custom ${modeLabel.value} server selected`
 
-  if (!server) return 'No server selected'
-
-  return activeServerDisplayName(server)
+  return activeServerDisplayName(activeServer.value)
 })
 
 const activeServerSubtitle = computed(() => {
-  const server = activeServer.value
-
-  if (!server) {
-    return 'Choose a configured server or add a new one.'
+  if (!activeServer.value) {
+    return 'Choose one of your configured servers or add a new one.'
   }
 
-  const details = [
-    server.label,
-    server.model,
-    server.description,
-    server.baseUrl,
-    server.browserBaseUrl,
-    server.backendBaseUrl,
-  ].filter(Boolean)
-
-  return details[0] || 'Server ready.'
+  return 'Custom server selected.'
 })
 
 const selectedDropdownValue = computed(() => {
   return activeServer.value?.id ? String(activeServer.value.id) : ''
-})
-
-const currentUserId = computed(() => {
-  return userStore.userId ?? userStore.user?.id ?? null
 })
 
 const isCompact = computed(() => {
@@ -435,18 +604,32 @@ const modeLabel = computed(() => {
   return 'configured'
 })
 
-const galleryServers = computed<Server[]>(() => {
-  return serverStore.servers.filter((server) => {
-    return matchesVisibility(server)
-  })
+const familyLabel = computed(() => {
+  if (props.mode === 'art') return 'Art family'
+  if (props.mode === 'text') return 'Text family'
+  return 'Server family'
 })
 
-const modeServers = computed(() => {
-  return galleryServers.value.filter(matchesMode)
+const configuredServers = computed<Server[]>(() => {
+  return serverStore.servers
+    .filter(isConfiguredUserServer)
+    .filter(matchesMode)
+    .filter(matchesSelectedFamily)
+    .filter((server) => !isBackendServer(server))
+    .sort(sortServers)
+})
+
+const blueprintServers = computed<Server[]>(() => {
+  return serverStore.servers
+    .filter(isBlueprintServer)
+    .filter(matchesMode)
+    .filter(matchesSelectedFamily)
+    .filter((server) => !isBackendServer(server))
+    .sort(sortServers)
 })
 
 const filteredServers = computed(() => {
-  let servers = [...modeServers.value]
+  let servers = [...configuredServers.value]
 
   if (selectedType.value !== 'all') {
     servers = servers.filter((server) => {
@@ -458,19 +641,7 @@ const filteredServers = computed(() => {
 
   if (query) {
     servers = servers.filter((server) => {
-      return (
-        (server.title || '').toLowerCase().includes(query) ||
-        (server.label || '').toLowerCase().includes(query) ||
-        (server.description || '').toLowerCase().includes(query) ||
-        (server.baseUrl || '').toLowerCase().includes(query) ||
-        (server.browserBaseUrl || '').toLowerCase().includes(query) ||
-        (server.backendBaseUrl || '').toLowerCase().includes(query) ||
-        (server.category || '').toLowerCase().includes(query) ||
-        (server.serverType || '').toLowerCase().includes(query) ||
-        (server.generationEngine || '').toLowerCase().includes(query) ||
-        (server.model || '').toLowerCase().includes(query) ||
-        (server.designer || '').toLowerCase().includes(query)
-      )
+      return serverHaystack(server).includes(query)
     })
   }
 
@@ -478,68 +649,43 @@ const filteredServers = computed(() => {
 })
 
 const selectedIcon = computed(() => {
-  const server = activeServer.value
+  if (props.mode === 'text') return 'kind-icon:chat'
+  if (props.mode === 'art') return 'kind-icon:palette'
+  return 'kind-icon:server'
+})
 
-  if (!server) return 'kind-icon:server'
-  if (server.generationEngine === 'KONTEXT') return 'kind-icon:wand'
-  if (server.generationEngine === 'FLUX') return 'kind-icon:sparkles'
-  if (server.generationEngine === 'COMFY') return 'kind-icon:workflow'
-  if (server.generationEngine === 'A1111') return 'kind-icon:palette'
-  if (server.generationEngine === 'OPENAI_IMAGE') return 'kind-icon:image'
-  if (server.serverType === 'TEXT') return 'kind-icon:chat'
-  if (server.serverType === 'OPENAI_COMPATIBLE') return 'kind-icon:chat'
-  if (server.serverType === 'COMFY') return 'kind-icon:workflow'
-  if (server.serverType === 'A1111') return 'kind-icon:palette'
-  if (server.serverType === 'ART') return 'kind-icon:palette'
-
+const defaultIcon = computed(() => {
+  if (props.mode === 'text') return 'kind-icon:chat'
+  if (props.mode === 'art') return 'kind-icon:palette'
   return 'kind-icon:server'
 })
 
 const selectedIconBgClass = computed(() => {
-  const server = activeServer.value
-
-  if (!server) return 'bg-base-200'
-
-  if (isTextCapable(server) && !isArtCapable(server)) {
-    return 'bg-secondary/10'
-  }
-
-  if (isArtCapable(server) && !isTextCapable(server)) {
-    return 'bg-primary/10'
-  }
-
+  if (props.mode === 'text') return 'bg-secondary/10'
+  if (props.mode === 'art') return 'bg-primary/10'
   return 'bg-accent/10'
 })
 
 const selectedIconTextClass = computed(() => {
-  const server = activeServer.value
-
-  if (!server) return 'text-base-content/50'
-
-  if (isTextCapable(server) && !isArtCapable(server)) {
-    return 'text-secondary'
-  }
-
-  if (isArtCapable(server) && !isTextCapable(server)) {
-    return 'text-primary'
-  }
-
+  if (props.mode === 'text') return 'text-secondary'
+  if (props.mode === 'art') return 'text-primary'
   return 'text-accent'
 })
 
 const dropdownPlaceholder = computed(() => {
-  if (props.mode === 'art') return 'Choose an art server'
-  if (props.mode === 'text') return 'Choose a text server'
-  return 'Choose a server'
+  if (props.mode === 'art') return 'Choose your art server'
+  if (props.mode === 'text') return 'Choose your text server'
+  return 'Choose your server'
 })
 
 onMounted(async () => {
   applyCurrentServerMode()
+  initializeFamily()
+  initializeDefaultState()
 
-  // kind-loader owns server initialization. Only fetch here if running
-  // in a context where kind-loader hasn't already loaded servers.
   if (props.autoLoad && !serverStore.hasLoaded) {
     await refreshServers()
+    initializeDefaultState()
   }
 })
 
@@ -547,8 +693,47 @@ watch(
   () => props.mode,
   () => {
     applyCurrentServerMode()
+    initializeFamily()
+    initializeDefaultState()
   },
 )
+
+watch(
+  () => rawActiveServer.value?.id,
+  () => {
+    initializeDefaultState()
+  },
+)
+
+function initializeFamily() {
+  if (props.selectedFamily && props.selectedFamily !== 'all') {
+    localSelectedFamily.value = props.selectedFamily
+    return
+  }
+
+  if (props.mode === 'art') {
+    localSelectedFamily.value = 'sd'
+    return
+  }
+
+  if (props.mode === 'text') {
+    localSelectedFamily.value = 'anthropic'
+    return
+  }
+
+  localSelectedFamily.value = 'all'
+}
+
+function initializeDefaultState() {
+  if (typeof props.useDefault === 'boolean') {
+    localUseDefault.value = props.useDefault
+    return
+  }
+
+  localUseDefault.value =
+    !rawActiveServer.value || !isConfiguredUserServer(rawActiveServer.value)
+  emit('update:useDefault', localUseDefault.value)
+}
 
 async function refreshServers(force = false) {
   isLoading.value = true
@@ -567,19 +752,61 @@ function isOwnedByCurrentUser(server: Server) {
   return Boolean(currentUserId.value && server.userId === currentUserId.value)
 }
 
-function matchesVisibility(server: Server) {
-  if (props.visibility === 'all') {
-    return userStore.isAdmin || isOwnedByCurrentUser(server)
-  }
+function isConfiguredUserServer(server: Server) {
+  if (!server.isActive) return false
+  if (serverStore.isServerHidden(server.id)) return false
+  if (!isOwnedByCurrentUser(server)) return false
+  if (server.isDefault) return false
+  if (server.isOfficial) return false
+  if (isBackendServer(server)) return false
 
-  if (props.visibility === 'owned-and-public') {
-    return isOwnedByCurrentUser(server) || Boolean(server.isPublic)
-  }
+  return true
+}
 
-  return isOwnedByCurrentUser(server)
+function isBlueprintServer(server: Server) {
+  if (!server.isActive) return false
+  if (serverStore.isServerHidden(server.id)) return false
+  if (
+    isOwnedByCurrentUser(server) &&
+    !server.isPublic &&
+    !server.isOfficial &&
+    !server.isDefault
+  )
+    return false
+  if (!server.isPublic && !server.isOfficial && !server.isDefault) return false
+  if (
+    server.isPrivateNetwork &&
+    !server.isPublic &&
+    !server.isOfficial &&
+    !server.isDefault
+  )
+    return false
+  if (isBackendServer(server)) return false
+
+  return true
+}
+
+function isBackendServer(server: Server) {
+  const values = [
+    server.title,
+    server.label,
+    server.category,
+    server.serverType,
+    server.generationEngine,
+    server.defaultTransport,
+    server.accessMode,
+  ]
+    .filter(Boolean)
+    .map((value) => String(value).trim().toLowerCase())
+
+  return values.some(
+    (value) => value === 'backend' || value.includes('backend'),
+  )
 }
 
 function isArtCapable(server: Server) {
+  if (isBackendServer(server)) return false
+
   return (
     server.serverType === 'ART' ||
     server.serverType === 'A1111' ||
@@ -599,10 +826,12 @@ function isArtCapable(server: Server) {
 }
 
 function isTextCapable(server: Server) {
+  if (isBackendServer(server)) return false
+
   return (
-    server.serverType === 'TEXT' ||
-    server.serverType === 'OPENAI_COMPATIBLE' ||
-    Boolean(server.supportsChat)
+    (server.serverType === 'TEXT' ||
+      server.serverType === 'OPENAI_COMPATIBLE') &&
+    Boolean(server.supportsChat !== false)
   )
 }
 
@@ -613,39 +842,128 @@ function matchesMode(server: Server) {
   return isArtCapable(server) || isTextCapable(server)
 }
 
-function activeServerDisplayName(server: Server) {
-  if (server.title && server.label && server.title !== server.label) {
-    return `${server.title} · ${server.label}`
+function matchesSelectedFamily(server: Server) {
+  if (selectedFamilyValue.value === 'all') return true
+
+  if (props.mode === 'art') {
+    return matchesArtFamily(server, selectedFamilyValue.value as ArtFamily)
   }
 
-  return server.title || server.label || `Server ${server.id}`
+  if (props.mode === 'text') {
+    return matchesTextFamily(server, selectedFamilyValue.value as TextFamily)
+  }
+
+  return true
 }
 
-function serverDropdownLabel(server: Server) {
-  const name = activeServerDisplayName(server)
+function matchesArtFamily(server: Server, family: ArtFamily) {
+  const haystack = serverHaystack(server)
 
-  const details = [
+  if (family === 'sd') {
+    return (
+      server.serverType === 'A1111' ||
+      server.generationEngine === 'A1111' ||
+      haystack.includes('stable diffusion') ||
+      haystack.includes(' sd ')
+    )
+  }
+
+  if (family === 'comfy-sdxl') {
+    return (
+      isComfyServer(server) &&
+      (haystack.includes('sdxl') || haystack.includes('xl'))
+    )
+  }
+
+  if (family === 'comfy-flux') {
+    return (
+      isComfyServer(server) &&
+      (server.generationEngine === 'FLUX' ||
+        Boolean(server.supportsFlux) ||
+        haystack.includes('flux'))
+    )
+  }
+
+  if (family === 'kontext') {
+    return (
+      server.generationEngine === 'KONTEXT' ||
+      Boolean(server.supportsKontext) ||
+      haystack.includes('kontext')
+    )
+  }
+
+  if (family === 'kombine') return haystack.includes('kombine')
+
+  if (family === 'openai-art') {
+    return (
+      server.generationEngine === 'OPENAI_IMAGE' ||
+      haystack.includes('openai') ||
+      haystack.includes('dall')
+    )
+  }
+
+  if (family === 'invoke') return haystack.includes('invoke')
+
+  return true
+}
+
+function matchesTextFamily(server: Server, family: TextFamily) {
+  const haystack = serverHaystack(server)
+
+  if (family === 'anthropic') {
+    return haystack.includes('anthropic') || haystack.includes('claude')
+  }
+
+  if (family === 'openai') {
+    return haystack.includes('openai') || haystack.includes('gpt')
+  }
+
+  if (family === 'ollama') {
+    return haystack.includes('ollama')
+  }
+
+  return true
+}
+
+function isComfyServer(server: Server) {
+  return (
+    server.serverType === 'COMFY' ||
+    server.generationEngine === 'COMFY' ||
+    Boolean(server.supportsComfyWorkflow)
+  )
+}
+
+function serverHaystack(server: Server) {
+  return [
+    server.title,
+    server.label,
+    server.description,
+    server.category,
     server.serverType,
     server.generationEngine,
     server.model,
-    server.defaultTransport,
-  ].filter(Boolean)
+    server.designer,
+    server.baseUrl,
+    server.browserBaseUrl,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
 
-  return `${name} (${details.join(' · ')})`
+function activeServerDisplayName(server: Server) {
+  return server.title || server.label || `Server ${server.id}`
 }
 
 function sortServers(left: Server, right: Server) {
   const leftOrder = left.sortOrder ?? 0
   const rightOrder = right.sortOrder ?? 0
 
-  if (leftOrder !== rightOrder) {
-    return leftOrder - rightOrder
-  }
+  if (leftOrder !== rightOrder) return leftOrder - rightOrder
 
-  const leftName = activeServerDisplayName(left).toLowerCase()
-  const rightName = activeServerDisplayName(right).toLowerCase()
-
-  return leftName.localeCompare(rightName)
+  return activeServerDisplayName(left)
+    .toLowerCase()
+    .localeCompare(activeServerDisplayName(right).toLowerCase())
 }
 
 function applyCurrentServerMode() {
@@ -663,6 +981,11 @@ function applyCurrentServerMode() {
 }
 
 async function selectServerById(id: number) {
+  const server = serverStore.getServerById(id)
+
+  if (!server || !isConfiguredUserServer(server) || !matchesMode(server)) return
+
+  resolvedUseDefault.value = false
   serverStore.setCurrentServer(id)
 
   if (props.mode === 'art') {
@@ -692,6 +1015,17 @@ function selectServerFromEvent(event: Event) {
   void selectServerById(id)
 }
 
+function toggleUseDefault(event: Event) {
+  const target = event.target as HTMLInputElement
+  const checked = Boolean(target.checked)
+
+  resolvedUseDefault.value = checked
+
+  if (checked) {
+    clearSelectedServer()
+  }
+}
+
 function clearSelectedServer() {
   if (props.mode === 'art') {
     void serverStore.setActiveArtServer(null)
@@ -707,7 +1041,11 @@ function clearSelectedServer() {
 function openAddServer() {
   formMode.value = 'add'
   showAddServer.value = true
-  serverStore.deselectServer()
+  resolvedUseDefault.value = false
+  selectedBlueprintId.value = ''
+
+  const type = defaultServerTypeForMode()
+  serverStore.createNewServer(type)
   serverStore.openServerForm()
 }
 
@@ -729,7 +1067,30 @@ async function startEditingSelectedServer() {
 
 function closeAddServer() {
   showAddServer.value = false
+  selectedBlueprintId.value = ''
   serverStore.closeServerForm()
+}
+
+function applySelectedBlueprint() {
+  const id = Number(selectedBlueprintId.value)
+
+  if (!Number.isInteger(id) || id <= 0) {
+    serverStore.createNewServer(defaultServerTypeForMode())
+    return
+  }
+
+  serverStore.setBlueprintServer(id)
+}
+
+function defaultServerTypeForMode(): ServerType {
+  if (props.mode === 'text') return 'TEXT'
+  if (props.mode === 'art') {
+    if (selectedFamilyValue.value === 'comfy-sdxl') return 'COMFY'
+    if (selectedFamilyValue.value === 'comfy-flux') return 'COMFY'
+    return 'ART'
+  }
+
+  return 'ART'
 }
 </script>
 

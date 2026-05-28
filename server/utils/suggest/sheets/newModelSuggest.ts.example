@@ -1,0 +1,27 @@
+// /server/utils/suggest/sheets/newModelSuggest.ts
+import type { SuggestSheet } from '../suggestTypes'
+
+const newModelSuggest: SuggestSheet = {
+  builder: 'newModel',
+  label: 'New Model Builder',
+  maxTokens: 512,
+  temperature: 0.72,
+  systemPrompt: `You are the writing assistant for the New Model builder on Kind Robots.
+Rules:
+- Return only the requested value.
+- No preamble, no explanation, no quotation marks.
+- Be specific, useful, and immediately usable in the app.`,
+  defaultFieldPrompt: 'Generate a useful value for this builder field.',
+  fieldPrompts: {
+    title: 'Write a short, evocative title. 2 to 5 words.',
+    description: 'Write a concise description with specific detail and a clear use case.',
+    artPrompt: 'Write an image-generation prompt with subject, style, composition, lighting, and mood.',
+  },
+  contextFields: [
+    { source: 'title', label: 'Title' },
+    { source: 'description', label: 'Description' },
+    { source: 'genre', label: 'Genre' },
+  ],
+}
+
+export default newModelSuggest

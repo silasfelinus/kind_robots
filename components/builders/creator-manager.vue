@@ -1,4 +1,4 @@
-<!-- /components/builders/builder-manager.vue -->
+<!-- /components/builders/creator-manager.vue -->
 <template>
   <dashboard-shell
     title="Builder Tool"

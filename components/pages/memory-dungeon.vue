@@ -1,8 +1,9 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <template>
- <!-- root div -->
-<div class="flex h-full min-h-[80vh] min-h-0 select-none flex-col overflow-hidden bg-base-200">
-
+  <!-- root div -->
+  <div
+    class="flex h-full min-h-[80vh] select-none flex-col overflow-hidden bg-base-200"
+  >
     <header
       v-if="gameStarted"
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
@@ -151,8 +152,9 @@
       v-if="!gameStarted"
       class="splash-screen relative flex min-h-0 flex-1 flex-col overflow-hidden bg-black"
     >
-   
-<div class="splash-hero relative flex-1 overflow-hidden min-h-[60vh] sm:min-h-[70vh]">
+      <div
+        class="splash-hero relative flex-1 overflow-hidden min-h-[60vh] sm:min-h-[70vh]"
+      >
         <img
           src="/images/background/memorydungeon.png"
           alt="Memory Match Dungeon"
@@ -185,89 +187,106 @@
         <div
           class="absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-3 px-4 sm:bottom-10"
         >
-          <button type="button" class="splash-enter-btn" @click="startGame">
-            ⚔️ ENTER THE DUNGEON
-          </button>
+          <div
+            class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-center"
+          >
+            <label class="flex items-center justify-center gap-2 text-sm">
+              <span class="font-semibold">Difficulty:</span>
+              <select
+                v-model="memoryStore.selectedDifficulty"
+                class="rounded-xl border border-yellow-500/30 bg-base-300 px-3 py-2 text-base-content outline-none"
+              >
+                <option
+                  v-for="difficulty in memoryStore.difficulties"
+                  :key="difficulty.label"
+                  :value="difficulty"
+                >
+                  {{ difficulty.label }}
+                </option>
+              </select>
+            </label>
 
-       <div
-  class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-center"
->
-  <label class="flex items-center justify-center gap-2 text-sm">
-    <span class="font-semibold">Difficulty:</span>
-    <select
-      v-model="memoryStore.selectedDifficulty"
-      class="rounded-xl border border-yellow-500/30 bg-base-300 px-3 py-2 text-base-content outline-none"
-    >
-      <option
-        v-for="difficulty in memoryStore.difficulties"
-        :key="difficulty.label"
-        :value="difficulty"
-      >
-        {{ difficulty.label }}
-      </option>
-    </select>
-  </label>
+            <collection-picker
+              class="min-w-0 flex-1"
+              title="Dungeon Deck"
+              :mode="memoryStore.cardSource.type"
+              :collection-id="memoryStore.cardSource.collectionId"
+              :collection-ids="memoryStore.cardSource.collectionIds"
+              :allow-multiple="true"
+              @change="handleCollectionPickerChange"
+            />
+          </div>
 
-  <collection-picker
-    class="min-w-0 flex-1"
-    title="Dungeon Deck"
-    :mode="memoryStore.cardSource.type"
-    :collection-id="memoryStore.cardSource.collectionId"
-    :collection-ids="memoryStore.cardSource.collectionIds"
-    :allow-multiple="true"
-    @change="handleCollectionPickerChange"
-  />
-</div>
+          <!-- Start / Back buttons always visible below the config row -->
+          <div class="flex items-center gap-3">
+            <button
+              v-if="memoryStore.cardSource.type !== 'all'"
+              type="button"
+              class="rounded-full border border-yellow-500/40 bg-black/50 px-4 py-2 text-sm font-semibold text-yellow-300 transition hover:bg-black/70 active:scale-95"
+              @click="memoryStore.useAllArtImages()"
+            >
+              ← All Images
+            </button>
 
-<div
-  v-if="memoryStore.notification"
-  class="max-w-2xl rounded-2xl border border-error/40 bg-error/20 px-4 py-2 text-center text-sm font-semibold text-error-content backdrop-blur"
->
-  {{ memoryStore.notification.message }}
-</div>
+            <button type="button" class="splash-enter-btn" @click="startGame">
+              ⚔️ ENTER THE DUNGEON
+            </button>
+          </div>
+
+          <div
+            v-if="memoryStore.notification"
+            class="max-w-2xl rounded-2xl border border-error/40 bg-error/20 px-4 py-2 text-center text-sm font-semibold text-error-content backdrop-blur"
+          >
+            {{ memoryStore.notification.message }}
+          </div>
         </div>
       </div>
 
-  <div
-  class="grid shrink-0 grid-cols-1 gap-3 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3 sm:grid-cols-3"
->
-  <div class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20">
-    <div class="mb-1 font-bold text-yellow-300">📜 How to play</div>
-    <p class="text-yellow-50/90">
-      Match pairs to score. Streaks multiply points. Oracle challenges
-      award 3×. Clear each floor for a random dungeon reward.
-    </p>
-  </div>
-
-  <div class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20">
-    <div class="mb-1 font-bold text-yellow-300">⚔️ Powerups</div>
-    <ul class="space-y-0.5 text-yellow-50/90">
-      <li>🔦 Lantern — reveal all cards briefly</li>
-      <li>🛡️ Shield — block one mistake</li>
-      <li>👁️ Oracle's Eye — highlight a matching pair</li>
-    </ul>
-  </div>
-
-  <div class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20">
-    <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
-    <ol v-if="leaderboard.length" class="space-y-0.5 text-yellow-50/90">
-      <li
-        v-for="(user, i) in leaderboard.slice(0, 3)"
-        :key="user.id"
-        class="flex justify-between"
+      <div
+        class="grid shrink-0 grid-cols-1 gap-3 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3 sm:grid-cols-3"
       >
-        <span>{{ i + 1 }}. {{ user.username }}</span>
-        <span class="font-mono font-bold text-yellow-400">
-          {{ user.matchRecord ?? '—' }}
-        </span>
-      </li>
-    </ol>
-    <p v-else class="italic text-yellow-50/50">
-      Be the first to leave a mark.
-    </p>
-  </div>
-</div>
+        <div
+          class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
+        >
+          <div class="mb-1 font-bold text-yellow-300">📜 How to play</div>
+          <p class="text-yellow-50/90">
+            Match pairs to score. Streaks multiply points. Oracle challenges
+            award 3×. Clear each floor for a random dungeon reward.
+          </p>
+        </div>
 
+        <div
+          class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
+        >
+          <div class="mb-1 font-bold text-yellow-300">⚔️ Powerups</div>
+          <ul class="space-y-0.5 text-yellow-50/90">
+            <li>🔦 Lantern — reveal all cards briefly</li>
+            <li>🛡️ Shield — block one mistake</li>
+            <li>👁️ Oracle's Eye — highlight a matching pair</li>
+          </ul>
+        </div>
+
+        <div
+          class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
+        >
+          <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
+          <ol v-if="leaderboard.length" class="space-y-0.5 text-yellow-50/90">
+            <li
+              v-for="(user, i) in leaderboard.slice(0, 3)"
+              :key="user.id"
+              class="flex justify-between"
+            >
+              <span>{{ i + 1 }}. {{ user.username }}</span>
+              <span class="font-mono font-bold text-yellow-400">
+                {{ user.matchRecord ?? '—' }}
+              </span>
+            </li>
+          </ol>
+          <p v-else class="italic text-yellow-50/50">
+            Be the first to leave a mark.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
@@ -311,42 +330,45 @@
           :class="{ 'board-reveal': revealActive }"
           :style="boardGridStyle"
         >
-      <div
-  v-for="card in memoryStore.galleryImages"
-  :key="card.id"
-  :class="[
-    'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
-    card.matched
-      ? 'card-matched pointer-events-none opacity-40'
-      : 'hover:scale-105 active:scale-95',
-    challenge.active &&
-    !card.matched &&
-    card.galleryName === challenge.targetName
-      ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-base-200'
-      : '',
-    oracleHighlight &&
-    !card.matched &&
-    card.galleryName === oracleHighlight
-      ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
-      : '',
-  ]"
-  @click="handleCardClick(card)"
->
-  <div class="card-inner" :class="{ flipped: card.flipped || card.matched }">
-    <div
-      class="card-back flex h-full w-full items-center justify-center rounded-xl border border-yellow-500/30 bg-linear-to-br from-base-300 via-base-100 to-base-300 text-3xl shadow-inner"
-    >
-      🏰
-    </div>
+          <div
+            v-for="card in memoryStore.galleryImages"
+            :key="card.id"
+            :class="[
+              'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
+              card.matched
+                ? 'card-matched pointer-events-none opacity-40'
+                : 'hover:scale-105 active:scale-95',
+              challenge.active &&
+              !card.matched &&
+              card.galleryName === challenge.targetName
+                ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-base-200'
+                : '',
+              oracleHighlight &&
+              !card.matched &&
+              card.galleryName === oracleHighlight
+                ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
+                : '',
+            ]"
+            @click="handleCardClick(card)"
+          >
+            <div
+              class="card-inner"
+              :class="{ flipped: card.flipped || card.matched }"
+            >
+              <div
+                class="card-back flex h-full w-full items-center justify-center rounded-xl border border-yellow-500/30 bg-linear-to-br from-base-300 via-base-100 to-base-300 text-3xl shadow-inner"
+              >
+                🏰
+              </div>
 
-    <img
-      class="card-front rounded-xl border border-base-content/10 bg-base-300 shadow-xl"
-      :src="card.imagePath"
-      :alt="card.galleryName"
-      draggable="false"
-    />
-  </div>
-</div>
+              <img
+                class="card-front rounded-xl border border-base-content/10 bg-base-300 shadow-xl"
+                :src="card.imagePath"
+                :alt="card.galleryName"
+                draggable="false"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -483,8 +505,6 @@ const artStore = useArtStore()
 
 import type { GalleryImage } from '@/stores/memoryStore'
 
-
-
 type DungeonCard = GalleryImage
 type PowerupType = 'lantern' | 'shield' | 'oracle'
 
@@ -533,8 +553,6 @@ const playableCollections = computed(() => artStore.generationCollections)
 
 const memoryStore = useMemoryStore()
 const milestoneStore = useMilestoneStore()
-
-
 
 const STARTING_MAX_LIVES = 3
 const MAX_POSSIBLE_LIVES = 8

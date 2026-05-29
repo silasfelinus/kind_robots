@@ -327,12 +327,15 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const matchRecord = computed(() => userStore.matchRecord ?? 0)
 
   const pairsNeeded = computed(() => {
-  const basePairs = selectedDifficulty.value.pairs
-  const levelBonus =
-    Math.max(0, level.value - 1) * selectedDifficulty.value.levelPairStep
+    const basePairs = selectedDifficulty.value.pairs
+    const levelBonus =
+      Math.max(0, level.value - 1) * selectedDifficulty.value.levelPairStep
 
-  return Math.max(2, Math.min(basePairs + levelBonus + pairModifier.value, 18))
-})
+    return Math.max(
+      2,
+      Math.min(basePairs + levelBonus + pairModifier.value, 18),
+    )
+  })
 
   const numberOfCards = computed(() => pairsNeeded.value * 2)
 
@@ -406,65 +409,64 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   }
 
   function unwrapArtImage(value: unknown): ArtImage | null {
-  if (!value || typeof value !== 'object') return null
+    if (!value || typeof value !== 'object') return null
 
-  const record = value as Record<string, unknown>
+    const record = value as Record<string, unknown>
 
-  if (typeof record.id === 'number') {
-    return record as ArtImage
-  }
+    if (typeof record.id === 'number') {
+      return record as ArtImage
+    }
 
-  const nestedCandidates = [
-    record.ArtImage,
-    record.artImage,
-    record.image,
-    record.art,
-  ]
+    const nestedCandidates = [
+      record.ArtImage,
+      record.artImage,
+      record.image,
+      record.art,
+    ]
 
-  for (const candidate of nestedCandidates) {
-    if (candidate && typeof candidate === 'object') {
-      const nested = candidate as Record<string, unknown>
+    for (const candidate of nestedCandidates) {
+      if (candidate && typeof candidate === 'object') {
+        const nested = candidate as Record<string, unknown>
 
-      if (typeof nested.id === 'number') {
-        return nested as ArtImage
+        if (typeof nested.id === 'number') {
+          return nested as ArtImage
+        }
       }
     }
+
+    return null
   }
 
-  return null
-}
+  function getCollectionArtImages(collection: unknown): ArtImage[] {
+    if (!collection || typeof collection !== 'object') return []
 
-function getCollectionArtImages(collection: unknown): ArtImage[] {
-  if (!collection || typeof collection !== 'object') return []
+    const record = collection as Record<string, unknown>
 
-  const record = collection as Record<string, unknown>
+    const candidates = [
+      record.ArtImages,
+      record.artImages,
+      record.images,
+      record.Art,
+      record.art,
+      record.items,
+    ]
 
-  const candidates = [
-    record.ArtImages,
-    record.artImages,
-    record.images,
-    record.Art,
-    record.art,
-    record.items,
-  ]
+    const results: ArtImage[] = []
 
-  const results: ArtImage[] = []
+    for (const candidate of candidates) {
+      if (!Array.isArray(candidate)) continue
 
-  for (const candidate of candidates) {
-    if (!Array.isArray(candidate)) continue
+      for (const item of candidate) {
+        const image = unwrapArtImage(item)
 
-    for (const item of candidate) {
-      const image = unwrapArtImage(item)
-
-      if (image) {
-        results.push(image)
+        if (image) {
+          results.push(image)
+        }
       }
     }
+
+    return uniqueArtImages(results)
   }
-
-  return uniqueArtImages(results)
-}
-
 
   function uniqueArtImages(images: ArtImage[]): ArtImage[] {
     const map = new Map<number, ArtImage>()
@@ -798,9 +800,15 @@ function getCollectionArtImages(collection: unknown): ArtImage[] {
         )
       }
 
-      // Shuffle and slice the required number of unique images
-      const needed = Math.min(pairsNeeded.value, pool.length)
-      const picked = shuffle(pool).slice(0, needed)
+      // Build a pool large enough for pairsNeeded, duplicating images if necessary
+      // (prefer diversity: cycle through shuffled pool rather than repeating the same ones)
+      const needed = pairsNeeded.value
+      let expandedPool: ArtImage[] = []
+      const shuffled = shuffle(pool)
+      while (expandedPool.length < needed) {
+        expandedPool = expandedPool.concat(shuffled)
+      }
+      const picked = expandedPool.slice(0, needed)
 
       const imagePaths = picked
         .map((image) => extractArtImagePath(image))
@@ -1402,19 +1410,20 @@ function getCollectionArtImages(collection: unknown): ArtImage[] {
   }
 
   async function resetGame(payload?: {
-  level?: number
-  pairModifier?: number
-}): Promise<void> {
-  if (payload?.level !== undefined) level.value = payload.level
-  pairModifier.value = payload?.pairModifier ?? 0
+    level?: number
+    pairModifier?: number
+  }): Promise<void> {
+    if (payload?.level !== undefined) level.value = payload.level
+    pairModifier.value = payload?.pairModifier ?? 0
 
-  gameWon.value = false
-  gameOver.value = false
-  boardLocked.value = false
-  firstSelected = null
+    gameWon.value = false
+    gameOver.value = false
+    boardLocked.value = false
+    firstSelected = null
+    winProcessing = false
 
-  await generateMemoryGameImages()
-}
+    await generateMemoryGameImages()
+  }
 
   async function advanceLevel(): Promise<void> {
     level.value += 1
@@ -1422,6 +1431,7 @@ function getCollectionArtImages(collection: unknown): ArtImage[] {
     gameOver.value = false
     boardLocked.value = false
     firstSelected = null
+    winProcessing = false
     activeAward.value = null
     resetRewardState()
     lives.value = Math.min(maxLives.value, lives.value + 1)
@@ -1577,6 +1587,6 @@ function getCollectionArtImages(collection: unknown): ArtImage[] {
     useGeneratedArtImages,
     useCollection,
     useCollections,
-pairModifier,
+    pairModifier,
   }
 })

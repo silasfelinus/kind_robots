@@ -26,10 +26,11 @@
         <div
           v-if="showMenu"
           ref="panelRef"
-          class="fixed z-[90] max-h-[min(34rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-[26rem] overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
+          class="fixed z-90 max-h-[min(34rem,calc(100vh-1rem))] w-[calc(100vw-1rem)] max-w-104 overflow-y-auto overflow-x-hidden rounded-2xl border border-base-300 bg-base-100 shadow-2xl"
           :style="menuStyle"
           @click.stop
         >
+          <!-- Header -->
           <div
             class="flex items-center gap-2 border-b border-base-300 bg-base-200/60 px-3 py-2"
           >
@@ -80,6 +81,7 @@
           </div>
 
           <div class="space-y-3 p-3">
+            <!-- Models -->
             <div>
               <p
                 class="mb-1.5 px-0.5 text-[0.6rem] font-black uppercase tracking-widest text-base-content/40"
@@ -127,41 +129,72 @@
               </div>
             </div>
 
+            <!-- Featured row: Stories + Builder at equal width -->
             <div class="grid grid-cols-2 gap-1.5">
               <NuxtLink
                 :to="storiesChannel.path"
-                class="group relative col-span-2 flex items-center gap-3 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-sm"
+                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-accent-content hover:shadow-md"
                 :class="
                   isChannelActive(storiesChannel)
                     ? 'border-accent bg-accent text-accent-content shadow-sm'
-                    : 'border-base-300 bg-base-100 text-base-content'
+                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
                 "
                 @click="closeMenu"
               >
                 <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
                   :class="
                     isChannelActive(storiesChannel)
                       ? 'border-accent-content/30 bg-accent-content/20 text-accent-content'
-                      : 'border-base-300 bg-base-200 text-base-content'
+                      : 'border-base-300 bg-base-100 text-base-content'
                   "
                 >
                   <Icon :name="storiesChannel.icon" class="h-5 w-5" />
                 </span>
-
-                <span class="font-black text-sm">
-                  {{ storiesChannel.label }}
-                </span>
-
+                <span class="text-sm font-black">{{
+                  storiesChannel.label
+                }}</span>
                 <span
                   v-if="storiesChannel.summary"
-                  class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-accent/95 px-4 text-center text-xs leading-snug text-accent-content opacity-0 transition-opacity group-hover:opacity-100"
+                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
                 >
                   {{ storiesChannel.summary }}
                 </span>
               </NuxtLink>
+
+              <NuxtLink
+                :to="builderChannel.path"
+                class="group relative flex min-h-32 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-md"
+                :class="
+                  isChannelActive(builderChannel)
+                    ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
+                    : 'border-base-300 bg-linear-to-b from-base-100 to-base-200/60 text-base-content'
+                "
+                @click="closeMenu"
+              >
+                <span
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all group-hover:scale-110"
+                  :class="
+                    isChannelActive(builderChannel)
+                      ? 'border-secondary-content/30 bg-secondary-content/20 text-secondary-content'
+                      : 'border-base-300 bg-base-100 text-base-content'
+                  "
+                >
+                  <Icon :name="builderChannel.icon" class="h-5 w-5" />
+                </span>
+                <span class="text-sm font-black">{{
+                  builderChannel.label
+                }}</span>
+                <span
+                  v-if="builderChannel.summary"
+                  class="px-1 text-center text-[0.58rem] leading-snug opacity-40 transition-opacity group-hover:opacity-100"
+                >
+                  {{ builderChannel.summary }}
+                </span>
+              </NuxtLink>
             </div>
 
+            <!-- Bottom projects: Brainstorm, Bots, Lab in equal thirds -->
             <div>
               <p
                 class="mb-1.5 px-0.5 text-[0.6rem] font-black uppercase tracking-widest text-base-content/40"
@@ -169,12 +202,12 @@
                 Projects
               </p>
 
-              <div class="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+              <div class="grid grid-cols-3 gap-1.5">
                 <NuxtLink
-                  v-for="channel in projectChannels"
+                  v-for="channel in bottomProjectChannels"
                   :key="channel.key"
                   :to="channel.path"
-                  class="group relative flex flex-col items-center gap-1 overflow-hidden rounded-xl border p-2 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm"
+                  class="group relative flex flex-col items-center gap-1.5 overflow-hidden rounded-xl border p-2.5 transition-all hover:-translate-y-0.5 hover:border-secondary hover:bg-secondary hover:text-secondary-content hover:shadow-sm"
                   :class="
                     isChannelActive(channel)
                       ? 'border-secondary bg-secondary text-secondary-content shadow-sm'
@@ -216,7 +249,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, type CSSProperties } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type CSSProperties,
+} from 'vue'
 import { useRoute } from 'vue-router'
 
 type ChannelRoute = {
@@ -295,14 +335,15 @@ const storiesChannel: ChannelRoute = {
     'Bring characters, places, treasures, and art into one narrative space.',
 }
 
-const projectChannels: ChannelRoute[] = [
-  {
-    key: 'builder',
-    label: 'Builder',
-    path: '/builder',
-    icon: 'kind-icon:blueprint',
-    summary: 'Assemble pages, systems, tools, and weird useful machinery.',
-  },
+const builderChannel: ChannelRoute = {
+  key: 'builder',
+  label: 'Builder',
+  path: '/builder',
+  icon: 'kind-icon:blueprint',
+  summary: 'Assemble pages, systems, tools, and weird useful machinery.',
+}
+
+const bottomProjectChannels: ChannelRoute[] = [
   {
     key: 'brainstorm',
     label: 'Brainstorm',
@@ -328,11 +369,16 @@ const projectChannels: ChannelRoute[] = [
   },
 ]
 
+const projectChannels = computed<ChannelRoute[]>(() => [
+  builderChannel,
+  ...bottomProjectChannels,
+])
+
 const allChannels = computed<ChannelRoute[]>(() => [
   ...utilityChannels,
   ...modelChannels,
   storiesChannel,
-  ...projectChannels,
+  ...projectChannels.value,
 ])
 
 const fallbackChannel: ChannelRoute = {

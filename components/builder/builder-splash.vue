@@ -98,7 +98,7 @@
 
     <!-- ── Right: fanned deck of real card art ───────────────────── -->
     <div
-      class="relative z-10 hidden min-h-[20rem] overflow-hidden rounded-2xl lg:block"
+      class="relative z-10 hidden min-h-80 overflow-hidden rounded-2xl lg:block"
     >
       <div class="absolute inset-0">
         <div

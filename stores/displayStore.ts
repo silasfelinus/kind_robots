@@ -691,19 +691,19 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function toggleHeader(mode: 'cycle' | 'open' = 'cycle') {
-    if (mode === 'open') {
-      state.headerState = 'open'
-      saveState()
-      return
-    }
-
-    // Only cycle between open and compact — never hide via this toggle
-    const order: DisplayState[] = ['open', 'compact']
-    const currentIndex = Math.max(0, order.indexOf(state.headerState))
-    state.headerState = order[(currentIndex + 1) % order.length] ?? 'open'
+  function toggleHeader(mode: 'cycle' | 'open' | 'compact' | 'hidden' = 'cycle') {
+  if (mode !== 'cycle') {
+    state.headerState = mode
     saveState()
+    return
   }
+
+  const order: DisplayState[] = ['open', 'compact', 'hidden']
+  const currentIndex = order.indexOf(state.headerState)
+  const safeIndex = currentIndex === -1 ? 0 : currentIndex
+  state.headerState = order[(safeIndex + 1) % order.length] ?? 'open'
+  saveState()
+} 
 
   const headerCornerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value
@@ -1025,11 +1025,14 @@ export const useDisplayStore = defineStore('displayStore', () => {
         }
       }
 
-      // Normalize headerState: 'hidden'/'disabled' should never persist across
-      // page loads — the header is always visible on fresh load.
-      if (state.headerState === 'hidden' || state.headerState === 'disabled') {
-        state.headerState = 'compact'
-      }
+      if (
+  state.headerState !== 'open' &&
+  state.headerState !== 'compact' &&
+  state.headerState !== 'hidden'
+) {
+  state.headerState = 'compact'
+}
+
 
       state.footerState = 'disabled'
       clearPromptOffset()

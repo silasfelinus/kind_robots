@@ -1,8 +1,8 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <template>
-  <div
-    class="flex h-full min-h-0 select-none flex-col overflow-hidden bg-base-200"
-  >
+ <!-- root div -->
+<div class="flex h-full min-h-[80vh] min-h-0 select-none flex-col overflow-hidden bg-base-200">
+
     <header
       v-if="gameStarted"
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
@@ -151,7 +151,8 @@
       v-if="!gameStarted"
       class="splash-screen relative flex min-h-0 flex-1 flex-col overflow-hidden bg-black"
     >
-      <div class="splash-hero relative min-h-0 flex-1 overflow-hidden">
+   
+<div class="splash-hero relative flex-1 overflow-hidden min-h-[60vh] sm:min-h-[70vh]">
         <img
           src="/images/background/memorydungeon.png"
           alt="Memory Match Dungeon"

@@ -1,30 +1,341 @@
-//components/servers/art-test/vue
-
 <script setup lang="ts">
+// /components/servers/art-test.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 
-// ─── Endpoint registry ────────────────────────────────────────────────────────
+type EndpointId = 'a1111' | 'sdxl' | 'flux' | 'kontext' | 'kombine'
+type EndpointMode = 'text' | 'remix' | 'combine'
+
+type AnimalKey =
+  | 'cat'
+  | 'dog'
+  | 'dragon'
+  | 'sloth'
+  | 'butterfly'
+  | 'rabbit'
+  | 'fox'
+  | 'bear'
+  | 'jellyfish'
+  | 'octopus'
+
+type ArtistStyleKey =
+  | 'van-gogh'
+  | 'monet'
+  | 'mucha'
+  | 'hokusai'
+  | 'kandinsky'
+  | 'matisse'
+  | 'dali'
+  | 'vermeer'
+
 interface EndpointDef {
-  id: string
+  id: EndpointId
   label: string
   route: string
   description: string
-  color: string
   icon: string
-  needsPrompt: boolean
+  color: string
+  engine: string
+  mode: EndpointMode
   needsNegative: boolean
-  needsCheckpoint: boolean
-  needsSampler: boolean
   needsSteps: boolean
   needsCfg: boolean
   needsGuidance: boolean
   needsSeed: boolean
   needsSize: boolean
-  needsSourceImage: boolean
-  needsSourceImage2: boolean
-  outputType: 'image' | 'model3d'
-  engine: string
+}
+
+interface AnimalDef {
+  key: AnimalKey
+  label: string
+  emoji: string
+  path: string
+  descriptor: string
+}
+
+interface ArtistStyleDef {
+  key: ArtistStyleKey
+  label: string
+  stylePrompt: string
+}
+
+const ENDPOINTS: EndpointDef[] = [
+  {
+    id: 'a1111',
+    label: 'Stable Diffusion',
+    route: '/api/art/generate',
+    description: 'Text only prompt improvement test',
+    icon: '◈',
+    color: 'text-warning',
+    engine: 'A1111',
+    mode: 'text',
+    needsNegative: true,
+    needsSteps: true,
+    needsCfg: true,
+    needsGuidance: false,
+    needsSeed: true,
+    needsSize: true,
+  },
+  {
+    id: 'sdxl',
+    label: 'Comfy SDXL',
+    route: '/api/comfy/sdxl/generate',
+    description: 'Text only prompt improvement test',
+    icon: '◉',
+    color: 'text-success',
+    engine: 'SDXL',
+    mode: 'text',
+    needsNegative: true,
+    needsSteps: true,
+    needsCfg: true,
+    needsGuidance: false,
+    needsSeed: true,
+    needsSize: true,
+  },
+  {
+    id: 'flux',
+    label: 'Comfy Flux',
+    route: '/api/comfy/flux/generate',
+    description: 'Text only prompt improvement test',
+    icon: '⟁',
+    color: 'text-secondary',
+    engine: 'FLUX',
+    mode: 'text',
+    needsNegative: false,
+    needsSteps: true,
+    needsCfg: false,
+    needsGuidance: true,
+    needsSeed: true,
+    needsSize: true,
+  },
+  {
+    id: 'kontext',
+    label: 'Kontext Remix',
+    route: '/api/comfy/kontext/generate',
+    description: 'One animal image remixed into a famous art style',
+    icon: '◎',
+    color: 'text-info',
+    engine: 'KONTEXT',
+    mode: 'remix',
+    needsNegative: false,
+    needsSteps: true,
+    needsCfg: false,
+    needsGuidance: true,
+    needsSeed: true,
+    needsSize: true,
+  },
+  {
+    id: 'kombine',
+    label: 'Kombine',
+    route: '/api/comfy/kontext/kombine',
+    description: 'Combine any two animal test images into one hybrid',
+    icon: '⊕',
+    color: 'text-accent',
+    engine: 'KONTEXT',
+    mode: 'combine',
+    needsNegative: false,
+    needsSteps: true,
+    needsCfg: false,
+    needsGuidance: true,
+    needsSeed: true,
+    needsSize: true,
+  },
+]
+
+const ANIMALS: AnimalDef[] = [
+  {
+    key: 'cat',
+    label: 'Cat',
+    emoji: '🐱',
+    path: '/images/test/animals/cat.webp',
+    descriptor: 'a curious illustrated cat with expressive eyes',
+  },
+  {
+    key: 'dog',
+    label: 'Dog',
+    emoji: '🐶',
+    path: '/images/test/animals/dog.webp',
+    descriptor: 'a cheerful illustrated dog with playful energy',
+  },
+  {
+    key: 'dragon',
+    label: 'Dragon',
+    emoji: '🐉',
+    path: '/images/test/animals/dragon.webp',
+    descriptor: 'a whimsical illustrated dragon with a magical personality',
+  },
+  {
+    key: 'sloth',
+    label: 'Sloth',
+    emoji: '🦥',
+    path: '/images/test/animals/sloth.webp',
+    descriptor: 'a relaxed illustrated sloth with sweet charm',
+  },
+  {
+    key: 'butterfly',
+    label: 'Butterfly',
+    emoji: '🦋',
+    path: '/images/test/animals/butterfly.webp',
+    descriptor: 'a bright illustrated butterfly with dreamy elegance',
+  },
+  {
+    key: 'rabbit',
+    label: 'Rabbit',
+    emoji: '🐰',
+    path: '/images/test/animals/rabbit.webp',
+    descriptor: 'a lively illustrated rabbit with adorable expressions',
+  },
+  {
+    key: 'fox',
+    label: 'Fox',
+    emoji: '🦊',
+    path: '/images/test/animals/fox.webp',
+    descriptor: 'a clever illustrated fox with a mischievous smile',
+  },
+  {
+    key: 'bear',
+    label: 'Bear',
+    emoji: '🐻',
+    path: '/images/test/animals/bear.webp',
+    descriptor: 'a friendly illustrated bear with cozy storybook warmth',
+  },
+  {
+    key: 'jellyfish',
+    label: 'Jellyfish',
+    emoji: '🪼',
+    path: '/images/test/animals/jellyfish.webp',
+    descriptor: 'a glowing illustrated jellyfish with soft floating beauty',
+  },
+  {
+    key: 'octopus',
+    label: 'Octopus',
+    emoji: '🐙',
+    path: '/images/test/animals/octopus.webp',
+    descriptor: 'a playful illustrated octopus with lively movement',
+  },
+]
+
+const ARTIST_STYLES: ArtistStyleDef[] = [
+  {
+    key: 'van-gogh',
+    label: 'Van Gogh',
+    stylePrompt:
+      'bold swirling brushwork, luminous color, vibrant motion, painterly texture inspired by Vincent van Gogh',
+  },
+  {
+    key: 'monet',
+    label: 'Monet',
+    stylePrompt:
+      'soft impressionist brushwork, atmospheric light, dreamy color harmonies inspired by Claude Monet',
+  },
+  {
+    key: 'mucha',
+    label: 'Mucha',
+    stylePrompt:
+      'ornamental art nouveau curves, elegant decorative framing, graceful stylization inspired by Alphonse Mucha',
+  },
+  {
+    key: 'hokusai',
+    label: 'Hokusai',
+    stylePrompt:
+      'ukiyo-e inspired linework, flat elegant color shapes, graphic composition inspired by Hokusai',
+  },
+  {
+    key: 'kandinsky',
+    label: 'Kandinsky',
+    stylePrompt:
+      'playful abstract geometry, rhythmic color relationships, expressive design inspired by Kandinsky',
+  },
+  {
+    key: 'matisse',
+    label: 'Matisse',
+    stylePrompt:
+      'bold simplified shapes, joyful color blocking, decorative clarity inspired by Henri Matisse',
+  },
+  {
+    key: 'dali',
+    label: 'Dalí',
+    stylePrompt:
+      'surreal dreamlike atmosphere, imaginative distortions, theatrical fantasy inspired by Salvador Dalí',
+  },
+  {
+    key: 'vermeer',
+    label: 'Vermeer',
+    stylePrompt:
+      'gentle natural light, refined realism, quiet luminous atmosphere inspired by Johannes Vermeer',
+  },
+]
+
+const serverStore = useServerStore()
+
+const selectedEndpointId = ref<EndpointId>('flux')
+const selectedAnimal = ref<AnimalKey>('fox')
+const selectedAnimalA = ref<AnimalKey>('fox')
+const selectedAnimalB = ref<AnimalKey>('rabbit')
+const selectedStyle = ref<ArtistStyleKey>('van-gogh')
+
+const serverId = ref<number | null>(null)
+const extraPrompt = ref('')
+const negativePrompt = ref('blurry, watermark, text, logo, low quality, deformed')
+const steps = ref(24)
+const cfg = ref(7)
+const guidance = ref(3.5)
+const seed = ref<number | null>(null)
+const width = ref(1024)
+const height = ref(1024)
+
+const sourceImageBase64 = ref<string | null>(null)
+const sourceImagePreview = ref<string | null>(null)
+const sourceImage2Base64 = ref<string | null>(null)
+const sourceImage2Preview = ref<string | null>(null)
+
+const isGenerating = ref(false)
+const resultImage = ref<string | null>(null)
+const resultData = ref<Record<string, unknown> | null>(null)
+const errorMsg = ref('')
+const elapsedMs = ref(0)
+const showPayload = ref(false)
+const showRawResult = ref(false)
+
+let timerInterval: ReturnType<typeof setInterval> | null = null
+
+const endpointDef = computed<EndpointDef>(
+  () =>
+    ENDPOINTS.find((entry) => entry.id === selectedEndpointId.value) ??
+    ENDPOINTS[0],
+)
+
+const artServers = computed(() => serverStore.artServers)
+
+const selectedAnimalDef = computed<AnimalDef>(
+  () =>
+    ANIMALS.find((animal) => animal.key === selectedAnimal.value) ??
+    ANIMALS[0],
+)
+
+const selectedAnimalADef = computed<AnimalDef>(
+  () =>
+    ANIMALS.find((animal) => animal.key === selectedAnimalA.value) ??
+    ANIMALS[0],
+)
+
+const selectedAnimalBDef = computed<AnimalDef>(
+  () =>
+    ANIMALS.find((animal) => animal.key === selectedAnimalB.value) ??
+    ANIMALS[1],
+)
+
+const selectedStyleDef = computed<ArtistStyleDef>(
+  () =>
+    ARTIST_STYLES.find((style) => style.key === selectedStyle.value) ??
+    ARTIST_STYLES[0],
+)
+
+function joinParts(parts: Array<string | null | undefined>): string {
+  return parts
+    .map((part) => part?.trim())
+    .filter((part) => Boolean(part))
+    .join(' ')
 }
 
 function setSize(nextWidth: number, nextHeight: number): void {
@@ -32,212 +343,144 @@ function setSize(nextWidth: number, nextHeight: number): void {
   height.value = nextHeight
 }
 
-const ENDPOINTS: EndpointDef[] = [
-  {
-    id: 'a1111',
-    label: 'A1111 / Forge',
-    route: '/api/art/generate',
-    description: 'Stable Diffusion via A1111 or Forge backend',
-    color: '#f59e0b',
-    icon: '◈',
-    needsPrompt: true,
-    needsNegative: true,
-    needsCheckpoint: true,
-    needsSampler: true,
-    needsSteps: true,
-    needsCfg: true,
-    needsGuidance: false,
-    needsSeed: true,
-    needsSize: true,
-    needsSourceImage: false,
-    needsSourceImage2: false,
-    outputType: 'image',
-    engine: 'A1111',
-  },
-  {
-    id: 'flux',
-    label: 'Comfy · Flux',
-    route: '/api/comfy/flux/generate',
-    description: 'Flux.1 generation via ComfyUI workflow',
-    color: '#8b5cf6',
-    icon: '⟁',
-    needsPrompt: true,
-    needsNegative: false,
-    needsCheckpoint: false,
-    needsSampler: false,
-    needsSteps: true,
-    needsCfg: false,
-    needsGuidance: true,
-    needsSeed: true,
-    needsSize: true,
-    needsSourceImage: false,
-    needsSourceImage2: false,
-    outputType: 'image',
-    engine: 'FLUX',
-  },
-  {
-    id: 'kontext',
-    label: 'Comfy · Kontext',
-    route: '/api/comfy/kontext/generate',
-    description: 'Flux Kontext img2img — image + prompt → new image',
-    color: '#06b6d4',
-    icon: '◎',
-    needsPrompt: true,
-    needsNegative: false,
-    needsCheckpoint: false,
-    needsSampler: false,
-    needsSteps: true,
-    needsCfg: false,
-    needsGuidance: true,
-    needsSeed: true,
-    needsSize: true,
-    needsSourceImage: true,
-    needsSourceImage2: false,
-    outputType: 'image',
-    engine: 'KONTEXT',
-  },
-  {
-    id: 'kombine',
-    label: 'Comfy · Kombine',
-    route: '/api/comfy/kontext/kombine',
-    description: 'Flux Kontext 2-image merge — combine two images with prompt',
-    color: '#ec4899',
-    icon: '⊕',
-    needsPrompt: true,
-    needsNegative: false,
-    needsCheckpoint: false,
-    needsSampler: false,
-    needsSteps: true,
-    needsCfg: false,
-    needsGuidance: true,
-    needsSeed: true,
-    needsSize: true,
-    needsSourceImage: true,
-    needsSourceImage2: true,
-    outputType: 'image',
-    engine: 'KONTEXT',
-  },
-  {
-    id: 'sdxl',
-    label: 'Comfy · SDXL',
-    route: '/api/comfy/sdxl/generate',
-    description: 'Stable Diffusion XL via ComfyUI workflow',
-    color: '#10b981',
-    icon: '◉',
-    needsPrompt: true,
-    needsNegative: true,
-    needsCheckpoint: false,
-    needsSampler: false,
-    needsSteps: true,
-    needsCfg: true,
-    needsGuidance: false,
-    needsSeed: true,
-    needsSize: true,
-    needsSourceImage: false,
-    needsSourceImage2: false,
-    outputType: 'image',
-    engine: 'SDXL',
-  },
-  {
-    id: 'characterSheet',
-    label: 'Character Sheet',
-    route: '/api/comfy/characterSheet',
-    description: 'Flux multi-view character model sheet from prompt or image',
-    color: '#f97316',
-    icon: '⊞',
-    needsPrompt: true,
-    needsNegative: false,
-    needsCheckpoint: false,
-    needsSampler: false,
-    needsSteps: true,
-    needsCfg: false,
-    needsGuidance: true,
-    needsSeed: true,
-    needsSize: false,
-    needsSourceImage: true,
-    needsSourceImage2: false,
-    outputType: 'image',
-    engine: 'FLUX',
-  },
-  {
-    id: 'hunyuan3d',
-    label: 'Hunyuan 3D',
-    route: '/api/comfy/hunyuan3d',
-    description: 'Generate a 3D-printable model file from prompt or image',
-    color: '#64748b',
-    icon: '◈',
-    needsPrompt: true,
-    needsNegative: false,
-    needsCheckpoint: false,
-    needsSampler: false,
-    needsSteps: true,
-    needsCfg: false,
-    needsGuidance: false,
-    needsSeed: true,
-    needsSize: false,
-    needsSourceImage: true,
-    needsSourceImage2: false,
-    outputType: 'model3d',
-    engine: 'HUNYUAN3D',
-  },
-]
-
-// ─── Store ────────────────────────────────────────────────────────────────────
-const serverStore = useServerStore()
-onMounted(() => {
-  if (!serverStore.hasLoaded) {
-    serverStore.initialize({ fetchRemote: true })
-  }
-})
-
 function updateSeed(event: Event): void {
   const target = event.target as HTMLInputElement | null
   const value = target?.value ?? ''
   seed.value = value ? Number(value) : null
 }
 
-// ─── State ────────────────────────────────────────────────────────────────────
-const selectedEndpointId = ref<string>('flux')
-const endpointDef = computed<EndpointDef>(
-  () =>
-    ENDPOINTS.find((e) => e.id === selectedEndpointId.value) ??
-    (ENDPOINTS[0] as EndpointDef),
-)
+function buildTextPrompt(): string {
+  return joinParts([
+    `Create a polished expressive illustration of ${selectedAnimalDef.value.descriptor}.`,
+    'Full body character view.',
+    'Centered composition.',
+    'Clean soft background.',
+    'High detail.',
+    'Appealing proportions.',
+    'Rich texture.',
+    'Readable silhouette.',
+    'Whimsical personality.',
+    extraPrompt.value,
+  ])
+}
 
-// form
-const serverId = ref<number | null>(null)
-const prompt = ref(
-  'A lone astronaut discovering an ancient glowing temple on a jungle moon',
-)
-const negativePrompt = ref('blurry, watermark, text, low quality, deformed')
-const checkpoint = ref('')
-const sampler = ref('Euler a')
-const steps = ref(20)
-const cfg = ref(7)
-const guidance = ref(3.5)
-const seed = ref<number | null>(null)
-const width = ref(1024)
-const height = ref(1024)
+function buildRemixPrompt(): string {
+  return joinParts([
+    `Use the provided animal reference image as the subject.`,
+    `Remix it into a new illustration in the style of ${selectedStyleDef.value.label}.`,
+    selectedStyleDef.value.stylePrompt,
+    'Preserve the animal identity and keep it clearly recognizable.',
+    'Make it expressive, charming, and visually rich.',
+    'Full character focus.',
+    'Clean background.',
+    extraPrompt.value,
+  ])
+}
 
-// image inputs
-const sourceImageBase64 = ref<string | null>(null)
-const sourceImagePreview = ref<string | null>(null)
-const sourceImage2Base64 = ref<string | null>(null)
-const sourceImage2Preview = ref<string | null>(null)
+function buildCombinePrompt(): string {
+  return joinParts([
+    `Use Image A as ${selectedAnimalADef.value.label} and Image B as ${selectedAnimalBDef.value.label}.`,
+    'Combine both animals into one single hybrid creature.',
+    'Keep recognizable traits from both animals.',
+    'Make the result feel intentional, cohesive, expressive, and charming.',
+    'Full body character focus.',
+    'Centered composition.',
+    'Clean background.',
+    'Illustrated style with strong silhouette and playful personality.',
+    extraPrompt.value,
+  ])
+}
 
-// output
-const isGenerating = ref(false)
-const resultImage = ref<string | null>(null)
-const resultData = ref<Record<string, unknown> | null>(null)
-const resultModel3d = ref<string | null>(null)
-const errorMsg = ref('')
-const elapsedMs = ref(0)
-const showPayload = ref(false)
-const showRawResult = ref(false)
-let timerInterval: ReturnType<typeof setInterval> | null = null
+const builtPrompt = computed(() => {
+  if (endpointDef.value.mode === 'remix') return buildRemixPrompt()
+  if (endpointDef.value.mode === 'combine') return buildCombinePrompt()
+  return buildTextPrompt()
+})
 
-// server options from store
-const artServers = computed(() => serverStore.artServers)
+function getAnimalByKey(key: AnimalKey): AnimalDef {
+  return ANIMALS.find((animal) => animal.key === key) ?? ANIMALS[0]
+}
+
+async function imagePathToBase64(path: string): Promise<string> {
+  const response = await fetch(path)
+
+  if (!response.ok) {
+    throw new Error(`Failed to load test image: ${path}`)
+  }
+
+  const blob = await response.blob()
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : ''
+      resolve(result.split(',')[1] ?? '')
+    }
+
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+async function setImageSlot(slot: 1 | 2, animalKey: AnimalKey): Promise<void> {
+  const animal = getAnimalByKey(animalKey)
+  const base64 = await imagePathToBase64(animal.path)
+
+  if (slot === 1) {
+    sourceImageBase64.value = base64
+    sourceImagePreview.value = animal.path
+  } else {
+    sourceImage2Base64.value = base64
+    sourceImage2Preview.value = animal.path
+  }
+}
+
+async function syncSourceImages(): Promise<void> {
+  sourceImageBase64.value = null
+  sourceImagePreview.value = null
+  sourceImage2Base64.value = null
+  sourceImage2Preview.value = null
+
+  if (endpointDef.value.mode === 'remix') {
+    await setImageSlot(1, selectedAnimal.value)
+  }
+
+  if (endpointDef.value.mode === 'combine') {
+    await setImageSlot(1, selectedAnimalA.value)
+    await setImageSlot(2, selectedAnimalB.value)
+  }
+}
+
+const builtPayload = computed(() => {
+  const payload: Record<string, unknown> = {
+    serverId: serverId.value,
+    promptString: builtPrompt.value,
+  }
+
+  if (endpointDef.value.needsNegative) payload.negativePrompt = negativePrompt.value
+  if (endpointDef.value.needsSteps) payload.steps = steps.value
+  if (endpointDef.value.needsCfg) payload.cfg = cfg.value
+  if (endpointDef.value.needsGuidance) payload.guidance = guidance.value
+  if (endpointDef.value.needsSeed) payload.seed = seed.value
+
+  if (endpointDef.value.needsSize) {
+    payload.width = width.value
+    payload.height = height.value
+  }
+
+  if (sourceImageBase64.value) {
+    payload.sourceImageBase64 = `[${sourceImageBase64.value.length} chars]`
+  }
+
+  if (sourceImage2Base64.value) {
+    payload.sourceImage2Base64 = `[${sourceImage2Base64.value.length} chars]`
+    payload.maskImageBase64 = `[${sourceImage2Base64.value.length} chars]`
+  }
+
+  return payload
+})
+
 watch(
   artServers,
   (servers) => {
@@ -248,126 +491,63 @@ watch(
   { immediate: true },
 )
 
-// ─── Style helpers (keep CSS custom props out of template expressions) ────────
-const generateBtnStyle = computed(() =>
-  endpointDef.value ? { ['--btn-color']: endpointDef.value.color } : {},
+watch(
+  [selectedEndpointId, selectedAnimal, selectedAnimalA, selectedAnimalB],
+  async () => {
+    resultImage.value = null
+    resultData.value = null
+    errorMsg.value = ''
+    await syncSourceImages()
+  },
+  { immediate: false },
 )
 
-function epTabStyle(ep: EndpointDef, activeId: string): Record<string, string> {
-  return activeId === ep.id ? { ['--ep-color']: ep.color } : {}
-}
+onMounted(async () => {
+  if (!serverStore.hasLoaded) {
+    serverStore.initialize({ fetchRemote: true })
+  }
 
-// reset image inputs when endpoint changes
-watch(selectedEndpointId, () => {
-  sourceImageBase64.value = null
-  sourceImagePreview.value = null
-  sourceImage2Base64.value = null
-  sourceImage2Preview.value = null
-  resultImage.value = null
-  resultData.value = null
-  resultModel3d.value = null
-  errorMsg.value = ''
+  await syncSourceImages()
 })
 
-// ─── Image upload helpers ─────────────────────────────────────────────────────
-function toBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = reader.result as string
-      // strip the data URL prefix, keep only base64
-      resolve(result.split(',')[1] ?? '')
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
-
-async function handleImageUpload(event: Event, slot: 1 | 2): Promise<void> {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
-
-  const b64 = await toBase64(file)
-  const previewUrl = URL.createObjectURL(file)
-
-  if (slot === 1) {
-    sourceImageBase64.value = b64
-    sourceImagePreview.value = previewUrl
-  } else {
-    sourceImage2Base64.value = b64
-    sourceImage2Preview.value = previewUrl
-  }
-}
-
-function clearImage(slot: 1 | 2): void {
-  if (slot === 1) {
-    sourceImageBase64.value = null
-    sourceImagePreview.value = null
-  } else {
-    sourceImage2Base64.value = null
-    sourceImage2Preview.value = null
-  }
-}
-
-// ─── Payload builder ──────────────────────────────────────────────────────────
-const builtPayload = computed(() => {
-  const def: EndpointDef | undefined = endpointDef.value
-  if (!def) return {}
-  const payload: Record<string, unknown> = {
-    serverId: serverId.value,
-    promptString: prompt.value,
-  }
-
-  if (def.needsNegative) payload.negativePrompt = negativePrompt.value
-  if (def.needsCheckpoint) payload.checkpoint = checkpoint.value
-  if (def.needsSampler) payload.sampler = sampler.value
-  if (def.needsSteps) payload.steps = steps.value
-  if (def.needsCfg) payload.cfg = cfg.value
-  if (def.needsGuidance) payload.guidance = guidance.value
-  if (def.needsSeed) payload.seed = seed.value
-  if (def.needsSize) {
-    payload.width = width.value
-    payload.height = height.value
-  }
-  if (def.needsSourceImage && sourceImageBase64.value) {
-    payload.sourceImageBase64 = `[${sourceImageBase64.value.length} chars]`
-  }
-  if (def.needsSourceImage2 && sourceImage2Base64.value) {
-    payload.maskImageBase64 = `[${sourceImage2Base64.value.length} chars]`
-  }
-
-  return payload
-})
-
-// ─── Generation ───────────────────────────────────────────────────────────────
 function startTimer(): void {
   elapsedMs.value = 0
   const start = Date.now()
+
   timerInterval = setInterval(() => {
     elapsedMs.value = Date.now() - start
   }, 100)
 }
 
 function stopTimer(): void {
-  if (timerInterval) clearInterval(timerInterval)
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
+  }
 }
 
 function extractResultImage(data: Record<string, unknown>): string | null {
-  // Try common response shapes
+  const nested = (data.data as Record<string, unknown> | undefined) ?? undefined
+
   const candidates = [
     data.imageData,
     data.imagePath,
     data.image,
     data.url,
     data.path,
-    (data.data as Record<string, unknown> | null)?.imageData,
-    (data.data as Record<string, unknown> | null)?.imagePath,
-    (data.data as Record<string, unknown> | null)?.image,
+    nested?.imageData,
+    nested?.imagePath,
+    nested?.image,
+    nested?.url,
+    nested?.path,
   ]
-  for (const c of candidates) {
-    if (typeof c === 'string' && c.length > 0) return c
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.length > 0) {
+      return candidate
+    }
   }
+
   return null
 }
 
@@ -377,69 +557,63 @@ async function generate(): Promise<void> {
   isGenerating.value = true
   resultImage.value = null
   resultData.value = null
-  resultModel3d.value = null
   errorMsg.value = ''
   startTimer()
 
-  const def: EndpointDef | undefined = endpointDef.value
-  if (!def) {
-    stopTimer()
-    isGenerating.value = false
-    return
-  }
   const body: Record<string, unknown> = {
     serverId: serverId.value,
-    promptString: prompt.value,
+    promptString: builtPrompt.value,
   }
 
-  if (def.needsNegative) body.negativePrompt = negativePrompt.value
-  if (def.needsCheckpoint) body.checkpoint = checkpoint.value
-  if (def.needsSampler) body.sampler = sampler.value
-  if (def.needsSteps) body.steps = steps.value
-  if (def.needsCfg) body.cfg = cfg.value
-  if (def.needsGuidance) body.guidance = guidance.value
-  if (def.needsSeed) body.seed = seed.value
-  if (def.needsSize) {
+  if (endpointDef.value.needsNegative) body.negativePrompt = negativePrompt.value
+  if (endpointDef.value.needsSteps) body.steps = steps.value
+  if (endpointDef.value.needsCfg) body.cfg = cfg.value
+  if (endpointDef.value.needsGuidance) body.guidance = guidance.value
+  if (endpointDef.value.needsSeed) body.seed = seed.value
+
+  if (endpointDef.value.needsSize) {
     body.width = width.value
     body.height = height.value
   }
-  if (def.needsSourceImage && sourceImageBase64.value)
+
+  if (sourceImageBase64.value) {
     body.sourceImageBase64 = sourceImageBase64.value
-  if (def.needsSourceImage2 && sourceImage2Base64.value)
+  }
+
+  if (sourceImage2Base64.value) {
+    body.sourceImage2Base64 = sourceImage2Base64.value
     body.maskImageBase64 = sourceImage2Base64.value
+  }
 
   try {
-    const res = await fetch(def.route, {
+    const response = await fetch(endpointDef.value.route, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
 
-    const data = await res.json()
+    const data = (await response.json()) as Record<string, unknown>
     resultData.value = data
 
-    if (!res.ok) {
+    if (!response.ok) {
       throw new Error(
-        data?.statusMessage || data?.message || `HTTP ${res.status}`,
+        String(data?.statusMessage || data?.message || `HTTP ${response.status}`),
       )
     }
 
-    if (def.outputType === 'model3d') {
-      resultModel3d.value = data?.data?.filePath || data?.filePath || null
-    } else {
-      const imgValue = extractResultImage(
-        (data?.data ?? data) as Record<string, unknown>,
-      )
-      if (imgValue) {
-        resultImage.value = imgValue.startsWith('data:')
-          ? imgValue
-          : imgValue.startsWith('/')
-            ? imgValue
-            : `data:image/png;base64,${imgValue}`
-      }
+    const imageValue = extractResultImage(data)
+
+    if (!imageValue) {
+      throw new Error('No image result was returned.')
     }
-  } catch (err) {
-    errorMsg.value = err instanceof Error ? err.message : String(err)
+
+    resultImage.value = imageValue.startsWith('data:')
+      ? imageValue
+      : imageValue.startsWith('/')
+        ? imageValue
+        : `data:image/png;base64,${imageValue}`
+  } catch (error) {
+    errorMsg.value = error instanceof Error ? error.message : String(error)
   } finally {
     stopTimer()
     isGenerating.value = false
@@ -449,1213 +623,512 @@ async function generate(): Promise<void> {
 function clearResult(): void {
   resultImage.value = null
   resultData.value = null
-  resultModel3d.value = null
   errorMsg.value = ''
   elapsedMs.value = 0
 }
 
 async function copyOutput(): Promise<void> {
-  if (typeof window !== 'undefined' && resultData.value) {
-    await window.navigator.clipboard.writeText(
-      JSON.stringify(resultData.value, null, 2),
-    )
-  }
+  if (!resultData.value || typeof window === 'undefined') return
+
+  await window.navigator.clipboard.writeText(
+    JSON.stringify(resultData.value, null, 2),
+  )
 }
 
 function downloadImage(): void {
   if (!resultImage.value) return
-  const a = document.createElement('a')
-  a.href = resultImage.value
-  a.download = `art-test-${selectedEndpointId.value}-${Date.now()}.png`
-  a.click()
+
+  const anchor = document.createElement('a')
+  anchor.href = resultImage.value
+  anchor.download = `art-test-${selectedEndpointId.value}-${Date.now()}.png`
+  anchor.click()
 }
 </script>
 
 <template>
-  <div class="at-root">
-    <!-- ── Header ─────────────────────────────────────────────────────────── -->
-    <header class="at-header">
-      <div class="at-header-left">
-        <span class="at-logo" :style="{ color: endpointDef.color }">{{
-          endpointDef.icon
-        }}</span>
-        <div>
-          <h1 class="at-title">Art Generation Test</h1>
-          <p class="at-subtitle">API Route Diagnostics</p>
+  <div class="flex flex-col gap-6">
+    <div
+      class="rounded-2xl border border-base-300 bg-base-200 p-4 shadow-lg md:p-6"
+    >
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-4">
+          <div
+            class="flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-100 text-3xl"
+          >
+            {{ endpointDef.icon }}
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold">Art Test Lab</h1>
+            <p class="text-sm opacity-70">
+              Text prompt upgrades, Kontext remix, and animal Kombine chaos.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="badge badge-outline badge-lg">{{ endpointDef.engine }}</div>
+          <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs">
+            {{ endpointDef.route }}
+          </div>
         </div>
       </div>
-      <div class="at-header-right">
-        <span
-          class="at-badge"
-          :style="{ borderColor: endpointDef.color, color: endpointDef.color }"
-        >
-          {{ endpointDef.engine }}
-        </span>
-        <span class="at-route-chip">{{ endpointDef.route }}</span>
-      </div>
-    </header>
+    </div>
 
-    <div class="at-layout">
-      <!-- ── Left sidebar ──────────────────────────────────────────────────── -->
-      <aside class="at-sidebar">
-        <!-- Endpoint picker -->
-        <section class="at-section">
-          <label class="at-label">Endpoint</label>
-          <div class="at-endpoint-list">
+    <div class="grid gap-6 xl:grid-cols-[340px_1fr]">
+      <aside class="flex flex-col gap-6">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+            Endpoint
+          </div>
+
+          <div class="grid gap-2">
             <button
-              v-for="ep in ENDPOINTS"
-              :key="ep.id"
-              class="at-endpoint-btn"
-              :class="{ active: selectedEndpointId === ep.id }"
-              :style="epTabStyle(ep, selectedEndpointId)"
-              @click="selectedEndpointId = ep.id"
+              v-for="endpoint in ENDPOINTS"
+              :key="endpoint.id"
+              type="button"
+              class="flex items-start gap-3 rounded-2xl border p-3 text-left transition hover:border-primary hover:bg-base-100"
+              :class="
+                selectedEndpointId === endpoint.id
+                  ? 'border-primary bg-base-100'
+                  : 'border-base-300 bg-base-200'
+              "
+              @click="selectedEndpointId = endpoint.id"
             >
-              <span
-                class="at-ep-icon"
-                :style="{ color: selectedEndpointId === ep.id ? ep.color : '' }"
-              >
-                {{ ep.icon }}
-              </span>
-              <span class="at-ep-info">
-                <span class="at-ep-name">{{ ep.label }}</span>
-                <span class="at-ep-desc">{{ ep.description }}</span>
-              </span>
+              <div class="text-xl">{{ endpoint.icon }}</div>
+              <div class="flex flex-col gap-1">
+                <div class="font-bold">{{ endpoint.label }}</div>
+                <div class="text-xs opacity-70">{{ endpoint.description }}</div>
+              </div>
             </button>
           </div>
-        </section>
+        </div>
 
-        <hr class="at-divider" />
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+            Art Server
+          </div>
 
-        <!-- Server selector -->
-        <section class="at-section">
-          <label class="at-label">Art Server</label>
-          <div v-if="serverStore.loading" class="at-muted at-small">
-            Loading servers…
+          <div v-if="serverStore.loading" class="text-sm opacity-60">
+            Loading servers...
           </div>
-          <div v-else-if="!artServers.length" class="at-warn">
-            No art servers found. Check serverStore.
+
+          <div v-else-if="!artServers.length" class="text-sm text-warning">
+            No art servers found.
           </div>
-          <select v-else v-model="serverId" class="at-select">
-            <option :value="null">— none —</option>
-            <option v-for="s in artServers" :key="s.id" :value="s.id">
-              {{ s.label || s.title }} ({{ s.serverType }})
-            </option>
-          </select>
-          <div v-if="serverId" class="at-server-info">
-            <span class="at-muted at-small">
+
+          <div v-else class="flex flex-col gap-2">
+            <select v-model="serverId" class="select select-bordered rounded-2xl bg-base-100">
+              <option :value="null">Select server</option>
+              <option v-for="server in artServers" :key="server.id" :value="server.id">
+                {{ server.label || server.title }} ({{ server.serverType }})
+              </option>
+            </select>
+
+            <div
+              v-if="serverId"
+              class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs opacity-70"
+            >
               {{ serverStore.getServerById(serverId)?.baseUrl }}
-            </span>
+            </div>
           </div>
-        </section>
+        </div>
 
-        <hr class="at-divider" />
-
-        <!-- Generation params -->
-        <section v-if="endpointDef.needsCheckpoint" class="at-section">
-          <label class="at-label">Checkpoint</label>
-          <input
-            v-model="checkpoint"
-            class="at-input"
-            type="text"
-            placeholder="v1-5-pruned.safetensors"
-          />
-        </section>
-
-        <section v-if="endpointDef.needsSampler" class="at-section">
-          <label class="at-label">Sampler</label>
-          <select v-model="sampler" class="at-select">
-            <option>Euler a</option>
-            <option>Euler</option>
-            <option>DPM++ 2M</option>
-            <option>DPM++ 2M Karras</option>
-            <option>DPM++ SDE</option>
-            <option>DDIM</option>
-          </select>
-        </section>
-
-        <section v-if="endpointDef.needsSteps" class="at-section">
-          <label class="at-label"
-            >Steps <span class="at-val">{{ steps }}</span></label
-          >
-          <input
-            type="range"
-            min="1"
-            max="60"
-            step="1"
-            v-model.number="steps"
-            class="at-range"
-          />
-        </section>
-
-        <section v-if="endpointDef.needsCfg" class="at-section">
-          <label class="at-label"
-            >CFG Scale <span class="at-val">{{ cfg }}</span></label
-          >
-          <input
-            type="range"
-            min="1"
-            max="20"
-            step="0.5"
-            v-model.number="cfg"
-            class="at-range"
-          />
-        </section>
-
-        <section v-if="endpointDef.needsGuidance" class="at-section">
-          <label class="at-label"
-            >Guidance <span class="at-val">{{ guidance }}</span></label
-          >
-          <input
-            type="range"
-            min="1"
-            max="10"
-            step="0.5"
-            v-model.number="guidance"
-            class="at-range"
-          />
-        </section>
-
-        <section v-if="endpointDef.needsSeed" class="at-section">
-          <label class="at-label"
-            >Seed <span class="at-val">{{ seed ?? 'random' }}</span></label
-          >
-          <div class="at-seed-row">
-            <input
-              :value="seed ?? ''"
-              class="at-input at-input--grow"
-              type="number"
-              placeholder="random"
-              @input="updateSeed"
-            />
-            <button class="at-icon-btn" title="Randomize" @click="seed = null">
-              ⟳
-            </button>
-            <button
-              class="at-icon-btn"
-              title="New seed"
-              @click="seed = Math.floor(Math.random() * 999999999)"
-            >
-              ✦
-            </button>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+            Parameters
           </div>
-        </section>
 
-        <section v-if="endpointDef.needsSize" class="at-section">
-          <label class="at-label"
-            >Width <span class="at-val">{{ width }}px</span></label
-          >
-          <input
-            type="range"
-            min="256"
-            max="2048"
-            step="64"
-            v-model.number="width"
-            class="at-range"
-          />
-          <label class="at-label" style="margin-top: 0.4rem"
-            >Height <span class="at-val">{{ height }}px</span></label
-          >
-          <input
-            type="range"
-            min="256"
-            max="2048"
-            step="64"
-            v-model.number="height"
-            class="at-range"
-          />
-          <!-- Quick presets -->
-          <div class="at-size-presets">
-            <button
-              class="at-preset-btn"
-              type="button"
-              @click="setSize(512, 512)"
-            >
-              512²
-            </button>
-            <button
-              class="at-preset-btn"
-              type="button"
-              @click="setSize(768, 768)"
-            >
-              768²
-            </button>
-            <button
-              class="at-preset-btn"
-              type="button"
-              @click="setSize(1024, 1024)"
-            >
-              1024²
-            </button>
-            <button
-              class="at-preset-btn"
-              type="button"
-              @click="setSize(1216, 832)"
-            >
-              16:9
-            </button>
-            <button
-              class="at-preset-btn"
-              type="button"
-              @click="setSize(832, 1216)"
-            >
-              9:16
-            </button>
+          <div class="flex flex-col gap-4">
+            <div v-if="endpointDef.needsSteps" class="flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Steps</span>
+                <span class="font-bold">{{ steps }}</span>
+              </div>
+              <input v-model.number="steps" type="range" min="1" max="60" step="1" class="range range-primary range-sm" />
+            </div>
+
+            <div v-if="endpointDef.needsCfg" class="flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>CFG</span>
+                <span class="font-bold">{{ cfg }}</span>
+              </div>
+              <input v-model.number="cfg" type="range" min="1" max="20" step="0.5" class="range range-secondary range-sm" />
+            </div>
+
+            <div v-if="endpointDef.needsGuidance" class="flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Guidance</span>
+                <span class="font-bold">{{ guidance }}</span>
+              </div>
+              <input
+                v-model.number="guidance"
+                type="range"
+                min="1"
+                max="10"
+                step="0.5"
+                class="range range-accent range-sm"
+              />
+            </div>
+
+            <div v-if="endpointDef.needsSeed" class="flex flex-col gap-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Seed</span>
+                <span class="font-bold">{{ seed ?? 'random' }}</span>
+              </div>
+
+              <div class="flex gap-2">
+                <input
+                  :value="seed ?? ''"
+                  type="number"
+                  placeholder="random"
+                  class="input input-bordered w-full rounded-2xl bg-base-100"
+                  @input="updateSeed"
+                />
+                <button class="btn rounded-2xl" type="button" @click="seed = null">⟳</button>
+                <button
+                  class="btn rounded-2xl"
+                  type="button"
+                  @click="seed = Math.floor(Math.random() * 999999999)"
+                >
+                  ✦
+                </button>
+              </div>
+            </div>
+
+            <div v-if="endpointDef.needsSize" class="flex flex-col gap-3">
+              <div class="text-sm font-bold">Size</div>
+
+              <div class="grid gap-3 md:grid-cols-2">
+                <label class="form-control">
+                  <span class="mb-2 text-sm">Width</span>
+                  <input v-model.number="width" type="number" class="input input-bordered rounded-2xl bg-base-100" />
+                </label>
+
+                <label class="form-control">
+                  <span class="mb-2 text-sm">Height</span>
+                  <input v-model.number="height" type="number" class="input input-bordered rounded-2xl bg-base-100" />
+                </label>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(768, 768)">768²</button>
+                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(1024, 1024)">1024²</button>
+                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(1216, 832)">16:9</button>
+                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(832, 1216)">9:16</button>
+              </div>
+            </div>
+
+            <div v-if="endpointDef.needsNegative" class="flex flex-col gap-2">
+              <div class="text-sm font-bold">Negative Prompt</div>
+              <textarea
+                v-model="negativePrompt"
+                rows="3"
+                class="textarea textarea-bordered rounded-2xl bg-base-100"
+                placeholder="What to avoid"
+              />
+            </div>
           </div>
-        </section>
+        </div>
 
-        <hr class="at-divider" />
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+            Debug
+          </div>
 
-        <!-- Dev toggles -->
-        <section class="at-section">
-          <label class="at-label">Debug</label>
-          <label class="at-toggle">
-            <input type="checkbox" v-model="showPayload" />
-            <span class="at-toggle-track"
-              ><span class="at-toggle-thumb"
-            /></span>
-            Show payload
-          </label>
-          <label class="at-toggle" style="margin-top: 0.3rem">
-            <input type="checkbox" v-model="showRawResult" />
-            <span class="at-toggle-track"
-              ><span class="at-toggle-thumb"
-            /></span>
-            Show raw result
-          </label>
-        </section>
+          <div class="flex flex-col gap-2">
+            <label class="label cursor-pointer justify-start gap-3">
+              <input v-model="showPayload" type="checkbox" class="toggle toggle-primary" />
+              <span class="label-text">Show payload</span>
+            </label>
+
+            <label class="label cursor-pointer justify-start gap-3">
+              <input v-model="showRawResult" type="checkbox" class="toggle toggle-secondary" />
+              <span class="label-text">Show raw result</span>
+            </label>
+          </div>
+        </div>
       </aside>
 
-      <!-- ── Main panel ─────────────────────────────────────────────────────── -->
-      <main class="at-main">
-        <!-- Prompts -->
-        <section class="at-section">
-          <label class="at-label">Prompt</label>
-          <textarea
-            v-model="prompt"
-            class="at-textarea"
-            rows="3"
-            placeholder="Describe the image you want to generate…"
-          />
-        </section>
+      <main class="flex flex-col gap-6">
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+          <div class="mb-4 text-lg font-bold">Test Builder</div>
 
-        <section v-if="endpointDef.needsNegative" class="at-section">
-          <label class="at-label">Negative Prompt</label>
-          <textarea
-            v-model="negativePrompt"
-            class="at-textarea at-textarea--sm"
-            rows="2"
-            placeholder="What to avoid…"
-          />
-        </section>
+          <div v-if="endpointDef.mode === 'text'" class="flex flex-col gap-6">
+            <div class="flex flex-col gap-3">
+              <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+                Subject Animal
+              </div>
 
-        <!-- Image inputs -->
-        <div
-          v-if="endpointDef.needsSourceImage || endpointDef.needsSourceImage2"
-          class="at-image-inputs"
-        >
-          <!-- Source image 1 -->
-          <section
-            v-if="endpointDef.needsSourceImage"
-            class="at-section at-drop-zone"
-            :class="{ 'has-image': sourceImagePreview }"
-          >
-            <label class="at-label">
-              {{
-                endpointDef.needsSourceImage2
-                  ? 'Source Image A'
-                  : 'Source Image'
-              }}
-              <span class="at-optional">(optional)</span>
-            </label>
-            <div v-if="sourceImagePreview" class="at-image-slot">
-              <img
-                :src="sourceImagePreview"
-                class="at-preview-img"
-                alt="Source"
-              />
-              <button class="at-remove-img" @click="clearImage(1)">
-                ✕ Remove
-              </button>
+              <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <button
+                  v-for="animal in ANIMALS"
+                  :key="animal.key"
+                  type="button"
+                  class="flex items-center gap-2 rounded-2xl border px-3 py-3 text-left transition hover:border-primary hover:bg-base-100"
+                  :class="
+                    selectedAnimal === animal.key
+                      ? 'border-primary bg-base-100'
+                      : 'border-base-300 bg-base-200'
+                  "
+                  @click="selectedAnimal = animal.key"
+                >
+                  <span class="text-xl">{{ animal.emoji }}</span>
+                  <span class="font-medium">{{ animal.label }}</span>
+                </button>
+              </div>
             </div>
-            <label v-else class="at-upload-label">
-              <input
-                type="file"
-                accept="image/*"
-                @change="handleImageUpload($event, 1)"
-                class="at-file-input"
-              />
-              <span class="at-upload-prompt">
-                <span class="at-upload-icon">⊕</span>
-                Click or drop image
-              </span>
-            </label>
-          </section>
 
-          <!-- Source image 2 (kombine) -->
-          <section
-            v-if="endpointDef.needsSourceImage2"
-            class="at-section at-drop-zone"
-            :class="{ 'has-image': sourceImage2Preview }"
-          >
-            <label class="at-label">Source Image B</label>
-            <div v-if="sourceImage2Preview" class="at-image-slot">
-              <img
-                :src="sourceImage2Preview"
-                class="at-preview-img"
-                alt="Source B"
-              />
-              <button class="at-remove-img" @click="clearImage(2)">
-                ✕ Remove
-              </button>
+            <div class="grid gap-4 lg:grid-cols-[220px_1fr]">
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <img :src="selectedAnimalDef.path" :alt="selectedAnimalDef.label" class="aspect-square w-full rounded-xl object-cover" />
+              </div>
+
+              <label class="form-control">
+                <span class="mb-2 text-sm font-bold">Extra Prompt Notes</span>
+                <textarea
+                  v-model="extraPrompt"
+                  rows="6"
+                  class="textarea textarea-bordered rounded-2xl bg-base-100"
+                  placeholder="Optional flavor. Example: wearing a tiny wizard hat, cozy storybook vibe, cinematic lighting."
+                />
+              </label>
             </div>
-            <label v-else class="at-upload-label">
-              <input
-                type="file"
-                accept="image/*"
-                @change="handleImageUpload($event, 2)"
-                class="at-file-input"
+          </div>
+
+          <div v-else-if="endpointDef.mode === 'remix'" class="flex flex-col gap-6">
+            <div class="flex flex-col gap-3">
+              <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+                Source Animal
+              </div>
+
+              <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <button
+                  v-for="animal in ANIMALS"
+                  :key="animal.key"
+                  type="button"
+                  class="flex items-center gap-2 rounded-2xl border px-3 py-3 text-left transition hover:border-primary hover:bg-base-100"
+                  :class="
+                    selectedAnimal === animal.key
+                      ? 'border-primary bg-base-100'
+                      : 'border-base-300 bg-base-200'
+                  "
+                  @click="selectedAnimal = animal.key"
+                >
+                  <span class="text-xl">{{ animal.emoji }}</span>
+                  <span class="font-medium">{{ animal.label }}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid gap-4 lg:grid-cols-[220px_1fr]">
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <img :src="selectedAnimalDef.path" :alt="selectedAnimalDef.label" class="aspect-square w-full rounded-xl object-cover" />
+              </div>
+
+              <div class="flex flex-col gap-4">
+                <label class="form-control">
+                  <span class="mb-2 text-sm font-bold">Artist Style</span>
+                  <select
+                    v-model="selectedStyle"
+                    class="select select-bordered rounded-2xl bg-base-100"
+                  >
+                    <option
+                      v-for="style in ARTIST_STYLES"
+                      :key="style.key"
+                      :value="style.key"
+                    >
+                      {{ style.label }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="form-control">
+                  <span class="mb-2 text-sm font-bold">Extra Prompt Notes</span>
+                  <textarea
+                    v-model="extraPrompt"
+                    rows="5"
+                    class="textarea textarea-bordered rounded-2xl bg-base-100"
+                    placeholder="Optional flavor. Example: moonlit garden, ornate frame, dreamy palette."
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="flex flex-col gap-6">
+            <div class="grid gap-6 lg:grid-cols-2">
+              <div class="flex flex-col gap-3">
+                <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+                  Animal A
+                </div>
+
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <button
+                    v-for="animal in ANIMALS"
+                    :key="`a-${animal.key}`"
+                    type="button"
+                    class="flex items-center gap-2 rounded-2xl border px-3 py-3 text-left transition hover:border-primary hover:bg-base-100"
+                    :class="
+                      selectedAnimalA === animal.key
+                        ? 'border-primary bg-base-100'
+                        : 'border-base-300 bg-base-200'
+                    "
+                    @click="selectedAnimalA = animal.key"
+                  >
+                    <span class="text-xl">{{ animal.emoji }}</span>
+                    <span class="font-medium">{{ animal.label }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-3">
+                <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+                  Animal B
+                </div>
+
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <button
+                    v-for="animal in ANIMALS"
+                    :key="`b-${animal.key}`"
+                    type="button"
+                    class="flex items-center gap-2 rounded-2xl border px-3 py-3 text-left transition hover:border-primary hover:bg-base-100"
+                    :class="
+                      selectedAnimalB === animal.key
+                        ? 'border-primary bg-base-100'
+                        : 'border-base-300 bg-base-200'
+                    "
+                    @click="selectedAnimalB = animal.key"
+                  >
+                    <span class="text-xl">{{ animal.emoji }}</span>
+                    <span class="font-medium">{{ animal.label }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <div class="mb-2 text-sm font-bold">{{ selectedAnimalADef.label }}</div>
+                <img :src="selectedAnimalADef.path" :alt="selectedAnimalADef.label" class="aspect-square w-full rounded-xl object-cover" />
+              </div>
+
+              <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+                <div class="mb-2 text-sm font-bold">{{ selectedAnimalBDef.label }}</div>
+                <img :src="selectedAnimalBDef.path" :alt="selectedAnimalBDef.label" class="aspect-square w-full rounded-xl object-cover" />
+              </div>
+            </div>
+
+            <label class="form-control">
+              <span class="mb-2 text-sm font-bold">Extra Prompt Notes</span>
+              <textarea
+                v-model="extraPrompt"
+                rows="5"
+                class="textarea textarea-bordered rounded-2xl bg-base-100"
+                placeholder="Optional flavor. Example: tiny forest guardian, underwater bioluminescence, storybook texture."
               />
-              <span class="at-upload-prompt">
-                <span class="at-upload-icon">⊕</span>
-                Click or drop image
-              </span>
             </label>
-          </section>
+          </div>
         </div>
 
-        <!-- Payload preview -->
-        <Transition name="slide">
-          <section v-if="showPayload" class="at-section">
-            <label class="at-label">Request Payload Preview</label>
-            <pre class="at-code">{{
-              JSON.stringify(builtPayload, null, 2)
-            }}</pre>
-          </section>
-        </Transition>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div class="text-lg font-bold">Built Prompt</div>
+            <div class="text-sm opacity-60">{{ endpointDef.label }}</div>
+          </div>
 
-        <!-- Actions -->
-        <div class="at-actions">
-          <button
-            class="at-btn at-btn--primary"
-            :disabled="isGenerating || !serverId"
-            :style="generateBtnStyle"
-            @click="generate"
-          >
-            <span v-if="isGenerating" class="at-spinner" />
-            <span v-else>{{ endpointDef.icon }} Generate</span>
-          </button>
-          <button
-            class="at-btn at-btn--ghost"
-            :disabled="isGenerating"
-            @click="clearResult"
-          >
-            ✕ Clear
-          </button>
-          <div v-if="elapsedMs > 0" class="at-stats">
-            <span>{{ (elapsedMs / 1000).toFixed(1) }}s</span>
-          </div>
-          <div v-if="isGenerating" class="at-generating-pill">
-            <span class="at-pulse-dot" />
-            Generating…
-          </div>
-          <div v-if="!serverId" class="at-warn-inline">
-            Select a server first
+          <textarea
+            :value="builtPrompt"
+            rows="8"
+            readonly
+            class="textarea textarea-bordered w-full rounded-2xl bg-base-100 font-mono text-sm"
+          />
+        </div>
+
+        <div v-if="showPayload" class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+          <div class="mb-3 text-lg font-bold">Payload Preview</div>
+          <pre class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs">{{ JSON.stringify(builtPayload, null, 2) }}</pre>
+        </div>
+
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              class="btn btn-primary rounded-2xl"
+              :disabled="isGenerating || !serverId"
+              @click="generate"
+            >
+              <span v-if="isGenerating" class="loading loading-spinner loading-sm" />
+              <span v-else>{{ endpointDef.icon }} Generate</span>
+            </button>
+
+            <button type="button" class="btn btn-ghost rounded-2xl" :disabled="isGenerating" @click="clearResult">
+              Clear
+            </button>
+
+            <div v-if="elapsedMs > 0" class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm">
+              {{ (elapsedMs / 1000).toFixed(1) }}s
+            </div>
+
+            <div v-if="isGenerating" class="badge badge-success badge-lg">
+              Generating...
+            </div>
+
+            <div v-if="!serverId" class="text-sm text-warning">
+              Select a server first
+            </div>
           </div>
         </div>
 
-        <!-- Error -->
-        <Transition name="slide">
-          <section v-if="errorMsg" class="at-section">
-            <label class="at-label at-label--error">⚠ Error</label>
-            <div class="at-error">{{ errorMsg }}</div>
-          </section>
-        </Transition>
+        <div v-if="errorMsg" class="rounded-2xl border border-error/30 bg-error/10 p-4 text-error">
+          <div class="mb-1 font-bold">Error</div>
+          <div class="text-sm">{{ errorMsg }}</div>
+        </div>
 
-        <!-- Output: Image -->
-        <section
-          v-if="endpointDef.outputType === 'image'"
-          class="at-section at-result-section"
-        >
-          <div class="at-result-header">
-            <label class="at-label">Result</label>
-            <div class="at-result-actions" v-if="resultImage">
-              <button class="at-copy" @click="downloadImage">⤓ Download</button>
-              <button class="at-copy" @click="copyOutput">⧉ Copy JSON</button>
+        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="text-lg font-bold">Result</div>
+
+            <div v-if="resultImage" class="flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm rounded-xl" @click="downloadImage">
+                Download
+              </button>
+              <button type="button" class="btn btn-sm rounded-xl" @click="copyOutput">
+                Copy JSON
+              </button>
             </div>
           </div>
+
           <div
-            class="at-result-canvas"
-            :class="{
-              'at-result-canvas--empty': !resultImage && !isGenerating,
-            }"
+            class="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4"
           >
-            <div v-if="isGenerating" class="at-generating-state">
-              <div
-                class="at-spinner at-spinner--lg"
-                :style="{ borderTopColor: endpointDef.color }"
-              />
-              <p class="at-gen-label">
-                Generating with {{ endpointDef.label }}…
-              </p>
-              <p class="at-gen-timer">
+            <div v-if="isGenerating" class="flex flex-col items-center gap-3 text-center">
+              <span class="loading loading-spinner loading-lg text-primary" />
+              <div class="text-lg font-bold">Generating with {{ endpointDef.label }}</div>
+              <div class="text-sm opacity-70">
                 {{ (elapsedMs / 1000).toFixed(1) }}s elapsed
-              </p>
+              </div>
             </div>
+
             <img
               v-else-if="resultImage"
               :src="resultImage"
-              class="at-result-img"
-              alt="Generated image"
+              alt="Generated result"
+              class="max-h-[75vh] rounded-2xl object-contain"
             />
-            <div v-else class="at-empty-state">
-              <span
-                class="at-empty-icon"
-                :style="{ color: endpointDef.color }"
-                >{{ endpointDef.icon }}</span
-              >
-              <p>Your generated image will appear here</p>
+
+            <div v-else class="flex flex-col items-center gap-3 text-center opacity-60">
+              <div class="text-5xl">{{ endpointDef.icon }}</div>
+              <div class="text-lg font-bold">Your generated image will appear here</div>
+              <div class="text-sm">No mystery collage nonsense this time.</div>
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- Output: 3D model -->
-        <section
-          v-if="endpointDef.outputType === 'model3d'"
-          class="at-section at-result-section"
-        >
-          <label class="at-label">Result</label>
-          <div
-            class="at-result-canvas at-result-canvas--model"
-            :class="{
-              'at-result-canvas--empty': !resultModel3d && !isGenerating,
-            }"
-          >
-            <div v-if="isGenerating" class="at-generating-state">
-              <div class="at-spinner at-spinner--lg" />
-              <p class="at-gen-label">Generating 3D model with Hunyuan3D…</p>
-              <p class="at-gen-timer">
-                {{ (elapsedMs / 1000).toFixed(1) }}s elapsed
-              </p>
-            </div>
-            <div v-else-if="resultModel3d" class="at-model-result">
-              <span class="at-model-icon">◈</span>
-              <p class="at-model-path">{{ resultModel3d }}</p>
-              <a
-                v-if="resultModel3d"
-                :href="resultModel3d"
-                download
-                class="at-btn at-btn--ghost"
-                style="margin-top: 1rem"
-              >
-                ⤓ Download Model
-              </a>
-            </div>
-            <div v-else class="at-empty-state">
-              <span class="at-empty-icon">◈</span>
-              <p>3D model file path will appear here</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Raw result -->
-        <Transition name="slide">
-          <section v-if="showRawResult && resultData" class="at-section">
-            <label class="at-label">Raw API Response</label>
-            <pre class="at-code at-code--result">{{
-              JSON.stringify(resultData, null, 2)
-            }}</pre>
-          </section>
-        </Transition>
+        <div v-if="showRawResult && resultData" class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+          <div class="mb-3 text-lg font-bold">Raw API Response</div>
+          <pre class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs">{{ JSON.stringify(resultData, null, 2) }}</pre>
+        </div>
       </main>
     </div>
   </div>
 </template>
-
-<style scoped>
-/* ─── Tokens ──────────────────────────────────────────────────────────────── */
-.at-root {
-  --bg: #09090f;
-  --surface: #111118;
-  --surface2: #18181f;
-  --surface3: #202028;
-  --border: rgba(255 255 255 / 0.06);
-  --text: #e2e4ef;
-  --muted: #52546a;
-  --red: #f87171;
-  --warn: #fbbf24;
-  --green: #34d399;
-
-  font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ─── Header ──────────────────────────────────────────────────────────────── */
-.at-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.875rem 1.5rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.at-header-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.at-logo {
-  font-size: 1.6rem;
-  font-weight: 700;
-  transition: color 0.3s;
-}
-.at-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin: 0;
-}
-.at-subtitle {
-  font-size: 0.6rem;
-  color: var(--muted);
-  margin: 0;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.at-header-right {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-.at-badge {
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  border: 1px solid;
-  transition: all 0.3s;
-}
-.at-route-chip {
-  font-size: 0.62rem;
-  color: var(--muted);
-  background: var(--surface2);
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  letter-spacing: 0;
-}
-
-/* ─── Layout ──────────────────────────────────────────────────────────────── */
-.at-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
-.at-sidebar {
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  padding: 1rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* ─── Main ────────────────────────────────────────────────────────────────── */
-.at-main {
-  padding: 1.25rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* ─── Sections / labels ───────────────────────────────────────────────────── */
-.at-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.at-label {
-  font-size: 0.58rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-.at-label--error {
-  color: var(--red);
-}
-.at-optional {
-  text-transform: lowercase;
-  letter-spacing: 0;
-  font-size: 0.58rem;
-  opacity: 0.6;
-}
-.at-val {
-  color: #a5b4fc;
-  text-transform: lowercase;
-  letter-spacing: 0;
-  font-size: 0.72rem;
-}
-.at-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0.25rem 0;
-}
-.at-muted {
-  color: var(--muted);
-}
-.at-small {
-  font-size: 0.65rem;
-}
-.at-warn {
-  font-size: 0.68rem;
-  color: var(--warn);
-  padding: 0.3rem 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
-  border-radius: 3px;
-}
-.at-warn-inline {
-  font-size: 0.65rem;
-  color: var(--warn);
-}
-.at-server-info {
-  margin-top: 0.2rem;
-  word-break: break-all;
-}
-
-/* ─── Endpoint list ───────────────────────────────────────────────────────── */
-.at-endpoint-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-.at-endpoint-btn {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: 0.72rem;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-}
-.at-endpoint-btn:hover {
-  background: var(--surface2);
-  color: var(--text);
-}
-.at-endpoint-btn.active {
-  border-color: var(--ep-color, #6366f1);
-  color: var(--ep-color, #6366f1);
-  background: color-mix(in srgb, var(--ep-color, #6366f1) 8%, transparent);
-}
-.at-ep-icon {
-  font-size: 1rem;
-  flex-shrink: 0;
-  margin-top: 0.05rem;
-}
-.at-ep-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-.at-ep-name {
-  font-weight: 700;
-  font-size: 0.72rem;
-}
-.at-ep-desc {
-  font-size: 0.58rem;
-  opacity: 0.65;
-  line-height: 1.4;
-  white-space: normal;
-}
-
-/* ─── Form elements ───────────────────────────────────────────────────────── */
-.at-select,
-.at-input {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.72rem;
-  padding: 0.4rem 0.55rem;
-  outline: none;
-  transition: border-color 0.15s;
-  box-sizing: border-box;
-}
-.at-select:focus,
-.at-input:focus {
-  border-color: #6366f1;
-}
-.at-textarea {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.78rem;
-  line-height: 1.6;
-  padding: 0.55rem 0.7rem;
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.15s;
-  box-sizing: border-box;
-}
-.at-textarea--sm {
-  min-height: 52px;
-}
-.at-textarea:focus {
-  border-color: #6366f1;
-}
-.at-range {
-  width: 100%;
-  accent-color: #6366f1;
-}
-.at-input--grow {
-  flex: 1;
-}
-.at-seed-row {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-.at-icon-btn {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  width: 24px;
-  height: 28px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.15s;
-}
-.at-icon-btn:hover {
-  color: var(--text);
-  border-color: var(--muted);
-}
-
-/* ─── Size presets ────────────────────────────────────────────────────────── */
-.at-size-presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.3rem;
-}
-.at-preset-btn {
-  font-family: inherit;
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.at-preset-btn:hover {
-  color: var(--text);
-  border-color: var(--muted);
-}
-
-/* ─── Toggle ──────────────────────────────────────────────────────────────── */
-.at-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-size: 0.68rem;
-  color: var(--text);
-}
-.at-toggle input {
-  display: none;
-}
-.at-toggle-track {
-  width: 28px;
-  height: 15px;
-  border-radius: 999px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  position: relative;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-.at-toggle input:checked ~ .at-toggle-track {
-  background: color-mix(in srgb, #6366f1 30%, transparent);
-  border-color: #6366f1;
-}
-.at-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--muted);
-  transition:
-    left 0.2s,
-    background 0.2s;
-}
-.at-toggle input:checked ~ .at-toggle-track .at-toggle-thumb {
-  left: 15px;
-  background: #6366f1;
-}
-
-/* ─── Image inputs ────────────────────────────────────────────────────────── */
-.at-image-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-.at-image-inputs .at-section:only-child {
-  grid-column: 1 / -1;
-}
-.at-drop-zone {
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  padding: 0.75rem;
-  transition: border-color 0.2s;
-}
-.at-drop-zone.has-image {
-  border-style: solid;
-  border-color: #6366f1;
-}
-.at-upload-label {
-  cursor: pointer;
-  display: block;
-}
-.at-file-input {
-  display: none;
-}
-.at-upload-prompt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 1.5rem 1rem;
-  color: var(--muted);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border-radius: 4px;
-  background: var(--surface2);
-  transition: all 0.15s;
-}
-.at-upload-prompt:hover {
-  color: var(--text);
-  background: var(--surface3);
-}
-.at-upload-icon {
-  font-size: 1.5rem;
-}
-.at-image-slot {
-  position: relative;
-}
-.at-preview-img {
-  width: 100%;
-  border-radius: 4px;
-  display: block;
-  max-height: 200px;
-  object-fit: contain;
-  background: var(--surface3);
-}
-.at-remove-img {
-  position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
-  font-family: inherit;
-  font-size: 0.6rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  border: none;
-  background: rgba(0 0 0 / 0.7);
-  color: var(--red);
-  cursor: pointer;
-}
-
-/* ─── Code blocks ─────────────────────────────────────────────────────────── */
-.at-code {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.75rem;
-  font-size: 0.65rem;
-  line-height: 1.6;
-  color: #86efac;
-  overflow-x: auto;
-  margin: 0;
-  white-space: pre;
-  max-height: 200px;
-}
-.at-code--result {
-  max-height: 300px;
-}
-
-/* ─── Error ───────────────────────────────────────────────────────────────── */
-.at-error {
-  background: color-mix(in srgb, var(--red) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
-  border-radius: 4px;
-  padding: 0.75rem;
-  font-size: 0.72rem;
-  color: var(--red);
-  line-height: 1.5;
-}
-
-/* ─── Actions ─────────────────────────────────────────────────────────────── */
-.at-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-.at-btn {
-  font-family: inherit;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  padding: 0.5rem 1.2rem;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.15s;
-  text-decoration: none;
-}
-.at-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-.at-btn--primary {
-  background: var(--btn-color, #6366f1);
-  color: #08080f;
-  font-weight: 700;
-  transition:
-    background 0.3s,
-    opacity 0.15s;
-}
-.at-btn--primary:not(:disabled):hover {
-  background: color-mix(in srgb, var(--btn-color, #6366f1) 80%, white);
-}
-.at-btn--ghost {
-  background: transparent;
-  color: var(--muted);
-  border-color: var(--border);
-}
-.at-btn--ghost:not(:disabled):hover {
-  color: var(--text);
-  border-color: var(--muted);
-}
-
-.at-stats {
-  font-size: 0.65rem;
-  color: var(--muted);
-}
-.at-generating-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.62rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--green);
-}
-.at-pulse-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: pulse-dot 1s ease-in-out infinite;
-}
-@keyframes pulse-dot {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scale(0.7);
-  }
-}
-
-/* ─── Spinner ─────────────────────────────────────────────────────────────── */
-.at-spinner {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(0 0 0 / 0.2);
-  border-top-color: #08080f;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-.at-spinner--lg {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--surface3);
-  border-top-color: #6366f1;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ─── Result ──────────────────────────────────────────────────────────────── */
-.at-result-section {
-  flex: 1;
-}
-.at-result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.4rem;
-}
-.at-result-actions {
-  display: flex;
-  gap: 0.4rem;
-}
-.at-copy {
-  font-family: inherit;
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.at-copy:hover {
-  color: var(--text);
-  border-color: var(--muted);
-}
-
-.at-result-canvas {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  min-height: 320px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-}
-.at-result-canvas--empty {
-  border-style: dashed;
-}
-.at-result-canvas--model {
-  min-height: 200px;
-}
-.at-result-img {
-  max-width: 100%;
-  max-height: 70vh;
-  display: block;
-  border-radius: 4px;
-}
-.at-generating-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 2rem;
-}
-.at-gen-label {
-  font-size: 0.72rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-}
-.at-gen-timer {
-  font-size: 1.1rem;
-  color: var(--text);
-  font-weight: 700;
-}
-.at-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--muted);
-  font-size: 0.72rem;
-  padding: 2rem;
-  text-align: center;
-}
-.at-empty-icon {
-  font-size: 2rem;
-  opacity: 0.3;
-}
-.at-model-result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  text-align: center;
-}
-.at-model-icon {
-  font-size: 2.5rem;
-  color: var(--muted);
-}
-.at-model-path {
-  font-size: 0.75rem;
-  color: var(--green);
-  word-break: break-all;
-  max-width: 400px;
-}
-
-/* ─── Transitions ─────────────────────────────────────────────────────────── */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.2s ease;
-}
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-5px);
-}
-
-/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
-</style>

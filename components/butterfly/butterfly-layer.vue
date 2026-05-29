@@ -77,9 +77,9 @@ onMounted(() => {
 })
 
 watch(
-  () => props.beginExit,
-  (beginExit) => {
-    if (!beginExit) return
+  () => [props.beginExit, props.overlayVisible] as const,
+  ([beginExit, overlayVisible]) => {
+    if (!beginExit && overlayVisible) return
 
     butterflyStore.triggerLoaderButterflyExit(
       useLegacyStartupButterflies.value ? 250 : 0,

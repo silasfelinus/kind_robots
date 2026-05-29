@@ -170,52 +170,52 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function animateButterflies() {
-  if (animationFrameId.value !== null) return
-  animationPaused.value = false
+    if (animationFrameId.value !== null) return
+    animationPaused.value = false
 
-  const animate = () => {
-    if (!butterflies.value.length) {
-      animationFrameId.value = null
+    const animate = () => {
+      if (!butterflies.value.length) {
+        animationFrameId.value = null
 
-      if (startupButterflyMode.value !== 'legacy') {
-        showSwarm.value = false
+        if (startupButterflyMode.value !== 'legacy') {
+          showSwarm.value = false
+        }
+
+        return
       }
 
-      return
-    }
+      const now = performance.now()
 
-    const now = performance.now()
+      for (let i = butterflies.value.length - 1; i >= 0; i--) {
+        const butterfly = butterflies.value[i]!
+        updateButterflyPosition(butterfly, now)
 
-    for (let i = butterflies.value.length - 1; i >= 0; i--) {
-      const butterfly = butterflies.value[i]!
-      updateButterflyPosition(butterfly, now)
+        if (butterfly.isExiting && isOutsideRemovalBounds(butterfly)) {
+          clearButterflyMotionState(butterfly.id)
+          butterflies.value.splice(i, 1)
 
-      if (butterfly.isExiting && isOutsideRemovalBounds(butterfly)) {
-        clearButterflyMotionState(butterfly.id)
-        butterflies.value.splice(i, 1)
-
-        if (selectedButterflyId.value === butterfly.id) {
-          selectedButterflyId.value =
-            butterflies.value.find((b) => !b.isExiting)?.id || ''
+          if (selectedButterflyId.value === butterfly.id) {
+            selectedButterflyId.value =
+              butterflies.value.find((b) => !b.isExiting)?.id || ''
+          }
         }
       }
-    }
 
-    if (!butterflies.value.length) {
-      animationFrameId.value = null
+      if (!butterflies.value.length) {
+        animationFrameId.value = null
 
-      if (startupButterflyMode.value !== 'legacy') {
-        showSwarm.value = false
+        if (startupButterflyMode.value !== 'legacy') {
+          showSwarm.value = false
+        }
+
+        return
       }
 
-      return
+      animationFrameId.value = requestAnimationFrame(animate)
     }
 
     animationFrameId.value = requestAnimationFrame(animate)
   }
-
-  animationFrameId.value = requestAnimationFrame(animate)
-}
   function pauseAnimation() {
     if (animationFrameId.value === null) return
 
@@ -401,6 +401,8 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
           logLoaderEffect('legacy:start', { amount })
 
+          triggerLoaderButterflyExit(1800)
+
           return
         }
 
@@ -452,12 +454,18 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     if (startupButterflyMode.value === 'legacy') {
       if (safeDelay === 0) {
         showSwarm.value = false
+        clearLoaderStates()
+        butterflies.value = []
+        selectedButterflyId.value = ''
         return
       }
 
       drainStartTimeoutId.value = setTimeout(() => {
         drainStartTimeoutId.value = null
         showSwarm.value = false
+        clearLoaderStates()
+        butterflies.value = []
+        selectedButterflyId.value = ''
       }, safeDelay)
 
       return

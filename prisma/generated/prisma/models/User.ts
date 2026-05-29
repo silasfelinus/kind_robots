@@ -36,6 +36,7 @@ export type UserAvgAggregateOutputType = {
   artImageId: number | null
   preferredArtServerId: number | null
   preferredTextServerId: number | null
+  manaCap: number | null
 }
 
 export type UserSumAggregateOutputType = {
@@ -48,6 +49,7 @@ export type UserSumAggregateOutputType = {
   artImageId: number | null
   preferredArtServerId: number | null
   preferredTextServerId: number | null
+  manaCap: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -104,6 +106,10 @@ export type UserMinAggregateOutputType = {
   hiddenServerIds: string | null
   isActive: boolean | null
   artPrompt: string | null
+  manaCap: number | null
+  lastManaRefill: Date | null
+  signupBonusGiven: boolean | null
+  isGuest: boolean | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -160,6 +166,10 @@ export type UserMaxAggregateOutputType = {
   hiddenServerIds: string | null
   isActive: boolean | null
   artPrompt: string | null
+  manaCap: number | null
+  lastManaRefill: Date | null
+  signupBonusGiven: boolean | null
+  isGuest: boolean | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -216,6 +226,10 @@ export type UserCountAggregateOutputType = {
   hiddenServerIds: number
   isActive: number
   artPrompt: number
+  manaCap: number
+  lastManaRefill: number
+  signupBonusGiven: number
+  isGuest: number
   _all: number
 }
 
@@ -230,6 +244,7 @@ export type UserAvgAggregateInputType = {
   artImageId?: true
   preferredArtServerId?: true
   preferredTextServerId?: true
+  manaCap?: true
 }
 
 export type UserSumAggregateInputType = {
@@ -242,6 +257,7 @@ export type UserSumAggregateInputType = {
   artImageId?: true
   preferredArtServerId?: true
   preferredTextServerId?: true
+  manaCap?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -298,6 +314,10 @@ export type UserMinAggregateInputType = {
   hiddenServerIds?: true
   isActive?: true
   artPrompt?: true
+  manaCap?: true
+  lastManaRefill?: true
+  signupBonusGiven?: true
+  isGuest?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -354,6 +374,10 @@ export type UserMaxAggregateInputType = {
   hiddenServerIds?: true
   isActive?: true
   artPrompt?: true
+  manaCap?: true
+  lastManaRefill?: true
+  signupBonusGiven?: true
+  isGuest?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -410,6 +434,10 @@ export type UserCountAggregateInputType = {
   hiddenServerIds?: true
   isActive?: true
   artPrompt?: true
+  manaCap?: true
+  lastManaRefill?: true
+  signupBonusGiven?: true
+  isGuest?: true
   _all?: true
 }
 
@@ -553,6 +581,10 @@ export type UserGroupByOutputType = {
   hiddenServerIds: string | null
   isActive: boolean
   artPrompt: string | null
+  manaCap: number
+  lastManaRefill: Date | null
+  signupBonusGiven: boolean
+  isGuest: boolean
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -632,6 +664,11 @@ export type UserWhereInput = {
   hiddenServerIds?: Prisma.StringNullableFilter<"User"> | string | null
   isActive?: Prisma.BoolFilter<"User"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"User"> | string | null
+  manaCap?: Prisma.IntFilter<"User"> | number
+  lastManaRefill?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  signupBonusGiven?: Prisma.BoolFilter<"User"> | boolean
+  isGuest?: Prisma.BoolFilter<"User"> | boolean
+  ManaTransactions?: Prisma.ManaTransactionListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
@@ -710,6 +747,11 @@ export type UserOrderByWithRelationInput = {
   hiddenServerIds?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
+  lastManaRefill?: Prisma.SortOrderInput | Prisma.SortOrder
+  signupBonusGiven?: Prisma.SortOrder
+  isGuest?: Prisma.SortOrder
+  ManaTransactions?: Prisma.ManaTransactionOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   Bots?: Prisma.BotOrderByRelationAggregateInput
@@ -792,6 +834,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   hiddenServerIds?: Prisma.StringNullableFilter<"User"> | string | null
   isActive?: Prisma.BoolFilter<"User"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"User"> | string | null
+  manaCap?: Prisma.IntFilter<"User"> | number
+  lastManaRefill?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  signupBonusGiven?: Prisma.BoolFilter<"User"> | boolean
+  isGuest?: Prisma.BoolFilter<"User"> | boolean
+  ManaTransactions?: Prisma.ManaTransactionListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   Bots?: Prisma.BotListRelationFilter
@@ -870,6 +917,10 @@ export type UserOrderByWithAggregationInput = {
   hiddenServerIds?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
+  lastManaRefill?: Prisma.SortOrderInput | Prisma.SortOrder
+  signupBonusGiven?: Prisma.SortOrder
+  isGuest?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -934,6 +985,10 @@ export type UserScalarWhereWithAggregatesInput = {
   hiddenServerIds?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  manaCap?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lastManaRefill?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  signupBonusGiven?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  isGuest?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
 }
 
 export type UserCreateInput = {
@@ -988,6 +1043,11 @@ export type UserCreateInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -1066,6 +1126,11 @@ export type UserUncheckedCreateInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -1141,6 +1206,11 @@ export type UserUpdateInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -1219,6 +1289,11 @@ export type UserUncheckedUpdateInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -1296,6 +1371,10 @@ export type UserCreateManyInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
 }
 
 export type UserUpdateManyMutationInput = {
@@ -1350,6 +1429,10 @@ export type UserUpdateManyMutationInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -1406,6 +1489,10 @@ export type UserUncheckedUpdateManyInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -1488,6 +1575,10 @@ export type UserCountOrderByAggregateInput = {
   hiddenServerIds?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
+  lastManaRefill?: Prisma.SortOrder
+  signupBonusGiven?: Prisma.SortOrder
+  isGuest?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -1500,6 +1591,7 @@ export type UserAvgOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   preferredArtServerId?: Prisma.SortOrder
   preferredTextServerId?: Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -1556,6 +1648,10 @@ export type UserMaxOrderByAggregateInput = {
   hiddenServerIds?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
+  lastManaRefill?: Prisma.SortOrder
+  signupBonusGiven?: Prisma.SortOrder
+  isGuest?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -1612,6 +1708,10 @@ export type UserMinOrderByAggregateInput = {
   hiddenServerIds?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
+  lastManaRefill?: Prisma.SortOrder
+  signupBonusGiven?: Prisma.SortOrder
+  isGuest?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -1624,6 +1724,7 @@ export type UserSumOrderByAggregateInput = {
   artImageId?: Prisma.SortOrder
   preferredArtServerId?: Prisma.SortOrder
   preferredTextServerId?: Prisma.SortOrder
+  manaCap?: Prisma.SortOrder
 }
 
 export type UserCreateNestedOneWithoutArtImagesInput = {
@@ -1832,6 +1933,20 @@ export type UserUpdateOneWithoutLogsNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLogsInput, Prisma.UserUpdateWithoutLogsInput>, Prisma.UserUncheckedUpdateWithoutLogsInput>
+}
+
+export type UserCreateNestedOneWithoutManaTransactionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutManaTransactionsInput, Prisma.UserUncheckedCreateWithoutManaTransactionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutManaTransactionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutManaTransactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutManaTransactionsInput, Prisma.UserUncheckedCreateWithoutManaTransactionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutManaTransactionsInput
+  upsert?: Prisma.UserUpsertWithoutManaTransactionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutManaTransactionsInput, Prisma.UserUpdateWithoutManaTransactionsInput>, Prisma.UserUncheckedUpdateWithoutManaTransactionsInput>
 }
 
 export type UserCreateNestedOneWithoutMilestonesInput = {
@@ -2044,6 +2159,11 @@ export type UserCreateWithoutArtImagesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutUserInput
@@ -2121,6 +2241,11 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutUserInput
@@ -2200,6 +2325,11 @@ export type UserCreateWithoutArtImageInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -2276,6 +2406,11 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -2372,6 +2507,11 @@ export type UserUpdateWithoutArtImagesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutUserNestedInput
@@ -2449,6 +2589,11 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutUserNestedInput
@@ -2544,6 +2689,10 @@ export type UserScalarWhereInput = {
   hiddenServerIds?: Prisma.StringNullableFilter<"User"> | string | null
   isActive?: Prisma.BoolFilter<"User"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"User"> | string | null
+  manaCap?: Prisma.IntFilter<"User"> | number
+  lastManaRefill?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  signupBonusGiven?: Prisma.BoolFilter<"User"> | boolean
+  isGuest?: Prisma.BoolFilter<"User"> | boolean
 }
 
 export type UserCreateWithoutArtCollectionsInput = {
@@ -2598,6 +2747,11 @@ export type UserCreateWithoutArtCollectionsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutUserInput
@@ -2675,6 +2829,11 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutUserInput
@@ -2765,6 +2924,11 @@ export type UserUpdateWithoutArtCollectionsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutUserNestedInput
@@ -2842,6 +3006,11 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutUserNestedInput
@@ -2916,6 +3085,11 @@ export type UserCreateWithoutBotsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Butterflies?: Prisma.ButterflyCreateNestedManyWithoutUserInput
@@ -2993,6 +3167,11 @@ export type UserUncheckedCreateWithoutBotsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutUserInput
@@ -3083,6 +3262,11 @@ export type UserUpdateWithoutBotsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Butterflies?: Prisma.ButterflyUpdateManyWithoutUserNestedInput
@@ -3160,6 +3344,11 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutUserNestedInput
@@ -3234,6 +3423,11 @@ export type UserCreateWithoutButterfliesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -3311,6 +3505,11 @@ export type UserUncheckedCreateWithoutButterfliesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -3401,6 +3600,11 @@ export type UserUpdateWithoutButterfliesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -3478,6 +3682,11 @@ export type UserUncheckedUpdateWithoutButterfliesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -3552,6 +3761,11 @@ export type UserCreateWithoutButterflyRecordsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -3629,6 +3843,11 @@ export type UserUncheckedCreateWithoutButterflyRecordsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -3719,6 +3938,11 @@ export type UserUpdateWithoutButterflyRecordsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -3796,6 +4020,11 @@ export type UserUncheckedUpdateWithoutButterflyRecordsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -3870,6 +4099,11 @@ export type UserCreateWithoutCharactersInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -3947,6 +4181,11 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -4037,6 +4276,11 @@ export type UserUpdateWithoutCharactersInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -4114,6 +4358,11 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -4188,6 +4437,11 @@ export type UserCreateWithoutChatsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -4265,6 +4519,11 @@ export type UserUncheckedCreateWithoutChatsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -4355,6 +4614,11 @@ export type UserUpdateWithoutChatsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -4432,6 +4696,11 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -4506,6 +4775,11 @@ export type UserCreateWithoutCodesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -4583,6 +4857,11 @@ export type UserUncheckedCreateWithoutCodesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -4673,6 +4952,11 @@ export type UserUpdateWithoutCodesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -4750,6 +5034,11 @@ export type UserUncheckedUpdateWithoutCodesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -4824,6 +5113,11 @@ export type UserCreateWithoutCompositionsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -4901,6 +5195,11 @@ export type UserUncheckedCreateWithoutCompositionsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -4991,6 +5290,11 @@ export type UserUpdateWithoutCompositionsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -5068,6 +5372,11 @@ export type UserUncheckedUpdateWithoutCompositionsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -5142,6 +5451,11 @@ export type UserCreateWithoutDreamsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -5219,6 +5533,11 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -5309,6 +5628,11 @@ export type UserUpdateWithoutDreamsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -5386,6 +5710,11 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -5460,6 +5789,11 @@ export type UserCreateWithoutLogsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -5537,6 +5871,11 @@ export type UserUncheckedCreateWithoutLogsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -5627,6 +5966,11 @@ export type UserUpdateWithoutLogsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -5704,6 +6048,11 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -5712,6 +6061,344 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
+  Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  Codes?: Prisma.CodeUncheckedUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutManaTransactionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Butterflies?: Prisma.ButterflyCreateNestedManyWithoutUserInput
+  ButterflyRecords?: Prisma.ButterflyRecordCreateNestedManyWithoutUserInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordCreateNestedManyWithoutUserInput
+  Pitches?: Prisma.PitchCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  Codes?: Prisma.CodeCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutManaTransactionsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Butterflies?: Prisma.ButterflyUncheckedCreateNestedManyWithoutUserInput
+  ButterflyRecords?: Prisma.ButterflyRecordUncheckedCreateNestedManyWithoutUserInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  Milestones?: Prisma.MilestoneRecordUncheckedCreateNestedManyWithoutUserInput
+  Pitches?: Prisma.PitchUncheckedCreateNestedManyWithoutUserInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  Codes?: Prisma.CodeUncheckedCreateNestedManyWithoutUserInput
+  Compositions?: Prisma.CompositionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutManaTransactionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutManaTransactionsInput, Prisma.UserUncheckedCreateWithoutManaTransactionsInput>
+}
+
+export type UserUpsertWithoutManaTransactionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutManaTransactionsInput, Prisma.UserUncheckedUpdateWithoutManaTransactionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutManaTransactionsInput, Prisma.UserUncheckedCreateWithoutManaTransactionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutManaTransactionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutManaTransactionsInput, Prisma.UserUncheckedUpdateWithoutManaTransactionsInput>
+}
+
+export type UserUpdateWithoutManaTransactionsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Butterflies?: Prisma.ButterflyUpdateManyWithoutUserNestedInput
+  ButterflyRecords?: Prisma.ButterflyRecordUpdateManyWithoutUserNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  Milestones?: Prisma.MilestoneRecordUpdateManyWithoutUserNestedInput
+  Pitches?: Prisma.PitchUpdateManyWithoutUserNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  Codes?: Prisma.CodeUpdateManyWithoutUserNestedInput
+  Compositions?: Prisma.CompositionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutManaTransactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Butterflies?: Prisma.ButterflyUncheckedUpdateManyWithoutUserNestedInput
+  ButterflyRecords?: Prisma.ButterflyRecordUncheckedUpdateManyWithoutUserNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   Milestones?: Prisma.MilestoneRecordUncheckedUpdateManyWithoutUserNestedInput
   Pitches?: Prisma.PitchUncheckedUpdateManyWithoutUserNestedInput
   Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
@@ -5778,6 +6465,11 @@ export type UserCreateWithoutMilestonesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -5855,6 +6547,11 @@ export type UserUncheckedCreateWithoutMilestonesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -5945,6 +6642,11 @@ export type UserUpdateWithoutMilestonesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -6022,6 +6724,11 @@ export type UserUncheckedUpdateWithoutMilestonesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -6096,6 +6803,11 @@ export type UserCreateWithoutPitchesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -6173,6 +6885,11 @@ export type UserUncheckedCreateWithoutPitchesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -6263,6 +6980,11 @@ export type UserUpdateWithoutPitchesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -6340,6 +7062,11 @@ export type UserUncheckedUpdateWithoutPitchesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -6414,6 +7141,11 @@ export type UserCreateWithoutPromptsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -6491,6 +7223,11 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -6581,6 +7318,11 @@ export type UserUpdateWithoutPromptsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -6658,6 +7400,11 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -6732,6 +7479,11 @@ export type UserCreateWithoutReactionsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -6809,6 +7561,11 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -6899,6 +7656,11 @@ export type UserUpdateWithoutReactionsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -6976,6 +7738,11 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -7050,6 +7817,11 @@ export type UserCreateWithoutResourcesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -7127,6 +7899,11 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -7217,6 +7994,11 @@ export type UserUpdateWithoutResourcesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -7294,6 +8076,11 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -7368,6 +8155,11 @@ export type UserCreateWithoutRewardsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -7445,6 +8237,11 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -7535,6 +8332,11 @@ export type UserUpdateWithoutRewardsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -7612,6 +8414,11 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -7686,6 +8493,11 @@ export type UserCreateWithoutScenariosInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -7763,6 +8575,11 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -7853,6 +8670,11 @@ export type UserUpdateWithoutScenariosInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -7930,6 +8752,11 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -8004,6 +8831,11 @@ export type UserCreateWithoutServersInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -8081,6 +8913,11 @@ export type UserUncheckedCreateWithoutServersInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -8171,6 +9008,11 @@ export type UserUpdateWithoutServersInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -8248,6 +9090,11 @@ export type UserUncheckedUpdateWithoutServersInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -8322,6 +9169,11 @@ export type UserCreateWithoutSmartIconsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -8399,6 +9251,11 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -8489,6 +9346,11 @@ export type UserUpdateWithoutSmartIconsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -8566,6 +9428,11 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -8640,6 +9507,11 @@ export type UserCreateWithoutThemesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
@@ -8717,6 +9589,11 @@ export type UserUncheckedCreateWithoutThemesInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
@@ -8807,6 +9684,11 @@ export type UserUpdateWithoutThemesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -8884,6 +9766,11 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -8959,6 +9846,10 @@ export type UserCreateManyArtImageInput = {
   hiddenServerIds?: string | null
   isActive?: boolean
   artPrompt?: string | null
+  manaCap?: number
+  lastManaRefill?: Date | string | null
+  signupBonusGiven?: boolean
+  isGuest?: boolean
 }
 
 export type UserUpdateWithoutArtImageInput = {
@@ -9013,6 +9904,11 @@ export type UserUpdateWithoutArtImageInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
@@ -9089,6 +9985,11 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
@@ -9165,6 +10066,10 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
   hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -9173,6 +10078,7 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
  */
 
 export type UserCountOutputType = {
+  ManaTransactions: number
   ArtCollections: number
   ArtImages: number
   Bots: number
@@ -9197,6 +10103,7 @@ export type UserCountOutputType = {
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ManaTransactions?: boolean | UserCountOutputTypeCountManaTransactionsArgs
   ArtCollections?: boolean | UserCountOutputTypeCountArtCollectionsArgs
   ArtImages?: boolean | UserCountOutputTypeCountArtImagesArgs
   Bots?: boolean | UserCountOutputTypeCountBotsArgs
@@ -9228,6 +10135,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountManaTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ManaTransactionWhereInput
 }
 
 /**
@@ -9432,6 +10346,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   hiddenServerIds?: boolean
   isActive?: boolean
   artPrompt?: boolean
+  manaCap?: boolean
+  lastManaRefill?: boolean
+  signupBonusGiven?: boolean
+  isGuest?: boolean
+  ManaTransactions?: boolean | Prisma.User$ManaTransactionsArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.User$BotsArgs<ExtArgs>
@@ -9513,10 +10432,15 @@ export type UserSelectScalar = {
   hiddenServerIds?: boolean
   isActive?: boolean
   artPrompt?: boolean
+  manaCap?: boolean
+  lastManaRefill?: boolean
+  signupBonusGiven?: boolean
+  isGuest?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "manaCap" | "lastManaRefill" | "signupBonusGiven" | "isGuest", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ManaTransactions?: boolean | Prisma.User$ManaTransactionsArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.User$BotsArgs<ExtArgs>
@@ -9545,6 +10469,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    ManaTransactions: Prisma.$ManaTransactionPayload<ExtArgs>[]
     ArtCollections: Prisma.$ArtCollectionPayload<ExtArgs>[]
     ArtImages: Prisma.$ArtImagePayload<ExtArgs>[]
     Bots: Prisma.$BotPayload<ExtArgs>[]
@@ -9622,6 +10547,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     hiddenServerIds: string | null
     isActive: boolean
     artPrompt: string | null
+    manaCap: number
+    lastManaRefill: Date | null
+    signupBonusGiven: boolean
+    isGuest: boolean
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -9962,6 +10891,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  ManaTransactions<T extends Prisma.User$ManaTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ManaTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ManaTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollections<T extends Prisma.User$ArtCollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImages<T extends Prisma.User$ArtImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Bots<T extends Prisma.User$BotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$BotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -10066,6 +10996,10 @@ export interface UserFieldRefs {
   readonly hiddenServerIds: Prisma.FieldRef<"User", 'String'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"User", 'String'>
+  readonly manaCap: Prisma.FieldRef<"User", 'Int'>
+  readonly lastManaRefill: Prisma.FieldRef<"User", 'DateTime'>
+  readonly signupBonusGiven: Prisma.FieldRef<"User", 'Boolean'>
+  readonly isGuest: Prisma.FieldRef<"User", 'Boolean'>
 }
     
 
@@ -10411,6 +11345,30 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Users to delete.
    */
   limit?: number
+}
+
+/**
+ * User.ManaTransactions
+ */
+export type User$ManaTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ManaTransaction
+   */
+  select?: Prisma.ManaTransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ManaTransaction
+   */
+  omit?: Prisma.ManaTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ManaTransactionInclude<ExtArgs> | null
+  where?: Prisma.ManaTransactionWhereInput
+  orderBy?: Prisma.ManaTransactionOrderByWithRelationInput | Prisma.ManaTransactionOrderByWithRelationInput[]
+  cursor?: Prisma.ManaTransactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ManaTransactionScalarFieldEnum | Prisma.ManaTransactionScalarFieldEnum[]
 }
 
 /**

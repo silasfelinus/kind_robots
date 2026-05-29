@@ -81,6 +81,11 @@
             class="rounded-2xl"
           />
 
+          <mana-wallet
+            v-else-if="currentTab === 'wallet'"
+            class="rounded-2xl"
+          />
+
           <subscription-manager
             v-else-if="currentTab === 'subscriptions'"
             class="rounded-2xl border border-base-300 bg-base-100 p-4"
@@ -152,6 +157,11 @@ const managerSummary = computed(() => {
 
 const swarmMemo = computed(() => {
   const messages: Record<GiftshopTabKey, string> = {
+    cart: 'Cart review initiated. The butterflies are counting jellybeans with terrifying precision.',
+    wallet:
+      'Wallet open. The butterflies audit every mana transaction with tiny green visors and zero chill.',
+    subscriptions:
+      'Subscriptions keep the servers awake and the butterflies in premium-grade imaginary nectar.',
     sanctuary:
       'Sanctuary first. Commerce second. Tiny winged governance always.',
     about:
@@ -160,9 +170,6 @@ const swarmMemo = computed(() => {
       'Lab access granted. Please do not feed experimental butterflies after midnight or before a CSS refactor.',
     giftshop:
       'Every artifact is inspected for whimsy, structural integrity, and whether AMI thinks it has main character energy.',
-    cart: 'Cart review initiated. The butterflies are counting jellybeans with terrifying precision.',
-    subscriptions:
-      'Subscriptions keep the servers awake and the butterflies in premium-grade imaginary nectar.',
     sponsor:
       'Sponsor energy goes toward the mission. The butterflies accept gratitude, impact, and tasteful confetti.',
   }

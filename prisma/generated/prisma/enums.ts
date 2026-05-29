@@ -9,6 +9,25 @@
 * 🟢 You can import this file directly.
 */
 
+export const ManaReason = {
+  SIGNUP_BONUS: 'SIGNUP_BONUS',
+  CYCLE_REFILL: 'CYCLE_REFILL',
+  GENERATION_ART: 'GENERATION_ART',
+  GENERATION_TEXT: 'GENERATION_TEXT',
+  SOCIAL_REACTION: 'SOCIAL_REACTION',
+  SOCIAL_SHARE: 'SOCIAL_SHARE',
+  BOUNTY_CREATE: 'BOUNTY_CREATE',
+  BOUNTY_REWARD: 'BOUNTY_REWARD',
+  PURCHASE: 'PURCHASE',
+  SUBSCRIPTION_GRANT: 'SUBSCRIPTION_GRANT',
+  ADMIN_REFUND: 'ADMIN_REFUND',
+  KARMA_CONVERSION: 'KARMA_CONVERSION',
+  ADJUSTMENT: 'ADJUSTMENT'
+} as const
+
+export type ManaReason = (typeof ManaReason)[keyof typeof ManaReason]
+
+
 export const DreamAccessMode = {
   OPEN: 'OPEN',
   CODE: 'CODE',
@@ -124,7 +143,8 @@ export const Role = {
   GUEST: 'GUEST',
   BOT: 'BOT',
   DESIGNER: 'DESIGNER',
-  CHILD: 'CHILD'
+  CHILD: 'CHILD',
+  FAMILY: 'FAMILY'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]

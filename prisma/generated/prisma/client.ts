@@ -111,6 +111,11 @@ export type Log = Prisma.LogModel
  */
 export type Milestone = Prisma.MilestoneModel
 /**
+ * Model ManaTransaction
+ * 
+ */
+export type ManaTransaction = Prisma.ManaTransactionModel
+/**
  * Model MilestoneRecord
  * the records of milestones earned. They record the date, username, id, etc. Users are given the option to clear their milestones so they can hunt fresh. I use this extensively in debugging.
  */

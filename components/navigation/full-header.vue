@@ -73,7 +73,6 @@
         :name="headerToggleIcon"
         class="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:scale-110"
       />
-      <span>{{ headerToggleLabel }}</span>
     </button>
 
     <div

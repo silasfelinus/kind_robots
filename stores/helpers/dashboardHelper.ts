@@ -79,6 +79,13 @@ export const dashboardConfigs = {
         title: 'Workbench',
         summary: 'create modular server requests with our special code cards.',
       },
+      {
+        key: 'memory-dungeon',
+        label: 'Dungeon',
+        icon: 'kind-icon:castle',
+        title: 'Memory Dungeon',
+        summary: 'Explore the gamified memory adventure.',
+      },
     ],
   },
 

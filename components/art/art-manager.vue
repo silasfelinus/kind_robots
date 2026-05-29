@@ -48,6 +48,12 @@
 
       <code-workbench v-else-if="currentTab === 'workbench'" />
 
+      <memory-dungeon
+        v-else-if="currentTab === 'memory-dungeon'"
+        class="h-full w-full"
+        :show-header="false"
+      />
+
       <div
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"

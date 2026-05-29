@@ -64,6 +64,7 @@ export const ModelName = {
   Dream: 'Dream',
   Log: 'Log',
   Milestone: 'Milestone',
+  ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
   Pitch: 'Pitch',
   Prompt: 'Prompt',
@@ -407,6 +408,23 @@ export const MilestoneScalarFieldEnum = {
 export type MilestoneScalarFieldEnum = (typeof MilestoneScalarFieldEnum)[keyof typeof MilestoneScalarFieldEnum]
 
 
+export const ManaTransactionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  amount: 'amount',
+  reason: 'reason',
+  balanceAfter: 'balanceAfter',
+  refId: 'refId',
+  note: 'note',
+  provider: 'provider',
+  costUsd: 'costUsd',
+  reversedById: 'reversedById'
+} as const
+
+export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
+
+
 export const MilestoneRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -734,7 +752,11 @@ export const UserScalarFieldEnum = {
   vibes: 'vibes',
   hiddenServerIds: 'hiddenServerIds',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  manaCap: 'manaCap',
+  lastManaRefill: 'lastManaRefill',
+  signupBonusGiven: 'signupBonusGiven',
+  isGuest: 'isGuest'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -953,6 +975,15 @@ export const MilestoneOrderByRelevanceFieldEnum = {
 } as const
 
 export type MilestoneOrderByRelevanceFieldEnum = (typeof MilestoneOrderByRelevanceFieldEnum)[keyof typeof MilestoneOrderByRelevanceFieldEnum]
+
+
+export const ManaTransactionOrderByRelevanceFieldEnum = {
+  refId: 'refId',
+  note: 'note',
+  provider: 'provider'
+} as const
+
+export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
 
 
 export const MilestoneRecordOrderByRelevanceFieldEnum = {

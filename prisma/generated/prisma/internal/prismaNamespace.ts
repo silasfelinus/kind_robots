@@ -397,6 +397,7 @@ export const ModelName = {
   Dream: 'Dream',
   Log: 'Log',
   Milestone: 'Milestone',
+  ManaTransaction: 'ManaTransaction',
   MilestoneRecord: 'MilestoneRecord',
   Pitch: 'Pitch',
   Prompt: 'Prompt',
@@ -423,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
+    modelProps: "artImage" | "artCollection" | "bot" | "butterfly" | "butterflyRecord" | "character" | "chat" | "code" | "component" | "composition" | "dream" | "log" | "milestone" | "manaTransaction" | "milestoneRecord" | "pitch" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "smartIcon" | "theme" | "user"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1282,6 +1283,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MilestoneCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MilestoneCountAggregateOutputType> | number
+        }
+      }
+    }
+    ManaTransaction: {
+      payload: Prisma.$ManaTransactionPayload<ExtArgs>
+      fields: Prisma.ManaTransactionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ManaTransactionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ManaTransactionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>
+        }
+        findFirst: {
+          args: Prisma.ManaTransactionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ManaTransactionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>
+        }
+        findMany: {
+          args: Prisma.ManaTransactionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>[]
+        }
+        create: {
+          args: Prisma.ManaTransactionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>
+        }
+        createMany: {
+          args: Prisma.ManaTransactionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ManaTransactionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>
+        }
+        update: {
+          args: Prisma.ManaTransactionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ManaTransactionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ManaTransactionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ManaTransactionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ManaTransactionPayload>
+        }
+        aggregate: {
+          args: Prisma.ManaTransactionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateManaTransaction>
+        }
+        groupBy: {
+          args: Prisma.ManaTransactionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ManaTransactionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ManaTransactionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ManaTransactionCountAggregateOutputType> | number
         }
       }
     }
@@ -2364,6 +2431,23 @@ export const MilestoneScalarFieldEnum = {
 export type MilestoneScalarFieldEnum = (typeof MilestoneScalarFieldEnum)[keyof typeof MilestoneScalarFieldEnum]
 
 
+export const ManaTransactionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  amount: 'amount',
+  reason: 'reason',
+  balanceAfter: 'balanceAfter',
+  refId: 'refId',
+  note: 'note',
+  provider: 'provider',
+  costUsd: 'costUsd',
+  reversedById: 'reversedById'
+} as const
+
+export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
+
+
 export const MilestoneRecordScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2691,7 +2775,11 @@ export const UserScalarFieldEnum = {
   vibes: 'vibes',
   hiddenServerIds: 'hiddenServerIds',
   isActive: 'isActive',
-  artPrompt: 'artPrompt'
+  artPrompt: 'artPrompt',
+  manaCap: 'manaCap',
+  lastManaRefill: 'lastManaRefill',
+  signupBonusGiven: 'signupBonusGiven',
+  isGuest: 'isGuest'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -2910,6 +2998,15 @@ export const MilestoneOrderByRelevanceFieldEnum = {
 } as const
 
 export type MilestoneOrderByRelevanceFieldEnum = (typeof MilestoneOrderByRelevanceFieldEnum)[keyof typeof MilestoneOrderByRelevanceFieldEnum]
+
+
+export const ManaTransactionOrderByRelevanceFieldEnum = {
+  refId: 'refId',
+  note: 'note',
+  provider: 'provider'
+} as const
+
+export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
 
 
 export const MilestoneRecordOrderByRelevanceFieldEnum = {
@@ -3169,6 +3266,13 @@ export type EnumDreamAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
+ * Reference to a field of type 'ManaReason'
+ */
+export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaReason'>
+    
+
+
+/**
  * Reference to a field of type 'PitchType'
  */
 export type EnumPitchTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PitchType'>
@@ -3381,6 +3485,7 @@ export type GlobalOmitConfig = {
   dream?: Prisma.DreamOmit
   log?: Prisma.LogOmit
   milestone?: Prisma.MilestoneOmit
+  manaTransaction?: Prisma.ManaTransactionOmit
   milestoneRecord?: Prisma.MilestoneRecordOmit
   pitch?: Prisma.PitchOmit
   prompt?: Prisma.PromptOmit

@@ -438,6 +438,38 @@ model Milestone {
   @@index([artImageId], map: "Milestone_artImageId_fkey")
 }
 
+enum ManaReason {
+  SIGNUP_BONUS
+  CYCLE_REFILL
+  GENERATION_ART
+  GENERATION_TEXT
+  SOCIAL_REACTION
+  SOCIAL_SHARE
+  BOUNTY_CREATE
+  BOUNTY_REWARD
+  PURCHASE
+  SUBSCRIPTION_GRANT
+  ADMIN_REFUND
+  KARMA_CONVERSION
+  ADJUSTMENT
+}
+
+model ManaTransaction {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  userId    Int
+  amount    Int        // positive = credit, negative = debit
+  reason    ManaReason
+  balanceAfter Int     // snapshot for fast statements
+  refId     String?    // e.g. generation id, stripe id, bounty id
+  note      String?    @db.Text
+  provider  String?    // "openai" | "anthropic" | "local" | "byok"
+  costUsd   Float?     // real/estimated cost for reconciliation
+  reversedById Int?    // points at the txn that reversed this one
+  User      User       @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
 /// the records of milestones earned. They record the date, username, id, etc. Users are given the option to clear their milestones so they can hunt fresh. I use this extensively in debugging.
 model MilestoneRecord {
   id          Int       @id @default(autoincrement())
@@ -849,6 +881,11 @@ model User {
   hiddenServerIds       String?           @map("HiddenServers") @db.LongText
   isActive              Boolean           @default(true)
   artPrompt             String?           @db.Text
+  manaCap          Int      @default(500)   // cycle ceiling
+  lastManaRefill   DateTime?
+  signupBonusGiven Boolean  @default(false)
+  isGuest          Boolean  @default(false) // ip-temp users
+  ManaTransactions ManaTransaction[]
   ArtCollections        ArtCollection[]
   ArtImages             ArtImage[]        @relation("ArtImageCreator")
   Bots                  Bot[]
@@ -965,6 +1002,7 @@ enum Role {
   BOT
   DESIGNER
   CHILD
+  FAMILY
 }
 
 enum ChatType {

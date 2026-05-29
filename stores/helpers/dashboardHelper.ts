@@ -474,6 +474,13 @@ export const dashboardConfigs = {
           'Manage support plans, credits, billing, and the ceremonial exchange of jellybeans for robot uptime.',
       },
       {
+        key: 'wallet',
+        label: 'Mana Purse',
+        icon: 'kind-icon:bag',
+        title: 'Mana Purse',
+        summary: 'Manage your mana wallet',
+      },
+      {
         key: 'sponsor',
         label: 'Sponsor',
         icon: 'kind-icon:hand-heart',

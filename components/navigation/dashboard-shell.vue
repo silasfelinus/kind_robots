@@ -76,6 +76,7 @@
 
               <channel-select />
               <server-selector />
+              <mana-widget />
 
               <!-- Refresh -->
               <button

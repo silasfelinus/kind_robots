@@ -1444,6 +1444,12 @@ onMounted(async () => {
     await milestoneStore.fetchHighMatchScores()
   }
 
+  await artStore.initialize({
+    fetchRemote: !artStore.hasCachedImages,
+    hydrateImages: true,
+    initializeCollections: true,
+  })
+
   window.addEventListener('resize', updateBoardBounds)
 
   if (gameStarted.value) {

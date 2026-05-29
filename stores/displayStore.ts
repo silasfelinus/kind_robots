@@ -31,6 +31,8 @@ type PromptOffsetOwner = FooterComponentName | ''
 
 type SidebarDirection = 'forward' | 'backward'
 
+type HeaderStage = 'open' | 'compact' | 'hidden'
+
 type FooterStage = 'hidden' | 'compact' | 'open' | 'priority' | 'disabled'
 
 export const useDisplayStore = defineStore('displayStore', () => {
@@ -691,19 +693,20 @@ export const useDisplayStore = defineStore('displayStore', () => {
     saveState()
   }
 
-  function toggleHeader(mode: 'cycle' | 'open' | 'compact' | 'hidden' = 'cycle') {
+  function toggleHeader(mode: 'cycle' | HeaderStage = 'cycle') {
   if (mode !== 'cycle') {
     state.headerState = mode
     saveState()
     return
   }
 
-  const order: DisplayState[] = ['open', 'compact', 'hidden']
-  const currentIndex = order.indexOf(state.headerState)
+  const order: HeaderStage[] = ['open', 'compact', 'hidden']
+  const currentIndex = order.indexOf(state.headerState as HeaderStage)
   const safeIndex = currentIndex === -1 ? 0 : currentIndex
   state.headerState = order[(safeIndex + 1) % order.length] ?? 'open'
   saveState()
-} 
+}
+
 
   const headerCornerToggleStyle = computed<CSSProperties>(() => {
     const padding = sectionPaddingSize.value

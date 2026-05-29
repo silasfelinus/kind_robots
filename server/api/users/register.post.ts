@@ -1,6 +1,7 @@
 // /server/api/user/register.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
+import { sendWelcomeMessage } from '../../utils/welcomeMessage'
 import { createUser } from '.'
 
 export default defineEventHandler(async (event) => {
@@ -39,6 +40,19 @@ export default defineEventHandler(async (event) => {
     // If the star formation (user creation) is successful, we celebrate with a warm welcome
     if (result.success && result.user) {
       console.log('🌟 A new star is born in our user universe:', result)
+
+      // Auto-send the inbox welcome message. Non-fatal: a failure here
+      // should never block a successful registration.
+      try {
+        await sendWelcomeMessage(result.user.id, { markAsRead: false })
+        console.log('💌 Welcome message delivered to', result.user.id)
+      } catch (welcomeError) {
+        console.error(
+          '⚠️ Failed to send welcome message (registration still succeeded):',
+          welcomeError,
+        )
+      }
+
       return {
         success: true,
         message:

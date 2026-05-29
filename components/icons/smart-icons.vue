@@ -74,12 +74,7 @@
             <div
               v-for="icon in prependIcons"
               :key="icon.id"
-              class="flex h-full items-stretch justify-center"
-              :class="
-                icon.component === 'login-icon' && userStore.isLoggedIn
-                  ? 'w-24 sm:w-28 md:w-32'
-                  : 'aspect-square'
-              "
+              class="flex h-full items-stretch justify-center aspect-square"
             >
               <button
                 type="button"
@@ -377,13 +372,6 @@ function computedLabel(icon: SmartIcon): string {
 
 function iconShellClass(icon: SmartIcon): string {
   if (isEditing.value) return 'aspect-square'
-
-  if (icon.type === 'utility' && icon.component === 'login-icon') {
-    return userStore.isLoggedIn
-      ? 'w-24 sm:w-28 md:w-32 lg:w-36'
-      : 'aspect-square'
-  }
-
   return 'aspect-square'
 }
 

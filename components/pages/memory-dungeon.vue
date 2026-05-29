@@ -228,45 +228,46 @@
         </div>
       </div>
 
-      <div
-        class="grid shrink-0 grid-cols-1 gap-3 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3 sm:grid-cols-3"
+  <div
+  class="grid shrink-0 grid-cols-1 gap-3 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3 sm:grid-cols-3"
+>
+  <div class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20">
+    <div class="mb-1 font-bold text-yellow-300">📜 How to play</div>
+    <p class="text-yellow-50/90">
+      Match pairs to score. Streaks multiply points. Oracle challenges
+      award 3×. Clear each floor for a random dungeon reward.
+    </p>
+  </div>
+
+  <div class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20">
+    <div class="mb-1 font-bold text-yellow-300">⚔️ Powerups</div>
+    <ul class="space-y-0.5 text-yellow-50/90">
+      <li>🔦 Lantern — reveal all cards briefly</li>
+      <li>🛡️ Shield — block one mistake</li>
+      <li>👁️ Oracle's Eye — highlight a matching pair</li>
+    </ul>
+  </div>
+
+  <div class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20">
+    <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
+    <ol v-if="leaderboard.length" class="space-y-0.5 text-yellow-50/90">
+      <li
+        v-for="(user, i) in leaderboard.slice(0, 3)"
+        :key="user.id"
+        class="flex justify-between"
       >
-        <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
-          <div class="mb-1 font-bold text-yellow-300">📜 How to play</div>
-          <p class="text-gray-300">
-            Match pairs to score. Streaks multiply points. Oracle challenges
-            award 3×. Clear each floor for a random dungeon reward.
-          </p>
-        </div>
+        <span>{{ i + 1 }}. {{ user.username }}</span>
+        <span class="font-mono font-bold text-yellow-400">
+          {{ user.matchRecord ?? '—' }}
+        </span>
+      </li>
+    </ol>
+    <p v-else class="italic text-yellow-50/50">
+      Be the first to leave a mark.
+    </p>
+  </div>
+</div>
 
-        <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
-          <div class="mb-1 font-bold text-yellow-300">⚔️ Powerups</div>
-          <ul class="space-y-0.5 text-gray-300">
-            <li>🔦 Lantern — reveal all cards briefly</li>
-            <li>🛡️ Shield — block one mistake</li>
-            <li>👁️ Oracle's Eye — highlight a matching pair</li>
-          </ul>
-        </div>
-
-        <div class="rounded-lg bg-base-100/40 p-3 text-xs leading-relaxed">
-          <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
-          <ol v-if="leaderboard.length" class="space-y-0.5 text-gray-300">
-            <li
-              v-for="(user, i) in leaderboard.slice(0, 3)"
-              :key="user.id"
-              class="flex justify-between"
-            >
-              <span>{{ i + 1 }}. {{ user.username }}</span>
-              <span class="font-mono text-yellow-300">
-                {{ user.matchRecord ?? '—' }}
-              </span>
-            </li>
-          </ol>
-          <p v-else class="italic text-gray-500">
-            Be the first to leave a mark.
-          </p>
-        </div>
-      </div>
     </div>
 
     <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
@@ -1166,7 +1167,7 @@ function onLevelComplete() {
     level.value++
     streak.value = 0
 
-    resetBoardForCurrentLevel()
+    await resetBoardForCurrentLevel()
 
     await nextTick()
 

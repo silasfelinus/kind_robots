@@ -81,6 +81,7 @@ const highScoreStorageKey = 'memoryDungeonHighScore'
 const rewardModeStorageKey = 'memoryDungeonRewardMode'
 const autoClaimRewardsStorageKey = 'memoryDungeonAutoClaimRewards'
 const memoryCardSourceStorageKey = 'memoryDungeonCardSource'
+const pairModifier = ref(0)
 
 const roundFlavors = [
   'You enter the Hall of Suspiciously Repeated Portraits. Every artifact has a twin. Probably tax reasons.',
@@ -326,12 +327,12 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const matchRecord = computed(() => userStore.matchRecord ?? 0)
 
   const pairsNeeded = computed(() => {
-    const basePairs = selectedDifficulty.value.pairs
-    const levelBonus =
-      Math.max(0, level.value - 1) * selectedDifficulty.value.levelPairStep
+  const basePairs = selectedDifficulty.value.pairs
+  const levelBonus =
+    Math.max(0, level.value - 1) * selectedDifficulty.value.levelPairStep
 
-    return Math.min(basePairs + levelBonus, 18)
-  })
+  return Math.max(2, Math.min(basePairs + levelBonus + pairModifier.value, 18))
+})
 
   const numberOfCards = computed(() => pairsNeeded.value * 2)
 
@@ -404,20 +405,66 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     })
   }
 
-  function getCollectionArtImages(collection: unknown): ArtImage[] {
-    if (!collection || typeof collection !== 'object') return []
+  function unwrapArtImage(value: unknown): ArtImage | null {
+  if (!value || typeof value !== 'object') return null
 
-    const record = collection as Record<string, unknown>
-    const candidates = [record.ArtImages, record.artImages]
+  const record = value as Record<string, unknown>
 
-    for (const candidate of candidates) {
-      if (Array.isArray(candidate)) {
-        return candidate as ArtImage[]
+  if (typeof record.id === 'number') {
+    return record as ArtImage
+  }
+
+  const nestedCandidates = [
+    record.ArtImage,
+    record.artImage,
+    record.image,
+    record.art,
+  ]
+
+  for (const candidate of nestedCandidates) {
+    if (candidate && typeof candidate === 'object') {
+      const nested = candidate as Record<string, unknown>
+
+      if (typeof nested.id === 'number') {
+        return nested as ArtImage
       }
     }
-
-    return []
   }
+
+  return null
+}
+
+function getCollectionArtImages(collection: unknown): ArtImage[] {
+  if (!collection || typeof collection !== 'object') return []
+
+  const record = collection as Record<string, unknown>
+
+  const candidates = [
+    record.ArtImages,
+    record.artImages,
+    record.images,
+    record.Art,
+    record.art,
+    record.items,
+  ]
+
+  const results: ArtImage[] = []
+
+  for (const candidate of candidates) {
+    if (!Array.isArray(candidate)) continue
+
+    for (const item of candidate) {
+      const image = unwrapArtImage(item)
+
+      if (image) {
+        results.push(image)
+      }
+    }
+  }
+
+  return uniqueArtImages(results)
+}
+
 
   function uniqueArtImages(images: ArtImage[]): ArtImage[] {
     const map = new Map<number, ArtImage>()
@@ -1355,17 +1402,20 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   }
 
   async function resetGame(payload?: {
-    level?: number
-    pairModifier?: number
-  }): Promise<void> {
-    if (payload?.level !== undefined) level.value = payload.level
-    // pairModifier isn't a store concept — component owns it, ignore here
-    gameWon.value = false
-    gameOver.value = false
-    boardLocked.value = false
-    firstSelected = null
-    await generateMemoryGameImages()
-  }
+  level?: number
+  pairModifier?: number
+}): Promise<void> {
+  if (payload?.level !== undefined) level.value = payload.level
+  pairModifier.value = payload?.pairModifier ?? 0
+
+  gameWon.value = false
+  gameOver.value = false
+  boardLocked.value = false
+  firstSelected = null
+
+  await generateMemoryGameImages()
+}
+
   async function advanceLevel(): Promise<void> {
     level.value += 1
     gameWon.value = false
@@ -1527,5 +1577,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     useGeneratedArtImages,
     useCollection,
     useCollections,
+pairModifier,
   }
 })

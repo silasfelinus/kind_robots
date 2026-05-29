@@ -119,7 +119,11 @@ const headerRootClass = computed(() =>
 )
 
 function normalizeHeaderState() {
-  if (!['open', 'compact', 'hidden'].includes(headerState.value)) {
+  if (
+    headerState.value !== 'open' &&
+    headerState.value !== 'compact' &&
+    headerState.value !== 'hidden'
+  ) {
     displayStore.changeState('headerState', 'compact')
   }
 }
@@ -137,7 +141,7 @@ function getNextHeaderState(): HeaderState {
 }
 
 function handleHeaderToggle() {
-  displayStore.changeState('headerState', getNextHeaderState())
+  displayStore.toggleHeader()
 }
 
 const headerToggleTitle = computed(() => {

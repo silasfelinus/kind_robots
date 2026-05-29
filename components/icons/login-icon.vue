@@ -8,13 +8,33 @@
   >
     <div
       v-if="isLoggedIn"
-      class="flex h-full w-full min-w-0 items-center justify-start gap-1.5 overflow-hidden rounded-2xl border border-base-300 bg-base-200 px-1.5 py-1"
+      class="relative flex h-full w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-200 py-0.5 px-0.5"
     >
-      <user-avatar
-        class="h-full max-h-full aspect-square shrink-0 rounded-full border border-primary/60 object-cover"
+      <!-- Unread message badge -->
+      <span
+        v-if="hasUnread"
+        class="absolute right-1 top-1 z-10 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-error shadow"
+        aria-label="Unread messages"
       />
+
+      <!-- Avatar -->
+      <div
+        class="flex min-h-0 flex-1 w-full items-center justify-center overflow-hidden"
+      >
+        <user-avatar
+          class="h-full max-h-full aspect-square shrink-0 rounded-full border border-primary/60 object-cover"
+        />
+      </div>
+
+      <!-- Role label -->
+      <span
+        class="block h-[1.1em] w-full shrink-0 text-center text-[clamp(0.55rem,0.9vw,0.9rem)] font-black uppercase leading-none tracking-[0.18em] text-primary"
+      >
+        {{ roleLabel }}
+      </span>
     </div>
 
+    <!-- Guest state — plain icon, no label needed -->
     <div
       v-else
       class="flex h-full w-full items-center justify-center overflow-hidden"
@@ -27,13 +47,30 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useChatStore } from '@/stores/chatStore'
 
 const userStore = useUserStore()
+const chatStore = useChatStore()
 
 const isLoggedIn = computed(() => userStore.isLoggedIn)
-const username = computed(() => userStore.user?.username || 'User')
 
-const navLabel = computed(() => (isLoggedIn.value ? username.value : 'Login?'))
+// Show the user's role in title-case as the label (USER → User, ADMIN → Admin, etc.)
+const roleLabel = computed(() => {
+  const raw = userStore.user?.Role ?? 'USER'
+  return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase()
+})
+
+const hasUnread = computed(() =>
+  (chatStore.unreadMessages ?? []).some(
+    (msg) => msg.recipientId === userStore.user?.id,
+  ),
+)
+
+const navLabel = computed(() =>
+  isLoggedIn.value
+    ? `${roleLabel.value}${hasUnread.value ? ' (unread messages)' : ''}`
+    : 'Login?',
+)
 
 const routeToNavigate = computed(() =>
   isLoggedIn.value ? '/dashboard' : '/login',

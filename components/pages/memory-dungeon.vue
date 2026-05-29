@@ -189,24 +189,42 @@
             ⚔️ ENTER THE DUNGEON
           </button>
 
-          <label
-            class="flex items-center gap-2 rounded-full bg-black/65 px-3 py-1.5 text-sm text-yellow-100 backdrop-blur"
-          >
-            <span class="font-semibold">Difficulty:</span>
-            <select
-              v-model="memoryStore.selectedDifficulty"
-              class="bg-transparent text-yellow-100 outline-none"
-            >
-              <option
-                v-for="difficulty in memoryStore.difficulties"
-                :key="difficulty.label"
-                :value="difficulty"
-                class="bg-base-300 text-base-content"
-              >
-                {{ difficulty.label }}
-              </option>
-            </select>
-          </label>
+       <div
+  class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-center"
+>
+  <label class="flex items-center justify-center gap-2 text-sm">
+    <span class="font-semibold">Difficulty:</span>
+    <select
+      v-model="memoryStore.selectedDifficulty"
+      class="rounded-xl border border-yellow-500/30 bg-base-300 px-3 py-2 text-base-content outline-none"
+    >
+      <option
+        v-for="difficulty in memoryStore.difficulties"
+        :key="difficulty.label"
+        :value="difficulty"
+      >
+        {{ difficulty.label }}
+      </option>
+    </select>
+  </label>
+
+  <collection-picker
+    class="min-w-0 flex-1"
+    title="Dungeon Deck"
+    :mode="memoryStore.cardSource.type"
+    :collection-id="memoryStore.cardSource.collectionId"
+    :collection-ids="memoryStore.cardSource.collectionIds"
+    :allow-multiple="true"
+    @change="handleCollectionPickerChange"
+  />
+</div>
+
+<div
+  v-if="memoryStore.notification"
+  class="max-w-2xl rounded-2xl border border-error/40 bg-error/20 px-4 py-2 text-center text-sm font-semibold text-error-content backdrop-blur"
+>
+  {{ memoryStore.notification.message }}
+</div>
         </div>
       </div>
 
@@ -292,27 +310,42 @@
           :class="{ 'board-reveal': revealActive }"
           :style="boardGridStyle"
         >
-          <div
-            v-for="card in memoryStore.galleryImages"
-            :key="card.id"
-            :class="[
-              'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
-              card.matched
-                ? 'card-matched pointer-events-none opacity-40'
-                : 'hover:scale-105 active:scale-95',
-              challenge.active &&
-              !card.matched &&
-              card.galleryName === challenge.targetName
-                ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-base-200'
-                : '',
-              oracleHighlight &&
-              !card.matched &&
-              card.galleryName === oracleHighlight
-                ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
-                : '',
-            ]"
-            @click="handleCardClick(card)"
-          ></div>
+      <div
+  v-for="card in memoryStore.galleryImages"
+  :key="card.id"
+  :class="[
+    'card-container relative aspect-square w-full cursor-pointer overflow-hidden rounded-xl transition-transform duration-200',
+    card.matched
+      ? 'card-matched pointer-events-none opacity-40'
+      : 'hover:scale-105 active:scale-95',
+    challenge.active &&
+    !card.matched &&
+    card.galleryName === challenge.targetName
+      ? 'ring-4 ring-yellow-400 ring-offset-2 ring-offset-base-200'
+      : '',
+    oracleHighlight &&
+    !card.matched &&
+    card.galleryName === oracleHighlight
+      ? 'ring-4 ring-blue-400 ring-offset-2 ring-offset-base-200'
+      : '',
+  ]"
+  @click="handleCardClick(card)"
+>
+  <div class="card-inner" :class="{ flipped: card.flipped || card.matched }">
+    <div
+      class="card-back flex h-full w-full items-center justify-center rounded-xl border border-yellow-500/30 bg-linear-to-br from-base-300 via-base-100 to-base-300 text-3xl shadow-inner"
+    >
+      🏰
+    </div>
+
+    <img
+      class="card-front rounded-xl border border-base-content/10 bg-base-300 shadow-xl"
+      :src="card.imagePath"
+      :alt="card.galleryName"
+      draggable="false"
+    />
+  </div>
+</div>
         </div>
       </div>
 
@@ -449,6 +482,8 @@ const artStore = useArtStore()
 
 import type { GalleryImage } from '@/stores/memoryStore'
 
+
+
 type DungeonCard = GalleryImage
 type PowerupType = 'lantern' | 'shield' | 'oracle'
 
@@ -497,6 +532,8 @@ const playableCollections = computed(() => artStore.generationCollections)
 
 const memoryStore = useMemoryStore()
 const milestoneStore = useMilestoneStore()
+
+
 
 const STARTING_MAX_LIVES = 3
 const MAX_POSSIBLE_LIVES = 8
@@ -913,7 +950,7 @@ function showAward(icon: string, title: string, subtitle: string) {
   }, 2800)
 }
 
-function resetBoardForCurrentLevel() {
+async function resetBoardForCurrentLevel() {
   prevMatchedNames = []
   prevFlippedCount = 0
   justMatched = false
@@ -922,13 +959,13 @@ function resetBoardForCurrentLevel() {
 
   const flexibleMemoryStore = memoryStore as MemoryStoreWithFlexibleReset
 
-  flexibleMemoryStore.resetGame({
+  await flexibleMemoryStore.resetGame({
     level: level.value,
     pairModifier: levelPairModifier.value,
   })
 }
 
-function startGame() {
+async function startGame() {
   maxLives.value = STARTING_MAX_LIVES
   lives.value = STARTING_MAX_LIVES
   levelPairModifier.value = 0
@@ -937,7 +974,6 @@ function startGame() {
   streak.value = 0
   matchesSinceChallenge.value = 0
   gameOver.value = false
-  gameStarted.value = true
   levelTransitioning.value = false
   powerups.value = []
   shieldActive.value = false
@@ -950,7 +986,23 @@ function startGame() {
   if (oracleTimer) clearTimeout(oracleTimer)
 
   award.visible = false
-  resetBoardForCurrentLevel()
+
+  await resetBoardForCurrentLevel()
+
+  if (!memoryStore.galleryImages.length) {
+    addLog(
+      memoryStore.notification?.message ||
+        'The dungeon could not find enough playable images. Pick a collection with image cards first.',
+      'system',
+    )
+    gameStarted.value = false
+    return
+  }
+
+  gameStarted.value = true
+
+  await nextTick()
+  await bindBoardObserver()
 
   addLog(
     '⚔️ You descend into the Memory Dungeon. The air smells of forgotten images.',

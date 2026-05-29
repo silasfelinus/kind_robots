@@ -2,12 +2,13 @@
 <template>
   <header
     ref="headerRoot"
-    class="relative isolate z-30 h-full w-full overflow-visible border-t border-base-300 bg-base-100/95 shadow-lg backdrop-blur transition-[height] duration-200"
+    class="relative isolate z-30 h-full w-full overflow-visible transition-[height] duration-200"
+    :class="headerRootClass"
   >
     <div
+      v-show="!isHidden"
       class="flex h-full w-full min-w-0 items-center gap-2 overflow-hidden px-2 py-0.5"
     >
-      <!-- Left sidebar toggle -->
       <button
         type="button"
         :title="sidebarLeftTitle"
@@ -26,14 +27,12 @@
         />
       </button>
 
-      <!-- Page image, capped at 15% of header row space -->
       <div
         class="flex h-full max-w-[15%] shrink-0 basis-[15%] items-center overflow-hidden"
       >
         <page-image class="h-full w-full min-w-0" />
       </div>
 
-      <!-- Smart icons bar -->
       <div
         class="flex h-full min-w-0 flex-1 items-center overflow-hidden rounded-2xl border border-base-300 bg-base-200/60 px-2"
       >
@@ -44,7 +43,6 @@
         />
       </div>
 
-      <!-- Right sidebar toggle -->
       <button
         type="button"
         :title="sidebarRightTitle"
@@ -64,7 +62,6 @@
       </button>
     </div>
 
-    <!-- ── Header expand / collapse pill ─────────────────────────────── -->
     <button
       type="button"
       :title="headerToggleTitle"
@@ -76,10 +73,9 @@
         :name="headerToggleIcon"
         class="h-3.5 w-3.5 shrink-0 transition-transform duration-150 group-hover:scale-110"
       />
-      <span>{{ isOpen ? 'Compact' : 'Expand' }}</span>
+      <span>{{ headerToggleLabel }}</span>
     </button>
 
-    <!-- Viewport size badge (admin only) -->
     <div
       v-if="showViewportBadge"
       class="pointer-events-none fixed left-2 top-2 z-9999"
@@ -98,6 +94,8 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useDisplayStore } from '@/stores/displayStore'
 import { useUserStore } from '@/stores/userStore'
 
+type HeaderState = 'open' | 'compact' | 'hidden'
+
 const displayStore = useDisplayStore()
 const userStore = useUserStore()
 
@@ -105,40 +103,93 @@ const headerRoot = ref<HTMLElement | null>(null)
 let ro: ResizeObserver | null = null
 
 const viewportSize = computed(() => displayStore.viewportSize)
-const headerState = computed(() => displayStore.headerState)
+const headerState = computed(() => displayStore.headerState as HeaderState)
 const sidebarLeftState = computed(() => displayStore.sidebarLeftState)
 const sidebarRightState = computed(() => displayStore.sidebarRightState)
 
 const isOpen = computed(() => headerState.value === 'open')
+const isCompact = computed(() => headerState.value === 'compact')
+const isHidden = computed(() => headerState.value === 'hidden')
 const showViewportBadge = computed(() => userStore.user?.Role === 'ADMIN')
 
+const headerRootClass = computed(() =>
+  isHidden.value
+    ? 'border-transparent bg-transparent shadow-none backdrop-blur-none'
+    : 'border-t border-base-300 bg-base-100/95 shadow-lg backdrop-blur',
+)
+
 function normalizeHeaderState() {
-  if (headerState.value !== 'open' && headerState.value !== 'compact') {
+  if (!['open', 'compact', 'hidden'].includes(headerState.value)) {
     displayStore.changeState('headerState', 'compact')
   }
 }
 
-function handleHeaderToggle() {
-  displayStore.changeState('headerState', isOpen.value ? 'compact' : 'open')
+function getNextHeaderState(): HeaderState {
+  if (isOpen.value) {
+    return 'compact'
+  }
+
+  if (isCompact.value) {
+    return 'hidden'
+  }
+
+  return 'open'
 }
 
-const headerToggleTitle = computed(() =>
-  isOpen.value ? 'Compact header' : 'Expand header',
-)
-const headerToggleIcon = computed(() =>
-  isOpen.value ? 'kind-icon:chevron-down' : 'kind-icon:chevron-up',
-)
+function handleHeaderToggle() {
+  displayStore.changeState('headerState', getNextHeaderState())
+}
+
+const headerToggleTitle = computed(() => {
+  if (isOpen.value) {
+    return 'Switch to compact header'
+  }
+
+  if (isCompact.value) {
+    return 'Hide header'
+  }
+
+  return 'Show header'
+})
+
+const headerToggleLabel = computed(() => {
+  if (isOpen.value) {
+    return 'Compact'
+  }
+
+  if (isCompact.value) {
+    return 'Hide'
+  }
+
+  return 'Show'
+})
+
+const headerToggleIcon = computed(() => {
+  if (isOpen.value) {
+    return 'kind-icon:chevron-down'
+  }
+
+  if (isCompact.value) {
+    return 'kind-icon:eye-off'
+  }
+
+  return 'kind-icon:chevron-up'
+})
+
 const sidebarLeftTitle = computed(() =>
   sidebarLeftState.value === 'open' ? 'Close left panel' : 'Open left panel',
 )
+
 const sidebarRightTitle = computed(() =>
   sidebarRightState.value === 'open' ? 'Close right panel' : 'Open right panel',
 )
+
 const sidebarLeftIcon = computed(() =>
   sidebarLeftState.value === 'open'
     ? 'kind-icon:chevron-left'
     : 'kind-icon:chevron-right',
 )
+
 const sidebarRightIcon = computed(() =>
   sidebarRightState.value === 'open'
     ? 'kind-icon:chevron-right'
@@ -189,10 +240,12 @@ function fireHeaderResized() {
 onMounted(async () => {
   normalizeHeaderState()
   await nextTick()
+
   if (headerRoot.value) {
     ro = new ResizeObserver(fireHeaderResized)
     ro.observe(headerRoot.value)
   }
+
   fireHeaderResized()
 })
 
@@ -216,7 +269,7 @@ watch(
     viewportSize.value,
     sidebarLeftState.value,
     sidebarRightState.value,
-    isOpen.value,
+    headerState.value,
   ],
   async () => {
     await nextTick()

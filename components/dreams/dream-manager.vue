@@ -191,8 +191,6 @@
 
       <dream-interact v-else-if="currentTab === 'interact'" />
 
-      <code-interact v-else-if="currentTab === 'code'" />
-
       <div
         v-else
         class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"

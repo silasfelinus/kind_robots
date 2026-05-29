@@ -19,12 +19,6 @@
         :show-header="false"
       />
 
-      <rebel-button
-        v-else-if="currentTab === 'rebel-button'"
-        class="h-full w-full"
-        :show-header="false"
-      />
-
       <screen-fx
         v-else-if="currentTab === 'screen-fx'"
         class="h-full w-full"

@@ -2,6 +2,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useUserStore } from './userStore'
+import { useServerStore } from './serverStore'
+import { useManaStore } from './manaStore'
 import { ErrorType } from './errorStore'
 import { performFetch, handleError } from './utils'
 import type { Chat } from '~/prisma/generated/prisma/client'
@@ -53,6 +55,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const lastFetchedUserId = ref<number | null>(null)
 
   const userStore = useUserStore()
+  const serverStore = useServerStore()
 
   const activeChatsByBotId = (botId: number) =>
     chats.value.filter((chat) => chat.botId === botId)
@@ -88,6 +91,58 @@ export const useChatStore = defineStore('chatStore', () => {
     serverId?: number | null
     messages?: BotCafeMessage[]
     stream?: boolean
+    // BYO-key / local-server billing. Leave undefined to auto-detect from the
+    // selected server; pass explicitly to force free (true) or charged (false).
+    useOwnResource?: boolean
+    // The user-supplied key to forward when running on their own resource.
+    userApiKey?: string | null
+  }
+
+  type TextBilling = {
+    useOwnResource: boolean
+    userApiKey: string | null
+    serverId: number | null
+  }
+
+  /**
+   * Decide whether this generation runs on the user's own resource (free) or
+   * our community tokens (charged). Mirrors the art store's transport logic:
+   * a LOCAL server or one carrying a user-supplied key is "their own."
+   */
+  function resolveTextBilling(options: StreamResponseOptions): TextBilling {
+    const serverId =
+      options.serverId ?? serverStore.activeTextServer?.id ?? null
+    const server = serverId ? serverStore.getServerById?.(serverId) : null
+
+    // Explicit override always wins.
+    if (typeof options.useOwnResource === 'boolean') {
+      return {
+        useOwnResource: options.useOwnResource,
+        userApiKey: options.userApiKey ?? null,
+        serverId,
+      }
+    }
+
+    // A user's own API key on their account counts as BYO.
+    const ownKey = options.userApiKey ?? userStore.apiKey ?? null
+
+    const isLocal =
+      (server as { accessMode?: string } | null)?.accessMode === 'LOCAL'
+
+    // Server flagged to run in-browser / on the user's own infra.
+    const isOwnServer = Boolean(
+      isLocal ||
+      (server as { isPrivateNetwork?: boolean } | null)?.isPrivateNetwork,
+    )
+
+    // BYO when they bring a key, OR the selected server is their own/local.
+    const useOwnResource = Boolean(ownKey) || isOwnServer
+
+    return {
+      useOwnResource,
+      userApiKey: useOwnResource ? ownKey : null,
+      serverId,
+    }
   }
 
   function extractBotText(payload: BotCafeResponse): string {
@@ -296,6 +351,8 @@ export const useChatStore = defineStore('chatStore', () => {
       botResponse: '',
     })
 
+    const billing = resolveTextBilling(options)
+
     try {
       const response = await fetch('/api/botcafe/chat', {
         method: 'POST',
@@ -306,8 +363,13 @@ export const useChatStore = defineStore('chatStore', () => {
           temperature: options.temperature ?? 0.7,
           maxTokens: options.maxTokens ?? 2048,
           stream: options.stream ?? true,
-          serverId: options.serverId ?? null,
+          serverId: billing.serverId,
           chatId,
+          // Billing signals for the server-side mana gate. When the user
+          // runs on their own resource, the backend treats it as free and
+          // uses this key instead of our house tokens.
+          useOwnResource: billing.useOwnResource,
+          userApiKey: billing.userApiKey,
         }),
       })
 
@@ -358,6 +420,13 @@ export const useChatStore = defineStore('chatStore', () => {
           ErrorType.NETWORK_ERROR,
           `Response streamed locally but failed to save: ${error}`,
         )
+      }
+
+      // Streaming responses can't carry a trailing balance field, so pull the
+      // authoritative post-charge balance. Skip when the user ran on their own
+      // resource — nothing was charged.
+      if (!billing.useOwnResource) {
+        void useManaStore().fetch()
       }
 
       return cleanText

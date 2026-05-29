@@ -47,3 +47,5 @@ export async function applyMana(opts: {
     return { balance: next, txnId: txn.id }
   })
 }
+
+export type { ManaReason }

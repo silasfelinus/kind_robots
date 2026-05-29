@@ -330,14 +330,6 @@ export const dashboardConfigs = {
         title: 'Dream Interact',
         summary: 'Collaboratively evolve the dream through text and images.',
       },
-      {
-        key: 'code',
-        label: 'Code',
-        icon: 'kind-icon:code',
-        title: 'Dream Prompts',
-        summary:
-          'Use our automatic code-cards to evolve and polish you concept with more text and images.',
-      },
     ],
   },
 
@@ -732,13 +724,6 @@ export const dashboardConfigs = {
         icon: 'kind-icon:sparkles',
         title: 'Screen Effects',
         summary: 'Control overlays, butterflies, and visual effects.',
-      },
-      {
-        key: 'rebel-button',
-        label: 'Rebel',
-        icon: 'kind-icon:button',
-        title: 'Rebel Button',
-        summary: 'Push the button. Regret is optional.',
       },
       {
         key: 'chat-test',

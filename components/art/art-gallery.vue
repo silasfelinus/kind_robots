@@ -53,6 +53,16 @@
             Back
           </button>
 
+          <button
+            class="btn btn-xs rounded-lg"
+            :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
+            type="button"
+            @click="toggleBulkSelect"
+          >
+            <Icon name="kind-icon:checklist" class="h-3.5 w-3.5" />
+            {{ bulkSelectEnabled ? 'Selecting' : 'Select' }}
+          </button>
+
           <add-collection
             v-if="!activeGroup"
             :compact="true"
@@ -249,6 +259,160 @@
           </button>
         </div>
 
+        <div
+          v-if="bulkSelectEnabled"
+          class="flex flex-col gap-2 rounded-xl border border-primary/30 bg-base-100 p-3 shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="badge badge-primary badge-sm">
+              {{ selectedImageCount }} selected
+            </span>
+
+            <button
+              class="btn btn-xs rounded-xl"
+              type="button"
+              :disabled="isBatchWorking"
+              @click="selectPagedImages"
+            >
+              <Icon name="kind-icon:checklist" class="h-3.5 w-3.5" />
+              Select page
+            </button>
+
+            <button
+              class="btn btn-xs rounded-xl"
+              type="button"
+              :disabled="isBatchWorking"
+              @click="selectAllFilteredImages"
+            >
+              <Icon name="kind-icon:gallery" class="h-3.5 w-3.5" />
+              Select all filtered
+            </button>
+
+            <button
+              class="btn btn-ghost btn-xs rounded-xl"
+              type="button"
+              :disabled="isBatchWorking || !selectedImageCount"
+              @click="clearImageSelection"
+            >
+              <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
+              Clear
+            </button>
+
+            <button
+              class="btn btn-ghost btn-xs ml-auto rounded-xl"
+              type="button"
+              :disabled="isBatchWorking"
+              @click="toggleBulkSelect"
+            >
+              Done
+            </button>
+          </div>
+
+          <div
+            class="grid gap-2 lg:grid-cols-[minmax(12rem,1fr)_auto_auto_auto]"
+          >
+            <select
+              v-model.number="batchCollectionId"
+              class="select select-bordered select-xs bg-base-200"
+              :disabled="isBatchWorking"
+            >
+              <option :value="null">Choose collection...</option>
+              <option
+                v-for="group in mutableCollectionGroups"
+                :key="group.key"
+                :value="group.id"
+              >
+                {{ group.title }}
+              </option>
+            </select>
+
+            <button
+              class="btn btn-secondary btn-xs rounded-xl"
+              type="button"
+              :disabled="
+                isBatchWorking ||
+                !selectedImageCount ||
+                !selectedBatchCollectionId
+              "
+              @click="addSelectedToCollection"
+            >
+              <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+              Add
+            </button>
+
+            <button
+              class="btn btn-warning btn-xs rounded-xl"
+              type="button"
+              :disabled="
+                isBatchWorking ||
+                !selectedImageCount ||
+                !selectedBatchCollectionId
+              "
+              @click="removeSelectedFromCollection"
+            >
+              <Icon name="kind-icon:minus" class="h-3.5 w-3.5" />
+              Remove
+            </button>
+
+            <button
+              v-if="activeGroup && activeGroup.id > 0"
+              class="btn btn-warning btn-xs rounded-xl"
+              type="button"
+              :disabled="isBatchWorking || !selectedImageCount"
+              @click="removeSelectedFromActiveCollection"
+            >
+              <Icon name="kind-icon:folder" class="h-3.5 w-3.5" />
+              Remove from here
+            </button>
+          </div>
+
+          <div class="grid gap-2 md:grid-cols-[1fr_1fr_auto_auto]">
+            <select
+              v-model="batchIsPublic"
+              class="select select-bordered select-xs bg-base-200"
+              :disabled="isBatchWorking"
+            >
+              <option value="keep">Visibility: keep</option>
+              <option value="true">Set public</option>
+              <option value="false">Set private</option>
+            </select>
+
+            <select
+              v-model="batchIsMature"
+              class="select select-bordered select-xs bg-base-200"
+              :disabled="isBatchWorking"
+            >
+              <option value="keep">Maturity: keep</option>
+              <option value="true">Set mature</option>
+              <option value="false">Set safe</option>
+            </select>
+
+            <button
+              class="btn btn-info btn-xs rounded-xl"
+              type="button"
+              :disabled="isBatchWorking || !canBatchModifyImages"
+              @click="applySelectedImageFlags"
+            >
+              <Icon name="kind-icon:edit" class="h-3.5 w-3.5" />
+              Apply edits
+            </button>
+
+            <button
+              class="btn btn-error btn-xs rounded-xl"
+              type="button"
+              :disabled="isBatchWorking || !canBatchModifyImages"
+              @click="deleteSelectedImages"
+            >
+              <span
+                v-if="isBatchWorking"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:trash" class="h-3.5 w-3.5" />
+              Delete
+            </button>
+          </div>
+        </div>
+
         <!-- Empty image state -->
         <div
           v-if="filteredActiveImages.length === 0"
@@ -261,27 +425,59 @@
           <p class="text-sm">No art images match the current filters.</p>
         </div>
 
-        <!-- Image grid — clicking auto-selects and opens overlay -->
         <div v-else class="grid gap-2" :class="imageGridClass">
-          <image-card
+          <div
             v-for="image in pagedActiveImages"
             :key="image.id"
-            :art-image="hydratedImages[image.id] || image"
-            :selected="selectedImageForOverlay?.id === image.id"
-            :compact="viewSize === 'xs' || viewSize === 'sm'"
-            :show-actions="selectedImageForOverlay?.id === image.id"
-            :show-prompt="viewSize !== 'xs'"
-            :show-meta="viewSize === 'md' || viewSize === 'lg'"
-            :show-generation-meta="false"
-            :show-image-status="false"
-            :show-select-button="false"
-            :allow-delete="canModifyImage(image)"
-            :allow-edit="false"
-            :auto-load-image="false"
-            :size="viewSize"
-            @select="selectImage"
-            @delete="handleImageDeleted"
-          />
+            class="relative"
+          >
+            <button
+              v-if="bulkSelectEnabled"
+              class="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-xl border shadow-lg transition"
+              :class="
+                isImageSelected(image.id)
+                  ? 'border-primary bg-primary text-primary-content'
+                  : 'border-base-300 bg-base-100/90 text-base-content hover:bg-base-200'
+              "
+              type="button"
+              :title="
+                isImageSelected(image.id) ? 'Deselect image' : 'Select image'
+              "
+              @click.stop="toggleImageSelection(image)"
+            >
+              <Icon
+                :name="
+                  isImageSelected(image.id)
+                    ? 'kind-icon:check'
+                    : 'kind-icon:plus'
+                "
+                class="h-4 w-4"
+              />
+            </button>
+
+            <image-card
+              :art-image="hydratedImages[image.id] || image"
+              :selected="
+                isImageSelected(image.id) ||
+                selectedImageForOverlay?.id === image.id
+              "
+              :compact="viewSize === 'xs' || viewSize === 'sm'"
+              :show-actions="
+                !bulkSelectEnabled && selectedImageForOverlay?.id === image.id
+              "
+              :show-prompt="viewSize !== 'xs'"
+              :show-meta="viewSize === 'md' || viewSize === 'lg'"
+              :show-generation-meta="false"
+              :show-image-status="false"
+              :show-select-button="false"
+              :allow-delete="canModifyImage(image) && !bulkSelectEnabled"
+              :allow-edit="false"
+              :auto-load-image="false"
+              :size="viewSize"
+              @select="handleImageCardClick"
+              @delete="handleImageDeleted"
+            />
+          </div>
         </div>
       </div>
 
@@ -409,6 +605,259 @@ import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+
+type BatchFlagValue = 'keep' | 'true' | 'false'
+
+const bulkSelectEnabled = ref(false)
+const selectedImageIds = ref<number[]>([])
+const batchCollectionId = ref<number | null>(null)
+const batchIsPublic = ref<BatchFlagValue>('keep')
+const batchIsMature = ref<BatchFlagValue>('keep')
+const isBatchWorking = ref(false)
+
+const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
+
+const selectedImages = computed(() => {
+  const ids = selectedImageIdSet.value
+  return filteredActiveImages.value
+    .map((image) => hydratedImages.value[image.id] || image)
+    .filter((image) => ids.has(image.id))
+})
+
+const selectedImageCount = computed(() => selectedImageIds.value.length)
+
+const mutableCollectionGroups = computed(() =>
+  collectionGroups.value.filter((group) => {
+    if (group.id <= 0) return false
+    if (userStore.isAdmin) return true
+    return Number(group.userId) === Number(currentUserId.value)
+  }),
+)
+
+const canBatchModifyImages = computed(() => {
+  if (!selectedImages.value.length) return false
+  return selectedImages.value.every((image) => canModifyImage(image))
+})
+
+const selectedBatchCollectionId = computed(() => {
+  const id = Number(batchCollectionId.value)
+  return Number.isFinite(id) && id > 0 ? id : null
+})
+
+function toggleBulkSelect() {
+  bulkSelectEnabled.value = !bulkSelectEnabled.value
+
+  if (!bulkSelectEnabled.value) {
+    selectedImageIds.value = []
+    batchCollectionId.value = null
+    batchIsPublic.value = 'keep'
+    batchIsMature.value = 'keep'
+  }
+}
+
+function isImageSelected(imageId: number): boolean {
+  return selectedImageIdSet.value.has(imageId)
+}
+
+function toggleImageSelection(image: ArtImage) {
+  const id = Number(image.id)
+  if (!Number.isFinite(id) || id <= 0) return
+
+  if (selectedImageIdSet.value.has(id)) {
+    selectedImageIds.value = selectedImageIds.value.filter(
+      (entry) => entry !== id,
+    )
+    return
+  }
+
+  selectedImageIds.value = [...selectedImageIds.value, id]
+}
+
+function selectPagedImages() {
+  const ids = pagedActiveImages.value
+    .filter((image) => canModifyImage(image))
+    .map((image) => image.id)
+
+  selectedImageIds.value = [...new Set([...selectedImageIds.value, ...ids])]
+}
+
+function selectAllFilteredImages() {
+  const ids = filteredActiveImages.value
+    .filter((image) => canModifyImage(image))
+    .map((image) => image.id)
+
+  selectedImageIds.value = [...new Set(ids)]
+}
+
+function clearImageSelection() {
+  selectedImageIds.value = []
+}
+
+async function handleImageCardClick(image: ArtImage) {
+  if (bulkSelectEnabled.value) {
+    toggleImageSelection(image)
+    return
+  }
+
+  await selectImage(image)
+}
+
+async function runBatchAction(
+  label: string,
+  worker: (image: ArtImage) => Promise<void>,
+) {
+  if (!selectedImages.value.length) return
+
+  errorMessage.value = ''
+  successMessage.value = ''
+  isBatchWorking.value = true
+
+  try {
+    await runLimited(selectedImages.value, 4, worker)
+    successMessage.value = label
+  } catch (error) {
+    const message = getErrorMessage(error, 'Batch action failed.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isBatchWorking.value = false
+  }
+}
+
+async function addSelectedToCollection() {
+  const collectionId = selectedBatchCollectionId.value
+
+  if (!collectionId) {
+    errorMessage.value = 'Pick a collection first.'
+    return
+  }
+
+  await runBatchAction(
+    `Added ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'} to collection.`,
+    async (image) => {
+      const result = await artStore.updateArtImageConnections(image.id, {
+        artCollectionIds: [collectionId],
+      })
+
+      if (!result.success) {
+        throw new Error(result.message || `Failed to add image #${image.id}.`)
+      }
+    },
+  )
+
+  await fetchCollectionsSafely(true)
+}
+
+async function removeSelectedFromCollection() {
+  const collectionId = selectedBatchCollectionId.value
+
+  if (!collectionId) {
+    errorMessage.value = 'Pick a collection first.'
+    return
+  }
+
+  await runBatchAction(
+    `Removed ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'} from collection.`,
+    async (image) => {
+      const result = await artStore.updateArtImageConnections(image.id, {
+        disconnectArtCollectionIds: [collectionId],
+      })
+
+      if (!result.success) {
+        throw new Error(
+          result.message || `Failed to remove image #${image.id}.`,
+        )
+      }
+    },
+  )
+
+  await fetchCollectionsSafely(true)
+}
+
+async function removeSelectedFromActiveCollection() {
+  if (!activeGroup.value || activeGroup.value.id <= 0) return
+
+  batchCollectionId.value = activeGroup.value.id
+  await removeSelectedFromCollection()
+}
+
+async function applySelectedImageFlags() {
+  const updates: Partial<ArtImage> = {}
+
+  if (batchIsPublic.value !== 'keep') {
+    updates.isPublic = batchIsPublic.value === 'true'
+  }
+
+  if (batchIsMature.value !== 'keep') {
+    updates.isMature = batchIsMature.value === 'true'
+  }
+
+  if (!Object.keys(updates).length) {
+    errorMessage.value = 'Choose at least one field to update.'
+    return
+  }
+
+  await runBatchAction(
+    `Updated ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'}.`,
+    async (image) => {
+      const result = await artStore.updateArtImage(image.id, updates)
+
+      if (!result.success) {
+        throw new Error(
+          result.message || `Failed to update image #${image.id}.`,
+        )
+      }
+    },
+  )
+
+  await fetchCollectionsSafely(true)
+}
+
+async function deleteSelectedImages() {
+  if (!canBatchModifyImages.value) return
+
+  const ids = [...selectedImageIds.value]
+  const confirmed = window.confirm(
+    `Delete ${ids.length} selected image${ids.length === 1 ? '' : 's'}? This cannot be undone.`,
+  )
+
+  if (!confirmed) return
+
+  errorMessage.value = ''
+  successMessage.value = ''
+  isBatchWorking.value = true
+
+  try {
+    await runLimited(ids, 3, async (imageId) => {
+      const deleted = await artStore.deleteArtImage(imageId)
+
+      if (!deleted) {
+        throw new Error(`Failed to delete image #${imageId}.`)
+      }
+
+      const next = { ...hydratedImages.value }
+      delete next[imageId]
+      hydratedImages.value = next
+    })
+
+    if (
+      selectedImageForOverlay.value &&
+      ids.includes(selectedImageForOverlay.value.id)
+    ) {
+      selectedImageForOverlay.value = null
+    }
+
+    selectedImageIds.value = []
+    successMessage.value = `Deleted ${ids.length} image${ids.length === 1 ? '' : 's'}.`
+    await fetchCollectionsSafely(true)
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to delete selected images.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isBatchWorking.value = false
+  }
+}
 
 type GalleryCollection = ArtCollection & {
   artImages?: ArtImage[]
@@ -667,6 +1116,9 @@ watch(imagePageSize, () => {
 watch(activeGroupKey, async () => {
   imagePage.value = 0
   selectedImageForOverlay.value = null
+  selectedImageIds.value = []
+  bulkSelectEnabled.value = false
+  batchCollectionId.value = null
   await hydrateVisibleImages()
 })
 
@@ -726,12 +1178,7 @@ async function initializeGallery() {
 
 async function fetchCollectionsSafely(force = false) {
   if (typeof collectionStore.fetchCollections !== 'function') return
-
-  await collectionStore.fetchCollections(force, {
-    summary: props.dropdownMode,
-    includeImages: props.dropdownMode ? true : undefined,
-    imageLimit: props.dropdownMode ? 1 : null,
-  })
+  await collectionStore.fetchCollections(force)
 }
 
 async function fetchArtImagesSafely() {
@@ -952,12 +1399,20 @@ function handleCollectionDeleted(id: number) {
 async function handleImageDeleted(imageId: number) {
   errorMessage.value = ''
   const deleted = await artStore.deleteArtImage(imageId)
+
   if (deleted) {
-    if (selectedImageForOverlay.value?.id === imageId)
+    if (selectedImageForOverlay.value?.id === imageId) {
       selectedImageForOverlay.value = null
+    }
+
+    selectedImageIds.value = selectedImageIds.value.filter(
+      (id) => id !== imageId,
+    )
+
     const next = { ...hydratedImages.value }
     delete next[imageId]
     hydratedImages.value = next
+
     successMessage.value = `Image #${imageId} deleted.`
   } else {
     errorMessage.value = `Failed to delete image #${imageId}.`

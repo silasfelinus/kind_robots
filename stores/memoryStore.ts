@@ -9,6 +9,7 @@ import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
 import { handleError, performFetch } from './utils'
+import { useCollectionStore } from './collectionStore'
 
 type NotificationType = 'error' | 'info' | 'success'
 type PowerupId = 'lantern' | 'shield' | 'compass' | 'jellybean'
@@ -246,6 +247,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const displayStore = useDisplayStore()
   const promptStore = usePromptStore()
   const artStore = useArtStore()
+  const collectionStore = useCollectionStore()
 
   const difficulties: DifficultyOption[] = [
     {
@@ -491,13 +493,33 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   }
 
   async function getMemoryCardPool(): Promise<ArtImage[]> {
+    const source = cardSource.value
+    const needsCollections =
+      source.type === 'collection' || source.type === 'collections'
+
     await artStore.initialize({
-      fetchRemote: !artStore.hasCachedImages,
+      fetchRemote: source.type === 'all' && !artStore.hasCachedImages,
       hydrateImages: true,
-      initializeCollections: true,
+      initializeCollections: false,
     })
 
-    const source = cardSource.value
+    if (needsCollections) {
+      await collectionStore.fetchCollections()
+
+      const requestedIds =
+        source.type === 'collection' && source.collectionId
+          ? [source.collectionId]
+          : source.collectionIds
+
+      const missingOrEmpty = requestedIds.some((id) => {
+        const collection = collectionStore.findCollectionById(id)
+        return !collection || !getCollectionArtImages(collection).length
+      })
+
+      if (missingOrEmpty) {
+        await collectionStore.fetchCollections(true)
+      }
+    }
 
     if (source.type === 'generated') {
       return filterPlayableArtImages(artStore.generatedArtImages)
@@ -513,9 +535,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
 
     if (source.type === 'collection' && source.collectionId) {
       const collection =
-        artStore.collections.find(
-          (storedCollection) => storedCollection.id === source.collectionId,
-        ) ?? null
+        collectionStore.findCollectionById(source.collectionId) ?? null
 
       return filterPlayableArtImages(getCollectionArtImages(collection))
     }
@@ -523,7 +543,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     if (source.type === 'collections' && source.collectionIds.length) {
       const ids = new Set(source.collectionIds)
 
-      const images = artStore.collections
+      const images = collectionStore.collections
         .filter((collection) => ids.has(collection.id))
         .flatMap((collection) => getCollectionArtImages(collection))
 
@@ -793,6 +813,14 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       resetTurnState()
 
       const pool = await getMemoryCardPool()
+
+      console.info('Memory Dungeon card pool', {
+        source: cardSource.value,
+        poolCount: pool.length,
+        collectionCount: collectionStore.collections.length,
+        selectedCollectionIds: cardSource.value.collectionIds,
+        selectedCollectionId: cardSource.value.collectionId,
+      })
 
       if (pool.length < 2) {
         throw new Error(

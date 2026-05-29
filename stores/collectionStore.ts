@@ -24,6 +24,12 @@ type ApiResponse<T> = {
   message?: string
 }
 
+type CollectionFetchOptions = {
+  summary?: boolean
+  includeImages?: boolean
+  imageLimit?: number | null
+}
+
 type ArtWithRelations = ArtImage & {
   ArtImage?: ArtImage | null
   artImage?: ArtImage | null
@@ -263,6 +269,8 @@ export const useCollectionStore = defineStore('collectionStore', () => {
   const selectedCollectionIds = ref<number[]>([])
 
   const hasFetched = ref(false)
+  const hasFetchedSummary = ref(false)
+  const hasFetchedFull = ref(false)
   const fetchPromise = ref<Promise<void> | null>(null)
   const createLocks = ref<Partial<Record<string, Promise<ArtCollection>>>>({})
   const mutationLocks = ref<Partial<Record<string, Promise<void>>>>({})
@@ -351,13 +359,86 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     { deep: true },
   )
 
-  async function fetchCollections(force = false): Promise<void> {
-    if (!force && hasFetched.value) return
+  function buildCollectionQuery(options: CollectionFetchOptions = {}): string {
+    const params = new URLSearchParams()
+
+    if (options.summary === true) {
+      params.set('summary', 'true')
+    }
+
+    if (typeof options.includeImages === 'boolean') {
+      params.set('includeImages', String(options.includeImages))
+    }
+
+    if (
+      typeof options.imageLimit === 'number' &&
+      Number.isInteger(options.imageLimit) &&
+      options.imageLimit > 0
+    ) {
+      params.set('imageLimit', String(options.imageLimit))
+    }
+
+    const query = params.toString()
+
+    return query ? `?${query}` : ''
+  }
+
+  function mergeSummaryCollectionLocal(
+    existingCollections: ArtCollection[],
+    incomingCollections: ArtCollection[],
+  ): ArtCollection[] {
+    const map = new Map<number, ArtCollection>()
+
+    for (const collection of existingCollections) {
+      map.set(collection.id, collection)
+    }
+
+    for (const incoming of incomingCollections) {
+      const existing = map.get(incoming.id)
+
+      if (!existing) {
+        map.set(
+          incoming.id,
+          normalizeCollection(incoming as CollectionWithRelations),
+        )
+        continue
+      }
+
+      const existingImages = getCollectionArtImages(existing)
+      const incomingImages = getCollectionArtImages(incoming)
+
+      const imagesToKeep = existingImages.length
+        ? existingImages
+        : incomingImages
+
+      map.set(incoming.id, {
+        ...existing,
+        ...incoming,
+        artImages: imagesToKeep,
+        ArtImages: imagesToKeep,
+        images: imagesToKeep,
+      } as NormalizedCollection)
+    }
+
+    return Array.from(map.values())
+  }
+
+  async function fetchCollections(
+    force = false,
+    options: CollectionFetchOptions = {},
+  ): Promise<void> {
+    const summaryMode = options.summary === true
+
+    if (!force && summaryMode && hasFetchedSummary.value) return
+    if (!force && !summaryMode && hasFetchedFull.value) return
     if (fetchPromise.value) return fetchPromise.value
 
     fetchPromise.value = (async () => {
       try {
-        const response = await performFetch<unknown>('/api/art/collection')
+        const query = buildCollectionQuery(options)
+        const response = await performFetch<unknown>(
+          `/api/art/collection${query}`,
+        )
 
         if (!response.success) {
           throw new Error(response.message || 'Failed to fetch collections')
@@ -365,7 +446,12 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
         const normalizedCollections = normalizeCollections(response.data)
 
-        state.collections = normalizedCollections
+        state.collections = summaryMode
+          ? mergeSummaryCollectionLocal(
+              state.collections,
+              normalizedCollections,
+            )
+          : normalizedCollections
 
         const images = normalizedCollections.flatMap((collection) => {
           return getCollectionArtImages(collection)
@@ -379,6 +465,12 @@ export const useCollectionStore = defineStore('collectionStore', () => {
         }
 
         hasFetched.value = true
+
+        if (summaryMode) {
+          hasFetchedSummary.value = true
+        } else {
+          hasFetchedFull.value = true
+        }
 
         if (
           state.currentCollection &&
@@ -396,6 +488,12 @@ export const useCollectionStore = defineStore('collectionStore', () => {
       } catch (error) {
         handleError(error, 'fetching collections')
         hasFetched.value = false
+
+        if (summaryMode) {
+          hasFetchedSummary.value = false
+        } else {
+          hasFetchedFull.value = false
+        }
       } finally {
         fetchPromise.value = null
       }
@@ -403,6 +501,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
     return fetchPromise.value
   }
+
   function getUncollectedArtImages(): ArtImage[] {
     const collectedIds = new Set(allCollectionArtImageIds.value)
 
@@ -873,6 +972,8 @@ export const useCollectionStore = defineStore('collectionStore', () => {
 
   function resetCollectionFetchState(): void {
     hasFetched.value = false
+    hasFetchedSummary.value = false
+    hasFetchedFull.value = false
     fetchPromise.value = null
   }
 
@@ -928,5 +1029,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
     createEmptyCollection,
     parseStoredCollections,
     normalizeCollection,
+    hasFetchedSummary,
+    hasFetchedFull,
   }
 })

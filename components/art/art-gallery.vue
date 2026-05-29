@@ -416,6 +416,15 @@ type GalleryCollection = ArtCollection & {
   images?: ArtImage[]
 }
 
+const props = withDefaults(
+  defineProps<{
+    dropdownMode?: boolean
+  }>(),
+  {
+    dropdownMode: false,
+  },
+)
+
 type GalleryGroup = {
   key: string
   id: number
@@ -590,13 +599,15 @@ async function refreshGallery() {
 
   try {
     await Promise.all([
-      collectionStore.fetchCollections(true),
-      artStore.fetchAllArtImages({
-        force: true,
-        includeImageData: false,
-        includeThumbnailData: false,
-        includePitches: false,
-      }),
+      fetchCollectionsSafely(true),
+      props.dropdownMode
+        ? Promise.resolve()
+        : artStore.fetchAllArtImages({
+            force: true,
+            includeImageData: false,
+            includeThumbnailData: false,
+            includePitches: false,
+          }),
     ])
 
     await hydrateVisibleImages()
@@ -697,7 +708,11 @@ async function initializeGallery() {
   hydratedImages.value = {}
 
   try {
-    await Promise.all([fetchCollectionsSafely(), fetchArtImagesSafely()])
+    await fetchCollectionsSafely(false)
+
+    if (!props.dropdownMode) {
+      await fetchArtImagesSafely()
+    }
 
     await hydrateVisibleImages()
   } catch (error) {
@@ -709,10 +724,14 @@ async function initializeGallery() {
   }
 }
 
-async function fetchCollectionsSafely() {
+async function fetchCollectionsSafely(force = false) {
   if (typeof collectionStore.fetchCollections !== 'function') return
 
-  await collectionStore.fetchCollections(false)
+  await collectionStore.fetchCollections(force, {
+    summary: props.dropdownMode,
+    includeImages: props.dropdownMode ? true : undefined,
+    imageLimit: props.dropdownMode ? 1 : null,
+  })
 }
 
 async function fetchArtImagesSafely() {
@@ -820,10 +839,19 @@ function getPreviewImage(group: GalleryGroup): ArtImage | null {
   return image ? hydratedImages.value[image.id] || image : null
 }
 
-function selectGroup(key: string) {
+async function selectGroup(key: string) {
   const group = collectionGroups.value.find((entry) => entry.key === key)
   if (!group) return
+
+  if (props.dropdownMode) {
+    collectionStore.setCurrentCollection(group.id > 0 ? group.id : null)
+    collectionStore.setSelectedCollectionIds(group.id > 0 ? [group.id] : [])
+    successMessage.value = `${group.title} selected.`
+    return
+  }
+
   activeGroupKey.value = key
+
   if (group.id > 0) {
     collectionStore.setCurrentCollection(group.id)
     collectionStore.setSelectedCollectionIds([group.id])

@@ -223,6 +223,7 @@ model Chat {
   id              Int        @id @default(autoincrement())
   createdAt       DateTime   @default(now())
   updatedAt       DateTime?  @default(now()) @updatedAt
+  readAt          DateTime?
   type            ChatType
   sender          String     @db.VarChar(255)
   recipient       String?    @db.VarChar(255)
@@ -255,6 +256,7 @@ model Chat {
   Server          Server?    @relation(fields: [serverId], references: [id])
   User            User?      @relation(fields: [userId], references: [id])
   Reactions       Reaction[]
+ 
 
   @@index([serverId], map: "Chat_serverId_fkey")
   @@index([botId], map: "Chat_botId_fkey")

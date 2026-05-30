@@ -904,12 +904,116 @@ const resultImageSrc = computed<string>(() => {
 
 type KontextCapableServer = {
   id: number
+  userId?: number | null
   isActive?: boolean | null
+  isOfficial?: boolean | null
+  isMetered?: boolean | null
+  category?: string | null
   serverType?: string | null
   generationEngine?: string | null
   supportsComfyWorkflow?: boolean | null
   supportsFlux?: boolean | null
+  supportsKontext?: boolean | null
+  supportsWorkflowUpload?: boolean | null
 }
+
+function isOfficialFallbackServer(server: KontextCapableServer): boolean {
+  return Boolean(
+    server.isOfficial ||
+    server.category === 'official' ||
+    server.userId === 9 ||
+    server.isMetered,
+  )
+}
+
+function isUserSupportedKontextServer(server: KontextCapableServer): boolean {
+  if (!server.isActive) return false
+  if (isOfficialFallbackServer(server)) return false
+
+  const isComfy =
+    server.serverType === 'COMFY' ||
+    server.generationEngine === 'COMFY' ||
+    Boolean(server.supportsComfyWorkflow)
+
+  const supportsFluxWorkflow =
+    Boolean(server.supportsFlux) ||
+    Boolean(server.supportsKontext) ||
+    Boolean(server.supportsWorkflowUpload)
+
+  return isComfy && supportsFluxWorkflow
+}
+
+const kontextServerId = computed<number | null>(() => {
+  const servers = Array.isArray(serverStore.servers)
+    ? (serverStore.servers as KontextCapableServer[])
+    : []
+
+  if (props.serverId) {
+    const explicitServer = serverStore.getServerById(props.serverId) as
+      | KontextCapableServer
+      | null
+      | undefined
+
+    if (explicitServer && isUserSupportedKontextServer(explicitServer)) {
+      return explicitServer.id
+    }
+  }
+
+  const activeServer = serverStore.activeArtServer as
+    | KontextCapableServer
+    | null
+    | undefined
+
+  if (activeServer && isUserSupportedKontextServer(activeServer)) {
+    return activeServer.id
+  }
+
+  const userId = userStore.userId ?? userStore.user?.id ?? null
+
+  const ownedServer =
+    servers.find((server) => {
+      return (
+        userId &&
+        server.userId === userId &&
+        server.generationEngine === 'KONTEXT' &&
+        isUserSupportedKontextServer(server)
+      )
+    }) ||
+    servers.find((server) => {
+      return (
+        userId &&
+        server.userId === userId &&
+        server.generationEngine === 'COMFY' &&
+        isUserSupportedKontextServer(server)
+      )
+    }) ||
+    servers.find((server) => {
+      return (
+        userId &&
+        server.userId === userId &&
+        isUserSupportedKontextServer(server)
+      )
+    })
+
+  if (ownedServer) return ownedServer.id
+
+  const personalServer =
+    servers.find((server) => {
+      return (
+        server.generationEngine === 'KONTEXT' &&
+        isUserSupportedKontextServer(server)
+      )
+    }) ||
+    servers.find((server) => {
+      return (
+        server.generationEngine === 'COMFY' &&
+        isUserSupportedKontextServer(server)
+      )
+    }) ||
+    servers.find(isUserSupportedKontextServer)
+
+  return personalServer?.id ?? null
+})
 
 function isKontextCapableServer(server: KontextCapableServer): boolean {
   if (!server.isActive) return false
@@ -922,46 +1026,6 @@ function isKontextCapableServer(server: KontextCapableServer): boolean {
     Boolean(server.supportsFlux)
   )
 }
-
-const kontextServerId = computed<number | null>(() => {
-  if (props.serverId) {
-    const explicitServer = serverStore.getServerById(props.serverId) as
-      | KontextCapableServer
-      | null
-      | undefined
-
-    return explicitServer && isKontextCapableServer(explicitServer)
-      ? explicitServer.id
-      : null
-  }
-
-  const activeServer = serverStore.activeArtServer as
-    | KontextCapableServer
-    | null
-    | undefined
-
-  if (activeServer && isKontextCapableServer(activeServer)) {
-    return activeServer.id
-  }
-
-  const servers = Array.isArray(serverStore.servers)
-    ? (serverStore.servers as KontextCapableServer[])
-    : []
-
-  const preferredServer =
-    servers.find(
-      (server) => server.isActive && server.generationEngine === 'KONTEXT',
-    ) ||
-    servers.find(
-      (server) => server.isActive && server.generationEngine === 'COMFY',
-    ) ||
-    servers.find(
-      (server) => server.isActive && server.serverType === 'COMFY',
-    ) ||
-    servers.find(isKontextCapableServer)
-
-  return preferredServer?.id ?? null
-})
 
 const canGenerate = computed(
   () =>

@@ -4,6 +4,7 @@ import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { authAndGate } from '../../../utils/comfyGate'
+import prisma from '../../../utils/prisma'
 
 type KontextGenerateRequest = {
   serverId?: number | null

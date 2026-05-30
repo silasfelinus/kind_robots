@@ -194,7 +194,10 @@ export const ServerType = {
   COMFY: 'COMFY',
   A1111: 'A1111',
   OPENAI_COMPATIBLE: 'OPENAI_COMPATIBLE',
-  OTHER: 'OTHER'
+  OTHER: 'OTHER',
+  OLLAMA: 'OLLAMA',
+  OPENAI: 'OPENAI',
+  ANTHROPIC: 'ANTHROPIC'
 } as const
 
 export type ServerType = (typeof ServerType)[keyof typeof ServerType]

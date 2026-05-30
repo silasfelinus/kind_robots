@@ -266,6 +266,11 @@ const ARTIST_STYLES: ArtistStyleDef[] = [
   },
 ]
 
+const fallbackEndpoint = ENDPOINTS[0]!
+const fallbackAnimal = ANIMALS[0]!
+const fallbackAnimalB = ANIMALS[1] ?? fallbackAnimal
+const fallbackArtistStyle = ARTIST_STYLES[0]!
+
 const serverStore = useServerStore()
 
 const selectedEndpointId = ref<EndpointId>('flux')
@@ -276,7 +281,9 @@ const selectedStyle = ref<ArtistStyleKey>('van-gogh')
 
 const serverId = ref<number | null>(null)
 const extraPrompt = ref('')
-const negativePrompt = ref('blurry, watermark, text, logo, low quality, deformed')
+const negativePrompt = ref(
+  'blurry, watermark, text, logo, low quality, deformed',
+)
 const steps = ref(24)
 const cfg = ref(7)
 const guidance = ref(3.5)
@@ -299,37 +306,41 @@ const showRawResult = ref(false)
 
 let timerInterval: ReturnType<typeof setInterval> | null = null
 
-const endpointDef = computed<EndpointDef>(
-  () =>
-    ENDPOINTS.find((entry) => entry.id === selectedEndpointId.value) ??
-    ENDPOINTS[0],
-)
+const endpointDef = computed<EndpointDef>(() => {
+  return (
+    ENDPOINTS.find((e) => e.id === selectedEndpointId.value) ?? fallbackEndpoint
+  )
+})
 
 const artServers = computed(() => serverStore.artServers)
 
-const selectedAnimalDef = computed<AnimalDef>(
-  () =>
+const selectedAnimalDef = computed<AnimalDef>(() => {
+  return (
     ANIMALS.find((animal) => animal.key === selectedAnimal.value) ??
-    ANIMALS[0],
-)
+    fallbackAnimal
+  )
+})
 
-const selectedAnimalADef = computed<AnimalDef>(
-  () =>
+const selectedAnimalADef = computed<AnimalDef>(() => {
+  return (
     ANIMALS.find((animal) => animal.key === selectedAnimalA.value) ??
-    ANIMALS[0],
-)
+    fallbackAnimal
+  )
+})
 
-const selectedAnimalBDef = computed<AnimalDef>(
-  () =>
+const selectedAnimalBDef = computed<AnimalDef>(() => {
+  return (
     ANIMALS.find((animal) => animal.key === selectedAnimalB.value) ??
-    ANIMALS[1],
-)
+    fallbackAnimalB
+  )
+})
 
-const selectedStyleDef = computed<ArtistStyleDef>(
-  () =>
+const selectedStyleDef = computed<ArtistStyleDef>(() => {
+  return (
     ARTIST_STYLES.find((style) => style.key === selectedStyle.value) ??
-    ARTIST_STYLES[0],
-)
+    fallbackArtistStyle
+  )
+})
 
 function joinParts(parts: Array<string | null | undefined>): string {
   return parts
@@ -398,7 +409,7 @@ const builtPrompt = computed(() => {
 })
 
 function getAnimalByKey(key: AnimalKey): AnimalDef {
-  return ANIMALS.find((animal) => animal.key === key) ?? ANIMALS[0]
+  return ANIMALS.find((animal) => animal.key === key) ?? fallbackAnimal
 }
 
 async function imagePathToBase64(path: string): Promise<string> {
@@ -458,7 +469,8 @@ const builtPayload = computed(() => {
     promptString: builtPrompt.value,
   }
 
-  if (endpointDef.value.needsNegative) payload.negativePrompt = negativePrompt.value
+  if (endpointDef.value.needsNegative)
+    payload.negativePrompt = negativePrompt.value
   if (endpointDef.value.needsSteps) payload.steps = steps.value
   if (endpointDef.value.needsCfg) payload.cfg = cfg.value
   if (endpointDef.value.needsGuidance) payload.guidance = guidance.value
@@ -565,7 +577,8 @@ async function generate(): Promise<void> {
     promptString: builtPrompt.value,
   }
 
-  if (endpointDef.value.needsNegative) body.negativePrompt = negativePrompt.value
+  if (endpointDef.value.needsNegative)
+    body.negativePrompt = negativePrompt.value
   if (endpointDef.value.needsSteps) body.steps = steps.value
   if (endpointDef.value.needsCfg) body.cfg = cfg.value
   if (endpointDef.value.needsGuidance) body.guidance = guidance.value
@@ -597,7 +610,9 @@ async function generate(): Promise<void> {
 
     if (!response.ok) {
       throw new Error(
-        String(data?.statusMessage || data?.message || `HTTP ${response.status}`),
+        String(
+          data?.statusMessage || data?.message || `HTTP ${response.status}`,
+        ),
       )
     }
 
@@ -650,7 +665,9 @@ function downloadImage(): void {
     <div
       class="rounded-2xl border border-base-300 bg-base-200 p-4 shadow-lg md:p-6"
     >
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div
+        class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+      >
         <div class="flex items-center gap-4">
           <div
             class="flex h-14 w-14 items-center justify-center rounded-2xl border border-base-300 bg-base-100 text-3xl"
@@ -666,8 +683,12 @@ function downloadImage(): void {
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <div class="badge badge-outline badge-lg">{{ endpointDef.engine }}</div>
-          <div class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs">
+          <div class="badge badge-outline badge-lg">
+            {{ endpointDef.engine }}
+          </div>
+          <div
+            class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-xs"
+          >
             {{ endpointDef.route }}
           </div>
         </div>
@@ -677,7 +698,9 @@ function downloadImage(): void {
     <div class="grid gap-6 xl:grid-cols-[340px_1fr]">
       <aside class="flex flex-col gap-6">
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+          <div
+            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+          >
             Endpoint
           </div>
 
@@ -704,7 +727,9 @@ function downloadImage(): void {
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+          <div
+            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+          >
             Art Server
           </div>
 
@@ -717,9 +742,16 @@ function downloadImage(): void {
           </div>
 
           <div v-else class="flex flex-col gap-2">
-            <select v-model="serverId" class="select select-bordered rounded-2xl bg-base-100">
+            <select
+              v-model="serverId"
+              class="select select-bordered rounded-2xl bg-base-100"
+            >
               <option :value="null">Select server</option>
-              <option v-for="server in artServers" :key="server.id" :value="server.id">
+              <option
+                v-for="server in artServers"
+                :key="server.id"
+                :value="server.id"
+              >
                 {{ server.label || server.title }} ({{ server.serverType }})
               </option>
             </select>
@@ -734,7 +766,9 @@ function downloadImage(): void {
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+          <div
+            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+          >
             Parameters
           </div>
 
@@ -744,7 +778,14 @@ function downloadImage(): void {
                 <span>Steps</span>
                 <span class="font-bold">{{ steps }}</span>
               </div>
-              <input v-model.number="steps" type="range" min="1" max="60" step="1" class="range range-primary range-sm" />
+              <input
+                v-model.number="steps"
+                type="range"
+                min="1"
+                max="60"
+                step="1"
+                class="range range-primary range-sm"
+              />
             </div>
 
             <div v-if="endpointDef.needsCfg" class="flex flex-col gap-2">
@@ -752,7 +793,14 @@ function downloadImage(): void {
                 <span>CFG</span>
                 <span class="font-bold">{{ cfg }}</span>
               </div>
-              <input v-model.number="cfg" type="range" min="1" max="20" step="0.5" class="range range-secondary range-sm" />
+              <input
+                v-model.number="cfg"
+                type="range"
+                min="1"
+                max="20"
+                step="0.5"
+                class="range range-secondary range-sm"
+              />
             </div>
 
             <div v-if="endpointDef.needsGuidance" class="flex flex-col gap-2">
@@ -784,7 +832,13 @@ function downloadImage(): void {
                   class="input input-bordered w-full rounded-2xl bg-base-100"
                   @input="updateSeed"
                 />
-                <button class="btn rounded-2xl" type="button" @click="seed = null">⟳</button>
+                <button
+                  class="btn rounded-2xl"
+                  type="button"
+                  @click="seed = null"
+                >
+                  ⟳
+                </button>
                 <button
                   class="btn rounded-2xl"
                   type="button"
@@ -801,20 +855,52 @@ function downloadImage(): void {
               <div class="grid gap-3 md:grid-cols-2">
                 <label class="form-control">
                   <span class="mb-2 text-sm">Width</span>
-                  <input v-model.number="width" type="number" class="input input-bordered rounded-2xl bg-base-100" />
+                  <input
+                    v-model.number="width"
+                    type="number"
+                    class="input input-bordered rounded-2xl bg-base-100"
+                  />
                 </label>
 
                 <label class="form-control">
                   <span class="mb-2 text-sm">Height</span>
-                  <input v-model.number="height" type="number" class="input input-bordered rounded-2xl bg-base-100" />
+                  <input
+                    v-model.number="height"
+                    type="number"
+                    class="input input-bordered rounded-2xl bg-base-100"
+                  />
                 </label>
               </div>
 
               <div class="flex flex-wrap gap-2">
-                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(768, 768)">768²</button>
-                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(1024, 1024)">1024²</button>
-                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(1216, 832)">16:9</button>
-                <button class="btn btn-sm rounded-xl" type="button" @click="setSize(832, 1216)">9:16</button>
+                <button
+                  class="btn btn-sm rounded-xl"
+                  type="button"
+                  @click="setSize(768, 768)"
+                >
+                  768²
+                </button>
+                <button
+                  class="btn btn-sm rounded-xl"
+                  type="button"
+                  @click="setSize(1024, 1024)"
+                >
+                  1024²
+                </button>
+                <button
+                  class="btn btn-sm rounded-xl"
+                  type="button"
+                  @click="setSize(1216, 832)"
+                >
+                  16:9
+                </button>
+                <button
+                  class="btn btn-sm rounded-xl"
+                  type="button"
+                  @click="setSize(832, 1216)"
+                >
+                  9:16
+                </button>
               </div>
             </div>
 
@@ -831,18 +917,28 @@ function downloadImage(): void {
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
-          <div class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60">
+          <div
+            class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
+          >
             Debug
           </div>
 
           <div class="flex flex-col gap-2">
             <label class="label cursor-pointer justify-start gap-3">
-              <input v-model="showPayload" type="checkbox" class="toggle toggle-primary" />
+              <input
+                v-model="showPayload"
+                type="checkbox"
+                class="toggle toggle-primary"
+              />
               <span class="label-text">Show payload</span>
             </label>
 
             <label class="label cursor-pointer justify-start gap-3">
-              <input v-model="showRawResult" type="checkbox" class="toggle toggle-secondary" />
+              <input
+                v-model="showRawResult"
+                type="checkbox"
+                class="toggle toggle-secondary"
+              />
               <span class="label-text">Show raw result</span>
             </label>
           </div>
@@ -855,11 +951,15 @@ function downloadImage(): void {
 
           <div v-if="endpointDef.mode === 'text'" class="flex flex-col gap-6">
             <div class="flex flex-col gap-3">
-              <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+              <div
+                class="text-sm font-bold uppercase tracking-widest opacity-60"
+              >
                 Subject Animal
               </div>
 
-              <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div
+                class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+              >
                 <button
                   v-for="animal in ANIMALS"
                   :key="animal.key"
@@ -880,7 +980,11 @@ function downloadImage(): void {
 
             <div class="grid gap-4 lg:grid-cols-[220px_1fr]">
               <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-                <img :src="selectedAnimalDef.path" :alt="selectedAnimalDef.label" class="aspect-square w-full rounded-xl object-cover" />
+                <img
+                  :src="selectedAnimalDef.path"
+                  :alt="selectedAnimalDef.label"
+                  class="aspect-square w-full rounded-xl object-cover"
+                />
               </div>
 
               <label class="form-control">
@@ -895,13 +999,20 @@ function downloadImage(): void {
             </div>
           </div>
 
-          <div v-else-if="endpointDef.mode === 'remix'" class="flex flex-col gap-6">
+          <div
+            v-else-if="endpointDef.mode === 'remix'"
+            class="flex flex-col gap-6"
+          >
             <div class="flex flex-col gap-3">
-              <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+              <div
+                class="text-sm font-bold uppercase tracking-widest opacity-60"
+              >
                 Source Animal
               </div>
 
-              <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div
+                class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+              >
                 <button
                   v-for="animal in ANIMALS"
                   :key="animal.key"
@@ -922,7 +1033,11 @@ function downloadImage(): void {
 
             <div class="grid gap-4 lg:grid-cols-[220px_1fr]">
               <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-                <img :src="selectedAnimalDef.path" :alt="selectedAnimalDef.label" class="aspect-square w-full rounded-xl object-cover" />
+                <img
+                  :src="selectedAnimalDef.path"
+                  :alt="selectedAnimalDef.label"
+                  class="aspect-square w-full rounded-xl object-cover"
+                />
               </div>
 
               <div class="flex flex-col gap-4">
@@ -958,7 +1073,9 @@ function downloadImage(): void {
           <div v-else class="flex flex-col gap-6">
             <div class="grid gap-6 lg:grid-cols-2">
               <div class="flex flex-col gap-3">
-                <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+                <div
+                  class="text-sm font-bold uppercase tracking-widest opacity-60"
+                >
                   Animal A
                 </div>
 
@@ -982,7 +1099,9 @@ function downloadImage(): void {
               </div>
 
               <div class="flex flex-col gap-3">
-                <div class="text-sm font-bold uppercase tracking-widest opacity-60">
+                <div
+                  class="text-sm font-bold uppercase tracking-widest opacity-60"
+                >
                   Animal B
                 </div>
 
@@ -1008,13 +1127,25 @@ function downloadImage(): void {
 
             <div class="grid gap-4 lg:grid-cols-2">
               <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-                <div class="mb-2 text-sm font-bold">{{ selectedAnimalADef.label }}</div>
-                <img :src="selectedAnimalADef.path" :alt="selectedAnimalADef.label" class="aspect-square w-full rounded-xl object-cover" />
+                <div class="mb-2 text-sm font-bold">
+                  {{ selectedAnimalADef.label }}
+                </div>
+                <img
+                  :src="selectedAnimalADef.path"
+                  :alt="selectedAnimalADef.label"
+                  class="aspect-square w-full rounded-xl object-cover"
+                />
               </div>
 
               <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-                <div class="mb-2 text-sm font-bold">{{ selectedAnimalBDef.label }}</div>
-                <img :src="selectedAnimalBDef.path" :alt="selectedAnimalBDef.label" class="aspect-square w-full rounded-xl object-cover" />
+                <div class="mb-2 text-sm font-bold">
+                  {{ selectedAnimalBDef.label }}
+                </div>
+                <img
+                  :src="selectedAnimalBDef.path"
+                  :alt="selectedAnimalBDef.label"
+                  class="aspect-square w-full rounded-xl object-cover"
+                />
               </div>
             </div>
 
@@ -1044,9 +1175,15 @@ function downloadImage(): void {
           />
         </div>
 
-        <div v-if="showPayload" class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+        <div
+          v-if="showPayload"
+          class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6"
+        >
           <div class="mb-3 text-lg font-bold">Payload Preview</div>
-          <pre class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs">{{ JSON.stringify(builtPayload, null, 2) }}</pre>
+          <pre
+            class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs"
+            >{{ JSON.stringify(builtPayload, null, 2) }}</pre
+          >
         </div>
 
         <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
@@ -1057,15 +1194,26 @@ function downloadImage(): void {
               :disabled="isGenerating || !serverId"
               @click="generate"
             >
-              <span v-if="isGenerating" class="loading loading-spinner loading-sm" />
+              <span
+                v-if="isGenerating"
+                class="loading loading-spinner loading-sm"
+              />
               <span v-else>{{ endpointDef.icon }} Generate</span>
             </button>
 
-            <button type="button" class="btn btn-ghost rounded-2xl" :disabled="isGenerating" @click="clearResult">
+            <button
+              type="button"
+              class="btn btn-ghost rounded-2xl"
+              :disabled="isGenerating"
+              @click="clearResult"
+            >
               Clear
             </button>
 
-            <div v-if="elapsedMs > 0" class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm">
+            <div
+              v-if="elapsedMs > 0"
+              class="rounded-xl border border-base-300 bg-base-100 px-3 py-2 text-sm"
+            >
               {{ (elapsedMs / 1000).toFixed(1) }}s
             </div>
 
@@ -1079,7 +1227,10 @@ function downloadImage(): void {
           </div>
         </div>
 
-        <div v-if="errorMsg" class="rounded-2xl border border-error/30 bg-error/10 p-4 text-error">
+        <div
+          v-if="errorMsg"
+          class="rounded-2xl border border-error/30 bg-error/10 p-4 text-error"
+        >
           <div class="mb-1 font-bold">Error</div>
           <div class="text-sm">{{ errorMsg }}</div>
         </div>
@@ -1089,21 +1240,34 @@ function downloadImage(): void {
             <div class="text-lg font-bold">Result</div>
 
             <div v-if="resultImage" class="flex flex-wrap gap-2">
-              <button type="button" class="btn btn-sm rounded-xl" @click="downloadImage">
+              <button
+                type="button"
+                class="btn btn-sm rounded-xl"
+                @click="downloadImage"
+              >
                 Download
               </button>
-              <button type="button" class="btn btn-sm rounded-xl" @click="copyOutput">
+              <button
+                type="button"
+                class="btn btn-sm rounded-xl"
+                @click="copyOutput"
+              >
                 Copy JSON
               </button>
             </div>
           </div>
 
           <div
-            class="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4"
+            class="flex min-h-105 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4"
           >
-            <div v-if="isGenerating" class="flex flex-col items-center gap-3 text-center">
+            <div
+              v-if="isGenerating"
+              class="flex flex-col items-center gap-3 text-center"
+            >
               <span class="loading loading-spinner loading-lg text-primary" />
-              <div class="text-lg font-bold">Generating with {{ endpointDef.label }}</div>
+              <div class="text-lg font-bold">
+                Generating with {{ endpointDef.label }}
+              </div>
               <div class="text-sm opacity-70">
                 {{ (elapsedMs / 1000).toFixed(1) }}s elapsed
               </div>
@@ -1116,17 +1280,28 @@ function downloadImage(): void {
               class="max-h-[75vh] rounded-2xl object-contain"
             />
 
-            <div v-else class="flex flex-col items-center gap-3 text-center opacity-60">
+            <div
+              v-else
+              class="flex flex-col items-center gap-3 text-center opacity-60"
+            >
               <div class="text-5xl">{{ endpointDef.icon }}</div>
-              <div class="text-lg font-bold">Your generated image will appear here</div>
+              <div class="text-lg font-bold">
+                Your generated image will appear here
+              </div>
               <div class="text-sm">No mystery collage nonsense this time.</div>
             </div>
           </div>
         </div>
 
-        <div v-if="showRawResult && resultData" class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+        <div
+          v-if="showRawResult && resultData"
+          class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6"
+        >
           <div class="mb-3 text-lg font-bold">Raw API Response</div>
-          <pre class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs">{{ JSON.stringify(resultData, null, 2) }}</pre>
+          <pre
+            class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100 p-4 text-xs"
+            >{{ JSON.stringify(resultData, null, 2) }}</pre
+          >
         </div>
       </main>
     </div>

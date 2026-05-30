@@ -767,6 +767,7 @@ model Server {
   supportsKontext            Boolean                @default(false)
   supportsOutpaint           Boolean                @default(false)
   supportsWorkflowUpload     Boolean                @default(false)
+  isMetered                   Boolean               @default(false)
   workflowJson               String?                @db.LongText
   workflowPath               String?
   workflowVersion            String?
@@ -1044,6 +1045,9 @@ enum ServerType {
   A1111
   OPENAI_COMPATIBLE
   OTHER
+  OLLAMA
+  OPENAI
+  ANTHROPIC
 }
 
 enum ServerStatus {

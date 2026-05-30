@@ -1,8 +1,8 @@
 // /server/api/comfy/flux/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
+import { authAndGate } from '../../../utils/comfyGate'
 
 type FluxVariant = 'dev' | 'schnell'
 
@@ -88,36 +88,18 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<FluxGenerateRequest>(event)
 
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
+    // Shared auth + mana gate. Throws 401 (bad token) or 402 (insufficient
+    // mana on a metered server) before any expensive Comfy work happens.
+    const gate = await authAndGate(event, {
+      engine: 'flux',
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
+      serverId: body.serverId ?? null,
     })
 
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
-
     const server = await resolveServer({
-      userId: user.id,
+      userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
       capability: 'art',
@@ -183,6 +165,9 @@ export default defineEventHandler(async (event) => {
 
     const imageData = await fetchComfyImageAsDataUrl(baseUrl, imageOutput)
 
+    // Generation succeeded — charge now (no-op for free/unmetered servers).
+    const { balance } = await gate.commit(`flux:${promptResponse.prompt_id}`)
+
     return {
       success: true,
       message: `Flux ${variant} image generated successfully.`,
@@ -196,6 +181,7 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

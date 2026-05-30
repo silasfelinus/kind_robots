@@ -108,6 +108,7 @@ export type ServerMinAggregateOutputType = {
   supportsKontext: boolean | null
   supportsOutpaint: boolean | null
   supportsWorkflowUpload: boolean | null
+  isMetered: boolean | null
   workflowJson: string | null
   workflowPath: string | null
   workflowVersion: string | null
@@ -177,6 +178,7 @@ export type ServerMaxAggregateOutputType = {
   supportsKontext: boolean | null
   supportsOutpaint: boolean | null
   supportsWorkflowUpload: boolean | null
+  isMetered: boolean | null
   workflowJson: string | null
   workflowPath: string | null
   workflowVersion: string | null
@@ -246,6 +248,7 @@ export type ServerCountAggregateOutputType = {
   supportsKontext: number
   supportsOutpaint: number
   supportsWorkflowUpload: number
+  isMetered: number
   workflowJson: number
   workflowPath: number
   workflowVersion: number
@@ -337,6 +340,7 @@ export type ServerMinAggregateInputType = {
   supportsKontext?: true
   supportsOutpaint?: true
   supportsWorkflowUpload?: true
+  isMetered?: true
   workflowJson?: true
   workflowPath?: true
   workflowVersion?: true
@@ -406,6 +410,7 @@ export type ServerMaxAggregateInputType = {
   supportsKontext?: true
   supportsOutpaint?: true
   supportsWorkflowUpload?: true
+  isMetered?: true
   workflowJson?: true
   workflowPath?: true
   workflowVersion?: true
@@ -475,6 +480,7 @@ export type ServerCountAggregateInputType = {
   supportsKontext?: true
   supportsOutpaint?: true
   supportsWorkflowUpload?: true
+  isMetered?: true
   workflowJson?: true
   workflowPath?: true
   workflowVersion?: true
@@ -631,6 +637,7 @@ export type ServerGroupByOutputType = {
   supportsKontext: boolean
   supportsOutpaint: boolean
   supportsWorkflowUpload: boolean
+  isMetered: boolean
   workflowJson: string | null
   workflowPath: string | null
   workflowVersion: string | null
@@ -723,6 +730,7 @@ export type ServerWhereInput = {
   supportsKontext?: Prisma.BoolFilter<"Server"> | boolean
   supportsOutpaint?: Prisma.BoolFilter<"Server"> | boolean
   supportsWorkflowUpload?: Prisma.BoolFilter<"Server"> | boolean
+  isMetered?: Prisma.BoolFilter<"Server"> | boolean
   workflowJson?: Prisma.StringNullableFilter<"Server"> | string | null
   workflowPath?: Prisma.StringNullableFilter<"Server"> | string | null
   workflowVersion?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -797,6 +805,7 @@ export type ServerOrderByWithRelationInput = {
   supportsKontext?: Prisma.SortOrder
   supportsOutpaint?: Prisma.SortOrder
   supportsWorkflowUpload?: Prisma.SortOrder
+  isMetered?: Prisma.SortOrder
   workflowJson?: Prisma.SortOrderInput | Prisma.SortOrder
   workflowPath?: Prisma.SortOrderInput | Prisma.SortOrder
   workflowVersion?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -875,6 +884,7 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   supportsKontext?: Prisma.BoolFilter<"Server"> | boolean
   supportsOutpaint?: Prisma.BoolFilter<"Server"> | boolean
   supportsWorkflowUpload?: Prisma.BoolFilter<"Server"> | boolean
+  isMetered?: Prisma.BoolFilter<"Server"> | boolean
   workflowJson?: Prisma.StringNullableFilter<"Server"> | string | null
   workflowPath?: Prisma.StringNullableFilter<"Server"> | string | null
   workflowVersion?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -949,6 +959,7 @@ export type ServerOrderByWithAggregationInput = {
   supportsKontext?: Prisma.SortOrder
   supportsOutpaint?: Prisma.SortOrder
   supportsWorkflowUpload?: Prisma.SortOrder
+  isMetered?: Prisma.SortOrder
   workflowJson?: Prisma.SortOrderInput | Prisma.SortOrder
   workflowPath?: Prisma.SortOrderInput | Prisma.SortOrder
   workflowVersion?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1026,6 +1037,7 @@ export type ServerScalarWhereWithAggregatesInput = {
   supportsKontext?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   supportsOutpaint?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   supportsWorkflowUpload?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
+  isMetered?: Prisma.BoolWithAggregatesFilter<"Server"> | boolean
   workflowJson?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   workflowPath?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   workflowVersion?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
@@ -1093,6 +1105,7 @@ export type ServerCreateInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -1167,6 +1180,7 @@ export type ServerUncheckedCreateInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -1238,6 +1252,7 @@ export type ServerUpdateInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1312,6 +1327,7 @@ export type ServerUncheckedUpdateInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1385,6 +1401,7 @@ export type ServerCreateManyInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -1452,6 +1469,7 @@ export type ServerUpdateManyMutationInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1521,6 +1539,7 @@ export type ServerUncheckedUpdateManyInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1611,6 +1630,7 @@ export type ServerCountOrderByAggregateInput = {
   supportsKontext?: Prisma.SortOrder
   supportsOutpaint?: Prisma.SortOrder
   supportsWorkflowUpload?: Prisma.SortOrder
+  isMetered?: Prisma.SortOrder
   workflowJson?: Prisma.SortOrder
   workflowPath?: Prisma.SortOrder
   workflowVersion?: Prisma.SortOrder
@@ -1690,6 +1710,7 @@ export type ServerMaxOrderByAggregateInput = {
   supportsKontext?: Prisma.SortOrder
   supportsOutpaint?: Prisma.SortOrder
   supportsWorkflowUpload?: Prisma.SortOrder
+  isMetered?: Prisma.SortOrder
   workflowJson?: Prisma.SortOrder
   workflowPath?: Prisma.SortOrder
   workflowVersion?: Prisma.SortOrder
@@ -1759,6 +1780,7 @@ export type ServerMinOrderByAggregateInput = {
   supportsKontext?: Prisma.SortOrder
   supportsOutpaint?: Prisma.SortOrder
   supportsWorkflowUpload?: Prisma.SortOrder
+  isMetered?: Prisma.SortOrder
   workflowJson?: Prisma.SortOrder
   workflowPath?: Prisma.SortOrder
   workflowVersion?: Prisma.SortOrder
@@ -1984,6 +2006,7 @@ export type ServerCreateWithoutArtImagesInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2057,6 +2080,7 @@ export type ServerUncheckedCreateWithoutArtImagesInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2143,6 +2167,7 @@ export type ServerUpdateWithoutArtImagesInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2216,6 +2241,7 @@ export type ServerUncheckedUpdateWithoutArtImagesInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2286,6 +2312,7 @@ export type ServerCreateWithoutBotsInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2359,6 +2386,7 @@ export type ServerUncheckedCreateWithoutBotsInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2445,6 +2473,7 @@ export type ServerUpdateWithoutBotsInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2518,6 +2547,7 @@ export type ServerUncheckedUpdateWithoutBotsInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2588,6 +2618,7 @@ export type ServerCreateWithoutChatsInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2661,6 +2692,7 @@ export type ServerUncheckedCreateWithoutChatsInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2747,6 +2779,7 @@ export type ServerUpdateWithoutChatsInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2820,6 +2853,7 @@ export type ServerUncheckedUpdateWithoutChatsInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2890,6 +2924,7 @@ export type ServerCreateWithoutResourcesInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -2963,6 +2998,7 @@ export type ServerUncheckedCreateWithoutResourcesInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -3059,6 +3095,7 @@ export type ServerScalarWhereInput = {
   supportsKontext?: Prisma.BoolFilter<"Server"> | boolean
   supportsOutpaint?: Prisma.BoolFilter<"Server"> | boolean
   supportsWorkflowUpload?: Prisma.BoolFilter<"Server"> | boolean
+  isMetered?: Prisma.BoolFilter<"Server"> | boolean
   workflowJson?: Prisma.StringNullableFilter<"Server"> | string | null
   workflowPath?: Prisma.StringNullableFilter<"Server"> | string | null
   workflowVersion?: Prisma.StringNullableFilter<"Server"> | string | null
@@ -3126,6 +3163,7 @@ export type ServerCreateWithoutUserInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -3198,6 +3236,7 @@ export type ServerUncheckedCreateWithoutUserInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -3295,6 +3334,7 @@ export type ServerUpdateWithoutResourcesInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3368,6 +3408,7 @@ export type ServerUncheckedUpdateWithoutResourcesInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3440,6 +3481,7 @@ export type ServerUncheckedUpdateManyWithoutResourcesInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3508,6 +3550,7 @@ export type ServerCreateManyUserInput = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: string | null
   workflowPath?: string | null
   workflowVersion?: string | null
@@ -3575,6 +3618,7 @@ export type ServerUpdateWithoutUserInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3647,6 +3691,7 @@ export type ServerUncheckedUpdateWithoutUserInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3719,6 +3764,7 @@ export type ServerUncheckedUpdateManyWithoutUserInput = {
   supportsKontext?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsOutpaint?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supportsWorkflowUpload?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMetered?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workflowJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workflowVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3846,6 +3892,7 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: boolean
   workflowPath?: boolean
   workflowVersion?: boolean
@@ -3923,6 +3970,7 @@ export type ServerSelectScalar = {
   supportsKontext?: boolean
   supportsOutpaint?: boolean
   supportsWorkflowUpload?: boolean
+  isMetered?: boolean
   workflowJson?: boolean
   workflowPath?: boolean
   workflowVersion?: boolean
@@ -3930,7 +3978,7 @@ export type ServerSelectScalar = {
   artPrompt?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "requiresApiKey" | "apiKeyName" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "apiLink" | "model" | "apiKey" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "oidcProvider" | "useOidc" | "accessMode" | "allowBrowserRequests" | "isPrivateNetwork" | "requiresClientSideCheck" | "backendBaseUrl" | "browserBaseUrl" | "defaultCfg" | "defaultHeight" | "defaultSampler" | "defaultScheduler" | "defaultSteps" | "defaultTransport" | "defaultWidth" | "generationEngine" | "supportsBatch" | "supportsFlux" | "supportsImageEdit" | "supportsInpaint" | "supportsKontext" | "supportsOutpaint" | "supportsWorkflowUpload" | "workflowJson" | "workflowPath" | "workflowVersion" | "isMature" | "artPrompt", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "label" | "description" | "serverType" | "category" | "baseUrl" | "endpointPath" | "healthPath" | "userId" | "isPublic" | "isOfficial" | "isDefault" | "isActive" | "isEditable" | "requiresApiKey" | "apiKeyName" | "supportsTxt2Img" | "supportsImg2Img" | "supportsChat" | "supportsComfyWorkflow" | "supportsCheckpointOverride" | "supportsSampler" | "supportsNegativePrompt" | "supportsSeed" | "supportsSteps" | "supportsVideo" | "apiLink" | "model" | "apiKey" | "designer" | "version" | "notes" | "sortOrder" | "lastCheckedAt" | "lastStatus" | "oidcProvider" | "useOidc" | "accessMode" | "allowBrowserRequests" | "isPrivateNetwork" | "requiresClientSideCheck" | "backendBaseUrl" | "browserBaseUrl" | "defaultCfg" | "defaultHeight" | "defaultSampler" | "defaultScheduler" | "defaultSteps" | "defaultTransport" | "defaultWidth" | "generationEngine" | "supportsBatch" | "supportsFlux" | "supportsImageEdit" | "supportsInpaint" | "supportsKontext" | "supportsOutpaint" | "supportsWorkflowUpload" | "isMetered" | "workflowJson" | "workflowPath" | "workflowVersion" | "isMature" | "artPrompt", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImages?: boolean | Prisma.Server$ArtImagesArgs<ExtArgs>
   Bots?: boolean | Prisma.Server$BotsArgs<ExtArgs>
@@ -4011,6 +4059,7 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     supportsKontext: boolean
     supportsOutpaint: boolean
     supportsWorkflowUpload: boolean
+    isMetered: boolean
     workflowJson: string | null
     workflowPath: string | null
     workflowVersion: string | null
@@ -4451,6 +4500,7 @@ export interface ServerFieldRefs {
   readonly supportsKontext: Prisma.FieldRef<"Server", 'Boolean'>
   readonly supportsOutpaint: Prisma.FieldRef<"Server", 'Boolean'>
   readonly supportsWorkflowUpload: Prisma.FieldRef<"Server", 'Boolean'>
+  readonly isMetered: Prisma.FieldRef<"Server", 'Boolean'>
   readonly workflowJson: Prisma.FieldRef<"Server", 'String'>
   readonly workflowPath: Prisma.FieldRef<"Server", 'String'>
   readonly workflowVersion: Prisma.FieldRef<"Server", 'String'>

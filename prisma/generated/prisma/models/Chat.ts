@@ -60,6 +60,7 @@ export type ChatMinAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  readAt: Date | null
   type: $Enums.ChatType | null
   sender: string | null
   recipient: string | null
@@ -90,6 +91,7 @@ export type ChatMaxAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   updatedAt: Date | null
+  readAt: Date | null
   type: $Enums.ChatType | null
   sender: string | null
   recipient: string | null
@@ -120,6 +122,7 @@ export type ChatCountAggregateOutputType = {
   id: number
   createdAt: number
   updatedAt: number
+  readAt: number
   type: number
   sender: number
   recipient: number
@@ -180,6 +183,7 @@ export type ChatMinAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
+  readAt?: true
   type?: true
   sender?: true
   recipient?: true
@@ -210,6 +214,7 @@ export type ChatMaxAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
+  readAt?: true
   type?: true
   sender?: true
   recipient?: true
@@ -240,6 +245,7 @@ export type ChatCountAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
+  readAt?: true
   type?: true
   sender?: true
   recipient?: true
@@ -357,6 +363,7 @@ export type ChatGroupByOutputType = {
   id: number
   createdAt: Date
   updatedAt: Date | null
+  readAt: Date | null
   type: $Enums.ChatType
   sender: string
   recipient: string | null
@@ -410,6 +417,7 @@ export type ChatWhereInput = {
   id?: Prisma.IntFilter<"Chat"> | number
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
   type?: Prisma.EnumChatTypeFilter<"Chat"> | $Enums.ChatType
   sender?: Prisma.StringFilter<"Chat"> | string
   recipient?: Prisma.StringNullableFilter<"Chat"> | string | null
@@ -448,6 +456,7 @@ export type ChatOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   sender?: Prisma.SortOrder
   recipient?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -490,6 +499,7 @@ export type ChatWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ChatWhereInput | Prisma.ChatWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
   type?: Prisma.EnumChatTypeFilter<"Chat"> | $Enums.ChatType
   sender?: Prisma.StringFilter<"Chat"> | string
   recipient?: Prisma.StringNullableFilter<"Chat"> | string | null
@@ -528,6 +538,7 @@ export type ChatOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   sender?: Prisma.SortOrder
   recipient?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -566,6 +577,7 @@ export type ChatScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Chat"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Chat"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Chat"> | Date | string | null
   type?: Prisma.EnumChatTypeWithAggregatesFilter<"Chat"> | $Enums.ChatType
   sender?: Prisma.StringWithAggregatesFilter<"Chat"> | string
   recipient?: Prisma.StringNullableWithAggregatesFilter<"Chat"> | string | null
@@ -595,6 +607,7 @@ export type ChatScalarWhereWithAggregatesInput = {
 export type ChatCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -626,6 +639,7 @@ export type ChatUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -656,6 +670,7 @@ export type ChatUncheckedCreateInput = {
 export type ChatUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -687,6 +702,7 @@ export type ChatUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -718,6 +734,7 @@ export type ChatCreateManyInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -747,6 +764,7 @@ export type ChatCreateManyInput = {
 export type ChatUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -770,6 +788,7 @@ export type ChatUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -816,6 +835,7 @@ export type ChatCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  readAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
   sender?: Prisma.SortOrder
   recipient?: Prisma.SortOrder
@@ -860,6 +880,7 @@ export type ChatMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  readAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
   sender?: Prisma.SortOrder
   recipient?: Prisma.SortOrder
@@ -890,6 +911,7 @@ export type ChatMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  readAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
   sender?: Prisma.SortOrder
   recipient?: Prisma.SortOrder
@@ -1252,6 +1274,7 @@ export type ChatUncheckedUpdateManyWithoutUserNestedInput = {
 export type ChatCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1282,6 +1305,7 @@ export type ChatUncheckedCreateWithoutArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1341,6 +1365,7 @@ export type ChatScalarWhereInput = {
   id?: Prisma.IntFilter<"Chat"> | number
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableFilter<"Chat"> | Date | string | null
   type?: Prisma.EnumChatTypeFilter<"Chat"> | $Enums.ChatType
   sender?: Prisma.StringFilter<"Chat"> | string
   recipient?: Prisma.StringNullableFilter<"Chat"> | string | null
@@ -1370,6 +1395,7 @@ export type ChatScalarWhereInput = {
 export type ChatCreateWithoutBotInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1400,6 +1426,7 @@ export type ChatUncheckedCreateWithoutBotInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1455,6 +1482,7 @@ export type ChatUpdateManyWithWhereWithoutBotInput = {
 export type ChatCreateWithoutCharacterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1485,6 +1513,7 @@ export type ChatUncheckedCreateWithoutCharacterInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1540,6 +1569,7 @@ export type ChatUpdateManyWithWhereWithoutCharacterInput = {
 export type ChatCreateWithoutDreamInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1570,6 +1600,7 @@ export type ChatUncheckedCreateWithoutDreamInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1625,6 +1656,7 @@ export type ChatUpdateManyWithWhereWithoutDreamInput = {
 export type ChatCreateWithoutPromptInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1655,6 +1687,7 @@ export type ChatUncheckedCreateWithoutPromptInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1710,6 +1743,7 @@ export type ChatUpdateManyWithWhereWithoutPromptInput = {
 export type ChatCreateWithoutReactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1740,6 +1774,7 @@ export type ChatUncheckedCreateWithoutReactionsInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1785,6 +1820,7 @@ export type ChatUpdateToOneWithWhereWithoutReactionsInput = {
 export type ChatUpdateWithoutReactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1815,6 +1851,7 @@ export type ChatUncheckedUpdateWithoutReactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1844,6 +1881,7 @@ export type ChatUncheckedUpdateWithoutReactionsInput = {
 export type ChatCreateWithoutServerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1874,6 +1912,7 @@ export type ChatUncheckedCreateWithoutServerInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1929,6 +1968,7 @@ export type ChatUpdateManyWithWhereWithoutServerInput = {
 export type ChatCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -1959,6 +1999,7 @@ export type ChatUncheckedCreateWithoutUserInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2015,6 +2056,7 @@ export type ChatCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2043,6 +2085,7 @@ export type ChatCreateManyArtImageInput = {
 export type ChatUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2073,6 +2116,7 @@ export type ChatUncheckedUpdateWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2103,6 +2147,7 @@ export type ChatUncheckedUpdateManyWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2132,6 +2177,7 @@ export type ChatCreateManyBotInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2160,6 +2206,7 @@ export type ChatCreateManyBotInput = {
 export type ChatUpdateWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2190,6 +2237,7 @@ export type ChatUncheckedUpdateWithoutBotInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2220,6 +2268,7 @@ export type ChatUncheckedUpdateManyWithoutBotInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2249,6 +2298,7 @@ export type ChatCreateManyCharacterInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2277,6 +2327,7 @@ export type ChatCreateManyCharacterInput = {
 export type ChatUpdateWithoutCharacterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2307,6 +2358,7 @@ export type ChatUncheckedUpdateWithoutCharacterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2337,6 +2389,7 @@ export type ChatUncheckedUpdateManyWithoutCharacterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2366,6 +2419,7 @@ export type ChatCreateManyDreamInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2394,6 +2448,7 @@ export type ChatCreateManyDreamInput = {
 export type ChatUpdateWithoutDreamInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2424,6 +2479,7 @@ export type ChatUncheckedUpdateWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2454,6 +2510,7 @@ export type ChatUncheckedUpdateManyWithoutDreamInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2483,6 +2540,7 @@ export type ChatCreateManyPromptInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2511,6 +2569,7 @@ export type ChatCreateManyPromptInput = {
 export type ChatUpdateWithoutPromptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2541,6 +2600,7 @@ export type ChatUncheckedUpdateWithoutPromptInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2571,6 +2631,7 @@ export type ChatUncheckedUpdateManyWithoutPromptInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2600,6 +2661,7 @@ export type ChatCreateManyServerInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2628,6 +2690,7 @@ export type ChatCreateManyServerInput = {
 export type ChatUpdateWithoutServerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2658,6 +2721,7 @@ export type ChatUncheckedUpdateWithoutServerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2688,6 +2752,7 @@ export type ChatUncheckedUpdateManyWithoutServerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2717,6 +2782,7 @@ export type ChatCreateManyUserInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
+  readAt?: Date | string | null
   type: $Enums.ChatType
   sender: string
   recipient?: string | null
@@ -2745,6 +2811,7 @@ export type ChatCreateManyUserInput = {
 export type ChatUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2775,6 +2842,7 @@ export type ChatUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2805,6 +2873,7 @@ export type ChatUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   type?: Prisma.EnumChatTypeFieldUpdateOperationsInput | $Enums.ChatType
   sender?: Prisma.StringFieldUpdateOperationsInput | string
   recipient?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2865,6 +2934,7 @@ export type ChatSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  readAt?: boolean
   type?: boolean
   sender?: boolean
   recipient?: boolean
@@ -2906,6 +2976,7 @@ export type ChatSelectScalar = {
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  readAt?: boolean
   type?: boolean
   sender?: boolean
   recipient?: boolean
@@ -2932,7 +3003,7 @@ export type ChatSelectScalar = {
   isActive?: boolean
 }
 
-export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "type" | "sender" | "recipient" | "content" | "title" | "isPublic" | "isFavorite" | "previousEntryId" | "originId" | "userId" | "botId" | "recipientId" | "artImageId" | "promptId" | "botName" | "channel" | "botResponse" | "characterId" | "isRead" | "isMature" | "serverId" | "serverName" | "dreamId" | "isActive", ExtArgs["result"]["chat"]>
+export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "readAt" | "type" | "sender" | "recipient" | "content" | "title" | "isPublic" | "isFavorite" | "previousEntryId" | "originId" | "userId" | "botId" | "recipientId" | "artImageId" | "promptId" | "botName" | "channel" | "botResponse" | "characterId" | "isRead" | "isMature" | "serverId" | "serverName" | "dreamId" | "isActive", ExtArgs["result"]["chat"]>
 export type ChatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Chat$ArtImageArgs<ExtArgs>
   Bot?: boolean | Prisma.Chat$BotArgs<ExtArgs>
@@ -2961,6 +3032,7 @@ export type $ChatPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: number
     createdAt: Date
     updatedAt: Date | null
+    readAt: Date | null
     type: $Enums.ChatType
     sender: string
     recipient: string | null
@@ -3365,6 +3437,7 @@ export interface ChatFieldRefs {
   readonly id: Prisma.FieldRef<"Chat", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Chat", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Chat", 'DateTime'>
+  readonly readAt: Prisma.FieldRef<"Chat", 'DateTime'>
   readonly type: Prisma.FieldRef<"Chat", 'ChatType'>
   readonly sender: Prisma.FieldRef<"Chat", 'String'>
   readonly recipient: Prisma.FieldRef<"Chat", 'String'>

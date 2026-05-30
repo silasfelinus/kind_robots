@@ -902,16 +902,70 @@ const resultImageSrc = computed<string>(() => {
   return img.imagePath || img.path || ''
 })
 
-const activeServerId = computed<number | null>(
-  () => props.serverId ?? serverStore.activeArtServer?.id ?? null,
-)
+type KontextCapableServer = {
+  id: number
+  isActive?: boolean | null
+  serverType?: string | null
+  generationEngine?: string | null
+  supportsComfyWorkflow?: boolean | null
+  supportsFlux?: boolean | null
+}
+
+function isKontextCapableServer(server: KontextCapableServer): boolean {
+  if (!server.isActive) return false
+
+  return (
+    server.generationEngine === 'KONTEXT' ||
+    server.generationEngine === 'COMFY' ||
+    server.serverType === 'COMFY' ||
+    Boolean(server.supportsComfyWorkflow) ||
+    Boolean(server.supportsFlux)
+  )
+}
+
+const kontextServerId = computed<number | null>(() => {
+  if (props.serverId) {
+    const explicitServer = serverStore.getServerById(props.serverId) as
+      | KontextCapableServer
+      | null
+      | undefined
+
+    return explicitServer && isKontextCapableServer(explicitServer)
+      ? explicitServer.id
+      : null
+  }
+
+  const activeServer = serverStore.activeArtServer as
+    | KontextCapableServer
+    | null
+    | undefined
+
+  if (activeServer && isKontextCapableServer(activeServer)) {
+    return activeServer.id
+  }
+
+  const servers = Array.isArray(serverStore.servers)
+    ? (serverStore.servers as KontextCapableServer[])
+    : []
+
+  const preferredServer =
+    servers.find((server) => {
+      return server.isActive && server.generationEngine === 'KONTEXT'
+    }) ||
+    servers.find((server) => {
+      return server.isActive && server.generationEngine === 'COMFY'
+    }) ||
+    servers.find((server) => {
+      return server.isActive && server.serverType === 'COMFY'
+    }) ||
+    servers.find(isKontextCapableServer)
+
+  return preferredServer?.id ?? null
+})
 
 const canGenerate = computed(
   () =>
-    !isGenerating.value &&
-    !!selectedStyle.value &&
-    !!activeServerId.value &&
-    !!selectedSourceImage.value,
+    !isGenerating.value && !!selectedStyle.value && !!selectedSourceImage.value,
 )
 
 // ── Upload handlers ────────────────────────────────────────────────────────
@@ -1119,12 +1173,7 @@ async function hydrateFromResourceStore(): Promise<void> {
 
 // ── Core generation ────────────────────────────────────────────────────────
 async function runStyleTransfer(): Promise<void> {
-  if (
-    !selectedStyle.value ||
-    !activeServerId.value ||
-    !selectedSourceImage.value
-  )
-    return
+  if (!selectedStyle.value || !selectedSourceImage.value) return
 
   errorMessage.value = ''
   successMessage.value = ''
@@ -1136,8 +1185,7 @@ async function runStyleTransfer(): Promise<void> {
     const loraRef = buildLoraReference(style)
 
     const promptString = [
-      loraRef,
-      style.triggerPhrase,
+      `${loraRef} ${style.triggerPhrase}`.trim(),
       extraPrompt.value.trim(),
     ]
       .filter(Boolean)
@@ -1158,8 +1206,9 @@ async function runStyleTransfer(): Promise<void> {
       promptString,
       negativePrompt: useNegative.value ? sourceImage.negativePrompt || '' : '',
       userId: userStore.userId ?? undefined,
-      serverId: activeServerId.value,
+      serverId: kontextServerId.value,
       engine: 'kontext',
+      transport: 'backend',
       isPublic: isPublic.value,
       isMature: (selectedSourceImage.value as ArtImage).isMature ?? false,
       // Only pass sourceImageId for real DB images (id > 0)

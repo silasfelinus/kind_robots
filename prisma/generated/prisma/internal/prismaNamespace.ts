@@ -2672,6 +2672,7 @@ export const ServerScalarFieldEnum = {
   supportsKontext: 'supportsKontext',
   supportsOutpaint: 'supportsOutpaint',
   supportsWorkflowUpload: 'supportsWorkflowUpload',
+  isMetered: 'isMetered',
   workflowJson: 'workflowJson',
   workflowPath: 'workflowPath',
   workflowVersion: 'workflowVersion',

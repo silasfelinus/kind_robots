@@ -1,6 +1,8 @@
 // /server/api/botcafe/chat.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '@/server/utils/error'
+import { manaGate } from '@/server/utils/manaGate'
+import { estimateTextCostUsd } from '@/server/utils/manaCost'
 
 type ChatRole = 'system' | 'user' | 'assistant'
 
@@ -16,6 +18,11 @@ type BotCafeBody = {
   maxTokens?: number
   max_tokens?: number
   stream?: boolean
+  // Gate inputs forwarded by chatStore.streamResponse.
+  serverId?: number | null
+  chatId?: number | null
+  useOwnResource?: boolean
+  userApiKey?: string | null
 }
 
 type OpenAIChatResponse = {
@@ -66,14 +73,6 @@ function normalizeMessages(messages: unknown): ChatMessage[] {
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<BotCafeBody>(event)
-    const apiKey = process.env.OPENAI_API_KEY
-
-    if (!apiKey) {
-      throw createError({
-        statusCode: 500,
-        message: 'OPENAI_API_KEY is not configured.',
-      })
-    }
 
     const messages = normalizeMessages(body.messages)
 
@@ -81,6 +80,32 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'At least one chat message is required.',
+      })
+    }
+
+    // Gate BEFORE the provider call. A non-metered/own server resolves to free;
+    // the metered platform server charges. Throws 401/402 as needed, caught
+    // below. If the user is running on their own resource, treat the request
+    // as serverId-present so the gate sees it as non-metered (free).
+    const gateServerId = body.useOwnResource
+      ? (body.serverId ?? -1) // any non-null id → gate looks it up / treats as own
+      : (body.serverId ?? null)
+
+    const gate = await manaGate(event, {
+      kind: 'text',
+      estCostUsd: estimateTextCostUsd({
+        model: body.model || 'gpt-4o-mini',
+        maxTokens: body.max_tokens ?? body.maxTokens ?? 2048,
+      }),
+      serverId: gateServerId,
+    })
+
+    const apiKey = process.env.OPENAI_API_KEY
+
+    if (!apiKey) {
+      throw createError({
+        statusCode: 500,
+        message: 'OPENAI_API_KEY is not configured.',
       })
     }
 
@@ -121,6 +146,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Charge only after a successful generation.
+    const { balance } = await gate.commit(`chat:${body.chatId ?? 'adhoc'}`)
+
     return {
       success: true,
       message: 'Bot response received.',
@@ -128,6 +156,7 @@ export default defineEventHandler(async (event) => {
         content,
         raw,
       },
+      mana: { balance, charged: gate.cost },
     }
   } catch (error) {
     return errorHandler(error)

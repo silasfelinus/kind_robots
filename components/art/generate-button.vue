@@ -51,7 +51,7 @@
 
         <span v-else class="flex items-center gap-2">
           <icon :name="icon" class="h-5 w-5" />
-          {{ label }}
+          {{ canAfford ? label : 'Out of mana — top up' }}
         </span>
       </button>
     </div>
@@ -109,6 +109,8 @@ import { computed, onMounted } from 'vue'
 import type { ArtImage, Server } from '~/prisma/generated/prisma/client'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useArtStore, type GenerateArtData } from '@/stores/artStore'
+import { useManaStore } from '@/stores/manaStore'
+import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
   defineProps<{
@@ -138,6 +140,8 @@ const emit = defineEmits<{
 
 const artStore = useArtStore()
 const errorStore = useErrorStore()
+const manaStore = useManaStore()
+const userStore = useUserStore()
 
 const resultImage = computed(
   () => artStore.lastGeneratedArtImage || artStore.currentArtImage || null,
@@ -151,8 +155,21 @@ const selectedServerId = computed(() => {
 
 const activeServer = computed(() => artStore.activeGenerationServer)
 
+// Can the user afford to generate? Family is always free; BYO/local is free;
+// otherwise they need a positive balance. We don't know exact cost client-side,
+// so we gate on "has any mana" and let the server 402 handle the exact check.
+const canAfford = computed(() => {
+  if (manaStore.isFamily) return true
+  const server = activeServer.value
+  // No server, or a metered platform server → needs mana.
+  const metered =
+    !server || (server as Server & { isMetered?: boolean }).isMetered
+  if (!metered) return true
+  return manaStore.balance > 0
+})
+
 const canClick = computed(
-  () => artStore.canGenerateArt && !artStore.isGenerating,
+  () => artStore.canGenerateArt && !artStore.isGenerating && canAfford.value,
 )
 
 onMounted(async () => {
@@ -192,7 +209,17 @@ async function handleGenerate() {
 
   if (!result.success || !result.data) {
     const message = result.message || 'Generation failed.'
-    errorStore.addError(ErrorType.GENERAL_ERROR, message)
+
+    // Insufficient mana → point them at the wallet instead of a dead-end error.
+    if (/mana|⚡/i.test(message)) {
+      errorStore.addError(
+        ErrorType.INTERACTION_ERROR,
+        `${message} Visit your wallet to top up.`,
+      )
+    } else {
+      errorStore.addError(ErrorType.GENERAL_ERROR, message)
+    }
+
     emit('failed', message)
     return
   }

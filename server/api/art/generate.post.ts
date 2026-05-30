@@ -21,6 +21,8 @@ import {
   resolveCheckpointResource,
   type CheckpointResourceRequestData,
 } from './utils/checkpointResource'
+import { manaGate } from '../../utils/manaGate' // adjust depth per file
+import { estimateArtCostUsd } from '../../utils/manaCost'
 
 type ServerAwareRequestData = RequestData &
   CheckpointResourceRequestData & {
@@ -73,7 +75,7 @@ type A1111Txt2ImgRequest = {
 export default defineEventHandler(async (event) => {
   try {
     const requestData: ServerAwareRequestData = await readBody(event)
-
+    const body = requestData
     if (!requestData.promptString?.trim()) {
       throw createError({
         statusCode: 400,
@@ -118,12 +120,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (user.karma <= 0) {
-      throw createError({
-        statusCode: 403,
-        message: 'Insufficient karma to generate an image.',
-      })
-    }
+    const gate = await manaGate(event, {
+      kind: 'art',
+      estCostUsd: estimateArtCostUsd({
+        engine: 'a1111', // 'comfy' | 'flux' | 'kontext' | 'openai' per file
+        steps: body.steps,
+        width: body.width,
+        height: body.height,
+      }),
+      serverId: body.serverId ?? null,
+    })
 
     const validatedData: Partial<RequestData> = {}
 
@@ -257,14 +263,7 @@ export default defineEventHandler(async (event) => {
           : undefined,
       },
     })
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        karma: user.karma - 1,
-      },
-    })
+    const { balance } = await gate.commit(`art:${updatedImage.id}`)
 
     event.node.res.statusCode = 201
 
@@ -272,6 +271,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'ArtImage generated successfully.',
       data: updatedImage,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

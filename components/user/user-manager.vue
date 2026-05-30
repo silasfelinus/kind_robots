@@ -50,11 +50,6 @@
 
       <chat-gallery v-else-if="currentTab === 'chats'" :show-header="false" />
 
-      <gallery-gallery
-        v-else-if="currentTab === 'galleries'"
-        :show-header="false"
-      />
-
       <server-manager v-else-if="currentTab === 'servers'" />
 
       <div

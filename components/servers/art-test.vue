@@ -2,6 +2,7 @@
 // /components/servers/art-test.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
+import { performFetch } from '@/stores/utils'
 
 type EndpointId = 'a1111' | 'sdxl' | 'flux' | 'kontext' | 'kombine'
 type EndpointMode = 'text' | 'remix' | 'combine'
@@ -577,12 +578,25 @@ async function generate(): Promise<void> {
     promptString: builtPrompt.value,
   }
 
-  if (endpointDef.value.needsNegative)
+  if (endpointDef.value.needsNegative) {
     body.negativePrompt = negativePrompt.value
-  if (endpointDef.value.needsSteps) body.steps = steps.value
-  if (endpointDef.value.needsCfg) body.cfg = cfg.value
-  if (endpointDef.value.needsGuidance) body.guidance = guidance.value
-  if (endpointDef.value.needsSeed) body.seed = seed.value
+  }
+
+  if (endpointDef.value.needsSteps) {
+    body.steps = steps.value
+  }
+
+  if (endpointDef.value.needsCfg) {
+    body.cfg = cfg.value
+  }
+
+  if (endpointDef.value.needsGuidance) {
+    body.guidance = guidance.value
+  }
+
+  if (endpointDef.value.needsSeed) {
+    body.seed = seed.value
+  }
 
   if (endpointDef.value.needsSize) {
     body.width = width.value
@@ -599,22 +613,25 @@ async function generate(): Promise<void> {
   }
 
   try {
-    const response = await fetch(endpointDef.value.route, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
+    const response = await performFetch<Record<string, unknown>>(
+      endpointDef.value.route,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      },
+      1,
+      180_000,
+    )
 
-    const data = (await response.json()) as Record<string, unknown>
-    resultData.value = data
+    resultData.value = response as unknown as Record<string, unknown>
 
-    if (!response.ok) {
-      throw new Error(
-        String(
-          data?.statusMessage || data?.message || `HTTP ${response.status}`,
-        ),
-      )
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Failed to generate image.')
     }
+
+    const data = response.data as Record<string, unknown>
+    resultData.value = data
 
     const imageValue = extractResultImage(data)
 

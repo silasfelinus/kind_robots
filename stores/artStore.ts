@@ -2003,6 +2003,14 @@ export const useArtStore = defineStore('artStore', () => {
       .processPromptPlaceholders(basePrompt.trim())
       .replace(/\s+/g, ' ')
 
+    const engine = artData?.engine ?? state.artForm.engine ?? undefined
+    const explicitServerIdProvided =
+      artData !== undefined &&
+      Object.prototype.hasOwnProperty.call(artData, 'serverId')
+    const explicitServerNameProvided =
+      artData !== undefined &&
+      Object.prototype.hasOwnProperty.call(artData, 'serverName')
+
     return {
       promptString,
       negativePrompt:
@@ -2042,17 +2050,25 @@ export const useArtStore = defineStore('artStore', () => {
       promptId: artData?.promptId ?? state.artForm.promptId ?? null,
       pitchId: artData?.pitchId ?? state.artForm.pitchId ?? null,
       serverId:
-        artData?.serverId ??
-        state.artForm.serverId ??
-        serverStore.activeArtServer?.id ??
-        null,
+        engine === 'kontext'
+          ? explicitServerIdProvided
+            ? (artData?.serverId ?? null)
+            : (state.artForm.serverId ?? null)
+          : (artData?.serverId ??
+            state.artForm.serverId ??
+            serverStore.activeArtServer?.id ??
+            null),
       serverName:
-        artData?.serverName ??
-        state.artForm.serverName ??
-        serverStore.activeArtServer?.label ??
-        serverStore.activeArtServer?.title ??
-        null,
-      engine: artData?.engine ?? state.artForm.engine ?? undefined,
+        engine === 'kontext'
+          ? explicitServerNameProvided
+            ? (artData?.serverName ?? null)
+            : (state.artForm.serverName ?? null)
+          : (artData?.serverName ??
+            state.artForm.serverName ??
+            serverStore.activeArtServer?.label ??
+            serverStore.activeArtServer?.title ??
+            null),
+      engine,
       transport: artData?.transport ?? state.artForm.transport ?? undefined,
       workflow: artData?.workflow ?? state.artForm.workflow ?? null,
       width: artData?.width ?? state.artForm.width ?? null,

@@ -21,8 +21,7 @@ import {
   resolveCheckpointResource,
   type CheckpointResourceRequestData,
 } from './utils/checkpointResource'
-import { manaGate } from '../../utils/manaGate' // adjust depth per file
-import { estimateArtCostUsd } from '../../utils/manaCost'
+import { withArtMana } from '../../utils/generationMana'
 
 type ServerAwareRequestData = RequestData &
   CheckpointResourceRequestData & {
@@ -76,6 +75,7 @@ export default defineEventHandler(async (event) => {
   try {
     const requestData: ServerAwareRequestData = await readBody(event)
     const body = requestData
+
     if (!requestData.promptString?.trim()) {
       throw createError({
         statusCode: 400,
@@ -120,17 +120,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const gate = await manaGate(event, {
-      kind: 'art',
-      estCostUsd: estimateArtCostUsd({
-        engine: 'a1111', // 'comfy' | 'flux' | 'kontext' | 'openai' per file
-        steps: body.steps,
-        width: body.width,
-        height: body.height,
-      }),
-      serverId: body.serverId ?? null,
-    })
-
     const validatedData: Partial<RequestData> = {}
 
     validatedData.userId = await validateAndLoadUserId(
@@ -167,6 +156,14 @@ export default defineEventHandler(async (event) => {
       serverId: requestData.serverId ?? null,
       serverName: requestData.serverName ?? null,
       capability: 'art',
+    })
+
+    const gate = await withArtMana(event, {
+      server,
+      engine: String(server.generationEngine || server.serverType || 'a1111'),
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
     })
 
     const response = await generateImage({
@@ -263,6 +260,7 @@ export default defineEventHandler(async (event) => {
           : undefined,
       },
     })
+
     const { balance } = await gate.commit(`art:${updatedImage.id}`)
 
     event.node.res.statusCode = 201
@@ -271,7 +269,10 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'ArtImage generated successfully.',
       data: updatedImage,
-      mana: { balance, charged: gate.cost },
+      mana: {
+        balance,
+        charged: gate.cost,
+      },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

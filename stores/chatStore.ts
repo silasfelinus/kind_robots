@@ -332,6 +332,17 @@ export const useChatStore = defineStore('chatStore', () => {
     chatId: number,
     options: StreamResponseOptions = {},
   ): Promise<string> {
+    // Guests become real users before generating text (ownership + wallet).
+    if (userStore.isGuest) {
+      const promo = await userStore.ensureRealUser()
+      if (!promo.success) {
+        throw new Error(
+          promo.message ||
+            'We could not set up your account for generating. Please try again.',
+        )
+      }
+    }
+
     const chat = chats.value.find((entry) => entry.id === chatId)
 
     if (!chat) {

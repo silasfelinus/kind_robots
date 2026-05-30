@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import type { User } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
 import { useMilestoneStore } from './milestoneStore'
+import { generateUsername } from '@/utils/generateUsername'
 import { useArtStore } from './artStore'
 import {
   getFromLocalStorage,
@@ -100,6 +101,14 @@ export const useUserStore = defineStore('userStore', () => {
   const showMature = computed(() => user.value?.showMature ?? false)
   const matchRecord = computed(() => user.value?.matchRecord ?? 0)
   const clickRecord = computed(() => user.value?.clickRecord ?? 0)
+
+  // with the other *Promise refs near the top of the store
+  const promotePromise = ref<Promise<{
+    success: boolean
+    userId: number
+    promoted: boolean
+    message?: string
+  }> | null>(null)
 
   function readStoredStayLoggedIn(): boolean {
     const storedStay = getFromLocalStorage('stayLoggedIn')
@@ -276,6 +285,76 @@ export const useUserStore = defineStore('userStore', () => {
     })()
 
     return patchUserPromise.value
+  }
+
+  // Promote a Kind Guest into a real, persisted User so they can own
+  // generations and hold a mana balance. Idempotent: a real user passes through
+  // untouched. Returns the active user id (real one after promotion).
+  // Called by generation stores before any chargeable work.
+  async function ensureRealUser(): Promise<{
+    success: boolean
+    userId: number
+    promoted: boolean
+    message?: string
+  }> {
+    // Already a real, logged-in user — nothing to do.
+    if (isLoggedIn.value && user.value) {
+      return { success: true, userId: user.value.id, promoted: false }
+    }
+
+    // Guard against concurrent generate clicks racing two registrations.
+    if (promotePromise.value) {
+      return promotePromise.value
+    }
+
+    promotePromise.value = (async () => {
+      try {
+        // Pick a username that isn't already taken.
+        const taken = new Set(await getUsernames())
+        let candidate = generateUsername()
+        let attempts = 0
+
+        while (taken.has(candidate) && attempts < 10) {
+          candidate = generateUsername()
+          attempts++
+        }
+
+        if (taken.has(candidate)) {
+          // Extremely unlikely; salt with a suffix.
+          candidate = `${candidate}-${Math.floor(Math.random() * 10000)}`
+        }
+
+        const res = await register({ username: candidate })
+
+        if (!res.success || !user.value?.id) {
+          const message = res.message || 'Could not create your account.'
+          lastError.value = message
+          return {
+            success: false,
+            userId: userId.value,
+            promoted: false,
+            message,
+          }
+        }
+
+        return { success: true, userId: user.value.id, promoted: true }
+      } catch (error) {
+        handleError(error, 'ensureRealUser')
+        const message =
+          error instanceof Error ? error.message : 'Account creation failed.'
+        lastError.value = message
+        return {
+          success: false,
+          userId: userId.value,
+          promoted: false,
+          message,
+        }
+      } finally {
+        promotePromise.value = null
+      }
+    })()
+
+    return promotePromise.value
   }
 
   async function initialize(
@@ -767,6 +846,7 @@ export const useUserStore = defineStore('userStore', () => {
     getUserNameByUserId,
     getUserById,
     userByIdPromises,
+    ensureRealUser,
   }
 })
 

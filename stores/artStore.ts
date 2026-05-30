@@ -12,6 +12,7 @@ import { useUserStore } from '@/stores/userStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useAnimationStore } from '@/stores/animationStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
+import { useManaStore } from '@/stores/manaStore'
 import { useRandomStore } from '@/stores/randomStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useNavStore } from '@/stores/navStore'
@@ -1982,6 +1983,31 @@ export const useArtStore = defineStore('artStore', () => {
   async function generateArt(
     artData?: GenerateArtData,
   ): Promise<ApiResponse<ArtImage>> {
+    // Cheap pre-check so we don't create an account for an empty submit.
+    const previewPrompt =
+      artData?.promptString?.trim() ||
+      artData?.artPrompt?.trim() ||
+      artData?.prompt?.trim() ||
+      finalPromptString.value ||
+      ''
+    if (!previewPrompt) {
+      return { success: false, message: 'Image prompt is empty.' }
+    }
+
+    if (userStore.isGuest) {
+      const promo = await userStore.ensureRealUser()
+      if (!promo.success) {
+        return {
+          success: false,
+          message:
+            promo.message ||
+            'We could not set up your account for generating. Please try again.',
+        }
+      }
+      // Land the signup bonus + real balance before we charge.
+      void useManaStore().fetch()
+    }
+
     state.loading = true
     state.isGenerating = true
     clearGenerationMessage()

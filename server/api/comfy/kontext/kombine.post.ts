@@ -4,6 +4,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
+import { authAndGate } from '../../../utils/comfyGate'
 
 type KombineGenerateRequest = {
   serverId?: number | null
@@ -86,6 +87,29 @@ const defaultPrompt =
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<KombineGenerateRequest>(event)
+    // Shared auth + mana gate. Throws 401 (bad token) or 402 (insufficient
+    // mana on a metered server) before any expensive Comfy work happens.
+    const gate = await authAndGate(event, {
+      engine: 'kontext',
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
+      serverId: body.serverId ?? null,
+    })
+
+    const server = await resolveServer({
+      userId: gate.user.id,
+      serverId: body.serverId ?? null,
+      serverName: body.serverName ?? null,
+      capability: 'art',
+    })
+
+    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
+      throw createError({
+        statusCode: 400,
+        message: `Server "${server.title}" is not a Comfy server.`,
+      })
+    }
 
     const authorizationHeader = event.node.req.headers.authorization
 
@@ -126,20 +150,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Missing required field: imageDataB.',
-      })
-    }
-
-    const server = await resolveServer({
-      userId: user.id,
-      serverId: body.serverId ?? null,
-      serverName: body.serverName ?? null,
-      capability: 'art',
-    })
-
-    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
-      throw createError({
-        statusCode: 400,
-        message: `Server "${server.title}" is not a Comfy server.`,
       })
     }
 
@@ -210,6 +220,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const imageData = await fetchComfyImageAsDataUrl(baseUrl, imageOutput)
+    const { balance } = await gate.commit(`kombine:${promptResponse.prompt_id}`)
 
     return {
       success: true,
@@ -227,6 +238,7 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

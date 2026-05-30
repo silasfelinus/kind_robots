@@ -249,7 +249,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
           "Every story has a gravitational field — a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently. Choose the field this character inhabits — or name one that doesn't exist yet.",
         inputType: 'preset',
         field: 'genre',
-                choices: [
+        choices: [
           {
             value: 'Fantasy',
             label: 'Classic Fantasy',
@@ -579,7 +579,6 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             subtext: 'Any genre, vibe, or gravitational field that fits.',
             opensCustom: true,
           },
-        ],
         ],
       },
     ],

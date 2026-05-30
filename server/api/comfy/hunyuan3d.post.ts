@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
+import { authAndGate } from '../../utils/comfyGate'
 
 type Hunyuan3dRequest = {
   serverId?: number | null
@@ -24,6 +25,8 @@ type Hunyuan3dRequest = {
   threshold?: number | null
   filenamePrefix?: string | null
   timeoutMs?: number | null
+  height?: number | null
+  width?: number | null
 }
 
 type ComfyWorkflow = Record<string, ComfyWorkflowNode>
@@ -78,6 +81,14 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<Hunyuan3dRequest>(event)
 
+    const gate = await authAndGate(event, {
+      engine: 'hunyuan',
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
+      serverId: body.serverId ?? null,
+    })
+
     const authorizationHeader = event.node.req.headers.authorization
 
     if (!authorizationHeader?.startsWith('Bearer ')) {
@@ -114,7 +125,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const server = await resolveServer({
-      userId: user.id,
+      userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
       capability: 'art',
@@ -184,6 +195,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const modelData = await fetchComfyFileAsDataUrl(baseUrl, modelOutput)
+    const { balance } = await gate.commit(`hunyuan:${promptResponse.prompt_id}`)
 
     return {
       success: true,
@@ -199,6 +211,7 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

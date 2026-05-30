@@ -3,6 +3,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
+import { authAndGate } from '../../utils/comfyGate'
 
 type CharacterSheetRequest = {
   serverId?: number | null
@@ -79,6 +80,13 @@ const defaultNegativePrompt =
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<CharacterSheetRequest>(event)
+    const gate = await authAndGate(event, {
+      engine: 'charsheet',
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
+      serverId: body.serverId ?? null,
+    })
 
     const authorizationHeader = event.node.req.headers.authorization
 
@@ -109,7 +117,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const server = await resolveServer({
-      userId: user.id,
+      userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
       capability: 'art',
@@ -182,6 +190,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const imageData = await fetchComfyImageAsDataUrl(baseUrl, imageOutput)
+    const { balance } = await gate.commit(
+      `charsheet:${promptResponse.prompt_id}`,
+    )
 
     return {
       success: true,
@@ -196,6 +207,7 @@ export default defineEventHandler(async (event) => {
       serverName: server.title,
       baseUrl,
       prompt,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

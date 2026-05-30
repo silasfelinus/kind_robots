@@ -1,9 +1,9 @@
 // /server/api/comfy/kontext/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
+import { authAndGate } from '../../../utils/comfyGate'
 
 type KontextGenerateRequest = {
   serverId?: number | null
@@ -93,6 +93,14 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<KontextGenerateRequest>(event)
 
+    const gate = await authAndGate(event, {
+      engine: 'kontext',
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
+      serverId: body.serverId ?? null,
+    })
+
     const authorizationHeader = event.node.req.headers.authorization
 
     if (!authorizationHeader?.startsWith('Bearer ')) {
@@ -129,7 +137,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const server = await resolveServer({
-      userId: user.id,
+      userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
       capability: 'art',
@@ -209,6 +217,8 @@ export default defineEventHandler(async (event) => {
 
     const imageData = await fetchComfyImageAsDataUrl(baseUrl, imageOutput)
 
+    const { balance } = await gate.commit(`kontext:${promptResponse.prompt_id}`)
+
     return {
       success: true,
       message: 'Flux Kontext image generated successfully.',
@@ -222,6 +232,7 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

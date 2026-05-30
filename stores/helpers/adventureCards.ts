@@ -48,7 +48,6 @@ const EXTENDED_GENRES: string[] = [
   'Tournament Arc',
   'School Horror',
   'Reverse Isekai',
-  'Solarpunk',
   'Vaporwave Dystopia',
   'Hard Sci-Fi (soft feelings)',
   'Generation Ship Drama',
@@ -61,7 +60,6 @@ const EXTENDED_GENRES: string[] = [
   'Body Horror (tender)',
   'Cryptid Documentary',
   "Kaiju (from the kaiju's perspective)",
-  'Folk Horror',
   'Fungal Horror',
   'Furry Pastoral',
   'Aquatic Opera',
@@ -251,31 +249,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
           "Every story has a gravitational field — a genre-mass that bends all events toward itself. The cozy horror and the alien bureaucracy thriller are the same distance from the truth. They just dress differently. Choose the field this character inhabits — or name one that doesn't exist yet.",
         inputType: 'preset',
         field: 'genre',
-        choices: [
-          {
-            value: 'Gothic Comedy',
-            label: 'Gothic Comedy',
-            subtext: 'Elegant decay. Comedic timing in the crypt.',
-            image: '/images/adventure/genre/gothic.webp',
-          },
-          {
-            value: 'Cozy Horror',
-            label: 'Cozy Horror',
-            subtext: 'Something outside the window. Cup of tea inside.',
-            image: '/images/adventure/genre/cozy.webp',
-          },
-          {
-            value: 'Mythic Sci-Fi',
-            label: 'Mythic Sci-Fi',
-            subtext: 'Gods with spaceships. Heroes with launch codes.',
-            image: '/images/adventure/genre/scifi.webp',
-          },
-          {
-            value: 'Cosmic Dread',
-            label: 'Cosmic Dread',
-            subtext: 'Tiny figure. Enormous moon. The moon has a door.',
-            image: '/images/adventure/genre/cosmic.webp',
-          },
+                choices: [
           {
             value: 'Fantasy',
             label: 'Classic Fantasy',
@@ -284,10 +258,31 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/genre/fantasy.webp',
           },
           {
+            value: 'Science Fiction',
+            label: 'Science Fiction',
+            subtext:
+              'Technology, possibility, consequences, and one blinking panel nobody should touch.',
+            image: '/images/adventure/genre/science-fiction.webp',
+          },
+          {
             value: 'Mystery',
             label: 'Mystery',
             subtext: 'The magnifying glass is pointed at the viewer.',
             image: '/images/adventure/genre/mystery.webp',
+          },
+          {
+            value: 'Thriller',
+            label: 'Thriller',
+            subtext:
+              'The clock is ticking. Nobody agrees who started it. Everyone is running anyway.',
+            image: '/images/adventure/genre/thriller.webp',
+          },
+          {
+            value: 'Crime',
+            label: 'Crime',
+            subtext:
+              'Someone broke the rules. Someone else is profiting. The evidence has fingerprints and opinions.',
+            image: '/images/adventure/genre/crime.webp',
           },
           {
             value: 'Horror',
@@ -310,10 +305,259 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             image: '/images/adventure/genre/comedy.webp',
           },
           {
+            value: 'Drama',
+            label: 'Drama',
+            subtext:
+              'A room full of feelings. Nobody has said the thing yet. Everyone knows the thing.',
+            image: '/images/adventure/genre/drama.webp',
+          },
+          {
+            value: 'Action',
+            label: 'Action',
+            subtext:
+              'The door explodes inward. Someone was already moving before it happened.',
+            image: '/images/adventure/genre/action.webp',
+          },
+          {
+            value: 'Adventure',
+            label: 'Adventure',
+            subtext:
+              'A map, a mistake, a horizon, and a very questionable amount of rope.',
+            image: '/images/adventure/genre/adventure.webp',
+          },
+          {
+            value: 'Historical Fiction',
+            label: 'Historical Fiction',
+            subtext:
+              'The past, but with better lighting and consequences that still have mud on them.',
+            image: '/images/adventure/genre/historical-fiction.webp',
+          },
+          {
+            value: 'Literary Fiction',
+            label: 'Literary Fiction',
+            subtext:
+              'The plot is internal. The teacup is symbolic. The silence is doing push-ups.',
+            image: '/images/adventure/genre/literary-fiction.webp',
+          },
+          {
+            value: 'Contemporary Fiction',
+            label: 'Contemporary Fiction',
+            subtext:
+              'Modern problems, intimate stakes, recognizable rooms, and at least one bad text message.',
+            image: '/images/adventure/genre/contemporary-fiction.webp',
+          },
+          {
+            value: 'Young Adult',
+            label: 'Young Adult',
+            subtext:
+              'Big feelings, sharp choices, first rebellions, and adults who are mostly decorative hazards.',
+            image: '/images/adventure/genre/young-adult.webp',
+          },
+          {
+            value: "Children's Fantasy",
+            label: "Children's Fantasy",
+            subtext:
+              'A bright doorway, a talking creature, and danger with rounded edges.',
+            image: '/images/adventure/genre/childrens-fantasy.webp',
+          },
+          {
+            value: 'True Crime',
+            label: 'True Crime',
+            subtext:
+              'A neat timeline of terrible events. The corkboard is not emotionally well.',
+            image: '/images/adventure/genre/true-crime.webp',
+          },
+          {
+            value: 'Gothic',
+            label: 'Gothic',
+            subtext:
+              'A house with secrets, a family with rot, and weather that took the assignment personally.',
+            image: '/images/adventure/genre/gothic.webp',
+          },
+          {
+            value: 'Gothic Comedy',
+            label: 'Gothic Comedy',
+            subtext: 'Elegant decay. Comedic timing in the crypt.',
+            image: '/images/adventure/genre/gothic-comedy.webp',
+          },
+          {
+            value: 'Weirdcore',
+            label: 'Weirdcore',
+            subtext:
+              'Childhood wallpaper, impossible hallways, smiling objects, and the feeling that nostalgia has teeth.',
+            image: '/images/adventure/genre/weirdcore.webp',
+          },
+          {
+            value: 'Magical Realism',
+            label: 'Magical Realism',
+            subtext:
+              'The impossible arrives quietly, and everyone continues making breakfast around it.',
+            image: '/images/adventure/genre/magical-realism.webp',
+          },
+          {
+            value: 'Cosmic Horror',
+            label: 'Cosmic Horror',
+            subtext:
+              'The universe notices you for one second. This is not encouraging.',
+            image: '/images/adventure/genre/cosmic-horror.webp',
+          },
+          {
+            value: 'Cosmic Dread',
+            label: 'Cosmic Dread',
+            subtext: 'Tiny figure. Enormous moon. The moon has a door.',
+            image: '/images/adventure/genre/cosmic.webp',
+          },
+          {
+            value: 'Folk Horror',
+            label: 'Folk Horror',
+            subtext:
+              'The village has traditions. The traditions have teeth. The harvest is watching.',
+            image: '/images/adventure/genre/folk-horror.webp',
+          },
+          {
+            value: 'Cozy Horror',
+            label: 'Cozy Horror',
+            subtext: 'Something outside the window. Cup of tea inside.',
+            image: '/images/adventure/genre/cozy.webp',
+          },
+          {
+            value: 'Noir',
+            label: 'Noir',
+            subtext:
+              'Rain on glass, smoke in the room, and one person telling the truth badly.',
+            image: '/images/adventure/genre/noir.webp',
+          },
+          {
+            value: 'Western',
+            label: 'Western',
+            subtext:
+              'Dust, distance, a bad town, and someone arriving with unfinished business.',
+            image: '/images/adventure/genre/western.webp',
+          },
+          {
+            value: 'War',
+            label: 'War',
+            subtext:
+              'Orders, mud, fear, courage, and maps that simplify everything except the cost.',
+            image: '/images/adventure/genre/war.webp',
+          },
+          {
+            value: 'Spy / Espionage',
+            label: 'Spy / Espionage',
+            subtext:
+              'A false name, a hidden room, a perfect suit, and no one telling the whole truth.',
+            image: '/images/adventure/genre/espionage.webp',
+          },
+          {
+            value: 'Superhero',
+            label: 'Superhero',
+            subtext:
+              'Power, spectacle, responsibility, collateral damage, and capes making questionable tactical claims.',
+            image: '/images/adventure/genre/superhero.webp',
+          },
+          {
+            value: 'Cyberpunk',
+            label: 'Cyberpunk',
+            subtext:
+              'Neon rain, corporate gods, broken bodies, bright screens, and rebellion with bad Wi-Fi.',
+            image: '/images/adventure/genre/cyberpunk.webp',
+          },
+          {
+            value: 'Steampunk',
+            label: 'Steampunk',
+            subtext:
+              'Brass, steam, goggles, impossible machines, and class conflict in a very fancy hat.',
+            image: '/images/adventure/genre/steampunk.webp',
+          },
+          {
+            value: 'Space Opera',
+            label: 'Space Opera',
+            subtext:
+              'Huge ships, huge feelings, huge stakes, and someone monologuing near a nebula.',
+            image: '/images/adventure/genre/space-opera.webp',
+          },
+          {
+            value: 'Urban Fantasy',
+            label: 'Urban Fantasy',
+            subtext:
+              'Magic in the alley, monsters on the subway, prophecy with a parking ticket.',
+            image: '/images/adventure/genre/urban-fantasy.webp',
+          },
+          {
+            value: 'Dark Fantasy',
+            label: 'Dark Fantasy',
+            subtext:
+              'Magic with blood under the nails. The sword glows, but not in a comforting way.',
+            image: '/images/adventure/genre/dark-fantasy.webp',
+          },
+          {
+            value: 'Paranormal',
+            label: 'Paranormal',
+            subtext:
+              'Ghosts, omens, forbidden powers, and one very normal person pretending this is fine.',
+            image: '/images/adventure/genre/paranormal.webp',
+          },
+          {
+            value: 'Dystopian',
+            label: 'Dystopian',
+            subtext:
+              'The system works exactly as designed. That is the problem.',
+            image: '/images/adventure/genre/dystopian.webp',
+          },
+          {
             value: 'Post-Apocalypse',
             label: 'Apocalypse',
-            subtext: 'Still keeping it together despite it all',
+            subtext: 'Still keeping it together despite it all.',
             image: '/images/adventure/genre/apocalypse.webp',
+          },
+          {
+            value: 'Satire',
+            label: 'Satire',
+            subtext:
+              'Reality, but tilted just enough that everyone pretending not to notice looks ridiculous.',
+            image: '/images/adventure/genre/satire.webp',
+          },
+          {
+            value: 'Musical',
+            label: 'Musical',
+            subtext:
+              'The emotion gets too large for speech and escapes through choreography.',
+            image: '/images/adventure/genre/musical.webp',
+          },
+          {
+            value: 'Solarpunk',
+            label: 'Solarpunk',
+            subtext:
+              'Green cities, repaired futures, sunlight, gardens, and optimism with engineering diagrams.',
+            image: '/images/adventure/genre/solarpunk.webp',
+          },
+          {
+            value: 'Sword and Sorcery',
+            label: 'Sword and Sorcery',
+            subtext:
+              'Steel, spells, ruins, ambition, and one extremely cursed jewel nobody should touch.',
+            image: '/images/adventure/genre/sword-and-sorcery.webp',
+          },
+          {
+            value: 'Martial Arts',
+            label: 'Martial Arts',
+            subtext:
+              'Discipline, rivalry, impossible training, and a fight that explains who everyone really is.',
+            image: '/images/adventure/genre/martial-arts.webp',
+          },
+          {
+            value: 'Fairy Tale',
+            label: 'Fairy Tale',
+            subtext:
+              'A forest path, a rule of three, a bargain, and something beautiful with sharp edges.',
+            image: '/images/adventure/genre/fairy-tale.webp',
+          },
+          {
+            value: 'Mythology',
+            label: 'Mythology',
+            subtext:
+              'Gods, monsters, oaths, impossible births, and someone being punished very poetically.',
+            image: '/images/adventure/genre/mythology.webp',
           },
           {
             value: 'Carnival',
@@ -335,6 +579,7 @@ export const ADVENTURE_CARDS: AdventureCard[] = [
             subtext: 'Any genre, vibe, or gravitational field that fits.',
             opensCustom: true,
           },
+        ],
         ],
       },
     ],

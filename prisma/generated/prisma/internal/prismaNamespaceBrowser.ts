@@ -254,6 +254,7 @@ export const ChatScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  readAt: 'readAt',
   type: 'type',
   sender: 'sender',
   recipient: 'recipient',

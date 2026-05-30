@@ -375,6 +375,53 @@ export const useArtStore = defineStore('artStore', () => {
     return new Map(state.artImages.map((image) => [image.id, image]))
   })
 
+  function isKontextCapableServer(server: Server): boolean {
+    if (!server.isActive) return false
+
+    return (
+      server.generationEngine === 'KONTEXT' ||
+      server.generationEngine === 'COMFY' ||
+      server.serverType === 'COMFY' ||
+      Boolean(server.supportsComfyWorkflow) ||
+      Boolean(server.supportsFlux)
+    )
+  }
+
+  function findKontextServer(preferredServerId?: number | null): Server | null {
+    const servers = Array.isArray(serverStore.servers)
+      ? (serverStore.servers as Server[])
+      : []
+
+    if (preferredServerId) {
+      const explicitServer =
+        serverStore.getServerById(preferredServerId) ?? null
+
+      if (explicitServer && isKontextCapableServer(explicitServer)) {
+        return explicitServer
+      }
+    }
+
+    const activeServer = serverStore.activeArtServer
+
+    if (activeServer && isKontextCapableServer(activeServer)) {
+      return activeServer
+    }
+
+    return (
+      servers.find((server) => {
+        return server.isActive && server.generationEngine === 'KONTEXT'
+      }) ||
+      servers.find((server) => {
+        return server.isActive && server.generationEngine === 'COMFY'
+      }) ||
+      servers.find((server) => {
+        return server.isActive && server.serverType === 'COMFY'
+      }) ||
+      servers.find(isKontextCapableServer) ||
+      null
+    )
+  }
+
   const publicArtImages = computed(() => {
     return state.artImages.filter((image) => image.isPublic)
   })
@@ -1396,11 +1443,14 @@ export const useArtStore = defineStore('artStore', () => {
     return headers
   }
 
-  function getSelectedArtServer(data: GenerateArtData): Server {
-    const selectedServer =
-      typeof data.serverId === 'number'
-        ? serverStore.getServerById(data.serverId)
-        : serverStore.activeArtServer
+  function getSelectedArtServer(data: GenerateArtData): Server | null {
+    if (data.engine === 'kontext') {
+      return findKontextServer(data.serverId)
+    }
+
+    const selectedServer = data.serverId
+      ? serverStore.getServerById(data.serverId)
+      : serverStore.activeArtServer
 
     if (!selectedServer) {
       throw new Error('No active image generation server selected.')
@@ -2035,8 +2085,54 @@ export const useArtStore = defineStore('artStore', () => {
           message: promptValidation.message || 'Invalid image prompt.',
         }
       }
-
       const server = getSelectedArtServer(data)
+
+      if (data.engine === 'kontext' && !server) {
+        const dataWithHostedKontext: GenerateArtData = {
+          ...data,
+          serverId: null,
+          serverName: null,
+          engine: 'kontext',
+          transport: 'backend',
+        }
+
+        const image = await generateBackendArtImage(
+          dataWithHostedKontext,
+          'kontext',
+        )
+
+        addOrUpdateArtImages([image])
+
+        state.generatedArtImages = mergeUniqueArtImages(
+          state.generatedArtImages,
+          [image],
+        )
+
+        state.currentArtImage = image
+        state.lastGeneratedArtImage = image
+
+        await addGeneratedArtImageToCollections(
+          image,
+          dataWithHostedKontext.userId || 10,
+          dataWithHostedKontext.artCollectionId,
+        )
+
+        setGenerationMessage(
+          'success',
+          'Image created and added to collections.',
+        )
+
+        return {
+          success: true,
+          data: image,
+          message: 'Image created and added to collections.',
+        }
+      }
+
+      if (!server) {
+        throw new Error('No active image generation server selected.')
+      }
+
       const route = getArtImageGenerationRoute(server, data)
 
       const dataWithServer: GenerateArtData = {
@@ -2044,14 +2140,13 @@ export const useArtStore = defineStore('artStore', () => {
         serverId: server.id,
         serverName: server.label || server.title,
         engine: route.engine,
-        transport: route.transport,
+        transport: data.engine === 'kontext' ? 'backend' : route.transport,
       }
 
       const image =
-        route.transport === 'browser'
+        dataWithServer.transport === 'browser'
           ? await generateBrowserArtImage(server, dataWithServer, route.engine)
           : await generateBackendArtImage(dataWithServer, route.engine)
-
       addOrUpdateArtImages([image])
 
       state.generatedArtImages = mergeUniqueArtImages(

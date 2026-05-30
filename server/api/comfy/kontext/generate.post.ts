@@ -222,17 +222,19 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Flux Kontext image generated successfully.',
-      promptId: promptResponse.prompt_id,
-      queuePosition: promptResponse.number ?? null,
-      imageData,
-      filename: imageOutput.filename,
-      subfolder: imageOutput.subfolder ?? '',
-      type: imageOutput.type ?? 'output',
-      uploadedImage,
-      serverId: server.id,
-      serverName: server.title,
-      baseUrl,
-      mana: { balance, charged: gate.cost },
+      data: {
+        promptId: promptResponse.prompt_id,
+        queuePosition: promptResponse.number ?? null,
+        imageData,
+        filename: imageOutput.filename,
+        subfolder: imageOutput.subfolder ?? '',
+        type: imageOutput.type ?? 'output',
+        uploadedImage,
+        serverId: server.id,
+        serverName: server.title,
+        baseUrl,
+        mana: { balance, charged: gate.cost },
+      },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

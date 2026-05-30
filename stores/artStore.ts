@@ -1860,11 +1860,34 @@ export const useArtStore = defineStore('artStore', () => {
     return endpoints[engine]
   }
 
+  // /stores/artStore.ts
   function buildBackendGenerationPayload(
     data: GenerateArtData,
     engine: ArtImageGenerationEngine,
   ): Record<string, unknown> {
     const payload: Record<string, unknown> = { ...data }
+
+    if (engine === 'kontext') {
+      const imageData = data.sourceImageBase64
+        ? data.sourceImageBase64.startsWith('data:image/')
+          ? data.sourceImageBase64
+          : `data:image/png;base64,${data.sourceImageBase64}`
+        : null
+
+      return {
+        serverId: data.serverId ?? null,
+        serverName: data.serverName ?? null,
+        prompt: data.promptString,
+        imageData,
+        width: data.width ?? null,
+        height: data.height ?? null,
+        steps: data.steps ?? null,
+        guidance: data.guidance ?? null,
+        seed: data.seed ?? null,
+        sampler: data.sampler ?? null,
+        denoise: data.denoise ?? null,
+      }
+    }
 
     if (engine === 'flux') {
       return {
@@ -1885,12 +1908,58 @@ export const useArtStore = defineStore('artStore', () => {
     return payload
   }
 
+  // /stores/artStore.ts
+  type KontextGenerationResult = {
+    imageData?: string
+    filename?: string
+    subfolder?: string
+    type?: string
+    uploadedImage?: unknown
+    serverId?: number | null
+    serverName?: string | null
+    baseUrl?: string | null
+    promptId?: string | null
+    queuePosition?: number | null
+    mana?: {
+      balance?: number
+      charged?: number
+    }
+  }
+
   async function generateBackendArtImage(
     data: GenerateArtData,
     engine: ArtImageGenerationEngine,
   ): Promise<ArtImage> {
     const endpoint = getBackendArtImageGenerationEndpoint(engine)
     const payload = buildBackendGenerationPayload(data, engine)
+
+    if (engine === 'kontext') {
+      const response = await performFetch<KontextGenerationResult>(
+        endpoint,
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' },
+        },
+        3,
+        180_000,
+      )
+
+      if (!response.success || !response.data?.imageData) {
+        throw new Error(response.message || 'Failed to generate Kontext image.')
+      }
+
+      const imageBase64 = response.data.imageData.includes(',')
+        ? (response.data.imageData.split(',')[1] ?? '')
+        : response.data.imageData
+
+      return await saveBrowserGeneratedArtImage({
+        ...data,
+        serverId: response.data.serverId ?? data.serverId ?? null,
+        serverName: response.data.serverName ?? data.serverName ?? null,
+        imageBase64,
+      })
+    }
 
     const response = await performFetch<ArtImage>(
       endpoint,

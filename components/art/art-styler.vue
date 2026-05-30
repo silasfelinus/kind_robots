@@ -949,15 +949,15 @@ const kontextServerId = computed<number | null>(() => {
     : []
 
   const preferredServer =
-    servers.find((server) => {
-      return server.isActive && server.generationEngine === 'KONTEXT'
-    }) ||
-    servers.find((server) => {
-      return server.isActive && server.generationEngine === 'COMFY'
-    }) ||
-    servers.find((server) => {
-      return server.isActive && server.serverType === 'COMFY'
-    }) ||
+    servers.find(
+      (server) => server.isActive && server.generationEngine === 'KONTEXT',
+    ) ||
+    servers.find(
+      (server) => server.isActive && server.generationEngine === 'COMFY',
+    ) ||
+    servers.find(
+      (server) => server.isActive && server.serverType === 'COMFY',
+    ) ||
     servers.find(isKontextCapableServer)
 
   return preferredServer?.id ?? null
@@ -1171,7 +1171,7 @@ async function hydrateFromResourceStore(): Promise<void> {
   }
 }
 
-// ── Core generation ────────────────────────────────────────────────────────
+// ── Core generation ──────────────
 async function runStyleTransfer(): Promise<void> {
   if (!selectedStyle.value || !selectedSourceImage.value) return
 
@@ -1191,16 +1191,39 @@ async function runStyleTransfer(): Promise<void> {
       .filter(Boolean)
       .join(', ')
 
-    const sourceImage = selectedSourceImage.value as ArtImage & {
+    let sourceImage = selectedSourceImage.value as ArtImage & {
       imageData?: string | null
       thumbnailData?: string | null
       negativePrompt?: string | null
     }
 
-    // For a locally uploaded file, imageData is the base64 payload (no prefix)
+    if (
+      !uploadedImageData.value &&
+      sourceImage.id > 0 &&
+      !sourceImage.imageData
+    ) {
+      const fetched = await artStore.getArtImageById(sourceImage.id, {
+        includeImageData: true,
+        includeThumbnailData: true,
+      })
+
+      if (fetched) {
+        sourceImage = fetched as ArtImage & {
+          imageData?: string | null
+          thumbnailData?: string | null
+          negativePrompt?: string | null
+        }
+        selectedSourceImage.value = fetched
+      }
+    }
+
     const base64Payload = uploadedImageData.value
       ? (uploadedImageData.value.split(',')[1] ?? null)
-      : (sourceImage.imageData ?? sourceImage.thumbnailData ?? null)
+      : (sourceImage.imageData ?? null)
+
+    if (!base64Payload) {
+      throw new Error('Could not load full image data for style transfer.')
+    }
 
     const result = await artStore.generateArt({
       promptString,
@@ -1210,17 +1233,14 @@ async function runStyleTransfer(): Promise<void> {
       engine: 'kontext',
       transport: 'backend',
       isPublic: isPublic.value,
-      isMature: (selectedSourceImage.value as ArtImage).isMature ?? false,
-      // Only pass sourceImageId for real DB images (id > 0)
-      sourceImageId:
-        selectedSourceImage.value.id > 0
-          ? selectedSourceImage.value.id
-          : undefined,
+      isMature: sourceImage.isMature ?? false,
+      sourceImageId: sourceImage.id > 0 ? sourceImage.id : undefined,
       sourceImageBase64: base64Payload,
     })
 
-    if (!result.success || !result.data)
+    if (!result.success || !result.data) {
       throw new Error(result.message || 'Generation failed.')
+    }
 
     resultImage.value = result.data
     successMessage.value = `Style applied! Image #${result.data.id} created.`

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useUserStore } from '@/stores/userStore'
 // ─── Types ───────────────────────────────────────────────────────────────────
 type Provider = 'anthropic' | 'openai' | 'ollama'
 
@@ -54,6 +55,7 @@ const streamEnabled = ref(true)
 const showPayload = ref(false)
 const showErrors = ref(true)
 const ollamaBaseUrl = ref('http://localhost:11434')
+const userStore = useUserStore()
 
 const isLoading = ref(false)
 const output = ref('')
@@ -64,6 +66,27 @@ const startTime = ref(0)
 let timerInterval: ReturnType<typeof setInterval> | null = null
 
 const cfg = computed(() => PROVIDERS[provider.value])
+
+function getAuthHeaders(): HeadersInit {
+  const token =
+    userStore.token ||
+    userStore.user?.token ||
+    userStore.user?.apiKey ||
+    userStore.apiKey ||
+    ''
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  if (token) {
+    headers.Authorization = token.startsWith('Bearer ')
+      ? token
+      : `Bearer ${token}`
+  }
+
+  return headers
+}
 
 // keep model in sync when provider changes
 watch(provider, (p) => {
@@ -147,12 +170,29 @@ async function run() {
   try {
     const res = await fetch(cfg.value.route, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(body),
     })
 
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      let message = `${res.status} ${res.statusText}`
+
+      try {
+        const contentType = res.headers.get('content-type') || ''
+
+        if (contentType.includes('application/json')) {
+          const data = await res.json()
+          message =
+            data?.message ||
+            data?.statusMessage ||
+            data?.error ||
+            JSON.stringify(data)
+        } else {
+          message = await res.text()
+        }
+      } catch {}
+
+      throw new Error(`HTTP ${res.status}: ${message}`)
     }
 
     if (!streamEnabled.value) {

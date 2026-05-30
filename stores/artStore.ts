@@ -375,6 +375,43 @@ export const useArtStore = defineStore('artStore', () => {
     return new Map(state.artImages.map((image) => [image.id, image]))
   })
 
+  function isOfficialFallbackServer(server: Server): boolean {
+    return Boolean(
+      server.isOfficial ||
+      server.category === 'official' ||
+      server.userId === 9 ||
+      server.isMetered,
+    )
+  }
+
+  function isUserSupportedKontextServer(server: Server): boolean {
+    if (!server.isActive) return false
+    if (isOfficialFallbackServer(server)) return false
+
+    const isComfy =
+      server.serverType === 'COMFY' ||
+      server.generationEngine === 'COMFY' ||
+      Boolean(server.supportsComfyWorkflow)
+
+    const supportsFluxWorkflow =
+      Boolean(server.supportsFlux) ||
+      Boolean(server.supportsKontext) ||
+      Boolean(server.supportsWorkflowUpload)
+
+    return isComfy && supportsFluxWorkflow
+  }
+
+  function isHostedKontextFallbackServer(server: Server): boolean {
+    if (!server.isActive) return false
+
+    const isComfy =
+      server.serverType === 'COMFY' ||
+      server.generationEngine === 'COMFY' ||
+      Boolean(server.supportsComfyWorkflow)
+
+    return isComfy && isOfficialFallbackServer(server)
+  }
+
   function isKontextCapableServer(server: Server): boolean {
     if (!server.isActive) return false
 
@@ -387,7 +424,10 @@ export const useArtStore = defineStore('artStore', () => {
     )
   }
 
-  function findKontextServer(preferredServerId?: number | null): Server | null {
+  function findKontextServer(
+    preferredServerId?: number | null,
+    options: { allowHostedFallback?: boolean } = {},
+  ): Server | null {
     const servers = Array.isArray(serverStore.servers)
       ? (serverStore.servers as Server[])
       : []
@@ -396,28 +436,82 @@ export const useArtStore = defineStore('artStore', () => {
       const explicitServer =
         serverStore.getServerById(preferredServerId) ?? null
 
-      if (explicitServer && isKontextCapableServer(explicitServer)) {
+      if (explicitServer && isUserSupportedKontextServer(explicitServer)) {
+        return explicitServer
+      }
+
+      if (
+        explicitServer &&
+        options.allowHostedFallback &&
+        isHostedKontextFallbackServer(explicitServer)
+      ) {
         return explicitServer
       }
     }
 
     const activeServer = serverStore.activeArtServer
 
-    if (activeServer && isKontextCapableServer(activeServer)) {
+    if (activeServer && isUserSupportedKontextServer(activeServer)) {
       return activeServer
     }
 
+    const ownedServer =
+      servers.find((server) => {
+        return (
+          server.userId === userStore.userId &&
+          server.generationEngine === 'KONTEXT' &&
+          isUserSupportedKontextServer(server)
+        )
+      }) ||
+      servers.find((server) => {
+        return (
+          server.userId === userStore.userId &&
+          server.generationEngine === 'COMFY' &&
+          isUserSupportedKontextServer(server)
+        )
+      }) ||
+      servers.find((server) => {
+        return (
+          server.userId === userStore.userId &&
+          isUserSupportedKontextServer(server)
+        )
+      })
+
+    if (ownedServer) return ownedServer
+
+    const personalServer =
+      servers.find((server) => {
+        return (
+          server.generationEngine === 'KONTEXT' &&
+          isUserSupportedKontextServer(server)
+        )
+      }) ||
+      servers.find((server) => {
+        return (
+          server.generationEngine === 'COMFY' &&
+          isUserSupportedKontextServer(server)
+        )
+      }) ||
+      servers.find(isUserSupportedKontextServer)
+
+    if (personalServer) return personalServer
+
+    if (!options.allowHostedFallback) return null
+
     return (
       servers.find((server) => {
-        return server.isActive && server.generationEngine === 'KONTEXT'
+        return (
+          server.generationEngine === 'KONTEXT' &&
+          isHostedKontextFallbackServer(server)
+        )
       }) ||
       servers.find((server) => {
-        return server.isActive && server.generationEngine === 'COMFY'
+        return (
+          server.generationEngine === 'COMFY' &&
+          isHostedKontextFallbackServer(server)
+        )
       }) ||
-      servers.find((server) => {
-        return server.isActive && server.serverType === 'COMFY'
-      }) ||
-      servers.find(isKontextCapableServer) ||
+      servers.find(isHostedKontextFallbackServer) ||
       null
     )
   }
@@ -1445,7 +1539,9 @@ export const useArtStore = defineStore('artStore', () => {
 
   function getSelectedArtServer(data: GenerateArtData): Server | null {
     if (data.engine === 'kontext') {
-      return findKontextServer(data.serverId)
+      return findKontextServer(data.serverId, {
+        allowHostedFallback: userStore.isGuest || data.serverId === null,
+      })
     }
 
     const selectedServer = data.serverId
@@ -2011,6 +2107,14 @@ export const useArtStore = defineStore('artStore', () => {
       artData !== undefined &&
       Object.prototype.hasOwnProperty.call(artData, 'serverName')
 
+    const kontextServer =
+      engine === 'kontext'
+        ? findKontextServer(
+            explicitServerIdProvided ? (artData?.serverId ?? null) : null,
+            { allowHostedFallback: false },
+          )
+        : null
+
     return {
       promptString,
       negativePrompt:
@@ -2052,8 +2156,8 @@ export const useArtStore = defineStore('artStore', () => {
       serverId:
         engine === 'kontext'
           ? explicitServerIdProvided
-            ? (artData?.serverId ?? null)
-            : (state.artForm.serverId ?? null)
+            ? (artData?.serverId ?? kontextServer?.id ?? null)
+            : (kontextServer?.id ?? null)
           : (artData?.serverId ??
             state.artForm.serverId ??
             serverStore.activeArtServer?.id ??
@@ -2061,8 +2165,11 @@ export const useArtStore = defineStore('artStore', () => {
       serverName:
         engine === 'kontext'
           ? explicitServerNameProvided
-            ? (artData?.serverName ?? null)
-            : (state.artForm.serverName ?? null)
+            ? (artData?.serverName ??
+              kontextServer?.label ??
+              kontextServer?.title ??
+              null)
+            : (kontextServer?.label ?? kontextServer?.title ?? null)
           : (artData?.serverName ??
             state.artForm.serverName ??
             serverStore.activeArtServer?.label ??

@@ -808,6 +808,21 @@ const boardGap = computed(() => {
   return 12
 })
 
+async function checkForLevelComplete() {
+  if (!gameStarted.value) return
+  if (gameOver.value) return
+  if (levelTransitioning.value) return
+  if (!galleryCards.value.length) return
+  if (!galleryCards.value.every((card) => card.matched)) return
+
+  await nextTick()
+
+  if (levelTransitioning.value || gameOver.value) return
+  if (!galleryCards.value.every((card) => card.matched)) return
+
+  onLevelComplete()
+}
+
 const boardLayout = computed(() => {
   const count = galleryCards.value.length
   const width = Math.floor(boardBounds.width)
@@ -929,14 +944,8 @@ watch(flippedUnmatchedCount, (newValue, oldValue) => {
 watch(
   () => memoryStore.gameWon,
   (won) => {
-    if (
-      won &&
-      gameStarted.value &&
-      !gameOver.value &&
-      !levelTransitioning.value
-    ) {
-      onLevelComplete()
-    }
+    if (!won) return
+    void checkForLevelComplete()
   },
 )
 
@@ -1111,6 +1120,8 @@ function onMatch(matchedName: string) {
   if (Math.random() < POWERUP_CHANCE) {
     grantPowerup()
   }
+
+  void checkForLevelComplete()
 }
 
 function onMismatch() {

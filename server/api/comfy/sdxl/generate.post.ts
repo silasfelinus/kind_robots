@@ -17,6 +17,8 @@ import {
   resolveCheckpointResource,
   type CheckpointResourceRequestData,
 } from '../../art/utils/checkpointResource'
+import { manaGate } from '../../../utils/manaGate'
+import { estimateArtCostUsd } from '../../../utils/manaCost'
 
 type ComfyGenerateRequestData = RequestData &
   CheckpointResourceRequestData & {
@@ -98,9 +100,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Auth + mana gate. Replaces the old Bearer/karma checks: manaGate
+    // validates the token, and billing is now mana-based (free on the user's
+    // own/unmetered server, charged on the metered platform server).
     const authorizationHeader = event.node.req.headers.authorization
 
-    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    if (!authorizationHeader?.startsWith('Bearer ')) {
       throw createError({
         statusCode: 401,
         message: 'Authorization token required in the format "Bearer <token>".',
@@ -113,7 +118,6 @@ export default defineEventHandler(async (event) => {
       where: { apiKey: token },
       select: {
         id: true,
-        karma: true,
         preferredArtServerId: true,
       },
     })
@@ -133,12 +137,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (user.karma <= 0) {
-      throw createError({
-        statusCode: 403,
-        message: 'Insufficient karma to generate an image.',
-      })
-    }
+    const gate = await manaGate(event, {
+      kind: 'art',
+      estCostUsd: estimateArtCostUsd({
+        engine: 'comfy',
+        steps: requestData.steps,
+      }),
+      serverId: requestData.serverId ?? null,
+    })
 
     const validatedData: Partial<RequestData> = {}
 
@@ -171,7 +177,7 @@ export default defineEventHandler(async (event) => {
     )
 
     const server = await resolveServer({
-      userId: user.id,
+      userId: gate.user.id,
       serverId: requestData.serverId ?? null,
       serverName: requestData.serverName ?? null,
       capability: 'art',
@@ -275,10 +281,10 @@ export default defineEventHandler(async (event) => {
           : undefined,
       },
     })
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { karma: user.karma - 1 },
-    })
+
+    // Generation succeeded — charge mana (no-op on free/unmetered servers).
+    // This replaces the old `karma - 1` decrement.
+    const { balance } = await gate.commit(`sdxl:${newArt.id}`)
 
     event.node.res.statusCode = 201
 
@@ -286,6 +292,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'Comfy art and image saved successfully!',
       data: newArt,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error) {
     const handledError = errorHandler(error)

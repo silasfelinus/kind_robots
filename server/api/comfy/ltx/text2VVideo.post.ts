@@ -4,6 +4,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
+import { authAndGate } from '../../../utils/comfyGate'
 
 type LtxTextToVideoRequest = {
   serverId?: number | null
@@ -78,6 +79,13 @@ const defaultNegativePrompt =
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<LtxTextToVideoRequest>(event)
+    const gate = await authAndGate(event, {
+      engine: 'ltx',
+      steps: body.steps,
+      width: body.width,
+      height: body.height,
+      serverId: body.serverId ?? null,
+    })
 
     const authorizationHeader = event.node.req.headers.authorization
 
@@ -116,7 +124,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const server = await resolveServer({
-      userId: user.id,
+      userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
       capability: 'art',
@@ -187,6 +195,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const videoData = await fetchComfyFileAsDataUrl(baseUrl, videoOutput)
+    const { balance } = await gate.commit(`ltx:${promptResponse.prompt_id}`)
 
     return {
       success: true,
@@ -201,6 +210,7 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       serverName: server.title,
       baseUrl,
+      mana: { balance, charged: gate.cost },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)

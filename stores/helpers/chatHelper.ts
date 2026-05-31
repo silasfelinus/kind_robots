@@ -51,6 +51,7 @@ export function buildNewChat(
     botResponse: input.botResponse ?? null,
     characterId: input.characterId ?? null,
     isRead: false,
+    readAt: null,
     isMature: false,
     serverId: input.serverId ?? null,
     serverName: input.serverName ?? null,

@@ -148,7 +148,7 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useServerStore } from '@/stores/serverStore'
 import {
   getResourceCompatibilityLabel,
-  resourceSupportsServer,
+  isResourceCompatibleWithServer,
   type ResourceServerLink,
 } from '@/stores/helpers/resourceCompatibility'
 
@@ -229,11 +229,10 @@ const checkpointGeneration = computed(() => {
 })
 
 const compatibilityLabel = computed(() => {
-  return getResourceCompatibilityLabel(props.checkpoint, activeServer.value)
+  return getResourceCompatibilityLabel(props.checkpoint)
 })
-
 const isCompatible = computed(() => {
-  return resourceSupportsServer(props.checkpoint, activeServer.value)
+  return isResourceCompatibleWithServer(props.checkpoint, activeServer.value)
 })
 
 const normalizedFallbackIcon = computed(() => {

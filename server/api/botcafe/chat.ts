@@ -1,8 +1,10 @@
 // /server/api/botcafe/chat.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
+import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '@/server/utils/error'
 import { manaGate } from '@/server/utils/manaGate'
 import { estimateTextCostUsd } from '@/server/utils/manaCost'
+import { getServerEndpoint, resolveServer } from '@/server/utils/serverResolver'
 
 type ChatRole = 'system' | 'user' | 'assistant'
 
@@ -18,10 +20,9 @@ type BotCafeBody = {
   maxTokens?: number
   max_tokens?: number
   stream?: boolean
-  // Gate inputs forwarded by chatStore.streamResponse.
   serverId?: number | null
+  serverName?: string | null
   chatId?: number | null
-  useOwnResource?: boolean
   userApiKey?: string | null
 }
 
@@ -73,7 +74,6 @@ function normalizeMessages(messages: unknown): ChatMessage[] {
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<BotCafeBody>(event)
-
     const messages = normalizeMessages(body.messages)
 
     if (!messages.length) {
@@ -83,45 +83,56 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Gate BEFORE the provider call. A non-metered/own server resolves to free;
-    // the metered platform server charges. Throws 401/402 as needed, caught
-    // below. If the user is running on their own resource, treat the request
-    // as serverId-present so the gate sees it as non-metered (free).
-    const gateServerId = body.useOwnResource
-      ? (body.serverId ?? -1) // any non-null id → gate looks it up / treats as own
-      : (body.serverId ?? null)
+    const model = body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini'
+    const maxTokens = body.max_tokens ?? body.maxTokens ?? 2048
 
     const gate = await manaGate(event, {
       kind: 'text',
       estCostUsd: estimateTextCostUsd({
-        model: body.model || 'gpt-4o-mini',
-        maxTokens: body.max_tokens ?? body.maxTokens ?? 2048,
+        model,
+        maxTokens,
       }),
-      serverId: gateServerId,
+      serverId: body.serverId ?? null,
     })
 
-    const apiKey = process.env.OPENAI_API_KEY
+    const server = await resolveOptionalTextServer({
+      userId: gate.user.id,
+      serverId: body.serverId ?? null,
+      serverName: body.serverName ?? null,
+    })
+
+    const endpoint = server
+      ? getOpenAiCompatibleEndpoint(server)
+      : 'https://api.openai.com/v1/chat/completions'
+
+    const apiKey = getOpenAiCompatibleApiKey({
+      userApiKey: body.userApiKey,
+      serverApiKey: server?.apiKey,
+      runtimeApiKey: process.env.OPENAI_API_KEY,
+    })
 
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        message: 'OPENAI_API_KEY is not configured.',
+        message: 'No OpenAI-compatible API key is configured.',
       })
     }
 
     const openAiPayload = {
-      model: body.model || 'gpt-4o-mini',
+      model,
       messages,
       temperature: body.temperature ?? 0.7,
-      max_tokens: body.max_tokens ?? body.maxTokens ?? 2048,
+      max_tokens: maxTokens,
       stream: false,
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: apiKey.startsWith('Bearer ')
+          ? apiKey
+          : `Bearer ${apiKey}`,
       },
       body: JSON.stringify(openAiPayload),
     })
@@ -146,7 +157,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Charge only after a successful generation.
     const { balance } = await gate.commit(`chat:${body.chatId ?? 'adhoc'}`)
 
     return {
@@ -155,10 +165,55 @@ export default defineEventHandler(async (event) => {
       data: {
         content,
         raw,
+        serverId: server?.id ?? null,
+        serverName: server?.title ?? 'OpenAI',
       },
-      mana: { balance, charged: gate.cost },
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
+      },
     }
   } catch (error) {
     return errorHandler(error)
   }
 })
+
+async function resolveOptionalTextServer(input: {
+  userId: number
+  serverId?: number | null
+  serverName?: string | null
+}): Promise<Server | null> {
+  if (!input.serverId && !input.serverName) return null
+
+  return await resolveServer({
+    userId: input.userId,
+    serverId: input.serverId ?? null,
+    serverName: input.serverName ?? null,
+    capability: 'text',
+  })
+}
+
+function getOpenAiCompatibleEndpoint(server: Server): string {
+  const endpoint = getServerEndpoint(server).trim()
+
+  if (!endpoint) return 'https://api.openai.com/v1/chat/completions'
+
+  if (endpoint.endsWith('/chat/completions')) return endpoint
+  if (endpoint.endsWith('/v1')) return `${endpoint}/chat/completions`
+
+  return endpoint
+}
+
+function getOpenAiCompatibleApiKey(options: {
+  userApiKey?: string | null
+  serverApiKey?: string | null
+  runtimeApiKey?: string | null
+}): string {
+  return (
+    options.userApiKey?.trim() ||
+    options.serverApiKey?.trim() ||
+    options.runtimeApiKey?.trim() ||
+    ''
+  )
+}

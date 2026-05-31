@@ -1,8 +1,8 @@
 // /server/api/comfy/characterSheet.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
-import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
+import type { Server } from '~/prisma/generated/prisma/client'
 import { authAndGate } from '../../utils/comfyGate'
 
 type CharacterSheetRequest = {
@@ -77,6 +77,15 @@ const defaultCharacterDescription =
 const defaultNegativePrompt =
   'motion blur, depth of field, dramatic lighting, dynamic posing, overlapping elements, cropped figure, cut off body, text, labels, watermark, logo, perspective distortion, inconsistent proportions, inconsistent anatomy, different character in each view, painterly effects, abstraction, messy silhouette, thin strands, sharp spikes, deep undercuts, floating elements, fragile connections, extra limbs, missing limbs, low quality, blurry, noisy background'
 
+const DEFAULT_CHARACTER_SHEET_WIDTH = 1536
+const DEFAULT_CHARACTER_SHEET_HEIGHT = 768
+const DEFAULT_CHARACTER_SHEET_STEPS = 8
+const DEFAULT_CHARACTER_SHEET_CFG = 1
+const DEFAULT_CHARACTER_SHEET_GUIDANCE = 4
+const DEFAULT_CHARACTER_SHEET_SAMPLER = 'euler'
+const DEFAULT_CHARACTER_SHEET_SCHEDULER = 'normal'
+const DEFAULT_CHARACTER_SHEET_DENOISE = 1
+
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<CharacterSheetRequest>(event)
@@ -120,7 +129,7 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
-      capability: 'art',
+      capability: 'comfy',
     })
 
     if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
@@ -148,16 +157,16 @@ export default defineEventHandler(async (event) => {
     const workflow = buildCharacterSheetWorkflow({
       prompt,
       negativePrompt: body.negativePrompt ?? defaultNegativePrompt,
-      width: body.width ?? server.defaultWidth ?? 1536,
-      height: body.height ?? server.defaultHeight ?? 768,
-      steps: body.steps ?? server.defaultSteps ?? 8,
-      cfg: body.cfg ?? server.defaultCfg ?? 1,
-      guidance: body.guidance ?? 4,
+      width: body.width ?? DEFAULT_CHARACTER_SHEET_WIDTH,
+      height: body.height ?? DEFAULT_CHARACTER_SHEET_HEIGHT,
+      steps: body.steps ?? DEFAULT_CHARACTER_SHEET_STEPS,
+      cfg: body.cfg ?? DEFAULT_CHARACTER_SHEET_CFG,
+      guidance: body.guidance ?? DEFAULT_CHARACTER_SHEET_GUIDANCE,
       seed: body.seed ?? -1,
       wildcardSeed: body.wildcardSeed ?? -1,
-      sampler: body.sampler ?? server.defaultSampler ?? 'euler',
-      scheduler: body.scheduler ?? server.defaultScheduler ?? 'normal',
-      denoise: body.denoise ?? 1,
+      sampler: body.sampler ?? DEFAULT_CHARACTER_SHEET_SAMPLER,
+      scheduler: body.scheduler ?? DEFAULT_CHARACTER_SHEET_SCHEDULER,
+      denoise: body.denoise ?? DEFAULT_CHARACTER_SHEET_DENOISE,
     })
 
     const clientId = crypto.randomUUID()
@@ -400,14 +409,25 @@ function buildCharacterSheetWorkflow(input: {
   }
 }
 
-function getComfyBaseUrl(server: {
-  backendBaseUrl?: string | null
-  baseUrl?: string | null
-  endpointPath?: string | null
-  defaultTransport?: string | null
-}) {
-  const endpoint = getServerEndpoint(server as never, 'backend')
-  return cleanComfyBaseUrl(endpoint)
+
+function assertComfyServer(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'COMFY') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports Comfy servers.`,
+    })
+  }
+}
+
+function getComfyBaseUrl(server: Server): string {
+  return cleanComfyBaseUrl(getServerEndpoint(server))
 }
 
 function cleanComfyBaseUrl(url: string) {

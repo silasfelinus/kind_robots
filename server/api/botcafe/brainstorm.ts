@@ -1,7 +1,8 @@
 // /server/api/botcafe/brainstorm/index.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { manaGate } from '../../utils/manaGate'
+import { estimateTextCostUsd } from '../../utils/manaCost'
 
 type BrainstormExample = {
   title?: string
@@ -15,6 +16,22 @@ type BrainstormIdea = {
 
 type BrainstormResponse = {
   ideas: BrainstormIdea[]
+}
+
+type BrainstormBody = {
+  title?: string
+  content?: string
+  instructions?: string
+  description?: string
+  examples?: unknown
+  model?: string
+  n?: number
+  temperature?: number
+  maxOutputTokens?: number
+  max_tokens?: number
+  maxTokens?: number
+  serverId?: number | null
+  chatId?: number | string | null
 }
 
 const fallbackExamples: BrainstormExample[] = [
@@ -124,30 +141,18 @@ function extractOutputText(responseData: unknown) {
 
 export default defineEventHandler(async (event) => {
   try {
-    const { isValid } = await validateApiKey(event)
-
-    if (!isValid) {
-      event.node.res.statusCode = 401
-
-      return {
-        success: false,
-        message: 'Invalid or expired token.',
-        data: [],
-      }
-    }
-
-    const body = await readBody(event)
+    const body = await readBody<BrainstormBody>(event)
     const apiKey = process.env.OPENAI_API_KEY
 
     if (!apiKey) {
       throw createError({
         statusCode: 500,
-        message: 'Server API key is missing.',
+        message: 'OPENAI_API_KEY is not configured.',
       })
     }
 
     const model = String(
-      body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-5.5',
+      body.model || process.env.OPENAI_TEXT_MODEL || 'gpt-4o-mini',
     ).trim()
 
     const title = String(body.title || body.content || 'Creative Ideas').trim()
@@ -166,6 +171,15 @@ export default defineEventHandler(async (event) => {
       300,
       4000,
     )
+
+    const gate = await manaGate(event, {
+      kind: 'text',
+      estCostUsd: estimateTextCostUsd({
+        model,
+        maxTokens: maxOutputTokens,
+      }),
+      serverId: body.serverId ?? null,
+    })
 
     const examples = normalizeExamples(body.examples)
 
@@ -268,10 +282,19 @@ export default defineEventHandler(async (event) => {
     const parsed = JSON.parse(outputText) as BrainstormResponse
     const ideas = normalizeIdeas(parsed)
 
+    const { balance } = await gate.commit(
+      body.chatId ? `chat:${body.chatId}` : `brainstorm:${Date.now()}`,
+    )
+
     return {
       success: true,
       message: `Generated ${ideas.length} brainstorm idea(s).`,
       data: ideas,
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
+      },
     }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)

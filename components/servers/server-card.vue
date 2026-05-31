@@ -1,397 +1,104 @@
 <!-- /components/server/server-card.vue -->
 <template>
-  <reactable-card
-    :selected="activeSelected"
-    :compact="compact"
-    :show-reaction="false"
-    :target-title="serverTitle"
-    @select="selectServer"
+  <article
+    class="flex flex-col gap-3 rounded-2xl border bg-base-100 p-4 shadow-sm transition"
+    :class="activeSelected ? 'border-primary shadow-primary/20' : 'border-base-300'"
   >
-    <template #actions>
-      <button
-        v-if="showActions && allowEdit && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
-        type="button"
-        title="Edit Server"
-        @click.stop="editServer"
-      >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && allowTest && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-info shadow transition hover:bg-info hover:text-info-content"
-        type="button"
-        title="Test Server"
-        @click.stop="testServer"
-      >
-        <Icon name="kind-icon:activity" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && canDelete && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
-        type="button"
-        title="Delete Server"
-        @click.stop="deleteServer"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-      </button>
-    </template>
-
-    <div class="flex items-start gap-3">
-      <div
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-base-300"
-        :class="iconBgClass"
-      >
-        <Icon :name="serverIcon" class="h-7 w-7" :class="iconTextClass" />
-      </div>
-
-      <div class="min-w-0 flex-1">
-        <h2
-          :class="[
-            'font-black leading-tight text-base-content',
-            compact ? 'line-clamp-1 text-base' : 'text-lg',
-          ]"
-          :title="serverTitle"
-        >
-          {{ serverTitle }}
-        </h2>
-
-        <p
-          v-if="showDescription"
-          :class="[
-            'text-base-content/70',
-            compact ? 'line-clamp-2 text-sm' : 'text-sm',
-          ]"
-        >
-          {{ server.description || server.baseUrl || 'No server description.' }}
-        </p>
-      </div>
-    </div>
-
-    <div v-if="showMeta" class="flex flex-wrap gap-2">
-      <span class="badge badge-outline badge-sm">
-        {{ server.serverType }}
-      </span>
-
-      <span class="badge badge-outline badge-sm">
-        {{ server.generationEngine || fallbackEngine }}
-      </span>
-
-      <span class="badge badge-ghost badge-sm">
-        {{ server.defaultTransport || 'BROWSER' }}
-      </span>
-
-      <span v-if="server.accessMode" class="badge badge-ghost badge-sm">
-        {{ server.accessMode }}
-      </span>
-
-      <span v-if="server.isDefault" class="badge badge-primary badge-sm">
-        Default
-      </span>
-
-      <span v-if="server.isOfficial" class="badge badge-secondary badge-sm">
-        Official
-      </span>
-
-      <span v-if="server.isPublic" class="badge badge-info badge-sm">
-        Public
-      </span>
-
-      <span
-        class="badge badge-sm"
-        :class="server.isActive ? 'badge-success' : 'badge-warning'"
-      >
-        {{ server.isActive ? 'Active' : 'Inactive' }}
-      </span>
-
-      <span v-if="isCurrentServer" class="badge badge-accent badge-sm">
-        Selected
-      </span>
-
-      <span
-        v-else-if="isActiveGenerationServer"
-        class="badge badge-outline badge-sm"
-      >
-        Preferred
-      </span>
-    </div>
-
-    <div v-if="!compact" class="grid grid-cols-1 gap-2 md:grid-cols-3">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Base URL
-        </div>
-
-        <div class="truncate font-mono text-xs">
-          {{ server.baseUrl || 'n/a' }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Browser URL
-        </div>
-
-        <div class="truncate font-mono text-xs">
-          {{ server.browserBaseUrl || server.baseUrl || 'n/a' }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Backend URL
-        </div>
-
-        <div class="truncate font-mono text-xs">
-          {{ server.backendBaseUrl || server.baseUrl || 'n/a' }}
-        </div>
-      </div>
-    </div>
-
-    <div v-if="!compact" class="grid grid-cols-1 gap-2 md:grid-cols-3">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Endpoint
-        </div>
-
-        <div class="truncate font-mono text-xs">
-          {{ server.endpointPath || 'n/a' }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Health
-        </div>
-
-        <div class="truncate font-mono text-xs">
-          {{ server.healthPath || 'n/a' }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Status
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span
-            class="inline-block h-2 w-2 rounded-full"
-            :class="statusClass"
-          />
-
-          <span class="text-xs font-bold">
-            {{ server.lastStatus ?? 'UNKNOWN' }}
+    <header class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <Icon :name="serverIcon" class="h-5 w-5 text-primary" />
+          <h3 class="truncate text-lg font-black">
+            {{ serverTitle }}
+          </h3>
+          <span class="badge badge-sm" :class="statusBadgeClass">
+            {{ server.lastStatus || 'UNKNOWN' }}
           </span>
         </div>
-      </div>
-    </div>
 
-    <div
-      v-if="!compact && showDefaults"
-      class="grid grid-cols-2 gap-2 md:grid-cols-4"
-    >
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">Size</div>
-
-        <div class="text-xs font-bold">
-          {{ server.defaultWidth || 512 }}×{{ server.defaultHeight || 512 }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Steps
-        </div>
-
-        <div class="text-xs font-bold">
-          {{ server.defaultSteps ?? 'n/a' }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">CFG</div>
-
-        <div class="text-xs font-bold">
-          {{ server.defaultCfg ?? 'n/a' }}
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
-        <div class="text-xs font-bold uppercase text-base-content/50">
-          Scheduler
-        </div>
-
-        <div class="truncate text-xs font-bold">
-          {{ server.defaultScheduler || server.defaultSampler || 'n/a' }}
-        </div>
-      </div>
-    </div>
-
-    <div v-if="showCapabilities" class="flex flex-wrap gap-2">
-      <span v-if="server.supportsTxt2Img" class="badge badge-primary badge-sm">
-        txt2img
-      </span>
-
-      <span v-if="server.supportsImg2Img" class="badge badge-primary badge-sm">
-        img2img
-      </span>
-
-      <span v-if="server.supportsImageEdit" class="badge badge-accent badge-sm">
-        edit
-      </span>
-
-      <span v-if="server.supportsInpaint" class="badge badge-accent badge-sm">
-        inpaint
-      </span>
-
-      <span v-if="server.supportsOutpaint" class="badge badge-accent badge-sm">
-        outpaint
-      </span>
-
-      <span
-        v-if="server.supportsComfyWorkflow"
-        class="badge badge-secondary badge-sm"
-      >
-        workflow
-      </span>
-
-      <span
-        v-if="server.supportsWorkflowUpload"
-        class="badge badge-secondary badge-sm"
-      >
-        upload workflow
-      </span>
-
-      <span v-if="server.supportsFlux" class="badge badge-secondary badge-sm">
-        flux
-      </span>
-
-      <span
-        v-if="server.supportsKontext"
-        class="badge badge-secondary badge-sm"
-      >
-        kontext
-      </span>
-
-      <span v-if="server.supportsChat" class="badge badge-accent badge-sm">
-        chat
-      </span>
-
-      <span
-        v-if="server.supportsCheckpointOverride"
-        class="badge badge-ghost badge-sm"
-      >
-        checkpoint
-      </span>
-
-      <span v-if="server.supportsSampler" class="badge badge-ghost badge-sm">
-        sampler
-      </span>
-
-      <span
-        v-if="server.supportsNegativePrompt"
-        class="badge badge-ghost badge-sm"
-      >
-        negative
-      </span>
-
-      <span v-if="server.supportsSeed" class="badge badge-ghost badge-sm">
-        seed
-      </span>
-
-      <span v-if="server.supportsSteps" class="badge badge-ghost badge-sm">
-        steps
-      </span>
-
-      <span v-if="server.supportsBatch" class="badge badge-ghost badge-sm">
-        batch
-      </span>
-
-      <span v-if="server.supportsVideo" class="badge badge-ghost badge-sm">
-        video
-      </span>
-    </div>
-
-    <div
-      v-if="
-        showWorkflow &&
-        (server.workflowPath || server.workflowVersion || server.workflowJson)
-      "
-      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
-      <div class="mb-2 flex items-center gap-2">
-        <Icon name="kind-icon:workflow" class="h-4 w-4 text-secondary" />
-
-        <span class="text-xs font-black uppercase text-base-content/50">
-          Workflow
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <p class="truncate font-mono text-xs">
-          {{ server.workflowPath || 'No workflow path' }}
-        </p>
-
-        <p class="truncate text-xs font-bold opacity-70">
-          {{ server.workflowVersion || 'No version label' }}
+        <p v-if="showDescription && server.description" class="mt-1 line-clamp-2 text-sm text-base-content/60">
+          {{ server.description }}
         </p>
       </div>
-    </div>
 
-    <div v-if="showUseButtons" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div v-if="showActions" class="flex shrink-0 gap-1">
+        <button class="btn btn-xs btn-ghost rounded-xl" type="button" title="Select" @click="selectServer">
+          <Icon name="kind-icon:cursor-click" class="h-4 w-4" />
+        </button>
+
+        <button v-if="allowEdit" class="btn btn-xs btn-ghost rounded-xl" type="button" title="Edit" @click="editServer">
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        </button>
+
+        <button v-if="allowTest" class="btn btn-xs btn-ghost rounded-xl" type="button" title="Test health" @click="testServer">
+          <Icon name="kind-icon:activity" class="h-4 w-4" />
+        </button>
+      </div>
+    </header>
+
+    <section class="grid gap-2 text-sm" :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2'">
+      <div class="rounded-xl bg-base-200 p-3">
+        <p class="text-xs font-black uppercase text-base-content/50">Type</p>
+        <p class="font-bold">{{ server.serverType }}</p>
+      </div>
+
+      <div class="rounded-xl bg-base-200 p-3">
+        <p class="text-xs font-black uppercase text-base-content/50">Access</p>
+        <p class="font-bold">{{ server.accessMode }}</p>
+      </div>
+
+      <div class="rounded-xl bg-base-200 p-3">
+        <p class="text-xs font-black uppercase text-base-content/50">Auth</p>
+        <p class="font-bold">{{ server.authType }}</p>
+      </div>
+
+      <div class="rounded-xl bg-base-200 p-3">
+        <p class="text-xs font-black uppercase text-base-content/50">Owner</p>
+        <p class="font-bold">{{ server.isOfficial ? 'Official' : server.isPublic ? 'Public' : 'Private' }}</p>
+      </div>
+    </section>
+
+    <section v-if="showMeta" class="flex flex-col gap-2 rounded-xl bg-base-200 p-3 text-xs">
+      <p class="break-all">
+        <span class="font-black text-base-content/50">Base:</span>
+        {{ server.baseUrl || 'n/a' }}
+      </p>
+      <p class="break-all">
+        <span class="font-black text-base-content/50">Endpoint:</span>
+        {{ server.endpointPath || 'n/a' }}
+      </p>
+      <p class="break-all">
+        <span class="font-black text-base-content/50">Health:</span>
+        {{ server.healthPath || 'n/a' }}
+      </p>
+    </section>
+
+    <footer v-if="showUseButtons" class="flex flex-wrap gap-2">
       <button
-        v-if="isArtCapable"
-        class="btn btn-primary btn-sm rounded-xl text-white"
+        v-if="isArtServer"
+        class="btn btn-sm btn-primary rounded-xl"
         type="button"
-        @click.stop="useForArt"
+        @click="useForArt"
       >
-        <Icon name="kind-icon:palette" class="h-4 w-4" />
         Use for Art
       </button>
 
       <button
-        v-if="isTextCapable"
-        class="btn btn-secondary btn-sm rounded-xl"
+        v-if="isTextServer"
+        class="btn btn-sm btn-secondary rounded-xl"
         type="button"
-        @click.stop="useForText"
+        @click="useForText"
       >
-        <Icon name="kind-icon:chat" class="h-4 w-4" />
         Use for Text
       </button>
-    </div>
-
-    <section
-      v-if="showStatus && isCurrentServer"
-      class="rounded-2xl border border-primary/30 bg-base-200 p-3"
-      @click.stop
-    >
-      <server-status :compact="statusCompact" :auto-load="false" />
-    </section>
-
-    <details
-      v-if="showDebug"
-      class="rounded-2xl border border-base-300 bg-base-100 p-2"
-      @click.stop
-    >
-      <summary class="cursor-pointer text-xs font-bold text-base-content/70">
-        Debug
-      </summary>
-
-      <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-        JSON.stringify(server, null, 2)
-      }}</pre>
-    </details>
-  </reactable-card>
+    </footer>
+  </article>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { useServerStore } from '@/stores/serverStore'
-import { useUserStore } from '@/stores/userStore'
 
 const props = withDefaults(
   defineProps<{
@@ -418,165 +125,83 @@ const props = withDefaults(
     showActions: true,
     showDescription: true,
     showMeta: true,
-    showCapabilities: true,
+    showCapabilities: false,
     showUseButtons: true,
     showDebug: false,
-    showWorkflow: true,
-    showDefaults: true,
+    showWorkflow: false,
+    showDefaults: false,
     showStatus: true,
     statusCompact: false,
     allowEdit: true,
-    allowDelete: true,
+    allowDelete: false,
     allowTest: true,
   },
 )
 
 const serverStore = useServerStore()
-const userStore = useUserStore()
 
-const isCurrentServer = computed(() => {
-  return serverStore.currentServer?.id === props.server.id
+const serverTitle = computed(() => {
+  return props.server.label || props.server.title || `Server #${props.server.id}`
 })
 
-const isActiveGenerationServer = computed(() => {
+const activeSelected = computed(() => {
   return (
+    props.selected ||
+    serverStore.currentServer?.id === props.server.id ||
     serverStore.activeArtServer?.id === props.server.id ||
     serverStore.activeTextServer?.id === props.server.id
   )
 })
 
-const activeSelected = computed(() => {
-  return props.selected || isCurrentServer.value
+const isArtServer = computed(() => {
+  return props.server.serverType === 'A1111' || props.server.serverType === 'COMFY'
 })
 
-const serverTitle = computed(() => {
+const isTextServer = computed(() => {
   return (
-    props.server.label || props.server.title || `Server #${props.server.id}`
-  )
-})
-
-const fallbackEngine = computed(() => {
-  if (props.server.serverType === 'A1111') return 'A1111'
-  if (props.server.serverType === 'COMFY') return 'COMFY'
-  return 'OTHER'
-})
-
-const isArtCapable = computed(() => {
-  const server = props.server
-
-  return (
-    server.serverType === 'ART' ||
-    server.serverType === 'A1111' ||
-    server.serverType === 'COMFY' ||
-    server.generationEngine === 'A1111' ||
-    server.generationEngine === 'COMFY' ||
-    server.generationEngine === 'FLUX' ||
-    server.generationEngine === 'KONTEXT' ||
-    server.generationEngine === 'OPENAI_IMAGE' ||
-    Boolean(server.supportsTxt2Img) ||
-    Boolean(server.supportsImg2Img) ||
-    Boolean(server.supportsImageEdit) ||
-    Boolean(server.supportsComfyWorkflow) ||
-    Boolean(server.supportsFlux) ||
-    Boolean(server.supportsKontext)
-  )
-})
-
-const isTextCapable = computed(() => {
-  const server = props.server
-
-  return (
-    server.serverType === 'TEXT' ||
-    server.serverType === 'OPENAI_COMPATIBLE' ||
-    Boolean(server.supportsChat)
-  )
-})
-
-const canDelete = computed(() => {
-  const server = props.server
-
-  return (
-    props.allowDelete &&
-    Boolean(userStore.user?.id) &&
-    server.userId === userStore.user?.id &&
-    !server.isOfficial &&
-    !server.isDefault &&
-    !server.isPublic
+    props.server.serverType === 'OPENAI' ||
+    props.server.serverType === 'ANTHROPIC' ||
+    props.server.serverType === 'CUSTOM'
   )
 })
 
 const serverIcon = computed(() => {
-  if (props.server.generationEngine === 'KONTEXT') return 'kind-icon:wand'
-  if (props.server.generationEngine === 'FLUX') return 'kind-icon:sparkles'
-  if (props.server.generationEngine === 'COMFY') return 'kind-icon:workflow'
-  if (props.server.generationEngine === 'A1111') return 'kind-icon:palette'
-  if (props.server.generationEngine === 'OPENAI_IMAGE') return 'kind-icon:image'
-  if (props.server.serverType === 'TEXT') return 'kind-icon:chat'
-  if (props.server.serverType === 'OPENAI_COMPATIBLE') return 'kind-icon:chat'
   if (props.server.serverType === 'COMFY') return 'kind-icon:workflow'
-  if (props.server.serverType === 'A1111') return 'kind-icon:palette'
-  if (props.server.serverType === 'ART') return 'kind-icon:palette'
-
+  if (props.server.serverType === 'A1111') return 'kind-icon:image'
+  if (props.server.serverType === 'OPENAI') return 'kind-icon:sparkles'
+  if (props.server.serverType === 'ANTHROPIC') return 'kind-icon:message-circle'
   return 'kind-icon:server'
 })
 
-const iconBgClass = computed(() => {
-  if (isTextCapable.value && !isArtCapable.value) {
-    return 'bg-secondary/10'
-  }
-
-  if (isArtCapable.value && !isTextCapable.value) {
-    return 'bg-primary/10'
-  }
-
-  return 'bg-accent/10'
-})
-
-const iconTextClass = computed(() => {
-  if (isTextCapable.value && !isArtCapable.value) {
-    return 'text-secondary'
-  }
-
-  if (isArtCapable.value && !isTextCapable.value) {
-    return 'text-primary'
-  }
-
-  return 'text-accent'
-})
-
-const statusClass = computed(() => {
-  if (props.server.lastStatus === 'ONLINE') return 'bg-success'
-  if (props.server.lastStatus === 'OFFLINE') return 'bg-error'
-
-  return 'bg-warning'
+const statusBadgeClass = computed(() => {
+  if (props.server.lastStatus === 'ONLINE') return 'badge-success'
+  if (props.server.lastStatus === 'OFFLINE') return 'badge-error'
+  if (props.server.lastStatus === 'DEGRADED') return 'badge-warning'
+  return 'badge-ghost'
 })
 
 function selectServer() {
-  serverStore.setCurrentServer(props.server.id)
+  serverStore.setCurrentServer?.(props.server)
 }
 
-async function editServer() {
-  serverStore.setCurrentServer(props.server.id)
-  await serverStore.startEditingServer(props.server.id)
-  serverStore.openServerForm()
+function editServer() {
+  serverStore.setCurrentServer?.(props.server)
+  serverStore.startEditingServer?.(props.server)
+  serverStore.openServerForm?.()
 }
 
 async function testServer() {
-  serverStore.setCurrentServer(props.server.id)
-  await serverStore.testServerHealth(props.server.id)
+  if (!props.server.id) return
+  await serverStore.testServerHealth?.(props.server.id)
 }
 
-async function deleteServer() {
-  await serverStore.deleteServer(props.server.id)
+function useForArt() {
+  serverStore.setCurrentServer?.(props.server)
+  serverStore.setActiveArtServer?.(props.server.id)
 }
 
-async function useForArt() {
-  serverStore.setCurrentServer(props.server.id)
-  await serverStore.setActiveArtServer(props.server.id)
-}
-
-async function useForText() {
-  serverStore.setCurrentServer(props.server.id)
-  await serverStore.setActiveTextServer(props.server.id)
+function useForText() {
+  serverStore.setCurrentServer?.(props.server)
+  serverStore.setActiveTextServer?.(props.server.id)
 }
 </script>

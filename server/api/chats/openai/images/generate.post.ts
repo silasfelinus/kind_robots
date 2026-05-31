@@ -3,6 +3,8 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from './../../../../utils/error'
 import { saveImage } from '../../../../utils/saveImage'
+import { manaGate } from '../../../../utils/manaGate'
+import { estimateArtCostUsd } from '../../../../utils/manaCost'
 import {
   type RequestData,
   validateAndLoadArtCollectionId,
@@ -64,7 +66,6 @@ export default defineEventHandler(async (event) => {
       },
       select: {
         id: true,
-        karma: true,
       },
     })
 
@@ -83,12 +84,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (user.karma <= 0) {
-      throw createError({
-        statusCode: 403,
-        message: 'Insufficient karma to generate an image.',
-      })
-    }
+    const model = requestData.model || 'gpt-image-2'
+    const size = requestData.size || '1024x1024'
+    const imageSize = parseImageSize(size)
+
+    const gate = await manaGate(event, {
+      kind: 'art',
+      estCostUsd: estimateArtCostUsd({
+        engine: 'openai',
+        steps: requestData.steps,
+        width: imageSize.width,
+        height: imageSize.height,
+      }),
+      serverId: requestData.serverId ?? null,
+    })
 
     const apiKey = process.env.OPENAI_API_KEY
 
@@ -132,9 +141,9 @@ export default defineEventHandler(async (event) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: requestData.model || 'gpt-image-2',
+          model,
           prompt,
-          size: requestData.size || '1024x1024',
+          size,
           quality: requestData.quality || 'auto',
           background: requestData.background || 'auto',
           output_format: requestData.outputFormat || 'png',
@@ -185,7 +194,7 @@ export default defineEventHandler(async (event) => {
         fileType: 'png',
         cfg: requestData.cfg ?? null,
         cfgHalf: requestData.cfgHalf ?? false,
-        checkpoint: requestData.model || 'gpt-image-2',
+        checkpoint: model,
         sampler: 'openai-images',
         seed: requestData.seed ?? -1,
         steps: requestData.steps ?? null,
@@ -223,14 +232,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        karma: user.karma - 1,
-      },
-    })
+    const { balance } = await gate.commit(`openai-image:${updatedImage.id}`)
 
     event.node.res.statusCode = 201
 
@@ -238,6 +240,11 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'OpenAI image generated successfully.',
       data: updatedImage,
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
+      },
     }
   } catch (error: unknown) {
     const handledError = errorHandler(error)
@@ -250,3 +257,14 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
+
+function parseImageSize(size: string): { width: number; height: number } {
+  const [rawWidth, rawHeight] = size.split('x')
+  const width = Number(rawWidth)
+  const height = Number(rawHeight)
+
+  return {
+    width: Number.isFinite(width) ? width : 1024,
+    height: Number.isFinite(height) ? height : 1024,
+  }
+}

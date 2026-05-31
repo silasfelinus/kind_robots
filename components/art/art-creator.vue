@@ -149,8 +149,24 @@ const promptPreview = computed(() => {
     : cleanPrompt.value
 })
 
+const selectedGenerationEngine = computed(() => {
+  return props.overrides.engine ?? artStore.artForm.engine ?? undefined
+})
+
+const activeServer = computed(() => artStore.activeGenerationServer)
+
+const needsServer = computed(() => {
+  return !['openai', 'kontext'].includes(String(selectedGenerationEngine.value))
+})
+
+const needsCheckpoint = computed(() => {
+  return activeServer.value?.serverType === 'A1111'
+})
+
 const hasGenerationSetup = computed(() => {
-  return Boolean(artStore.artForm.serverId && artStore.selectedCheckpointName)
+  if (needsServer.value && !artStore.artForm.serverId) return false
+  if (needsCheckpoint.value && !artStore.selectedCheckpointName) return false
+  return true
 })
 
 const canGenerate = computed(() => {
@@ -161,8 +177,10 @@ const canGenerate = computed(() => {
 
 const statusLabel = computed(() => {
   if (!cleanPrompt.value) return 'No prompt yet. The muse is staring at a wall.'
-  if (!hasGenerationSetup.value)
-    return 'Needs an art server and checkpoint selected.'
+  if (needsServer.value && !artStore.artForm.serverId)
+    return 'Needs an art server selected.'
+  if (needsCheckpoint.value && !artStore.selectedCheckpointName)
+    return 'Needs an A1111 checkpoint selected.'
   if (artStore.isGenerating)
     return 'Pixel goblin currently negotiating with reality.'
   return 'Ready to generate.'
@@ -224,7 +242,9 @@ async function generateImage() {
   }
 
   if (!hasGenerationSetup.value) {
-    const message = 'Select an art server and checkpoint before generating.'
+    const message = needsCheckpoint.value
+      ? 'Select an A1111 checkpoint before generating.'
+      : 'Select an art server before generating.'
     setLocalMessage('error', message)
     errorStore.addError(ErrorType.GENERAL_ERROR, message)
     emit('failed', message)

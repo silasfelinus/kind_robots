@@ -1,4 +1,4 @@
-<!-- /components/builders/art-designer.vue -->
+<!-- /components/builder/art-designer.vue -->
 <template>
   <section
     class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"

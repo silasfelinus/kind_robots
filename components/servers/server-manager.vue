@@ -47,7 +47,7 @@
           />
 
           <checkpoint-gallery
-            variant="dropdown"
+            variant="compact"
             :show-header="false"
             :show-controls="false"
             :show-status="false"

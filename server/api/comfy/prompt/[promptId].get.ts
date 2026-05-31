@@ -1,6 +1,6 @@
 // /server/api/comfy/prompt/[promptId].get.ts
 import { getRouterParam, getQuery, createError } from 'h3'
-import { resolveComfyBase } from './../utils/resolveComfyUrl'
+import { resolveComfyBaseUrl } from './../utils/resolveComfyUrl'
 
 function findInQueue(list: any, id: string): { found: boolean; index: number } {
   // Handles: ['pidA','pidB'] OR [['pidA',...], ['pidB',...]] OR objects with .prompt_id
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
   let baseUrl: string
   try {
-    baseUrl = await resolveComfyBase(serverId)
+    baseUrl = await resolveComfyBaseUrl(serverId)
   } catch (err: any) {
     throw createError({ statusCode: 500, statusMessage: err.message })
   }

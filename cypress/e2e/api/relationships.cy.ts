@@ -393,7 +393,7 @@ describe('Relationship API Tests', () => {
         title: `Cypress Relationship Server ${time}`,
         label: `cypress-relationship-server-${time}`,
         description: 'Cypress relationship server fixture',
-        serverType: 'ART',
+        serverType: 'COMFY',
         baseUrl: `https://example.com/cypress-server-${time}`,
         userId: testUserId,
         isPublic: false,
@@ -412,7 +412,7 @@ describe('Relationship API Tests', () => {
             customLabel: `Cypress Relationship Resource ${time}`,
             description: 'Cypress relationship checkpoint fixture',
             resourceType: 'CHECKPOINT',
-            supportedServer: 'SDXL',
+            supportedServer: 'COMFY',
             userId: testUserId,
             artImageId: id('artImageA'),
             isPublic: false,
@@ -468,7 +468,7 @@ describe('Relationship API Tests', () => {
       expectStoredId('server')
 
       postRecord('bot', {
-        BotType: 'PROMPTBOT',
+        botType: 'PROMPTBOT',
         name: `cypress-bot-${time}`,
         subtitle: 'Relationship bot',
         description: 'Cypress relationship bot fixture',

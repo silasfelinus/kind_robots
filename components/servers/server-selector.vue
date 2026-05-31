@@ -149,6 +149,16 @@
                 @submit.prevent="saveOpenAi"
               >
                 <input
+                  type="text"
+                  name="username"
+                  autocomplete="username"
+                  value="openai"
+                  class="hidden"
+                  tabindex="-1"
+                  aria-hidden="true"
+                />
+
+                <input
                   v-model.trim="openAiKey"
                   class="input input-bordered min-w-0 flex-1 rounded-xl"
                   type="password"
@@ -200,6 +210,16 @@
                 class="mt-3 flex flex-col gap-2 sm:flex-row"
                 @submit.prevent="saveAnthropic"
               >
+                <input
+                  type="text"
+                  name="username"
+                  autocomplete="username"
+                  value="anthropic"
+                  class="hidden"
+                  tabindex="-1"
+                  aria-hidden="true"
+                />
+
                 <input
                   v-model.trim="anthropicKey"
                   class="input input-bordered min-w-0 flex-1 rounded-xl"

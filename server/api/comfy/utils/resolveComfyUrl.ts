@@ -1,192 +1,85 @@
 // /server/api/comfy/utils/resolveComfyUrl.ts
 import { createError } from 'h3'
 import prisma from '../../../utils/prisma'
+import { getServerEndpoint } from '../../../utils/serverResolver'
+import type { Server } from '~/prisma/generated/prisma/client'
 
-interface ResolveComfyUrlOptions {
-  endpointPath?: string
-  preferBackend?: boolean
-}
-
-interface ServerLike {
-  id: number
-  title: string
-  baseUrl: string
-  backendBaseUrl?: string | null
-  browserBaseUrl?: string | null
-  endpointPath?: string | null
-  isActive: boolean
-  serverType?: string | null
-  generationEngine?: string | null
-  supportsComfyWorkflow?: boolean | null
-}
-
-export async function resolveComfyBase(
-  serverId?: number | string | null,
-  options: Omit<ResolveComfyUrlOptions, 'endpointPath'> = {},
-) {
-  const parsedServerId = Number(serverId)
-
-  if (!Number.isInteger(parsedServerId) || parsedServerId <= 0) {
-    throw createError({
-      statusCode: 400,
-      message: 'A valid Comfy serverId is required.',
-    })
-  }
-
-  const server = await prisma.server.findUnique({
-    where: { id: parsedServerId },
-    select: {
-      id: true,
-      title: true,
-      baseUrl: true,
-      backendBaseUrl: true,
-      browserBaseUrl: true,
-      endpointPath: true,
-      isActive: true,
-      serverType: true,
-      generationEngine: true,
-      supportsComfyWorkflow: true,
-    },
-  })
-
-  if (!server) {
-    throw createError({
-      statusCode: 404,
-      message: `Comfy server ${parsedServerId} was not found.`,
-    })
-  }
-
-  if (!server.isActive) {
-    throw createError({
-      statusCode: 400,
-      message: `Comfy server "${server.title}" is not active.`,
-    })
-  }
-
-  if (!isComfyServer(server)) {
-    throw createError({
-      statusCode: 400,
-      message: `Server "${server.title}" is not configured as a Comfy server.`,
-    })
-  }
-
-  const baseUrl =
-    options.preferBackend === false
-      ? normalizeBaseUrl(server.browserBaseUrl || server.baseUrl)
-      : normalizeBaseUrl(
-          server.backendBaseUrl || server.baseUrl || server.browserBaseUrl,
-        )
-
-  if (!baseUrl) {
-    throw createError({
-      statusCode: 400,
-      message: `Comfy server "${server.title}" does not have a usable base URL.`,
-    })
-  }
-
-  return baseUrl
-}
-
-const normalizeBaseUrl = (value?: string | null) => {
-  return value?.trim().replace(/\/+$/, '') || ''
-}
-
-const normalizePath = (value?: string | null) => {
-  if (!value?.trim()) return ''
-
-  const trimmed = value.trim()
-  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
-}
-
-const joinUrl = (baseUrl: string, path: string) => {
-  const cleanBase = normalizeBaseUrl(baseUrl)
-  const cleanPath = normalizePath(path)
-
-  if (!cleanBase) return ''
-  return `${cleanBase}${cleanPath}`
-}
-
-const isComfyServer = (server: ServerLike) => {
-  return (
-    server.serverType === 'COMFY' ||
-    server.generationEngine === 'COMFY' ||
-    Boolean(server.supportsComfyWorkflow)
-  )
+type ResolveComfyUrlInput = {
+  serverId?: number | null
+  apiUrl?: string | null
 }
 
 export async function resolveComfyUrl(
-  serverId?: number | string | null,
-  options: ResolveComfyUrlOptions = {},
-) {
-  const parsedServerId = Number(serverId)
+  input: ResolveComfyUrlInput,
+): Promise<string> {
+  if (input.apiUrl?.trim()) {
+    return cleanComfyBaseUrl(input.apiUrl)
+  }
 
-  if (!Number.isInteger(parsedServerId) || parsedServerId <= 0) {
+  if (!input.serverId) {
     throw createError({
       statusCode: 400,
-      message: 'A valid Comfy serverId is required.',
+      message: 'serverId or apiUrl is required.',
     })
   }
 
   const server = await prisma.server.findUnique({
-    where: { id: parsedServerId },
-    select: {
-      id: true,
-      title: true,
-      baseUrl: true,
-      backendBaseUrl: true,
-      browserBaseUrl: true,
-      endpointPath: true,
-      isActive: true,
-      serverType: true,
-      generationEngine: true,
-      supportsComfyWorkflow: true,
+    where: {
+      id: input.serverId,
     },
   })
 
-  if (!server) {
+  if (!server || !server.isActive) {
     throw createError({
       statusCode: 404,
-      message: `Comfy server ${parsedServerId} was not found.`,
+      message: `Server ${input.serverId} was not found or is not available.`,
     })
   }
 
-  if (!server.isActive) {
+  assertComfyServer(server)
+
+  return cleanComfyBaseUrl(getServerEndpoint(server))
+}
+
+export async function resolveComfyBaseUrl(
+  input: ResolveComfyUrlInput,
+): Promise<string> {
+  return await resolveComfyUrl(input)
+}
+
+export function cleanComfyBaseUrl(url: string): string {
+  const trimmed = url.trim().replace(/\/+$/, '')
+
+  if (!trimmed) {
     throw createError({
       statusCode: 400,
-      message: `Comfy server "${server.title}" is not active.`,
+      message: 'Comfy URL is required.',
     })
   }
 
-  if (!isComfyServer(server)) {
+  if (trimmed.endsWith('/prompt')) {
+    return trimmed.replace(/\/prompt$/, '')
+  }
+
+  if (trimmed.endsWith('/api/prompt')) {
+    return trimmed.replace(/\/api\/prompt$/, '')
+  }
+
+  return trimmed
+}
+
+function assertComfyServer(server: Server): void {
+  if (server.serverType !== 'COMFY') {
     throw createError({
       statusCode: 400,
-      message: `Server "${server.title}" is not configured as a Comfy server.`,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports Comfy servers.`,
     })
   }
 
-  const baseUrl =
-    options.preferBackend === false
-      ? normalizeBaseUrl(server.browserBaseUrl || server.baseUrl)
-      : normalizeBaseUrl(
-          server.backendBaseUrl || server.baseUrl || server.browserBaseUrl,
-        )
-
-  if (!baseUrl) {
+  if (!server.baseUrl) {
     throw createError({
       statusCode: 400,
-      message: `Comfy server "${server.title}" does not have a usable base URL.`,
+      message: `Server "${server.title}" is missing baseUrl.`,
     })
   }
-
-  const endpointPath = options.endpointPath ?? server.endpointPath ?? '/prompt'
-  const resolvedUrl = joinUrl(baseUrl, endpointPath)
-
-  if (!resolvedUrl) {
-    throw createError({
-      statusCode: 400,
-      message: `Could not resolve Comfy URL for server "${server.title}".`,
-    })
-  }
-
-  return resolvedUrl
 }

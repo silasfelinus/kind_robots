@@ -171,7 +171,7 @@
         </section>
 
         <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
-          <h3 class="font-black text-accent">Configured</h3>
+          <h3 class="font-black text-accent">Configured Servers</h3>
 
           <div
             v-if="servers.length"
@@ -182,7 +182,7 @@
               :key="server.id"
               class="rounded-2xl border border-base-300 bg-base-100 p-3 text-left transition hover:border-primary hover:bg-base-300"
               type="button"
-              @click="serverStore.setCurrentServer?.(server.id)"
+              @click="serverStore.setCurrentServer(server.id)"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="min-w-0">
@@ -192,7 +192,7 @@
                   <p class="truncate text-xs opacity-60">
                     {{ server.serverType }}
                     <span v-if="server.category"> · {{ server.category }}</span>
-                    <span v-if="server.post"> · {{ server.post }}</span>
+                    <span v-if="server.baseUrl"> · {{ server.baseUrl }}</span>
                   </p>
                 </div>
 
@@ -245,11 +245,7 @@ const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 
 const servers = computed(() => {
-  const loadedServers = Array.isArray(serverStore.servers)
-    ? serverStore.servers
-    : []
-
-  return loadedServers
+  return serverStore.servers
     .filter((server) => server && server.id)
     .sort((a, b) => {
       const activeSort =
@@ -319,15 +315,40 @@ function cleanUrl(value: string) {
   return value.trim().replace(/\/+$/, '')
 }
 
-async function refreshServers() {
-  if (typeof serverStore.fetchServers === 'function') {
-    await serverStore.fetchServers()
-    return
+function defaultUrlLabel() {
+  if (urlServerType.value === 'A1111') {
+    return 'Stable Diffusion'
   }
 
-  if (typeof serverStore.initialize === 'function') {
-    await serverStore.initialize({ fetchRemote: true })
+  if (urlServerType.value === 'COMFY') {
+    return 'ComfyUI'
   }
+
+  return 'Ollama'
+}
+
+function endpointPathForUrlServer() {
+  if (urlServerType.value === 'A1111') {
+    return '/sdapi/v1/txt2img'
+  }
+
+  if (urlServerType.value === 'COMFY') {
+    return '/prompt'
+  }
+
+  return '/api/generate'
+}
+
+function healthPathForUrlServer() {
+  if (urlServerType.value === 'A1111') {
+    return '/sdapi/v1/progress'
+  }
+
+  if (urlServerType.value === 'COMFY') {
+    return '/system_stats'
+  }
+
+  return '/api/tags'
 }
 
 async function createServer(body: Record<string, unknown>) {
@@ -337,14 +358,18 @@ async function createServer(body: Record<string, unknown>) {
   })
 }
 
+async function refreshServers() {
+  await serverStore.fetchAllServers()
+}
+
 async function saveSelections() {
-  await serverStore.setActiveArtServer?.(selectedArtServerId.value)
-  await serverStore.setActiveTextServer?.(selectedTextServerId.value)
+  await serverStore.setActiveArtServer(selectedArtServerId.value)
+  await serverStore.setActiveTextServer(selectedTextServerId.value)
 
   if (selectedArtServerId.value) {
-    serverStore.setCurrentServer?.(selectedArtServerId.value)
+    serverStore.setCurrentServer(selectedArtServerId.value)
   } else if (selectedTextServerId.value) {
-    serverStore.setCurrentServer?.(selectedTextServerId.value)
+    serverStore.setCurrentServer(selectedTextServerId.value)
   }
 
   setStatus('Server selections saved.')
@@ -367,24 +392,40 @@ async function saveApiKey() {
         title: `${label} Text`,
         label: `${label} Text`,
         description: 'Private OpenAI text server.',
-        serverType: 'OPENAI',
         category: 'text',
+        serverType: 'OPENAI',
+        accessMode: 'SERVER',
+        authType: 'API_KEY',
+        baseUrl: 'https://api.openai.com/v1',
+        endpointPath: '/chat/completions',
         apiKey: apiKey.value,
+        apiKeyName: 'Authorization',
         model: 'gpt-4o-mini',
         isActive: true,
         isPublic: false,
+        isOfficial: false,
+        isDefault: false,
+        isEditable: true,
       })
 
       await createServer({
         title: `${label} Images`,
         label: `${label} Images`,
         description: 'Private OpenAI image server.',
-        serverType: 'OPENAI',
         category: 'art',
+        serverType: 'OPENAI',
+        accessMode: 'SERVER',
+        authType: 'API_KEY',
+        baseUrl: 'https://api.openai.com/v1',
+        endpointPath: '/images/generations',
         apiKey: apiKey.value,
+        apiKeyName: 'Authorization',
         model: 'gpt-image-1',
         isActive: true,
         isPublic: false,
+        isOfficial: false,
+        isDefault: false,
+        isEditable: true,
       })
 
       setStatus('OpenAI text and image servers saved.')
@@ -397,12 +438,20 @@ async function saveApiKey() {
         title: label,
         label,
         description: 'Private Anthropic text server.',
-        serverType: 'ANTHROPIC',
         category: 'text',
+        serverType: 'ANTHROPIC',
+        accessMode: 'SERVER',
+        authType: 'API_KEY',
+        baseUrl: 'https://api.anthropic.com/v1',
+        endpointPath: '/messages',
         apiKey: apiKey.value,
+        apiKeyName: 'x-api-key',
         model: 'claude-sonnet-4-6',
         isActive: true,
         isPublic: false,
+        isOfficial: false,
+        isDefault: false,
+        isEditable: true,
       })
 
       setStatus('Anthropic server saved.')
@@ -432,23 +481,26 @@ async function savePrivateUrl() {
   statusMessage.value = ''
 
   try {
-    const label =
-      urlLabel.value ||
-      (urlServerType.value === 'A1111'
-        ? 'Stable Diffusion'
-        : urlServerType.value === 'COMFY'
-          ? 'ComfyUI'
-          : 'Ollama')
+    const label = urlLabel.value || defaultUrlLabel()
+    const baseUrl = cleanUrl(privateUrl.value)
 
     await createServer({
       title: label,
       label,
       description: `Private ${label} endpoint.`,
-      serverType: urlServerType.value,
       category: urlServerType.value === 'OLLAMA' ? 'text' : 'art',
-      post: cleanUrl(privateUrl.value),
+      serverType: urlServerType.value,
+      accessMode: 'BROWSER',
+      authType: 'NONE',
+      baseUrl,
+      endpointPath: endpointPathForUrlServer(),
+      healthPath: healthPathForUrlServer(),
+      apiLink: baseUrl,
       isActive: true,
       isPublic: false,
+      isOfficial: false,
+      isDefault: false,
+      isEditable: true,
     })
 
     urlLabel.value = ''
@@ -469,7 +521,7 @@ async function savePrivateUrl() {
 
 onMounted(async () => {
   if (!serverStore.hasLoaded) {
-    await serverStore.initialize?.({
+    await serverStore.initialize({
       fetchRemote: true,
     })
   }

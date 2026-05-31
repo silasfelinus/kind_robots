@@ -1,5 +1,5 @@
 // /server/api/art/generate.post.ts
-import { defineEventHandler, readBody, createError } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { saveImage } from '../../utils/saveImage'
@@ -12,11 +12,7 @@ import {
   validateAndLoadPromptId,
   validateAndLoadUserId,
 } from '.'
-import {
-  resolveServer,
-  getServerEndpoint,
-  type ServerEndpointTransport,
-} from '../../utils/serverResolver'
+import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
 import {
   resolveCheckpointResource,
   type CheckpointResourceRequestData,
@@ -39,6 +35,12 @@ type GenerateImageResponse = {
   resolvedCheckpoint?: string | null
   resolvedSampler?: string | null
   resolvedSeed?: number | null
+}
+
+type AuthenticatedUser = {
+  id: number
+  karma: number
+  preferredArtServerId: number | null
 }
 
 interface GenerateImageInput {
@@ -71,10 +73,15 @@ type A1111Txt2ImgRequest = {
   override_settings_restore_afterwards?: boolean
 }
 
+const DEFAULT_STEPS = 20
+const DEFAULT_CFG = 3
+const DEFAULT_WIDTH = 512
+const DEFAULT_HEIGHT = 512
+const DEFAULT_SAMPLER = 'Euler a'
+
 export default defineEventHandler(async (event) => {
   try {
     const requestData: ServerAwareRequestData = await readBody(event)
-    const body = requestData
 
     if (!requestData.promptString?.trim()) {
       throw createError({
@@ -83,36 +90,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const authorizationHeader = event.node.req.headers.authorization
+    const user = await getAuthenticatedUser(
+      event.node.req.headers.authorization,
+    )
+    const requestedUserId = requestData.userId ?? user.id
 
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message: 'Authorization token required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-        karma: true,
-        preferredArtServerId: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
-
-    if (user.id !== requestData.userId) {
+    if (user.id !== requestedUserId) {
       throw createError({
         statusCode: 403,
         message:
@@ -120,17 +103,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const normalizedRequestData: ServerAwareRequestData = {
+      ...requestData,
+      userId: requestedUserId,
+    }
+
     const validatedData: Partial<RequestData> = {}
 
     validatedData.userId = await validateAndLoadUserId(
-      requestData,
+      normalizedRequestData,
       validatedData,
     )
 
-    validatedData.pitchId = await validateAndLoadPitchId(requestData)
+    validatedData.pitchId = await validateAndLoadPitchId(normalizedRequestData)
 
     const requestDataWithPitch = {
-      ...requestData,
+      ...normalizedRequestData,
       pitchId: validatedData.pitchId,
     }
 
@@ -142,42 +130,51 @@ export default defineEventHandler(async (event) => {
     validatedData.artCollectionId =
       await validateAndLoadArtCollectionId(requestDataWithPitch)
 
-    validatedData.designer = validateAndLoadDesignerName(requestData)
-
-    const rawCfg = Number(requestData.cfg)
+    validatedData.designer = validateAndLoadDesignerName(normalizedRequestData)
 
     const cfgValue = calculateCfg(
-      Number.isNaN(rawCfg) ? 3 : rawCfg,
-      requestData.cfgHalf ?? false,
+      normalizeNumber(normalizedRequestData.cfg, DEFAULT_CFG),
+      normalizedRequestData.cfgHalf ?? false,
     )
 
     const server = await resolveServer({
       userId: user.id,
-      serverId: requestData.serverId ?? null,
-      serverName: requestData.serverName ?? null,
+      serverId: normalizedRequestData.serverId ?? null,
+      serverName: normalizedRequestData.serverName ?? null,
       capability: 'art',
     })
 
+    assertA1111Server(server)
+
+    const steps = normalizeInteger(normalizedRequestData.steps, DEFAULT_STEPS)
+    const width = normalizeInteger(normalizedRequestData.width, DEFAULT_WIDTH)
+    const height = normalizeInteger(
+      normalizedRequestData.height,
+      DEFAULT_HEIGHT,
+    )
+    const sampler = cleanText(normalizedRequestData.sampler) || DEFAULT_SAMPLER
+    const seed = normalizeInteger(normalizedRequestData.seed, -1)
+
     const gate = await withArtMana(event, {
       server,
-      engine: String(server.generationEngine || server.serverType || 'a1111'),
-      steps: body.steps,
-      width: body.width,
-      height: body.height,
+      engine: 'a1111',
+      steps,
+      width,
+      height,
     })
 
     const response = await generateImage({
       server,
-      prompt: requestData.promptString.trim(),
+      prompt: normalizedRequestData.promptString.trim(),
       user: validatedData.designer || 'kindguest',
       cfgValue,
-      negativePrompt: requestData.negativePrompt || '',
-      seed: requestData.seed ?? -1,
-      steps: requestData.steps ?? server.defaultSteps ?? 20,
-      checkpoint: requestData.checkpoint ?? null,
-      sampler: requestData.sampler ?? server.defaultSampler ?? 'Euler a',
-      width: requestData.width ?? server.defaultWidth ?? 512,
-      height: requestData.height ?? server.defaultHeight ?? 512,
+      negativePrompt: normalizedRequestData.negativePrompt || '',
+      seed,
+      steps,
+      checkpoint: normalizedRequestData.checkpoint ?? null,
+      sampler,
+      width,
+      height,
     })
 
     if (!response.images?.length) {
@@ -211,54 +208,24 @@ export default defineEventHandler(async (event) => {
     }
 
     const resolvedCheckpoint = await resolveCheckpointResource({
-      requestData,
+      requestData: normalizedRequestData,
       server,
     })
 
-    const updatedImage = await prisma.artImage.update({
-      where: {
-        id: savedImage.id,
-      },
-      data: {
-        cfg: Math.floor(cfgValue),
-        cfgHalf: cfgValue % 1 >= 0.5,
-        checkpoint: resolvedCheckpoint.checkpoint,
-        checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
-        sampler: requestData.sampler ?? null,
-        seed: requestData.seed ?? -1,
-        steps: requestData.steps ?? 20,
-        designer: validatedData.designer ?? null,
-        promptString: requestData.promptString.trim(),
-        artPrompt: requestData.promptString.trim(),
-        negativePrompt: requestData.negativePrompt ?? null,
-        isPublic: requestData.isPublic ?? true,
-        isMature: requestData.isMature ?? false,
-        userId: validatedData.userId ?? user.id,
-        serverId: server.id,
-        serverName: server.title,
-        serverUrl: getServerEndpoint(server),
-        Prompts: validatedData.promptId
-          ? {
-              connect: {
-                id: validatedData.promptId,
-              },
-            }
-          : undefined,
-        Pitches: validatedData.pitchId
-          ? {
-              connect: {
-                id: validatedData.pitchId,
-              },
-            }
-          : undefined,
-        ArtCollections: validatedData.artCollectionId
-          ? {
-              connect: {
-                id: validatedData.artCollectionId,
-              },
-            }
-          : undefined,
-      },
+    const updatedImage = await updateGeneratedArtImage({
+      imageId: savedImage.id,
+      requestData: normalizedRequestData,
+      validatedData,
+      server,
+      cfgValue,
+      steps,
+      width,
+      height,
+      sampler,
+      seed,
+      resolvedCheckpoint,
+      generationResponse: response,
+      userId: user.id,
     })
 
     const { balance } = await gate.commit(`art:${updatedImage.id}`)
@@ -285,6 +252,138 @@ export default defineEventHandler(async (event) => {
   }
 })
 
+async function getAuthenticatedUser(
+  authorizationHeader: string | undefined,
+): Promise<AuthenticatedUser> {
+  if (!authorizationHeader?.startsWith('Bearer ')) {
+    throw createError({
+      statusCode: 401,
+      message: 'Authorization token required in the format "Bearer <token>".',
+    })
+  }
+
+  const token = authorizationHeader.split(' ')[1] ?? ''
+
+  const user = await prisma.user.findFirst({
+    where: {
+      apiKey: token,
+    },
+    select: {
+      id: true,
+      karma: true,
+      preferredArtServerId: true,
+    },
+  })
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: 'Invalid or expired authorization token.',
+    })
+  }
+
+  return user
+}
+
+function assertA1111Server(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'A1111') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports A1111 txt2img servers.`,
+    })
+  }
+}
+
+async function updateGeneratedArtImage(input: {
+  imageId: number
+  requestData: ServerAwareRequestData
+  validatedData: Partial<RequestData>
+  server: Server
+  cfgValue: number
+  steps: number
+  width: number
+  height: number
+  sampler: string
+  seed: number
+  resolvedCheckpoint: {
+    checkpoint: string | null
+    checkpointResourceId: number | null
+  }
+  generationResponse: GenerateImageResponse
+  userId: number
+}): Promise<ArtImage> {
+  const {
+    imageId,
+    requestData,
+    validatedData,
+    server,
+    cfgValue,
+    steps,
+    sampler,
+    seed,
+    resolvedCheckpoint,
+    generationResponse,
+    userId,
+  } = input
+
+  const promptString = requestData.promptString.trim()
+  const resolvedSampler = generationResponse.resolvedSampler || sampler
+  const resolvedSeed = generationResponse.resolvedSeed ?? seed
+
+  return await prisma.artImage.update({
+    where: {
+      id: imageId,
+    },
+    data: {
+      cfg: Math.floor(cfgValue),
+      cfgHalf: cfgValue % 1 >= 0.5,
+      checkpoint: resolvedCheckpoint.checkpoint,
+      checkpointResourceId: resolvedCheckpoint.checkpointResourceId,
+      sampler: resolvedSampler,
+      seed: resolvedSeed,
+      steps,
+      designer: validatedData.designer ?? null,
+      promptString,
+      artPrompt: promptString,
+      negativePrompt: requestData.negativePrompt ?? null,
+      isPublic: requestData.isPublic ?? true,
+      isMature: requestData.isMature ?? false,
+      userId: validatedData.userId ?? userId,
+      serverId: server.id,
+      serverName: server.label || server.title,
+      serverUrl: getServerEndpoint(server),
+      Prompts: validatedData.promptId
+        ? {
+            connect: {
+              id: validatedData.promptId,
+            },
+          }
+        : undefined,
+      Pitches: validatedData.pitchId
+        ? {
+            connect: {
+              id: validatedData.pitchId,
+            },
+          }
+        : undefined,
+      ArtCollections: validatedData.artCollectionId
+        ? {
+            connect: {
+              id: validatedData.artCollectionId,
+            },
+          }
+        : undefined,
+    },
+  })
+}
+
 export async function generateImage({
   server,
   prompt,
@@ -298,32 +397,9 @@ export async function generateImage({
   width,
   height,
 }: GenerateImageInput): Promise<GenerateImageResponse> {
-  const transport: ServerEndpointTransport = 'backend'
-  const endpoint = getServerEndpoint(server, transport)
+  assertA1111Server(server)
 
-  if (server.serverType !== 'A1111' && server.generationEngine !== 'A1111') {
-    throw new Error(
-      `Server "${server.title}" is ${server.serverType}/${server.generationEngine}. This route only supports A1111 txt2img servers.`,
-    )
-  }
-
-  if (server.supportsComfyWorkflow || server.generationEngine === 'COMFY') {
-    throw new Error(
-      `Server "${server.title}" supports Comfy workflows. Use the Comfy route instead.`,
-    )
-  }
-
-  if (server.generationEngine === 'FLUX') {
-    throw new Error(
-      `Server "${server.title}" is a Flux server. Use the Flux route instead.`,
-    )
-  }
-
-  if (server.generationEngine === 'KONTEXT') {
-    throw new Error(
-      `Server "${server.title}" is a Kontext server. Use the Kontext route instead.`,
-    )
-  }
+  const endpoint = getServerEndpoint(server)
 
   if (!endpoint.includes('/sdapi/v1/txt2img')) {
     throw new Error(
@@ -334,17 +410,16 @@ export async function generateImage({
   const requestBody: A1111Txt2ImgRequest = {
     prompt,
     negative_prompt: negativePrompt || ' ',
-    steps: steps ?? server.defaultSteps ?? 20,
-    cfg_scale: cfgValue || server.defaultCfg || 3,
-    seed: seed ?? -1,
-    width: width ?? server.defaultWidth ?? 512,
-    height: height ?? server.defaultHeight ?? 512,
-    sampler_index: sampler || server.defaultSampler || 'Euler a',
+    steps: normalizeInteger(steps, DEFAULT_STEPS),
+    cfg_scale: cfgValue || DEFAULT_CFG,
+    seed: normalizeInteger(seed, -1),
+    width: normalizeInteger(width, DEFAULT_WIDTH),
+    height: normalizeInteger(height, DEFAULT_HEIGHT),
+    sampler_index: cleanText(sampler) || DEFAULT_SAMPLER,
     user,
   }
 
-  const cleanCheckpoint =
-    typeof checkpoint === 'string' ? checkpoint.trim() : ''
+  const cleanCheckpoint = cleanText(checkpoint)
 
   if (cleanCheckpoint) {
     requestBody.override_settings = {
@@ -359,9 +434,8 @@ export async function generateImage({
     serverId: server.id,
     title: server.title,
     serverType: server.serverType,
-    generationEngine: server.generationEngine,
     endpoint,
-    requiresApiKey: server.requiresApiKey,
+    authType: server.authType,
     apiKeyName: server.apiKeyName,
     proxyTokenPresent: Boolean(process.env.ART_SERVER_PROXY_TOKEN),
   })
@@ -383,8 +457,7 @@ export async function generateImage({
           `serverId=${server.id}`,
           `serverTitle=${server.title}`,
           `serverType=${server.serverType}`,
-          `generationEngine=${server.generationEngine}`,
-          `requiresApiKey=${String(server.requiresApiKey)}`,
+          `authType=${server.authType}`,
           `apiKeyName=${server.apiKeyName || 'none'}`,
           process.env.ART_SERVER_PROXY_TOKEN
             ? 'proxyToken=present'
@@ -454,27 +527,29 @@ function getBackendServerHeaders(server: Server): HeadersInit {
     'Content-Type': 'application/json',
   }
 
-  if (!server.requiresApiKey) {
-    return headers
-  }
-
-  const apiKeyName = server.apiKeyName?.trim() || 'X-Kindrobots-Server-Token'
   const envToken = process.env.ART_SERVER_PROXY_TOKEN || ''
   const serverToken = server.apiKey || ''
   const token = envToken || serverToken
 
-  if (!token) {
-    throw new Error(
-      `Missing backend proxy token for server "${server.title}". Set ART_SERVER_PROXY_TOKEN in Vercel or store a server apiKey.`,
-    )
+  if (!token || server.authType === 'NONE') {
+    return headers
   }
 
-  if (apiKeyName.toLowerCase() === 'authorization') {
+  if (server.authType === 'BEARER') {
     headers.Authorization = token.startsWith('Bearer ')
       ? token
       : `Bearer ${token}`
-  } else {
+    return headers
+  }
+
+  if (server.authType === 'HEADER' || server.authType === 'API_KEY') {
+    const apiKeyName = server.apiKeyName?.trim() || 'X-Kindrobots-Server-Token'
     headers[apiKeyName] = token
+    return headers
+  }
+
+  if (server.authType === 'QUERY') {
+    return headers
   }
 
   return headers
@@ -498,6 +573,31 @@ async function parseUpstreamErrorResponse(response: Response): Promise<string> {
 
 function calculateCfg(cfg: number, cfgHalf: boolean): number {
   return cfgHalf ? cfg + 0.5 : cfg
+}
+
+function cleanText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function normalizeNumber(value: unknown, fallback: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value)
+
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+
+  return fallback
+}
+
+function normalizeInteger(value: unknown, fallback: number): number {
+  const parsed = normalizeNumber(value, fallback)
+  return Number.isFinite(parsed) ? Math.floor(parsed) : fallback
 }
 
 function stringifyServerError(errorData: unknown): string {

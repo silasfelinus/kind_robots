@@ -3,6 +3,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from './../../../utils/prisma'
 import { errorHandler } from './../../../utils/error'
 import {
+  buildServerAuthHeaders,
   buildServerHealthUrl,
   canReadServer,
   getOptionalAuthUser,
@@ -33,6 +34,14 @@ async function readHealthBody(response: Response): Promise<unknown> {
   }
 }
 
+function shouldRunHealthCheckInBrowser(accessMode: string): boolean {
+  return (
+    accessMode === 'BROWSER' ||
+    accessMode === 'TAILSCALE' ||
+    accessMode === 'LOCAL'
+  )
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const id = parseId(getRouterParam(event, 'id'))
@@ -46,34 +55,24 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const mustRunInBrowser =
-      server.requiresClientSideCheck ||
-      server.isPrivateNetwork ||
-      server.accessMode === 'LOCAL' ||
-      server.accessMode === 'TAILSCALE' ||
-      server.defaultTransport === 'BROWSER'
+    const healthUrl = buildServerHealthUrl(server)
+    const runLocation = shouldRunHealthCheckInBrowser(server.accessMode)
+      ? 'browser'
+      : 'server'
 
-    const healthUrl = buildServerHealthUrl(
-      server,
-      mustRunInBrowser ? 'browser' : 'backend',
-    )
-
-    if (mustRunInBrowser) {
+    if (runLocation === 'browser') {
       event.node.res.statusCode = 202
 
       return {
         success: true,
         message:
-          'This server must be tested from the browser because it uses a private, local, or Tailscale connection.',
+          'This server should be tested from the browser because it uses browser, local, or Tailscale access.',
         data: {
           id: server.id,
           title: server.title,
           healthUrl,
           accessMode: server.accessMode,
-          requiresClientSideCheck: server.requiresClientSideCheck,
-          isPrivateNetwork: server.isPrivateNetwork,
-          allowBrowserRequests: server.allowBrowserRequests,
-          runLocation: 'browser',
+          runLocation,
         },
         statusCode: 202,
       }
@@ -83,10 +82,7 @@ export default defineEventHandler(async (event) => {
 
     const response = await fetch(healthUrl, {
       method: 'GET',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'X-Kindrobots-Server-Token': process.env.ART_SERVER_PROXY_TOKEN ?? '',
-      },
+      headers: buildServerAuthHeaders(server),
     })
 
     const responseBody = await readHealthBody(response)
@@ -120,15 +116,12 @@ export default defineEventHandler(async (event) => {
         title: server.title,
         healthUrl,
         accessMode: server.accessMode,
-        requiresClientSideCheck: server.requiresClientSideCheck,
-        isPrivateNetwork: server.isPrivateNetwork,
-        allowBrowserRequests: server.allowBrowserRequests,
         ok: report.ok,
         status: report.status,
         statusText: report.statusText,
         latencyMs: report.latencyMs,
         responseBody: report.responseBody,
-        runLocation: 'server',
+        runLocation,
       },
       statusCode: response.ok ? 200 : 502,
     }

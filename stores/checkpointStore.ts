@@ -12,8 +12,8 @@ import {
   createModelStatusReport,
   findComfyCheckpointFromHistory,
   findComfyCheckpointFromWorkflow,
+  getModelStatusEngine,
   parseA1111GenerationInfo,
-  type A1111OptionsResponse,
   type ModelStatusEngine,
   type ModelStatusReport,
 } from '~/stores/helpers/serverHelper'
@@ -50,8 +50,6 @@ type ModelApiObjectResponse = {
   data?: unknown
   message?: unknown
 }
-
-type ModelApiResponse = string | ModelApiObjectResponse
 
 type RequestServerLike = (
   server: Server,
@@ -128,33 +126,11 @@ function isSuccessNoise(message: unknown): boolean {
   )
 }
 
-function getServerEngine(server: Server | null | undefined): ModelStatusEngine {
-  if (!server) return 'UNKNOWN'
-
-  if (server.generationEngine === 'A1111' || server.serverType === 'A1111') {
-    return 'A1111'
-  }
-
-  if (
-    server.generationEngine === 'COMFY' ||
-    server.serverType === 'COMFY' ||
-    server.supportsComfyWorkflow
-  ) {
-    return 'COMFY'
-  }
-
-  if (server.generationEngine === 'FLUX') return 'FLUX'
-  if (server.generationEngine === 'KONTEXT') return 'KONTEXT'
-
-  return 'UNKNOWN'
-}
-
 function getServerFallbackModel(server: Server | null | undefined): string {
   if (!server) return ''
 
   return (
     cleanName(server.model) ||
-    cleanName(server.workflowVersion) ||
     cleanName(server.label) ||
     cleanName(server.title)
   )
@@ -207,7 +183,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   })
 
   const activeEngine = computed<ModelStatusEngine>(() => {
-    return getServerEngine(serverStore.activeArtServer)
+    return getModelStatusEngine(serverStore.activeArtServer)
   })
 
   const hasModelMismatch = computed(() => {
@@ -317,7 +293,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
         return ''
       }
 
-      if (getServerEngine(server) !== 'A1111') {
+      if (getModelStatusEngine(server) !== 'A1111') {
         const modelName = getServerFallbackModel(server)
 
         currentApiModel.value = modelName
@@ -628,7 +604,7 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
         return report
       }
 
-      const engine = getServerEngine(activeServer)
+      const engine = getModelStatusEngine(activeServer)
 
       if (engine === 'A1111') {
         return await fetchA1111ModelStatus(activeServer)

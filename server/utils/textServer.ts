@@ -2,6 +2,7 @@
 import { createError } from 'h3'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { getServerEndpoint } from './serverResolver'
+import { buildServerAuthHeaders } from './serverApi'
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -31,10 +32,10 @@ export async function createTextCompletion({
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-  }
-
-  if (apiKey) {
-    headers.Authorization = `Bearer ${apiKey}`
+    ...(buildServerAuthHeaders({
+      ...server,
+      apiKey: apiKey || server.apiKey,
+    }) as Record<string, string>),
   }
 
   const response = await fetch(endpoint, {
@@ -51,6 +52,7 @@ export async function createTextCompletion({
 
   if (!response.ok) {
     let details = ''
+
     try {
       const errorData = await response.json()
       details = errorData?.error?.message || JSON.stringify(errorData)

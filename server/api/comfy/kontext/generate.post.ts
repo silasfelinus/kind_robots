@@ -1,10 +1,9 @@
 // /server/api/comfy/kontext/generate.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
-import type { Server } from '~/prisma/generated/prisma/client'
 import { authAndGate } from '../../../utils/comfyGate'
-import prisma from '../../../utils/prisma'
 
 type KontextGenerateRequest = {
   serverId?: number | null
@@ -87,6 +86,14 @@ type DecodedImage = {
 const defaultTimeoutMs = 180_000
 const pollIntervalMs = 1_500
 
+const DEFAULT_KONTEXT_WIDTH = 768
+const DEFAULT_KONTEXT_HEIGHT = 768
+const DEFAULT_KONTEXT_STEPS = 20
+const DEFAULT_KONTEXT_GUIDANCE = 2.5
+const DEFAULT_KONTEXT_SAMPLER = 'res_multistep'
+const DEFAULT_KONTEXT_SCHEDULER = 'sgm_uniform'
+const DEFAULT_KONTEXT_DENOISE = 1
+
 const defaultPrompt =
   'The girl wearing blue cargo pants is sitting on a mossy rock in a sun-dappled forest, carefully sketching a detailed leaf in her notebook.'
 
@@ -102,34 +109,6 @@ export default defineEventHandler(async (event) => {
       serverId: body.serverId ?? null,
     })
 
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
-
     if (!body.imageData?.trim()) {
       throw createError({
         statusCode: 400,
@@ -141,15 +120,10 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       serverId: body.serverId ?? null,
       serverName: body.serverName ?? null,
-      capability: 'art',
+      capability: 'comfy',
     })
 
-    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
-      throw createError({
-        statusCode: 400,
-        message: `Server "${server.title}" is not a Comfy server.`,
-      })
-    }
+    assertComfyServer(server)
 
     const baseUrl = body.apiUrl?.trim()
       ? cleanComfyBaseUrl(body.apiUrl)
@@ -164,14 +138,14 @@ export default defineEventHandler(async (event) => {
     const workflow = buildKontextWorkflow({
       prompt,
       imageName: uploadedImage.name || '',
-      width: body.width ?? server.defaultWidth ?? 768,
-      height: body.height ?? server.defaultHeight ?? 768,
-      steps: body.steps ?? server.defaultSteps ?? 20,
-      guidance: body.guidance ?? 2.5,
+      width: body.width ?? DEFAULT_KONTEXT_WIDTH,
+      height: body.height ?? DEFAULT_KONTEXT_HEIGHT,
+      steps: body.steps ?? DEFAULT_KONTEXT_STEPS,
+      guidance: body.guidance ?? DEFAULT_KONTEXT_GUIDANCE,
       seed: body.seed ?? -1,
-      sampler: body.sampler ?? server.defaultSampler ?? 'res_multistep',
-      scheduler: body.scheduler ?? server.defaultScheduler ?? 'sgm_uniform',
-      denoise: body.denoise ?? 1,
+      sampler: body.sampler ?? DEFAULT_KONTEXT_SAMPLER,
+      scheduler: body.scheduler ?? DEFAULT_KONTEXT_SCHEDULER,
+      denoise: body.denoise ?? DEFAULT_KONTEXT_DENOISE,
       detailAmount: body.detailAmount ?? 0.06,
       detailStart: body.detailStart ?? 0.3,
       detailEnd: body.detailEnd ?? 0.7,
@@ -217,7 +191,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const imageData = await fetchComfyImageAsDataUrl(baseUrl, imageOutput)
-
     const { balance } = await gate.commit(`kontext:${promptResponse.prompt_id}`)
 
     return {
@@ -234,7 +207,10 @@ export default defineEventHandler(async (event) => {
         serverId: server.id,
         serverName: server.title,
         baseUrl,
-        mana: { balance, charged: gate.cost },
+        mana: {
+          balance,
+          charged: gate.cost,
+        },
       },
     }
   } catch (error: unknown) {
@@ -569,8 +545,24 @@ function getImageExtension(mimeType: string): string {
   return 'png'
 }
 
+function assertComfyServer(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'COMFY') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports Comfy servers.`,
+    })
+  }
+}
+
 function getComfyBaseUrl(server: Server): string {
-  return cleanComfyBaseUrl(getServerEndpoint(server, 'backend'))
+  return cleanComfyBaseUrl(getServerEndpoint(server))
 }
 
 function cleanComfyBaseUrl(url: string): string {

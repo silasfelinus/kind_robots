@@ -53,20 +53,6 @@ export const ResourceType = {
 export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
 
 
-export const SupportedServer = {
-  SD15: 'SD15',
-  SDXL: 'SDXL',
-  COMFY: 'COMFY',
-  FLUX: 'FLUX',
-  KONTEXT: 'KONTEXT',
-  GENERIC: 'GENERIC',
-  UNKNOWN: 'UNKNOWN',
-  OPENAI: 'OPENAI'
-} as const
-
-export type SupportedServer = (typeof SupportedServer)[keyof typeof SupportedServer]
-
-
 export const RewardType = {
   SKILL: 'SKILL',
   ITEM: 'ITEM',
@@ -89,38 +75,6 @@ export const Rarity = {
 } as const
 
 export type Rarity = (typeof Rarity)[keyof typeof Rarity]
-
-
-export const ServerAccessMode = {
-  LOCAL: 'LOCAL',
-  TAILSCALE: 'TAILSCALE',
-  PUBLIC_PROTECTED: 'PUBLIC_PROTECTED',
-  PUBLIC_API_KEY: 'PUBLIC_API_KEY',
-  PUBLIC_OIDC: 'PUBLIC_OIDC',
-  PUBLIC_UNPROTECTED: 'PUBLIC_UNPROTECTED'
-} as const
-
-export type ServerAccessMode = (typeof ServerAccessMode)[keyof typeof ServerAccessMode]
-
-
-export const ServerGenerationEngine = {
-  A1111: 'A1111',
-  COMFY: 'COMFY',
-  FLUX: 'FLUX',
-  KONTEXT: 'KONTEXT',
-  OPENAI_IMAGE: 'OPENAI_IMAGE',
-  OTHER: 'OTHER'
-} as const
-
-export type ServerGenerationEngine = (typeof ServerGenerationEngine)[keyof typeof ServerGenerationEngine]
-
-
-export const ServerTransport = {
-  BROWSER: 'BROWSER',
-  BACKEND: 'BACKEND'
-} as const
-
-export type ServerTransport = (typeof ServerTransport)[keyof typeof ServerTransport]
 
 
 export const ReactionType = {
@@ -188,19 +142,60 @@ export const PitchType = {
 export type PitchType = (typeof PitchType)[keyof typeof PitchType]
 
 
+export const Reaction_reactionCategory = {
+  ART_IMAGE: 'ART_IMAGE',
+  ART_COLLECTION: 'ART_COLLECTION',
+  BOT: 'BOT',
+  BUTTERFLY: 'BUTTERFLY',
+  CHARACTER: 'CHARACTER',
+  CHAT_EXCHANGE: 'CHAT_EXCHANGE',
+  COMPONENT: 'COMPONENT',
+  COMPOSITION: 'COMPOSITION',
+  DREAM: 'DREAM',
+  MESSAGE: 'MESSAGE',
+  PITCH: 'PITCH',
+  POST: 'POST',
+  PROMPT: 'PROMPT',
+  RESOURCE: 'RESOURCE',
+  REWARD: 'REWARD',
+  SCENARIO: 'SCENARIO',
+  THEME: 'THEME'
+} as const
+
+export type Reaction_reactionCategory = (typeof Reaction_reactionCategory)[keyof typeof Reaction_reactionCategory]
+
+
 export const ServerType = {
-  ART: 'ART',
-  TEXT: 'TEXT',
-  COMFY: 'COMFY',
   A1111: 'A1111',
-  OPENAI_COMPATIBLE: 'OPENAI_COMPATIBLE',
-  OTHER: 'OTHER',
-  OLLAMA: 'OLLAMA',
+  COMFY: 'COMFY',
   OPENAI: 'OPENAI',
-  ANTHROPIC: 'ANTHROPIC'
+  ANTHROPIC: 'ANTHROPIC',
+  CUSTOM: 'CUSTOM'
 } as const
 
 export type ServerType = (typeof ServerType)[keyof typeof ServerType]
+
+
+export const ServerAccessMode = {
+  BROWSER: 'BROWSER',
+  BACKEND: 'BACKEND',
+  TAILSCALE: 'TAILSCALE',
+  PUBLIC: 'PUBLIC',
+  LOCAL: 'LOCAL'
+} as const
+
+export type ServerAccessMode = (typeof ServerAccessMode)[keyof typeof ServerAccessMode]
+
+
+export const ServerAuthType = {
+  NONE: 'NONE',
+  BEARER: 'BEARER',
+  HEADER: 'HEADER',
+  QUERY: 'QUERY',
+  API_KEY: 'API_KEY'
+} as const
+
+export type ServerAuthType = (typeof ServerAuthType)[keyof typeof ServerAuthType]
 
 
 export const ServerStatus = {
@@ -224,24 +219,15 @@ export const CreationSource = {
 export type CreationSource = (typeof CreationSource)[keyof typeof CreationSource]
 
 
-export const Reaction_reactionCategory = {
-  ART_IMAGE: 'ART_IMAGE',
-  ART_COLLECTION: 'ART_COLLECTION',
-  BOT: 'BOT',
-  BUTTERFLY: 'BUTTERFLY',
-  CHARACTER: 'CHARACTER',
-  CHAT_EXCHANGE: 'CHAT_EXCHANGE',
-  COMPONENT: 'COMPONENT',
-  COMPOSITION: 'COMPOSITION',
-  DREAM: 'DREAM',
-  MESSAGE: 'MESSAGE',
-  PITCH: 'PITCH',
-  POST: 'POST',
-  PROMPT: 'PROMPT',
-  RESOURCE: 'RESOURCE',
-  REWARD: 'REWARD',
-  SCENARIO: 'SCENARIO',
-  THEME: 'THEME'
+export const SupportedServer = {
+  SD15: 'SD15',
+  SDXL: 'SDXL',
+  COMFY: 'COMFY',
+  FLUX: 'FLUX',
+  KONTEXT: 'KONTEXT',
+  GENERIC: 'GENERIC',
+  UNKNOWN: 'UNKNOWN',
+  OPENAI: 'OPENAI'
 } as const
 
-export type Reaction_reactionCategory = (typeof Reaction_reactionCategory)[keyof typeof Reaction_reactionCategory]
+export type SupportedServer = (typeof SupportedServer)[keyof typeof SupportedServer]

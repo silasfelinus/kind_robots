@@ -401,7 +401,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
 
           logLoaderEffect('legacy:start', { amount })
 
-          triggerLoaderButterflyExit(1800)
+          triggerLoaderButterflyExit(5000)
 
           return
         }

@@ -818,19 +818,19 @@ async function saveLocalServer() {
     const label = newLocal.label || defaultLocalLabel(newLocal.serverType)
     const baseUrl = cleanUrl(newLocal.baseUrl)
 
-    const result = await createServer({
+    const result = await serverStore.addServer({
       title: label,
       label,
       description: `Private ${label} endpoint.`,
       category: categoryForServerType(newLocal.serverType),
-      serverType: serverTypeForLocal(newLocal.serverType),
+      serverType: newLocal.serverType,
       accessMode: newLocal.accessMode,
       authType: 'NONE',
       baseUrl,
       endpointPath: defaultEndpointPath(newLocal.serverType),
       healthPath: defaultHealthPath(newLocal.serverType),
       apiLink: baseUrl,
-      model: modelForLocal(newLocal.serverType),
+      model: newLocal.serverType === 'OLLAMA' ? 'ollama' : '',
       isActive: true,
       isPublic: false,
       isOfficial: false,
@@ -843,7 +843,7 @@ async function saveLocalServer() {
     }
 
     cancelAddLocal()
-    await refreshServers()
+    await serverStore.fetchAllServers(true)
     setStatus(`${label} saved.`)
   } catch (error) {
     setStatus(

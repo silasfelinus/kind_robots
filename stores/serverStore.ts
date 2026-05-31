@@ -110,6 +110,60 @@ function parseHiddenServerIds(value: unknown): number[] {
   }
 }
 
+function getServerCategory(server: Server): string {
+  return String(server.category || '').toLowerCase()
+}
+
+function isImageEndpoint(server: Server): boolean {
+  return String(server.endpointPath || '')
+    .toLowerCase()
+    .includes('image')
+}
+
+function isImageModel(server: Server): boolean {
+  const model = String(server.model || '').toLowerCase()
+
+  return (
+    model.includes('image') ||
+    model.includes('dall') ||
+    model.includes('gpt-image')
+  )
+}
+
+function isArtCompatibleServer(server: Server): boolean {
+  const category = getServerCategory(server)
+
+  return (
+    server.serverType === 'A1111' ||
+    server.serverType === 'COMFY' ||
+    category === 'art' ||
+    category === 'image' ||
+    isImageEndpoint(server) ||
+    isImageModel(server)
+  )
+}
+
+function isTextCompatibleServer(server: Server): boolean {
+  const category = getServerCategory(server)
+
+  if (category === 'art' || category === 'image') {
+    return false
+  }
+
+  if (isImageEndpoint(server) || isImageModel(server)) {
+    return false
+  }
+
+  return (
+    server.serverType === 'OPENAI' ||
+    server.serverType === 'ANTHROPIC' ||
+    server.serverType === 'OLLAMA' ||
+    server.serverType === 'CUSTOM' ||
+    category === 'text' ||
+    category === 'chat'
+  )
+}
+
 function stringifyHiddenServerIds(ids: number[]): string {
   return JSON.stringify([...new Set(ids.filter((id) => Number.isInteger(id)))])
 }

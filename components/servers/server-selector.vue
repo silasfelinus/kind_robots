@@ -112,10 +112,16 @@
                 <div>
                   <p class="font-black">OpenAI</p>
                   <p class="text-xs text-base-content/60">
-                    {{ openAiTextServer ? 'Text saved' : 'No text key saved' }}
+                    {{
+                      serverHasKey(openAiTextServer)
+                        ? 'Text saved'
+                        : 'No text key saved'
+                    }}
                     ·
                     {{
-                      openAiArtServer ? 'Images saved' : 'No image key saved'
+                      serverHasKey(openAiArtServer)
+                        ? 'Images saved'
+                        : 'No image key saved'
                     }}
                   </p>
                 </div>
@@ -123,20 +129,31 @@
                 <span
                   class="badge"
                   :class="
-                    openAiTextServer || openAiArtServer
+                    serverHasKey(openAiTextServer) ||
+                    serverHasKey(openAiArtServer)
                       ? 'badge-success'
                       : 'badge-ghost'
                   "
                 >
-                  {{ openAiTextServer || openAiArtServer ? 'saved' : 'empty' }}
+                  {{
+                    serverHasKey(openAiTextServer) ||
+                    serverHasKey(openAiArtServer)
+                      ? 'saved'
+                      : 'empty'
+                  }}
                 </span>
               </div>
 
-              <div class="mt-3 flex flex-col gap-2 sm:flex-row">
+              <form
+                class="mt-3 flex flex-col gap-2 sm:flex-row"
+                @submit.prevent="saveOpenAi"
+              >
                 <input
                   v-model.trim="openAiKey"
                   class="input input-bordered min-w-0 flex-1 rounded-xl"
                   type="password"
+                  name="openai-api-key"
+                  autocomplete="new-password"
                   :placeholder="
                     openAiTextServer || openAiArtServer
                       ? '••••••••••••••••'
@@ -146,13 +163,12 @@
 
                 <button
                   class="btn btn-primary rounded-xl"
-                  type="button"
+                  type="submit"
                   :disabled="isSaving || !openAiKey"
-                  @click="saveOpenAi"
                 >
                   Save
                 </button>
-              </div>
+              </form>
             </article>
 
             <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
@@ -160,23 +176,36 @@
                 <div>
                   <p class="font-black">Anthropic</p>
                   <p class="text-xs text-base-content/60">
-                    {{ anthropicServer ? 'Key saved' : 'No key saved' }}
+                    {{
+                      serverHasKey(anthropicServer)
+                        ? 'Key saved'
+                        : 'No key saved'
+                    }}
                   </p>
                 </div>
 
                 <span
                   class="badge"
-                  :class="anthropicServer ? 'badge-success' : 'badge-ghost'"
+                  :class="
+                    serverHasKey(anthropicServer)
+                      ? 'badge-success'
+                      : 'badge-ghost'
+                  "
                 >
-                  {{ anthropicServer ? 'saved' : 'empty' }}
+                  {{ serverHasKey(anthropicServer) ? 'saved' : 'empty' }}
                 </span>
               </div>
 
-              <div class="mt-3 flex flex-col gap-2 sm:flex-row">
+              <form
+                class="mt-3 flex flex-col gap-2 sm:flex-row"
+                @submit.prevent="saveAnthropic"
+              >
                 <input
                   v-model.trim="anthropicKey"
                   class="input input-bordered min-w-0 flex-1 rounded-xl"
                   type="password"
+                  name="anthropic-api-key"
+                  autocomplete="new-password"
                   :placeholder="
                     anthropicServer ? '••••••••••••••••' : 'Anthropic API key'
                   "
@@ -184,13 +213,12 @@
 
                 <button
                   class="btn btn-primary rounded-xl"
-                  type="button"
+                  type="submit"
                   :disabled="isSaving || !anthropicKey"
-                  @click="saveAnthropic"
                 >
                   Save
                 </button>
-              </div>
+              </form>
             </article>
 
             <article
@@ -423,7 +451,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useServerStore } from '@/stores/serverStore'
 import type { Server } from '~/prisma/generated/prisma/client'
 
@@ -464,22 +492,6 @@ const editingServerId = ref<number | null>(null)
 const isSaving = ref(false)
 const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
-
-function serverTypeForLocal(serverType: LocalServerType): Server['serverType'] {
-  if (serverType === 'OLLAMA') {
-    return 'CUSTOM'
-  }
-
-  return serverType
-}
-
-function modelForLocal(serverType: LocalServerType) {
-  if (serverType === 'OLLAMA') {
-    return 'ollama'
-  }
-
-  return ''
-}
 
 const newLocal = reactive<LocalServerDraft>({
   serverType: 'COMFY',
@@ -548,7 +560,11 @@ const localServers = computed(() => {
 const artServers = computed(() => serverStore.artServers)
 const textServers = computed(() => serverStore.textServers)
 
-function openSelector() {
+async function openSelector() {
+  if (!serverStore.hasLoaded || !serverStore.servers.length) {
+    await serverStore.fetchAllServers(true)
+  }
+
   selectedArtServerId.value = serverStore.activeArtServer?.id ?? null
   selectedTextServerId.value = serverStore.activeTextServer?.id ?? null
   selectorDialog.value?.showModal()
@@ -758,6 +774,16 @@ async function saveOpenAi() {
   }
 }
 
+function serverHasKey(server: Server | undefined) {
+  if (!server) {
+    return false
+  }
+
+  const maybeServer = server as Server & { hasApiKey?: boolean }
+
+  return Boolean(maybeServer.hasApiKey || server.apiKey)
+}
+
 async function saveAnthropic() {
   if (!anthropicKey.value) {
     setStatus('Anthropic key required.', 'error')
@@ -824,13 +850,13 @@ async function saveLocalServer() {
       description: `Private ${label} endpoint.`,
       category: categoryForServerType(newLocal.serverType),
       serverType: newLocal.serverType,
+      model: newLocal.serverType === 'OLLAMA' ? 'ollama' : '',
       accessMode: newLocal.accessMode,
       authType: 'NONE',
       baseUrl,
       endpointPath: defaultEndpointPath(newLocal.serverType),
       healthPath: defaultHealthPath(newLocal.serverType),
       apiLink: baseUrl,
-      model: newLocal.serverType === 'OLLAMA' ? 'ollama' : '',
       isActive: true,
       isPublic: false,
       isOfficial: false,
@@ -950,4 +976,17 @@ async function deleteEditedServer() {
     isSaving.value = false
   }
 }
+
+onMounted(async () => {
+  await serverStore.initialize({
+    fetchRemote: true,
+  })
+
+  if (!serverStore.servers.length) {
+    await serverStore.fetchAllServers(true)
+  }
+
+  selectedArtServerId.value = serverStore.activeArtServer?.id ?? null
+  selectedTextServerId.value = serverStore.activeTextServer?.id ?? null
+})
 </script>

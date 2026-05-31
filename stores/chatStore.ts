@@ -130,14 +130,13 @@ export const useChatStore = defineStore('chatStore', () => {
     const isLocal =
       (server as { accessMode?: string } | null)?.accessMode === 'LOCAL'
 
-    // Server flagged to run in-browser / on the user's own infra.
-    const isOwnServer = Boolean(
-      isLocal ||
-      (server as { isPrivateNetwork?: boolean } | null)?.isPrivateNetwork,
-    )
+    const requiresBrowserLikeAccess =
+      server?.accessMode === 'BROWSER' ||
+      server?.accessMode === 'LOCAL' ||
+      server?.accessMode === 'TAILSCALE'
 
     // BYO when they bring a key, OR the selected server is their own/local.
-    const useOwnResource = Boolean(ownKey) || isOwnServer
+    const useOwnResource = Boolean(ownKey) || requiresBrowserLikeAccess
 
     return {
       useOwnResource,

@@ -12,7 +12,9 @@ export function str(value: unknown, fallback = ''): string {
   return fallback
 }
 
-export function deriveSuggestProvider(server?: SuggestServerSnapshot): SuggestProvider {
+export function deriveSuggestProvider(
+  server?: SuggestServerSnapshot,
+): SuggestProvider {
   if (!server?.baseUrl && !server?.serverType) return 'anthropic'
 
   const url = str(server.baseUrl).toLowerCase()
@@ -28,14 +30,17 @@ export function deriveSuggestProvider(server?: SuggestServerSnapshot): SuggestPr
     return 'ollama'
   }
 
-  if (type === 'OPENAI_COMPATIBLE' || type === 'TEXT') {
+  if (type === 'OPENAI' || type === 'CUSTOM') {
     return 'openai_compatible'
   }
 
   return 'anthropic'
 }
 
-export function resolveSuggestModel(provider: SuggestProvider, serverModel?: string | null): string {
+export function resolveSuggestModel(
+  provider: SuggestProvider,
+  serverModel?: string | null,
+): string {
   if (serverModel?.trim()) return serverModel.trim()
 
   switch (provider) {
@@ -102,7 +107,10 @@ async function callOpenAI(
     })
   }
 
-  const baseUrl = (options.baseUrl || 'https://api.openai.com').replace(/\/$/, '')
+  const baseUrl = (options.baseUrl || 'https://api.openai.com').replace(
+    /\/$/,
+    '',
+  )
   const endpointPath = options.endpointPath || '/v1/chat/completions'
 
   const response = await fetch(`${baseUrl}${endpointPath}`, {
@@ -141,7 +149,10 @@ async function callOllama(
   userPrompt: string,
   options: SuggestProviderOptions,
 ): Promise<string> {
-  const baseUrl = (options.baseUrl || 'http://localhost:11434').replace(/\/$/, '')
+  const baseUrl = (options.baseUrl || 'http://localhost:11434').replace(
+    /\/$/,
+    '',
+  )
 
   const response = await fetch(`${baseUrl}/api/chat`, {
     method: 'POST',
@@ -179,7 +190,10 @@ export async function callSuggestProvider(
     return callOllama(systemPrompt, userPrompt, options)
   }
 
-  if (options.provider === 'openai' || options.provider === 'openai_compatible') {
+  if (
+    options.provider === 'openai' ||
+    options.provider === 'openai_compatible'
+  ) {
     return callOpenAI(systemPrompt, userPrompt, options)
   }
 

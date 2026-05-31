@@ -1,7 +1,9 @@
 // /server/api/art/sd/currentModel.get.ts
-import { defineEventHandler, getQuery } from 'h3'
+import { createError, defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { getServerEndpoint } from '@/server/utils/serverResolver'
+import type { Server } from '~/prisma/generated/prisma/client'
 
 type SDOptionsResponse = {
   sd_model_checkpoint?: string
@@ -14,34 +16,89 @@ function joinUrl(baseUrl: string, path: string) {
   return `${cleanBase}${cleanPath}`
 }
 
-function buildServerHeaders(server: {
-  requiresApiKey?: boolean | null
-  apiKey?: string | null
-  apiKeyName?: string | null
-}) {
+function buildServerHeaders(server: Server): HeadersInit {
   const headers: Record<string, string> = {
     Accept: 'application/json',
   }
 
-  const serverToken = process.env.KINDROBOTS_SERVER_TOKEN
+  const proxyToken =
+    process.env.ART_SERVER_PROXY_TOKEN ||
+    process.env.KINDROBOTS_SERVER_TOKEN ||
+    ''
 
-  if (serverToken) {
-    headers['X-Kindrobots-Server-Token'] = serverToken
+  if (proxyToken) {
+    headers['X-Kindrobots-Server-Token'] = proxyToken
   }
 
-  if (server.requiresApiKey && server.apiKey && server.apiKeyName) {
-    const apiKeyName = server.apiKeyName.trim()
+  const serverToken = server.apiKey?.trim()
+
+  if (!serverToken || server.authType === 'NONE') {
+    return headers
+  }
+
+  if (server.authType === 'BEARER') {
+    headers.Authorization = serverToken.startsWith('Bearer ')
+      ? serverToken
+      : `Bearer ${serverToken}`
+
+    return headers
+  }
+
+  if (server.authType === 'HEADER' || server.authType === 'API_KEY') {
+    const apiKeyName = server.apiKeyName?.trim() || 'X-API-Key'
 
     if (apiKeyName.toLowerCase() === 'authorization') {
-      headers.Authorization = server.apiKey.startsWith('Bearer ')
-        ? server.apiKey
-        : `Bearer ${server.apiKey}`
+      headers.Authorization = serverToken.startsWith('Bearer ')
+        ? serverToken
+        : `Bearer ${serverToken}`
     } else {
-      headers[apiKeyName] = server.apiKey
+      headers[apiKeyName] = serverToken
     }
   }
 
   return headers
+}
+
+function assertA1111Server(server: Server): void {
+  if (!server.isActive) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is not active.`,
+    })
+  }
+
+  if (server.serverType !== 'A1111') {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is ${server.serverType}. This route only supports A1111 servers.`,
+    })
+  }
+
+  if (!server.baseUrl) {
+    throw createError({
+      statusCode: 400,
+      message: `Server "${server.title}" is missing baseUrl.`,
+    })
+  }
+}
+
+function getA1111OptionsUrl(server: Server): string {
+  const endpoint = getServerEndpoint(server)
+  const cleanEndpoint = endpoint.replace(/\/+$/, '')
+
+  if (cleanEndpoint.endsWith('/sdapi/v1/txt2img')) {
+    return cleanEndpoint.replace(/\/txt2img$/, '/options')
+  }
+
+  if (cleanEndpoint.endsWith('/sdapi/v1')) {
+    return `${cleanEndpoint}/options`
+  }
+
+  if (cleanEndpoint.endsWith('/sdapi')) {
+    return `${cleanEndpoint}/v1/options`
+  }
+
+  return joinUrl(server.baseUrl || '', '/sdapi/v1/options')
 }
 
 export default defineEventHandler(async (event) => {
@@ -52,7 +109,9 @@ export default defineEventHandler(async (event) => {
     const server =
       Number.isInteger(serverId) && serverId > 0
         ? await prisma.server.findUnique({
-            where: { id: serverId },
+            where: {
+              id: serverId,
+            },
           })
         : await prisma.server.findFirst({
             where: {
@@ -60,10 +119,10 @@ export default defineEventHandler(async (event) => {
               isActive: true,
               isDefault: true,
             },
-            orderBy: { id: 'asc' },
+            orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
           })
 
-    if (!server?.baseUrl) {
+    if (!server) {
       return {
         success: false,
         data: null,
@@ -71,7 +130,9 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const url = joinUrl(server.baseUrl, '/sdapi/v1/options')
+    assertA1111Server(server)
+
+    const url = getA1111OptionsUrl(server)
 
     const res = await $fetch<SDOptionsResponse>(url, {
       method: 'GET',

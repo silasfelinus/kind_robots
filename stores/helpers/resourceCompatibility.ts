@@ -10,6 +10,13 @@ function normalize(value: unknown): string {
   return typeof value === 'string' ? value.trim().toUpperCase() : ''
 }
 
+export type ResourceServerLink = {
+  serverId?: number | null
+  serverType?: string | null
+  serverName?: string | null
+  model?: string | null
+}
+
 export function isResourceCompatibleWithServer(
   resource: ResourceLike | null | undefined,
   server: Server | null | undefined,

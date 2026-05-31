@@ -86,34 +86,6 @@ export default defineEventHandler(async (event) => {
       serverId: body.serverId ?? null,
     })
 
-    const authorizationHeader = event.node.req.headers.authorization
-
-    if (!authorizationHeader?.startsWith('Bearer ')) {
-      throw createError({
-        statusCode: 401,
-        message:
-          'Authorization token is required in the format "Bearer <token>".',
-      })
-    }
-
-    const token = authorizationHeader.split(' ')[1] ?? ''
-
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey: token,
-      },
-      select: {
-        id: true,
-      },
-    })
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid or expired authorization token.',
-      })
-    }
-
     if (body.includeAudio) {
       throw createError({
         statusCode: 400,
@@ -129,12 +101,7 @@ export default defineEventHandler(async (event) => {
       capability: 'comfy',
     })
 
-    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
-      throw createError({
-        statusCode: 400,
-        message: `Server "${server.title}" is not a Comfy server.`,
-      })
-    }
+    assertComfyServer(server)
 
     const baseUrl = body.apiUrl?.trim()
       ? cleanComfyBaseUrl(body.apiUrl)
@@ -496,7 +463,6 @@ function buildLtxTextToVideoWorkflow(input: {
     },
   }
 }
-
 
 function assertComfyServer(server: Server): void {
   if (!server.isActive) {

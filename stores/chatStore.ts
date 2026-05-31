@@ -89,6 +89,7 @@ export const useChatStore = defineStore('chatStore', () => {
     temperature?: number
     maxTokens?: number
     serverId?: number | null
+    serverName?: string | null
     messages?: BotCafeMessage[]
     stream?: boolean
     // BYO-key / local-server billing. Leave undefined to auto-detect from the

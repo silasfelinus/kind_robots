@@ -42,6 +42,24 @@ function shouldRunHealthCheckInBrowser(accessMode: string): boolean {
   )
 }
 
+function isPrivateNetworkUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    const hostname = parsed.hostname.toLowerCase()
+
+    return (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('192.168.') ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname) ||
+      hostname.endsWith('.local')
+    )
+  } catch {
+    return false
+  }
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const id = parseId(getRouterParam(event, 'id'))
@@ -73,6 +91,9 @@ export default defineEventHandler(async (event) => {
           healthUrl,
           accessMode: server.accessMode,
           runLocation,
+          requiresClientSideCheck: true,
+          isPrivateNetwork: isPrivateNetworkUrl(healthUrl),
+          allowBrowserRequests: true,
         },
         statusCode: 202,
       }

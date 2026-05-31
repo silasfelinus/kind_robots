@@ -170,6 +170,7 @@ export const ServerType = {
   COMFY: 'COMFY',
   OPENAI: 'OPENAI',
   ANTHROPIC: 'ANTHROPIC',
+  OLLAMA: 'OLLAMA',
   CUSTOM: 'CUSTOM'
 } as const
 

@@ -132,12 +132,7 @@ export default defineEventHandler(async (event) => {
       capability: 'comfy',
     })
 
-    if (server.serverType !== 'COMFY' && server.generationEngine !== 'COMFY') {
-      throw createError({
-        statusCode: 400,
-        message: `Server "${server.title}" is not a Comfy server.`,
-      })
-    }
+    assertComfyServer(server)
 
     const baseUrl = body.apiUrl?.trim()
       ? cleanComfyBaseUrl(body.apiUrl)
@@ -408,7 +403,6 @@ function buildCharacterSheetWorkflow(input: {
     },
   }
 }
-
 
 function assertComfyServer(server: Server): void {
   if (!server.isActive) {

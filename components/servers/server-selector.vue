@@ -11,18 +11,23 @@
     </button>
 
     <dialog ref="selectorDialog" class="modal">
-      <div class="modal-box flex max-h-[90vh] w-11/12 max-w-5xl flex-col gap-4 rounded-2xl border border-base-300 bg-base-100">
+      <div
+        class="modal-box flex max-h-[90vh] w-11/12 max-w-5xl flex-col gap-4 rounded-2xl border border-base-300 bg-base-100"
+      >
         <header class="flex items-start justify-between gap-3">
           <div>
-            <h2 class="text-xl font-black text-primary">
-              Server Selector
-            </h2>
+            <h2 class="text-xl font-black text-primary">Server Selector</h2>
             <p class="text-sm text-base-content/60">
-              Choose a configured access point, or leave generation to the mana-backed endpoint.
+              Choose a configured access point, or leave generation to the
+              mana-backed endpoint.
             </p>
           </div>
 
-          <button class="btn btn-sm btn-ghost rounded-xl" type="button" @click="closeSelector">
+          <button
+            class="btn btn-sm btn-ghost rounded-xl"
+            type="button"
+            @click="closeSelector"
+          >
             <Icon name="kind-icon:x" class="h-4 w-4" />
           </button>
         </header>
@@ -31,7 +36,10 @@
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <h3 class="mb-2 font-black text-primary">Art</h3>
 
-            <select v-model.number="selectedArtServerId" class="select select-bordered w-full rounded-xl">
+            <select
+              v-model.number="selectedArtServerId"
+              class="select select-bordered w-full rounded-xl"
+            >
               <option :value="null">Use system / mana route</option>
               <option
                 v-for="server in artServers"
@@ -42,7 +50,11 @@
               </option>
             </select>
 
-            <button class="btn btn-primary mt-3 w-full rounded-xl" type="button" @click="applyArtServer">
+            <button
+              class="btn btn-primary mt-3 w-full rounded-xl"
+              type="button"
+              @click="applyArtServer"
+            >
               Save Art Server
             </button>
           </section>
@@ -50,7 +62,10 @@
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
             <h3 class="mb-2 font-black text-secondary">Text</h3>
 
-            <select v-model.number="selectedTextServerId" class="select select-bordered w-full rounded-xl">
+            <select
+              v-model.number="selectedTextServerId"
+              class="select select-bordered w-full rounded-xl"
+            >
               <option :value="null">Use system / mana route</option>
               <option
                 v-for="server in textServers"
@@ -61,7 +76,11 @@
               </option>
             </select>
 
-            <button class="btn btn-secondary mt-3 w-full rounded-xl" type="button" @click="applyTextServer">
+            <button
+              class="btn btn-secondary mt-3 w-full rounded-xl"
+              type="button"
+              @click="applyTextServer"
+            >
               Save Text Server
             </button>
           </section>
@@ -96,14 +115,20 @@ const selectedTextServerId = ref<number | null>(null)
 const artServers = computed(() => {
   const servers = Array.isArray(serverStore.servers) ? serverStore.servers : []
   return servers.filter((server) => {
-    return server.isActive && (server.serverType === 'A1111' || server.serverType === 'COMFY')
+    return (
+      server.isActive &&
+      (server.serverType === 'A1111' || server.serverType === 'COMFY')
+    )
   })
 })
 
 const textServers = computed(() => {
   const servers = Array.isArray(serverStore.servers) ? serverStore.servers : []
   return servers.filter((server) => {
-    return server.isActive && ['OPENAI', 'ANTHROPIC', 'CUSTOM'].includes(server.serverType)
+    return (
+      server.isActive &&
+      ['OPENAI', 'ANTHROPIC', 'CUSTOM'].includes(server.serverType)
+    )
   })
 })
 
@@ -118,25 +143,31 @@ function closeSelector() {
 }
 
 function applyArtServer() {
-  serverStore.setActiveArtServer?.(selectedArtServerId.value)
+  void serverStore.setActiveArtServer?.(selectedArtServerId.value)
+
   const server = selectedArtServerId.value
     ? serverStore.getServerById?.(selectedArtServerId.value)
     : null
 
   if (server) {
-    serverStore.setCurrentServer?.(server)
+    serverStore.setCurrentServer?.(server.id)
   }
+
+  closeSelector()
 }
 
 function applyTextServer() {
-  serverStore.setActiveTextServer?.(selectedTextServerId.value)
+  void serverStore.setActiveTextServer?.(selectedTextServerId.value)
+
   const server = selectedTextServerId.value
     ? serverStore.getServerById?.(selectedTextServerId.value)
     : null
 
   if (server) {
-    serverStore.setCurrentServer?.(server)
+    serverStore.setCurrentServer?.(server.id)
   }
+
+  closeSelector()
 }
 
 onMounted(async () => {

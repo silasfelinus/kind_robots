@@ -2,7 +2,9 @@
 <template>
   <article
     class="flex flex-col gap-3 rounded-2xl border bg-base-100 p-4 shadow-sm transition"
-    :class="activeSelected ? 'border-primary shadow-primary/20' : 'border-base-300'"
+    :class="
+      activeSelected ? 'border-primary shadow-primary/20' : 'border-base-300'
+    "
   >
     <header class="flex items-start justify-between gap-3">
       <div class="min-w-0">
@@ -16,27 +18,50 @@
           </span>
         </div>
 
-        <p v-if="showDescription && server.description" class="mt-1 line-clamp-2 text-sm text-base-content/60">
+        <p
+          v-if="showDescription && server.description"
+          class="mt-1 line-clamp-2 text-sm text-base-content/60"
+        >
           {{ server.description }}
         </p>
       </div>
 
       <div v-if="showActions" class="flex shrink-0 gap-1">
-        <button class="btn btn-xs btn-ghost rounded-xl" type="button" title="Select" @click="selectServer">
+        <button
+          class="btn btn-xs btn-ghost rounded-xl"
+          type="button"
+          title="Select"
+          @click="selectServer"
+        >
           <Icon name="kind-icon:cursor-click" class="h-4 w-4" />
         </button>
 
-        <button v-if="allowEdit" class="btn btn-xs btn-ghost rounded-xl" type="button" title="Edit" @click="editServer">
+        <button
+          v-if="allowEdit"
+          class="btn btn-xs btn-ghost rounded-xl"
+          type="button"
+          title="Edit"
+          @click="editServer"
+        >
           <Icon name="kind-icon:pencil" class="h-4 w-4" />
         </button>
 
-        <button v-if="allowTest" class="btn btn-xs btn-ghost rounded-xl" type="button" title="Test health" @click="testServer">
+        <button
+          v-if="allowTest"
+          class="btn btn-xs btn-ghost rounded-xl"
+          type="button"
+          title="Test health"
+          @click="testServer"
+        >
           <Icon name="kind-icon:activity" class="h-4 w-4" />
         </button>
       </div>
     </header>
 
-    <section class="grid gap-2 text-sm" :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2'">
+    <section
+      class="grid gap-2 text-sm"
+      :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2'"
+    >
       <div class="rounded-xl bg-base-200 p-3">
         <p class="text-xs font-black uppercase text-base-content/50">Type</p>
         <p class="font-bold">{{ server.serverType }}</p>
@@ -54,11 +79,22 @@
 
       <div class="rounded-xl bg-base-200 p-3">
         <p class="text-xs font-black uppercase text-base-content/50">Owner</p>
-        <p class="font-bold">{{ server.isOfficial ? 'Official' : server.isPublic ? 'Public' : 'Private' }}</p>
+        <p class="font-bold">
+          {{
+            server.isOfficial
+              ? 'Official'
+              : server.isPublic
+                ? 'Public'
+                : 'Private'
+          }}
+        </p>
       </div>
     </section>
 
-    <section v-if="showMeta" class="flex flex-col gap-2 rounded-xl bg-base-200 p-3 text-xs">
+    <section
+      v-if="showMeta"
+      class="flex flex-col gap-2 rounded-xl bg-base-200 p-3 text-xs"
+    >
       <p class="break-all">
         <span class="font-black text-base-content/50">Base:</span>
         {{ server.baseUrl || 'n/a' }}
@@ -141,7 +177,9 @@ const props = withDefaults(
 const serverStore = useServerStore()
 
 const serverTitle = computed(() => {
-  return props.server.label || props.server.title || `Server #${props.server.id}`
+  return (
+    props.server.label || props.server.title || `Server #${props.server.id}`
+  )
 })
 
 const activeSelected = computed(() => {
@@ -154,7 +192,9 @@ const activeSelected = computed(() => {
 })
 
 const isArtServer = computed(() => {
-  return props.server.serverType === 'A1111' || props.server.serverType === 'COMFY'
+  return (
+    props.server.serverType === 'A1111' || props.server.serverType === 'COMFY'
+  )
 })
 
 const isTextServer = computed(() => {
@@ -181,12 +221,12 @@ const statusBadgeClass = computed(() => {
 })
 
 function selectServer() {
-  serverStore.setCurrentServer?.(props.server)
+  serverStore.setCurrentServer?.(props.server.id)
 }
 
 function editServer() {
-  serverStore.setCurrentServer?.(props.server)
-  serverStore.startEditingServer?.(props.server)
+  serverStore.setCurrentServer?.(props.server.id)
+  serverStore.startEditingServer?.(props.server.id)
   serverStore.openServerForm?.()
 }
 
@@ -196,12 +236,12 @@ async function testServer() {
 }
 
 function useForArt() {
-  serverStore.setCurrentServer?.(props.server)
-  serverStore.setActiveArtServer?.(props.server.id)
+  serverStore.setCurrentServer?.(props.server.id)
+  serverStore.startEditingServer?.(props.server.id)
 }
 
 function useForText() {
-  serverStore.setCurrentServer?.(props.server)
+  serverStore.setCurrentServer?.(props.server.id)
   serverStore.setActiveTextServer?.(props.server.id)
 }
 </script>

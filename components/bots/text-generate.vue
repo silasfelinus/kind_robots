@@ -15,10 +15,10 @@
           class="select select-bordered w-full rounded-2xl font-semibold"
           :class="props.compact ? 'select-sm text-sm' : 'min-h-14 text-base'"
           :value="selectedServerId"
-          :disabled="isResponding || !serverOptions.length"
+          :disabled="isResponding"
           @change="handleServerChange"
         >
-          <option disabled value="">Select text server</option>
+          <option value="">Platform Text · Mana</option>
 
           <option
             v-for="server in serverOptions"
@@ -57,19 +57,20 @@
     </div>
 
     <div
-      v-if="activeServer"
       class="rounded-2xl border border-base-300 bg-base-200/70 p-3 text-xs font-semibold text-base-content/70"
     >
       <div class="flex flex-wrap items-center gap-2">
         <span class="badge badge-primary badge-sm rounded-2xl">
-          {{ getServerEngineLabel(activeServer) }}
+          {{ activeServer ? getServerEngineLabel(activeServer) : 'Platform' }}
         </span>
 
         <span class="truncate">
           {{
-            activeServer.title ||
-            activeServer.label ||
-            `Server #${activeServer.id}`
+            activeServer
+              ? activeServer.title ||
+                activeServer.label ||
+                `Server #${activeServer.id}`
+              : 'Platform text generation uses mana'
           }}
         </span>
       </div>
@@ -111,25 +112,20 @@ import { useManaStore } from '@/stores/manaStore'
 
 const props = withDefaults(
   defineProps<{
-    // The text to generate from. Bind with v-model:prompt.
     prompt?: string
-    // Optional bot/recipient context so the created chat is owned correctly.
     botId?: number | null
     recipientId?: number | null
     characterId?: number | null
     isPublic?: boolean
-    // Generation params.
     model?: string
     temperature?: number
     maxTokens?: number
-    // UI.
     label?: string
     busyLabel?: string
     icon?: string
     compact?: boolean
     showResult?: boolean
     showMessage?: boolean
-    // Clear the bound prompt after a successful send.
     clearOnSuccess?: boolean
   }>(),
   {
@@ -168,8 +164,14 @@ const statusMessage = ref('')
 const statusTone = ref<'success' | 'error'>('success')
 const resultText = ref('')
 
-// Use the store's canonical text-server list rather than re-deriving it.
-const serverOptions = computed<Server[]>(() => serverStore.textServers)
+const serverOptions = computed<Server[]>(() => {
+  return serverStore.textServers.filter((server) => {
+    return (
+      server.isActive &&
+      ['OPENAI', 'ANTHROPIC', 'CUSTOM'].includes(server.serverType)
+    )
+  })
+})
 
 const activeServer = computed<Server | null>(
   () => serverStore.activeTextServer ?? null,
@@ -179,27 +181,32 @@ const selectedServerId = computed(() =>
   activeServer.value?.id ? String(activeServer.value.id) : '',
 )
 
-// Browser-transport / user-owned servers are free; family is free; otherwise
-// the user needs a positive balance. Exact cost is enforced server-side.
+const selectedServerIsFree = computed(() => {
+  const server = activeServer.value
+
+  if (!server) return false
+  if (server.userId === userStore.userId) return true
+  if (server.isPublic && !server.isOfficial) return true
+
+  return (
+    server.accessMode === 'BROWSER' ||
+    server.accessMode === 'LOCAL' ||
+    server.accessMode === 'TAILSCALE'
+  )
+})
+
 const canAfford = computed(() => {
   if (manaStore.isFamily) return true
-  const server = activeServer.value
-  // No server, or a metered platform server → needs mana.
-  const metered =
-    !server || (server as Server & { isMetered?: boolean }).isMetered
-  if (!metered) return true
+  if (selectedServerIsFree.value) return true
+
   return manaStore.balance > 0
 })
 
 const hasPrompt = computed(() => props.prompt.trim().length > 0)
 
-const canClick = computed(
-  () =>
-    !isResponding.value &&
-    hasPrompt.value &&
-    !!activeServer.value &&
-    canAfford.value,
-)
+const canClick = computed(() => {
+  return !isResponding.value && hasPrompt.value && canAfford.value
+})
 
 onMounted(async () => {
   if (!serverStore.hasLoaded) {
@@ -213,9 +220,13 @@ function setStatus(message: string, tone: 'success' | 'error') {
 }
 
 function getServerEngineLabel(server: Server): string {
-  if (server.serverType === 'OPENAI_COMPATIBLE') return 'OpenAI-Compatible'
-  if (server.serverType === 'TEXT') return 'Text'
-  return server.serverType || 'Text'
+  if (server.serverType === 'OPENAI') return 'OpenAI'
+  if (server.serverType === 'ANTHROPIC') return 'Anthropic'
+  if (server.serverType === 'CUSTOM') return 'Custom'
+  if (server.serverType === 'COMFY') return 'Comfy'
+  if (server.serverType === 'A1111') return 'A1111'
+
+  return 'Text'
 }
 
 function getServerDisplayLabel(server: Server): string {
@@ -243,17 +254,15 @@ async function handleGenerate() {
   const content = props.prompt.trim()
 
   if (!content || isResponding.value) return
-  if (!activeServer.value) {
-    setStatus('Select a text server first.', 'error')
-    return
-  }
 
   isResponding.value = true
   statusMessage.value = ''
   resultText.value = ''
 
+  const runtimeServer = activeServer.value
+  const runtimeServerId = runtimeServer?.id ?? null
+
   try {
-    // Create the chat first so streamResponse has something to attach to.
     const newChat = await chatStore.addChat({
       botId: props.botId ?? undefined,
       content,
@@ -262,7 +271,7 @@ async function handleGenerate() {
       type: props.botId ? 'ToBot' : 'ToForum',
       recipientId: props.recipientId ?? props.botId ?? undefined,
       characterId: props.characterId ?? null,
-      serverId: activeServer.value.id ?? null,
+      serverId: runtimeServerId,
     } as Parameters<typeof chatStore.addChat>[0])
 
     if (!newChat?.id) {
@@ -273,13 +282,11 @@ async function handleGenerate() {
       emit('update:prompt', '')
     }
 
-    // streamResponse promotes guests, runs the mana gate, and charges on
-    // success. A 402 (insufficient mana) surfaces here as a thrown error.
     const text = await chatStore.streamResponse(newChat.id, {
-      model: props.model || activeServer.value.model || 'gpt-4o-mini',
+      model: props.model || runtimeServer?.model || 'gpt-4o-mini',
       temperature: props.temperature,
       maxTokens: props.maxTokens,
-      serverId: activeServer.value.id ?? null,
+      serverId: runtimeServerId,
     })
 
     resultText.value = text
@@ -290,7 +297,6 @@ async function handleGenerate() {
     const message =
       error instanceof Error ? error.message : 'Text generation failed.'
 
-    // Insufficient mana → point them at the wallet instead of a dead end.
     if (/mana|⚡/i.test(message)) {
       setStatus(`${message} Visit your wallet to top up.`, 'error')
     } else {

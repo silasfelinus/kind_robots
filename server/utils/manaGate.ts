@@ -34,7 +34,8 @@ export async function manaGate(
   if (!authorizationHeader?.startsWith('Bearer ')) {
     throw createError({
       statusCode: 401,
-      message: 'Authorization token is required in the format "Bearer <token>".',
+      message:
+        'Authorization token is required in the format "Bearer <token>".',
     })
   }
 
@@ -79,7 +80,7 @@ export async function manaGate(
     user,
     cost,
     free,
-    commit: async (refId: string, providerCostUsd?: number) => {
+    commit: async (_refId: string, _providerCostUsd?: number) => {
       if (cost <= 0) {
         return {
           balance,
@@ -99,16 +100,6 @@ export async function manaGate(
           mana: true,
         },
       })
-
-      await prisma.manaLedger.create({
-        data: {
-          userId: user.id,
-          kind: input.kind,
-          amount: -cost,
-          refId,
-          providerCostUsd: providerCostUsd ?? input.estCostUsd ?? null,
-        },
-      }).catch(() => null)
 
       return {
         balance: updated.mana ?? 0,

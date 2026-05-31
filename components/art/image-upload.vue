@@ -653,13 +653,7 @@ const connectedModelPayload = computed(() => {
 
 function getServerUrl(server: typeof serverStore.activeArtServer): string {
   if (!server) return ''
-  return (
-    server.browserBaseUrl ||
-    server.backendBaseUrl ||
-    server.baseUrl ||
-    server.apiLink ||
-    ''
-  )
+  return server.baseUrl || server.apiLink || ''
 }
 
 watchEffect(() => {

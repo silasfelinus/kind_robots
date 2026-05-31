@@ -110,13 +110,12 @@ export default defineEventHandler(async (event) => {
       capability: 'art',
     })
 
-    if (!server.allowBrowserRequests) {
-      throw createError({
-        statusCode: 403,
-        message: `Server "${server.title}" does not allow browser-generated uploads.`,
-      })
-    }
-
+    if (!server.isActive) {
+  throw createError({
+    statusCode: 400,
+    message: `Server "${server.title}" is not active.`,
+  })
+}
     const rawCfg = Number(requestData.cfg)
 
     const cfgValue = calculateCfg(

@@ -1,7 +1,7 @@
 <!-- /components/builder/builder-manager.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-[calc(100dvh-1rem)] max-h-[calc(100dvh-1rem)] min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
   >
     <header
       class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-100 px-4 py-3"
@@ -68,22 +68,22 @@
       <Transition name="builder-sheet-slide">
         <aside
           v-show="showSheet || isDesktop"
-          class="w-72 shrink-0 overflow-y-auto border-r border-base-300 bg-base-100 p-3"
+          class="min-h-0 w-72 shrink-0 overflow-hidden border-r border-base-300 bg-base-100 p-3"
         >
           <builder-sheet />
         </aside>
       </Transition>
 
-      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <div class="min-h-0 flex-1 overflow-y-auto p-3">
-          <builder-stage />
-        </div>
-
-        <div class="shrink-0 border-t border-base-300 bg-base-100/70 p-2">
-          <builder-hand />
-        </div>
+      <main class="min-h-0 min-w-0 flex-1 overflow-y-auto p-3">
+        <builder-stage />
       </main>
     </div>
+
+    <footer
+      class="shrink-0 border-t border-base-300 bg-base-100/90 p-2 shadow-[0_-0.75rem_1.5rem_rgba(0,0,0,0.08)] backdrop-blur"
+    >
+      <builder-hand />
+    </footer>
 
     <Teleport to="body">
       <Transition name="builder-modal-fade">
